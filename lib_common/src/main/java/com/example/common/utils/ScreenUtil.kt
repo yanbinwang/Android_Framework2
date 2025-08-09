@@ -27,8 +27,10 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import com.example.common.BaseApplication
 import com.example.common.R
+import com.example.common.utils.ScreenUtil.isNavBarVisible
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -147,6 +149,14 @@ object ScreenUtil {
         return false
     }
 
+    /**
+     * 是否具备底部导航栏
+     */
+    fun View.isNavBarVisible(): Boolean {
+        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
+    }
+
 //    private fun getAppUsableScreenSize(context: Context): Point {
 //        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
 //        val display = windowManager?.defaultDisplay
@@ -214,7 +224,10 @@ object ScreenUtil {
 }
 
 /**
- * 全屏展示
+ * 全屏展示 -> onCreate的super()后调用
+ * window.decorView 是窗口的根视图（整个界面的最顶层容器），它的初始化早于 setContentView：
+ * 当 Activity 被创建时，系统会先初始化 Window 对象，decorView 作为 Window 的一部分，此时已经存在（即使内容视图还未加载）。
+ * setContentView 的作用是将布局文件加载到 decorView 的子容器中（通常是 android.R.id.content 对应的容器），但不影响 decorView 本身的存在。
  */
 fun Window.applyFullScreen() {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -281,39 +294,52 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
     // 5. 设置为 decorView 背景（此时两者会叠加显示）
     decorView.background = combinedDrawable
-    // 6. 给目标 View（如 decorView）设置布局变化监听
-    var lastNavBottom = -1 // 定义变量记录上一次导航栏高度（初始值设为-1，确保首次能触发）
-    decorView.removeOnLayoutChangeListener(null)
-    val layoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    // 6. 处理导航栏高度变化
+    var lastNavBottom = -1
+    /**
+     * 监听视图自身布局边界的变化，当视图的位置（left/top/right/bottom）或尺寸（宽高）发生改变时触发
+     * 视图首次布局完成时。
+     * 视图因父布局调整、屏幕旋转、动态修改尺寸等原因发生布局重绘时。
+     * 调用 requestLayout() 强制重绘后
+     */
+    var layoutListener: View.OnLayoutChangeListener? = null
+    layoutListener?.let { decorView.removeOnLayoutChangeListener(it) }
+    layoutListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        // 只有当导航栏高度与上一次不同，且paddingBottom不匹配时才更新
-        if (navBottom != lastNavBottom && v.paddingBottom != navBottom) {
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
-            bottomBarDrawable.updateNavigationBarHeight(navBottom)
-            lastNavBottom = navBottom // 更新记录的高度
-        }
-    }  // 定义变量存储布局变化监听实例（方便后续移除）
-    decorView.addOnLayoutChangeListener(layoutChangeListener)
-    // 7. 监听Insets变化（处理动态更新）
-    // 先移除旧的监听器，避免累积
+        lastNavBottom = updateNavBar(v, bottomBarDrawable, navBottom, lastNavBottom)
+    }
+    decorView.addOnLayoutChangeListener(layoutListener)
+    /**
+     * 监听系统窗口边界（如状态栏、导航栏、输入法等）对当前视图的影响，当这些系统元素的尺寸或位置变化时触发（如导航栏显示 / 隐藏、输入法弹出 / 收起）
+     * 视图首次附加到窗口时。
+     * 系统栏（状态栏 / 导航栏）显示 / 隐藏或尺寸变化时（如全屏模式切换）。
+     * 输入法弹出 / 收起时。
+     * 调用 ViewCompat.requestApplyInsets(view) 主动请求更新时。
+     */
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
-    // 再设置新的监听器
     ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
-        // 1. 获取系统栏的尺寸（单位：px）
-//        val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()) // 状态栏高度
-        val navigationBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars()) // 导航栏高度（含底部或侧边）
-//        val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom // 输入法的高度（当输入法弹出时）
-        // 2. 仅设置底部padding，其他方向保持不变
-        val navBottom = navigationBarInsets.bottom
-        // 仅在高度变化且padding不匹配时更新
-        if (navBottom != lastNavBottom && v.paddingBottom != navBottom) {
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navigationBarInsets.bottom)
-            bottomBarDrawable.updateNavigationBarHeight(navBottom)
-            lastNavBottom = navBottom // 更新记录的高度
-        }
+        val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        lastNavBottom = updateNavBar(v, bottomBarDrawable, navBottom, lastNavBottom)
         WindowInsetsCompat.CONSUMED
     }
+}
+
+/**
+ * 更新导航栏高度和 padding
+ */
+private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int, lastNavBottom: Int): Int {
+    val actualNavBottom = if (!v.isNavBarVisible()) 0 else getNavigationBarHeight()
+    if (actualNavBottom == navBottom && navBottom != lastNavBottom) {
+        if (v.paddingBottom != navBottom) {
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+        }
+        bottomBarDrawable.updateNavigationBarHeight(navBottom)
+        // 返回新高度
+        return navBottom
+    }
+    // 无变化，返回原高度
+    return lastNavBottom
 }
 
 /**
@@ -327,14 +353,14 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         color = backgroundColor
         isAntiAlias = true
         style = Paint.Style.FILL
+        alpha = 255 // 显式设置不透明，避免默认值异常
     }
 
     override fun draw(canvas: Canvas) {
         if (bounds.isEmpty || navigationBarHeight <= 0) return
-        // 计算绘制区域
-        val top = (bounds.height() - navigationBarHeight).toFloat()
-        val bottom = bounds.height().toFloat()
-        // 绘制底部色块
+        // 兼容低版本的坐标计算（使用绝对坐标，避免高度计算偏差）
+        val bottom = bounds.bottom.toFloat()
+        val top = (bottom - navigationBarHeight).coerceAtLeast(bounds.top.toFloat())
         if (top < bottom) {
             canvas.drawRect(bounds.left.toFloat(), top, bounds.right.toFloat(), bottom, paint)
         }
@@ -342,6 +368,7 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
 
     override fun onBoundsChange(bounds: Rect) {
         super.onBoundsChange(bounds)
+        // 低版本可能需要显式触发重绘
         invalidateSelf()
     }
 
@@ -364,7 +391,13 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         val validHeight = max(0, height)
         if (navigationBarHeight != validHeight) {
             navigationBarHeight = validHeight
-            invalidateSelf()
+            // 低版本兼容：通过 Callback 触发重绘
+            if (callback != null) {
+                callback?.invalidateDrawable(this)
+            } else {
+                // 若没有 Callback，尝试通过 decorView 强制重绘
+                (callback as? View)?.invalidate()
+            }
         }
     }
 
