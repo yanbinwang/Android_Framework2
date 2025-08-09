@@ -97,7 +97,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         setAnimation()
         setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         setOnDismissListener {
-            if (hasLight) {
+            if (hasLight && popupAnimStyle != TRANSLATE) {
                 layoutParams?.alpha = 1f
                 window.attributes = layoutParams
             }
@@ -180,7 +180,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     private fun setAttributes() {
-        if (hasLight) {
+        if (hasLight && popupAnimStyle != TRANSLATE) {
             layoutParams?.alpha = 0.7f
             window.attributes = layoutParams
         }
