@@ -1,7 +1,6 @@
 package com.example.mvvm.widget.dialog
 
 import com.example.common.base.BaseTopSheetDialogFragment
-import com.example.mvvm.R
 import com.example.mvvm.databinding.ViewDialogTestTopBinding
 
 /**
@@ -9,6 +8,5 @@ import com.example.mvvm.databinding.ViewDialogTestTopBinding
  * @author
  */
 class TestTopDialog : BaseTopSheetDialogFragment<ViewDialogTestTopBinding>() {
-
 
 }

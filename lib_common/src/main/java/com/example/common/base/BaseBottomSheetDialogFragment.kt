@@ -3,6 +3,7 @@ package com.example.common.base
 import android.app.Activity
 import android.app.Dialog
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -78,8 +79,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
@@ -98,7 +99,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                 it.onEvent()
             }
         }
-        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -246,10 +246,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         }
     }
 
-    protected open fun isImmersionBarEnabled(): Boolean {
-        return false
-    }
-
     protected open fun isBindingEnabled(): Boolean {
         return true
     }
@@ -264,12 +260,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
-            navigationBarDarkIcon(navigationBarDark, 0.2f)
+            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
             init()
         }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+        initImmersionBar(false)
     }
 
     override fun initEvent() {

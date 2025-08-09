@@ -79,9 +79,13 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
     override fun initEvent() {
         if (hasAnimation) {
             //当布局show出来的时候执行开始动画
-            setOnShowListener { rootView?.startAnimation(context.elasticityEnter()) }
+            setOnShowListener {
+                rootView?.startAnimation(context.elasticityEnter())
+            }
             //当布局销毁时执行结束动画
-            setOnDismissListener { rootView?.startAnimation(context.elasticityExit()) }
+            setOnDismissListener {
+                rootView?.startAnimation(context.elasticityExit())
+            }
         }
         //默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
         setDialogCancelable(false)

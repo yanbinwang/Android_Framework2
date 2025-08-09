@@ -12,9 +12,4 @@ import com.example.mvvm.databinding.ViewDialogTestBottomBinding
  */
 class TestBottomDialog : BaseBottomSheetDialogFragment<ViewDialogTestBottomBinding>() {
 
-    override fun initView(savedInstanceState: Bundle?) {
-        super.initView(savedInstanceState)
-        initImmersionBar(false,false,R.color.bgBlack)
-    }
-
 }

@@ -3,6 +3,7 @@ package com.example.common.base
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -32,6 +33,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -110,7 +112,6 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
                 it.onEvent()
             }
         }
-        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -144,10 +145,6 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         if (!lazyData) initData()
     }
 
-    protected open fun isImmersionBarEnabled(): Boolean {
-        return false
-    }
-
     protected open fun isBindingEnabled(): Boolean {
         return true
     }
@@ -156,10 +153,12 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         mActivity?.window?.apply {
             setStatusBarLightMode(statusBarDark)
+            setNavigationBarLightMode(navigationBarDark)
         }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
+            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
             init()
         }
     }

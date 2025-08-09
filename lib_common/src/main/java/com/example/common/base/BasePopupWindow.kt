@@ -26,11 +26,13 @@ import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.padding
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -86,6 +88,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         height = if (popupHeight < 0) popupHeight else popupHeight.pt
         isFocusable = true
         isOutsideTouchable = true
+        isClippingEnabled = false // 完全撑满整个屏幕
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         lifecycleOwner.doOnDestroy {
             mBinding?.unbind()
@@ -97,7 +100,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         setAnimation()
         setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         setOnDismissListener {
-            if (hasLight && popupAnimStyle != TRANSLATE) {
+            if (hasLight) {
                 layoutParams?.alpha = 1f
                 window.attributes = layoutParams
             }
@@ -180,9 +183,12 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     private fun setAttributes() {
-        if (hasLight && popupAnimStyle != TRANSLATE) {
+        if (hasLight) {
             layoutParams?.alpha = 0.7f
             window.attributes = layoutParams
+        }
+        if (popupAnimStyle == TRANSLATE) {
+            mBinding?.root.padding(bottom = getNavigationBarHeight())
         }
     }
 

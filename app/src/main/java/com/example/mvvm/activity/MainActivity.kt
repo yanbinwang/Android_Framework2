@@ -17,7 +17,6 @@ import com.example.common.utils.function.pt
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
-import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
@@ -384,7 +383,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private val timerBuilder by lazy { TimerBuilder(this) }
 
     private val gallery by lazy { GalleryHelper(this) }
-    private val sexPop by lazy { SelectLabelPopup<String>(this) { it }.apply { setParams(listOf("男", "女")) } }
 
     override fun isImmersionBarEnabled() = false
 
@@ -405,8 +403,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 ////                    navigation(ARouterPath.TestActivity)
 //                }
 //            }
-            sexPop.show()
-//            testDialog.show(supportFragmentManager)
+            testDialog.show(supportFragmentManager)
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)
