@@ -36,6 +36,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.math.max
+import kotlin.properties.Delegates
 
 /**
  * @description 屏幕数值相关类
@@ -272,6 +273,12 @@ fun Window.applyFullScreen() {
 }
 
 /**
+ * 委托属性 (为 Window 定义扩展属性，用于保存监听器的持久化引用)
+ * 让一个可变属性（var） 可以先声明、后初始化，但编译期强制要求你必须初始化（否则运行时抛异常），且属性的类型是非空类型（无需 ? 声明可为空）
+ */
+private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegates.notNull()
+
+/**
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
  */
 fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
@@ -294,27 +301,33 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
         }
     } ?: color(R.color.appWindowBackground).toDrawable()
     // 3. 创建底部色块 Drawable
-    val bottomBarDrawable = NavigationBarDrawable(color(mNavigationBarColor))
+    val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(color(mNavigationBarColor))
+    bottomBarDrawable.paint.color = color(mNavigationBarColor) // 确保颜色正确
     // 4. 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
     // 5. 设置为 decorView 背景（此时两者会叠加显示）
-    decorView.background = combinedDrawable
+    val currentBackground = decorView.background
+    if (currentBackground !is LayerDrawable ||
+        currentBackground.numberOfLayers != 2 ||
+        currentBackground.getDrawable(0) != windowBackground ||
+        currentBackground.getDrawable(1) != bottomBarDrawable
+    ) {
+        decorView.background = combinedDrawable
+    }
     // 6. 处理导航栏高度变化
-    var lastNavBottom = -1
     /**
      * 监听视图自身布局边界的变化，当视图的位置（left/top/right/bottom）或尺寸（宽高）发生改变时触发
      * 视图首次布局完成时。
      * 视图因父布局调整、屏幕旋转、动态修改尺寸等原因发生布局重绘时。
      * 调用 requestLayout() 强制重绘后
      */
-    var layoutListener: View.OnLayoutChangeListener? = null
-    layoutListener?.let { decorView.removeOnLayoutChangeListener(it) }
-    layoutListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    layoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        lastNavBottom = updateNavBar(v, bottomBarDrawable, navBottom, lastNavBottom)
+        updateNavBar(v, bottomBarDrawable, navBottom)
     }
-    decorView.addOnLayoutChangeListener(layoutListener)
+    layoutChangeListener.let { decorView.removeOnLayoutChangeListener(it) }
+    decorView.addOnLayoutChangeListener(layoutChangeListener)
     /**
      * 监听系统窗口边界（如状态栏、导航栏、输入法等）对当前视图的影响，当这些系统元素的尺寸或位置变化时触发（如导航栏显示 / 隐藏、输入法弹出 / 收起）
      * 视图首次附加到窗口时。
@@ -325,7 +338,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
     ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        lastNavBottom = updateNavBar(v, bottomBarDrawable, navBottom, lastNavBottom)
+        updateNavBar(v, bottomBarDrawable, navBottom)
         WindowInsetsCompat.CONSUMED
     }
 }
@@ -333,18 +346,12 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
 /**
  * 更新导航栏高度和 padding
  */
-private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int, lastNavBottom: Int): Int {
+private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int) {
 //    val actualNavBottom = if (!v.hasNavigationBar()) 0 else getNavigationBarHeight()
-    if (navBottom != lastNavBottom) {
-        if (v.paddingBottom != navBottom) {
-            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
-        }
-        bottomBarDrawable.updateNavigationBarHeight(navBottom)
-        // 返回新高度
-        return navBottom
+    if (v.paddingBottom != navBottom) {
+        v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
     }
-    // 无变化，返回原高度
-    return lastNavBottom
+    bottomBarDrawable.updateNavigationBarHeight(navBottom)
 }
 
 /**
@@ -354,7 +361,7 @@ private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navB
  * navigationBarHeight 底部色块高度
  */
 class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigationBarHeight: Int = 0) : Drawable() {
-    private val paint = Paint().apply {
+    val paint = Paint().apply {
         color = backgroundColor
         isAntiAlias = true
         style = Paint.Style.FILL
