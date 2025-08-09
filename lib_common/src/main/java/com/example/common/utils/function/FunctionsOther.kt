@@ -1,10 +1,8 @@
 package com.example.common.utils.function
 
-import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.os.Build
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -15,17 +13,18 @@ import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
+import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.manager.AppManager
@@ -40,7 +39,6 @@ import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
-import kotlin.math.max
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -85,49 +83,36 @@ fun getManifestString(name: String): String? {
  */
 fun getStatusBarHeight(): Int {
 //    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
-    // 1. 获取基础状态栏高度（不含刘海）
     val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
-    // 2. 获取顶部刘海高度（仅API 28+支持）
-    val cutoutHeight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-        // 取得当前选中页面
-        AppManager.currentActivity()?.getTopCutoutHeight(baseStatusBarHeight)
+    val currentActivity = AppManager.currentActivity()
+    return if (null == currentActivity) {
+        baseStatusBarHeight
     } else {
-        0
+        val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
+        insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: baseStatusBarHeight
     }
-    // 3. 总和 = 基础状态栏高度 + 顶部刘海高度
-    return baseStatusBarHeight + cutoutHeight.orZero
-}
-
-/**
- * 获取顶部刘海高度（整个状态栏-->仅支持 Android 9.0+）
- * @return 刘海高度（无刘海或不支持时返回 0）
- */
-@RequiresApi(Build.VERSION_CODES.P)
-fun Activity?.getTopCutoutHeight(baseStatusBarHeight: Int = 0): Int {
-    this ?: return 0
-    // 1. 获取 WindowInsets（可能为 null，需判空）
-    val windowInsets = window?.decorView?.rootWindowInsets
-    val displayCutout = windowInsets?.displayCutout ?: return 0
-    // 2. 解析顶部刘海区域
-    var cutoutHeight = 0
-    displayCutout.boundingRects.forEach { rect ->
-        // 顶部刘海的 top 坐标为 0（状态栏起始位置）
-        if (rect.top == 0) {
-            // 只保留正数，负数说明无超出的刘海
-            val currentCutout = maxOf(cutoutHeight, rect.bottom) - baseStatusBarHeight
-            cutoutHeight = max(0, currentCutout)
-        }
-    }
-    return cutoutHeight
 }
 
 /**
  * 获取底栏高度(静态默认值)
  */
 fun getNavigationBarHeight(): Int {
-    val mContext = BaseApplication.instance.applicationContext
-    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
-    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+//    val mContext = BaseApplication.instance.applicationContext
+//    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+//    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+    val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "navigation_bar_height")
+    val currentActivity = AppManager.currentActivity()
+    return if (null == currentActivity) {
+        baseNavigationBarHeight
+    } else {
+        val decodeView = currentActivity.window.decorView
+        if (decodeView.hasNavigationBar()) {
+            val insets = ViewCompat.getRootWindowInsets(decodeView)
+            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+        } else {
+            0
+        }
+    }
 }
 
 /**
