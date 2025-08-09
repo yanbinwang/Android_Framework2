@@ -353,7 +353,7 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         color = backgroundColor
         isAntiAlias = true
         style = Paint.Style.FILL
-        alpha = 255 // 显式设置不透明，避免默认值异常
+//        alpha = 255 // 显式设置不透明，避免默认值异常
     }
 
     override fun draw(canvas: Canvas) {
