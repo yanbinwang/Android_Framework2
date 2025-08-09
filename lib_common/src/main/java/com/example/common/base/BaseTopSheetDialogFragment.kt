@@ -2,6 +2,7 @@ package com.example.common.base
 
 import android.app.Activity
 import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Looper
 import android.view.LayoutInflater
@@ -32,6 +33,8 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.setNavigationBarDrawable
+import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
@@ -70,8 +73,8 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
+    private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
@@ -90,7 +93,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
                 it.onEvent()
             }
         }
-        if (isImmersionBarEnabled()) initImmersionBar()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -151,10 +153,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         }
     }
 
-    protected open fun isImmersionBarEnabled(): Boolean {
-        return false
-    }
-
     protected open fun isBindingEnabled(): Boolean {
         return true
     }
@@ -163,15 +161,20 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         dialog?.window?.apply {
             setStatusBarLightMode(statusBarDark)
+            setNavigationBarLightMode(navigationBarDark)
+            setNavigationBarDrawable(navigationBarColor)
         }
         immersionBar?.apply {
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
+            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
             init()
         }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+        // 底部透明/白电池
+        initImmersionBar(false,false, R.color.bgTransparent)
     }
 
     override fun initEvent() {

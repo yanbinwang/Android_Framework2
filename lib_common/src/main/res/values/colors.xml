@@ -24,4 +24,5 @@
     <!-- 特定字体的颜色,不管何种模式基本不可改变（每种颜色最多3种样式，需要UI统一） -->
     <color name="bgShadow">#ff000000</color>
     <color name="bgOverlay">#4c000000</color>
+    <color name="bgTransparent">#00000000</color>
 </resources>

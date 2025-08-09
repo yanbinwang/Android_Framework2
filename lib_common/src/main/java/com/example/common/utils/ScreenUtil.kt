@@ -281,7 +281,21 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
     // 5. 设置为 decorView 背景（此时两者会叠加显示）
     decorView.background = combinedDrawable
-    // 6. 监听Insets变化（处理动态更新）
+    // 6. 给目标 View（如 decorView）设置布局变化监听
+    var lastNavBottom = -1 // 定义变量记录上一次导航栏高度（初始值设为-1，确保首次能触发）
+    decorView.removeOnLayoutChangeListener(null)
+    val layoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+        val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
+        val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        // 只有当导航栏高度与上一次不同，且paddingBottom不匹配时才更新
+        if (navBottom != lastNavBottom && v.paddingBottom != navBottom) {
+            v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
+            bottomBarDrawable.updateNavigationBarHeight(navBottom)
+            lastNavBottom = navBottom // 更新记录的高度
+        }
+    }  // 定义变量存储布局变化监听实例（方便后续移除）
+    decorView.addOnLayoutChangeListener(layoutChangeListener)
+    // 7. 监听Insets变化（处理动态更新）
     // 先移除旧的监听器，避免累积
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
     // 再设置新的监听器
@@ -289,11 +303,14 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
         // 1. 获取系统栏的尺寸（单位：px）
 //        val statusBarInsets = insets.getInsets(WindowInsetsCompat.Type.statusBars()) // 状态栏高度
         val navigationBarInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars()) // 导航栏高度（含底部或侧边）
+//        val imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom // 输入法的高度（当输入法弹出时）
         // 2. 仅设置底部padding，其他方向保持不变
         val navBottom = navigationBarInsets.bottom
-        if (v.paddingBottom != navBottom) {
+        // 仅在高度变化且padding不匹配时更新
+        if (navBottom != lastNavBottom && v.paddingBottom != navBottom) {
             v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navigationBarInsets.bottom)
             bottomBarDrawable.updateNavigationBarHeight(navBottom)
+            lastNavBottom = navBottom // 更新记录的高度
         }
         WindowInsetsCompat.CONSUMED
     }
