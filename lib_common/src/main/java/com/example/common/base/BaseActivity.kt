@@ -24,6 +24,7 @@ import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
@@ -46,6 +47,7 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
@@ -100,6 +102,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -227,7 +230,9 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         window?.apply {
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
-            setNavigationBarDrawable(navigationBarColor)
+            setNavigationBarDrawable(navigationBarColor) {
+                onWindowInsetsChanged?.invoke(it)
+            }
         }
         immersionBar?.apply {
             reset()
@@ -291,8 +296,10 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     override fun onDestroy() {
         super.onDestroy()
+        window?.removeNavigationBarDrawable()
         removeBackCallback()
         clearOnActivityResultListener()
+        clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
         for ((key, value) in dataManager) {
             key.removeObserver(value)
@@ -363,6 +370,57 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     protected open fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+
+    /**
+     * 用于设置自定义Insets处理逻辑
+     * var lastNavBarBottom = 0
+     * var lastImeBottom = 0
+     * var lastImeVisible = false
+     * ViewCompat.setOnApplyWindowInsetsListener(decorView) { _, insets ->
+     *     // 1. 精准获取导航栏底部高度（不受键盘影响）
+     *     val navBarBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+     *     // 2. 精准获取软键盘高度及显示状态
+     *     val imeType = WindowInsetsCompat.Type.ime()
+     *     val isImeVisible = insets.isVisible(imeType)
+     *     val imeBottom = if (isImeVisible) insets.getInsets(imeType).bottom else 0
+     *     // 3. 只有当任意值变化时，才触发回调（避免频繁调用）
+     *     if (navBarBottom != lastNavBarBottom
+     *         || imeBottom != lastImeBottom
+     *         || isImeVisible != lastImeVisible
+     *     ) {
+     *         lastNavBarBottom = navBarBottom
+     *         lastImeBottom = imeBottom
+     *         lastImeVisible = isImeVisible
+     *         // 通过回调通知外部
+     *         onInsetsChanged(navBarBottom, imeBottom, isImeVisible)
+     *     }
+     *     // 4. 不修改原始 insets，让系统正常分发给子视图（关键！）
+     *     insets
+     * }
+     * // 场景1：处理键盘弹出/收起
+     * if (isImeVisible) {
+     * // 键盘显示：调整输入框位置，避免被键盘遮挡
+     * editText.translationY = -imeBottom.toFloat()
+     * } else {
+     * // 键盘隐藏：恢复输入框位置
+     * editText.translationY = 0f
+     * }
+     * // 场景2：适配导航栏高度（如底部按钮距离屏幕底部的距离）
+     * bottomButton.setPadding(0, 0, 0, navBarBottom)
+     * // 场景3：结合两者（如聊天界面，键盘弹出时同时考虑导航栏）
+     * if (isImeVisible) {
+     * // 键盘高度已包含导航栏时，可能需要减去导航栏高度
+     * val actualKeyboardHeight = imeBottom - navBarBottom
+     * messageList.setPadding(0, 0, 0, actualKeyboardHeight)
+     *  }
+     */
+    protected open fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+        this.onWindowInsetsChanged = onWindowInsetsChanged
+    }
+
+    protected open fun clearOnWindowInsetsChanged() {
+        onWindowInsetsChanged = null
     }
     // </editor-fold>
 

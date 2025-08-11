@@ -7,7 +7,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
-import com.example.common.utils.FormActivityUtil
 import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.clear
@@ -35,7 +34,6 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     init {
         mActivity.lifecycle.addObserver(this)
         addWebView()
-        FormActivityUtil.setAct(mActivity)
     }
 
     private fun addWebView() {

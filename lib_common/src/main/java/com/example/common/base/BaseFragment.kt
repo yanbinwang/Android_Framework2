@@ -187,11 +187,11 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+    protected open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
 
-    open fun clearOnActivityResultListener() {
+    protected open fun clearOnActivityResultListener() {
         onActivityResultListener = null
     }
     // </editor-fold>

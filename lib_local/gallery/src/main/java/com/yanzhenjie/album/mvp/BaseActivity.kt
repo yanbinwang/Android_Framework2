@@ -12,6 +12,7 @@ import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
+import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
@@ -87,6 +88,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
 
     override fun onDestroy() {
         super.onDestroy()
+        window?.removeNavigationBarDrawable()
         AppManager.removeActivity(this)
     }
 

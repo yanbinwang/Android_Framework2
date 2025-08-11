@@ -39,6 +39,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
+import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
@@ -289,6 +290,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun onDestroy() {
         super.onDestroy()
+        dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
@@ -301,11 +303,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+    protected open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
 
-    open fun clearOnActivityResultListener() {
+    protected open fun clearOnActivityResultListener() {
         onActivityResultListener = null
     }
 
