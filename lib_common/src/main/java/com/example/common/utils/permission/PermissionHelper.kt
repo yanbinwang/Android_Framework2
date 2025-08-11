@@ -79,11 +79,12 @@ class PermissionHelper(private val activity: FragmentActivity) {
                 reason += "(\u0020${subscript}\u0020)\u0020${onReason(index)}\n"
             }
         }
-        dialog.apply {
-            setParams(message = string(R.string.permissionGoSetting, reason))
-            setDialogListener({ XXPermissions.startPermissionActivity(context, permissions) })
-            show()
-        }
+        dialog
+            .setParams(message = string(R.string.permissionGoSetting, reason))
+            .setDialogListener({
+                XXPermissions.startPermissionActivity(activity, permissions)
+            })
+            .show()
     }
 
     /**
