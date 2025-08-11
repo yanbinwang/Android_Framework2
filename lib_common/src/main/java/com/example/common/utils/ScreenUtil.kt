@@ -281,7 +281,7 @@ private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegate
 /**
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
  */
-fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
+fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit) = {}) {
     // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
     // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
@@ -325,6 +325,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         updateNavBar(v, bottomBarDrawable, navBottom)
+        onWindowInsetsChanged.invoke(insets)
     }
     layoutChangeListener.let { decorView.removeOnLayoutChangeListener(it) }
     decorView.addOnLayoutChangeListener(layoutChangeListener)
@@ -339,6 +340,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int) {
     ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         updateNavBar(v, bottomBarDrawable, navBottom)
+        onWindowInsetsChanged.invoke(insets)
         WindowInsetsCompat.CONSUMED
     }
 }
@@ -415,6 +417,26 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         }
     }
 
+}
+
+/**
+ * 释放导航栏相关的监听器和资源
+ */
+fun Window.removeNavigationBarDrawable() {
+    // 1. 移除布局变化监听器
+    try {
+        decorView.removeOnLayoutChangeListener(layoutChangeListener)
+    } catch (e: Exception) {
+        // 防止未初始化时调用导致的异常（如未调用set就调用remove）
+        e.printStackTrace()
+    }
+    // 2. 移除WindowInsets监听器
+    ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
+    // 3. 重置decorView背景（避免自定义Drawable残留引用-->Dialog 的 Window 和 Activity 的 Window 是完全独立的两个实例，它们分别持有各自的decorView）
+    // 注意：若页面有自己的背景设置，可注释此行，避免覆盖业务背景
+    if (decorView.background is LayerDrawable) {
+        decorView.background = null
+    }
 }
 
 /**
