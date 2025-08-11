@@ -109,6 +109,7 @@ object NotificationUtil {
     /**
      * BaseApplication中初始化
      */
+    @JvmStatic
     fun init(context: Context) {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         // 避免重复创建渠道（检查是否已存在）
@@ -122,6 +123,7 @@ object NotificationUtil {
     /**
      * 带图片/跳转的通知栏
      */
+    @JvmStatic
     fun Context?.showSimpleNotification(
         title: String? = "",
         text: String? = "",
@@ -179,6 +181,7 @@ object NotificationUtil {
     /**
      * 创建通知栏
      */
+    @JvmStatic
     fun notify(id: Int, notification: Notification?) {
         notification ?: return
         val notifyAction = {
@@ -198,6 +201,7 @@ object NotificationUtil {
      * 避免重复创建渠道（Android 官方推荐）
      */
     @RequiresApi(Build.VERSION_CODES.O)
+    @JvmStatic
     fun NotificationManager.createNotificationChannelIfNeeded(channel: NotificationChannel) {
         getNotificationChannel(channel.id) ?: createNotificationChannel(channel)
     }
@@ -228,6 +232,7 @@ object NotificationUtil {
      * @param pendingIntent 点击通知后的跳转意图，默认为 null
      * @return 通知栏构建器实例
      */
+    @JvmStatic
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
         largeIconRes: Int = R.mipmap.ic_push_large,
@@ -269,6 +274,7 @@ object NotificationUtil {
      * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改。
      * 在 Android 12 及以上版本，对于一些特定的 PendingIntent 创建，要求必须使用 FLAG_IMMUTABLE 或 FLAG_MUTABLE 标志
      */
+    @JvmStatic
     fun Context.getPendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
         return PendingIntent.getActivity(this, requestCode, intent, flags)
     }
@@ -276,6 +282,7 @@ object NotificationUtil {
     /**
      * 配置可变性
      */
+    @JvmStatic
     fun getPendingIntentFlags(baseFlags: Int): Int {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
