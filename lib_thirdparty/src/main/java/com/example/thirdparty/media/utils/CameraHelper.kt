@@ -137,7 +137,11 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //            val intentFilter = IntentFilter()
 //            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
 //            mContext?.registerReceiver(eventReceiver, intentFilter)
-            mContext.doOnReceiver(observer, eventReceiver, IntentFilter().apply { addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS) })
+            mContext.doOnReceiver(observer, eventReceiver, IntentFilter().apply {
+                addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
+                addAction(Intent.ACTION_SCREEN_ON)
+                addAction(Intent.ACTION_SCREEN_OFF)
+            })
         }
     }
 
