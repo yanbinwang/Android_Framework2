@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -71,10 +72,26 @@ fun WebView?.refresh() {
  */
 fun WebView?.clear() {
     if (this == null) return
-    WebStorage.getInstance().deleteAllData() //清空WebView的localStorage
+    // 清除 WebView 的 浏览历史记录（不涉及缓存文件）
     clearHistory()
+    // WebView 会将网络请求的资源（如图片、JS、CSS 等）缓存到磁盘,参数 true 表示同时清除磁盘缓存，false 仅清除内存缓存
+    clearCache(true)
+    // 清除 WebView 的 LocalStorage 和 SessionStorage（属于 DOM 存储数据，非传统缓存）
+    WebStorage.getInstance().deleteAllData()
+    // 删除 WebView 存储表单数据、会话信息、应用缓存数据库等的 数据库文件（部分缓存相关数据）
     context.deleteDatabase("webview.db")
     context.deleteDatabase("webviewCache.db")
+    context.deleteDatabase("webviewAppCache.db")
+    // 清除 Cookie
+    val cookieManager = CookieManager.getInstance()
+    cookieManager.removeAllCookies { success ->
+        // 清除完成的回调（可选）
+        if (success) {
+            cookieManager.flush() // 强制同步到磁盘
+        }
+    }
+    // 清除表单自动填充数据
+    clearFormData()
 }
 
 /**

@@ -9,7 +9,6 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
 import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.clear
 import com.example.common.utils.function.load
 import com.example.common.utils.function.refresh
 import com.example.common.utils.function.setClient
@@ -29,7 +28,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
     private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
-    private val webView get() = webUtil.webView
+    private val webView get() = webUtil.getWebView()
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -39,8 +38,6 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     private fun addWebView() {
         webView?.byHardwareAccelerate()
         webView?.background(R.color.bgDefault)
-        webView?.settings?.useWideViewPort = true
-        webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), "JSCallAndroid")
         webView?.setClient(mBinding?.pbWeb, {
@@ -114,8 +111,6 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 webView?.removeJavascriptInterface("JSCallAndroid")
-                webView?.clear()
-//                webView = null
                 mBinding?.unbind()
                 mActivity.lifecycle.removeObserver(this)
             }
