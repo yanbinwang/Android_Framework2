@@ -17,11 +17,11 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentActivity
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
@@ -30,7 +30,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.common.utils.function.string
-import com.example.common.utils.permission.registerRequestPermissionWrapper
+import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
@@ -366,11 +366,10 @@ object NotificationUtil {
  * 通知弹框的Dialog要与页面强管理,不能使用object
  * 可在基类中初始化
  */
-class NotificationManager(private val mActivity: AppCompatActivity) {
+class NotificationManager(private val mActivity: FragmentActivity, wrapper: RequestPermissionRegistrar) {
     private val mDialog by lazy { AppDialog(mActivity) }
     private var mListener: (hasPermissions: Boolean) -> Unit = {}
-    private val mRequestPermissionWrapper = mActivity.registerRequestPermissionWrapper()
-    private val mRequestPermissionResult = mRequestPermissionWrapper.registerResult { isGranted ->
+    private val mRequestPermissionResult = wrapper.registerResult { isGranted ->
         if (isGranted) {
             mListener.invoke(true)
         } else {
@@ -378,7 +377,7 @@ class NotificationManager(private val mActivity: AppCompatActivity) {
                 .setParams(string(R.string.hint), string(R.string.permissionNotification))
                 .setDialogListener({
                     mActivity.navigateToNotificationSettings()
-                },{
+                }, {
                     mListener.invoke(false)
                 })
                 .show()
