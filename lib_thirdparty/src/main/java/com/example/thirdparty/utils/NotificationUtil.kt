@@ -32,6 +32,7 @@ import com.example.common.utils.function.dp
 import com.example.common.utils.function.string
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
@@ -381,6 +382,12 @@ class NotificationManager(private val mActivity: FragmentActivity, wrapper: Requ
                     mListener.invoke(false)
                 })
                 .show()
+        }
+    }
+
+    init {
+        mActivity.doOnDestroy {
+            mRequestPermissionResult.unregister()
         }
     }
 
