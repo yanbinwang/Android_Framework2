@@ -76,7 +76,7 @@ class PermissionHelper(private val activity: FragmentActivity) {
             // 字符串提示拼接
             if (hasCommonElements) {
                 subscript ++
-                reason += "(\u0020${subscript}\u0020)\u0020${onReason(index)}\n"
+                reason += "(\u0020${subscript}\u0020)\u0020\u0020${onReason(index)}\n"
             }
         }
         dialog
