@@ -41,7 +41,7 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
 
     override fun initEvent() {
         super.initEvent()
-        helper.setClientListener({}, { title ->
+        helper.setClientListener(onPageFinished = { title ->
             if (isTitleRequired) {
                 //当传输的title为空时，取一次网页自带的标题并且刷新按钮浮现
                 titleRoot.apply {
