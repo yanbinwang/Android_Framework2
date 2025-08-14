@@ -1,14 +1,9 @@
 package com.example.thirdparty.amap
 
 import android.app.Activity
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.graphics.Color
 import android.location.LocationManager
-import android.os.Build
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -27,12 +22,10 @@ import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
-import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.NotificationUtil.builder
 import com.example.thirdparty.utils.NotificationUtil.notificationId
-import com.example.thirdparty.utils.NotificationUtil.showSimpleNotification
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
