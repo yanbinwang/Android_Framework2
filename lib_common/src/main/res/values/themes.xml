@@ -21,6 +21,8 @@
         <item name="android:windowBackground">@color/appWindowBackground</item>
         <!-- 屏蔽页面加载过度页 -->
         <item name="android:windowDisablePreview">true</item>
+        <!-- 启用系统内容过渡动画（适配12+高版本） -->
+        <item name="android:windowContentTransitions">true</item>
         <!-- 主题深色强调色（API < 21 时影响状态栏颜色） -->
         <item name="colorPrimaryDark">@color/appPrimaryDark</item>
         <!-- 主题主色调（影响ActionBar、标题栏等背景） -->
@@ -93,6 +95,7 @@
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
     <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentTransitions">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>

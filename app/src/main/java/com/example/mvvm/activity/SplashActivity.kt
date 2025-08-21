@@ -84,6 +84,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
     private fun jump() {
         // 此时页面切换的间隙，窗口没有可显示的内容(启动页目前就是栈内最后一个页面,直接关闭会黑一下,然后才是拉起对应页面)
         navigation(ARouterPath.MainActivity)
+//        finishAfterTransition()
         // 延迟关闭启动页,解决黑屏问题
         schedule(this, {
             finish()
