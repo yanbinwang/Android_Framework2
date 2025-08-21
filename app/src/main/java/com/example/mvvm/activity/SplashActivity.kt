@@ -9,7 +9,9 @@ import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
+import com.example.common.utils.function.getCustomOption
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.mvvm.R
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
@@ -83,12 +85,11 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
 
     private fun jump() {
         // 此时页面切换的间隙，窗口没有可显示的内容(启动页目前就是栈内最后一个页面,直接关闭会黑一下,然后才是拉起对应页面)
-        navigation(ARouterPath.MainActivity)
+        navigation(ARouterPath.MainActivity, options = getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out))
         // 延迟关闭启动页,解决黑屏问题
         schedule(this, {
             finish()
         }, 500)
-//        overridePendingTransition(0, 0)首页写,启动页不写,且首页要加样式
     }
 
     /**

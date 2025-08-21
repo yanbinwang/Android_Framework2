@@ -39,7 +39,6 @@ import com.example.framework.utils.logE
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.example.mvvm.widget.dialog.TestTopDialog
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
@@ -389,9 +388,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        overridePendingTransition(0, 0)
+//        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
-
         initImmersionBar(navigationBarDark = true,navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
 //            navigation(ARouterPath.TestActivity2)
