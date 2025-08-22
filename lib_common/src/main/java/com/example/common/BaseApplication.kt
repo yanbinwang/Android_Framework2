@@ -218,7 +218,7 @@ abstract class BaseApplication : Application() {
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (excludedRouterPaths.contains(clazzName)) return
                 if (AppManager.currentActivity() != act) return
-                if (AppManager.stackCount <= 1) {
+                if (AppManager.dequeCount <= 1) {
                     needOpenHome = false
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }

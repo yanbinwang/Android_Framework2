@@ -15,12 +15,10 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.FragmentActivity
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
@@ -36,7 +34,6 @@ import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.AnimationUtil.Companion.loadAnimation
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
@@ -135,18 +132,6 @@ fun getFormattedCacheSize(): String {
         value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
     }
     return value
-}
-
-/**
- * 页面如果在栈底,跳转拉起新页面的时候采用当前配置,过渡掉系统动画
- */
-fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
-    this ?: return null
-    return getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out).apply {
-        schedule(this@getFadePreview, {
-            finish()
-        }, 500)
-    }
 }
 
 /**
