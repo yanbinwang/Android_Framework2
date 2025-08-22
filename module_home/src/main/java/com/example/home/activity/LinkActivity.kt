@@ -10,8 +10,12 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getPostcardClass
 import com.example.common.config.ARouterPath
+import com.example.common.utils.function.getCustomOption
+import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.getFadePreview
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
@@ -90,13 +94,29 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                BaseApplication.needOpenHome = true
 //                //預留3s的關閉時間
 //                setTimeOut()
-//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
-//                finish()
+//                if (!handlePush(this)) {
+//                    //3s倒计时可以不写了
+//                    timeOutJob?.cancel()
+//                    timeOutJob = null
+//                    navigation(ARouterPath.MainActivity, options = getFadePreview())
+//                } else {
+//                    finish()
+//                }
 //            }
             //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
             "normal" -> {
+                // 获取跳转的路由地址
                 val path = intentString(Extra.ID, ARouterPath.StartActivity)
-                navigation(path, options = getFadePreview())
+                // 获取跳转的class
+                val clazz = path.getPostcardClass()
+                // 不管存在不存在,先关闭
+                AppManager.finishTargetActivity(clazz)
+                // 跳转对应页面
+                navigation(path, options = getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out))
+                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+                schedule(this,{
+                    AppManager.finishAllExcept(path.getPostcardClass())
+                },500)
             }
             //其他情况统一关闭
             else -> finish()
