@@ -67,7 +67,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
     val clazz = postcard.getPostcardClass(this) ?: return
     val intent = Intent(this, clazz)
     //检查目标页面是否已经在任务栈中，在的话直接拉起来
-    if (AppManager.isExistActivity(clazz)) {
+    if (AppManager.isActivityAlive(clazz)) {
         //Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
         //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
