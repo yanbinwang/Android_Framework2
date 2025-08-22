@@ -9,7 +9,7 @@ import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
-import com.example.common.utils.function.getFadePreview
+import com.example.common.utils.manager.getFadePreview
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.internal.CancelAdapt
