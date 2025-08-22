@@ -5,7 +5,12 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.os.Process
+import androidx.core.app.ActivityOptionsCompat
+import androidx.fragment.app.FragmentActivity
 import com.example.common.BaseApplication
+import com.example.common.R
+import com.example.common.utils.function.getCustomOption
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import java.util.Stack
 import kotlin.system.exitProcess
 
@@ -26,6 +31,7 @@ object AppManager {
                 activityStack.lastElement()
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
@@ -61,7 +67,7 @@ object AppManager {
      */
     fun addActivity(activity: Activity?) {
         activity ?: return
-        if (activityStack.size > 0) {
+        if (activityStack.isNotEmpty()) {
             if (!activityStack.contains(activity)) {
                 activityStack.push(activity)
             }
@@ -143,19 +149,19 @@ object AppManager {
         }
     }
 
-    /**
-     * 结束所有Activity，可通过application再次拉起
-     * 单项操作不加锁
-     */
-    fun finishAll() {
-        try {
-            while (activityStack.isNotEmpty()) {
-                activityStack.pop()?.finish()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
+//    /**
+//     * 结束所有Activity，可通过application再次拉起
+//     * 单项操作不加锁
+//     */
+//    fun finishAll() {
+//        try {
+//            while (activityStack.isNotEmpty()) {
+//                activityStack.pop()?.finish()
+//            }
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+//    }
 
     /**
      * 结束所有Activity，可通过application再次拉起
@@ -189,7 +195,7 @@ object AppManager {
                 // 检查指定类的Activity是否存在
                 if (activityStack.find { it.javaClass == cls } == null) {
                     BaseApplication.instance.applicationContext?.let {
-                        //使用applicationContext启动 Activity 需要添加FLAG_ACTIVITY_NEW_TASK标志，否则会抛出异常
+                        // 使用applicationContext启动 Activity 需要添加FLAG_ACTIVITY_NEW_TASK标志，否则会抛出异常
                         val intent = Intent(it, cls).apply {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                         }
@@ -207,7 +213,7 @@ object AppManager {
      */
     fun exitProcess() {
         try {
-            if (activityStack.size > 0) {
+            if (activityStack.isNotEmpty()) {
                 synchronized(activityStack) {
                     activityStack.forEach {
                         it.finish()
@@ -246,6 +252,7 @@ object AppManager {
                 activityStack.find { it.javaClass in cls }
             } != null
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
@@ -261,8 +268,21 @@ object AppManager {
                 }
             } != null
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }
 
+}
+
+/**
+ * 页面如果在栈底,跳转拉起新页面的时候采用当前配置,过渡掉系统动画
+ */
+fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
+    this ?: return null
+    return getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out).apply {
+        schedule(this@getFadePreview, {
+            finishAfterTransition()
+        }, 500)
+    }
 }
