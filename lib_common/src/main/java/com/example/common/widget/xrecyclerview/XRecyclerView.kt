@@ -56,8 +56,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyClickableEnable = false
     //固定高度，-1表示为全屏
     private var rootFixedHeight = -1
-    //空布局点击
-    private var listener: ((result: Boolean) -> Unit)? = null
     //----------------以下懒加载会在调取时候创建----------------
     //整体容器->高度随着子child来拉伸
     val root by lazy { FrameLayout(context).apply {
@@ -115,9 +113,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             root.addView(empty)
             empty.size(MATCH_PARENT, MATCH_PARENT)
             empty.isClickable = emptyClickableEnable
-            empty.setOnEmptyRefreshListener {
-                listener?.invoke(it)
-            }
         }
     }
 
@@ -206,7 +201,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置空布局点击
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        this.listener = listener
+        empty.setOnEmptyRefreshListener {
+            listener.invoke(it)
+        }
     }
 
     /**
