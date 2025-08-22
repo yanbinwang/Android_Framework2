@@ -14,6 +14,7 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.ARouterPath.MainActivity
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.getFadePreview
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.framework.utils.function.value.second
@@ -79,10 +80,13 @@ class LinkActivity : BaseActivity<Nothing>() {
         when (source) {
             //推送消息
             "push" -> {
-//                if (!handlePush(this)) {
-//                    navigation(MainActivity)
-//                }
-                finish()
+                if (!handlePush(this)) {
+                    timeOutJob?.cancel()
+                    timeOutJob = null
+                    navigation(MainActivity, options = getFadePreview())
+                } else {
+                    finish()
+                }
             }
             //其他情况统一走firebase处理
 //            else -> handleDeepLink(this) { finish() }
