@@ -52,6 +52,8 @@ class LinkActivity : BaseActivity<Nothing>() {
         }
     }
 
+    override fun isBindingEnabled() = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
@@ -65,8 +67,6 @@ class LinkActivity : BaseActivity<Nothing>() {
         //處理推送透傳信息
         onLink()
     }
-
-    override fun isBindingEnabled() = false
 
     override fun finish() {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
