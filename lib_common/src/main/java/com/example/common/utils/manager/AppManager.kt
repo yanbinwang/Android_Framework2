@@ -21,7 +21,7 @@ object AppManager {
     // 存储 Activity 的弱引用（避免内存泄漏）
     private val activityDeque = ArrayDeque<WeakReference<Activity>>()
     // 当前栈内所有的 Activity 总数
-    val stackCount get() = activityDeque.size
+    val dequeCount get() = activityDeque.size
 
     /**
      * 获取当前栈顶Activity（非销毁状态）
