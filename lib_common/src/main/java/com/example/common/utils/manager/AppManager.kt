@@ -135,9 +135,7 @@ object AppManager {
                 val activitiesToFinish = activityDeque.mapNotNull { it.get() }
                     .filter { activity ->
                         // 条件：若需结束所有，则直接保留；否则排除“有效保留类”
-                        (shouldFinishAll || activity.javaClass !in validKeepClasses)
-                                && !activity.isDestroyed
-                                && !activity.isFinishing
+                        (shouldFinishAll || activity.javaClass !in validKeepClasses) && !activity.isDestroyed && !activity.isFinishing
                     }
                     .toList()
                 // 4. 批量结束Activity
@@ -159,23 +157,16 @@ object AppManager {
     fun finishTargetActivity(vararg cls: Class<*>?) {
         try {
             synchronized(activityDeque) {
-                // 1. 先过滤cls数组中的null，得到“有效目标类列表”
-                val validTargetClasses = cls.filterNotNull() // 关键：剔除所有null，避免后续比较异常
-                // 2. 若有效类为空，直接返回（无意义操作）
+                val validTargetClasses = cls.filterNotNull()
                 if (validTargetClasses.isEmpty()) return
-                // 3. 过滤出“属于有效目标类 + 存活”的Activity
                 val activitiesToFinish = activityDeque.mapNotNull { it.get() }
                     .filter { activity ->
-                        activity.javaClass in validTargetClasses // 此时用的是无null的列表，安全
-                                && !activity.isDestroyed
-                                && !activity.isFinishing
+                        activity.javaClass in validTargetClasses && !activity.isDestroyed && !activity.isFinishing
                     }
                     .toList()
-                // 4. 批量结束Activity
                 activitiesToFinish.forEach { activity ->
                     finishActivity(activity)
                 }
-                // 5. 清理无效引用
                 cleanDestroyedActivities()
             }
         } catch (e: Exception) {
@@ -189,11 +180,11 @@ object AppManager {
     fun finishAllActivities() {
         synchronized(activityDeque) {
             val activities = activityDeque.mapNotNull { it.get() }
-            activityDeque.clear() // 先清队列，避免重复处理
+            activityDeque.clear()
             activities.forEach { activity ->
                 try {
                     if (!activity.isFinishing && !activity.isDestroyed) {
-                        activity.finish() // 单个Activity的finish()单独捕获
+                        activity.finish()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -223,7 +214,7 @@ object AppManager {
             activitiesToFinish.forEach { activity ->
                 try {
                     if (!activity.isFinishing && !activity.isDestroyed) {
-                        activity.finish() // 单个处理，捕获异常
+                        activity.finish()
                     }
                 } catch (e: Exception) {
                     e.printStackTrace()
@@ -244,7 +235,9 @@ object AppManager {
         val context = BaseApplication.instance
         try {
             val intent = Intent(context, cls).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                // 补充FLAG_ACTIVITY_CLEAR_TASK，与finishAllActivities()配合，确保新Activity是根节点，
+                // 强制系统清除目标任务栈中所有现有 Activity，确保新启动的 Activity 是 “唯一根节点”，避免极端情况下系统残留旧栈信息导致的动画或启动模式异常。
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
             }
             context.startActivity(intent)
         } catch (e: Exception) {
