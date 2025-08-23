@@ -5,23 +5,18 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getFadeOptions
 import com.example.common.base.page.getPostcardClass
 import com.example.common.config.ARouterPath
-import com.example.common.utils.function.getCustomOption
 import com.example.common.utils.manager.AppManager
-import com.example.common.utils.manager.getFadePreview
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  * @description 推送處理的activity
@@ -112,10 +107,10 @@ class LinkActivity : BaseActivity<Nothing>() {
                 // 不管存在不存在,先关闭
                 AppManager.finishTargetActivity(clazz)
                 // 跳转对应页面
-                navigation(path, options = getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out))
+                navigation(path, options = getFadeOptions())
                 // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
                 schedule(this,{
-                    AppManager.finishAllExcept(path.getPostcardClass())
+                    AppManager.finishAllExcept(clazz)
                 },500)
             }
             //其他情况统一关闭

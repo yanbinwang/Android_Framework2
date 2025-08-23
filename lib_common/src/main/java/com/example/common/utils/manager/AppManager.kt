@@ -10,6 +10,8 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getFadeOptions
+import com.example.common.base.page.getSlideOptions
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getCustomOption
 import com.example.framework.utils.WeakHandler
@@ -312,18 +314,6 @@ object AppManager {
             .withString(Extra.ID, className).navigation()
     }
 
-}
-
-/**
- * 页面如果在栈底,跳转拉起新页面的时候采用当前配置,过渡掉系统动画
- */
-fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
-    this ?: return null
-    return getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out).apply {
-        schedule(this@getFadePreview, {
-            finishAfterTransition()
-        }, 500)
-    }
 }
 
 //object AppManager {
