@@ -6,6 +6,7 @@ import android.content.Intent
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
+import androidx.fragment.app.FragmentActivity
 import com.alibaba.android.arouter.core.LogisticsCenter
 import com.alibaba.android.arouter.exception.NoRouteFoundException
 import com.alibaba.android.arouter.facade.Postcard
@@ -13,11 +14,14 @@ import com.alibaba.android.arouter.facade.callback.InterceptorCallback
 import com.alibaba.android.arouter.facade.service.InterceptorService
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
+import com.example.common.R
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
+import com.example.common.utils.function.getCustomOption
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.toBundle
 
 /**
@@ -141,4 +145,41 @@ fun Postcard.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thro
             onInterrupt(exception)
         }
     })
+}
+
+/**
+ * 默认透明动画配置
+ */
+fun Context?.getFadeOptions(): ActivityOptionsCompat? {
+    this ?: return null
+    return getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out)
+}
+
+/**
+ * 默认方向动画配置
+ */
+fun Context?.getSlideOptions(): ActivityOptionsCompat? {
+    this ?: return null
+    return getCustomOption(this, R.anim.set_translate_bottom_in, R.anim.set_translate_bottom_out)
+}
+
+/**
+ * 页面如果在栈底,跳转拉起新页面的时候采用当前配置,过渡掉系统动画
+ */
+fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
+    this ?: return null
+    return getFadeOptions().apply {
+        schedule(this@getFadePreview, {
+            finish()
+        }, 500)
+    }
+}
+
+fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
+    this ?: return null
+    return getSlideOptions().apply {
+        schedule(this@getSlidePreview, {
+            finish()
+        }, 500)
+    }
 }
