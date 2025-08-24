@@ -308,7 +308,7 @@ object AppManager {
      * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
      * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun reboot(className: String? = ARouterPath.StartActivity) {
+    fun reboot(className: String) {
         ARouter.getInstance().build(ARouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
             .withString(Extra.ID, className).navigation()
