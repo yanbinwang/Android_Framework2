@@ -5,16 +5,13 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import androidx.databinding.ViewDataBinding
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getFadePreview
 import com.example.common.config.ARouterPath
 import com.example.common.config.ARouterPath.MainActivity
-import com.example.common.utils.ScreenUtil
-import com.example.common.utils.manager.AppManager
-import com.example.common.utils.manager.getFadePreview
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.framework.utils.function.value.second
@@ -82,7 +79,6 @@ class LinkActivity : BaseActivity<Nothing>() {
             "push" -> {
                 if (!handlePush(this)) {
                     timeOutJob?.cancel()
-                    timeOutJob = null
                     navigation(MainActivity, options = getFadePreview())
                 } else {
                     finish()
