@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import androidx.core.content.withStyledAttributes
@@ -95,7 +94,6 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         //绘制大小撑到最大/默认背景
         mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
-        mBinding.root.setBackgroundColor(color(R.color.bgDefault))
         //点击事件/默认状态
         mBinding.tvRefresh.click {
             if (!isEmpty()) loading()
@@ -103,17 +101,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
         mBinding.root.clearClick()
         loading()
+        setBackgroundColor(color(R.color.bgDefault))
     }
 
     override fun onInflate() {
         if (isInflate) addView(mBinding.root)
-    }
-
-    /**
-     * 设置背景颜色
-     */
-    override fun setBackgroundColor(color: Int) {
-        mBinding.root.setBackgroundColor(color)
     }
 
     /**
