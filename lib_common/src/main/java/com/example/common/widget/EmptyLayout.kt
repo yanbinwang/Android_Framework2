@@ -74,7 +74,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                  */
                 //创建 ImageView
                 ivLeft = ImageView(context).also {
-                    it.id = View.generateViewId()
+                    it.id = generateViewId()
                     it.invisible()
                 }
                 //设置布局参数

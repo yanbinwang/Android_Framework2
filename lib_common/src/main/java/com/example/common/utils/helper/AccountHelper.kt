@@ -164,7 +164,7 @@ object AccountHelper {
         CacheDataManager.clearCacheBySignOut()
 //        WebSocketConnect.disconnect()
 //        EVENT_USER_LOGIN_OUT.post()
-        AppManager.finishAllActivity()
+        AppManager.finishAllActivities()
 //        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
         if (isNavigation) {
             ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
