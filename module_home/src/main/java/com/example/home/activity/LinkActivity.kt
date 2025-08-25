@@ -98,18 +98,16 @@ class LinkActivity : BaseActivity<Nothing>() {
                 val excludedList = arrayListOf(clazz)
                 // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
                 if (path != ARouterPath.MainActivity) {
-                    val mainClazz = ARouterPath.MainActivity.getPostcardClass()
-                    if (!AppManager.isActivityAlive(mainClazz)) {
-                        excludedList.add(mainClazz)
-                        navigation(ARouterPath.MainActivity, options = getNoneOptions())
-                    }
+                    excludedList.add(ARouterPath.MainActivity.getPostcardClass())
                 }
-                // 跳转对应页面
-                navigation(path, options = getFadeOptions())
-                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-                schedule(this,{
-                    AppManager.finishNotTargetActivity(*excludedList.toTypedArray())
-                },500)
+                AppManager.reboot(this) {
+                    // 跳转对应页面
+                    navigation(path, options = getFadeOptions())
+                    // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+                    schedule(this,{
+                        AppManager.finishNotTargetActivity(*excludedList.toTypedArray())
+                    },500)
+                }
             }
             //其他情况统一走firebase处理
 //            else -> handleDeepLink(this) { finish() }
