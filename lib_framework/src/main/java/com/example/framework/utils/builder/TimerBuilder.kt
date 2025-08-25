@@ -32,8 +32,8 @@ class TimerBuilder(private val observer: LifecycleOwner) {
          * delayMillis：延时时间（单位：毫秒）
          */
         @JvmStatic
-        fun schedule(observer: LifecycleOwner, run: (() -> Unit), delayMillis: Long = 1000) {
-            observer.lifecycleScope.launch {
+        fun schedule(observer: LifecycleOwner?, run: (() -> Unit), delayMillis: Long = 1000) {
+            observer?.lifecycleScope?.launch {
                 delay(delayMillis)
                 withContext(Main.immediate) { run() }
             }
