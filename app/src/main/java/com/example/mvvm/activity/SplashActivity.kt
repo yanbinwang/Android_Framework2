@@ -69,7 +69,7 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
         launch {
             val SPLASH_DELAY = 2000L
             // 计算已经过去的时间
-            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime
+            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime.get()
             // 计算还需要等待的时间
             val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
                 0

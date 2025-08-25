@@ -6,6 +6,7 @@ import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
+import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
@@ -1000,7 +1001,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     }
 
     override fun onResume() {
-        if (BaseApplication.needOpenHome) BaseApplication.needOpenHome = false
+        if (needOpenHome.get()) needOpenHome.set(false)
         super.onResume()
     }
 
