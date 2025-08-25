@@ -90,9 +90,7 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                //預留3s的關閉時間
 //                setTimeOut()
 //                if (!handlePush(this)) {
-//                    //3s倒计时可以不写了
 //                    timeOutJob?.cancel()
-//                    timeOutJob = null
 //                    navigation(ARouterPath.MainActivity, options = getFadePreview())
 //                } else {
 //                    finish()
