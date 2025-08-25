@@ -3,9 +3,6 @@ package com.example.common
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
-import android.content.ComponentCallbacks2
-import android.content.Context
-import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
@@ -320,8 +317,9 @@ abstract class BaseApplication : Application() {
                     Lifecycle.Event.ON_STOP -> {
                         //判断本程序process中是否有在任意前台
                         val isAnyProcessForeground = try {
-                            (getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses?.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND }
+                            (getSystemService(ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses?.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND }
                         } catch (e: Exception) {
+                            e.printStackTrace()
                             false
                         }
                         if (!isAnyProcessForeground.orFalse) {
@@ -363,7 +361,7 @@ abstract class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        if (level >= ComponentCallbacks2.TRIM_MEMORY_MODERATE) {
+        if (level >= TRIM_MEMORY_MODERATE) {
             ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
         }
     }
