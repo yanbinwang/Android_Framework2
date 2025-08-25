@@ -12,6 +12,7 @@ import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.utils.NotificationUtil
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 /**
@@ -23,7 +24,7 @@ class MyApplication : BaseApplication() {
         val instance: MyApplication
             get() = BaseApplication.instance as MyApplication
         //my中的三方库是否完成加载
-        var isLoaded = false
+        var isLoaded = AtomicBoolean(false)
     }
 
     override fun onCreate() {
@@ -61,8 +62,8 @@ class MyApplication : BaseApplication() {
 //        }
 //        //授权初始化
 //        setOnPrivacyAgreedListener {
-//            if (it && !isLoaded) {
-//                isLoaded = true
+//            if (it && !isLoaded.get()) {
+//                isLoaded.set(true)
 //                initAMap()
 //            }
 //        }
