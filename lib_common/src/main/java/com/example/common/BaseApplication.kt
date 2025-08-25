@@ -55,6 +55,8 @@ import com.tencent.mmkv.MMKV
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -73,16 +75,16 @@ abstract class BaseApplication : Application() {
     }
 
     companion object {
-        //是否需要回首頁
-        var needOpenHome = false
-        //当前app进程是否处于前台
-        var isForeground = true
-        //首次启动标记（仅在 onCreate 初始化）
-        var isFirstLaunch = true
-        // 最近一次点击图标启动的时间戳
-        var lastClickTime = 0L
         //单列
         lateinit var instance: BaseApplication
+        //是否需要回首頁->只有推送LinkActivity拉起的时候会为true，并且会在首页变回false
+        var needOpenHome = AtomicBoolean(false)
+        //当前app进程是否处于前台
+        var isForeground = AtomicBoolean(true)
+        //首次启动标记（仅在 onCreate 初始化）
+        var isFirstLaunch = AtomicBoolean(true)
+        // 最近一次点击图标启动的时间戳
+        var lastClickTime = AtomicLong(0L)
     }
 
     override fun onCreate() {
@@ -94,8 +96,8 @@ abstract class BaseApplication : Application() {
     //初始化一些第三方控件和单例工具类等
     private fun initialize() {
         //初次赋值
-        lastClickTime = SystemClock.elapsedRealtime()
-        isFirstLaunch = true
+        lastClickTime.set(SystemClock.elapsedRealtime())
+        isFirstLaunch.set(true)
         //布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
@@ -213,13 +215,13 @@ abstract class BaseApplication : Application() {
     private fun initListener() {
         BaseActivity.onFinishListener = object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
-                if (!needOpenHome) return
+                if (!needOpenHome.get()) return
                 if (BaseActivity.isAnyActivityStarting) return
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (excludedRouterPaths.contains(clazzName)) return
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.dequeCount <= 1) {
-                    needOpenHome = false
+                    needOpenHome.set(false)
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }
             }
@@ -300,7 +302,7 @@ abstract class BaseApplication : Application() {
             override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
                 when (event) {
                     Lifecycle.Event.ON_RESUME -> {
-                        isForeground = true
+                        isForeground.set(true)
 //                        EventCode.EVENT_FOREGROUND.post()
                         if (isFirst) {
                             isFirst = false
@@ -323,7 +325,7 @@ abstract class BaseApplication : Application() {
                             false
                         }
                         if (!isAnyProcessForeground.orFalse) {
-                            isForeground = false
+                            isForeground.set(false)
 //                            EventCode.EVENT_BACKGROUND.post()
                             onStateChangedListener.invoke(false)
                             timeStamp = System.currentTimeMillis()

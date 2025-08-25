@@ -5,6 +5,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
+import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.bean.ServerLanguage
 import com.example.common.config.ARouterPath
@@ -62,7 +63,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     }
 
     override fun onResume() {
-        if (BaseApplication.needOpenHome) BaseApplication.needOpenHome = false
+        if (needOpenHome.get()) needOpenHome.set(false)
         super.onResume()
     }
 

@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.AbsListView
 import com.example.common.BaseApplication.Companion.isFirstLaunch
 import com.example.common.BaseApplication.Companion.lastClickTime
@@ -38,17 +39,27 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
     }
 
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
-        if (isFirstLaunch) {
-            isFirstLaunch = false
+        if (isFirstLaunch.get()) {
+            isFirstLaunch.set(false)
         } else {
             val clazzName = activity.javaClass.simpleName.lowercase(Locale.getDefault())
             if (clazzName == "splashactivity") {
-                lastClickTime = SystemClock.elapsedRealtime()
+                lastClickTime.set(SystemClock.elapsedRealtime())
             }
         }
-        activity.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
-            proxyOnClick(activity.window.decorView, 5)
-        }
+//        activity.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
+//            proxyOnClick(activity.window.decorView, 5)
+//        }
+        val decorView = activity.window?.decorView
+        decorView?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                proxyOnClick(decorView, 5)
+                // 判断 ViewTreeObserver 是否仍有效 在极少数情况下（如 Activity 销毁时布局尚未完成），viewTreeObserver 可能已失效，此时调用 removeOnGlobalLayoutListener 会抛出异常
+                if (decorView.viewTreeObserver.isAlive) {
+                    decorView.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                }
+            }
+        })
     }
 
     private fun proxyOnClick(view: View?, recycledDeep: Int) {
