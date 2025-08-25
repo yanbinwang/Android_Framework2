@@ -59,12 +59,16 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 if (view !is AbsListView || existAncestorRecycle) {
                     getClickListenerForView(view)
                     if (existAncestorRecycle) recycledContainerDeep++
-                } else recycledContainerDeep = 1
+                } else {
+                    recycledContainerDeep = 1
+                }
                 val childCount = view.childCount
                 for (i in 0 until childCount) {
                     proxyOnClick(view.getChildAt(i), recycledContainerDeep)
                 }
-            } else getClickListenerForView(view)
+            } else {
+                getClickListenerForView(view)
+            }
         }
     }
 
@@ -82,7 +86,9 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             if (mOnClickListener !is ProxyOnclickListener) {
                 //自定义代理事件监听器
                 onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
-            } else e("OnClickListenerProxy", "setted proxy listener ")
+            } else {
+                e("OnClickListenerProxy", "setted proxy listener ")
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
