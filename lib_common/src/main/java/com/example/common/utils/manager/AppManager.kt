@@ -312,6 +312,8 @@ object AppManager {
 
     /**
      * app如果未登录也可以进首页,需要一个兜底逻辑
+     * 1)确保任务栈内存在首页
+     * 2)确保任务栈内至少存在一个页面
      */
     fun reboot(context: Context, resp: () -> Unit) {
         val mainClazz = ARouterPath.MainActivity.getPostcardClass()
