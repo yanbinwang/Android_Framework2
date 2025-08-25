@@ -148,6 +148,14 @@ fun Postcard.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thro
 }
 
 /**
+ * 透明动画
+ */
+fun Context?.getNoneOptions(): ActivityOptionsCompat? {
+    this ?: return null
+    return getCustomOption(this, R.anim.set_alpha_none, R.anim.set_alpha_none)
+}
+
+/**
  * 默认透明动画配置
  */
 fun Context?.getFadeOptions(): ActivityOptionsCompat? {
@@ -166,6 +174,15 @@ fun Context?.getSlideOptions(): ActivityOptionsCompat? {
 /**
  * 页面如果在栈底,跳转拉起新页面的时候采用当前配置,过渡掉系统动画
  */
+fun FragmentActivity?.getNonePreview(): ActivityOptionsCompat? {
+    this ?: return null
+    return getNoneOptions().apply {
+        schedule(this@getNonePreview, {
+            finish()
+        }, 500)
+    }
+}
+
 fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
     this ?: return null
     return getFadeOptions().apply {
