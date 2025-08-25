@@ -72,15 +72,16 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val mActivity: FragmentActivity? get() = weakActivity?.get() ?: AppManager.currentActivity() as? FragmentActivity
     protected val mContext: Context? get() = mActivity
     protected val mView: BaseView? get() = weakView?.get()
-    //获取对应的控件/分页类
+    //获取对应的控件/分页类/生命周期订阅者/类名
     protected val mEmpty get() = weakEmpty?.get()
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
+    protected val mLifecycleOwner get() = weakLifecycleOwner?.get()
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     //弹框/获取权限/协程管理类/viewmodel命名
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
-    protected val mJobManager by lazy { JobManager(weakLifecycleOwner?.get()) }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
+    protected val mJobManager by lazy { JobManager(mLifecycleOwner) }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity?, view: BaseView?) {
