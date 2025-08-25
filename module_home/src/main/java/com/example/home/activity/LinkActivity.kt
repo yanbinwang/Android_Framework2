@@ -9,9 +9,13 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getFadeOptions
 import com.example.common.base.page.getFadePreview
+import com.example.common.base.page.getNoneOptions
+import com.example.common.base.page.getPostcardClass
 import com.example.common.config.ARouterPath
-import com.example.common.config.ARouterPath.MainActivity
+import com.example.common.utils.manager.AppManager
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.framework.utils.function.value.second
@@ -79,10 +83,33 @@ class LinkActivity : BaseActivity<Nothing>() {
             "push" -> {
                 if (!handlePush(this)) {
                     timeOutJob?.cancel()
-                    navigation(MainActivity, options = getFadePreview())
+                    navigation(ARouterPath.MainActivity, options = getFadePreview())
                 } else {
                     finish()
                 }
+            }
+            //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
+            "normal" -> {
+                // 获取跳转的路由地址
+                val path = intentString(Extra.ID, ARouterPath.MainActivity)
+                // 获取跳转的class
+                val clazz = path.getPostcardClass()
+                // 排除的页面
+                val excludedList = arrayListOf(clazz)
+                // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
+                if (path != ARouterPath.MainActivity) {
+                    val mainClazz = ARouterPath.MainActivity.getPostcardClass()
+                    if (!AppManager.isActivityAlive(mainClazz)) {
+                        excludedList.add(mainClazz)
+                        navigation(ARouterPath.MainActivity, options = getNoneOptions())
+                    }
+                }
+                // 跳转对应页面
+                navigation(path, options = getFadeOptions())
+                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+                schedule(this,{
+                    AppManager.finishNotTargetActivity(*excludedList.toTypedArray())
+                },500)
             }
             //其他情况统一走firebase处理
 //            else -> handleDeepLink(this) { finish() }
