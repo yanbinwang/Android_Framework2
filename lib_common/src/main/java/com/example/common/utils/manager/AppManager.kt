@@ -1,6 +1,7 @@
 package com.example.common.utils.manager
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Looper
 import android.os.Process
@@ -11,6 +12,8 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
+import com.example.common.base.page.getNoneOptions
+import com.example.common.base.page.getPostcardClass
 import com.example.common.base.page.getSlideOptions
 import com.example.common.config.ARouterPath
 import com.example.common.utils.function.getCustomOption
@@ -308,10 +311,24 @@ object AppManager {
      * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
      * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun reboot(className: String? = ARouterPath.StartActivity) {
+    fun reboot(className: String) {
         ARouter.getInstance().build(ARouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
             .withString(Extra.ID, className).navigation()
+    }
+
+    /**
+     * app如果未登录也可以进首页,需要一个兜底逻辑
+     * 1)确保任务栈内存在首页
+     * 2)确保任务栈内至少存在一个页面
+     */
+    fun reboot(context: Context, resp: () -> Unit) {
+        val mainClazz = ARouterPath.MainActivity.getPostcardClass()
+        if (!isActivityAlive(mainClazz)) {
+            ARouter.getInstance().build(ARouterPath.MainActivity)
+                .withOptionsCompat(context.getNoneOptions()).navigation()
+        }
+        resp.invoke()
     }
 
 }
