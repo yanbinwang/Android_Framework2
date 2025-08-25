@@ -19,6 +19,7 @@ import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.AlbumConfig
 import io.objectbox.BoxStore
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess
 
 /**
@@ -35,7 +36,7 @@ class MyApplication : BaseApplication() {
         val instance: MyApplication
             get() = BaseApplication.instance as MyApplication
         //my中的三方库是否完成加载
-        var isLoaded = false
+        var isLoaded = AtomicBoolean(false)
     }
 
     override fun onCreate() {
@@ -67,8 +68,8 @@ class MyApplication : BaseApplication() {
         }
         //授权初始化
         setOnPrivacyAgreedListener {
-            if (it && !isLoaded) {
-                isLoaded = true
+            if (it && !isLoaded.get()) {
+                isLoaded.set(true)
                 initAMap()
             }
         }
@@ -162,7 +163,7 @@ class MyApplication : BaseApplication() {
      */
     override fun onTerminate() {
         super.onTerminate()
-        isLoaded = false
+        isLoaded.set(false)
         boxStore.close()
         WXManager.instance.unRegToWx()
     }
