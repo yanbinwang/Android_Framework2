@@ -8,6 +8,7 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -17,6 +18,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.Settings
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -228,6 +230,30 @@ abstract class TrackableLifecycleService : LifecycleService() {
 //        serviceStateMap[this::class.java] = false
         serviceStateMap.remove(this::class.java)
     }
+}
+
+/**
+ * 辅助服务是否开启
+ * // 检查权限是否开启
+ * if (!isAccessibilityServiceEnabled(MyAccessibilityService::class.java)) {
+ *     // 跳转到无障碍设置页面
+ *     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+ *     startActivity(intent)
+ * }
+ */
+fun Context?.isAccessibilityServiceEnabled(service: Class<*>): Boolean {
+    this ?: return false
+    val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
+    val splitter = TextUtils.SimpleStringSplitter(':')
+    splitter.setString(enabledServices)
+    while (splitter.hasNext()) {
+        val componentName = splitter.next()
+        val serviceComponent = ComponentName(this, service)
+        if (componentName == serviceComponent.flattenToString()) {
+            return true
+        }
+    }
+    return false
 }
 
 /**
