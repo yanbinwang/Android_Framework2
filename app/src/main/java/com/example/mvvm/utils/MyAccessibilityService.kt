@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import com.example.framework.utils.logWTF
 
-
 /**
  * AccessibilityService (无障碍服务)
  * 主要用于两类场景：

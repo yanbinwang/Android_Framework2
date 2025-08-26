@@ -236,7 +236,7 @@ abstract class TrackableLifecycleService : LifecycleService() {
  * 辅助服务是否开启
  * // 检查权限是否开启
  * if (!isAccessibilityServiceEnabled(MyAccessibilityService::class.java)) {
- *     // 跳转到无障碍设置页面
+ *     // 跳转到无障碍设置页面(pullUpAccessibility())
  *     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
  *     startActivity(intent)
  * }

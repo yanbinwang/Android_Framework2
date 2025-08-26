@@ -2,6 +2,7 @@ package com.example.common.utils.function
 
 import android.app.Activity
 import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -142,21 +143,53 @@ private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
 
 /**
  * 高版本后台服务有浮层需要允许当前设置
+ * Settings.canDrawOverlays(this)
  */
-fun Activity?.pullUpOverlay() {
-//    this ?: return false
-//    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-//        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-//        intent.data = "package:${packageName}".toUri()
-//        startActivity(intent)
-//        false
-//    } else {
-//        true
-//    }
+fun Context?.pullUpOverlay() {
     this ?: return
     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
     intent.data = "package:${packageName}".toUri()
     startActivity(intent)
+}
+
+/**
+ * 拉起无障碍设置页面
+ */
+fun Context?.pullUpAccessibility() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    startActivity(intent)
+}
+
+/**
+ * 拉起通知设置
+ */
+fun Context?.pullUpNotification() {
+    this ?: return
+    val intent = when {
+        // Android 8.0+（API 26+）：直接跳通知设置
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                // 指定应用包名
+                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+        }
+        // Android 6.0-7.1（API 23-25）：跳应用详情页
+        else -> {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = "package:$packageName".toUri()
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+    }
+    // 尝试启动Intent，防止仍有设备不支持
+    try {
+        startActivity(intent)
+    } catch (e: ActivityNotFoundException) {
+        e.printStackTrace()
+        // 跳系统设置首页
+        startActivity(Intent(Settings.ACTION_SETTINGS))
+    }
 }
 
 /**
