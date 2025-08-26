@@ -1,12 +1,10 @@
 package com.example.thirdparty.utils
 
 import android.Manifest
-import android.app.Activity
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -14,21 +12,19 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
-import androidx.core.net.toUri
 import androidx.fragment.app.FragmentActivity
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
+import com.example.common.utils.function.pullUpNotification
 import com.example.common.utils.function.string
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
@@ -38,7 +34,6 @@ import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.NotificationUtil.hasNotificationPermission
-import com.example.thirdparty.utils.NotificationUtil.navigateToNotificationSettings
 import com.example.thirdparty.utils.NotificationUtil.requestNotificationPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
@@ -156,9 +151,9 @@ object NotificationUtil {
                  * bigPicture()	展开状态下的大图区域	256dp × 256dp	建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
                  * bigLargeIcon()	展开状态下替代 setLargeIcon() 的图标	128dp × 128dp	可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
                  */
-                largeIcon = bitmap?.scale(64.dp, 64.dp, false)
-                bigPicture = bitmap?.scale(256.dp, 256.dp, false)
-                bigLargeIcon = bitmap?.scale(128.dp, 128.dp, false)
+                largeIcon = bitmap.scale(64.dp, 64.dp, false)
+                bigPicture = bitmap.scale(256.dp, 256.dp, false)
+                bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
                 notificationBuilder
                     .setLargeIcon(largeIcon)
                     .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bigPicture).bigLargeIcon(bigLargeIcon))
@@ -329,38 +324,6 @@ object NotificationUtil {
         launch(Manifest.permission.POST_NOTIFICATIONS)
     }
 
-    /**
-     * 直接跳转对应通知设置
-     */
-    @JvmStatic
-    fun Activity?.navigateToNotificationSettings() {
-        this ?: return
-        R.string.notificationGranted.shortToast()
-        val intent = when {
-            // Android 8.0+（API 26+）：直接跳通知设置
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
-                Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
-                    // 关键参数：指定应用包名
-                    putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
-                }
-            }
-            // Android 6.0-7.1（API 23-25）：跳应用详情页
-            else -> {
-                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                    data = "package:$packageName".toUri()
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            }
-        }
-        // 尝试启动Intent，防止仍有设备不支持
-        try {
-            startActivity(intent)
-        } catch (e: ActivityNotFoundException) {
-            // 终极 fallback：跳系统设置首页
-            startActivity(Intent(Settings.ACTION_SETTINGS))
-        }
-    }
-
 }
 
 /**
@@ -377,7 +340,7 @@ class NotificationManager(private val mActivity: FragmentActivity, wrapper: Requ
             mDialog
                 .setParams(string(R.string.hint), string(R.string.permissionNotification))
                 .setDialogListener({
-                    mActivity.navigateToNotificationSettings()
+                    mActivity.pullUpNotification()
                 }, {
                     mListener.invoke(false)
                 })
@@ -391,6 +354,9 @@ class NotificationManager(private val mActivity: FragmentActivity, wrapper: Requ
         }
     }
 
+    /**
+     * 尝试拉起通知,如果未授予权限,回调监听里处理
+     */
     fun pullUpNotification() {
         if (hasNotificationPermission(mActivity)) {
             mListener.invoke(true)
@@ -403,6 +369,9 @@ class NotificationManager(private val mActivity: FragmentActivity, wrapper: Requ
         }
     }
 
+    /**
+     * 权限监听
+     */
     fun setOnNotificationListener(listener: (hasPermissions: Boolean) -> Unit = {}) {
         this.mListener = listener
     }
