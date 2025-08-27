@@ -143,11 +143,7 @@ object DeviceIdUtil {
             }
             // 高版本（≥26）：必须用getSerial() 检查是否有必要的电话权限（Android 10+需要）
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                if (ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.READ_PHONE_STATE
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
+                if (ContextCompat.checkSelfPermission(context, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
                     return "" // 无权限，返回空（而非unknown）
                 }
             }
