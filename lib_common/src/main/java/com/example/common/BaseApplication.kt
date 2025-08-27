@@ -3,6 +3,7 @@ package com.example.common
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
+import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
@@ -313,7 +314,21 @@ abstract class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        if (level >= TRIM_MEMORY_MODERATE) {
+        /**
+         * TRIM_MEMORY_MODERATE: 应用处于 “后台 LRU 列表的中间位置”——
+         * 此时系统内存已较紧张，主动释放内存（如缓存、非关键图片等），能帮助系统保留 LRU 列表中更靠后的其他进程，提升整体系统性能。
+         * 从 API 34（Android 14）开始废弃,Android 14 后，系统对后台进程的管理更精细化（如基于进程重要性、用户活跃度动态调整内存优先级），
+         * 不再需要通过 “中间级别” 通知应用。系统会直接通过更关键的级别（如 TRIM_MEMORY_RUNNING_LOW、TRIM_MEMORY_BACKGROUND）传递核心内存压力信号，避免应用接收冗余或模糊的指令。
+         * TRIM_MEMORY_BACKGROUND（40）的语义是 “应用在后台 LRU 列表靠前位置，系统开始回收后台进程”，与 TRIM_MEMORY_MODERATE（60）的 “后台中间位置” 在实际场景中差异不大，都是需要释放缓存的信号。
+         */
+        val shouldClearCache = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // API 34+：判断是否达到后台内存紧张级别
+            level >= TRIM_MEMORY_BACKGROUND
+        } else {
+            // 低版本：保留原逻辑（TRIM_MEMORY_MODERATE仍有效）
+            level >= TRIM_MEMORY_MODERATE
+        }
+        if (shouldClearCache) {
             ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
         }
     }
