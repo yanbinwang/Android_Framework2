@@ -99,15 +99,15 @@ abstract class BaseApplication : Application() {
         MMKV.initialize(applicationContext)
         //服务器地址类初始化
         ServerConfig.init()
+        //注册网络监听
+        NetWorkUtil.init(ProcessLifecycleOwner.get())
+//        initReceiver()
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
 //        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
 //        closeAndroidPDialog()
         //阿里路由跳转初始化
         initARouter()
-        //注册网络监听
-        NetWorkUtil.init(ProcessLifecycleOwner.get())
-//        initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
         //全局刷新控件的样式
