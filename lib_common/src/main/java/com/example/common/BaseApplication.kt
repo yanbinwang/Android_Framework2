@@ -15,25 +15,22 @@ import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
-import com.example.common.base.proxy.NetworkReceiver
 import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
 import com.example.common.config.Constants.SOCKET_DEAL_URL
 import com.example.common.config.Constants.SOCKET_FUNDS_URL
 import com.example.common.config.ServerConfig
-import com.example.common.event.EventCode.EVENT_OFFLINE
-import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
 import com.example.common.network.socket.topic.WebSocketTopic
+import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
-import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
@@ -109,7 +106,8 @@ abstract class BaseApplication : Application() {
         //阿里路由跳转初始化
         initARouter()
         //注册网络监听
-        initReceiver()
+        NetWorkUtil.init(ProcessLifecycleOwner.get())
+//        initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
         //全局刷新控件的样式
@@ -157,35 +155,11 @@ abstract class BaseApplication : Application() {
         ARouter.init(this)
     }
 
-    private fun initReceiver() {
-//        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
-//        registerReceiver(NetworkReceiver().apply {
+//    private fun initReceiver() {
+//        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
 //            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
 //        }, NetworkReceiver.filter)
-        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
-            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
-        }, NetworkReceiver.filter)
-//        val networkCallback = object : ConnectivityManager.NetworkCallback() {
-//            var listener: (isOnline: Boolean) -> Unit = {}
-//            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-//                super.onCapabilitiesChanged(network, networkCapabilities)
-//                val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-//                listener(isOnline)
-//            }
-//        }
-//        val networkRequest = NetworkRequest.Builder()
-//            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//            .build()
-//        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-//        connectivityManager?.registerNetworkCallback(networkRequest, networkCallback.apply { listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() } })
-//        ProcessLifecycleOwner.get().doOnDestroy {
-//            try {
-//                connectivityManager?.unregisterNetworkCallback(networkCallback)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-    }
+//    }
 
     private fun initListener() {
         BaseActivity.onFinishListener = object : OnFinishListener {

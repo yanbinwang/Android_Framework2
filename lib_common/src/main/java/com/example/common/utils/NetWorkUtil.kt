@@ -9,9 +9,10 @@ import android.net.NetworkInfo
 import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
+import com.example.common.event.EventCode.EVENT_OFFLINE
+import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logE
 
@@ -22,13 +23,13 @@ import com.example.framework.utils.logE
  * isAvailable->是否可以进行网络连接。当持续或半持续状态阻止连接到该网络时，网络不可用
  * isConnected->是否存在网络连接以及是否可以建立连接和传递数据
  */
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "ObsoleteSdkInt")
 object NetWorkUtil {
-    private val mContext by lazy { BaseApplication.instance.applicationContext }
-    private val manager by lazy { mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
+    private val context by lazy { BaseApplication.instance.applicationContext }
+    private val manager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
 
     /**
-     * 网络变化监听
+     * 网络变化监听(相比广播更精确)
      */
     @JvmStatic
     fun init(owner: LifecycleOwner) {
@@ -39,10 +40,16 @@ object NetWorkUtil {
                 val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                 listener(isOnline)
             }
+        }.apply {
+            listener = {
+                if (it) {
+                    EVENT_ONLINE.post()
+                } else {
+                    EVENT_OFFLINE.post()
+                }
+            }
         }
-        manager?.registerNetworkCallback(NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build(), networkCallback)
+        manager?.registerNetworkCallback(NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), networkCallback)
         owner.doOnDestroy {
             manager?.unregisterNetworkCallback(networkCallback)
         }
@@ -53,6 +60,7 @@ object NetWorkUtil {
      * 在 Android 14 及更高版本中，NetworkCapabilities.NET_CAPABILITY_VALIDATED 表示网络已经通过运营商验证并且可以访问互联网。
      * 但实际使用中，这个条件比较严格，很多时候即使网络正常也可能不满足
      */
+    @JvmStatic
     fun isNetworkAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             val networkInfo = manager?.activeNetworkInfo
@@ -60,8 +68,6 @@ object NetWorkUtil {
         } else {
             val network = manager?.activeNetwork ?: return false
             val capabilities = manager?.getNetworkCapabilities(network) ?: return false
-//            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
-//            // NetworkCapabilities.NET_CAPABILITY_VALIDATED 是 Android 系统对网络「已验证可联网」的标识，系统会通过 DNS 解析、简单网络请求等方式，验证网络是否真正可用。
             // 1. 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
             val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
             // 2. 检查网络是否已通过系统验证（可联网）
@@ -75,6 +81,7 @@ object NetWorkUtil {
     /**
      * 判断当前网络环境是否为手机流量，只需校验是否是流量
      */
+    @JvmStatic
     fun isMobileConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
@@ -89,6 +96,7 @@ object NetWorkUtil {
     /**
      * 判断当前网络环境是否为wifi，只需校验是否是wifi
      */
+    @JvmStatic
     fun isWifiConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
@@ -103,6 +111,7 @@ object NetWorkUtil {
     /**
      * 是否挂载了网络代理（wifi模式下）
      */
+    @JvmStatic
     fun isMountAgent(): Boolean {
         val httpProxy = !System.getProperty("http.proxyHost").isNullOrEmpty() && (System.getProperty("http.proxyPort")?.toIntOrNull() ?: -1) != -1
         val httpsProxy = !System.getProperty("https.proxyHost").isNullOrEmpty() && (System.getProperty("https.proxyPort")?.toIntOrNull() ?: -1) != -1
@@ -112,6 +121,7 @@ object NetWorkUtil {
     /**
      * 是否挂载了VPN，只需校验是否是Vpn
      */
+    @JvmStatic
     fun isMountVpn(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
             return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
@@ -132,10 +142,11 @@ object NetWorkUtil {
      * WPA是WEP加密的改进版，包含两种方式：预共享密钥和Radius密钥（远程用户拨号认证系统）。其中预共享密钥（pre-share key缩写为PSK）有两种密码方式：TKIP和AES，而RADIUS密钥利用RADIUS服务器认证并可以动态选择TKIP、AES、WEP方式。相比TKIP，AES具有更好的安全系数，建议用户使用。
      * WPA2即WPA加密的升级版。WPA2同样也分为TKIP和AES两种方式，因此也建议选AES加密不要选TKIP。
      */
+    @JvmStatic
     fun getWifiSecurity(): String {
         var result = "NONE"
         if (isWifiConnected()) {
-            val wifiManager = mContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
+            val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
             val connectionInfo = wifiManager.connectionInfo
             for (scanResult in wifiManager.scanResults) {
                 val capabilities = scanResult.capabilities
