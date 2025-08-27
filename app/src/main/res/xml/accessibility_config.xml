@@ -27,6 +27,6 @@
     android:accessibilityFeedbackType="feedbackGeneric"
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="true"
-    android:description="描述信息"
+    android:description="@string/album_all_images"
     android:notificationTimeout="100"
     android:packageNames="com.example.mvvm" />

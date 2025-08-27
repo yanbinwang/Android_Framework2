@@ -3,11 +3,16 @@ package com.example.common.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.net.NetworkRequest
 import android.net.wifi.WifiManager
 import android.os.Build
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.logE
 
 /**
@@ -21,6 +26,27 @@ import com.example.framework.utils.logE
 object NetWorkUtil {
     private val mContext by lazy { BaseApplication.instance.applicationContext }
     private val manager by lazy { mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
+
+    /**
+     * 网络变化监听
+     */
+    @JvmStatic
+    fun init(owner: LifecycleOwner) {
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            var listener: (isOnline: Boolean) -> Unit = {}
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                listener(isOnline)
+            }
+        }
+        manager?.registerNetworkCallback(NetworkRequest.Builder()
+            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            .build(), networkCallback)
+        owner.doOnDestroy {
+            manager?.unregisterNetworkCallback(networkCallback)
+        }
+    }
 
     /**
      * 验证是否联网,保证连接正常建立
