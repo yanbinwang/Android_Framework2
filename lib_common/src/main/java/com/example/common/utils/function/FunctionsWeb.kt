@@ -197,6 +197,9 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
         loading.get()?.progress = 0
     }
 
+    /**
+     * 监听网页加载进度的变化（0-100），常用于更新进度条。
+     */
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         listener?.onProgressChanged(newProgress)
         if (!view.loadFinished) {
@@ -215,19 +218,34 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
         super.onProgressChanged(view, newProgress)
     }
 
+    /**
+     * 监听网页中的 JavaScript 控制台输出（如 console.log()）
+     * 返回 true 表示 “已处理，无需父类默认行为”
+     */
     override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
         return super.onConsoleMessage(consoleMessage)
     }
 
+    /**
+     * 拦截网页中的 JavaScript 弹窗（alert()）
+     * 调用 result?.cancel() 取消弹窗（阻止系统默认弹窗显示）。
+     * 若需要自定义弹窗（如用原生 Dialog 替代），可在这里实现，最后调用 result?.confirm() 通知 JS 弹窗已处理。
+     */
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
         result?.cancel()
         return super.onJsAlert(view, url, message, result)
     }
 
+    /**
+     * 处理网页中的 “自定义视图” 请求（通常用于全屏显示，如视频播放全屏）。
+     */
     override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
         listener?.onShowCustomView(view, callback)
     }
 
+    /**
+     * 与 onShowCustomView 对应，通知退出自定义视图（如视频退出全屏）
+     */
     override fun onHideCustomView() {
         listener?.onHideCustomView()
     }
