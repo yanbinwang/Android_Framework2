@@ -1,9 +1,5 @@
 package com.example.common.network.repository
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
 import com.example.common.network.repository.ApiCode.FAILURE
@@ -17,21 +13,15 @@ import com.example.common.utils.toJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import kotlin.coroutines.CoroutineContext
-import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
@@ -166,68 +156,6 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
         else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
     }
     return wrapper
-}
-
-/**
- * 在主线程中更新 MutableStateFlow 的值
- * （适用于 UI 线程触发的发送操作，如广播回调、点击事件等）
- */
-fun <T> MutableStateFlow<T>.valueOn(
-    lifecycleOwner: LifecycleOwner,
-    value: T?,
-    context: CoroutineContext = Main.immediate
-): Job {
-    return lifecycleOwner.lifecycleScope.launch(context) {
-        if (null != value) {
-            this@valueOn.value = value
-        }
-    }
-}
-
-/**
- * 热流检出数据时Activity/Fragment内使用
- */
-fun <T> StateFlow<T>.collectIn(
-    lifecycleOwner: LifecycleOwner,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    action: (T) -> Unit
-): Job {
-    return lifecycleOwner.lifecycleScope.launch {
-        lifecycleOwner.repeatOnLifecycle(minActiveState) {
-            this@collectIn.collect(action)
-        }
-    }
-}
-
-/**
- * 扩展函数：在一个协程中收集多个 StateFlow
- * // viewModel
- * private val _age = MutableStateFlow(0)
- * val age = _age.asStateFlow()
- * suspend fun updateAge() {
- *     // _age.value = Random.nextInt(0, 100)
- *     // _age.emit(1)
- * }
- * // 页面
- * launch{
- *     viewmodel.age.collect {}
- * }
- */
-fun LifecycleOwner.collectAll(
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    block: suspend CoroutineScope.() -> Unit
-): Job {
-    return lifecycleScope.launch {
-        /**
-         * 指定一个生命周期状态（如 STARTED、RESUMED 等），作为 “协程激活” 的最低门槛。
-         * 例如 minActiveState = Lifecycle.State.STARTED 时，只有当页面（Activity/Fragment）处于 STARTED 或 RESUMED 状态时，协程才会执行；
-         * 当页面退到后台（如 onStop 调用，生命周期变为 STOPPED），协程会自动暂停；
-         * 当页面重新回到前台（如 onStart 调用，生命周期回到 STARTED），协程会重新启动并继续执行
-         */
-        repeatOnLifecycle(minActiveState) {
-            block()
-        }
-    }
 }
 
 /**

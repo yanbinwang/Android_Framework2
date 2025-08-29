@@ -5,7 +5,6 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.BaseApplication
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
@@ -929,12 +928,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun initEvent() {
         super.initEvent()
-
-        collect {
-//            viewModel.data1.collect { ... }
-//            viewModel.data2.collect { ... }
-        }
-
         //通过代码动态重置一下顶部的高度
         val bgHeight = 164.pt + getStatusBarHeight()
         mBinding?.ivFundsBg.size(height = bgHeight)

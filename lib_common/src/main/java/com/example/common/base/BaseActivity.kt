@@ -40,7 +40,6 @@ import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.collectAll
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -63,7 +62,6 @@ import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
@@ -103,7 +101,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
-    private var collectJob: Job? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -308,7 +305,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             key.removeObserver(value)
         }
         dataManager.clear()
-        cancelCollect()
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
@@ -443,21 +439,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     protected fun clearOnWindowInsetsChanged() {
         onWindowInsetsChanged = null
-    }
-
-    /**
-     * 基类封装 collect 逻辑
-     */
-    protected fun collect(block: suspend CoroutineScope.() -> Unit) {
-        collectJob?.cancel()
-        collectJob = collectAll {
-            block()
-        }
-    }
-
-    protected fun cancelCollect() {
-        collectJob?.cancel()
-        collectJob = null
     }
     // </editor-fold>
 
