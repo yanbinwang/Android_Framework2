@@ -174,11 +174,13 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
  */
 fun <T> MutableStateFlow<T>.valueOn(
     lifecycleOwner: LifecycleOwner,
-    value: T,
+    value: T?,
     context: CoroutineContext = Main.immediate
 ): Job {
     return lifecycleOwner.lifecycleScope.launch(context) {
-        this@valueOn.value = value
+        if (null != value) {
+            this@valueOn.value = value
+        }
     }
 }
 

@@ -264,7 +264,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     /**
      * 如果使用StateFlow发送数据,使用该方法
      */
-    protected inline fun <T> MutableStateFlow<T>.value(value: T) {
+    protected inline fun <T> MutableStateFlow<T>.value(value: T?) {
         mLifecycleOwner?.let {
             mJobManager.manageValue(this, valueOn(it, value))
         }
