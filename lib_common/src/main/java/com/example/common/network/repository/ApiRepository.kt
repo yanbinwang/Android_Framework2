@@ -186,12 +186,12 @@ fun <T> StateFlow<T>.collectIn(
  * private val _age = MutableStateFlow(0)
  * val age = _age.asStateFlow()
  * suspend fun updateAge() {
- *     _age.value = Random.nextInt(0, 100)
+ *     // _age.value = Random.nextInt(0, 100)
+ *     // _age.emit(1)
  * }
  * // 页面
  * launch{
- *     viewmodel.age.collect {
- *     }
+ *     viewmodel.age.collect {}
  * }
  */
 fun LifecycleOwner.collectAll(
