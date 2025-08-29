@@ -176,8 +176,8 @@ fun <T> MutableStateFlow<T>.valueOn(
     lifecycleOwner: LifecycleOwner,
     value: T,
     context: CoroutineContext = Main.immediate
-) {
-    lifecycleOwner.lifecycleScope.launch(context) {
+): Job {
+    return lifecycleOwner.lifecycleScope.launch(context) {
         this@valueOn.value = value
     }
 }

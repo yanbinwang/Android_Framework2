@@ -1,8 +1,11 @@
 package com.example.common.utils.manager
 
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -10,8 +13,10 @@ import java.util.concurrent.ConcurrentHashMap
  * val key = object {}.javaClass.enclosingMethod?.name ?: "unknown"
  */
 class JobManager(observer: LifecycleOwner?) {
-    //用于存储协程 Job 的线程安全集合
+    // 用于存储协程 Job 的线程安全集合
     private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
+    // 为每个 MutableStateFlow 存储最近一次的发送任务
+    private val mutableStateFlowJobs by lazy { ConcurrentHashMap<MutableStateFlow<*>, Job>() }
 
     init {
         observer.doOnDestroy {
@@ -44,7 +49,7 @@ class JobManager(observer: LifecycleOwner?) {
      * key: String = getCallerMethodName()
      */
     fun manageJob(job: Job, key: String) {
-        //如果之前的 Job 存在，取消并从集合中移除
+        // 如果之前的 Job 存在，取消并从集合中移除
         jobMap[key]?.let {
             it.cancel()
             jobMap.remove(key)
@@ -54,11 +59,27 @@ class JobManager(observer: LifecycleOwner?) {
     }
 
     /**
+     * 管理StateFlow发送数据
+     */
+    fun manageValue(flow: MutableStateFlow<*>, job: Job) {
+        // 取消上一次未完成的任务
+        mutableStateFlowJobs[flow]?.cancel()
+        // 启动新任务并保存引用
+        mutableStateFlowJobs[flow] = job
+        // 任务完成后移除引用（避免内存泄漏）
+        job.invokeOnCompletion {
+            mutableStateFlowJobs.remove(flow)
+        }
+    }
+
+    /**
      * 释放/清除所有 Job
      */
     fun destroy() {
         jobMap.values.forEach { it.cancel() }
         jobMap.clear()
+        mutableStateFlowJobs.values.forEach { it.cancel() }
+        mutableStateFlowJobs.clear()
     }
 
 }
