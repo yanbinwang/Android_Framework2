@@ -83,7 +83,7 @@ fun Bundle?.clearFragmentSavedState() {
  * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
  * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
  */
-@ColorInt // 仅需标记返回值
+@ColorInt
 fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
     return this?.let { colorString ->
         val colorPattern = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
