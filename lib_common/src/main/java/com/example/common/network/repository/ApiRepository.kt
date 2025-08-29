@@ -19,6 +19,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -29,6 +30,8 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
@@ -163,6 +166,20 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
         else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
     }
     return wrapper
+}
+
+/**
+ * 在主线程中更新 MutableStateFlow 的值
+ * （适用于 UI 线程触发的发送操作，如广播回调、点击事件等）
+ */
+fun <T> MutableStateFlow<T>.valueOn(
+    lifecycleOwner: LifecycleOwner,
+    value: T,
+    context: CoroutineContext = Main.immediate
+) {
+    lifecycleOwner.lifecycleScope.launch(context) {
+        this@valueOn.value = value
+    }
 }
 
 /**
