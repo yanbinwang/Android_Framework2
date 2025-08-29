@@ -326,9 +326,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         onActivityResultListener = null
     }
 
-    /**
-     * 基类封装 collect 逻辑
-     */
     protected fun collect(block: suspend CoroutineScope.() -> Unit) {
         collectJob?.cancel()
         collectJob = collectAll {

@@ -210,9 +210,6 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         onActivityResultListener = null
     }
 
-    /**
-     * 基类封装 collect 逻辑
-     */
     protected fun collect(block: suspend CoroutineScope.() -> Unit) {
         collectJob?.cancel()
         collectJob = collectAll {

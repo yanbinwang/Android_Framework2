@@ -228,14 +228,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         onActivityResultListener = null
     }
 
-    open fun show(manager: FragmentManager) {
-        val tag = javaClass.simpleName.lowercase(Locale.getDefault())
-        show(manager, tag)
-    }
-
-    /**
-     * 基类封装 collect 逻辑
-     */
     protected fun collect(block: suspend CoroutineScope.() -> Unit) {
         collectJob?.cancel()
         collectJob = collectAll {
@@ -246,6 +238,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     protected fun cancelCollect() {
         collectJob?.cancel()
         collectJob = null
+    }
+
+    open fun show(manager: FragmentManager) {
+        val tag = javaClass.simpleName.lowercase(Locale.getDefault())
+        show(manager, tag)
     }
     // </editor-fold>
 
