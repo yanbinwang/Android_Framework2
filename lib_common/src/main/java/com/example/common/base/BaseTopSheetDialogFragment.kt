@@ -209,6 +209,17 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseTopSheetDialogFragment, observer)
+    }
+
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
@@ -244,17 +255,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
-    }
-
-    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
-        this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
-        }
-        dataManager[this] = observer
-        observe(this@BaseTopSheetDialogFragment, observer)
     }
     // </editor-fold>
 

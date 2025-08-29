@@ -307,6 +307,17 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseBottomSheetDialogFragment, observer)
+    }
+
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
@@ -342,17 +353,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
-    }
-
-    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
-        this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
-        }
-        dataManager[this] = observer
-        observe(this@BaseBottomSheetDialogFragment, observer)
     }
     // </editor-fold>
 
