@@ -541,6 +541,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * 基类封装 collect 逻辑
      */
     protected open fun collect(block: suspend CoroutineScope.() -> Unit) {
+        collectJob?.cancel()
         collectJob = this.collectAll {
             block()
         }
