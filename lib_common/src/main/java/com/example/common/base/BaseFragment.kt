@@ -26,6 +26,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.network.repository.collectAll
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -42,6 +43,7 @@ import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
@@ -92,6 +94,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    private var collectJob: Job? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
@@ -180,6 +183,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
             key.removeObserver(value)
         }
         dataManager.clear()
+        cancelCollect()
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()
@@ -187,12 +191,27 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    protected open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+    protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
 
-    protected open fun clearOnActivityResultListener() {
+    protected fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+
+    /**
+     * 基类封装 collect 逻辑
+     */
+    protected fun collect(block: suspend CoroutineScope.() -> Unit) {
+        collectJob?.cancel()
+        collectJob = collectAll {
+            block()
+        }
+    }
+
+    protected fun cancelCollect() {
+        collectJob?.cancel()
+        collectJob = null
     }
     // </editor-fold>
 

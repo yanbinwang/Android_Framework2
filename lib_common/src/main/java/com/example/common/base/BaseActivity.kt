@@ -308,7 +308,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             key.removeObserver(value)
         }
         dataManager.clear()
-        collectJob?.cancel()
+        cancelCollect()
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
@@ -319,7 +319,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
     // 保存当前注册的回调（用于移除旧回调）
     private var backCallback: Any? = null
-    protected open fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
+    protected fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
         // 移除旧回调，避免重复执行
         removeBackCallback()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -344,7 +344,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 移除当前注册的返回回调（恢复默认返回行为）
      */
-    protected open fun removeBackCallback() {
+    protected fun removeBackCallback() {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 (backCallback as? OnBackInvokedCallback)?.let {
@@ -361,18 +361,18 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 恢复默认返回行为（移除所有自定义回调）
      */
-    protected open fun restoreDefaultBackBehavior() {
+    protected fun restoreDefaultBackBehavior() {
         removeBackCallback()
     }
 
     /**
      * 实际开发中，严禁new一个activity，这是安卓框架所不允许的，故而跳转的回调也只能开给子类，但是fragment可以公开
      */
-    protected open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+    protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
 
-    protected open fun clearOnActivityResultListener() {
+    protected fun clearOnActivityResultListener() {
         onActivityResultListener = null
     }
 
@@ -419,12 +419,27 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * messageList.setPadding(0, 0, 0, actualKeyboardHeight)
      *  }
      */
-    protected open fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+    protected fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
         this.onWindowInsetsChanged = onWindowInsetsChanged
     }
 
-    protected open fun clearOnWindowInsetsChanged() {
+    protected fun clearOnWindowInsetsChanged() {
         onWindowInsetsChanged = null
+    }
+
+    /**
+     * 基类封装 collect 逻辑
+     */
+    protected fun collect(block: suspend CoroutineScope.() -> Unit) {
+        collectJob?.cancel()
+        collectJob = collectAll {
+            block()
+        }
+    }
+
+    protected fun cancelCollect() {
+        collectJob?.cancel()
+        collectJob = null
     }
     // </editor-fold>
 
@@ -535,16 +550,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         }
         dataManager[this] = observer
         observe(this@BaseActivity, observer)
-    }
-
-    /**
-     * 基类封装 collect 逻辑
-     */
-    protected open fun collect(block: suspend CoroutineScope.() -> Unit) {
-        collectJob?.cancel()
-        collectJob = this.collectAll {
-            block()
-        }
     }
     // </editor-fold>
 

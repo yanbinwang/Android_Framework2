@@ -930,10 +930,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun initEvent() {
         super.initEvent()
 
-//        collect {
+        collect {
 //            viewModel.data1.collect { ... }
 //            viewModel.data2.collect { ... }
-//        }
+        }
 
         //通过代码动态重置一下顶部的高度
         val bgHeight = 164.pt + getStatusBarHeight()
