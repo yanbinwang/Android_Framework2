@@ -3,6 +3,8 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.LayerDrawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -15,6 +17,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
@@ -145,6 +148,63 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
 
 fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
+
+/**
+ * 读取layer-list的xml内的图片数据
+ * <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+ *
+ *     <item android:drawable="@color/bgWhite" />
+ *
+ *     <item android:top="104dp">
+ *         <bitmap
+ *             android:antialias="true"
+ *             android:gravity="top|center_horizontal"
+ *             android:scaleType="fitXY"
+ *             android:width="300dp"
+ *             android:height="354dp"
+ *             android:src="@mipmap/bg_splash"
+ *             android:tileMode="disabled" />
+ *     </item>
+ *
+ * </layer-list>
+ * // 1. 目标 item 下标（这里假设是第二个 item，索引为1）
+ *  val targetItemIndex = 1
+ *  val drawableInfo = context.layerDrawable(R.drawable.layout_list_splash, targetItemIndex)
+ *  // 2. 解析 layer-list 资源
+ *  val layerDrawable = drawableInfo?.first
+ *  // 3. 获取目标 item
+ *  val bitmapDrawable = drawableInfo?.second
+ *  // 4. 获取XML中定义的item偏移（margin），单位是dp，需转为px
+ *  val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
+ * // val marginLeftDp = layerDrawable?.getLayerInsetLeft(targetItemIndex)
+ * // val marginRightDp = layerDrawable?.getLayerInsetRight(targetItemIndex)
+ * // val marginBottomDp = layerDrawable?.getLayerInsetBottom(targetItemIndex)
+ *  // 5. 获取XML中定义的bitmap宽高（android:width/android:height）注意：如果XML中是wrap_content，需用bitmap自身尺寸
+ *  val xmlWidthPx = try {
+ *      // 从drawable的固有宽高中获取XML定义的尺寸（仅对显式设置了宽高的有效）
+ *      bitmapDrawable?.intrinsicWidth
+ *  } catch (e: Exception) {
+ *      e.printStackTrace()
+ *      0
+ *  }.orZero
+ *  val xmlHeightPx = try {
+ *      bitmapDrawable?.intrinsicHeight
+ *  } catch (e: Exception) {
+ *      e.printStackTrace()
+ *      0
+ *  }.orZero
+ */
+fun layerDrawable(@DrawableRes res: Int): LayerDrawable? {
+    val mContext = BaseApplication.instance.applicationContext
+    return ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme) as? LayerDrawable
+}
+
+fun Context?.layerDrawable(@DrawableRes res: Int, index: Int): Pair<LayerDrawable?, BitmapDrawable?>? {
+    this ?: return null
+    val layerDrawable = ResourcesCompat.getDrawable(resources, res, theme) as? LayerDrawable
+    val bitmapDrawable = layerDrawable?.getDrawable(index) as? BitmapDrawable
+    return layerDrawable to bitmapDrawable
+}
 
 /**
  *  <string name="dollar">\$%1$s</string>
