@@ -22,7 +22,7 @@ import java.nio.charset.Charset
  */
 class LoggingInterceptor : Interceptor {
     private val UTF8 by lazy { Charset.forName("UTF-8") }
-    private val uploadFileUrls by lazy { arrayOf("user/uploadImg") }
+    private val excludedUploadUrls by lazy { arrayOf("user/uploadImg") }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -33,7 +33,7 @@ class LoggingInterceptor : Interceptor {
         //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
         if (!url.contains(ServerConfig.serverUrl())) return chain.proceed(request)
         //上传文件接口文本量过大，请求参数不做拦截
-        val params = if (uploadFileUrls.any { url.contains(it) }) {
+        val params = if (excludedUploadUrls.any { url.contains(it) }) {
             "文件上传"
         } else {
             getRequestBody(request)

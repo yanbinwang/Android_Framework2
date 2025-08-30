@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
  * val key = object {}.javaClass.enclosingMethod?.name ?: "unknown"
  */
 class JobManager(observer: LifecycleOwner?) {
-    //用于存储协程 Job 的线程安全集合
+    // 用于存储协程 Job 的线程安全集合
     private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
 
     init {
@@ -44,7 +44,7 @@ class JobManager(observer: LifecycleOwner?) {
      * key: String = getCallerMethodName()
      */
     fun manageJob(job: Job, key: String) {
-        //如果之前的 Job 存在，取消并从集合中移除
+        // 如果之前的 Job 存在，取消并从集合中移除
         jobMap[key]?.let {
             it.cancel()
             jobMap.remove(key)

@@ -75,6 +75,6 @@ dependencies {
     implementation(libs.stomp)
     implementation(libs.mmkv)
     //页面路由
-    implementation(libs.alibaba.arouter.api)
+    api(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)
 }

@@ -313,9 +313,27 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    // 保存当前注册的回调（用于移除旧回调）
+    /**
+     * ViewModel 中定义无值事件（用 Unit 替代 Any）
+     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     */
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseActivity, observer)
+    }
+
+    /**
+     * 保存当前注册的回调（用于移除旧回调）
+     */
     private var backCallback: Any? = null
-    protected open fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
+    protected fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
         // 移除旧回调，避免重复执行
         removeBackCallback()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -340,7 +358,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 移除当前注册的返回回调（恢复默认返回行为）
      */
-    protected open fun removeBackCallback() {
+    protected fun removeBackCallback() {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 (backCallback as? OnBackInvokedCallback)?.let {
@@ -357,18 +375,18 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 恢复默认返回行为（移除所有自定义回调）
      */
-    protected open fun restoreDefaultBackBehavior() {
+    protected fun restoreDefaultBackBehavior() {
         removeBackCallback()
     }
 
     /**
      * 实际开发中，严禁new一个activity，这是安卓框架所不允许的，故而跳转的回调也只能开给子类，但是fragment可以公开
      */
-    protected open fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
+    protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
 
-    protected open fun clearOnActivityResultListener() {
+    protected fun clearOnActivityResultListener() {
         onActivityResultListener = null
     }
 
@@ -415,11 +433,11 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * messageList.setPadding(0, 0, 0, actualKeyboardHeight)
      *  }
      */
-    protected open fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+    protected fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
         this.onWindowInsetsChanged = onWindowInsetsChanged
     }
 
-    protected open fun clearOnWindowInsetsChanged() {
+    protected fun clearOnWindowInsetsChanged() {
         onWindowInsetsChanged = null
     }
     // </editor-fold>
@@ -515,22 +533,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
-    }
-
-    /**
-     * ViewModel 中定义无值事件（用 Unit 替代 Any）
-     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
-     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
-     */
-    protected open fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
-        this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
-        }
-        dataManager[this] = observer
-        observe(this@BaseActivity, observer)
     }
     // </editor-fold>
 
