@@ -3,6 +3,7 @@ package com.example.common
 import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
+import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
 import android.widget.TextView
@@ -27,6 +28,7 @@ import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
 import com.example.common.network.socket.topic.WebSocketTopic
+import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper
@@ -106,6 +108,8 @@ abstract class BaseApplication : Application() {
         MMKV.initialize(applicationContext)
         //服务器地址类初始化
         ServerConfig.init()
+        //注册网络监听
+        NetWorkUtil.init(ProcessLifecycleOwner.get())
         //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         //語言包初始化
@@ -114,8 +118,6 @@ abstract class BaseApplication : Application() {
         closeAndroidPDialog()
         //阿里路由跳转初始化
         initARouter()
-        //注册网络监听
-        initReceiver()
         //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
         //全局刷新控件的样式
@@ -177,36 +179,6 @@ abstract class BaseApplication : Application() {
             //语言包已配置
             checkLanguageVersion()
         }
-    }
-
-    private fun initReceiver() {
-//        (getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager)?.registerNetworkCallback(NetworkRequest.Builder().build(), NetworkCallbackImpl())
-//        registerReceiver(NetworkReceiver().apply {
-//            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
-//        }, NetworkReceiver.filter)
-        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
-            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
-        }, NetworkReceiver.filter)
-//        val networkCallback = object : ConnectivityManager.NetworkCallback() {
-//            var listener: (isOnline: Boolean) -> Unit = {}
-//            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-//                super.onCapabilitiesChanged(network, networkCapabilities)
-//                val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-//                listener(isOnline)
-//            }
-//        }
-//        val networkRequest = NetworkRequest.Builder()
-//            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-//            .build()
-//        val connectivityManager = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
-//        connectivityManager?.registerNetworkCallback(networkRequest, networkCallback.apply { listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() } })
-//        ProcessLifecycleOwner.get().doOnDestroy {
-//            try {
-//                connectivityManager?.unregisterNetworkCallback(networkCallback)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
     }
 
     private fun initListener() {
@@ -361,7 +333,21 @@ abstract class BaseApplication : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
         System.gc()
-        if (level >= TRIM_MEMORY_MODERATE) {
+        /**
+         * TRIM_MEMORY_MODERATE: 应用处于 “后台 LRU 列表的中间位置”——
+         * 此时系统内存已较紧张，主动释放内存（如缓存、非关键图片等），能帮助系统保留 LRU 列表中更靠后的其他进程，提升整体系统性能。
+         * 从 API 34（Android 14）开始废弃,Android 14 后，系统对后台进程的管理更精细化（如基于进程重要性、用户活跃度动态调整内存优先级），
+         * 不再需要通过 “中间级别” 通知应用。系统会直接通过更关键的级别（如 TRIM_MEMORY_RUNNING_LOW、TRIM_MEMORY_BACKGROUND）传递核心内存压力信号，避免应用接收冗余或模糊的指令。
+         * TRIM_MEMORY_BACKGROUND（40）的语义是 “应用在后台 LRU 列表靠前位置，系统开始回收后台进程”，与 TRIM_MEMORY_MODERATE（60）的 “后台中间位置” 在实际场景中差异不大，都是需要释放缓存的信号。
+         */
+        val shouldClearCache = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            // API 34+：判断是否达到后台内存紧张级别
+            level >= TRIM_MEMORY_BACKGROUND
+        } else {
+            // 低版本：保留原逻辑（TRIM_MEMORY_MODERATE仍有效）
+            level >= TRIM_MEMORY_MODERATE
+        }
+        if (shouldClearCache) {
             ImageLoader.instance.clearMemoryCache(applicationContext, ProcessLifecycleOwner.get())
         }
     }
