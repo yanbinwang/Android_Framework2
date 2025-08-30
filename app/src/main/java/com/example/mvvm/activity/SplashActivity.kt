@@ -95,6 +95,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        adjustSplash(mBinding?.ivSplash)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -103,7 +104,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             finish()
             return
         }
-        adjustSplash(mBinding?.ivSplash)
         window.applyFullScreen()
         //当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {
