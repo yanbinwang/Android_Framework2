@@ -9,7 +9,6 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
-import android.view.animation.Animation
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -31,7 +30,6 @@ import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.i18n.I18nTextView
-import com.example.framework.utils.AnimationUtil.Companion.loadAnimation
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
@@ -264,12 +262,12 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
     })
 }
 
-/**
- * 自定义反向动画
- */
-fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-    return loadAnimation(if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out, onStart, onEnd, onRepeat)
-}
+///**
+// * 自定义反向动画
+// */
+//fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
+//    return loadAnimation(if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out, onStart, onEnd, onRepeat)
+//}
 
 /**
  * 点击链接的span
