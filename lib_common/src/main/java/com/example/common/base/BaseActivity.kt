@@ -24,6 +24,8 @@ import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
@@ -96,6 +98,7 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
+    protected var mSplashScreen: SplashScreen? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
@@ -175,6 +178,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     /**
+     * 不需要启动过渡页的页面调取该方法
+     */
+    protected open fun isSplashScreenEnabled(): Boolean {
+        return false
+    }
+
+    /**
      * 1.如果当前设备支持状态栏字体变色，会设置状态栏字体为黑色/如果当前设备不支持状态栏字体变色，会使当前状态栏加上透明度，否则不执行透明度
      * 2.导航栏字体深色或亮色，只支持android O(api26)以上版本,背景在5.0+可设置,为兼顾最低6.0(23+)的手机,统一底部为白色
      *
@@ -244,6 +254,10 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun initView(savedInstanceState: Bundle?) {
+        if (isSplashScreenEnabled()) {
+            // 启动遮罩初始化操作(必须放在setContentView()之前)
+            mSplashScreen = installSplashScreen()
+        }
         if (isBindingEnabled()) {
             val type = javaClass.genericSuperclass
             if (type is ParameterizedType) {

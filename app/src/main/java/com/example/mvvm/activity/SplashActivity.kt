@@ -1,18 +1,33 @@
 package com.example.mvvm.activity
 
+import android.content.Context
 import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.LayerDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.MotionEvent
+import android.widget.ImageView
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.splashscreen.SplashScreen
+import androidx.core.splashscreen.SplashScreenViewProvider
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.getFadePreview
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
+import com.example.common.utils.helper.AccountHelper.isLogin
+import com.example.common.utils.helper.ConfigHelper
+import com.example.framework.utils.function.view.alpha
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.size
+import com.example.mvvm.R
+import com.example.mvvm.databinding.ActivitySplashBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import me.jessyan.autosize.internal.CancelAdapt
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  *  Created by wangyanbin
@@ -35,18 +50,76 @@ import me.jessyan.autosize.internal.CancelAdapt
  *  不管设备是处于正常运行、休眠还是其他状态，这个时间都会持续累加。该方法返回的时间单位是毫秒（ms
  */
 @Route(path = ARouterPath.SplashActivity)
-class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
+class SplashActivity : BaseActivity<ActivitySplashBinding>() {
+    private var mKeepOn = AtomicBoolean(true)
+
+    companion object {
+        /**
+         * 是否引入高版本启动页
+         */
+        private val isHighVersion get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+
+        /**
+         * 获取 layer-list 中 bitmap 的实际宽高和 top 偏移
+         * @param context 上下文
+         * @param layerListResId layer-list 资源ID
+         * @return 包含宽、高、top偏移的三元组 (widthPx, heightPx, topPx)
+         */
+        @JvmStatic
+        private fun Context?.getBitmapActualDimensions(layerListResId: Int): Triple<Int, Int, Int> {
+            this ?: return Triple(0, 0, 0)
+            // 1. 解析 layer-list 资源
+            val layerDrawable = ResourcesCompat.getDrawable(resources, layerListResId, theme) as? LayerDrawable ?: return Triple(0, 0, 0)
+            // 2. 获取目标 item（这里假设是第二个 item，索引为1）
+            val targetItemIndex = 1 // 对应你的 bitmap 所在的 item
+            val bitmapDrawable = layerDrawable.getDrawable(targetItemIndex) as? BitmapDrawable ?: return Triple(0, 0, 0)
+            // 3. 获取XML中定义的item偏移（margin），单位是dp，需转为px
+            val marginTopDp = layerDrawable.getLayerInsetTop(targetItemIndex)
+//        val marginLeftDp = layerDrawable.getLayerInsetLeft(targetItemIndex)
+//        val marginRightDp = layerDrawable.getLayerInsetRight(targetItemIndex)
+//        val marginBottomDp = layerDrawable.getLayerInsetBottom(targetItemIndex)
+            // 4. 获取XML中定义的bitmap宽高（android:width/android:height）
+            // 注意：如果XML中是wrap_content，需用bitmap自身尺寸
+            val xmlWidthPx = try {
+                // 从drawable的固有宽高中获取XML定义的尺寸（仅对显式设置了宽高的有效）
+                bitmapDrawable.intrinsicWidth
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0
+            }
+            val xmlHeightPx = try {
+                bitmapDrawable.intrinsicHeight
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0
+            }
+            return Triple(xmlWidthPx, xmlHeightPx, marginTopDp)
+        }
+
+        /**
+         * 安卓12之前版本点击图标启动app需要配置一个xml,但是xml中的宽高到实时获取的宽高值时会有出入,增加获取文件的方法做校准
+         */
+        @JvmStatic
+        fun adjustSplash(ivSplash: ImageView?) {
+            if (!isHighVersion) {
+                ivSplash?.apply {
+                    val info = context.getBitmapActualDimensions(R.drawable.layout_list_splash)
+                    size(info.first,info.second)
+                    margin(top = info.third)
+                }
+            }
+        }
+
+    }
 
     override fun isImmersionBarEnabled() = false
 
-    override fun isBindingEnabled() = false
+    override fun isSplashScreenEnabled() = isHighVersion
+
+    override fun isBindingEnabled() = isHighVersion
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        /**
-         * 当用户从最近任务列表重启 App 时，系统可能会创建新的SplashActivity实例并置于已有任务栈顶部（而非复用根部实例），导致启动页重复显示。
-         * 通过finish()销毁了这个多余的顶部实例，确保用户看到的是任务栈根部的页面，该逻辑在standard模式下是有效的
-         */
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -55,40 +128,97 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
             finish()
             return
         }
+        adjustSplash(mBinding?.ivSplash)
         window.applyFullScreen()
         //当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {
             jump()
         } else {
-            //当前Activity是任务栈的根，执行相应逻辑
-            initSplash()
+            if (isHighVersion) {
+                /**
+                 * 用来控制启动屏何时退出、让应用主内容显示的 “条件开关”，核心作用是 “阻塞启动屏自动消失，直到你指定的业务准备完成”
+                 */
+                mSplashScreen?.setKeepOnScreenCondition(object : SplashScreen.KeepOnScreenCondition {
+                    override fun shouldKeepOnScreen(): Boolean {
+                        return mKeepOn.get()
+                    }
+                })
+                /**
+                 * 展示完毕的监听方法
+                 */
+                mSplashScreen?.setOnExitAnimationListener(object : SplashScreen.OnExitAnimationListener {
+                    override fun onSplashScreenExit(splashScreenViewProvider: SplashScreenViewProvider) {
+                        // 整体启动view
+                        val splashScreenView = splashScreenViewProvider.view
+//                    // 启动屏中央的图标
+//                    val iconView = splashScreenViewProvider.iconView
+//                    PropertyAnimator(iconView, 500)
+//                        .animateWidth(iconView.measuredWidth, 300.pt)
+//                        .animateHeight(iconView.measuredHeight, 354.pt)
+//                        .start(onEnd = {
+//                            iconView.alpha(1f,0f,500){
+//                                // 移除监听
+//                                splashScreenViewProvider.remove()
+//                                //当前Activity是任务栈的根，执行相应逻辑
+//                                jump(true)
+//                            }
+//                        })
+                        // 结束时做个渐隐藏动画,然后开始执行跳转
+                        splashScreenView.alpha(1f, 0f, 500) {
+                            // 移除监听
+                            splashScreenViewProvider.remove()
+                            //当前Activity是任务栈的根，执行相应逻辑
+                            jump(true)
+                        }
+                    }
+                })
+                initSplash()
+            } else {
+                jump(true)
+            }
         }
     }
 
     private fun initSplash() {
         launch {
-            val SPLASH_DELAY = 2000L
-            // 计算已经过去的时间
-            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime.get()
-            // 计算还需要等待的时间
-            val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
-                0
-            } else {
-                SPLASH_DELAY - elapsedTime
-            }
-            delay(remainingTime)
-            jump()
+            // splash只存在半秒
+            delay(500)
+            // Splash 展示完毕
+            mKeepOn.set(false)
         }
     }
 
-    private fun jump() {
-//        // 此时页面切换的间隙，窗口没有可显示的内容(启动页目前就是栈内最后一个页面,直接关闭会黑一下,然后才是拉起对应页面)
-//        navigation(ARouterPath.MainActivity, options = getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out))
-//        // 延迟关闭启动页,解决黑屏问题
-//        schedule(this, {
-//            finish()
-//        }, 500)
-        navigation(ARouterPath.MainActivity, options = getFadePreview())
+    private fun jump(isDelay: Boolean = false) {
+        // 此时页面切换的间隙，窗口没有可显示的内容(启动页目前就是栈内最后一个页面,直接关闭会黑一下,然后才是拉起对应页面)
+        val jumpAction = {
+//            navigation(if (ConfigHelper.getPrivacyAgreed()) {
+//                if (isLogin()) {
+//                    ARouterPath.MainActivity
+//                } else {
+//                    ARouterPath.StartActivity
+//                }
+//            } else {
+//                ARouterPath.LaunchActivity
+//            }, options = getFadePreview())
+            navigation(ARouterPath.MainActivity, options = getFadePreview())
+        }
+        if (isDelay) {
+            launch {
+                val SPLASH_DELAY = 2000L
+                // 计算已经过去的时间
+                val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime.get() - if (isHighVersion) 500 else 0
+                // 计算还需要等待的时间
+                val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
+                    0
+                } else {
+                    SPLASH_DELAY - elapsedTime
+                }
+                delay(remainingTime)
+                jumpAction()
+            }
+        } else {
+            jumpAction()
+        }
     }
 
     /**
@@ -106,3 +236,75 @@ class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
     }
 
 }
+//@Route(path = ARouterPath.SplashActivity)
+//class SplashActivity : BaseActivity<Nothing>(), CancelAdapt {
+//
+//    override fun isImmersionBarEnabled() = false
+//
+//    override fun isBindingEnabled() = false
+//
+//    override fun initView(savedInstanceState: Bundle?) {
+//        super.initView(savedInstanceState)
+//        /**
+//         * 当用户从最近任务列表重启 App 时，系统可能会创建新的SplashActivity实例并置于已有任务栈顶部（而非复用根部实例），导致启动页重复显示。
+//         * 通过finish()销毁了这个多余的顶部实例，确保用户看到的是任务栈根部的页面，该逻辑在standard模式下是有效的
+//         */
+//        if (!isTaskRoot
+//            && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
+//            && intent.action != null
+//            && intent.action == Intent.ACTION_MAIN
+//        ) {
+//            finish()
+//            return
+//        }
+//        window.applyFullScreen()
+//        //当前Activity不是任务栈的根，可能是通过其他Activity启动的
+//        if (!isTaskRoot) {
+//            jump()
+//        } else {
+//            //当前Activity是任务栈的根，执行相应逻辑
+//            initSplash()
+//        }
+//    }
+//
+//    private fun initSplash() {
+//        launch {
+//            val SPLASH_DELAY = 2000L
+//            // 计算已经过去的时间
+//            val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime.get()
+//            // 计算还需要等待的时间
+//            val remainingTime = if (SPLASH_DELAY - elapsedTime < 0) {
+//                0
+//            } else {
+//                SPLASH_DELAY - elapsedTime
+//            }
+//            delay(remainingTime)
+//            jump()
+//        }
+//    }
+//
+//    private fun jump() {
+////        // 此时页面切换的间隙，窗口没有可显示的内容(启动页目前就是栈内最后一个页面,直接关闭会黑一下,然后才是拉起对应页面)
+////        navigation(ARouterPath.MainActivity, options = getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out))
+////        // 延迟关闭启动页,解决黑屏问题
+////        schedule(this, {
+////            finish()
+////        }, 500)
+//        navigation(ARouterPath.MainActivity, options = getFadePreview())
+//    }
+//
+//    /**
+//     * 尝试解决启动页的dispatch闪退问题，这边切换成系统默认的dispatch逻辑
+//     */
+//    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
+//        if (ev.action == MotionEvent.ACTION_DOWN) {
+//            onUserInteraction()
+//        }
+//        return if (window.superDispatchTouchEvent(ev)) {
+//            true
+//        } else {
+//            onTouchEvent(ev)
+//        }
+//    }
+//
+//}
