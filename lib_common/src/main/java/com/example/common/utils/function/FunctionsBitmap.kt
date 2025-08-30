@@ -20,7 +20,6 @@ import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import java.io.File
 
 /**
  * 读取mipmap下的图片
