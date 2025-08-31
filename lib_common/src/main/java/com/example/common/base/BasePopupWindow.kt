@@ -30,7 +30,6 @@ import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
-import com.example.common.utils.function.getNavigationBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
@@ -91,6 +90,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
+        // 设置外部宽高
+        width = if (popupWidth < 0) popupWidth else popupWidth.pt
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt
+        // 设置内部view
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -112,12 +115,12 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 e.printStackTrace()
             }
         }
-        width = if (popupWidth < 0) popupWidth else popupWidth.pt
-        height = if (popupHeight < 0) popupHeight else popupHeight.pt + if (popupAnimStyle == TRANSLATE) getNavigationBarHeight() else 0
+        // 基础交互属性配置
         isFocusable = true
         isOutsideTouchable = true
         isClippingEnabled = false // 完全撑满整个屏幕
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        // 绑定宿主生命周期
         lifecycleOwner.doOnDestroy {
             mBinding?.unbind()
             mBinding = null

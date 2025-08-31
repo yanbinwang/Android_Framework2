@@ -53,17 +53,6 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
-        val type = javaClass.genericSuperclass
-        if (type is ParameterizedType) {
-            try {
-                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
-                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
-                mBinding = method?.invoke(null, layoutInflater) as? VDB
-                mBinding?.root?.let { setContentView(it) }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
         /**
          * Dialog 的 window 是独立的，但会依赖宿主的生命周期和窗口层级：宿主（Activity）的 window 是顶级窗口（TYPE_APPLICATION），
          * 而 Dialog 的 window 是子窗口（默认 TYPE_APPLICATION_DIALOG），会依附于宿主窗口显示（宿主销毁时，子窗口会被系统强制回收）
@@ -75,6 +64,19 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
             it.attributes = lp
             it.setGravity(gravity)
         }
+        // 设置内部view
+        val type = javaClass.genericSuperclass
+        if (type is ParameterizedType) {
+            try {
+                val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
+                val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
+                mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.root?.let { setContentView(it) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        // 绑定宿主生命周期
         lifecycleOwner.doOnDestroy {
             mBinding?.unbind()
             mBinding = null
