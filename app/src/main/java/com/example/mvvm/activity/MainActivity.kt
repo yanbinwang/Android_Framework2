@@ -39,7 +39,7 @@ import com.example.framework.utils.logE
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.widget.dialog.TestTopDialog
+import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -47,7 +47,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeoutOrNull
-
 
 /**
  *  <data>
@@ -363,7 +362,8 @@ println(myClass.myProperty)
 @Route(path = ARouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
-    private val testDialog by lazy { TestTopDialog() }
+//    private val testDialog by lazy { TestTopDialog() }
+    private val testDialog by lazy { TestBottomDialog(this) }
 
     //    private val ids = listOf(R.color.blue_2a3160, R.color.blue_1566ec, R.color.blue_6e7ce2, R.color.blue_aac6f4)
 //    private val adapter by lazy { ImageAdapter() }
@@ -401,7 +401,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 ////                    navigation(ARouterPath.TestActivity)
 //                }
 //            }
-            testDialog.show(supportFragmentManager)
+            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)
@@ -928,6 +928,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun initEvent() {
         super.initEvent()
+        setOnWindowInsetsChanged {
+            testDialog.setNavigationBar(it)
+        }
         //通过代码动态重置一下顶部的高度
         val bgHeight = 164.pt + getStatusBarHeight()
         mBinding?.ivFundsBg.size(height = bgHeight)

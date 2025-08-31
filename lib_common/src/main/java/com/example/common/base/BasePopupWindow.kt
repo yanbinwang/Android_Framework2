@@ -16,8 +16,11 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import android.widget.LinearLayout
 import android.widget.PopupWindow
+import androidx.annotation.ColorRes
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
@@ -26,13 +29,14 @@ import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
-import com.example.common.utils.function.getNavigationBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
-import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.layoutGravity
+import com.example.framework.utils.function.view.size
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -49,6 +53,19 @@ import java.lang.reflect.ParameterizedType
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
+    // 项目框架采用enableEdgeToEdge,属于全屏展示,如果是底部弹出的弹框,我们给页面适配一个底部导航栏
+    private val navigationBarView by lazy {
+        View(context).apply {
+            size(MATCH_PARENT, WRAP_CONTENT)
+        }
+    }
+    private val parentView by lazy {
+        LinearLayout(context).apply {
+            size(MATCH_PARENT, WRAP_CONTENT)
+            orientation = LinearLayout.VERTICAL
+            layoutGravity = BOTTOM
+        }
+    }
     protected var mBinding: VDB? = null
     protected val rootView get() = mBinding?.root
     protected val context: Context get() = activity
@@ -78,7 +95,14 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
-                mBinding?.root?.let { setContentView(it) }
+                if (popupAnimStyle == TRANSLATE) {
+                    parentView.addView(mBinding?.root)
+                    parentView.addView(navigationBarView)
+                    setContentView(parentView)
+                    setNavigationBarColor()
+                } else {
+                    mBinding?.root?.let { setContentView(it) }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -186,9 +210,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             layoutParams?.alpha = 0.7f
             window.attributes = layoutParams
         }
-        if (popupAnimStyle == TRANSLATE) {
-            mBinding?.root.padding(bottom = getNavigationBarHeight())
-        }
     }
 
     override fun dismiss() {
@@ -199,6 +220,23 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window.windowManager == null) return
         if (window.decorView.parent == null) return
         super.dismiss()
+    }
+
+    /**
+     * 设置导航栏高度
+     * 页面重写监听setOnWindowInsetsChanged,每次改变时候调用该方法
+     */
+    open fun setNavigationBar(insets: WindowInsetsCompat) {
+        val navBarBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        navigationBarView.size(height = navBarBottom)
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt + navBarBottom
+    }
+
+    /**
+     * 设置导航栏颜色,初始化随页面,调用一次即可
+     */
+    open fun setNavigationBarColor(@ColorRes navigationBarColor: Int = R.color.appNavigationBar) {
+        navigationBarView.background(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack)
     }
 
     /**
