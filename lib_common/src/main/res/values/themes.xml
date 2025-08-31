@@ -149,11 +149,14 @@
     </style>
 
     <!-- App全局定义提示框样式 -->
-    <style name="DialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="DialogStyle" parent="Theme.AppCompat.Dialog">
+        <!-- 禁用 ActionBar 并隐藏标题栏 -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <!-- 移除窗口边框（设置为无） -->
         <item name="android:windowFrame">@null</item>
-        <!-- 窗口不显示标题栏 -->
-        <item name="android:windowNoTitle">true</item>
 <!--        &lt;!&ndash; 窗口动画（提升交互体验） &ndash;&gt;-->
 <!--        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>-->
         <!-- 窗口设为悬浮模式（类似对话框的浮动效果） -->

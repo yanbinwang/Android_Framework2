@@ -10,6 +10,7 @@ import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.view.WindowManager
+import androidx.appcompat.app.AppCompatDialog
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
@@ -38,7 +39,7 @@ import java.lang.reflect.ParameterizedType
  *   Application 上下文的生命周期贯穿整个应用程序的生命周期，而不是某个具体 Activity 的生命周期。如果使用 Application 上下文创建 Dialog，Dialog 不会随着 Activity 的销毁而销毁，可能会导致内存泄漏和显示异常
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, themeResId: Int = R.style.DialogStyle, private val dialogWidth: Int = 320, private val dialogHeight: Int = WRAP_CONTENT, private val gravity: Int = CENTER, private val hasAnimation: Boolean = true) : Dialog(activity, themeResId), BaseImpl {
+abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, themeResId: Int = R.style.DialogStyle, private val dialogWidth: Int = 320, private val dialogHeight: Int = WRAP_CONTENT, private val gravity: Int = CENTER, private val hasAnimation: Boolean = true) : AppCompatDialog(activity, themeResId), BaseImpl {
     protected var mBinding: VDB? = null
     protected val rootView get() = mBinding?.root
     protected val lifecycleOwner get() = ownerActivity as? LifecycleOwner
