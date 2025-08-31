@@ -18,7 +18,6 @@ import android.view.View
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -117,7 +116,7 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
         val resultBitmap = Bitmap.createBitmap(this, 0, 0, originalWidth, originalHeight, matrix, true)
         /**
          * 只有当新 bitmap 与原 bitmap 不是同一个对象时才回收原 bitmap
-         * 当缩放比例为 1:1（目标尺寸与原图尺寸完全一致）
+         * 当缩放比例为 1:1（目标尺寸与原图尺寸完全一致,如果传入的 targetWidth 等于 Bitmap 原始宽度、targetHeight 等于原始高度（比如原始 Bitmap 是 500x500，目标尺寸也是 500x500），就属于 “1:1 缩放）
          * 系统对 Bitmap 进行了复用优化（虽然少见，但 Android 框架存在类似优化逻辑）
          * 这时此时如果 resultBitmap === this 时，直接调用 recycle() 会导致：
          * 新返回的 resultBitmap 也被回收，变成无效对象
@@ -242,8 +241,8 @@ fun Drawable.toBitmap(): Bitmap {
  */
 fun View?.getBitmap(targetWidth: Int? = null, targetHeight: Int? = null, needBg: Boolean = true): Bitmap? {
     this ?: return null
-    //请求转换
     return try {
+        // RGB_565 格式（仅支持 RGB 三色，不支持透明，内存占用是 ARGB_8888 的一半）
         val screenshot = createBitmap(width, height, if (needBg) Bitmap.Config.RGB_565 else Bitmap.Config.ARGB_8888)
         val canvas = Canvas(screenshot)
         if (needBg) canvas.drawColor(Color.WHITE)
@@ -263,24 +262,37 @@ fun View?.getBitmap(targetWidth: Int? = null, targetHeight: Int? = null, needBg:
  * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
  * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
  */
-fun View.loadLayout(width: Int, height: Int) {
-    //整个View的大小 参数是左上角 和右下角的坐标
-    layout(0, 0, width, height)
-    val measuredWidth = View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY)
-    val measuredHeight = View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
-    measure(measuredWidth, measuredHeight)
-    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
+fun View.loadLayout(targetWidth: Int, targetHeight: Int) {
+//    //整个View的大小 参数是左上角 和右下角的坐标
+//    layout(0, 0, width, height)
+//    val measuredWidth = View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY)
+//    val measuredHeight = View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
+//    measure(measuredWidth, measuredHeight)
+//    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
+    // 生成精确测量规则
+    val widthSpec = View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY)
+    val heightSpec = View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
+    // 执行测量
+    measure(widthSpec, heightSpec)
+    // 应用测量结果：布局位置（0,0）到（测量后宽度, 测量后高度）
+    layout(0, 0, measuredWidth, measuredHeight)
 }
 
 /**
  * 如果不设置canvas画布为白色，则生成透明
  */
 fun View.loadBitmap(): Bitmap {
-    val bitmap = createBitmap(width, height)
+    // 创建与 View 测量后尺寸一致的 Bitmap（ARGB_8888 格式，保证画质）
+    val bitmap = createBitmap(measuredWidth, measuredHeight)
+    // 创建与Bitmap关联的Canvas
     val canvas = Canvas(bitmap)
+    // 绘制背景（避免透明背景，可根据需求修改颜色）
     canvas.drawColor(Color.WHITE)
+    // 强制View布局到指定位置和尺寸
     layout(0, 0, width, height)
+    // 将 View 绘制到 Canvas（此时 View 已完成布局，尺寸有效）
     draw(canvas)
+    // 返回生成的Bitmap
     return bitmap
 }
 

@@ -42,6 +42,7 @@ import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.glide.ImageLoader
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -146,23 +147,55 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
  * hideDialog()
  * insertImageResolver(File(it.orEmpty()))
  * })
+ * 弹窗的 show() 是当前主线程消息，会优先执行，所以弹窗能正常弹出、转圈动画流畅；
+ * View 操作被 post 到下一个消息队列，等弹窗渲染完成后再执行，即使耗时久，也不会让弹窗 “卡着不显示”；
+ * 协程通过 deferred.await() 挂起等待结果，不会阻塞主线程其他操作。
  */
 suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT): Bitmap? {
-    return try {
-        withContext(IO) {
-            //对传入的高做一个修正，如果是自适应需要先做一次测绘
+//    return try {
+//        // Android 中 View 的 measure()/layout()/draw() 必须在主线程执行，在 IO 线程调用会导致异常
+//        withContext(Main.immediate) {
+//            // 对传入的高做一个修正，如果是自适应需要先做一次测绘
+//            val mHeight = if (height < 0) {
+//                view.measure(WRAP_CONTENT, WRAP_CONTENT)
+//                view.measuredHeight
+//            } else {
+//                height
+//            }
+//            // 强制 View 完成测量与布局
+//            view.loadLayout(width, mHeight)
+//            // 绘制 View 到 Bitmap
+//            view.loadBitmap()
+//        }
+//    } catch (e: Exception) {
+//        throw e
+//    }
+    // 用 CompletableDeferred 实现“主线程异步操作+协程等待”
+    val deferred = CompletableDeferred<Bitmap?>()
+    // 先让弹窗正常显示（此时主线程先处理弹窗消息）
+    // 用 view.post {} 把 View 操作推迟到主线程空闲时执行 (view.post强制将 View 操作切换到主线程执行，不受外层切 IO 线程影响)
+    view.post {
+        try {
+            // 这里的 View 操作仍在主线程，但已在弹窗显示之后执行
+            // 对传入的高做一个修正，如果是自适应需要先做一次测绘
             val mHeight = if (height < 0) {
                 view.measure(WRAP_CONTENT, WRAP_CONTENT)
                 view.measuredHeight
             } else {
                 height
             }
+            // 强制 View 完成测量与布局
             view.loadLayout(width, mHeight)
-            view.loadBitmap()
+            // 绘制 View 到 Bitmap
+            val bitmap = view.loadBitmap()
+            // 操作完成，通知协程返回结果
+            deferred.complete(bitmap)
+        } catch (e: Exception) {
+            deferred.completeExceptionally(e)
         }
-    } catch (e: Exception) {
-        throw e
     }
+    // 协程挂起等待，直到 View 操作完成（不阻塞主线程）
+    return deferred.await()
 }
 
 /**

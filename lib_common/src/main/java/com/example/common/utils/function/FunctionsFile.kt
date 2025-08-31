@@ -155,13 +155,13 @@ fun Number?.getSizeFormat(): String {
     val byteResult = this.toSafeLong() / 1024
     if (byteResult < 1) return "<1K"
     val kiloByteResult = byteResult / 1024
-    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}K"
+    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}K"
     val mByteResult = kiloByteResult / 1024
-    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}M"
+    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}M"
     val gigaByteResult = mByteResult / 1024
-    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
+    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
-    return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+    return "${teraByteResult.setScale(2, ROUND_HALF_UP).toPlainString()}TB"
 }
 
 /**
