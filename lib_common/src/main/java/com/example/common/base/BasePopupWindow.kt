@@ -101,12 +101,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     parentView.addView(navigationBarView)
                     setContentView(parentView)
                     setNavigationBarColor()
-                    window.decorView.apply {
-                        ViewCompat.setOnApplyWindowInsetsListener(this, null)
-                        ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
-                            setNavigationBar(insets)
-                            WindowInsetsCompat.CONSUMED
-                        }
+                    ViewCompat.getRootWindowInsets(window.decorView)?.let {
+                        setNavigationBar(it)
                     }
                 } else {
                     mBinding?.root?.let { setContentView(it) }
@@ -122,7 +118,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         isClippingEnabled = false // 完全撑满整个屏幕
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         lifecycleOwner.doOnDestroy {
-            ViewCompat.setOnApplyWindowInsetsListener(window.decorView, null)
             mBinding?.unbind()
             mBinding = null
         }
