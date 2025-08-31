@@ -53,17 +53,6 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
-        /**
-         * Dialog 的 window 是独立的，但会依赖宿主的生命周期和窗口层级：宿主（Activity）的 window 是顶级窗口（TYPE_APPLICATION），
-         * 而 Dialog 的 window 是子窗口（默认 TYPE_APPLICATION_DIALOG），会依附于宿主窗口显示（宿主销毁时，子窗口会被系统强制回收）
-         */
-        window?.let {
-            val lp = it.attributes
-            lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
-            lp.height = if (dialogHeight < 0) dialogHeight else dialogHeight.pt
-            it.attributes = lp
-            it.setGravity(gravity)
-        }
         // 设置内部view
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
@@ -75,6 +64,17 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
             } catch (e: Exception) {
                 e.printStackTrace()
             }
+        }
+        /**
+         * Dialog 的 window 是独立的，但会依赖宿主的生命周期和窗口层级：宿主（Activity）的 window 是顶级窗口（TYPE_APPLICATION），
+         * 而 Dialog 的 window 是子窗口（默认 TYPE_APPLICATION_DIALOG），会依附于宿主窗口显示（宿主销毁时，子窗口会被系统强制回收）
+         */
+        window?.let {
+            val lp = it.attributes
+            lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
+            lp.height = if (dialogHeight < 0) dialogHeight else dialogHeight.pt
+            it.attributes = lp
+            it.setGravity(gravity)
         }
         // 绑定宿主生命周期
         lifecycleOwner.doOnDestroy {

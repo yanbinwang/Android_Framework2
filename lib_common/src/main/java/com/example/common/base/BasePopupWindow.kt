@@ -90,9 +90,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
-        // 设置外部宽高
-        width = if (popupWidth < 0) popupWidth else popupWidth.pt
-        height = if (popupHeight < 0) popupHeight else popupHeight.pt
         // 设置内部view
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
@@ -104,10 +101,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     parentView.addView(mBinding?.root)
                     parentView.addView(navigationBarView)
                     setContentView(parentView)
-                    setNavigationBarColor()
-                    ViewCompat.getRootWindowInsets(window.decorView)?.let {
-                        setNavigationBar(it)
-                    }
                 } else {
                     mBinding?.root?.let { setContentView(it) }
                 }
@@ -116,10 +109,18 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             }
         }
         // 基础交互属性配置
+        width = if (popupWidth < 0) popupWidth else popupWidth.pt
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt
         isFocusable = true
         isOutsideTouchable = true
         isClippingEnabled = false // 完全撑满整个屏幕
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        if (popupAnimStyle == TRANSLATE) {
+            setNavigationBarColor()
+            ViewCompat.getRootWindowInsets(window.decorView)?.let {
+                setNavigationBar(it)
+            }
+        }
         // 绑定宿主生命周期
         lifecycleOwner.doOnDestroy {
             mBinding?.unbind()
