@@ -3,8 +3,7 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -84,7 +83,6 @@ fun getManifestString(name: String): String? {
  * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
  */
 fun getStatusBarHeight(): Int {
-//    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
     val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
     val currentActivity = AppManager.currentActivity()
     return if (null == currentActivity) {
@@ -99,9 +97,6 @@ fun getStatusBarHeight(): Int {
  * 获取底栏高度(静态默认值)
  */
 fun getNavigationBarHeight(): Int {
-//    val mContext = BaseApplication.instance.applicationContext
-//    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
-//    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
     val mContext = BaseApplication.instance.applicationContext
     val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
     val currentActivity = AppManager.currentActivity()
@@ -134,19 +129,6 @@ fun getFormattedCacheSize(): String {
     }
     return value
 }
-
-/**
- * 获取resources中的color
- */
-@ColorInt
-fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
-
-/**
- * 获取图片
- */
-fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
-
-fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  * 读取layer-list的xml内的图片数据
@@ -193,17 +175,30 @@ fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.ap
  *      0
  *  }.orZero
  */
-fun layerDrawable(@DrawableRes res: Int): LayerDrawable? {
+inline fun <reified T : Drawable> getTypedDrawable(@DrawableRes res: Int): T? {
     val mContext = BaseApplication.instance.applicationContext
-    return ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme) as? LayerDrawable
+    val drawable = ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme)
+    return drawable as? T
 }
 
-fun Context?.layerDrawable(@DrawableRes res: Int, index: Int): Pair<LayerDrawable?, BitmapDrawable?>? {
+inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
     this ?: return null
-    val layerDrawable = ResourcesCompat.getDrawable(resources, res, theme) as? LayerDrawable
-    val bitmapDrawable = layerDrawable?.getDrawable(index) as? BitmapDrawable
-    return layerDrawable to bitmapDrawable
+    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
+    return drawable as? T
 }
+
+/**
+ * 获取resources中的color
+ */
+@ColorInt
+fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
+
+/**
+ * 获取图片
+ */
+fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  * 获取Resources中的String
