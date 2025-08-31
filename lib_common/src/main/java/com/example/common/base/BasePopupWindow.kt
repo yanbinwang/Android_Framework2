@@ -20,6 +20,7 @@ import android.widget.LinearLayout
 import android.widget.PopupWindow
 import androidx.annotation.ColorRes
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
@@ -100,6 +101,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     parentView.addView(navigationBarView)
                     setContentView(parentView)
                     setNavigationBarColor()
+                    window.decorView.apply {
+                        ViewCompat.setOnApplyWindowInsetsListener(this, null)
+                        ViewCompat.setOnApplyWindowInsetsListener(this) { v, insets ->
+                            setNavigationBar(insets)
+                            WindowInsetsCompat.CONSUMED
+                        }
+                    }
                 } else {
                     mBinding?.root?.let { setContentView(it) }
                 }
@@ -114,6 +122,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         isClippingEnabled = false // 完全撑满整个屏幕
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         lifecycleOwner.doOnDestroy {
+            ViewCompat.setOnApplyWindowInsetsListener(window.decorView, null)
             mBinding?.unbind()
             mBinding = null
         }
