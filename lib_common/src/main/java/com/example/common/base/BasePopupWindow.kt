@@ -30,6 +30,7 @@ import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
+import com.example.common.utils.function.getNavigationBarHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
@@ -112,7 +113,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             }
         }
         width = if (popupWidth < 0) popupWidth else popupWidth.pt
-        height = if (popupHeight < 0) popupHeight else popupHeight.pt
+        height = if (popupHeight < 0) popupHeight else popupHeight.pt + if (popupAnimStyle == TRANSLATE) getNavigationBarHeight() else 0
         isFocusable = true
         isOutsideTouchable = true
         isClippingEnabled = false // 完全撑满整个屏幕
