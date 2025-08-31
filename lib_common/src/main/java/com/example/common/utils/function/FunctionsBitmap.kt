@@ -18,6 +18,7 @@ import android.view.View
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -57,6 +58,16 @@ fun String?.decodeDimensions(): IntArray? {
     val width = options.outWidth
     val height = options.outHeight
     return intArrayOf(width, height)
+}
+
+fun BitmapDrawable?.decodeDimensions(): IntArray {
+    this ?: return intArrayOf(0, 0)
+    return try {
+        intArrayOf(intrinsicWidth, intrinsicHeight)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        intArrayOf(0, 0)
+    }
 }
 
 /**

@@ -1,6 +1,8 @@
 package com.example.mvvm.activity
 
 import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -14,8 +16,8 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.getFadePreview
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
-import com.example.common.utils.function.layerDrawable
-import com.example.framework.utils.function.value.orZero
+import com.example.common.utils.function.decodeDimensions
+import com.example.common.utils.function.getTypedDrawable
 import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
@@ -63,23 +65,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             if (!isHighVersion) {
                 ivSplash?.apply {
                     val targetItemIndex = 1
-                    val drawableInfo = context.layerDrawable(R.drawable.layout_list_splash, targetItemIndex)
-                    val layerDrawable = drawableInfo?.first
-                    val bitmapDrawable = drawableInfo?.second
+                    val layerDrawable = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash)
+                    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
                     val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
-                    val xmlWidthPx = try {
-                        bitmapDrawable?.intrinsicWidth
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        0
-                    }.orZero
-                    val xmlHeightPx = try {
-                        bitmapDrawable?.intrinsicHeight
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        0
-                    }.orZero
-                    size(xmlWidthPx,xmlHeightPx)
+                    val dimensions = bitmapDrawable.decodeDimensions()
+                    size(dimensions[0],dimensions[1])
                     margin(top = marginTopDp)
                 }
             }

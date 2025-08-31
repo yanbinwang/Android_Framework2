@@ -3,8 +3,7 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -137,19 +136,6 @@ fun getFormattedCacheSize(): String {
 }
 
 /**
- * 获取resources中的color
- */
-@ColorInt
-fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
-
-/**
- * 获取图片
- */
-fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
-
-fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
-
-/**
  * 读取layer-list的xml内的图片数据
  * <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
  *
@@ -194,17 +180,30 @@ fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.ap
  *      0
  *  }.orZero
  */
-fun layerDrawable(@DrawableRes res: Int): LayerDrawable? {
+inline fun <reified T : Drawable> getTypedDrawable(@DrawableRes res: Int): T? {
     val mContext = BaseApplication.instance.applicationContext
-    return ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme) as? LayerDrawable
+    val drawable = ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme)
+    return drawable as? T
 }
 
-fun Context?.layerDrawable(@DrawableRes res: Int, index: Int): Pair<LayerDrawable?, BitmapDrawable?>? {
+inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
     this ?: return null
-    val layerDrawable = ResourcesCompat.getDrawable(resources, res, theme) as? LayerDrawable
-    val bitmapDrawable = layerDrawable?.getDrawable(index) as? BitmapDrawable
-    return layerDrawable to bitmapDrawable
+    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
+    return drawable as? T
 }
+
+/**
+ * 获取resources中的color
+ */
+@ColorInt
+fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
+
+/**
+ * 获取图片
+ */
+fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  *  <string name="dollar">\$%1$s</string>
