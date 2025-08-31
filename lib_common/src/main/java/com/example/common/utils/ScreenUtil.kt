@@ -190,12 +190,10 @@ object ScreenUtil {
             // 1. 获取当前窗口的整体边界（包含系统栏）
             val bounds = currentMetrics?.bounds
             // 2. 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
-            val insets =
-                currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
+            val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
             // 3. 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
             val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
-            val usableHeight =
-                bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
+            val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
             Point(usableWidth, usableHeight)
         } else {
             // API 23-29：沿用旧版 getSize()

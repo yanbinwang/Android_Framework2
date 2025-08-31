@@ -135,9 +135,31 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     override fun onCreate(savedInstanceState: Bundle?) {
         /**
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
-         * 高版本（API 29+ (>=安卓10)）：正常生效，系统会自动处理内容与系统栏（状态栏、导航栏）的布局关系，实现内容渗透到系统栏区域。
-         * 低版本（API < 29 (<=安卓9)）：该方法本质上是一个「空实现」（no-op），不会做任何操作。因为低版本 Android 系统本身不支持边缘到边缘的显示模式，系统栏（尤其是导航栏）会保持默认的不透明状态，内容不会渗透下去。
-         * 该方法会默认将系统栏（状态栏、导航栏）设置为「透明 / 半透明」以实现内容延伸效果
+         * 状态栏:
+         * API 23-25
+         * 1. 内容延伸到状态栏下方
+         * 2. 颜色 = 传入的 statusBarStyle 对应模式的 scrim（默认透明）
+         * 3. 支持控制状态栏文字亮 / 暗色（通过 isAppearanceLightStatusBars）
+         * API 26-28
+         * 同 API 23-25（颜色随 statusBarStyle 切换，支持文字亮 / 暗色）
+         * API 29+
+         * 1. 内容延伸到状态栏下方
+         * 2. 颜色 = 透明（getScrimWithEnforcedContrast 逻辑）
+         * 3. 支持文字亮 / 暗色，新增 “对比度强制” 控制
+         *
+         * 导航栏:
+         * API 23-25
+         * 1. 内容延伸到导航栏下方
+         * 2. 颜色固定为 navigationBarStyle.darkScrim（默认半透明黑：0x801b1b1b）
+         * 3. 不支持控制导航栏文字亮 / 暗色
+         * API 26-28
+         * 1. 内容延伸到导航栏下方
+         * 2. 颜色 = 传入的 navigationBarStyle 对应模式的 scrim（亮模式用 DefaultLightScrim，暗模式用 DefaultDarkScrim）
+         * 3. 支持控制导航栏文字亮 / 暗色
+         * API 29+
+         * 1. 内容延伸到导航栏下方
+         * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
+         * 3. 支持文字亮 / 暗色，对比度由系统管理
          */
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
