@@ -41,10 +41,9 @@ import java.lang.reflect.ParameterizedType
  * 用于实现上下左右弹出的效果，如有特殊动画需求，重写animation
  * 默认底部弹出,不需要传view，并带有顶栏间距
  * 也可使用渐隐显示，默认view下方弹出
- * popupwindows在设置isClippingEnabled=false后会撑满整个屏幕变成全屏
+ * PopupWindow在设置isClippingEnabled=false后会撑满整个屏幕变成全屏
  * 但这会使底部有虚拟栏的手机重叠，哪怕使用的margin底部高度的代码，部分手机兼容性上也会存在问题
- * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整windos透明度的方法
- * 需要注意binding使用了lateinit，但是不可能会不给值（VDB），稳妥期间，引用到view的地方，使用popupView
+ * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整Windows透明度的方法
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {

@@ -36,6 +36,7 @@ import java.lang.reflect.ParameterizedType
  *   Application 上下文并非 Activity 实例，所以 Dialog 无法正确关联到一个 Activity，ownerActivity 不会被正确设置。这可能导致 Dialog 在显示和管理方面出现问题
  * (2) 生命周期管理问题：
  *   Application 上下文的生命周期贯穿整个应用程序的生命周期，而不是某个具体 Activity 的生命周期。如果使用 Application 上下文创建 Dialog，Dialog 不会随着 Activity 的销毁而销毁，可能会导致内存泄漏和显示异常
+ * 3.Dialog 本身没有像 Fragment/Activity 那样完整的生命周期回调，但核心阶段可以对应为：初始化 → 显示（show）→ 隐藏（dismiss）→ 销毁
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, themeResId: Int = R.style.DialogStyle, private val dialogWidth: Int = 320, private val dialogHeight: Int = WRAP_CONTENT, private val gravity: Int = CENTER, private val hasAnimation: Boolean = true) : AppCompatDialog(activity, themeResId), BaseImpl {
@@ -63,6 +64,10 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
                 e.printStackTrace()
             }
         }
+        /**
+         * Dialog 的 window 是独立的，但会依赖宿主的生命周期和窗口层级：宿主（Activity）的 window 是顶级窗口（TYPE_APPLICATION），
+         * 而 Dialog 的 window 是子窗口（默认 TYPE_APPLICATION_DIALOG），会依附于宿主窗口显示（宿主销毁时，子窗口会被系统强制回收）
+         */
         window?.let {
             val lp = it.attributes
             lp.width = if (dialogWidth < 0) dialogWidth else dialogWidth.pt
