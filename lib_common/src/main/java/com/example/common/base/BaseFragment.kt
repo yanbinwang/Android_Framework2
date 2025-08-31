@@ -173,15 +173,44 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     override fun initData() {
     }
 
+    /**
+     * 在 Fragment 中，推荐在 onDestroyView() 而非 onDestroy() 中释放 / 销毁视图相关资源，主要原因与 Fragment 的生命周期特性和视图（View）的生命周期密切相关：
+     * 1. Fragment 与 View 的生命周期分离
+     * Fragment 的生命周期和其管理的视图（View）生命周期是不完全同步的：
+     * onDestroyView()：当 Fragment 的布局（View 层级）被销毁时调用，此时视图相关资源（如 View、ViewModel 与视图的绑定、图片缓存等）已经不再需要。
+     * onDestroy()：当 Fragment 本身即将被销毁时调用，此时 Fragment 实例可能仍存在于内存中（例如配置变更时，Fragment 可能被暂时保留，仅视图被重建）。
+     * 如果在 onDestroy() 中释放视图资源，可能会出现资源释放时机过早或过晚的问题：
+     * 若 Fragment 因配置变更（如旋转屏幕）暂时销毁视图但自身未被销毁（onDestroy() 不会调用），视图资源会泄漏。
+     * 若在 onDestroy() 中释放，可能晚于视图实际销毁的时间，导致资源占用时间过长。
+     *
+     * 2. 避免配置变更场景的优化
+     * Android 中，屏幕旋转等配置变更会触发 Fragment 的视图重建（onDestroyView() → onCreateView()），但 Fragment 实例本身可能被系统保留（通过 setRetainInstance(true) 或默认行为）。
+     * 此时：
+     * onDestroyView() 会被调用（视图销毁），适合释放视图相关资源（如 View 引用、监听器、图片等）。
+     * onDestroy() 不会被调用（Fragment 未销毁），若在此处释放资源，会导致重建视图时无法复用必要的非视图资源（如网络请求、数据模型等）。
+     *
+     * 3. 避免内存泄漏
+     * 视图（View）持有对 Fragment 的引用（通过 context），若在 onDestroyView() 后仍保留 View 相关资源的引用，会导致：
+     * Fragment 实例被 View 间接引用，无法被 GC 回收。
+     * 即使 Fragment 最终销毁（onDestroy()），视图资源的泄漏也已发生。
+     * 因此，在 onDestroyView() 中及时释放 View 引用、监听器、适配器等，能更早切断引用链，避免内存泄漏。
+     *
+     * onDestroyView()：负责释放视图相关资源（View、Drawable、监听器等），与视图生命周期强绑定，是最安全的时机。
+     * onDestroy()：负责释放Fragment 实例级资源（如全局监听器、服务连接等），仅在 Fragment 真正销毁时调用。
+     */
+    override fun onDestroyView() {
+        super.onDestroyView()
+        clearOnActivityResultListener()
+        mActivityResult.unregister()
+        mBinding?.unbind()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        clearOnActivityResultListener()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult.unregister()
-        mBinding?.unbind()
         job.cancel()
     }
     // </editor-fold>

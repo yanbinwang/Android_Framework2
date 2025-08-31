@@ -190,16 +190,20 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
         dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
+        mActivityResult.unregister()
+        mBinding?.unbind()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         for ((key, value) in dataManager) {
             key.removeObserver(value)
         }
         dataManager.clear()
-        mActivityResult.unregister()
-        mBinding?.unbind()
         job.cancel()
     }
     // </editor-fold>

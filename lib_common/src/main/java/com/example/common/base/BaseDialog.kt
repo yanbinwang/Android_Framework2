@@ -1,6 +1,5 @@
 package com.example.common.base
 
-import android.app.Dialog
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
