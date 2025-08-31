@@ -287,41 +287,6 @@ fun Window.applyFullScreen() {
             }, 10)
         }
     }
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//        // 安卓11+ 现代全屏方案
-//        setDecorFitsSystemWindows(false)
-//        insetsController?.let { controller ->
-//            // 隐藏系统栏（安卓15中Type.systemBars()已包含statusBars和navigationBars）
-//            controller.hide(WindowInsets.Type.systemBars())
-//            // 滑动时临时显示系统栏（保持原有行为）
-//            controller.systemBarsBehavior = WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-//        }
-//    } else {
-//        /**
-//         * SYSTEM_UI_FLAG_LAYOUT_STABLE：保持布局稳定（避免状态栏 / 导航栏隐藏时布局跳动）
-//         * SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN：布局延伸至状态栏区域
-//         * SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION：布局延伸至导航栏区域
-//         * SYSTEM_UI_FLAG_HIDE_NAVIGATION：隐藏导航栏
-//         * SYSTEM_UI_FLAG_FULLSCREEN：隐藏状态栏
-//         * SYSTEM_UI_FLAG_IMMERSIVE_STICKY：进入「粘性沉浸式模式」：当用户从屏幕边缘滑动时，状态栏和导航栏会临时显示（半透明），几秒后自动隐藏，不会触发 OnSystemUiVisibilityChangeListener 回调。
-//         */
-//        var flags = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-//                or View.SYSTEM_UI_FLAG_FULLSCREEN
-//                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY)
-////        // API 23+：若背景为浅色，设置状态栏文字为深色
-////        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-////            flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
-////        }
-//        decorView.systemUiVisibility = flags
-//        // 针对安卓4.4-9，强制设置导航栏透明（覆盖厂商默认）
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-//            statusBarColor = Color.TRANSPARENT
-//            navigationBarColor = Color.TRANSPARENT
-//        }
-//    }
 }
 
 /**
