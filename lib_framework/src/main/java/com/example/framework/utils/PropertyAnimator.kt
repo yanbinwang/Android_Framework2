@@ -18,6 +18,8 @@ import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.core.animation.doOnEnd
+import androidx.core.animation.doOnStart
 import androidx.core.graphics.toColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
@@ -328,21 +330,23 @@ class PropertyAnimator(private val view: View?, private val millisecond: Long) {
             setTarget(view)
             playTogether(animationList)
             duration = millisecond
-            addListener(object : Animator.AnimatorListener {
-                override fun onAnimationStart(animation: Animator) {
-                    onStart.invoke()
-                }
-
-                override fun onAnimationEnd(animation: Animator) {
-                    onEnd.invoke()
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                }
-
-                override fun onAnimationRepeat(animation: Animator) {
-                }
-            })
+            doOnStart { onStart() }
+            doOnEnd { onEnd() }
+//            addListener(object : Animator.AnimatorListener {
+//                override fun onAnimationStart(animation: Animator) {
+//                    onStart.invoke()
+//                }
+//
+//                override fun onAnimationEnd(animation: Animator) {
+//                    onEnd.invoke()
+//                }
+//
+//                override fun onAnimationCancel(animation: Animator) {
+//                }
+//
+//                override fun onAnimationRepeat(animation: Animator) {
+//                }
+//            })
         }
         view?.tag = animSet
         animSet.start()
