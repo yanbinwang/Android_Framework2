@@ -35,12 +35,14 @@ import com.example.common.utils.function.isMkdirs
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.read
+import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.CompletableDeferred
@@ -151,20 +153,21 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
  * 弹窗的 show() 是当前主线程消息，会优先执行，所以弹窗能正常弹出、转圈动画流畅；
  * View 操作被 post 到下一个消息队列，等弹窗渲染完成后再执行，即使耗时久，也不会让弹窗 “卡着不显示”；
  * 协程通过 deferred.await() 挂起等待结果，不会阻塞主线程其他操作。
+ * doOnceAfterLayout调用
  */
-suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int = WRAP_CONTENT): Bitmap? {
+suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targetHeight: Int = WRAP_CONTENT, isScale: Boolean = false): Bitmap? {
 //    return try {
 //        // Android 中 View 的 measure()/layout()/draw() 必须在主线程执行，在 IO 线程调用会导致异常
 //        withContext(Main.immediate) {
 //            // 对传入的高做一个修正，如果是自适应需要先做一次测绘
-//            val mHeight = if (height < 0) {
+//            val mHeight = if (targetHeight < 0) {
 //                view.measure(WRAP_CONTENT, WRAP_CONTENT)
 //                view.measuredHeight
 //            } else {
-//                height
+//                targetHeight
 //            }
 //            // 强制 View 完成测量与布局
-//            view.loadLayout(width, mHeight)
+//            view.loadLayout(targetWidth, mHeight)
 //            // 绘制 View 到 Bitmap
 //            view.loadBitmap()
 //        }
@@ -179,16 +182,33 @@ suspend fun suspendingSaveView(view: View, width: Int = screenWidth, height: Int
         try {
             // 这里的 View 操作仍在主线程，但已在弹窗显示之后执行
             // 对传入的高做一个修正，如果是自适应需要先做一次测绘
-            val mHeight = if (height < 0) {
-                view.measure(WRAP_CONTENT, WRAP_CONTENT)
-                view.measuredHeight
+            val mHeight = if (targetHeight < 0) {
+                if (isScale) {
+                    // 计算缩放比例
+                    val scaleRatio = view.measuredWidth.toSafeFloat() / targetWidth.toSafeFloat()
+                    // 计算图片等比例放大后的高
+                    (view.measuredHeight * scaleRatio).toSafeInt()
+                } else {
+                    view.measure(WRAP_CONTENT, WRAP_CONTENT)
+                    view.measuredHeight
+                }
             } else {
-                height
+                targetHeight
             }
-            // 强制 View 完成测量与布局
-            view.loadLayout(width, mHeight)
-            // 绘制 View 到 Bitmap
-            val bitmap = view.loadBitmap()
+            val bitmap = if (isScale) {
+                // 根据原view大小绘制出bitmap
+                val screenshot = createBitmap(view.measuredWidth, view.measuredHeight)
+                val canvas = Canvas(screenshot)
+                // View.draw()方法是必须在主线程执行
+                view.draw(canvas)
+                // 根据实际宽高缩放
+                screenshot.scaleBitmap(targetWidth, mHeight)
+            } else {
+                // 强制 View 完成测量与布局
+                view.loadLayout(targetWidth, mHeight)
+                // 绘制 View 到 Bitmap
+                view.loadBitmap()
+            }
             // 操作完成，通知协程返回结果
             deferred.complete(bitmap)
         } catch (e: Exception) {
