@@ -27,7 +27,7 @@ recovery = "1.0.0"
 #leakcanary = "2.11"
 #---------------------------------------------其余三方控件版本---------------------------------------------
 androidAutoSize = "v1.2.1"
-mmkvStatic = "2.2.2"
+mmkvStatic = "2.2.3"
 newbieGuide = "v2.4.4"
 refreshLayoutKernel = "2.1.1"
 xxpermissions = "25.2"
