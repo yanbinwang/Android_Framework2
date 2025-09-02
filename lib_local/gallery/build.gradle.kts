@@ -14,7 +14,8 @@ android {
                 srcDirs(
                     "src/main/res",
                     "src/main/res-album",
-                    "src/main/res-durban"
+                    "src/main/res-durban",
+                    "src/main/res-loading"
                 )
             }
         }
@@ -49,6 +50,6 @@ dependencies {
     androidTestImplementation(libs.bundles.android.testing)
     //框架库
     implementation(project(":lib_common"))
-    //转圈控件
-    implementation("com.yanzhenjie:loading:1.0.2")
+//    //转圈控件
+//    implementation("com.yanzhenjie:loading:1.0.2")
 }
