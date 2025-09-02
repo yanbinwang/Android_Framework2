@@ -49,6 +49,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ActivitySplashBinding>() {
+    // 高版本splash存在开关
     private var mKeepOn = AtomicBoolean(true)
 
     companion object {
@@ -81,6 +82,9 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     override fun isSplashScreenEnabled() = isHighVersion
 
+    /**
+     * style 中的 windowBackground 已经显示了启动图， setContentView 会重复绘制，导致闪烁
+     */
     override fun isBindingEnabled() = isHighVersion
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -174,13 +178,10 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 val remainingTime = if (isHighVersion) {
                     SPLASH_DELAY
                 } else {
-                    // 计算已经过去的时间
-                    val elapsedTime = SystemClock.elapsedRealtime() - lastClickTime.get()
-                    if (SPLASH_DELAY - elapsedTime < 0) {
-                        0
-                    } else {
-                        SPLASH_DELAY - elapsedTime
-                    }
+                    // 计算从进程创建（预览窗口开始显示）到当前的耗时（即预览窗口已显示的时间）
+                    val previewElapsed = SystemClock.elapsedRealtime() - lastClickTime.get()
+                    // 修正延迟时间：总2000ms - 预览已消耗时间，最小为0（避免负数）
+                    maxOf(0, SPLASH_DELAY - previewElapsed)
                 }
                 delay(remainingTime)
                 jumpAction()

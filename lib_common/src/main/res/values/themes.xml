@@ -23,8 +23,20 @@
         <item name="android:windowBackground">@color/appWindowBackground</item>
         <!-- 屏蔽页面加载过度页 -->
         <item name="android:windowDisablePreview">true</item>
+        <!-- 允许窗口绘制系统栏背景 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <!-- 启用系统内容过渡动画（适配12+高版本启用 -> 系统会优先使用「内容过渡体系」，而 ActivityOptionsCompat.makeCustomAnimation()（传统动画配置方式）会被直接忽略） -->
         <item name="android:windowContentTransitions">false</item>
+        <!-- 移除文本的默认字体内边距（上下留白），使文本更紧凑 -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- 禁用系统强制深色模式（即使系统开启深色模式，应用也不会自动切换为深色主题） -->
+        <item name="android:forceDarkAllowed">false</item>
+        <!-- 移除滚动视图（如 ListView、ScrollView）边缘的渐变淡出效果 -->
+        <item name="android:fadingEdge">none</item>
+        <!-- 禁用滚动视图的过度滚动效果（如滚动到顶部 / 底部时的弹性反馈） -->
+        <item name="android:overScrollMode">never</item>
+        <!-- 设置提示文本（如 EditText 的 hint）的颜色，引用 textHint 资源 -->
+        <item name="android:textColorHint">@color/textHint</item>
         <!-- 主题深色强调色（API < 21 时影响状态栏颜色） -->
         <item name="colorPrimaryDark">@color/appPrimaryDark</item>
         <!-- 主题主色调（影响ActionBar、标题栏等背景） -->
@@ -98,6 +110,7 @@
     <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
