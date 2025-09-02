@@ -64,9 +64,9 @@ dependencies {
     //数据库2
     api(project(":lib_local:objectbox"))
     //相机/播放器
-    api("com.github.CarGuo.GSYVideoPlayer:GSYVideoPlayer:v9.0.0-release-jitpack")
+    api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:11.1.0")
     api("com.otaliastudios:cameraview:2.7.2")
     //支付宝/微信
-    api("com.alipay.sdk:alipaysdk-android:15.8.35@aar")
+    api("com.alipay.sdk:alipaysdk-android:15.8.37@aar")
     api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
 }
