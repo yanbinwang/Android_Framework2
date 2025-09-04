@@ -289,7 +289,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         super.onCreate(owner)
         weakLifecycleOwner = WeakReference(owner)
         if (isEventBusEnabled()) {
-            EventBus.instance.register(owner) {
+            EventBus.instance.observe(owner) {
                 it.onEvent()
             }
         }

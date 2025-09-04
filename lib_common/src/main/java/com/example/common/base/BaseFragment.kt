@@ -108,7 +108,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) {
-            EventBus.instance.register(this) {
+            EventBus.instance.observe(this) {
                 it.onEvent()
             }
         }
