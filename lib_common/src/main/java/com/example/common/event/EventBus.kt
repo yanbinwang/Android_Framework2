@@ -38,12 +38,11 @@ class EventBus private constructor() {
      * BufferOverflow.DROP_OLDEST：当缓冲区满时，会丢弃最旧的值，然后继续发射新的值。
      * BufferOverflow.DROP_LATEST：当缓冲区满时，会丢弃最新的值，继续等待缓冲区有空间
      */
-    private val busDefault by lazy { MutableSharedFlow<Event>(0, 10, BufferOverflow.SUSPEND) }
+    private val eventFlow by lazy { MutableSharedFlow<Event>(0, 10, BufferOverflow.SUSPEND) }
     /**
      * 存储所有订阅协程，每个 LifecycleOwner 独立
      */
-    private val busSubscriber by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
-
+    private val observeJobs by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
     /**
      * 全局复用的消息发送协程作用域，切记不可随意cancel
      * SupervisorJob 的特性：postScope 使用 SupervisorJob() 作为父作业，SupervisorJob 不会因为某个子协程的失败而取消其他子协程，
@@ -68,21 +67,21 @@ class EventBus private constructor() {
     /**
      * 无需手动 unregister，依赖 LifecycleOwner 的 scope 自动取消
      */
-    fun register(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
+    fun observe(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
         val newJob = owner.lifecycleScope.launch {
             try {
-                busDefault.collect { event ->
+                eventFlow.collect { event ->
                     onReceive(event)
                 }
             } catch (e: Exception) {
                 handleException(e)
             }
         }
-        busSubscriber[owner] = newJob
+        observeJobs[owner] = newJob
         owner.doOnDestroy {
-            //删除自身订阅
-            busSubscriber[owner]?.cancel()
-            busSubscriber.remove(owner)
+            // 删除自身订阅
+            observeJobs[owner]?.cancel()
+            observeJobs.remove(owner)
         }
     }
 
@@ -106,7 +105,7 @@ class EventBus private constructor() {
 //        }
         postScope.launch {
             try {
-                busDefault.emit(event)
+                eventFlow.emit(event)
             } catch (e: Exception) {
                 handleException(e)
             }
