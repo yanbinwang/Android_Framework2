@@ -333,7 +333,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     override fun onDestroy() {
         super.onDestroy()
         window?.removeNavigationBarDrawable()
-        removeBackCallback()
+        clearOnBackPressedListener()
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
@@ -371,7 +371,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     private var backCallback: Any? = null
     protected fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
         // 移除旧回调，避免重复执行
-        removeBackCallback()
+        clearOnBackPressedListener()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // API 33+ 使用 OnBackInvokedCallback
             val callback = OnBackInvokedCallback {
@@ -394,7 +394,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 移除当前注册的返回回调（恢复默认返回行为）
      */
-    protected fun removeBackCallback() {
+    protected fun clearOnBackPressedListener() {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 (backCallback as? OnBackInvokedCallback)?.let {
@@ -412,7 +412,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * 恢复默认返回行为（移除所有自定义回调）
      */
     protected fun restoreDefaultBackBehavior() {
-        removeBackCallback()
+        clearOnBackPressedListener()
     }
 
     /**
