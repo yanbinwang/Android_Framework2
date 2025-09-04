@@ -13,8 +13,6 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -26,6 +24,7 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.network.repository.collectAll
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -42,13 +41,13 @@ import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -92,10 +91,10 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    private var collectJob: Job? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
-    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
@@ -112,6 +111,7 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
                 it.onEvent()
             }
         }
+        if (isCollectEnabled()) registerCollect()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -207,24 +207,22 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
     override fun onDestroy() {
         super.onDestroy()
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
-        }
-        dataManager.clear()
+        if (isCollectEnabled()) unregisterCollect()
         job.cancel()
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
-        this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
+    protected fun registerCollect() {
+        collectJob?.cancel()
+        collectJob = collectAll {
+            this@BaseFragment.onCollect()
         }
-        dataManager[this] = observer
-        observe(this@BaseFragment, observer)
+    }
+
+    protected fun unregisterCollect() {
+        collectJob?.cancel()
+        collectJob = null
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
@@ -242,6 +240,13 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
+        return true
     }
     // </editor-fold>
 
@@ -284,15 +289,3 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // </editor-fold>
 
 }
-
-//fun Fragment.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
-//
-//fun <T> Fragment.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = viewLifecycleOwner.lifecycleScope.async(context, start, block)

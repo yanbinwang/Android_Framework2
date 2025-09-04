@@ -28,8 +28,6 @@ import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
@@ -42,6 +40,7 @@ import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.network.repository.collectAll
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
@@ -64,12 +63,12 @@ import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 
 /**
@@ -104,11 +103,11 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
+    private var collectJob: Job? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
-    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main.immediate + job//加上SupervisorJob，提升协程作用域
 
@@ -179,6 +178,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 it.onEvent()
             }
         }
+        if (isCollectEnabled()) registerCollect()
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
@@ -333,14 +333,11 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     override fun onDestroy() {
         super.onDestroy()
         window?.removeNavigationBarDrawable()
-        removeBackCallback()
+        clearOnBackPressedListener()
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
-        }
-        dataManager.clear()
+        if (isCollectEnabled()) unregisterCollect()
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel()//之后再起的job无法工作
@@ -350,19 +347,18 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
     /**
-     * ViewModel 中定义无值事件（用 Unit 替代 Any）
-     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
-     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     * 基类封装 collect 逻辑
      */
-    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
-        this ?: return
-        val observer = Observer<Any?> { value ->
-            if (value != null) {
-                (value as? T)?.let { block(it) }
-            }
+    protected fun registerCollect() {
+        collectJob?.cancel()
+        collectJob = collectAll {
+            this@BaseActivity.onCollect()
         }
-        dataManager[this] = observer
-        observe(this@BaseActivity, observer)
+    }
+
+    protected fun unregisterCollect() {
+        collectJob?.cancel()
+        collectJob = null
     }
 
     /**
@@ -371,7 +367,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     private var backCallback: Any? = null
     protected fun setOnBackPressedListener(onBackPressedListener: (() -> Unit)) {
         // 移除旧回调，避免重复执行
-        removeBackCallback()
+        clearOnBackPressedListener()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             // API 33+ 使用 OnBackInvokedCallback
             val callback = OnBackInvokedCallback {
@@ -394,7 +390,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     /**
      * 移除当前注册的返回回调（恢复默认返回行为）
      */
-    protected fun removeBackCallback() {
+    protected fun clearOnBackPressedListener() {
         when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU -> {
                 (backCallback as? OnBackInvokedCallback)?.let {
@@ -412,7 +408,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      * 恢复默认返回行为（移除所有自定义回调）
      */
     protected fun restoreDefaultBackBehavior() {
-        removeBackCallback()
+        clearOnBackPressedListener()
     }
 
     /**
@@ -555,7 +551,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
         var view = this
-        for (i in 0..maxTimes) {
+        (0..maxTimes).forEach { i ->
             if (view is SpecialEditText) return view
             view = view.parent as? View ?: return null
         }
@@ -569,6 +565,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     protected open fun isEventBusEnabled(): Boolean {
         return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
+        return true
     }
     // </editor-fold>
 
@@ -611,18 +614,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     // </editor-fold>
 
 }
-
-//fun AppCompatActivity.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = lifecycleScope.launch(context, start, block)
-//
-//fun <T> AppCompatActivity.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = lifecycleScope.async(context, start, block)
 
 val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 
