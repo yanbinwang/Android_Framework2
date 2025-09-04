@@ -58,7 +58,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.testing)
+    androidTestImplementation(libs.bundles.androidx.testing)
     //框架库
     api(project(":lib_framework"))
     //不依赖于common的库统一放在lib_local里

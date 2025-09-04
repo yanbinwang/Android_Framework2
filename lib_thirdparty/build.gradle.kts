@@ -52,7 +52,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.testing)
+    androidTestImplementation(libs.bundles.androidx.testing)
     //oss文件传输
     implementation("com.aliyun.dpa:oss-android-sdk:2.9.21")
     //框架库

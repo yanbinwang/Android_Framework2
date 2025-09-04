@@ -34,7 +34,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.testing)
+    androidTestImplementation(libs.bundles.androidx.testing)
     //框架库
     implementation(project(":lib_framework"))
 }

@@ -39,7 +39,7 @@ android {
 dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
-    androidTestImplementation(libs.bundles.android.testing)
+    androidTestImplementation(libs.bundles.androidx.testing)
     //框架库-》额外注意，debug包的时候才会把代码打入
     debugImplementation(project(":lib_thirdparty"))
     //报错抓取库

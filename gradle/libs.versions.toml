@@ -95,7 +95,7 @@ kotlin-parcelize = { id = "kotlin-parcelize" }
 #相关库打包
 [bundles]
 # Android 仪器化测试库
-android-testing = ["androidx-junit", "androidx-espresso-core"]
+androidx-testing = ["androidx-junit", "androidx-espresso-core"]
 # AndroidX 核心库
 androidx-general-core = ["androidx-appcompat", "androidx-constraintlayout", "androidx-recyclerview", "androidx-splashscreen", "androidx-core-ktx", "androidx-lifecycle-runtime-ktx"]
 # Google 扩展控件库
