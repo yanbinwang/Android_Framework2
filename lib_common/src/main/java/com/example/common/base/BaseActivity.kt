@@ -560,7 +560,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
     private fun View.findSpecialEditTextParent(maxTimes: Int): View? {
         var view = this
-        for (i in 0..maxTimes) {
+        (0..maxTimes).forEach { i ->
             if (view is SpecialEditText) return view
             view = view.parent as? View ?: return null
         }
