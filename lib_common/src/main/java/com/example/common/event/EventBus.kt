@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.withIndex
 import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -112,23 +111,6 @@ class EventBus private constructor() {
         }
 
         /**
-         * 在指定协程上下文中更新StateFlow的值
-         * 默认为主线程，适用于UI相关的状态更新
-         * （适用于 UI 线程触发的发送操作，如广播回调、点击事件等）
-         */
-        fun <T> MutableStateFlow<T>.valueOn(
-            lifecycleOwner: LifecycleOwner,
-            value: T?,
-            context: CoroutineContext = Main.immediate
-        ): Job {
-            return lifecycleOwner.lifecycleScope.launch(context) {
-                if (null != value) {
-                    this@valueOn.value = value
-                }
-            }
-        }
-
-        /**
          * 收集StateFlow时跳过初始值，只处理后续更新
          * MutableStateFlow第一次collect的时候就会返回默认值,加一层过滤
          * @param action 处理后续值的回调（不会收到第一个值）
@@ -158,37 +140,6 @@ class EventBus private constructor() {
                 }
             }
         }
-
-        /**
-         * 在一个协程中收集多个StateFlow，受生命周期管理
-         * // viewModel
-         * private val _age = MutableStateFlow(0)
-         * val age = _age.asStateFlow()
-         * suspend fun updateAge() {
-         *     // _age.value = Random.nextInt(0, 100)
-         *     // _age.emit(1)
-         * }
-         * // 页面
-         * launch{
-         *     viewmodel.age.collect {}
-         * }
-         */
-        fun LifecycleOwner.collectMultiple(
-            minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-            block: suspend CoroutineScope.() -> Unit
-        ): Job {
-            return lifecycleScope.launch {
-                /**
-                 * 指定一个生命周期状态（如 STARTED、RESUMED 等），作为 “协程激活” 的最低门槛。
-                 * 例如 minActiveState = Lifecycle.State.STARTED 时，只有当页面（Activity/Fragment）处于 STARTED 或 RESUMED 状态时，协程才会执行；
-                 * 当页面退到后台（如 onStop 调用，生命周期变为 STOPPED），协程会自动暂停；
-                 * 当页面重新回到前台（如 onStart 调用，生命周期回到 STARTED），协程会重新启动并继续执行
-                 */
-                repeatOnLifecycle(minActiveState) {
-                    block()
-                }
-            }
-        }
     }
 
     /**
@@ -207,24 +158,48 @@ class EventBus private constructor() {
         }
         subscriptionJobs[owner] = newJob
         owner.doOnDestroy {
-            //删除自身订阅
-            subscriptionJobs[owner]?.cancel()
-            subscriptionJobs.remove(owner)
+            // 删除自身订阅
+            // ConcurrentHashMap.remove(owner) 做了两件事：
+            // 1)从 map 中删除 owner 对应的键值对（即移除这个订阅任务的记录）
+            // 2)返回被删除的 Job 实例（如果存在的话）
+            subscriptionJobs.remove(owner)?.cancel()
         }
     }
 
     /**
      * StateFlow实现数据接收
+     * 在一个协程中收集多个StateFlow，受生命周期管理
+     * // viewModel
+     * private val _age = MutableStateFlow(0)
+     * val age = _age.asStateFlow()
+     * suspend fun updateAge() {
+     *     // _age.value = Random.nextInt(0, 100)
+     *     // _age.emit(1)
+     * }
+     * // 页面
+     * launch{
+     *     viewmodel.age.collect {}
+     * }
      */
     fun collect(owner: LifecycleOwner, onReceive: suspend CoroutineScope.() -> Unit) {
-        val newJob = owner.collectMultiple {
-            onReceive()
+        val newJob = owner.lifecycleScope.launch {
+//            /**
+//             * 指定一个生命周期状态（如 STARTED、RESUMED 等），作为 “协程激活” 的最低门槛。
+//             * 例如 minActiveState = Lifecycle.State.STARTED 时，只有当页面（Activity/Fragment）处于 STARTED 或 RESUMED 状态时，协程才会执行；
+//             * 当页面退到后台（如 onStop 调用，生命周期变为 STOPPED），协程会自动暂停；
+//             * 当页面重新回到前台（如 onStart 调用，生命周期回到 STARTED），协程会重新启动并继续执行
+//             */
+//            owner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            try {
+                onReceive()
+            } catch (e: Exception) {
+                handleException(e)
+            }
+//            }
         }
         collectionJobs[owner] = newJob
         owner.doOnDestroy {
-            //删除自身订阅
-            collectionJobs[owner]?.cancel()
-            collectionJobs.remove(owner)
+            collectionJobs.remove(owner)?.cancel()
         }
     }
 
