@@ -96,7 +96,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
             }
         }

@@ -175,7 +175,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         WebSocketObserver.addObserver(this)
         isAnyActivityStarting = false
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
             }
         }

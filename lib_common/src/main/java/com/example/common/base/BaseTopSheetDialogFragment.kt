@@ -90,7 +90,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
             }
         }
