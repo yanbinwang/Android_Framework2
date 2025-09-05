@@ -3,7 +3,6 @@ package com.example.common.utils.manager
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableStateFlow
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -13,8 +12,6 @@ import java.util.concurrent.ConcurrentHashMap
 class JobManager(observer: LifecycleOwner?) {
     // 用于存储协程 Job 的线程安全集合
     private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
-    // 为每个 MutableStateFlow 存储最近一次的发送任务
-    private val mutableStateFlowJobs by lazy { ConcurrentHashMap<MutableStateFlow<*>, Job>() }
 
     init {
         observer.doOnDestroy {
@@ -54,20 +51,6 @@ class JobManager(observer: LifecycleOwner?) {
         }
         //新的 Job 添加到集合中
         jobMap[key] = job
-    }
-
-    /**
-     * 管理StateFlow发送数据
-     */
-    fun manageValue(flow: MutableStateFlow<*>, job: Job) {
-        // 取消上一次未完成的任务
-        mutableStateFlowJobs[flow]?.cancel()
-        // 启动新任务并保存引用
-        mutableStateFlowJobs[flow] = job
-        // 任务完成后移除引用（避免内存泄漏）
-        job.invokeOnCompletion {
-            mutableStateFlowJobs.remove(flow)
-        }
     }
 
     /**
