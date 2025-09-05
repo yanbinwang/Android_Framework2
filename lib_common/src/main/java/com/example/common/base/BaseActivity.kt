@@ -179,6 +179,11 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 it.onEvent()
             }
         }
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseActivity.onCollect()
+            }
+        }
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
@@ -568,6 +573,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
         return false
     }
     // </editor-fold>

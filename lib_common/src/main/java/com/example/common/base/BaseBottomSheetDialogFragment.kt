@@ -100,6 +100,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                 it.onEvent()
             }
         }
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseBottomSheetDialogFragment.onCollect()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -337,6 +342,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
         return false
     }
     // </editor-fold>

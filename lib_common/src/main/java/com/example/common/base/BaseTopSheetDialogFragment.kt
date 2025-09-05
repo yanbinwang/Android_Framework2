@@ -94,6 +94,11 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
                 it.onEvent()
             }
         }
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseTopSheetDialogFragment.onCollect()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -239,6 +244,13 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDial
     }
 
     protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
         return false
     }
     // </editor-fold>
