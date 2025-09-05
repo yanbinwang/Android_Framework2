@@ -175,8 +175,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         WebSocketObserver.addObserver(this)
         isAnyActivityStarting = false
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
+            }
+        }
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseActivity.onCollect()
             }
         }
         if (isImmersionBarEnabled()) initImmersionBar()
@@ -568,6 +573,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
         return false
     }
     // </editor-fold>

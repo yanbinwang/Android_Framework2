@@ -96,8 +96,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
+            }
+        }
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseBottomSheetDialogFragment.onCollect()
             }
         }
     }
@@ -337,6 +342,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     }
 
     protected open fun isEventBusEnabled(): Boolean {
+        return false
+    }
+
+    protected open suspend fun CoroutineScope.onCollect() {
+    }
+
+    protected open fun isCollectEnabled(): Boolean {
         return false
     }
     // </editor-fold>
