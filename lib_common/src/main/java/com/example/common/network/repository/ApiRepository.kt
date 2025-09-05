@@ -1,9 +1,5 @@
 package com.example.common.network.repository
 
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import com.example.common.R
 import com.example.common.base.bridge.BaseView
 import com.example.common.network.repository.ApiCode.FAILURE
@@ -17,21 +13,15 @@ import com.example.common.utils.toJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.withIndex
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
-import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
@@ -166,119 +156,6 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
         else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
     }
     return wrapper
-}
-
-/**
- * 定义通用包装类（用纳秒时间戳确保每次创建的对象都不同）
- */
-data class ForceWrapper<T>(
-    val data: T?,
-    private val uniqueTag: Long = System.nanoTime() // 唯一标识，确保equals为false
-)
-
-/**
- * 简化的forceEmit：直接发送新包装类（无需临时Flow）
- * fun <T> MutableStateFlow<ForceWrapper<T>>.forceEmit(value: T) {
- *     this.value = ForceWrapper(value) // 每次都是新对象，必然触发回调
- * }
- * 原始StateFlow直接定义为包装类类型（初始化时用空数据+初始tag）
- * private val _listFlow = MutableStateFlow(ForceWrapper(emptyList<String>()))
- * val listFlow: StateFlow<ForceWrapper<List<String>>> = _listFlow.asStateFlow()
- * 使用示例
- * fun updateList(newList: List<String>) {
- *     // 普通更新（需手动判断是否去重）
- *     if (_listFlow.value.data != newList) {
- *         _listFlow.value = ForceWrapper(newList)
- *     }
- *
- *     // 强制更新（即使newList相同，也触发回调）
- *     _listFlow.forceEmit(newList)
- * }
- * 订阅时：通过 .data 获取实际业务数据
- * listFlow.collect { wrapper ->
- *     val realList = wrapper.data // 只关注业务数据，忽略uniqueTag
- *     updateUI(realList)
- * }
- */
-fun <T> MutableStateFlow<ForceWrapper<T>>.forceEmit(value: T?) {
-    this.value = ForceWrapper(value) // 每次都是新对象，必然触发回调
-}
-
-/**
- * 在主线程中更新 MutableStateFlow 的值
- * （适用于 UI 线程触发的发送操作，如广播回调、点击事件等）
- */
-fun <T> MutableStateFlow<T>.valueOn(
-    lifecycleOwner: LifecycleOwner,
-    value: T?,
-    context: CoroutineContext = Main.immediate
-): Job {
-    return lifecycleOwner.lifecycleScope.launch(context) {
-        if (null != value) {
-            this@valueOn.value = value
-        }
-    }
-}
-
-/**
- * 直接收集 Flow，但自动跳过第一个值（集成过滤逻辑到 collect 中）
- * MutableStateFlow第一次collect的时候就会返回默认值,加一层过滤
- * @param action 处理后续值的回调（不会收到第一个值）
- */
-suspend fun <T> StateFlow<T>.collectSkipFirst(action: suspend (T) -> Unit) {
-    this.withIndex().collect { (index, value) ->
-        // 只处理索引≠0的值（即跳过第一个）
-        if (index != 0) {
-            action(value)
-        }
-    }
-}
-
-/**
- * 热流检出数据时Activity/Fragment内使用
- */
-fun <T> StateFlow<T>.collectIn(
-    lifecycleOwner: LifecycleOwner,
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    action: (T) -> Unit
-): Job {
-    return lifecycleOwner.lifecycleScope.launch {
-        lifecycleOwner.repeatOnLifecycle(minActiveState) {
-//            this@collectIn.collect(action)
-            this@collectIn.collectSkipFirst(action)
-        }
-    }
-}
-
-/**
- * 扩展函数：在一个协程中收集多个 StateFlow
- * // viewModel
- * private val _age = MutableStateFlow(0)
- * val age = _age.asStateFlow()
- * suspend fun updateAge() {
- *     // _age.value = Random.nextInt(0, 100)
- *     // _age.emit(1)
- * }
- * // 页面
- * launch{
- *     viewmodel.age.collect {}
- * }
- */
-fun LifecycleOwner.collectAll(
-    minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
-    block: suspend CoroutineScope.() -> Unit
-): Job {
-    return lifecycleScope.launch {
-        /**
-         * 指定一个生命周期状态（如 STARTED、RESUMED 等），作为 “协程激活” 的最低门槛。
-         * 例如 minActiveState = Lifecycle.State.STARTED 时，只有当页面（Activity/Fragment）处于 STARTED 或 RESUMED 状态时，协程才会执行；
-         * 当页面退到后台（如 onStop 调用，生命周期变为 STOPPED），协程会自动暂停；
-         * 当页面重新回到前台（如 onStart 调用，生命周期回到 STARTED），协程会重新启动并继续执行
-         */
-        repeatOnLifecycle(minActiveState) {
-            block()
-        }
-    }
 }
 
 /**

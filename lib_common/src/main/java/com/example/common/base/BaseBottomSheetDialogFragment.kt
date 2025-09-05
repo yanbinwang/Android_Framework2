@@ -30,7 +30,6 @@ import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.repository.collectAll
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -55,7 +54,6 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
@@ -78,7 +76,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
-    private var collectJob: Job? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -95,11 +92,15 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (isEventBusEnabled()) {
-            EventBus.instance.observe(this) {
+            EventBus.instance.subscribe(this) {
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) registerCollect()
+        if (isCollectEnabled()) {
+            EventBus.instance.collect(this) {
+                this@BaseBottomSheetDialogFragment.onCollect()
+            }
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -298,24 +299,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun onDestroy() {
         super.onDestroy()
-        if (isCollectEnabled()) unregisterCollect()
         job.cancel()
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
-    protected fun registerCollect() {
-        collectJob?.cancel()
-        collectJob = collectAll {
-            this@BaseBottomSheetDialogFragment.onCollect()
-        }
-    }
-
-    protected fun unregisterCollect() {
-        collectJob?.cancel()
-        collectJob = null
-    }
-
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
         this.onActivityResultListener = onActivityResultListener
     }
