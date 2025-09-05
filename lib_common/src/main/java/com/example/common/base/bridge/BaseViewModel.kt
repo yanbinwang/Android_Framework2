@@ -22,6 +22,7 @@ import com.example.common.base.page.Paging
 import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
+import com.example.common.event.EventBus.Companion.valueOn
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.JobManager
 import com.example.common.utils.permission.PermissionHelper
@@ -40,6 +41,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 import java.util.Locale
@@ -257,6 +259,15 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
         mJobKey.logWTF("manageJob")
         mJobManager.manageJob(this, mJobKey)
+    }
+
+    /**
+     * 如果使用StateFlow发送数据,使用该方法
+     */
+    protected inline fun <T> MutableStateFlow<T>.value(value: T?) {
+        mLifecycleOwner?.let {
+            mJobManager.manageValue(this, valueOn(it, value))
+        }
     }
 
     override fun onCleared() {
