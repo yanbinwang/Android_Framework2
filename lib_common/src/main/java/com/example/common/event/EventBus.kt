@@ -84,7 +84,7 @@ class EventBus private constructor() {
         val instance by lazy { EventBus() }
 
         /**
-         * 简化的forceEmit：直接发送新包装类（无需临时Flow）
+         * 强制发射新值，即使数据与之前相同也会触发回调
          * fun <T> MutableStateFlow<ForceWrapper<T>>.forceEmit(value: T) {
          *     this.value = ForceWrapper(value) // 每次都是新对象，必然触发回调
          * }
@@ -108,11 +108,12 @@ class EventBus private constructor() {
          * }
          */
         fun <T> MutableStateFlow<ForceWrapper<T>>.forceEmit(value: T?) {
-            this.value = ForceWrapper(value) // 每次都是新对象，必然触发回调
+            this.value = ForceWrapper(value)
         }
 
         /**
-         * 在主线程中更新 MutableStateFlow 的值
+         * 在指定协程上下文中更新StateFlow的值
+         * 默认为主线程，适用于UI相关的状态更新
          * （适用于 UI 线程触发的发送操作，如广播回调、点击事件等）
          */
         fun <T> MutableStateFlow<T>.valueOn(
@@ -128,11 +129,11 @@ class EventBus private constructor() {
         }
 
         /**
-         * 直接收集 Flow，但自动跳过第一个值（集成过滤逻辑到 collect 中）
+         * 收集StateFlow时跳过初始值，只处理后续更新
          * MutableStateFlow第一次collect的时候就会返回默认值,加一层过滤
          * @param action 处理后续值的回调（不会收到第一个值）
          */
-        suspend fun <T> StateFlow<T>.collectSkipFirst(action: suspend (T) -> Unit) {
+        suspend fun <T> StateFlow<T>.collectIn(action: suspend (T) -> Unit) {
             this.withIndex().collect { (index, value) ->
                 // 只处理索引≠0的值（即跳过第一个）
                 if (index != 0) {
@@ -142,9 +143,10 @@ class EventBus private constructor() {
         }
 
         /**
-         * 热流检出数据时Activity/Fragment内使用
+         * 在生命周期感知下收集StateFlow的更新
+         * 自动根据生命周期状态暂停/恢复收集
          */
-        fun <T> StateFlow<T>.collectIn(
+        fun <T> StateFlow<T>.collectInLifecycle(
             lifecycleOwner: LifecycleOwner,
             minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
             action: (T) -> Unit
@@ -152,13 +154,13 @@ class EventBus private constructor() {
             return lifecycleOwner.lifecycleScope.launch {
                 lifecycleOwner.repeatOnLifecycle(minActiveState) {
 //            this@collectIn.collect(action)
-                    this@collectIn.collectSkipFirst(action)
+                    this@collectInLifecycle.collectIn(action)
                 }
             }
         }
 
         /**
-         * 扩展函数：在一个协程中收集多个 StateFlow
+         * 在一个协程中收集多个StateFlow，受生命周期管理
          * // viewModel
          * private val _age = MutableStateFlow(0)
          * val age = _age.asStateFlow()
@@ -171,7 +173,7 @@ class EventBus private constructor() {
          *     viewmodel.age.collect {}
          * }
          */
-        fun LifecycleOwner.collectAll(
+        fun LifecycleOwner.collectMultiple(
             minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
             block: suspend CoroutineScope.() -> Unit
         ): Job {
@@ -215,7 +217,7 @@ class EventBus private constructor() {
      * StateFlow实现数据接收
      */
     fun collect(owner: LifecycleOwner, onReceive: suspend CoroutineScope.() -> Unit) {
-        val newJob = owner.collectAll {
+        val newJob = owner.collectMultiple {
             onReceive()
         }
         collectionJobs[owner] = newJob
@@ -258,7 +260,7 @@ class EventBus private constructor() {
 }
 
 /**
- * 定义通用包装类（用纳秒时间戳确保每次创建的对象都不同）
+ * 强制更新包装类，通过纳秒时间戳确保每次实例唯一
  */
 data class ForceWrapper<T>(
     val data: T?,
