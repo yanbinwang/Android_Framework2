@@ -49,6 +49,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(bean: T?) {
         itemType = BEAN
+        bean ?: return
         t = bean
     }
 
@@ -57,7 +58,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(list: ArrayList<T>?) {
         itemType = LIST
-        data = list.orEmpty().toMutableList()
+        list ?: return
+        data = list
     }
 
     override fun getItemCount(): Int {
