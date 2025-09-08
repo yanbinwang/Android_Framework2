@@ -22,42 +22,47 @@ import java.nio.charset.Charset
  */
 class LoggingInterceptor : Interceptor {
     private val UTF8 by lazy { Charset.forName("UTF-8") }
-    private val excludedUploadUrls by lazy { arrayOf("user/uploadImg") }
+    private val excludedUrls by lazy { arrayOf("user/uploadImg") }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
+        // 请求头
         val headers = request.headers
+        // 请求方式
         val method = request.method
+        // 请求地址
         val url = request.url.toString()
-        //不包含服务器地址的属于下载地址或图片加载地址，不做拦截
+        // 不包含服务器地址的属于下载地址或图片加载地址，不做拦截
         if (!url.contains(ServerConfig.serverUrl())) return chain.proceed(request)
-        //上传文件接口文本量过大，请求参数不做拦截
-        val params = if (excludedUploadUrls.any { url.contains(it) }) {
-            "文件上传"
+        // 请求参数(上传文件接口文本量过大，请求参数不做拦截)
+        val params = if (excludedUrls.any { url.contains(it) }) {
+            "大文本或文件上传"
         } else {
             getRequestBody(request)
         }
-        //获取响应体
+        // 获取响应体
         val response = try {
             chain.proceed(request)
         } catch (e: Exception) {
             log(headers, method, url, params, -1, e.toString())
             throw e
         }
+        // 响应编码
         val code = response.code
+        // 响应体
         val body = if (response.promisesBody() && !bodyEncoded(response.headers)) {
             getResponseBody(response)
         } else {
             null
         }
-        //输出日志
+        // 输出日志
         log(headers, method, url, params, code, body)
         return response
     }
 
-    private fun getRequestBody(request: Request): String? {
-        val requestBody = request.body
+    private fun getRequestBody(request: Request?): String? {
+        val requestBody = request?.body
         return if (requestBody != null && !bodyEncoded(request.headers)) {
             val buffer = Buffer()
             requestBody.writeTo(buffer)
@@ -68,8 +73,8 @@ class LoggingInterceptor : Interceptor {
         }
     }
 
-    private fun getResponseBody(response: Response): String? {
-        val responseBody = response.body
+    private fun getResponseBody(response: Response?): String? {
+        val responseBody = response?.body
         if (responseBody != null) {
             val source = responseBody.source()
             source.request(Long.MAX_VALUE)
@@ -82,7 +87,8 @@ class LoggingInterceptor : Interceptor {
         return null
     }
 
-    private fun bodyEncoded(headers: Headers): Boolean {
+    private fun bodyEncoded(headers: Headers?): Boolean {
+        headers ?: return false
         val contentEncoding = headers["Content-Encoding"]
         return contentEncoding != null && contentEncoding.equals("identity", ignoreCase = false).not()
     }
@@ -99,12 +105,12 @@ class LoggingInterceptor : Interceptor {
                 if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) return false
             }
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
 
-    private fun log(headers: Headers, method: String, url: String, params: String?, code: Int, body: String?) {
+    private fun log(headers: Headers?, method: String?, url: String?, params: String?, code: Int?, body: String?) {
         ("————————————————————————请求开始————————————————————————" +
                 "\n请求头:\n" + headers.toString().trimEnd { it == '\n' } +
                 "\n请求方式:\n" + method +
@@ -126,7 +132,7 @@ class LoggingInterceptor : Interceptor {
                     try {
                         retBuf.append(Integer.parseInt(unicodeStr.substring(i + 2, i + 6), 16).toChar())
                         i += 5
-                    } catch (e: NumberFormatException) {
+                    } catch (_: NumberFormatException) {
                         retBuf.append(unicodeStr[i])
                     }
                 } else {
