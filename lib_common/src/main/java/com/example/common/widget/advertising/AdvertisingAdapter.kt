@@ -129,7 +129,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.itemView.apply {
-            click { onItemClick?.invoke(position.mod(list.safeSize)) }
+            click {
+                onItemClick?.invoke(position.mod(list.safeSize))
+            }
             val bean = list.safeGet(position.mod(list.safeSize)) ?: return
             val image = (this as? ImageView) ?: return
             if (localAsset) {
