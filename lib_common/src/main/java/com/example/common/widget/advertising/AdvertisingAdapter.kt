@@ -49,9 +49,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         }
 
         /**
-         * 通过调色盘Palette提取广告背景覆盖物颜色
-         * 部分广告可能直接连同导航栏,故而需要增加一段背景
+         * 提取Bitmap颜色
          */
+        @JvmStatic
         fun getAdvCover(originalBitmap: Bitmap?): Int {
             originalBitmap ?: return 0
             // 获取顶部中心位置的像素颜色
@@ -68,31 +68,33 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
 
         /**
          * 渐隐切换背景色
+         * 通过调色盘Palette提取广告背景覆盖物颜色
+         * 部分广告可能直接连同导航栏,故而需要增加一段背景
          */
         @JvmStatic
         fun fadeBackgroundToTopColor(imageView: ImageView?, targetView: View?, duration: Int) {
-            // 1. 获取图片的Bitmap
+            // 获取图片的Bitmap
             val drawable = imageView?.getDrawable() as? BitmapDrawable
             drawable ?: return
             val bitmap = drawable.bitmap
             if (bitmap == null) return
-            // 2. 截取顶部区域（取顶部1/10高度）
+            // 截取顶部区域（取顶部1/10高度）
             val topHeight = max(1, bitmap.getHeight() / 10)
             val topBitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), topHeight)
-            // 3. 从顶部区域提取主色调
+            // 从顶部区域提取主色调
             Palette.from(topBitmap).generate { palette ->
                 if (palette == null) return@generate
                 // 优先获取有活力的色调，没有则用其他类型
-                var swatch: Palette.Swatch? = palette.vibrantSwatch
+                var swatch = palette.vibrantSwatch
                 if (swatch == null) {
                     swatch = palette.mutedSwatch
                 }
                 if (swatch == null) {
-                    swatch = palette.dominantSwatch // 主色调
+                    swatch = palette.dominantSwatch
                 }
                 if (swatch != null) {
-                    val targetColor: Int = swatch.rgb
-                    // 4. 执行颜色渐变动画
+                    val targetColor = swatch.rgb
+                    // 执行颜色渐变动画
                     startColorTransition(targetView, targetColor, duration)
                 }
             }
@@ -105,7 +107,6 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             var startColor = view.solidColor
             // 如果当前没有背景色，使用透明色作为起点
             if (startColor == 0) {
-                // 透明
                 startColor = 0x00000000
             }
             // 创建颜色过渡动画
@@ -114,7 +115,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             colorAnimator.setDuration(duration.toLong())
             // 动画更新时设置新颜色
             colorAnimator.addUpdateListener { animator: ValueAnimator? ->
-                val color = animator!!.getAnimatedValue() as Int
+                val color = animator?.getAnimatedValue() as Int
                 view.setBackgroundColor(color)
             }
             // 启动动画
