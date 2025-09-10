@@ -39,14 +39,16 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //框架库
+    // 框架库
     implementation(project(":lib_framework"))
-    //进度条库依赖，可注释
+    // 进度条库依赖，可注释
     api("com.dinuscxj:circleprogressbar:1.3.6")
-    //Glide 依赖
-    api("com.github.bumptech.glide:glide:4.16.0")
-    kapt("com.github.bumptech.glide:compiler:4.16.0")
-    //OkHttp 依赖
+    // 调色盘 依赖
+    api("androidx.palette:palette:1.0.0")
+    // Glide 依赖
+    api("com.github.bumptech.glide:glide:5.0.4")
+    kapt("com.github.bumptech.glide:compiler:5.0.4")
+    // OkHttp 依赖
     api("com.squareup.okhttp3:okhttp:5.1.0")
-    implementation("com.github.bumptech.glide:okhttp3-integration:4.16.0")
+    implementation("com.github.bumptech.glide:okhttp3-integration:5.0.4")
 }
