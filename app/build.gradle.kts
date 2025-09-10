@@ -184,7 +184,6 @@ dependencies {
     //基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
-    implementation(project(":lib_local:gallery"))
     //页面路由
 //    implementation(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)
