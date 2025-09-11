@@ -34,15 +34,28 @@ fun Context?.decodeResource(id: Int): Bitmap? {
 /**
  * 获取asset下的图片
  * "share/img_order_share_logo.webp".decodeAsset()
+ * 配置高清解码参数
+ * val options = BitmapFactory.Options().apply {
+ * // 强制用最高精度格式（支持透明+全色域，4字节/像素）
+ * inPreferredConfig = Bitmap.Config.ARGB_8888
+ * // 禁用系统自动缩放（避免加载时就压缩像素）
+ * inScaled = false
+ * // 禁用内存复用（避免复用低精度 Bitmap 的内存，导致细节丢失）
+ * inMutable = false
+ * }
  */
-fun Context?.decodeAsset(filePath: String): Bitmap? {
+fun Context?.decodeAsset(filePath: String, opts: BitmapFactory.Options? = null): Bitmap? {
     this ?: return null
-    return this.assets.open(filePath).use { BitmapFactory.decodeStream(it) }
+    return this.assets.open(filePath).use {
+        BitmapFactory.decodeStream(it, null, opts)
+    }
 }
 
-fun String?.decodeAsset(): Bitmap? {
+fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
     this ?: return null
-    return BaseApplication.instance.assets.open(this).use { BitmapFactory.decodeStream(it) }
+    return BaseApplication.instance.assets.open(this).use {
+        BitmapFactory.decodeStream(it, null, opts)
+    }
 }
 
 /**
@@ -171,22 +184,22 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     }
 }
 
-/**
- * 按尺寸阈值进行图片压缩（宽≤720，高≤1280）
- * 当宽超过720时按宽度比例缩放，当高超过1280时按高度比例缩放，两者都超时按宽比例缩放
- * @return 压缩后的Bitmap，原Bitmap为空时返回null
- */
-fun Bitmap?.scaleBitmap(): Bitmap? {
-    this ?: return null
-    val maxWidth = 720f
-    val maxHeight = 1280f
-    val scale = when {
-        width > maxWidth -> maxWidth / width
-        height > maxHeight -> maxHeight / height
-        else -> 1f
-    }
-    return scaleBitmap(scale, true)
-}
+///**
+// * 按尺寸阈值进行图片压缩（宽≤720，高≤1280）
+// * 当宽超过720时按宽度比例缩放，当高超过1280时按高度比例缩放，两者都超时按宽比例缩放
+// * @return 压缩后的Bitmap，原Bitmap为空时返回null
+// */
+//fun Bitmap?.scaleBitmap(): Bitmap? {
+//    this ?: return null
+//    val maxWidth = 720f
+//    val maxHeight = 1280f
+//    val scale = when {
+//        width > maxWidth -> maxWidth / width
+//        height > maxHeight -> maxHeight / height
+//        else -> 1f
+//    }
+//    return scaleBitmap(scale, true)
+//}
 
 /**
  * 安全获取Bitmap的扩展函数

@@ -2,8 +2,6 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.util.AttributeSet
@@ -12,19 +10,12 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
-import androidx.annotation.ColorInt
-import androidx.core.graphics.ColorUtils.calculateLuminance
-import androidx.core.graphics.get
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.palette.graphics.Palette
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.FutureTarget
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.createOvalDrawable
@@ -38,12 +29,8 @@ import com.example.framework.utils.function.view.reduceSensitivity
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Timer
 import java.util.TimerTask
-import java.util.concurrent.TimeUnit
 
 /**
  * Created by wangyanbin
@@ -140,101 +127,101 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // 获取当前下标
     private val absolutePosition get() = halfPosition - halfPosition % list.size
 
-    companion object {
-        /**
-         * 根据传入的颜色阈值决定状态栏/导航栏电池图标的深浅（黑或白）
-         */
-        @JvmStatic
-        fun getBatteryIcon(@ColorInt backgroundColor: Int): Boolean {
-            // 使用系统API获取相对亮度（0.0-1.0之间）
-            val luminance = calculateLuminance(backgroundColor)
-            // 亮度阈值，这里使用0.5作为中间值
-            // 白色的相对亮度（luminance）是 1.0（最高值），黑色是 0.0（最低值）
-            return if (luminance < 0.5) true else false
-        }
-
-        /**
-         * 提取Bitmap颜色
-         */
-        @JvmStatic
-        fun getAdvCover(originalBitmap: Bitmap?): Int {
-            originalBitmap ?: return 0
-            // 获取顶部中心位置的像素颜色
-            val centerX = originalBitmap.getWidth().orZero / 2
-            // 顶部y坐标（0表示最顶部）
-            val topY = 0
-            // 确保坐标在有效范围内
-            return if (centerX >= 0 && centerX < originalBitmap.getWidth() && topY < originalBitmap.getHeight()) {
-                originalBitmap[centerX, topY]
-            } else {
-                0
-            }
-        }
-
-        /**
-         * 获取完服务器集合后,可在对应协程里在加一个获取背景的协程事务
-         */
-        suspend fun suspendingGetImageCover(context: Context, uriList: ArrayList<String>): MutableList<Pair<Boolean, Int>> {
-            return withContext(IO) {
-                val colorList = MutableList(uriList.size) { true to Color.WHITE }
-                uriList.forEachIndexed { index, imgUrl ->
-                    // 为每个图片处理设置超时 5秒超时
-                    val color = withTimeoutOrNull(5000) {
-                        getImageCover(context, imgUrl)
-                    } ?: run {
-                        Color.WHITE
-                    }
-                    colorList[index] = getBatteryIcon(color) to color
-                }
-                colorList
-            }
-        }
-
-        /**
-         * 获取图片背景
-         * @param context 上下文对象
-         * @return 图片背景色，如果获取失败返回白色
-         */
-        private suspend fun getImageCover(context: Context, imageUrl: String?): Int {
-            return withContext(IO) {
-                var futureTarget: FutureTarget<Bitmap>? = null
-                try {
-                    if (imageUrl.isNullOrEmpty()) {
-                        return@withContext Color.WHITE
-                    }
-                    // 加载图片时可以指定尺寸，避免过大的Bitmap占用过多内存
-                    futureTarget = Glide.with(context)
-                        .asBitmap()
-                        .load(imageUrl)
-                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-                        // 限制图片尺寸，加速处理
-                        .submit(200, 200)
-                    // 等待结果，设置超时
-                    val bitmap = futureTarget.get(3, TimeUnit.SECONDS) ?: return@withContext Color.WHITE
-                    // 配置Palette，提高颜色提取质量
-                    val palette = Palette.from(bitmap)
-                        // 增加颜色数量
-                        .maximumColorCount(32)
-                        .generate()
-                    // 多种颜色提取策略，提高成功率
-                    val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
-                    // 释放Bitmap内存
-                    if (!bitmap.isRecycled) {
-                        bitmap.recycle()
-                    }
-                    return@withContext pageColor
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                    return@withContext Color.WHITE
-                } finally {
-                    // 取消Glide请求，避免内存泄漏
-                    futureTarget?.let {
-                        Glide.with(context).clear(it)
-                    }
-                }
-            }
-        }
-    }
+//    companion object {
+//        /**
+//         * 根据传入的颜色阈值决定状态栏/导航栏电池图标的深浅（黑或白）
+//         */
+//        @JvmStatic
+//        fun getBatteryIcon(@ColorInt backgroundColor: Int): Boolean {
+//            // 使用系统API获取相对亮度（0.0-1.0之间）
+//            val luminance = calculateLuminance(backgroundColor)
+//            // 亮度阈值，这里使用0.5作为中间值
+//            // 白色的相对亮度（luminance）是 1.0（最高值），黑色是 0.0（最低值）
+//            return if (luminance < 0.5) true else false
+//        }
+//
+//        /**
+//         * 提取Bitmap颜色
+//         */
+//        @JvmStatic
+//        fun getAdvCover(originalBitmap: Bitmap?): Int {
+//            originalBitmap ?: return 0
+//            // 获取顶部中心位置的像素颜色
+//            val centerX = originalBitmap.getWidth().orZero / 2
+//            // 顶部y坐标（0表示最顶部）
+//            val topY = 0
+//            // 确保坐标在有效范围内
+//            return if (centerX >= 0 && centerX < originalBitmap.getWidth() && topY < originalBitmap.getHeight()) {
+//                originalBitmap[centerX, topY]
+//            } else {
+//                0
+//            }
+//        }
+//
+//        /**
+//         * 获取完服务器集合后,可在对应协程里在加一个获取背景的协程事务
+//         */
+//        suspend fun suspendingGetImageCover(context: Context, uriList: ArrayList<String>): MutableList<Pair<Boolean, Int>> {
+//            return withContext(IO) {
+//                val colorList = MutableList(uriList.size) { true to Color.WHITE }
+//                uriList.forEachIndexed { index, imgUrl ->
+//                    // 为每个图片处理设置超时 5秒超时
+//                    val color = withTimeoutOrNull(5000) {
+//                        getImageCover(context, imgUrl)
+//                    } ?: run {
+//                        Color.WHITE
+//                    }
+//                    colorList[index] = getBatteryIcon(color) to color
+//                }
+//                colorList
+//            }
+//        }
+//
+//        /**
+//         * 获取图片背景
+//         * @param context 上下文对象
+//         * @return 图片背景色，如果获取失败返回白色
+//         */
+//        private suspend fun getImageCover(context: Context, imageUrl: String?): Int {
+//            return withContext(IO) {
+//                var futureTarget: FutureTarget<Bitmap>? = null
+//                try {
+//                    if (imageUrl.isNullOrEmpty()) {
+//                        return@withContext Color.WHITE
+//                    }
+//                    // 加载图片时可以指定尺寸，避免过大的Bitmap占用过多内存
+//                    futureTarget = Glide.with(context)
+//                        .asBitmap()
+//                        .load(imageUrl)
+//                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                        // 限制图片尺寸，加速处理
+//                        .submit(200, 200)
+//                    // 等待结果，设置超时
+//                    val bitmap = futureTarget.get(3, TimeUnit.SECONDS) ?: return@withContext Color.WHITE
+//                    // 配置Palette，提高颜色提取质量
+//                    val palette = Palette.from(bitmap)
+//                        // 增加颜色数量
+//                        .maximumColorCount(32)
+//                        .generate()
+//                    // 多种颜色提取策略，提高成功率
+//                    val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
+//                    // 释放Bitmap内存
+//                    if (!bitmap.isRecycled) {
+//                        bitmap.recycle()
+//                    }
+//                    return@withContext pageColor
+//                } catch (e: Exception) {
+//                    e.printStackTrace()
+//                    return@withContext Color.WHITE
+//                } finally {
+//                    // 取消Glide请求，避免内存泄漏
+//                    futureTarget?.let {
+//                        Glide.with(context).clear(it)
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {

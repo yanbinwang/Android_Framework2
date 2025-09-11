@@ -172,7 +172,7 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
                         val scaleRatio = targetWidth.toSafeFloat() / measuredWidth.toSafeFloat()
                         // 计算图片等比例放大后的高
                         (measuredHeight * scaleRatio).toSafeInt()
-                    }  else {
+                    } else {
                         measuredHeight
                     }
                     // 根据原view大小绘制出bitmap
@@ -182,7 +182,7 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
                     // View.draw()方法是必须在主线程执行
                     view.draw(canvas)
                     // 根据实际宽高缩放
-                    screenBit.scaleBitmap(targetWidth, mTargetHeight)
+                    withContext(IO) { screenBit.scaleBitmap(targetWidth, mTargetHeight) }
                 } else {
                     // 直接计算最终需要的宽高（合并原 mTargetHeight 和 finalHeight 的逻辑）
                     val finalHeight = if (targetHeight < 0) {
