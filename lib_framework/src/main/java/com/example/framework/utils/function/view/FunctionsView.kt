@@ -845,19 +845,19 @@ fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
     val isSubscribed = subscriptionMap.getOrPut(this) { AtomicBoolean(false) }
     if (!isSubscribed.getAndSet(true)) {
         observer.doOnDestroy {
-            recycle()
+            safeRecycle()
             //移除订阅状态标记
             subscriptionMap.remove(this)
         }
     }
-    recycle()
+    safeRecycle()
     setImageBitmap(bit)
 }
 
 /**
  * imageview回收
  */
-fun ImageView?.recycle() {
+fun ImageView?.safeRecycle() {
     this ?: return
     val mDrawable = this.drawable
     if (mDrawable is BitmapDrawable) {
@@ -969,9 +969,19 @@ fun ConstraintSet.topToTopOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_I
     connect(viewId, ConstraintSet.TOP, targetId, ConstraintSet.TOP, margin)
 }
 
+fun ConstraintSet.topToBottomOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "topToBottomOf")) return
+    connect(viewId, ConstraintSet.TOP, targetId, ConstraintSet.BOTTOM, margin)
+}
+
 fun ConstraintSet.bottomToBottomOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
     if (!isValidIds(viewId, targetId, "bottomToBottomOf")) return
     connect(viewId, ConstraintSet.BOTTOM, targetId, ConstraintSet.BOTTOM, margin)
+}
+
+fun ConstraintSet.bottomToTopOf(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID, margin: Int = 0) {
+    if (!isValidIds(viewId, targetId, "bottomToTopOf")) return
+    connect(viewId, ConstraintSet.BOTTOM, targetId, ConstraintSet.TOP, margin)
 }
 
 fun ConstraintSet.center(viewId: Int, targetId: Int = ConstraintSet.PARENT_ID) {

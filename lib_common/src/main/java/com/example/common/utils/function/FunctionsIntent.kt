@@ -285,8 +285,7 @@ fun Context?.openWorld(filePath: String) = openFile(filePath, "application/mswor
 /**
  * 打开安装包
  */
-fun Context?.openSetupApk(filePath: String) =
-    openFile(filePath, "application/vnd.android.package-archive")
+fun Context?.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
 
 /**
  * 统一开启文件

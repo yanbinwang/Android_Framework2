@@ -112,7 +112,7 @@ fun <T> Flow<T>.withHandling(
     err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false,
-    isShowDialog: Boolean = false
+    isShowDialog: Boolean = true
 ): Flow<T> {
     return withHandling(err, {
         if (isShowDialog) view?.hideDialog()
