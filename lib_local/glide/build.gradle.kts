@@ -43,8 +43,8 @@ dependencies {
     implementation(project(":lib_framework"))
     // 进度条库依赖，可注释
     api("com.dinuscxj:circleprogressbar:1.3.6")
-    // 调色盘 依赖
-    api("androidx.palette:palette:1.0.0")
+//    // 调色盘 依赖
+//    api("androidx.palette:palette:1.0.0")
     // Glide 依赖
     api("com.github.bumptech.glide:glide:5.0.4")
     kapt("com.github.bumptech.glide:compiler:5.0.4")

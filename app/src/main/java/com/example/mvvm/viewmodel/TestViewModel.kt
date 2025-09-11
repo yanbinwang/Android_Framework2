@@ -1,11 +1,9 @@
 package com.example.mvvm.viewmodel
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.view.View.generateViewId
-import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -47,7 +45,6 @@ import com.example.framework.utils.function.view.topToTopOf
 import com.example.mvvm.R
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.flow
@@ -219,7 +216,14 @@ class TestViewModel : BaseViewModel() {
             mContext?.let {
                 shareBit?.safeRecycle()
                 // 获取分享背景图片
-                val shareBg = it.decodeAsset("share/bg_kol_invite_info.webp")?.toDrawable(it.resources)
+                val shareBg = it.decodeAsset("share/bg_kol_invite_info.webp", BitmapFactory.Options().apply {
+                    // 强制用最高精度格式（支持透明+全色域，4字节/像素）
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                    // 禁用系统自动缩放（避免加载时就压缩像素）
+                    inScaled = false
+                    // 禁用内存复用（避免复用低精度 Bitmap 的内存，导致细节丢失）
+                    inMutable = false
+                })?.toDrawable(it.resources)
                 // 生成父布局
                 val rootView = ConstraintLayout(it)
                 rootView.size(335.pt, 300.pt)
@@ -264,11 +268,9 @@ class TestViewModel : BaseViewModel() {
                     endToEndOf(viewId)
                 }
                 ivQrCode.margin(end = 28.pt, bottom = 12.pt)
-//                val parentView = FrameLayout(it)
-//                parentView.addView(rootView)
                 // 开始生成bitmap
-//                shareBit = suspendingSaveView(rootView, 335, 300, true)
-                shareBit = suspendingSaveView(rootView, 335, 300)
+                shareBit = suspendingSaveView(rootView, 335, 300, true)
+//                shareBit = suspendingSaveView(rootView, 335, 300)
                 // 回收旧背景的 Bitmap
                 rootView.background.getBitmap()?.safeRecycle()
                 ivQrCode.safeRecycle()
