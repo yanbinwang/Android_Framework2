@@ -34,6 +34,7 @@ import com.example.common.utils.function.getHash
 import com.example.common.utils.function.isMkdirs
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
+import com.example.common.utils.function.pt
 import com.example.common.utils.function.read
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
@@ -45,11 +46,11 @@ import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.glide.ImageLoader
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import java.io.FileOutputStream
 import java.io.FileWriter
@@ -153,70 +154,64 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
  * 弹窗的 show() 是当前主线程消息，会优先执行，所以弹窗能正常弹出、转圈动画流畅；
  * View 操作被 post 到下一个消息队列，等弹窗渲染完成后再执行，即使耗时久，也不会让弹窗 “卡着不显示”；
  * 协程通过 deferred.await() 挂起等待结果，不会阻塞主线程其他操作。
- * doOnceAfterLayout调用
  */
 suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targetHeight: Int = WRAP_CONTENT, isScale: Boolean = false): Bitmap? {
-//    return try {
-//        // Android 中 View 的 measure()/layout()/draw() 必须在主线程执行，在 IO 线程调用会导致异常
-//        withContext(Main.immediate) {
-//            // 对传入的高做一个修正，如果是自适应需要先做一次测绘
-//            val mHeight = if (targetHeight < 0) {
-//                view.measure(WRAP_CONTENT, WRAP_CONTENT)
-//                view.measuredHeight
-//            } else {
-//                targetHeight
-//            }
-//            // 强制 View 完成测量与布局
-//            view.loadLayout(targetWidth, mHeight)
-//            // 绘制 View 到 Bitmap
-//            view.loadBitmap()
-//        }
-//    } catch (e: Exception) {
-//        throw e
-//    }
-    // 用 CompletableDeferred 实现“主线程异步操作+协程等待”
-    val deferred = CompletableDeferred<Bitmap?>()
-    // 先让弹窗正常显示（此时主线程先处理弹窗消息）
-    // 用 view.post {} 把 View 操作推迟到主线程空闲时执行 (view.post强制将 View 操作切换到主线程执行，不受外层切 IO 线程影响)
-    view.post {
-        try {
-            // 这里的 View 操作仍在主线程，但已在弹窗显示之后执行
-            // 对传入的高做一个修正，如果是自适应需要先做一次测绘
-            val mHeight = if (targetHeight < 0) {
+    // 切换到主线程执行所有View操作（避免线程问题）
+    return withContext(Main.immediate) {
+        withTimeoutOrNull(5000) {
+            try {
+                // 强制触发View测量/强制布局（确保View有位置和尺寸）
+                val mTargetHeight = if (targetHeight < 0) 0 else targetHeight
                 if (isScale) {
-                    // 计算缩放比例
-                    val scaleRatio = view.measuredWidth.toSafeFloat() / targetWidth.toSafeFloat()
-                    // 计算图片等比例放大后的高
-                    (view.measuredHeight * scaleRatio).toSafeInt()
+                    view.loadLayout(targetWidth.pt, mTargetHeight.pt)
+                    // 得到测绘后的值(如果是缩放会是pt后的值)
+                    val measuredWidth = view.measuredWidth
+                    val measuredHeight = view.measuredHeight
+                    // 计算最终绘制尺寸（处理缩放）
+                    val finalHeight = if (targetHeight < 0) {
+                        // 计算缩放比例
+                        val scaleRatio = targetWidth.toSafeFloat() / measuredWidth.toSafeFloat()
+                        // 计算图片等比例放大后的高
+                        (measuredHeight * scaleRatio).toSafeInt()
+                    }  else {
+                        measuredHeight
+                    }
+                    // 根据原view大小绘制出bitmap
+                    val screenBit = createBitmap(measuredWidth, finalHeight)
+                    val canvas = Canvas(screenBit)
+                    canvas.drawColor(Color.TRANSPARENT)
+                    // View.draw()方法是必须在主线程执行
+                    view.draw(canvas)
+                    // 根据实际宽高缩放
+                    screenBit.scaleBitmap(targetWidth, mTargetHeight)
                 } else {
-                    view.measure(WRAP_CONTENT, WRAP_CONTENT)
-                    view.measuredHeight
+                    // 直接计算最终需要的宽高（合并原 mTargetHeight 和 finalHeight 的逻辑）
+                    val finalHeight = if (targetHeight < 0) {
+                        // targetHeight<0（自适应），先临时布局获取原始比例
+                        // 临时用 targetWidth 布局，获取 View 真实的宽高比例
+                        view.loadLayout(targetWidth, 0) // 高度传0（UNSPECIFIED），让 View 自适应
+                        val tempMeasuredWidth = view.measuredWidth
+                        val tempMeasuredHeight = view.measuredHeight
+                        // 按目标宽度计算自适应高度（保持原比例）
+                        (tempMeasuredHeight.toSafeFloat() * targetWidth / tempMeasuredWidth.toSafeFloat()).toSafeInt()
+                    } else {
+                        // targetHeight>=0（固定高度），直接用目标高
+                        targetHeight
+                    }
+                    // 仅执行1次布局（用最终确定的宽高，避免重复）
+                    view.loadLayout(targetWidth, finalHeight)
+                    // 校验布局结果（确保尺寸有效）
+                    if (view.measuredWidth != targetWidth || view.measuredHeight != finalHeight) {
+                        throw IllegalStateException("View布局尺寸与目标尺寸不匹配：实际(${view.measuredWidth}x${view.measuredHeight})，目标(${targetWidth}x${finalHeight})")
+                    }
+                    // 生成 Bitmap（直接用 View 布局后的尺寸，避免尺寸不匹配）
+                    view.loadBitmap(targetWidth, finalHeight)
                 }
-            } else {
-                targetHeight
+            } catch (e: Exception) {
+                throw e
             }
-            val bitmap = if (isScale) {
-                // 根据原view大小绘制出bitmap
-                val screenshot = createBitmap(view.measuredWidth, view.measuredHeight)
-                val canvas = Canvas(screenshot)
-                // View.draw()方法是必须在主线程执行
-                view.draw(canvas)
-                // 根据实际宽高缩放
-                screenshot.scaleBitmap(targetWidth, mHeight)
-            } else {
-                // 强制 View 完成测量与布局
-                view.loadLayout(targetWidth, mHeight)
-                // 绘制 View 到 Bitmap
-                view.loadBitmap()
-            }
-            // 操作完成，通知协程返回结果
-            deferred.complete(bitmap)
-        } catch (e: Exception) {
-            deferred.completeExceptionally(e)
         }
     }
-    // 协程挂起等待，直到 View 操作完成（不阻塞主线程）
-    return deferred.await()
 }
 
 /**

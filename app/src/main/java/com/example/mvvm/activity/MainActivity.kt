@@ -7,6 +7,7 @@ import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
+import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
@@ -39,6 +40,7 @@ import com.example.framework.utils.logE
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
@@ -371,7 +373,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //    private val map = mapOf("1111" to "一", "2222" to "二", "3333" to "三")
     private val selectList by lazy { listOf("1" to true, "2" to true, "3" to true) }
 
-    //    private val viewModel by lazy { TestViewModel().create() }
+    private val viewModel: TestViewModel by viewModels()
     private val bean by lazy { intentParcelable<UserBean>("bean") }
 
     //    private val builder by lazy { FileBuilder(this) }
@@ -390,8 +392,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         super.initView(savedInstanceState)
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
-        initImmersionBar(navigationBarDark = true,navigationBarColor = R.color.bgWhite)
+        initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
+            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
@@ -401,7 +404,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 ////                    navigation(ARouterPath.TestActivity)
 //                }
 //            }
-            testDialog.show()
+//            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)

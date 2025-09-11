@@ -270,13 +270,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     inline fun <reified T : View> createOrUpdateView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         // 移除上一次的视图
         val lastId = idsMap[key]
-        if (lastId != null && lastId != View.NO_ID) {
+        if (lastId != null && lastId != NO_ID) {
             rootView.findViewById<T>(lastId)?.let {
                 rootView.removeView(it)
             }
         }
         // 生成新的唯一 id
-        val newViewId = View.generateViewId()
+        val newViewId = generateViewId()
         idsMap[key] = newViewId
         val newView = creator.invoke()
         newView.id = newViewId
@@ -292,7 +292,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     inline fun <reified T : View> findViewByKey(key: String): T? {
         val id = idsMap[key]
-        return if (id != null && id != View.NO_ID) {
+        return if (id != null && id != NO_ID) {
             rootView.findViewById(id)
         } else {
             null

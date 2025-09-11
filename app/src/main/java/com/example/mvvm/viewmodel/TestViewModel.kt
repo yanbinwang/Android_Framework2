@@ -1,19 +1,61 @@
 package com.example.mvvm.viewmodel
 
+import android.graphics.Bitmap
+import android.graphics.Color
+import android.view.View.generateViewId
+import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
+import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
 import com.example.common.base.bridge.BaseViewModel
 import com.example.common.base.bridge.async
 import com.example.common.base.bridge.launch
 import com.example.common.network.CommonApi
 import com.example.common.network.repository.request
+import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.safeAs
 import com.example.common.network.repository.withHandling
+import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.suspendingSavePic
+import com.example.common.utils.builder.suspendingSaveView
+import com.example.common.utils.function.byServerUrl
+import com.example.common.utils.function.decodeAsset
+import com.example.common.utils.function.decodeResource
+import com.example.common.utils.function.getBitmap
+import com.example.common.utils.function.insertImageResolver
+import com.example.common.utils.function.pt
+import com.example.common.utils.function.safeRecycle
+import com.example.framework.utils.function.view.applyConstraints
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.bold
+import com.example.framework.utils.function.view.bottomToBottomOf
+import com.example.framework.utils.function.view.endToEndOf
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.safeRecycle
+import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.startToStartOf
+import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.textSize
+import com.example.framework.utils.function.view.topToBottomOf
+import com.example.framework.utils.function.view.topToTopOf
+import com.example.mvvm.R
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.net.URLEncoder
 
 /**
  * 串行/并发是否需要dialog需要主动调取，单纯一次性发起不需要
@@ -128,10 +170,8 @@ class TestViewModel : BaseViewModel() {
     fun concurrencyTask() {
         launch {
             flow {
-                val task1 =
-                    async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
-                val task2 =
-                    async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                val task1 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                val task2 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
                 emit(awaitAll(task1, task2))
             }.withHandling(mView).collect {
                 it.safeAs<Any>(0)
@@ -152,6 +192,100 @@ class TestViewModel : BaseViewModel() {
             //拿对象
             val bean = request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })
         }.withHandling().launchIn(viewModelScope)
+    }
+
+    private var shareBit: Bitmap? = null
+
+    fun getShare() {
+        launch {
+            flow {
+                emit(requestAffair({ suspendingKolShare() }))
+            }.withHandling(mView, {
+                "分享失败".shortToast()
+            }).collect { sourcePath ->
+                mContext?.insertImageResolver(File(sourcePath.orEmpty()))
+                "插入成功".shortToast()
+            }
+        }.manageJob()
+    }
+
+    /**
+     * 生成一个配置好的图片,直接在原图上绘制文字/图案
+     * 1.拿取UI提供的最高清的3倍图
+     * 2.需求规定不同手机分享出去的大小都为335*300(像素)
+     */
+    suspend fun suspendingKolShare(): String? {
+        return withContext(IO) {
+            mContext?.let {
+                shareBit?.safeRecycle()
+                // 获取分享背景图片
+                val shareBg = it.decodeAsset("share/bg_kol_invite_info.webp")?.toDrawable(it.resources)
+                // 生成父布局
+                val rootView = ConstraintLayout(it)
+                rootView.size(335.pt, 300.pt)
+                rootView.background = shareBg
+                // 生成律师名称
+                val tvNick = TextView(it)
+                tvNick.id = generateViewId()
+                tvNick.text = "王律师"
+                tvNick.bold(true)
+                tvNick.textSize(R.dimen.textSize16)
+                tvNick.textColor(R.color.textWhite)
+                rootView.addView(tvNick)
+                rootView.applyConstraints {
+                    val viewId = tvNick.id
+                    startToStartOf(viewId)
+                    topToTopOf(viewId)
+                }
+                tvNick.margin(start = 60.pt, top = 20.pt)
+                // 生成律师下方斜线图片
+                val ivLine = ImageView(it)
+                ivLine.id = generateViewId()
+                ivLine.size(60.pt, 3.pt)
+                ivLine.background(R.mipmap.ic_kol_line)
+                rootView.addView(ivLine)
+                rootView.applyConstraints {
+                    val viewId = ivLine.id
+                    startToStartOf(viewId, tvNick.id)
+                    topToBottomOf(viewId, tvNick.id)
+                }
+                ivLine.margin(top = 1.pt)
+                // 生成二维码
+                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".byServerUrl
+                val qrBit = QRCodeEncoder.syncEncodeQRCode(content, 400, Color.BLACK, Color.WHITE, mContext.decodeResource(R.mipmap.ic_qr_code))
+                val ivQrCode = ImageView(it)
+                ivQrCode.id = generateViewId()
+                ivQrCode.size(60.pt, 60.pt)
+                ivQrCode.setImageBitmap(qrBit)
+                rootView.addView(ivQrCode)
+                rootView.applyConstraints {
+                    val viewId = ivQrCode.id
+                    bottomToBottomOf(viewId)
+                    endToEndOf(viewId)
+                }
+                ivQrCode.margin(end = 28.pt, bottom = 12.pt)
+//                val parentView = FrameLayout(it)
+//                parentView.addView(rootView)
+                // 开始生成bitmap
+//                shareBit = suspendingSaveView(rootView, 335, 300, true)
+                shareBit = suspendingSaveView(rootView, 335, 300)
+                // 回收旧背景的 Bitmap
+                rootView.background.getBitmap()?.safeRecycle()
+                ivQrCode.safeRecycle()
+                shareBg?.bitmap?.safeRecycle()
+                qrBit?.safeRecycle()
+                shareBit?.let { bit ->
+                    val filePath = suspendingSavePic(bit).orEmpty()
+                    bit.safeRecycle()
+                    filePath
+                }
+            } ?: ""
+        }
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        shareBit?.safeRecycle()
     }
 
 }

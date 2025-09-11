@@ -15,6 +15,8 @@ import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.annotation.ColorInt
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
@@ -88,6 +90,16 @@ fun String?.isValidImage(): Boolean {
             false
         }
     } ?: false
+}
+
+/**
+ * 安全回收Bitmap的扩展函数
+ */
+fun Bitmap?.safeRecycle() {
+    this ?: return
+    if (!isRecycled) {
+        recycle()
+    }
 }
 
 /**
@@ -177,6 +189,13 @@ fun Bitmap?.scaleBitmap(): Bitmap? {
 }
 
 /**
+ * 安全获取Bitmap的扩展函数
+ */
+fun Drawable?.getBitmap(): Bitmap? {
+    return (this as? BitmapDrawable)?.bitmap
+}
+
+/**
  * 根据目标宽高缩放 Drawable
  * @param context 上下文（用于创建 Drawable）
  * @param targetWidth 目标宽度（像素）
@@ -260,34 +279,33 @@ fun View?.getBitmap(targetWidth: Int? = null, targetHeight: Int? = null, needBg:
 
 /**
  * 当measure完后，并不会实际改变View的尺寸，需要调用View.layout方法去进行布局
- * 按示例调用layout函数后，View的大小将会变成你想要设置成的大小
  */
-fun View.loadLayout(targetWidth: Int, targetHeight: Int) {
-//    //整个View的大小 参数是左上角 和右下角的坐标
-//    layout(0, 0, width, height)
-//    val measuredWidth = View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY)
-//    val measuredHeight = View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
-//    measure(measuredWidth, measuredHeight)
-//    layout(0, 0, getMeasuredWidth(), getMeasuredHeight())
-    // 生成精确测量规则
+fun View.loadLayout(targetWidth: Int, targetHeight: Int = WRAP_CONTENT) {
+    // 强制触发View测量（同步执行，不依赖系统回调）
     val widthSpec = View.MeasureSpec.makeMeasureSpec(targetWidth, View.MeasureSpec.EXACTLY)
-    val heightSpec = View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
-    // 执行测量
+    val heightSpec = if (targetHeight < 0) {
+        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+    } else {
+        View.MeasureSpec.makeMeasureSpec(targetHeight, View.MeasureSpec.EXACTLY)
+    }
     measure(widthSpec, heightSpec)
-    // 应用测量结果：布局位置（0,0）到（测量后宽度, 测量后高度）
+    // 强制布局（确保View有位置和尺寸）
+    if (measuredWidth <= 0 || measuredHeight <= 0) {
+        throw IllegalStateException("View测量失败，尺寸为0")
+    }
     layout(0, 0, measuredWidth, measuredHeight)
 }
 
 /**
  * 如果不设置canvas画布为白色，则生成透明
  */
-fun View.loadBitmap(): Bitmap {
+fun View.loadBitmap(targetWidth: Int = measuredWidth, targetHeight: Int = measuredHeight, @ColorInt color: Int = Color.TRANSPARENT): Bitmap {
     // 创建与 View 测量后尺寸一致的 Bitmap（ARGB_8888 格式，保证画质）
-    val bitmap = createBitmap(measuredWidth, measuredHeight)
+    val bitmap = createBitmap(targetWidth, targetHeight)
     // 创建与Bitmap关联的Canvas
     val canvas = Canvas(bitmap)
     // 绘制背景（避免透明背景，可根据需求修改颜色）
-    canvas.drawColor(Color.WHITE)
+    canvas.drawColor(color)
     // 强制View布局到指定位置和尺寸
     layout(0, 0, width, height)
     // 将 View 绘制到 Canvas（此时 View 已完成布局，尺寸有效）
@@ -299,6 +317,27 @@ fun View.loadBitmap(): Bitmap {
 /**
  * 画笔默认取中心点坐标，所以要除2
  * 只有继承了当前画笔接口的类才能使用以下方法
+ * private fun Bitmap.drawShareBitMap(info: BitmapInfo, refCode: String?): Bitmap {
+ *     val paint = Paint()
+ *     val canvasHeight = height + 170
+ *     val bitmap = Bitmap.createBitmap(width, canvasHeight, Bitmap.Config.RGB_565)
+ *     val canvas = Canvas(bitmap)
+ *     canvas.drawColor(Color.WHITE)
+ *     canvas.drawBitmap(this, 0f, 0f, paint)
+ *     //底部logo
+ *     "share/img_order_share_logo.webp".getBitmapFromAsset()?.let { canvas.drawBitmap(it, 30f, 812f, paint) }
+ *     //邀請碼標題
+ *     val refPaint = getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), fontId = R.font.font_bold)
+ *     val refTxt = string(R.string.orderShareRefCode)
+ *     val refWidth = refPaint.measureText(refTxt)
+ *     refPaint.drawTextLeft(29, 899, refTxt, canvas)
+ *     //邀請碼
+ *     getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), R.font.font_bold).drawTextLeft(refWidth + 29 + 15, 899, refCode.orNoData, canvas)
+ *     //二維碼
+ *     QRCodeBuilder().content(string(R.string.orderShareQrUrl)).size(126).build()?.let { canvas.drawBitmap(it, 532f, 806f, paint) }
+ *     recycle()
+ *     return bitmap
+ * }
  */
 interface PaintImpl {
 
