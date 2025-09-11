@@ -276,11 +276,9 @@ class TestViewModel : BaseViewModel() {
                 ivQrCode.safeRecycle()
                 shareBg?.bitmap?.safeRecycle()
                 qrBit?.safeRecycle()
-                shareBit?.let { bit ->
-                    val filePath = suspendingSavePic(bit).orEmpty()
-                    bit.safeRecycle()
-                    filePath
-                }
+                val filePath = suspendingSavePic(shareBit)
+                shareBit.safeRecycle()
+                filePath
             } ?: ""
         }
     }
