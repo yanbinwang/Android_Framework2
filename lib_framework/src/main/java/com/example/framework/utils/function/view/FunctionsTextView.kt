@@ -2,9 +2,17 @@ package com.example.framework.utils.function.view
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Shader
+import android.graphics.Typeface
 import android.os.Build
-import android.text.*
+import android.text.Editable
+import android.text.InputFilter
+import android.text.Spannable
+import android.text.Spanned
+import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
@@ -26,12 +34,20 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
 import com.example.framework.utils.builder.TimerBuilder
-import com.example.framework.utils.function.value.*
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.multiply
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.value.toArrayList
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
 import java.math.BigDecimal
-import java.util.*
+import java.util.Random
 
 //------------------------------------textview扩展函数类------------------------------------
 /**
@@ -77,11 +93,21 @@ fun TextView?.textColor(@ColorRes res: Int) {
 
 /**
  * 以res设置textSize
+ * 将 dimens.xml 中定义的任意单位（包括 pt）转换为最终的像素值（px）
  */
 fun TextView?.textSize(@DimenRes res: Int) {
     if (this == null) return
     this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(res))
 }
+
+///**
+// * 以值设置textSize
+// * 将 value 按 SP 单位，结合当前页面的屏幕参数，转换为 PX
+// */
+//fun TextView?.textSize(value: Float) {
+//    if (this == null) return
+//    this.textSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, Resources.getSystem().displayMetrics)
+//}
 
 /**
  * textview颜色随机

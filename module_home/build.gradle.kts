@@ -49,6 +49,5 @@ dependencies {
     //框架库
     api(project(":lib_common"))
     //页面路由
-//    implementation(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)
 }

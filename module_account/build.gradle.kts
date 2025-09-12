@@ -50,6 +50,5 @@ dependencies {
 //    api(project(":lib_common"))
     api(project(":lib_thirdparty"))
     //页面路由
-//    implementation(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)
 }
