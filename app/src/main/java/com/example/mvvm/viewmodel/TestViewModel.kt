@@ -269,8 +269,8 @@ class TestViewModel : BaseViewModel() {
                 }
                 ivQrCode.margin(end = 28.pt, bottom = 12.pt)
                 // 开始生成bitmap
-//                shareBit = suspendingSaveView(rootView, 335, 300, true)
-                shareBit = suspendingSaveView(rootView, 335.pt, 300.pt)
+                shareBit = suspendingSaveView(rootView, 335, 300, true)
+//                shareBit = suspendingSaveView(rootView, 335.pt, 300.pt)
                 // 回收旧背景的 Bitmap
                 rootView.background.getBitmap()?.safeRecycle()
                 ivQrCode.safeRecycle()

@@ -130,6 +130,10 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
     // 原始宽高
     val originalWidth = width
     val originalHeight = height
+    // 如果目标尺寸与原始尺寸相同，直接返回原Bitmap
+    if (targetWidth == originalWidth && targetHeight == originalHeight) {
+        return this
+    }
     // 计算缩放比例，保持图片原有比例
     val scaleWidth = targetWidth.toSafeFloat() / originalWidth.toSafeFloat()
     val scaleHeight = targetHeight.toSafeFloat() / originalHeight.toSafeFloat()
@@ -148,7 +152,7 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
          * 后续使用该 Bitmap 会抛出异常（Canvas: trying to use a recycled bitmap）
          */
         if (resultBitmap !== this) {
-            recycle()
+            safeRecycle()
         }
         resultBitmap
     } catch (e: Exception) {
