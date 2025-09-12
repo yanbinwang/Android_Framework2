@@ -186,7 +186,4 @@ dependencies {
     implementation(project(":module_account"))
     //页面路由
     kapt(libs.alibaba.arouter.compiler)
-
-    //扫码
-    api("com.github.bingoogolapple.BGAQRCode-Android:zxing:1.3.8")
 }

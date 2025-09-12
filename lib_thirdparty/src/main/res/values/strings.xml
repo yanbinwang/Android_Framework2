@@ -7,4 +7,6 @@
     <string name="wechatUnInstalled">您尚未安装微信</string>
     <string name="wechatSupportError">当前微信版本不支持</string>
     <string name="alipayUnInstalled">您尚未安装支付宝</string>
+    <!-- 图片压缩提示 -->
+    <string name="compressError">請上傳10M以內的圖片</string>
 </resources>

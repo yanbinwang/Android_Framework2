@@ -65,6 +65,10 @@ dependencies {
     api(project(":lib_local:objectbox"))
     // 相册
     api(project(":lib_local:gallery"))
+    // 扫码
+    api("com.github.bingoogolapple.BGAQRCode-Android:zxing:1.3.8")
+    // 文件压缩
+    implementation("id.zelory:compressor:3.0.1")
     // 相机/播放器
     api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:11.1.0")
     api("com.otaliastudios:cameraview:2.7.2")
