@@ -234,13 +234,13 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
         val newBitmap = Bitmap.createBitmap(sourceBitmap, 0, 0, intrinsicWidth, intrinsicHeight, matrix, true)
         // 回收临时 Bitmap（注意：newBitmap 若与 sourceBitmap 是同一对象则不回收）
         if (newBitmap !== sourceBitmap) {
-            sourceBitmap.recycle()
+            sourceBitmap.safeRecycle()
         }
         newBitmap.toDrawable(context.resources)
     } catch (e: Exception) {
         e.printStackTrace()
         // 异常时回收临时 Bitmap
-        sourceBitmap.recycle()
+        sourceBitmap.safeRecycle()
         // 失败时返回原 Drawable
         this
     }
