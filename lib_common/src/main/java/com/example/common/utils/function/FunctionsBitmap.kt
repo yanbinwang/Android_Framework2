@@ -179,7 +179,7 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     return try {
         val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, filter)
         if (resultBitmap !== this) {
-            recycle()
+            safeRecycle()
         }
         resultBitmap
     } catch (e: Exception) {
