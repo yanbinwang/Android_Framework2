@@ -47,11 +47,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
@@ -836,21 +838,39 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 /**
  * 设置一个新的bitmap
  */
-//用于存储每个 ImageView 的订阅状态
+// 用于存储每个 ImageView 的订阅状态
 private val subscriptionMap by lazy { WeakHashMap<ImageView, AtomicBoolean>() }
 
-fun ImageView?.setBitmap(observer: LifecycleOwner, bit: Bitmap?) {
+fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
     if (this == null || bit == null) return
-    //检查是否已经订阅过
+    // 优先使用传入的 observer，否则自动获取当前 View 所在的 LifecycleOwner
+    val targetObserver = observer ?: getLifecycleOwner()
+    // 检查 Lifecycle 是否已销毁（避免给销毁的页面设置 Bitmap）
+    if (targetObserver?.lifecycle?.currentState?.isAtLeast(Lifecycle.State.DESTROYED).orFalse) {
+        // 直接回收新 Bitmap，不设置
+        if (!bit.isRecycled) {
+            bit.recycle()
+        }
+        return
+    }
+    // 获取当前显示的 Bitmap（可能为 null）
+    val currentBitmap = (this.drawable as? BitmapDrawable)?.bitmap
+    // 只有当新旧 Bitmap 不是同一个对象时，才回收旧图
+    if (currentBitmap !== bit) {
+        safeRecycle()
+    }
+    // 检查是否已经订阅过
     val isSubscribed = subscriptionMap.getOrPut(this) { AtomicBoolean(false) }
     if (!isSubscribed.getAndSet(true)) {
-        observer.doOnDestroy {
+        targetObserver.doOnDestroy {
             safeRecycle()
-            //移除订阅状态标记
+            // 解除引用
+            setImageDrawable(null)
+            // 移除订阅状态标记
             subscriptionMap.remove(this)
         }
     }
-    safeRecycle()
+    // 设置新 Bitmap
     setImageBitmap(bit)
 }
 
