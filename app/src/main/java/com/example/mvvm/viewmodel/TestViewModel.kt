@@ -8,7 +8,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.graphics.drawable.toDrawable
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.viewModelScope
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
 import com.example.common.base.bridge.BaseViewModel
@@ -191,12 +190,11 @@ class TestViewModel : BaseViewModel() {
         }.withHandling().launchIn(viewModelScope)
     }
 
-    private var shareBit: Bitmap? = null
-
     fun getShare() {
         launch {
             flow {
-                emit(requestAffair({ suspendingKolShare() }))
+                // 通过不同if判断生成对应的bitmap
+                emit(requestAffair { suspendingKolShare() })
             }.withHandling(mView, {
                 "分享失败".shortToast()
             }).collect { sourcePath ->
@@ -214,7 +212,6 @@ class TestViewModel : BaseViewModel() {
     suspend fun suspendingKolShare(): String? {
         return withContext(IO) {
             mContext?.let {
-                shareBit?.safeRecycle()
                 // 获取分享背景图片
                 val shareBg = it.decodeAsset("share/bg_kol_invite_info.webp", BitmapFactory.Options().apply {
                     // 强制用最高精度格式（支持透明+全色域，4字节/像素）
@@ -269,23 +266,20 @@ class TestViewModel : BaseViewModel() {
                 }
                 ivQrCode.margin(end = 28.pt, bottom = 12.pt)
                 // 开始生成bitmap
-                shareBit = suspendingSaveView(rootView, 335, 300, true)
+                val shareBit = suspendingSaveView(rootView, 335, 300, true)
 //                shareBit = suspendingSaveView(rootView, 335.pt, 300.pt)
-                // 回收旧背景的 Bitmap
+                // 将bitmap存至本地
+                val filePath = suspendingSavePic(shareBit)
+                // 回收所有引用的bitmap
                 rootView.background.getBitmap()?.safeRecycle()
                 ivQrCode.safeRecycle()
                 shareBg?.bitmap?.safeRecycle()
                 qrBit?.safeRecycle()
-                val filePath = suspendingSavePic(shareBit)
                 shareBit.safeRecycle()
+                // 返回本地地址
                 filePath
             } ?: ""
         }
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        super.onDestroy(owner)
-        shareBit?.safeRecycle()
     }
 
 }
