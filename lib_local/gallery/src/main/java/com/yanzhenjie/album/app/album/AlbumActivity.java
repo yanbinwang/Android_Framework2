@@ -39,47 +39,32 @@ import java.util.List;
  * <p>Responsible for controlling the album data and the overall logic.</p>
  * Created by Yan Zhenjie on 2016/10/17.
  */
-public class AlbumActivity extends BaseActivity implements
-        Contract.AlbumPresenter,
-        MediaReadTask.Callback,
-        GalleryActivity.Callback,
-        PathConvertTask.Callback,
-        ThumbnailBuildTask.Callback {
-
-    private static final int CODE_ACTIVITY_NULL = 1;
-
-    public static Filter<Long> sSizeFilter;
-    public static Filter<String> sMimeFilter;
-    public static Filter<Long> sDurationFilter;
-
-    public static Action<ArrayList<AlbumFile>> sResult;
-    public static Action<String> sCancel;
-
-    private List<AlbumFolder> mAlbumFolders;
+public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, GalleryActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
     private int mCurrentFolder;
-
-    private Widget mWidget;
     private int mFunction;
     private int mChoiceMode;
     private int mColumnCount;
-    private boolean mHasCamera;
     private int mLimitCount;
-
     private int mQuality;
     private long mLimitDuration;
     private long mLimitBytes;
-
+    private boolean mHasCamera;
     private boolean mFilterVisibility;
-
+    private List<AlbumFolder> mAlbumFolders;
     private ArrayList<AlbumFile> mCheckedList;
-    private MediaScanner mMediaScanner;
-
+    private Widget mWidget;
     private Contract.AlbumView mView;
-    private FolderDialog mFolderDialog;
     private PopupMenu mCameraPopupMenu;
+    private FolderDialog mFolderDialog;
     private LoadingDialog mLoadingDialog;
-
+    private MediaScanner mMediaScanner;
     private MediaReadTask mMediaReadTask;
+    private static final int CODE_ACTIVITY_NULL = 1;
+    public static Filter<Long> sSizeFilter;
+    public static Filter<Long> sDurationFilter;
+    public static Filter<String> sMimeFilter;
+    public static Action<String> sCancel;
+    public static Action<ArrayList<AlbumFile>> sResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +76,10 @@ public class AlbumActivity extends BaseActivity implements
         mView.setTitle("");
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
-
         // 设置图标样式
         boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
         boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
-
         // 扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
@@ -167,7 +150,6 @@ public class AlbumActivity extends BaseActivity implements
         }, 500);
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
-
         if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
@@ -334,7 +316,6 @@ public class AlbumActivity extends BaseActivity implements
         } else {
             addFileToList(albumFile);
         }
-
         dismissLoadingDialog();
     }
 
@@ -344,7 +325,6 @@ public class AlbumActivity extends BaseActivity implements
             if (albumFiles.size() > 0) albumFiles.add(0, albumFile);
             else albumFiles.add(albumFile);
         }
-
         AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
         List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
         if (albumFiles.isEmpty()) {
@@ -354,12 +334,10 @@ public class AlbumActivity extends BaseActivity implements
             albumFiles.add(0, albumFile);
             mView.notifyInsertItem(mHasCamera ? 1 : 0);
         }
-
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
         mView.setSubTitle(count + "/" + mLimitCount);
-
         switch (mChoiceMode) {
             case Album.MODE_SINGLE: {
                 callbackResult();
@@ -427,7 +405,6 @@ public class AlbumActivity extends BaseActivity implements
 //                mView.notifyItem(position);
                 mCheckedList.add(albumFile);
                 setCheckedCount();
-
                 callbackResult();
                 break;
             }

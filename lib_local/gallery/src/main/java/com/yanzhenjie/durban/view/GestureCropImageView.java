@@ -12,16 +12,13 @@ import com.yanzhenjie.durban.util.RotationGestureDetector;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class GestureCropImageView extends CropImageView {
-    private static final int DOUBLE_TAP_ZOOM_DURATION = 200;
-
+    private int mDoubleTapScaleSteps = 5;
+    private float mMidPntX, mMidPntY;
+    private boolean mIsRotateEnabled = true, mIsScaleEnabled = true;
     private ScaleGestureDetector mScaleDetector;
     private RotationGestureDetector mRotateDetector;
     private GestureDetector mGestureDetector;
-
-    private float mMidPntX, mMidPntY;
-
-    private boolean mIsRotateEnabled = true, mIsScaleEnabled = true;
-    private int mDoubleTapScaleSteps = 5;
+    private static final int DOUBLE_TAP_ZOOM_DURATION = 200;
 
     public GestureCropImageView(Context context) {
         super(context);
@@ -70,22 +67,17 @@ public class GestureCropImageView extends CropImageView {
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
             cancelAllAnimations();
         }
-
         if (event.getPointerCount() > 1) {
             mMidPntX = (event.getX(0) + event.getX(1)) / 2;
             mMidPntY = (event.getY(0) + event.getY(1)) / 2;
         }
-
         mGestureDetector.onTouchEvent(event);
-
         if (mIsScaleEnabled) {
             mScaleDetector.onTouchEvent(event);
         }
-
         if (mIsRotateEnabled) {
             mRotateDetector.onTouchEvent(event);
         }
-
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
             setImageToWrapCropBounds();
         }

@@ -17,12 +17,9 @@ import java.util.List;
  * <p>Adapter of preview the big picture.</p>
  * Created by Yan Zhenjie on 2016/10/19.
  */
-public abstract class PreviewAdapter<T> extends PagerAdapter
-    implements PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
-
+public abstract class PreviewAdapter<T> extends PagerAdapter implements PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
     private Context mContext;
     private List<T> mPreviewList;
-
     private View.OnClickListener mItemClickListener;
     private View.OnClickListener mItemLongClickListener;
 
@@ -66,7 +63,6 @@ public abstract class PreviewAdapter<T> extends PagerAdapter
         imageView.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
         loadPreview(imageView, mPreviewList.get(position), position);
         container.addView(imageView);
-
         final PhotoViewAttacher attacher = new PhotoViewAttacher(imageView);
         if (mItemClickListener != null) {
             attacher.setOnViewTapListener(this);
@@ -75,13 +71,12 @@ public abstract class PreviewAdapter<T> extends PagerAdapter
             attacher.setOnLongClickListener(this);
         }
         imageView.setAttacher(attacher);
-
         return imageView;
     }
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView(((View)object));
+        container.removeView(((View) object));
     }
 
     @Override

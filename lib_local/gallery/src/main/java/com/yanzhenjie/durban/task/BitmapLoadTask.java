@@ -20,9 +20,12 @@ import com.yanzhenjie.loading.dialog.LoadingDialog;
  * Create by Yan Zhenjie on 2017/5/22.
  */
 public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.BitmapWorkerResult> {
+    private final int mRequiredWidth;
+    private final int mRequiredHeight;
+    private final BitmapLoadCallback mCallback;
+    private final LoadingDialog mDialog;
 
     static class BitmapWorkerResult {
-
         final Bitmap bitmap;
         final ExifInfo exifInfo;
 
@@ -32,17 +35,7 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
         }
     }
 
-    private final LoadingDialog mDialog;
-    private final int mRequiredWidth;
-    private final int mRequiredHeight;
-
-    private final BitmapLoadCallback mCallback;
-
-    public BitmapLoadTask(
-            Context context,
-            int requiredWidth,
-            int requiredHeight,
-            BitmapLoadCallback loadCallback) {
+    public BitmapLoadTask(Context context, int requiredWidth, int requiredHeight, BitmapLoadCallback loadCallback) {
         mDialog = new LoadingDialog(context);
         mRequiredWidth = requiredWidth;
         mRequiredHeight = requiredHeight;
@@ -67,18 +60,14 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
     @Override
     protected BitmapWorkerResult doInBackground(String... params) {
         String imagePath = params[0];
-
         final BitmapFactory.Options options = new BitmapFactory.Options();
         options.inJustDecodeBounds = true;
         BitmapFactory.decodeFile(imagePath, options);
         if (options.outWidth == -1 || options.outHeight == -1)
             return new BitmapWorkerResult(null, null);
-
         options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
         options.inJustDecodeBounds = false;
-
         Bitmap decodeSampledBitmap = null;
-
         boolean decodeAttemptSuccess = false;
         while (!decodeAttemptSuccess) {
             try {
@@ -88,13 +77,10 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
                 options.inSampleSize *= 2;
             }
         }
-
         int exifOrientation = BitmapLoadUtils.getExifOrientation(imagePath);
         int exifDegrees = BitmapLoadUtils.exifToDegrees(exifOrientation);
         int exifTranslation = BitmapLoadUtils.exifToTranslation(exifOrientation);
-
         ExifInfo exifInfo = new ExifInfo(exifOrientation, exifDegrees, exifTranslation);
-
         Matrix matrix = new Matrix();
         if (exifDegrees != 0)
             matrix.preRotate(exifDegrees);

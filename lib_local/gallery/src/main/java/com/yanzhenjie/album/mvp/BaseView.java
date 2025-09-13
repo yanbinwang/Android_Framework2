@@ -35,7 +35,6 @@ import com.google.android.material.snackbar.Snackbar;
  * Created by YanZhenjie on 2017/7/17.
  */
 public abstract class BaseView<Presenter extends BasePresenter> {
-
     private Source mSource;
     private Presenter mPresenter;
 
@@ -52,7 +51,6 @@ public abstract class BaseView<Presenter extends BasePresenter> {
         this.mSource = source;
         this.mPresenter = presenter;
         this.mSource.prepare();
-
         invalidateOptionsMenu();
         mSource.setMenuClickListener(new Source.MenuClickListener() {
             @Override
@@ -65,7 +63,6 @@ public abstract class BaseView<Presenter extends BasePresenter> {
                 optionsItemSelected(item);
             }
         });
-
         getPresenter().getLifecycle().addObserver((GenericLifecycleObserver) (source1, event) -> {
             if (event == Lifecycle.Event.ON_RESUME) {
                 resume();
@@ -281,53 +278,31 @@ public abstract class BaseView<Presenter extends BasePresenter> {
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.album_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                    }
+                .setNegativeButton(R.string.album_cancel, (dialog, which) -> {
                 })
-                .setPositiveButton(R.string.album_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        confirmClickListener.onClick(which);
-                    }
-                })
+                .setPositiveButton(R.string.album_confirm, (dialog, which) -> confirmClickListener.onClick(which))
                 .create();
         alertDialog.show();
     }
 
-    public void showMessageDialog(@StringRes int title, @StringRes int message,
-                                  OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
+    public void showMessageDialog(@StringRes int title, @StringRes int message, OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
         showMessageDialog(getText(title), getText(message), cancelClickListener, confirmClickListener);
     }
 
-    public void showMessageDialog(@StringRes int title, CharSequence message,
-                                  OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
+    public void showMessageDialog(@StringRes int title, CharSequence message, OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
         showMessageDialog(getText(title), message, cancelClickListener, confirmClickListener);
     }
 
-    public void showMessageDialog(CharSequence title, @StringRes int message,
-                                  OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
+    public void showMessageDialog(CharSequence title, @StringRes int message, OnDialogClickListener cancelClickListener, OnDialogClickListener confirmClickListener) {
         showMessageDialog(title, getText(message), cancelClickListener, confirmClickListener);
     }
 
-    public void showMessageDialog(CharSequence title, CharSequence message,
-                                  final OnDialogClickListener cancelClickListener, final OnDialogClickListener confirmClickListener) {
+    public void showMessageDialog(CharSequence title, CharSequence message, final OnDialogClickListener cancelClickListener, final OnDialogClickListener confirmClickListener) {
         AlertDialog alertDialog = new AlertDialog.Builder(getContext())
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.album_cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        cancelClickListener.onClick(which);
-                    }
-                })
-                .setPositiveButton(R.string.album_confirm, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        confirmClickListener.onClick(which);
-                    }
-                })
+                .setNegativeButton(R.string.album_cancel, (dialog, which) -> cancelClickListener.onClick(which))
+                .setPositiveButton(R.string.album_confirm, (dialog, which) -> confirmClickListener.onClick(which))
                 .create();
         alertDialog.show();
     }

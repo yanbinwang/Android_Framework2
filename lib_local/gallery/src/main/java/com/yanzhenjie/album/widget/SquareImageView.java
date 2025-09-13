@@ -11,7 +11,6 @@ import androidx.appcompat.widget.AppCompatImageView;
  * Created by YanZhenjie on 2018/4/19.
  */
 public class SquareImageView extends AppCompatImageView {
-
     private Configuration mConfig;
 
     public SquareImageView(Context context) {

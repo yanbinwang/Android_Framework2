@@ -14,9 +14,9 @@ import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.viewpager.widget.ViewPager;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.util.SystemBar;
@@ -27,11 +27,8 @@ import java.util.List;
  * Created by YanZhenjie on 2018/4/9.
  */
 public class GalleryView<Data> extends Contract.GalleryView<Data> implements View.OnClickListener {
-
     private Activity mActivity;
-
     private MenuItem mCompleteMenu;
-
     private ViewPager mViewPager;
     private RelativeLayout mLayoutBottom;
     private TextView mTvDuration;
@@ -46,7 +43,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         this.mTvDuration = activity.findViewById(R.id.tv_duration);
         this.mCheckBox = activity.findViewById(R.id.check_box);
         this.mLayoutLayer = activity.findViewById(R.id.layout_layer);
-
         this.mCheckBox.setOnClickListener(this);
         this.mLayoutLayer.setOnClickListener(this);
     }
@@ -71,7 +67,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         SystemBar.invasionNavigationBar(mActivity);
         SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
         SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
-
         setHomeAsUpIndicator(R.drawable.album_ic_back_white);
         if (!checkable) {
             mCompleteMenu.setVisible(false);
@@ -81,7 +76,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
             mCheckBox.setBackgroundTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);
         }
-
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
             @Override
             public void onPageSelected(int position) {

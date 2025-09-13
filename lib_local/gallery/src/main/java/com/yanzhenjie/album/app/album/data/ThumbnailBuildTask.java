@@ -11,6 +11,9 @@ import java.util.ArrayList;
  * Created by YanZhenjie on 2017/10/15.
  */
 public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFile>> {
+    private ArrayList<AlbumFile> mAlbumFiles;
+    private Callback mCallback;
+    private ThumbnailBuilder mThumbnailBuilder;
 
     public interface Callback {
         /**
@@ -25,11 +28,6 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
          */
         void onThumbnailCallback(ArrayList<AlbumFile> albumFiles);
     }
-
-    private ArrayList<AlbumFile> mAlbumFiles;
-    private Callback mCallback;
-
-    private ThumbnailBuilder mThumbnailBuilder;
 
     public ThumbnailBuildTask(Context context, ArrayList<AlbumFile> albumFiles, Callback callback) {
         this.mAlbumFiles = albumFiles;

@@ -11,11 +11,10 @@ import android.graphics.drawable.Drawable;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class FastBitmapDrawable extends Drawable {
-    private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
-
-    private Bitmap mBitmap;
     private int mAlpha;
     private int mWidth, mHeight;
+    private Bitmap mBitmap;
+    private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
     public FastBitmapDrawable(Bitmap b) {
         mAlpha = 255;

@@ -12,7 +12,6 @@ import androidx.annotation.Nullable;
  * Created by YanZhenjie on 2018/4/18.
  */
 public class SquareRelativeLayout extends RelativeLayout {
-
     private Configuration mConfig;
 
     public SquareRelativeLayout(@NonNull Context context) {

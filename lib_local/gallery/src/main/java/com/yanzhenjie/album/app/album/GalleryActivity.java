@@ -4,9 +4,9 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
@@ -20,18 +20,14 @@ import java.util.ArrayList;
  * Created by Yan Zhenjie on 2017/3/25.
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
-
-    public static ArrayList<AlbumFile> sAlbumFiles;
-    public static int sCheckedCount;
-    public static int sCurrentPosition;
-
-    public static Callback sCallback;
-
-    private Widget mWidget;
     private int mFunction;
     private int mAllowSelectCount;
-
+    private Widget mWidget;
     private Contract.GalleryView<AlbumFile> mView;
+    public static int sCheckedCount;
+    public static int sCurrentPosition;
+    public static ArrayList<AlbumFile> sAlbumFiles;
+    public static Callback sCallback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,10 +39,8 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
         mAllowSelectCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-
         mView.setupViews(mWidget, true);
         mView.bindData(sAlbumFiles);
-
         if (sCurrentPosition == 0) {
             onCurrentChanged(sCurrentPosition);
         } else {
@@ -73,11 +67,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCurrentChanged(int position) {
         sCurrentPosition = position;
         mView.setTitle(sCurrentPosition + 1 + " / " + sAlbumFiles.size());
-
         AlbumFile albumFile = sAlbumFiles.get(position);
         mView.setChecked(albumFile.isChecked());
         mView.setLayerDisplay(albumFile.isDisable());
-
         if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
             mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
@@ -121,7 +113,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
                 sCheckedCount++;
             }
         }
-
         setCheckedCount();
     }
 
@@ -180,6 +171,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
          * @param albumFile target item.
          */
         void onPreviewChanged(AlbumFile albumFile);
+
     }
 
 }

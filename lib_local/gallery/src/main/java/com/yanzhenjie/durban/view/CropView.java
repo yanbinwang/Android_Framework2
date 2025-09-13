@@ -2,7 +2,6 @@ package com.yanzhenjie.durban.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.graphics.RectF;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -10,8 +9,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.CropBoundsChangeListener;
-import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
@@ -26,16 +23,13 @@ public class CropView extends FrameLayout {
 
     public CropView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
         LayoutInflater.from(context).inflate(R.layout.durban_crop_view, this, true);
         mGestureCropImageView = findViewById(R.id.image_view_crop);
         mViewOverlay = findViewById(R.id.view_overlay);
-
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.durban_CropView);
         mViewOverlay.processStyledAttributes(a);
         mGestureCropImageView.processStyledAttributes(a);
         a.recycle();
-
         setListenersToViews();
     }
 

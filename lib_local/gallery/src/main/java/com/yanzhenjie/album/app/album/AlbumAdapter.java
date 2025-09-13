@@ -27,21 +27,17 @@ import java.util.List;
  * Created by Yan Zhenjie on 2016/10/18.
  */
 public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private static final int TYPE_BUTTON = 1;
-    private static final int TYPE_IMAGE = 2;
-    private static final int TYPE_VIDEO = 3;
-
-    private final LayoutInflater mInflater;
-    private final boolean hasCamera;
-    private final int mChoiceMode;
-    private final ColorStateList mSelector;
-
     private List<AlbumFile> mAlbumFiles;
-
     private OnItemClickListener mAddPhotoClickListener;
     private OnItemClickListener mItemClickListener;
     private OnCheckedClickListener mCheckedClickListener;
+    private static final int TYPE_BUTTON = 1;
+    private static final int TYPE_IMAGE = 2;
+    private static final int TYPE_VIDEO = 3;
+    private final int mChoiceMode;
+    private final boolean hasCamera;
+    private final LayoutInflater mInflater;
+    private final ColorStateList mSelector;
 
     public AlbumAdapter(Context context, boolean hasCamera, int choiceMode, ColorStateList selector) {
         this.mInflater = LayoutInflater.from(context);
@@ -94,10 +90,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return new ButtonViewHolder(mInflater.inflate(R.layout.album_item_content_button, parent, false), mAddPhotoClickListener);
             }
             case TYPE_IMAGE: {
-                ImageHolder imageViewHolder = new ImageHolder(mInflater.inflate(R.layout.album_item_content_image, parent, false),
-                        hasCamera,
-                        mItemClickListener,
-                        mCheckedClickListener);
+                ImageHolder imageViewHolder = new ImageHolder(mInflater.inflate(R.layout.album_item_content_image, parent, false), hasCamera, mItemClickListener, mCheckedClickListener);
                 if (mChoiceMode == Album.MODE_MULTIPLE) {
                     imageViewHolder.mCheckBox.setVisibility(View.VISIBLE);
                     imageViewHolder.mCheckBox.setBackgroundTintList(mSelector);
@@ -108,10 +101,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 return imageViewHolder;
             }
             case TYPE_VIDEO: {
-                VideoHolder videoViewHolder = new VideoHolder(mInflater.inflate(R.layout.album_item_content_video, parent, false),
-                        hasCamera,
-                        mItemClickListener,
-                        mCheckedClickListener);
+                VideoHolder videoViewHolder = new VideoHolder(mInflater.inflate(R.layout.album_item_content_video, parent, false), hasCamera, mItemClickListener, mCheckedClickListener);
                 if (mChoiceMode == Album.MODE_MULTIPLE) {
                     videoViewHolder.mCheckBox.setVisibility(View.VISIBLE);
                     videoViewHolder.mCheckBox.setBackgroundTintList(mSelector);
@@ -150,13 +140,11 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     private static class ButtonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
         private final OnItemClickListener mItemClickListener;
 
         ButtonViewHolder(View itemView, OnItemClickListener itemClickListener) {
             super(itemView);
             this.mItemClickListener = itemClickListener;
-
             itemView.setOnClickListener(this);
         }
 
@@ -169,28 +157,21 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     private static class ImageHolder extends MediaViewHolder implements View.OnClickListener {
-
+        private ImageView mIvImage;
+        private AppCompatCheckBox mCheckBox;
+        private FrameLayout mLayoutLayer;
         private final boolean hasCamera;
-
         private final OnItemClickListener mItemClickListener;
         private final OnCheckedClickListener mCheckedClickListener;
 
-        private ImageView mIvImage;
-        private AppCompatCheckBox mCheckBox;
-
-        private FrameLayout mLayoutLayer;
-
-        ImageHolder(View itemView, boolean hasCamera,
-                    OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
+        ImageHolder(View itemView, boolean hasCamera, OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
             super(itemView);
             this.hasCamera = hasCamera;
             this.mItemClickListener = itemClickListener;
             this.mCheckedClickListener = checkedClickListener;
-
             mIvImage = itemView.findViewById(R.id.iv_album_content_image);
             mCheckBox = itemView.findViewById(R.id.check_box);
             mLayoutLayer = itemView.findViewById(R.id.layout_layer);
-
             itemView.setOnClickListener(this);
             mCheckBox.setOnClickListener(this);
             mLayoutLayer.setOnClickListener(this);
@@ -202,7 +183,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Album.getAlbumConfig()
                     .getAlbumLoader()
                     .load(mIvImage, albumFile);
-
             mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
         }
 
@@ -222,30 +202,23 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     }
 
     private static class VideoHolder extends MediaViewHolder implements View.OnClickListener {
-
-        private final boolean hasCamera;
-
-        private final OnItemClickListener mItemClickListener;
-        private final OnCheckedClickListener mCheckedClickListener;
-
         private ImageView mIvImage;
         private AppCompatCheckBox mCheckBox;
         private TextView mTvDuration;
-
         private FrameLayout mLayoutLayer;
+        private final boolean hasCamera;
+        private final OnItemClickListener mItemClickListener;
+        private final OnCheckedClickListener mCheckedClickListener;
 
-        VideoHolder(View itemView, boolean hasCamera,
-                    OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
+        VideoHolder(View itemView, boolean hasCamera, OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
             super(itemView);
             this.hasCamera = hasCamera;
             this.mItemClickListener = itemClickListener;
             this.mCheckedClickListener = checkedClickListener;
-
             mIvImage = itemView.findViewById(R.id.iv_album_content_image);
             mCheckBox = itemView.findViewById(R.id.check_box);
             mTvDuration = itemView.findViewById(R.id.tv_duration);
             mLayoutLayer = itemView.findViewById(R.id.layout_layer);
-
             itemView.setOnClickListener(this);
             mCheckBox.setOnClickListener(this);
             mLayoutLayer.setOnClickListener(this);
@@ -256,7 +229,6 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFile);
             mCheckBox.setChecked(albumFile.isChecked());
             mTvDuration.setText(AlbumUtils.convertDuration(albumFile.getDuration()));
-
             mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
         }
 

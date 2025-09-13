@@ -24,6 +24,12 @@ import java.util.Collections;
  */
 public class Durban {
     /**
+     * 类本身持有对象
+     */
+    private Object o;
+    private Intent mCropIntent;
+
+    /**
      * 页面跳转参数
      */
     private static final String KEY_PREFIX = "AlbumCrop";
@@ -75,12 +81,6 @@ public class Durban {
     @Retention(RetentionPolicy.SOURCE)
     public @interface FormatTypes {
     }
-
-    /**
-     * 类本身持有对象
-     */
-    private Object o;
-    private Intent mCropIntent;
 
     /**
      * 优先构建好传输的intent

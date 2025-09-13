@@ -14,22 +14,24 @@ import android.view.animation.LinearInterpolator;
  * Created by yanzhenjie on 17-3-27.
  */
 public abstract class LoadingRenderer {
-    private Drawable.Callback mCallback;
-    private ValueAnimator mRenderAnimator;
-    private static final long ANIMATION_DURATION = 1333;
-    private final ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener = animation -> {
-        computeRender((float) animation.getAnimatedValue());
-        invalidateSelf();
-    };
-
+    protected long mDuration;
+    protected float mWidth;
+    protected float mHeight;
     /**
      * Whenever {@link LoadingDrawable} boundary changes mBounds will be updated.
      * More details you can see {@link LoadingDrawable#onBoundsChange(Rect)}
      */
     protected final Rect mBounds = new Rect();
-    protected long mDuration;
-    protected float mWidth;
-    protected float mHeight;
+
+    private Drawable.Callback mCallback;
+    private ValueAnimator mRenderAnimator;
+
+    private static final long ANIMATION_DURATION = 1333;
+
+    private final ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener = animation -> {
+        computeRender((float) animation.getAnimatedValue());
+        invalidateSelf();
+    };
 
     public LoadingRenderer(Context context) {
         mWidth = mHeight = Utils.dip2px(context, 56F);

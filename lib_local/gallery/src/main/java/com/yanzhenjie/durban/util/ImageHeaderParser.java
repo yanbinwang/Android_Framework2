@@ -15,29 +15,26 @@ import java.nio.charset.Charset;
  */
 public class ImageHeaderParser {
     private static final String TAG = "ImageHeaderParser";
+    private static final int EXIF_MAGIC_NUMBER = 0xFFD8;
+    // "MM".
+    private static final int MOTOROLA_TIFF_MAGIC_NUMBER = 0x4D4D;
+    // "II".
+    private static final int INTEL_TIFF_MAGIC_NUMBER = 0x4949;
+    private static final int SEGMENT_SOS = 0xDA;
+    private static final int MARKER_EOI = 0xD9;
+    private static final int SEGMENT_START_ID = 0xFF;
+    private static final int EXIF_SEGMENT_TYPE = 0xE1;
+    private static final int ORIENTATION_TAG_TYPE = 0x0112;
+    private static final String JPEG_EXIF_SEGMENT_PREAMBLE = "Exif\0\0";
+    private static final int[] BYTES_PER_FORMAT = {0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8};
+    private static final byte[] JPEG_EXIF_SEGMENT_PREAMBLE_BYTES = JPEG_EXIF_SEGMENT_PREAMBLE.getBytes(Charset.forName("UTF-8"));
+    private final Reader reader;
     /**
      * A constant indicating we were unable to parse the orientation from the image either because
      * no exif segment containing orientation data existed, or because of an I/O error attempting to
      * read the exif segment.
      */
     public static final int UNKNOWN_ORIENTATION = -1;
-
-    private static final int EXIF_MAGIC_NUMBER = 0xFFD8;
-    // "MM".
-    private static final int MOTOROLA_TIFF_MAGIC_NUMBER = 0x4D4D;
-    // "II".
-    private static final int INTEL_TIFF_MAGIC_NUMBER = 0x4949;
-    private static final String JPEG_EXIF_SEGMENT_PREAMBLE = "Exif\0\0";
-    private static final byte[] JPEG_EXIF_SEGMENT_PREAMBLE_BYTES =
-            JPEG_EXIF_SEGMENT_PREAMBLE.getBytes(Charset.forName("UTF-8"));
-    private static final int SEGMENT_SOS = 0xDA;
-    private static final int MARKER_EOI = 0xD9;
-    private static final int SEGMENT_START_ID = 0xFF;
-    private static final int EXIF_SEGMENT_TYPE = 0xE1;
-    private static final int ORIENTATION_TAG_TYPE = 0x0112;
-    private static final int[] BYTES_PER_FORMAT = {0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8};
-
-    private final Reader reader;
 
     public ImageHeaderParser(InputStream is) {
         reader = new StreamReader(is);
@@ -53,7 +50,6 @@ public class ImageHeaderParser {
      */
     public int getOrientation() throws IOException {
         final int magicNumber = reader.getUInt16();
-
         if (!handles(magicNumber)) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
                 Log.d(TAG, "Parser doesn't handle magic number: " + magicNumber);
@@ -67,7 +63,6 @@ public class ImageHeaderParser {
                 }
                 return UNKNOWN_ORIENTATION;
             }
-
             byte[] exifData = new byte[exifSegmentLength];
             return parseExifSegment(exifData, exifSegmentLength);
         }
@@ -77,13 +72,10 @@ public class ImageHeaderParser {
         int read = reader.read(tempArray, exifSegmentLength);
         if (read != exifSegmentLength) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Unable to read exif segment data"
-                        + ", length: " + exifSegmentLength
-                        + ", actually read: " + read);
+                Log.d(TAG, "Unable to read exif segment data" + ", length: " + exifSegmentLength + ", actually read: " + read);
             }
             return UNKNOWN_ORIENTATION;
         }
-
         boolean hasJpegExifPreamble = hasJpegExifPreamble(tempArray, exifSegmentLength);
         if (hasJpegExifPreamble) {
             return parseExifSegment(new RandomAccessReader(tempArray, exifSegmentLength));
@@ -96,8 +88,7 @@ public class ImageHeaderParser {
     }
 
     private boolean hasJpegExifPreamble(byte[] exifData, int exifSegmentLength) {
-        boolean result =
-                exifData != null && exifSegmentLength > JPEG_EXIF_SEGMENT_PREAMBLE_BYTES.length;
+        boolean result = exifData != null && exifSegmentLength > JPEG_EXIF_SEGMENT_PREAMBLE_BYTES.length;
         if (result) {
             for (int i = 0; i < JPEG_EXIF_SEGMENT_PREAMBLE_BYTES.length; i++) {
                 if (exifData[i] != JPEG_EXIF_SEGMENT_PREAMBLE_BYTES[i]) {
@@ -124,9 +115,7 @@ public class ImageHeaderParser {
                 }
                 return -1;
             }
-
             segmentType = reader.getUInt8();
-
             if (segmentType == SEGMENT_SOS) {
                 return -1;
             } else if (segmentType == MARKER_EOI) {
@@ -135,18 +124,13 @@ public class ImageHeaderParser {
                 }
                 return -1;
             }
-
             // Segment length includes bytes for segment length.
             segmentLength = reader.getUInt16() - 2;
-
             if (segmentType != EXIF_SEGMENT_TYPE) {
                 long skipped = reader.skip(segmentLength);
                 if (skipped != segmentLength) {
                     if (Log.isLoggable(TAG, Log.DEBUG)) {
-                        Log.d(TAG, "Unable to skip enough data"
-                                + ", type: " + segmentType
-                                + ", wanted to skip: " + segmentLength
-                                + ", but actually skipped: " + skipped);
+                        Log.d(TAG, "Unable to skip enough data" + ", type: " + segmentType + ", wanted to skip: " + segmentLength + ", but actually skipped: " + skipped);
                     }
                     return -1;
                 }
@@ -158,7 +142,6 @@ public class ImageHeaderParser {
 
     private static int parseExifSegment(RandomAccessReader segmentData) {
         final int headerOffsetSize = JPEG_EXIF_SEGMENT_PREAMBLE.length();
-
         short byteOrderIdentifier = segmentData.getInt16(headerOffsetSize);
         final ByteOrder byteOrder;
         if (byteOrderIdentifier == MOTOROLA_TIFF_MAGIC_NUMBER) {
@@ -171,24 +154,18 @@ public class ImageHeaderParser {
             }
             byteOrder = ByteOrder.BIG_ENDIAN;
         }
-
         segmentData.order(byteOrder);
-
         int firstIfdOffset = segmentData.getInt32(headerOffsetSize + 4) + headerOffsetSize;
         int tagCount = segmentData.getInt16(firstIfdOffset);
-
         int tagOffset, tagType, formatCode, componentCount;
         for (int i = 0; i < tagCount; i++) {
             tagOffset = calcTagOffset(firstIfdOffset, i);
             tagType = segmentData.getInt16(tagOffset);
-
             // We only want orientation.
             if (tagType != ORIENTATION_TAG_TYPE) {
                 continue;
             }
-
             formatCode = segmentData.getInt16(tagOffset + 2);
-
             // 12 is max format code.
             if (formatCode < 1 || formatCode > 12) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -196,50 +173,39 @@ public class ImageHeaderParser {
                 }
                 continue;
             }
-
             componentCount = segmentData.getInt32(tagOffset + 4);
-
             if (componentCount < 0) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Negative tiff component count");
                 }
                 continue;
             }
-
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Log.d(TAG, "Got tagIndex=" + i + " tagType=" + tagType + " formatCode=" + formatCode
-                        + " componentCount=" + componentCount);
+                Log.d(TAG, "Got tagIndex=" + i + " tagType=" + tagType + " formatCode=" + formatCode + " componentCount=" + componentCount);
             }
-
             final int byteCount = componentCount + BYTES_PER_FORMAT[formatCode];
-
             if (byteCount > 4) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Got byte count > 4, not orientation, continuing, formatCode=" + formatCode);
                 }
                 continue;
             }
-
             final int tagValueOffset = tagOffset + 8;
-
             if (tagValueOffset < 0 || tagValueOffset > segmentData.length()) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Illegal tagValueOffset=" + tagValueOffset + " tagType=" + tagType);
                 }
                 continue;
             }
-
             if (byteCount < 0 || tagValueOffset + byteCount > segmentData.length()) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Illegal number of bytes for TI tag data tagType=" + tagType);
                 }
                 continue;
             }
-
             //assume componentCount == 1 && fmtCode == 3
             return segmentData.getInt16(tagValueOffset);
         }
-
         return -1;
     }
 
@@ -248,9 +214,7 @@ public class ImageHeaderParser {
     }
 
     private static boolean handles(int imageMagicNumber) {
-        return (imageMagicNumber & EXIF_MAGIC_NUMBER) == EXIF_MAGIC_NUMBER
-                || imageMagicNumber == MOTOROLA_TIFF_MAGIC_NUMBER
-                || imageMagicNumber == INTEL_TIFF_MAGIC_NUMBER;
+        return (imageMagicNumber & EXIF_MAGIC_NUMBER) == EXIF_MAGIC_NUMBER || imageMagicNumber == MOTOROLA_TIFF_MAGIC_NUMBER || imageMagicNumber == INTEL_TIFF_MAGIC_NUMBER;
     }
 
     private static class RandomAccessReader {
@@ -312,7 +276,6 @@ public class ImageHeaderParser {
             if (total < 0) {
                 return 0;
             }
-
             long toSkip = total;
             while (toSkip > 0) {
                 long skipped = is.skip(toSkip);
@@ -370,7 +333,6 @@ public class ImageHeaderParser {
                 ExifInterface.TAG_SUBSEC_TIME_ORIG,
                 ExifInterface.TAG_WHITE_BALANCE
         };
-
         try {
             ExifInterface newExif = new ExifInterface(imageOutputPath);
             String value;
@@ -383,9 +345,7 @@ public class ImageHeaderParser {
             newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, String.valueOf(width));
             newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, String.valueOf(height));
             newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0");
-
             newExif.saveAttributes();
-
         } catch (IOException e) {
             Log.d(TAG, e.getMessage());
         }

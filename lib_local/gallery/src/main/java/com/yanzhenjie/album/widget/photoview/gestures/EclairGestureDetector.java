@@ -8,10 +8,9 @@ import com.yanzhenjie.album.widget.photoview.Compat;
 
 @TargetApi(5)
 public class EclairGestureDetector extends CupcakeGestureDetector {
-
-    private static final int INVALID_POINTER_ID = -1;
     private int mActivePointerId = INVALID_POINTER_ID;
     private int mActivePointerIndex = 0;
+    private static final int INVALID_POINTER_ID = -1;
 
     public EclairGestureDetector(Context context) {
         super(context);
@@ -62,10 +61,7 @@ public class EclairGestureDetector extends CupcakeGestureDetector {
                 }
                 break;
         }
-
-        mActivePointerIndex = ev
-                .findPointerIndex(mActivePointerId != INVALID_POINTER_ID ? mActivePointerId
-                        : 0);
+        mActivePointerIndex = ev.findPointerIndex(mActivePointerId != INVALID_POINTER_ID ? mActivePointerId : 0);
         try {
             return super.onTouchEvent(ev);
         } catch (IllegalArgumentException e) {

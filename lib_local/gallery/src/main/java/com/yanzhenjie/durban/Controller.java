@@ -51,10 +51,8 @@ public class Controller implements Parcelable {
     }
 
     private boolean enable;
-
     private boolean rotation;
     private boolean rotationTitle;
-
     private boolean scale;
     private boolean scaleTitle;
 

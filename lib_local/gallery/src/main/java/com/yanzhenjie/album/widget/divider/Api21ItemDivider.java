@@ -12,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView;
  * Created by YanZhenjie on 2017/8/14.
  */
 public class Api21ItemDivider extends Divider {
-
     private final int mWidth;
     private final int mHeight;
     private final Drawer mDrawer;

@@ -149,7 +149,6 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     @Override
     public void bindAlbumFolder(AlbumFolder albumFolder) {
         mBtnSwitchFolder.setText(albumFolder.getName());
-
         mAdapter.setAlbumFiles(albumFolder.getAlbumFiles());
         mAdapter.notifyDataSetChanged();
         mRecyclerView.scrollToPosition(0);

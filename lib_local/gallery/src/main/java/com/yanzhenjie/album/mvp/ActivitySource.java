@@ -22,9 +22,7 @@ import com.example.gallery.R;
  * Created by YanZhenjie on 2017/12/8.
  */
 class ActivitySource extends Source<Activity> {
-
     private View mView;
-
     private Toolbar mActionBar;
     private Drawable mActionBarIcon;
     private MenuClickListener mMenuItemSelectedListener;
@@ -44,7 +42,6 @@ class ActivitySource extends Source<Activity> {
     @Override
     void setActionBar(Toolbar actionBar) {
         this.mActionBar = actionBar;
-
         Activity activity = getHost();
         if (mActionBar != null) {
             setTitle(activity.getTitle());

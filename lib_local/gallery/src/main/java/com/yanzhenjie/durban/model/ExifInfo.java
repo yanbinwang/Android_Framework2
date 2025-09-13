@@ -4,7 +4,6 @@ package com.yanzhenjie.durban.model;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class ExifInfo {
-
     private int mExifOrientation;
     private int mExifDegrees;
     private int mExifTranslation;
@@ -43,13 +42,10 @@ public class ExifInfo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         ExifInfo exifInfo = (ExifInfo) o;
-
         if (mExifOrientation != exifInfo.mExifOrientation) return false;
         if (mExifDegrees != exifInfo.mExifDegrees) return false;
         return mExifTranslation == exifInfo.mExifTranslation;
-
     }
 
     @Override

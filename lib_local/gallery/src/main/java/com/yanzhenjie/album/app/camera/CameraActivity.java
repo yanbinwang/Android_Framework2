@@ -20,23 +20,20 @@ import java.io.File;
  * Created by YanZhenjie on 2017/8/16.
  */
 public class CameraActivity extends BaseActivity {
+    private int mFunction;
+    private int mQuality;
+    private long mLimitDuration;
+    private long mLimitBytes;
+    private String mCameraFilePath;
+    private static final int CODE_ACTIVITY_TAKE_IMAGE = 1;
+    private static final int CODE_ACTIVITY_TAKE_VIDEO = 2;
     private static final String INSTANCE_CAMERA_FUNCTION = "INSTANCE_CAMERA_FUNCTION";
     private static final String INSTANCE_CAMERA_FILE_PATH = "INSTANCE_CAMERA_FILE_PATH";
     private static final String INSTANCE_CAMERA_QUALITY = "INSTANCE_CAMERA_QUALITY";
     private static final String INSTANCE_CAMERA_DURATION = "INSTANCE_CAMERA_DURATION";
     private static final String INSTANCE_CAMERA_BYTES = "INSTANCE_CAMERA_BYTES";
-
-    private static final int CODE_ACTIVITY_TAKE_IMAGE = 1;
-    private static final int CODE_ACTIVITY_TAKE_VIDEO = 2;
-
     public static Action<String> sResult;
     public static Action<String> sCancel;
-
-    private int mFunction;
-    private String mCameraFilePath;
-    private int mQuality;
-    private long mLimitDuration;
-    private long mLimitBytes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,7 +56,6 @@ public class CameraActivity extends BaseActivity {
             mQuality = bundle.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
             mLimitDuration = bundle.getLong(Album.KEY_INPUT_CAMERA_DURATION);
             mLimitBytes = bundle.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-
             switch (mFunction) {
                 case Album.FUNCTION_CAMERA_IMAGE: {
                     if (TextUtils.isEmpty(mCameraFilePath))

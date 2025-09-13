@@ -34,7 +34,6 @@ public class BitmapLoadUtils {
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
-
         if (height > reqHeight || width > reqWidth) {
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width lower or equal to the requested height and width.
@@ -103,7 +102,6 @@ public class BitmapLoadUtils {
     public static int calculateMaxBitmapSize(@NonNull Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
-
         Point size = new Point();
         int width, height;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
@@ -114,10 +112,8 @@ public class BitmapLoadUtils {
             width = display.getWidth();
             height = display.getHeight();
         }
-
         // Twice the device screen diagonal as default
         int maxBitmapSize = (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
-
         // Check for max texture size via GL
         final int maxTextureSize = EglUtils.getMaxTextureSize();
         if (maxTextureSize > 0) {

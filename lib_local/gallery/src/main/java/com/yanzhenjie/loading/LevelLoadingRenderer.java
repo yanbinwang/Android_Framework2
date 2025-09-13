@@ -18,34 +18,41 @@ import android.view.animation.LinearInterpolator;
  * Created by yanzhenjie on 17-3-27.
  */
 public class LevelLoadingRenderer extends LoadingRenderer {
+    // size 3.
+    private int[] mLevelColors;
+    // size 3.
+    private float[] mLevelSwipeDegrees;
+    private float mStrokeInset;
+    private float mRotationCount;
+    private float mGroupRotation;
+    private float mEndDegrees;
+    private float mStartDegrees;
+    private float mOriginEndDegrees;
+    private float mOriginStartDegrees;
+    private float mStrokeWidth;
+    private float mCenterRadius;
+
     private static final Interpolator LINEAR_INTERPOLATOR = new LinearInterpolator();
     private static final Interpolator MATERIAL_INTERPOLATOR = new FastOutSlowInInterpolator();
     private static final Interpolator ACCELERATE_INTERPOLATOR = new AccelerateInterpolator();
     private static final Interpolator DECELERATE_INTERPOLATOR = new DecelerateInterpolator();
-
     private static final int NUM_POINTS = 5;
     private static final int DEGREE_360 = 360;
-
     private static final float MAX_SWIPE_DEGREES = 0.8f * DEGREE_360;
     private static final float FULL_GROUP_ROTATION = 3.0f * DEGREE_360;
-
-    private static final float[] LEVEL_SWEEP_ANGLE_OFFSETS = new float[]{1.0f, 7.0f / 8.0f, 5.0f / 8.0f};
-
     private static final float START_TRIM_DURATION_OFFSET = 0.5f;
     private static final float END_TRIM_DURATION_OFFSET = 1.0f;
-
     private static final float DEFAULT_CENTER_RADIUS = 12.5f;
     private static final float DEFAULT_STROKE_WIDTH = 2.5f;
-
     private static final int[] DEFAULT_LEVEL_COLORS = new int[]{
             Color.parseColor("#55ffffff"),
             Color.parseColor("#b1ffffff"),
             Color.parseColor("#ffffffff")
     };
+    private static final float[] LEVEL_SWEEP_ANGLE_OFFSETS = new float[]{1.0f, 7.0f / 8.0f, 5.0f / 8.0f};
 
     private final Paint mPaint = new Paint();
     private final RectF mTempBounds = new RectF();
-
     private final Animator.AnimatorListener mAnimatorListener = new AnimatorListenerAdapter() {
         @Override
         public void onAnimationRepeat(Animator animator) {
@@ -61,24 +68,6 @@ public class LevelLoadingRenderer extends LoadingRenderer {
             mRotationCount = 0;
         }
     };
-
-    // size 3.
-    private int[] mLevelColors;
-    // size 3.
-    private float[] mLevelSwipeDegrees;
-
-    private float mStrokeInset;
-
-    private float mRotationCount;
-    private float mGroupRotation;
-
-    private float mEndDegrees;
-    private float mStartDegrees;
-    private float mOriginEndDegrees;
-    private float mOriginStartDegrees;
-
-    private float mStrokeWidth;
-    private float mCenterRadius;
 
     public LevelLoadingRenderer(Context context) {
         super(context);

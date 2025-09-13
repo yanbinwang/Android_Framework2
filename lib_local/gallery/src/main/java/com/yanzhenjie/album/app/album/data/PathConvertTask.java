@@ -8,6 +8,8 @@ import com.yanzhenjie.album.AlbumFile;
  * Created by YanZhenjie on 2017/10/18.
  */
 public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
+    private PathConversion mConversion;
+    private Callback mCallback;
 
     public interface Callback {
         /**
@@ -22,9 +24,6 @@ public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
          */
         void onConvertCallback(AlbumFile albumFile);
     }
-
-    private PathConversion mConversion;
-    private Callback mCallback;
 
     public PathConvertTask(PathConversion conversion, Callback callback) {
         this.mConversion = conversion;

@@ -10,8 +10,7 @@ public final class CubicEasing {
     }
 
     public static float easeInOut(float time, float start, float end, float duration) {
-        return (time /= duration / 2.0f) < 1.0f ? end / 2.0f * time * time * time + start : end / 2.0f * ((time -= 2.0f) * time
-                * time + 2.0f) + start;
+        return (time /= duration / 2.0f) < 1.0f ? end / 2.0f * time * time * time + start : end / 2.0f * ((time -= 2.0f) * time * time + 2.0f) + start;
     }
 
 }

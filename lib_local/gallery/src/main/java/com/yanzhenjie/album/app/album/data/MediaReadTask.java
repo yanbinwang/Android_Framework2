@@ -14,6 +14,10 @@ import java.util.List;
  * Created by Yan Zhenjie on 2017/3/28.
  */
 public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWrapper> {
+    private int mFunction;
+    private List<AlbumFile> mCheckedFiles;
+    private MediaReader mMediaReader;
+    private Callback mCallback;
 
     public interface Callback {
         /**
@@ -28,11 +32,6 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
         private ArrayList<AlbumFolder> mAlbumFolders;
         private ArrayList<AlbumFile> mAlbumFiles;
     }
-
-    private int mFunction;
-    private List<AlbumFile> mCheckedFiles;
-    private MediaReader mMediaReader;
-    private Callback mCallback;
 
     public MediaReadTask(int function, List<AlbumFile> checkedFiles, MediaReader mediaReader, Callback callback) {
         this.mFunction = function;
@@ -61,9 +60,7 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
                 throw new AssertionError("This should not be the case.");
             }
         }
-
         ArrayList<AlbumFile> checkedFiles = new ArrayList<>();
-
         if (mCheckedFiles != null && !mCheckedFiles.isEmpty()) {
             List<AlbumFile> albumFiles = albumFolders.get(0).getAlbumFiles();
             for (AlbumFile checkAlbumFile : mCheckedFiles) {
