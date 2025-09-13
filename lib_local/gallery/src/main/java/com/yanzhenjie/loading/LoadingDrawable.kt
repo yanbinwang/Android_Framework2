@@ -1,106 +1,77 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.drawable.Animatable
+import android.graphics.drawable.Drawable
+import com.example.framework.utils.function.value.toSafeInt
 
 /**
  * <p>Animation Drawable.</p>
  * Created by yanzhenjie on 17-3-27.
  */
-public class LoadingDrawable extends Drawable implements Animatable {
-    private final LoadingRenderer mLoadingRender;
-    private final Callback mCallback = new Callback() {
-        @Override
-        public void invalidateDrawable(Drawable d) {
-            invalidateSelf();
+class LoadingDrawable(private val loadingRender: LoadingRenderer) : Drawable(), Animatable {
+    private val callback = object : Callback {
+        override fun invalidateDrawable(who: Drawable) {
+            invalidateSelf()
         }
 
-        @Override
-        public void scheduleDrawable(Drawable d, Runnable what, long when) {
-            scheduleSelf(what, when);
+        override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {
+            scheduleSelf(what, `when`)
         }
 
-        @Override
-        public void unscheduleDrawable(Drawable d, Runnable what) {
-            unscheduleSelf(what);
-        }
-    };
-
-    public LoadingDrawable(LoadingRenderer loadingRender) {
-        this.mLoadingRender = loadingRender;
-        this.mLoadingRender.setCallback(mCallback);
-    }
-
-    @Override
-    protected void onBoundsChange(Rect bounds) {
-        super.onBoundsChange(bounds);
-        this.mLoadingRender.setBounds(bounds);
-    }
-
-    @Override
-    public void draw(Canvas canvas) {
-        if (!getBounds().isEmpty()) {
-            this.mLoadingRender.draw(canvas);
+        override fun unscheduleDrawable(who: Drawable, what: Runnable) {
+            unscheduleSelf(what)
         }
     }
 
-    @Override
-    public void setAlpha(int alpha) {
-        this.mLoadingRender.setAlpha(alpha);
+    init {
+        loadingRender.setCallback(callback)
     }
 
-    @Override
-    public void setColorFilter(ColorFilter cf) {
-        this.mLoadingRender.setColorFilter(cf);
+    override fun onBoundsChange(bounds: Rect) {
+        super.onBoundsChange(bounds)
+        loadingRender.setBounds(bounds)
     }
 
-    @Override
-    public int getOpacity() {
-        return PixelFormat.TRANSLUCENT;
+    override fun draw(canvas: Canvas) {
+        if (!bounds.isEmpty) {
+            loadingRender.draw(canvas)
+        }
     }
 
-    @Override
-    public void start() {
-        this.mLoadingRender.start();
+    override fun getOpacity(): Int {
+        return PixelFormat.TRANSLUCENT
     }
 
-    @Override
-    public void stop() {
-        this.mLoadingRender.stop();
+    override fun setAlpha(alpha: Int) {
+        loadingRender.setAlpha(alpha)
     }
 
-    @Override
-    public boolean isRunning() {
-        return this.mLoadingRender.isRunning();
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        loadingRender.setColorFilter(colorFilter)
     }
 
-    @Override
-    public int getIntrinsicHeight() {
-        return (int) this.mLoadingRender.mHeight;
+    override fun isRunning(): Boolean {
+        return loadingRender.isRunning()
     }
 
-    @Override
-    public int getIntrinsicWidth() {
-        return (int) this.mLoadingRender.mWidth;
+    override fun start() {
+        loadingRender.start()
+    }
+
+    override fun stop() {
+        loadingRender.stop()
+    }
+
+    override fun getIntrinsicHeight(): Int {
+        return loadingRender.mHeight.toSafeInt()
+    }
+
+    override fun getIntrinsicWidth(): Int {
+        return loadingRender.mWidth.toSafeInt()
     }
 
 }

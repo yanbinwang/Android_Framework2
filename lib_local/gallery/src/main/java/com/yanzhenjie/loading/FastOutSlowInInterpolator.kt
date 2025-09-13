@@ -1,29 +1,17 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.view.animation.Interpolator;
+import android.view.animation.Interpolator
+import kotlin.math.min
 
 /**
  * <p>FastOutSlowInInterpolator.</p>
  * Created by Yan Zhenjie on 2017/5/17.
  */
-public class FastOutSlowInInterpolator implements Interpolator {
+class FastOutSlowInInterpolator : Interpolator {
+    private val mStepSize: Float
 
-    private static final float[] VALUES = new float[]{
+    companion object {
+        private val VALUES = floatArrayOf(
             0.0000f, 0.0001f, 0.0002f, 0.0005f, 0.0009f, 0.0014f, 0.0020f,
             0.0027f, 0.0036f, 0.0046f, 0.0058f, 0.0071f, 0.0085f, 0.0101f,
             0.0118f, 0.0137f, 0.0158f, 0.0180f, 0.0205f, 0.0231f, 0.0259f,
@@ -53,31 +41,29 @@ public class FastOutSlowInInterpolator implements Interpolator {
             0.9955f, 0.9960f, 0.9964f, 0.9969f, 0.9973f, 0.9977f, 0.9980f,
             0.9984f, 0.9986f, 0.9989f, 0.9991f, 0.9993f, 0.9995f, 0.9997f,
             0.9998f, 0.9999f, 0.9999f, 1.0000f, 1.0000f
-    };
-
-    private final float mStepSize;
-
-    public FastOutSlowInInterpolator() {
-        mStepSize = 1f / (VALUES.length - 1);
+        )
     }
 
-    @Override
-    public float getInterpolation(float input) {
+    init {
+        mStepSize = 1f / (VALUES.size - 1)
+    }
+
+    override fun getInterpolation(input: Float): Float {
         if (input >= 1.0f) {
-            return 1.0f;
+            return 1.0f
         }
         if (input <= 0f) {
-            return 0f;
+            return 0f
         }
         // Calculate index - We use min with length - 2 to avoid IndexOutOfBoundsException when
         // we lerp (linearly interpolate) in the return statement
-        int position = Math.min((int) (input * (VALUES.length - 1)), VALUES.length - 2);
+        val position = min((input * (VALUES.size - 1)).toInt(), VALUES.size - 2)
         // Calculate values to account for small offsets as the lookup table has discrete values
-        float quantized = position * mStepSize;
-        float diff = input - quantized;
-        float weight = diff / mStepSize;
+        val quantized = position * mStepSize
+        val diff = input - quantized
+        val weight = diff / mStepSize
         // Linearly interpolate between the table values
-        return VALUES[position] + weight * (VALUES[position + 1] - VALUES[position]);
+        return VALUES[position] + weight * (VALUES[position + 1] - VALUES[position])
     }
 
 }

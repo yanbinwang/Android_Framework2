@@ -1,116 +1,108 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.animation.Animator;
-import android.animation.ValueAnimator;
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.Rect;
-import android.graphics.drawable.Drawable;
-import android.view.animation.LinearInterpolator;
+import android.animation.Animator
+import android.animation.ValueAnimator
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.Rect
+import android.graphics.drawable.Drawable
+import android.view.animation.LinearInterpolator
+import com.example.framework.utils.function.value.orFalse
+import com.yanzhenjie.loading.Utils.dip2px
 
 /**
  * <p>Base Renderer.</p>
  * Created by yanzhenjie on 17-3-27.
  */
-public abstract class LoadingRenderer {
-    private Drawable.Callback mCallback;
-    private ValueAnimator mRenderAnimator;
-    private static final long ANIMATION_DURATION = 1333;
-    private final ValueAnimator.AnimatorUpdateListener mAnimatorUpdateListener = animation -> {
-        computeRender((float) animation.getAnimatedValue());
-        invalidateSelf();
-    };
-
+abstract class LoadingRenderer(context: Context) {
     /**
-     * Whenever {@link LoadingDrawable} boundary changes mBounds will be updated.
-     * More details you can see {@link LoadingDrawable#onBoundsChange(Rect)}
+     * Whenever [LoadingDrawable] boundary changes mBounds will be updated.
+     * More details you can see [LoadingDrawable.onBoundsChange]
      */
-    protected final Rect mBounds = new Rect();
-    protected long mDuration;
-    protected float mWidth;
-    protected float mHeight;
+    protected val mBounds = Rect()
+    protected var mDuration = 0L
+    protected var mWidth = 0f
+    protected var mHeight = 0f
 
-    public LoadingRenderer(Context context) {
-        mWidth = mHeight = Utils.dip2px(context, 56F);
-        mDuration = ANIMATION_DURATION;
-        setupAnimators();
+    private var mCallback: Drawable.Callback? = null
+    private var mRenderAnimator: ValueAnimator? = null
+    private val mAnimatorUpdateListener = ValueAnimator.AnimatorUpdateListener { animation ->
+        computeRender(animation.getAnimatedValue() as Float)
+        invalidateSelf()
     }
 
-    @Deprecated
-    protected void draw(Canvas canvas, Rect bounds) {
+    init {
+        mWidth = dip2px(context, 56f).also { mHeight = it }
+        mDuration = ANIMATION_DURATION
+        setupAnimators()
     }
 
-    protected void draw(Canvas canvas) {
-        draw(canvas, mBounds);
+    companion object {
+        private const val ANIMATION_DURATION = 1333L
     }
 
-    protected abstract void computeRender(float renderProgress);
-
-    protected abstract void setAlpha(int alpha);
-
-    protected abstract void setColorFilter(ColorFilter cf);
-
-    protected abstract void reset();
-
-    protected void addRenderListener(Animator.AnimatorListener animatorListener) {
-        mRenderAnimator.addListener(animatorListener);
+    protected open fun draw(canvas: Canvas) {
+        draw(canvas, mBounds)
     }
 
-    void start() {
-        reset();
-        mRenderAnimator.addUpdateListener(mAnimatorUpdateListener);
-
-        mRenderAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mRenderAnimator.setDuration(mDuration);
-        mRenderAnimator.start();
+    @Deprecated("Use draw(Canvas) instead, bounds are now managed by mBounds", ReplaceWith("draw(canvas)"))
+    protected open fun draw(canvas: Canvas, bounds: Rect) {
     }
 
-    void stop() {
-        mRenderAnimator.removeUpdateListener(mAnimatorUpdateListener);
-        mRenderAnimator.setRepeatCount(0);
-        mRenderAnimator.setDuration(0);
-        mRenderAnimator.end();
+    protected abstract fun computeRender(renderProgress: Float)
+
+    protected abstract fun setAlpha(alpha: Int)
+
+    protected abstract fun setColorFilter(cf: ColorFilter?)
+
+    protected abstract fun reset()
+
+    protected fun addRenderListener(animatorListener: Animator.AnimatorListener?) {
+        mRenderAnimator?.addListener(animatorListener)
     }
 
-    boolean isRunning() {
-        return mRenderAnimator.isRunning();
+    private fun setupAnimators() {
+        mRenderAnimator = ValueAnimator.ofFloat(0.0f, 1.0f)
+        mRenderAnimator?.repeatCount = ValueAnimator.INFINITE
+        mRenderAnimator?.repeatMode = ValueAnimator.RESTART
+        mRenderAnimator?.duration = mDuration
+        mRenderAnimator?.interpolator = LinearInterpolator()
+        mRenderAnimator?.addUpdateListener(mAnimatorUpdateListener)
     }
 
-    void setCallback(Drawable.Callback callback) {
-        this.mCallback = callback;
+    private fun invalidateSelf() {
+        // 将 null 显式转换为 "平台类型 Drawable!"（Java 类型，空安全由开发者负责）
+        val nullDrawable = null as Drawable
+        // 传递平台类型参数，Kotlin 不会报错
+        mCallback?.invalidateDrawable(nullDrawable)
     }
 
-    void setBounds(Rect bounds) {
-        mBounds.set(bounds);
+    fun start() {
+        reset()
+        mRenderAnimator?.addUpdateListener(mAnimatorUpdateListener)
+        mRenderAnimator?.repeatCount = ValueAnimator.INFINITE
+        mRenderAnimator?.setDuration(mDuration)
+        mRenderAnimator?.start()
     }
 
-    private void setupAnimators() {
-        mRenderAnimator = ValueAnimator.ofFloat(0.0f, 1.0f);
-        mRenderAnimator.setRepeatCount(ValueAnimator.INFINITE);
-        mRenderAnimator.setRepeatMode(ValueAnimator.RESTART);
-        mRenderAnimator.setDuration(mDuration);
-        mRenderAnimator.setInterpolator(new LinearInterpolator());
-        mRenderAnimator.addUpdateListener(mAnimatorUpdateListener);
+    fun stop() {
+        mRenderAnimator?.removeUpdateListener(mAnimatorUpdateListener)
+        mRenderAnimator?.repeatCount = 0
+        mRenderAnimator?.setDuration(0)
+        mRenderAnimator?.end()
     }
 
-    private void invalidateSelf() {
-        mCallback.invalidateDrawable(null);
+    fun isRunning(): Boolean {
+        return mRenderAnimator?.isRunning.orFalse
+    }
+
+    fun setCallback(callback: Drawable.Callback) {
+        this.mCallback = callback
+    }
+
+    fun setBounds(bounds: Rect) {
+        mBounds.set(bounds)
     }
 
 }
