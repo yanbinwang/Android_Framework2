@@ -1,18 +1,3 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.durban.view;
 
 import android.content.Context;
@@ -47,7 +32,6 @@ import java.util.Arrays;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class CropImageView extends TransformImageView {
-
     public static final int DEFAULT_MAX_BITMAP_SIZE = 0;
     public static final int DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION = 500;
     public static final float DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f;
@@ -84,9 +68,7 @@ public class CropImageView extends TransformImageView {
      * Cancels all current animations and sets image to fill crop area (without animation).
      * Then creates and executes {@link BitmapCropTask} with proper parameters.
      */
-    public void cropAndSaveImage(@NonNull Bitmap.CompressFormat compressFormat,
-                                 int compressQuality,
-                                 @Nullable BitmapCropCallback cropCallback) {
+    public void cropAndSaveImage(@NonNull Bitmap.CompressFormat compressFormat, int compressQuality, @Nullable BitmapCropCallback cropCallback) {
         cancelAllAnimations();
         setImageToWrapCropBounds(false);
 
@@ -376,7 +358,7 @@ public class CropImageView extends TransformImageView {
         float deltaRight = unRotatedImageRect.right - unRotatedCropRect.right;
         float deltaBottom = unRotatedImageRect.bottom - unRotatedCropRect.bottom;
 
-        float indents[] = new float[4];
+        float[] indents = new float[4];
         indents[0] = (deltaLeft > 0) ? deltaLeft : 0;
         indents[1] = (deltaTop > 0) ? deltaTop : 0;
         indents[2] = (deltaRight < 0) ? deltaRight : 0;
@@ -545,9 +527,7 @@ public class CropImageView extends TransformImageView {
      * or when certain conditions inside {@link WrapCropBoundsRunnable#run()} method are triggered.
      */
     private static class WrapCropBoundsRunnable implements Runnable {
-
         private final WeakReference<CropImageView> mCropImageView;
-
         private final long mDurationMs, mStartTime;
         private final float mOldX, mOldY;
         private final float mCenterDiffX, mCenterDiffY;
@@ -561,9 +541,7 @@ public class CropImageView extends TransformImageView {
                                       float centerDiffX, float centerDiffY,
                                       float oldScale, float deltaScale,
                                       boolean willBeImageInBoundsAfterTranslate) {
-
             mCropImageView = new WeakReference<>(cropImageView);
-
             mDurationMs = durationMs;
             mStartTime = System.currentTimeMillis();
             mOldX = oldX;
@@ -610,9 +588,7 @@ public class CropImageView extends TransformImageView {
      * or when certain conditions inside {@link ZoomImageToPosition#run()} method are triggered.
      */
     private static class ZoomImageToPosition implements Runnable {
-
         private final WeakReference<CropImageView> mCropImageView;
-
         private final long mDurationMs, mStartTime;
         private final float mOldScale;
         private final float mDeltaScale;
@@ -623,9 +599,7 @@ public class CropImageView extends TransformImageView {
                                    long durationMs,
                                    float oldScale, float deltaScale,
                                    float destX, float destY) {
-
             mCropImageView = new WeakReference<>(cropImageView);
-
             mStartTime = System.currentTimeMillis();
             mDurationMs = durationMs;
             mOldScale = oldScale;

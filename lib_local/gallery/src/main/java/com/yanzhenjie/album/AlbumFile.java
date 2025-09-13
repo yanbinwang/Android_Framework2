@@ -232,7 +232,7 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
         return 0;
     }
 
-    public static final Creator<AlbumFile> CREATOR = new Creator<AlbumFile>() {
+    public static final Creator<AlbumFile> CREATOR = new Creator<>() {
         @Override
         public AlbumFile createFromParcel(Parcel in) {
             return new AlbumFile(in);

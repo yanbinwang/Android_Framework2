@@ -28,9 +28,7 @@ public class AlbumConfig {
     }
 
     public static final class Builder {
-
         private AlbumLoader mLoader;
-//        private Locale mLocale;
 
         private Builder() {
         }
