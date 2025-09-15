@@ -1,5 +1,7 @@
 package com.yanzhenjie.album.app.album;
 
+import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -77,8 +79,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
         // 设置图标样式
-        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
         // 扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);

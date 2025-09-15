@@ -1,5 +1,7 @@
 package com.yanzhenjie.durban;
 
+import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
+
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -113,8 +115,8 @@ public class DurbanActivity extends BaseActivity {
         toolbar.setSubtitleTextColor(ContextCompat.getColor(this, mStatusColor));
         toolbar.setTitleTextColor(ContextCompat.getColor(this, mStatusColor));
         // 设置图标样式
-        boolean statusBarBattery = getBatteryIcon(mStatusColor);
-        boolean navigationBarBattery = getBatteryIcon(mNavigationColor);
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusColor);
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationColor);
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationColor);
         // 设置标题
         final TextView tvTitle = findViewById(R.id.tv_title);
@@ -277,7 +279,7 @@ public class DurbanActivity extends BaseActivity {
         // 获取右侧菜单按钮的 MenuItem
         MenuItem okItem = menu.findItem(R.id.menu_action_ok);
         // 根据导航栏颜色定义对应的图片
-        if (!getBatteryIcon(mStatusColor)) {
+        if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
             Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
             assert doneIcon != null;
             doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));

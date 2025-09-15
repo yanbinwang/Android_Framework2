@@ -1,5 +1,7 @@
 package com.yanzhenjie.album.app.album;
 
+import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
+
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -76,8 +78,8 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             mView.setMakeVideoDisplay(false);
         }
         // 设置图标样式
-        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 

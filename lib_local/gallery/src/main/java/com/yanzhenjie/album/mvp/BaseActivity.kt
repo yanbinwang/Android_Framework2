@@ -37,18 +37,6 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             }
         }
 
-        /**
-         * 根据背景颜色决定电池图标的颜色（黑或白）
-         */
-        @JvmStatic
-        fun getBatteryIcon(@ColorRes backgroundColor: Int): Boolean {
-            // 使用系统API获取相对亮度（0.0-1.0之间）
-            val luminance = calculateLuminance(color(backgroundColor))
-            // 亮度阈值，这里使用0.5作为中间值
-            // 白色的相对亮度（luminance）是 1.0（最高值），黑色是 0.0（最低值）
-            return if (luminance < 0.5) true else false
-        }
-
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
