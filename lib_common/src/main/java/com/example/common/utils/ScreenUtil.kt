@@ -229,11 +229,9 @@ object ScreenUtil {
     }
 
     /**
-     * 根据背景颜色的亮度判断是否需要使用白色系统状态栏/导航栏图标
+     * 根据颜色(资源ID)的亮度判断是否需要使用白色系统状态栏/导航栏图标
      * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
-     *
-     * @param backgroundColor 颜色资源ID
-     * @return 是否需要白色系统栏图标
+     * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
      */
     @JvmStatic
     fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
@@ -241,11 +239,7 @@ object ScreenUtil {
     }
 
     /**
-     * 根据背景颜色的亮度判断是否需要使用白色系统状态栏/导航栏图标
-     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
-     *
-     * @param backgroundColor 颜色值（@ColorInt）
-     * @return 是否需要白色系统栏图标
+     * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
      */
     @JvmStatic
     fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
