@@ -256,6 +256,7 @@
         <!-- 屏幕录制 -->
         <service
             android:name="com.example.thirdparty.media.service.DisplayService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
