@@ -24,6 +24,7 @@ import android.view.WindowManager
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.RequiresApi
+import androidx.core.graphics.ColorUtils.calculateLuminance
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -225,6 +226,33 @@ object ScreenUtil {
             display?.getRealSize(size) ?: size.set(0, 0)
             size
         }
+    }
+
+    /**
+     * 根据背景颜色的亮度判断是否需要使用白色系统状态栏/导航栏图标
+     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
+     *
+     * @param backgroundColor 颜色资源ID
+     * @return 是否需要白色系统栏图标
+     */
+    @JvmStatic
+    fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
+        return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
+    }
+
+    /**
+     * 根据背景颜色的亮度判断是否需要使用白色系统状态栏/导航栏图标
+     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
+     *
+     * @param backgroundColor 颜色值（@ColorInt）
+     * @return 是否需要白色系统栏图标
+     */
+    @JvmStatic
+    fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
+        // 使用系统API获取相对亮度（0.0-1.0之间）
+        val luminance = calculateLuminance(backgroundColor)
+        // 亮度阈值，低于0.5认为是暗色背景，需要白色图标
+        return luminance < 0.5
     }
 
 }

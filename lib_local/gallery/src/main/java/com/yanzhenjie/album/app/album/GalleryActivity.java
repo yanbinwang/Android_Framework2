@@ -1,27 +1,12 @@
-/*
- * Copyright 2017 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.app.album;
 
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
-import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
@@ -35,18 +20,14 @@ import java.util.ArrayList;
  * Created by Yan Zhenjie on 2017/3/25.
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
-
-    public static ArrayList<AlbumFile> sAlbumFiles;
-    public static int sCheckedCount;
-    public static int sCurrentPosition;
-
-    public static Callback sCallback;
-
-    private Widget mWidget;
     private int mFunction;
     private int mAllowSelectCount;
-
+    private Widget mWidget;
     private Contract.GalleryView<AlbumFile> mView;
+    public static int sCheckedCount;
+    public static int sCurrentPosition;
+    public static ArrayList<AlbumFile> sAlbumFiles;
+    public static Callback sCallback;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,10 +39,8 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
         mAllowSelectCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-
         mView.setupViews(mWidget, true);
         mView.bindData(sAlbumFiles);
-
         if (sCurrentPosition == 0) {
             onCurrentChanged(sCurrentPosition);
         } else {
@@ -88,11 +67,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCurrentChanged(int position) {
         sCurrentPosition = position;
         mView.setTitle(sCurrentPosition + 1 + " / " + sAlbumFiles.size());
-
         AlbumFile albumFile = sAlbumFiles.get(position);
         mView.setChecked(albumFile.isChecked());
         mView.setLayerDisplay(albumFile.isDisable());
-
         if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
             mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
@@ -136,7 +113,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
                 sCheckedCount++;
             }
         }
-
         setCheckedCount();
     }
 
@@ -195,5 +171,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
          * @param albumFile target item.
          */
         void onPreviewChanged(AlbumFile albumFile);
+
     }
+
 }

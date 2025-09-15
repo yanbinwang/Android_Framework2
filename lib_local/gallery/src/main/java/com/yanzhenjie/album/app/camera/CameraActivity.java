@@ -1,18 +1,3 @@
-/*
- * Copyright 2017 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.app.camera;
 
 import android.annotation.SuppressLint;
@@ -35,23 +20,20 @@ import java.io.File;
  * Created by YanZhenjie on 2017/8/16.
  */
 public class CameraActivity extends BaseActivity {
+    private int mFunction;
+    private int mQuality;
+    private long mLimitDuration;
+    private long mLimitBytes;
+    private String mCameraFilePath;
+    private static final int CODE_ACTIVITY_TAKE_IMAGE = 1;
+    private static final int CODE_ACTIVITY_TAKE_VIDEO = 2;
     private static final String INSTANCE_CAMERA_FUNCTION = "INSTANCE_CAMERA_FUNCTION";
     private static final String INSTANCE_CAMERA_FILE_PATH = "INSTANCE_CAMERA_FILE_PATH";
     private static final String INSTANCE_CAMERA_QUALITY = "INSTANCE_CAMERA_QUALITY";
     private static final String INSTANCE_CAMERA_DURATION = "INSTANCE_CAMERA_DURATION";
     private static final String INSTANCE_CAMERA_BYTES = "INSTANCE_CAMERA_BYTES";
-
-    private static final int CODE_ACTIVITY_TAKE_IMAGE = 1;
-    private static final int CODE_ACTIVITY_TAKE_VIDEO = 2;
-
     public static Action<String> sResult;
     public static Action<String> sCancel;
-
-    private int mFunction;
-    private String mCameraFilePath;
-    private int mQuality;
-    private long mLimitDuration;
-    private long mLimitBytes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,7 +56,6 @@ public class CameraActivity extends BaseActivity {
             mQuality = bundle.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
             mLimitDuration = bundle.getLong(Album.KEY_INPUT_CAMERA_DURATION);
             mLimitBytes = bundle.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-
             switch (mFunction) {
                 case Album.FUNCTION_CAMERA_IMAGE: {
                     if (TextUtils.isEmpty(mCameraFilePath))
@@ -137,4 +118,5 @@ public class CameraActivity extends BaseActivity {
         sCancel = null;
         finish();
     }
+
 }

@@ -1,18 +1,3 @@
-/*
- * Copyright 2016 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.app.album;
 
 import android.content.Context;
@@ -26,10 +11,10 @@ import android.widget.TextView;
 import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.AlbumFolder;
-import com.example.gallery.R;
 import com.yanzhenjie.album.impl.OnItemClickListener;
 
 import java.util.List;
@@ -39,11 +24,9 @@ import java.util.List;
  * Created by Yan Zhenjie on 2016/10/18.
  */
 class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
-
-    private LayoutInflater mInflater;
     private List<AlbumFolder> mAlbumFolders;
     private ColorStateList mSelector;
-
+    private LayoutInflater mInflater;
     private OnItemClickListener mItemClickListener;
 
     public FolderAdapter(Context context, List<AlbumFolder> mAlbumFolders, ColorStateList buttonTint) {
@@ -58,27 +41,23 @@ class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder>
 
     @Override
     public FolderViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new FolderViewHolder(mInflater.inflate(R.layout.album_item_dialog_folder, parent, false),
-                mSelector,
-                new OnItemClickListener() {
+        return new FolderViewHolder(mInflater.inflate(R.layout.album_item_dialog_folder, parent, false), mSelector, new OnItemClickListener() {
+            private int oldPosition = 0;
 
-                    private int oldPosition = 0;
-
-                    @Override
-                    public void onItemClick(View view, int position) {
-                        if (mItemClickListener != null)
-                            mItemClickListener.onItemClick(view, position);
-
-                        AlbumFolder albumFolder = mAlbumFolders.get(position);
-                        if (!albumFolder.isChecked()) {
-                            albumFolder.setChecked(true);
-                            mAlbumFolders.get(oldPosition).setChecked(false);
-                            notifyItemChanged(oldPosition);
-                            notifyItemChanged(position);
-                            oldPosition = position;
-                        }
-                    }
-                });
+            @Override
+            public void onItemClick(View view, int position) {
+                if (mItemClickListener != null)
+                    mItemClickListener.onItemClick(view, position);
+                AlbumFolder albumFolder = mAlbumFolders.get(position);
+                if (!albumFolder.isChecked()) {
+                    albumFolder.setChecked(true);
+                    mAlbumFolders.get(oldPosition).setChecked(false);
+                    notifyItemChanged(oldPosition);
+                    notifyItemChanged(position);
+                    oldPosition = position;
+                }
+            }
+        });
     }
 
     @Override
@@ -93,24 +72,18 @@ class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder>
     }
 
     static class FolderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-
-        private OnItemClickListener mItemClickListener;
-
         private ImageView mIvImage;
         private TextView mTvTitle;
         private AppCompatRadioButton mCheckBox;
+        private OnItemClickListener mItemClickListener;
 
         private FolderViewHolder(View itemView, ColorStateList selector, OnItemClickListener itemClickListener) {
             super(itemView);
-
             this.mItemClickListener = itemClickListener;
-
             mIvImage = itemView.findViewById(R.id.iv_gallery_preview_image);
             mTvTitle = itemView.findViewById(R.id.tv_gallery_preview_title);
             mCheckBox = itemView.findViewById(R.id.rb_gallery_preview_check);
-
             itemView.setOnClickListener(this);
-
             mCheckBox.setBackgroundTintList(selector);
         }
 
@@ -118,7 +91,6 @@ class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder>
             List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
             mTvTitle.setText("(" + albumFiles.size() + ") " + albumFolder.getName());
             mCheckBox.setChecked(albumFolder.isChecked());
-
             Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFiles.get(0));
         }
 

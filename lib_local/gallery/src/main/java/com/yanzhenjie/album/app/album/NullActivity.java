@@ -1,19 +1,6 @@
-/*
- * Copyright 2017 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.app.album;
+
+import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -39,6 +26,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     private Contract.NullView mView;
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
+    private Action<String> mCameraAction = result -> {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
+        setResult(RESULT_OK, intent);
+        finish();
+    };
+
     @Override
     protected boolean isImmersionBarEnabled() {
         return false;
@@ -50,16 +44,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         setContentView(R.layout.album_activity_null);
         overridePendingTransition(0, 0);
         mView = new NullView(this, this);
-
         Bundle argument = getIntent().getExtras();
         assert argument != null;
         int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
         boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-
         mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
         mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
         mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mView.setupViews(mWidget);
         mView.setTitle("");
@@ -82,15 +73,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 throw new AssertionError("This should not be the case.");
             }
         }
-
         if (!hasCamera) {
             mView.setMakeImageDisplay(false);
             mView.setMakeVideoDisplay(false);
         }
-
         // 设置图标样式
-        boolean statusBarBattery = getBatteryIcon(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = getBatteryIcon(mWidget.getNavigationBarColor());
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 
@@ -112,13 +101,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 .onResult(mCameraAction)
                 .start();
     }
-
-    private Action<String> mCameraAction = result -> {
-        Intent intent = new Intent();
-        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
-        setResult(RESULT_OK, intent);
-        finish();
-    };
 
     public static String parsePath(Intent intent) {
         return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);

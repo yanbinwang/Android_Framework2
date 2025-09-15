@@ -1,18 +1,3 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.durban.view;
 
 import android.content.Context;
@@ -44,33 +29,23 @@ import com.yanzhenjie.durban.util.RectUtils;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class TransformImageView extends AppCompatImageView {
-
+    private int mMaxBitmapSize = 0;
+    private String mImagePath, mOutputDirectory;
+    private ExifInfo mExifInfo;
+    private float[] mInitialImageCorners;
+    private float[] mInitialImageCenter;
     private static final String TAG = "TransformImageView";
-
     private static final int RECT_CORNER_POINTS_COORDS = 8;
     private static final int RECT_CENTER_POINT_COORDS = 2;
     private static final int MATRIX_VALUES_COUNT = 9;
-
-    protected final float[] mCurrentImageCorners = new float[RECT_CORNER_POINTS_COORDS];
-    protected final float[] mCurrentImageCenter = new float[RECT_CENTER_POINT_COORDS];
-
     private final float[] mMatrixValues = new float[MATRIX_VALUES_COUNT];
-
-    protected Matrix mCurrentImageMatrix = new Matrix();
     protected int mThisWidth, mThisHeight;
-
-    protected TransformImageListener mTransformImageListener;
-
-    private float[] mInitialImageCorners;
-    private float[] mInitialImageCenter;
-
     protected boolean mBitmapDecoded = false;
     protected boolean mBitmapLaidOut = false;
-
-    private int mMaxBitmapSize = 0;
-
-    private String mImagePath, mOutputDirectory;
-    private ExifInfo mExifInfo;
+    protected TransformImageListener mTransformImageListener;
+    protected Matrix mCurrentImageMatrix = new Matrix();
+    protected final float[] mCurrentImageCorners = new float[RECT_CORNER_POINTS_COORDS];
+    protected final float[] mCurrentImageCenter = new float[RECT_CENTER_POINT_COORDS];
 
     /**
      * Interface for rotation and scale change notifying.
@@ -159,27 +134,21 @@ public class TransformImageView extends AppCompatImageView {
     public void setImagePath(@NonNull String inputImagePath) throws Exception {
         this.mImagePath = inputImagePath;
         int maxBitmapSize = getMaxBitmapSize();
+        new BitmapLoadTask(getContext(), maxBitmapSize, maxBitmapSize, new BitmapLoadCallback() {
+            @Override
+            public void onSuccessfully(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo) {
+                mExifInfo = exifInfo;
+                mBitmapDecoded = true;
+                setImageBitmap(bitmap);
+            }
 
-        new BitmapLoadTask(
-                getContext(),
-                maxBitmapSize,
-                maxBitmapSize,
-                new BitmapLoadCallback() {
-                    @Override
-                    public void onSuccessfully(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo) {
-                        mExifInfo = exifInfo;
-                        mBitmapDecoded = true;
-                        setImageBitmap(bitmap);
-                    }
-
-                    @Override
-                    public void onFailure() {
-                        if (mTransformImageListener != null) {
-                            mTransformImageListener.onLoadFailure();
-                        }
-                    }
+            @Override
+            public void onFailure() {
+                if (mTransformImageListener != null) {
+                    mTransformImageListener.onLoadFailure();
                 }
-        ).execute(inputImagePath);
+            }
+        }).execute(inputImagePath);
     }
 
     /**
@@ -194,8 +163,7 @@ public class TransformImageView extends AppCompatImageView {
      * This method calculates scale value for given Matrix object.
      */
     public float getMatrixScale(@NonNull Matrix matrix) {
-        return (float) Math.sqrt(Math.pow(getMatrixValue(matrix, Matrix.MSCALE_X), 2)
-                + Math.pow(getMatrixValue(matrix, Matrix.MSKEW_Y), 2));
+        return (float) Math.sqrt(Math.pow(getMatrixValue(matrix, Matrix.MSCALE_X), 2) + Math.pow(getMatrixValue(matrix, Matrix.MSKEW_Y), 2));
     }
 
     /**
@@ -209,8 +177,7 @@ public class TransformImageView extends AppCompatImageView {
      * This method calculates rotation angle for given Matrix object.
      */
     public float getMatrixAngle(@NonNull Matrix matrix) {
-        return (float) -(Math.atan2(getMatrixValue(matrix, Matrix.MSKEW_X),
-                getMatrixValue(matrix, Matrix.MSCALE_X)) * (180 / Math.PI));
+        return (float) -(Math.atan2(getMatrixValue(matrix, Matrix.MSKEW_X), getMatrixValue(matrix, Matrix.MSCALE_X)) * (180 / Math.PI));
     }
 
     @Override
@@ -281,14 +248,12 @@ public class TransformImageView extends AppCompatImageView {
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
         if (changed || (mBitmapDecoded && !mBitmapLaidOut)) {
-
             left = getPaddingLeft();
             top = getPaddingTop();
             right = getWidth() - getPaddingRight();
             bottom = getHeight() - getPaddingBottom();
             mThisWidth = right - left;
             mThisHeight = bottom - top;
-
             onImageLaidOut();
         }
     }
@@ -302,18 +267,13 @@ public class TransformImageView extends AppCompatImageView {
         if (drawable == null) {
             return;
         }
-
         float w = drawable.getIntrinsicWidth();
         float h = drawable.getIntrinsicHeight();
-
         Log.d(TAG, String.format("Image size: [%d:%d]", (int) w, (int) h));
-
         RectF initialImageRect = new RectF(0, 0, w, h);
         mInitialImageCorners = RectUtils.getCornersFromRect(initialImageRect);
         mInitialImageCenter = RectUtils.getCenterFromRect(initialImageRect);
-
         mBitmapLaidOut = true;
-
         if (mTransformImageListener != null) {
             mTransformImageListener.onLoadComplete();
         }

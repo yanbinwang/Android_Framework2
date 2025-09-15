@@ -1,18 +1,3 @@
-/*
- * Copyright 2017 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.api.widget;
 
 import android.content.Context;
@@ -38,17 +23,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 public class Widget implements Parcelable {
     /**
-     * 亮/暗样式
-     */
-    public static final int STYLE_LIGHT = 1;
-    public static final int STYLE_DARK = 2;
-
-    @IntDef({STYLE_DARK, STYLE_LIGHT})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface UiStyle {
-    }
-
-    /**
      * 类本身持有对象
      */
     private Context mContext;
@@ -59,6 +33,16 @@ public class Widget implements Parcelable {
     private ColorStateList mMediaItemCheckSelector;
     private ColorStateList mBucketItemCheckSelector;
     private ButtonStyle mButtonStyle;
+    /**
+     * 亮/暗样式
+     */
+    public static final int STYLE_LIGHT = 1;
+    public static final int STYLE_DARK = 2;
+
+    @IntDef({STYLE_DARK, STYLE_LIGHT})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface UiStyle {
+    }
 
     private Widget(Builder builder) {
         this.mContext = builder.mContext;
@@ -259,18 +243,14 @@ public class Widget implements Parcelable {
             return new Builder(context, STYLE_LIGHT);
         }
 
-        private Context mContext;
         private int mUiStyle;
+        private Context mContext;
         private ColorStateList mButtonSelector;
 
         private ButtonStyle(Builder builder) {
             this.mContext = builder.mContext;
             this.mUiStyle = builder.mUiStyle;
-            this.mButtonSelector = builder.mButtonSelector == null ?
-                    AlbumUtils.getColorStateList(ContextCompat.getColor(mContext, R.color.albumColorPrimary),
-                            ContextCompat.getColor(mContext, R.color.albumColorPrimaryDark)
-                    ) :
-                    builder.mButtonSelector;
+            this.mButtonSelector = builder.mButtonSelector == null ? AlbumUtils.getColorStateList(ContextCompat.getColor(mContext, R.color.albumColorPrimary), ContextCompat.getColor(mContext, R.color.albumColorPrimaryDark)) : builder.mButtonSelector;
         }
 
         public int getUiStyle() {
@@ -297,7 +277,7 @@ public class Widget implements Parcelable {
             return 0;
         }
 
-        public static final Creator<ButtonStyle> CREATOR = new Creator<ButtonStyle>() {
+        public static final Creator<ButtonStyle> CREATOR = new Creator<>() {
             @Override
             public ButtonStyle createFromParcel(Parcel in) {
                 return new ButtonStyle(in);
@@ -310,9 +290,8 @@ public class Widget implements Parcelable {
         };
 
         public static class Builder {
-
-            private Context mContext;
             private int mUiStyle;
+            private Context mContext;
             private ColorStateList mButtonSelector;
 
             private Builder(Context context, @UiStyle int style) {

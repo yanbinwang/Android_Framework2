@@ -1,18 +1,3 @@
-/*
- * Copyright 2016 Yan Zhenjie.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.util;
 
 import android.app.Activity;
@@ -53,7 +38,6 @@ import java.util.UUID;
  * Created by Yan Zhenjie on 2016/10/30.
  */
 public class AlbumUtils {
-
     private static final String CACHE_DIRECTORY = "AlbumCache";
 
     /**
@@ -109,10 +93,7 @@ public class AlbumUtils {
      * @param duration    specify the maximum allowed recording duration in seconds.
      * @param limitBytes  specify the maximum allowed size.
      */
-    public static void takeVideo(@NonNull Activity activity, int requestCode, File outPath,
-                                 @IntRange(from = 0, to = 1) int quality,
-                                 @IntRange(from = 1) long duration,
-                                 @IntRange(from = 1) long limitBytes) {
+    public static void takeVideo(@NonNull Activity activity, int requestCode, File outPath, @IntRange(from = 0, to = 1) int quality, @IntRange(from = 1) long duration, @IntRange(from = 1) long limitBytes) {
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         Uri uri = getUri(activity, outPath);
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
@@ -254,7 +235,6 @@ public class AlbumUtils {
     public static String getMimeType(String url) {
         String extension = getExtension(url);
         if (!MimeTypeMap.getSingleton().hasExtension(extension)) return "";
-
         String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
         return TextUtils.isEmpty(mimeType) ? "" : mimeType;
     }
@@ -369,7 +349,6 @@ public class AlbumUtils {
         int hour = (int) (duration / 3600);
         int minute = (int) ((duration - hour * 3600) / 60);
         int second = (int) (duration - hour * 3600 - minute * 60);
-
         String hourValue = "";
         String minuteValue;
         String secondValue;
@@ -430,4 +409,5 @@ public class AlbumUtils {
         }
         return md5Buffer.toString();
     }
+
 }

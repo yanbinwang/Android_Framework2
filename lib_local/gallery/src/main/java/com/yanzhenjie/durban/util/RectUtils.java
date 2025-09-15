@@ -1,18 +1,3 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.durban.util;
 
 import android.graphics.RectF;
@@ -21,7 +6,6 @@ import android.graphics.RectF;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class RectUtils {
-
     /**
      * Gets a float array of the 2D coordinates representing a rectangles
      * corners.
@@ -36,12 +20,7 @@ public class RectUtils {
      * @return the float array of corners (8 floats)
      */
     public static float[] getCornersFromRect(RectF r) {
-        return new float[]{
-                r.left, r.top,
-                r.right, r.top,
-                r.right, r.bottom,
-                r.left, r.bottom
-        };
+        return new float[]{r.left, r.top, r.right, r.top, r.right, r.bottom, r.left, r.bottom};
     }
 
     /**
@@ -57,8 +36,7 @@ public class RectUtils {
      * @return the float array of width and height (2 floats)
      */
     public static float[] getRectSidesFromCorners(float[] corners) {
-        return new float[]{(float) Math.sqrt(Math.pow(corners[0] - corners[2], 2) + Math.pow(corners[1] - corners[3], 2)),
-                (float) Math.sqrt(Math.pow(corners[2] - corners[4], 2) + Math.pow(corners[3] - corners[5], 2))};
+        return new float[]{(float) Math.sqrt(Math.pow(corners[0] - corners[2], 2) + Math.pow(corners[1] - corners[3], 2)), (float) Math.sqrt(Math.pow(corners[2] - corners[4], 2) + Math.pow(corners[3] - corners[5], 2))};
     }
 
     public static float[] getCenterFromRect(RectF r) {
@@ -73,8 +51,7 @@ public class RectUtils {
      * @return smallest rectangle containing coordinates
      */
     public static RectF trapToRect(float[] array) {
-        RectF r = new RectF(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY,
-                Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
+        RectF r = new RectF(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY, Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
         for (int i = 1; i < array.length; i += 2) {
             float x = Math.round(array[i - 1] * 10) / 10.f;
             float y = Math.round(array[i] * 10) / 10.f;

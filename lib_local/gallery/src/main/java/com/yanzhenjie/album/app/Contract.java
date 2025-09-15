@@ -1,18 +1,3 @@
-/*
- * Copyright 2018 Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.album.app;
 
 import android.app.Activity;
@@ -48,7 +33,7 @@ public final class Contract {
         /**
          * Try to check item.
          *
-         * @param button view.
+         * @param button   view.
          * @param position position of item.
          */
         void tryCheckItem(CompoundButton button, int position);
@@ -81,11 +66,11 @@ public final class Contract {
         /**
          * Set some properties of the view.
          *
-         * @param widget {@link Widget}.
-         * @param column the count of columns.
-         * @param hasCamera the camera is enabled.
+         * @param widget     {@link Widget}.
+         * @param column     the count of columns.
+         * @param hasCamera  the camera is enabled.
          * @param choiceMode choice mode, one of {@link Album#FUNCTION_CHOICE_ALBUM}, {@link
-         *     Album#FUNCTION_CHOICE_IMAGE} or {@link Album#FUNCTION_CHOICE_VIDEO}.
+         *                   Album#FUNCTION_CHOICE_IMAGE} or {@link Album#FUNCTION_CHOICE_VIDEO}.
          */
         public abstract void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode);
 
@@ -137,6 +122,7 @@ public final class Contract {
          * @param count the number of items checked.
          */
         public abstract void setCheckedCount(int count);
+
     }
 
     public interface NullPresenter extends BasePresenter {
@@ -150,6 +136,7 @@ public final class Contract {
          * Take a video.
          */
         void takeVideo();
+
     }
 
     public static abstract class NullView extends BaseView<NullPresenter> {
@@ -185,6 +172,7 @@ public final class Contract {
          * @param display true is displayed, otherwise it is not displayed.
          */
         public abstract void setMakeVideoDisplay(boolean display);
+
     }
 
     public interface GalleryPresenter extends BasePresenter {
@@ -207,6 +195,7 @@ public final class Contract {
          * Complete.
          */
         void complete();
+
     }
 
     public static abstract class GalleryView<Data> extends BaseView<GalleryPresenter> {
@@ -218,7 +207,7 @@ public final class Contract {
         /**
          * Set some properties of the view.
          *
-         * @param widget {@link Widget}.
+         * @param widget    {@link Widget}.
          * @param checkable show the checkbox.
          */
         public abstract void setupViews(Widget widget, boolean checkable);
@@ -278,6 +267,7 @@ public final class Contract {
          * @param text text.
          */
         public abstract void setCompleteText(String text);
+
     }
 
 }

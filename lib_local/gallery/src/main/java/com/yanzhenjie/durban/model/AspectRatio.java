@@ -1,18 +1,3 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.durban.model;
 
 import android.os.Parcel;
@@ -24,11 +9,10 @@ import androidx.annotation.Nullable;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class AspectRatio implements Parcelable {
-
-    @Nullable
-    private final String mAspectRatioTitle;
     private final float mAspectRatioX;
     private final float mAspectRatioY;
+    @Nullable
+    private final String mAspectRatioTitle;
 
     public AspectRatio(@Nullable String aspectRatioTitle, float aspectRatioX, float aspectRatioY) {
         mAspectRatioTitle = aspectRatioTitle;
@@ -54,7 +38,7 @@ public class AspectRatio implements Parcelable {
         return 0;
     }
 
-    public static final Creator<AspectRatio> CREATOR = new Creator<AspectRatio>() {
+    public static final Creator<AspectRatio> CREATOR = new Creator<>() {
         @Override
         public AspectRatio createFromParcel(Parcel in) {
             return new AspectRatio(in);

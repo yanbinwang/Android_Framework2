@@ -38,4 +38,5 @@ public class AttacherImageView extends AppCompatImageView {
             mAttacher.update();
         }
     }
+
 }

@@ -1,18 +1,3 @@
-/*
- * Copyright © Yan Zhenjie
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.yanzhenjie.durban.view;
 
 import android.content.Context;
@@ -48,42 +33,35 @@ import java.lang.annotation.RetentionPolicy;
  * Update by Yan Zhenjie on 2017/5/23.
  */
 public class OverlayView extends View {
-
-    public static final int FREESTYLE_CROP_MODE_DISABLE = 0;
-    public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
-    public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
-
-    public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
-
-    private final RectF mCropViewRect = new RectF();
-    private final RectF mTempRect = new RectF();
-
-    protected int mThisWidth, mThisHeight;
-    protected float[] mCropGridCorners;
-    protected float[] mCropGridCenter;
-
+    @FreestyleMode
+    private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
     private int mCropGridRowCount, mCropGridColumnCount;
+    private int mDimmedColor;
+    private int mCurrentTouchCornerIndex = -1;
+    private int mTouchPointThreshold;
+    private int mCropRectMinSize;
+    private int mCropRectCornerTouchAreaLineLength;
     private float mTargetAspectRatio;
+    private float mPreviousTouchX = -1, mPreviousTouchY = -1;
     private float[] mGridPoints = null;
     private boolean mShowCropFrame, mShowCropGrid;
     private boolean mCircleDimmedLayer;
-    private int mDimmedColor;
+    private boolean mShouldSetupCropBounds;
+    private OverlayViewChangeListener mCallback;
     private Path mCircularPath = new Path();
     private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    @FreestyleMode
-    private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
-    private float mPreviousTouchX = -1, mPreviousTouchY = -1;
-    private int mCurrentTouchCornerIndex = -1;
-    private int mTouchPointThreshold;
-    private int mCropRectMinSize;
-    private int mCropRectCornerTouchAreaLineLength;
-
-    private OverlayViewChangeListener mCallback;
-
-    private boolean mShouldSetupCropBounds;
+    private final RectF mCropViewRect = new RectF();
+    private final RectF mTempRect = new RectF();
+    protected int mThisWidth, mThisHeight;
+    protected float[] mCropGridCorners;
+    protected float[] mCropGridCenter;
+    public static final int FREESTYLE_CROP_MODE_DISABLE = 0;
+    public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
+    public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
+    public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
 
     public OverlayView(Context context) {
         this(context, null);
@@ -102,9 +80,7 @@ public class OverlayView extends View {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.durban_dp_30);
         mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.durban_dp_100);
         mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.durban_dp_10);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2
-                && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
     }
@@ -118,20 +94,20 @@ public class OverlayView extends View {
         return mCropViewRect;
     }
 
-    @Deprecated
-    /***
+    /**
      * Please use the new method {@link #getFreestyleCropMode() getFreestyleCropMode} method as we have more than 1 freestyle
      * crop mode.
      */
+    @Deprecated
     public boolean isFreestyleCropEnabled() {
         return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE;
     }
 
-    @Deprecated
-    /***
+    /**
      * Please use the new method {@link #setFreestyleCropMode setFreestyleCropMode} method as we have more than 1 freestyle
      * crop mode.
      */
+    @Deprecated
     public void setFreestyleCropEnabled(boolean freestyleCropEnabled) {
         mFreestyleCropMode = freestyleCropEnabled ? FREESTYLE_CROP_MODE_ENABLE : FREESTYLE_CROP_MODE_DISABLE;
     }
@@ -252,33 +228,23 @@ public class OverlayView extends View {
         if (height > mThisHeight) {
             int width = (int) (mThisHeight * mTargetAspectRatio);
             int halfDiff = (mThisWidth - width) / 2;
-            mCropViewRect.set(getPaddingLeft() + halfDiff,
-                    getPaddingTop(),
-                    getPaddingLeft() + width + halfDiff,
-                    getPaddingTop() + mThisHeight);
+            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(), getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
         } else {
             int halfDiff = (mThisHeight - height) / 2;
-            mCropViewRect.set(getPaddingLeft(),
-                    getPaddingTop() + halfDiff,
-                    getPaddingLeft() + mThisWidth,
-                    getPaddingTop() + height + halfDiff);
+            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff, getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
         }
-
         if (mCallback != null) {
             mCallback.onCropRectUpdated(mCropViewRect);
         }
-
         updateGridPoints();
     }
 
     private void updateGridPoints() {
         mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
         mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
-
         mGridPoints = null;
         mCircularPath.reset();
-        mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(),
-                Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);
+        mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);
     }
 
     @Override
@@ -291,7 +257,6 @@ public class OverlayView extends View {
             bottom = getHeight() - getPaddingBottom();
             mThisWidth = right - left;
             mThisHeight = bottom - top;
-
             if (mShouldSetupCropBounds) {
                 mShouldSetupCropBounds = false;
                 setTargetAspectRatio(mTargetAspectRatio);
@@ -314,10 +279,8 @@ public class OverlayView extends View {
         if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
             return false;
         }
-
         float x = event.getX();
         float y = event.getY();
-
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
             mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
             boolean shouldHandle = mCurrentTouchCornerIndex != -1;
@@ -330,32 +293,24 @@ public class OverlayView extends View {
             }
             return shouldHandle;
         }
-
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
             if (event.getPointerCount() == 1 && mCurrentTouchCornerIndex != -1) {
-
                 x = Math.min(Math.max(x, getPaddingLeft()), getWidth() - getPaddingRight());
                 y = Math.min(Math.max(y, getPaddingTop()), getHeight() - getPaddingBottom());
-
                 updateCropViewRect(x, y);
-
                 mPreviousTouchX = x;
                 mPreviousTouchY = y;
-
                 return true;
             }
         }
-
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
             mCurrentTouchCornerIndex = -1;
-
             if (mCallback != null) {
                 mCallback.onCropRectUpdated(mCropViewRect);
             }
         }
-
         return false;
     }
 
@@ -369,7 +324,6 @@ public class OverlayView extends View {
      */
     private void updateCropViewRect(float touchX, float touchY) {
         mTempRect.set(mCropViewRect);
-
         switch (mCurrentTouchCornerIndex) {
             // resize rectangle
             case 0:
@@ -387,10 +341,7 @@ public class OverlayView extends View {
             // move rectangle
             case 4:
                 mTempRect.offset(touchX - mPreviousTouchX, touchY - mPreviousTouchY);
-                if (mTempRect.left > getLeft()
-                        && mTempRect.top > getTop()
-                        && mTempRect.right < getRight()
-                        && mTempRect.bottom < getBottom()) {
+                if (mTempRect.left > getLeft() && mTempRect.top > getTop() && mTempRect.right < getRight() && mTempRect.bottom < getBottom()) {
                     mCropViewRect.set(mTempRect);
                     updateGridPoints();
                     postInvalidate();
@@ -400,12 +351,7 @@ public class OverlayView extends View {
 
         boolean changeHeight = mTempRect.height() >= mCropRectMinSize;
         boolean changeWidth = mTempRect.width() >= mCropRectMinSize;
-        mCropViewRect.set(
-                changeWidth ? mTempRect.left : mCropViewRect.left,
-                changeHeight ? mTempRect.top : mCropViewRect.top,
-                changeWidth ? mTempRect.right : mCropViewRect.right,
-                changeHeight ? mTempRect.bottom : mCropViewRect.bottom);
-
+        mCropViewRect.set(changeWidth ? mTempRect.left : mCropViewRect.left, changeHeight ? mTempRect.top : mCropViewRect.top, changeWidth ? mTempRect.right : mCropViewRect.right, changeHeight ? mTempRect.bottom : mCropViewRect.bottom);
         if (changeHeight || changeWidth) {
             updateGridPoints();
             postInvalidate();
@@ -426,14 +372,12 @@ public class OverlayView extends View {
         int closestPointIndex = -1;
         double closestPointDistance = mTouchPointThreshold;
         for (int i = 0; i < 8; i += 2) {
-            double distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2)
-                    + Math.pow(touchY - mCropGridCorners[i + 1], 2));
+            double distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2) + Math.pow(touchY - mCropGridCorners[i + 1], 2));
             if (distanceToCorner < closestPointDistance) {
                 closestPointDistance = distanceToCorner;
                 closestPointIndex = i / 2;
             }
         }
-
         if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY))
             return 4;
         return closestPointIndex;
@@ -450,13 +394,8 @@ public class OverlayView extends View {
         else canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
         canvas.drawColor(mDimmedColor);
         canvas.restore();
-
         if (mCircleDimmedLayer) { // Draw 1px stroke to fix antialias
-            canvas.drawCircle(
-                    mCropViewRect.centerX(),
-                    mCropViewRect.centerY(),
-                    Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f,
-                    mDimmedStrokePaint);
+            canvas.drawCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, mDimmedStrokePaint);
         }
     }
 
@@ -469,49 +408,35 @@ public class OverlayView extends View {
     protected void drawCropGrid(@NonNull Canvas canvas) {
         if (mShowCropGrid) {
             if (mGridPoints == null && !mCropViewRect.isEmpty()) {
-
                 mGridPoints = new float[(mCropGridRowCount) * 4 + (mCropGridColumnCount) * 4];
-
                 int index = 0;
                 for (int i = 0; i < mCropGridRowCount; i++) {
                     mGridPoints[index++] = mCropViewRect.left;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) +
-                            mCropViewRect.top;
+                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                     mGridPoints[index++] = mCropViewRect.right;
-                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) +
-                            mCropViewRect.top;
+                    mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                 }
-
                 for (int i = 0; i < mCropGridColumnCount; i++) {
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1)))
-                            + mCropViewRect.left;
+                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1))) + mCropViewRect.left;
                     mGridPoints[index++] = mCropViewRect.top;
-                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1)))
-                            + mCropViewRect.left;
+                    mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1))) + mCropViewRect.left;
                     mGridPoints[index++] = mCropViewRect.bottom;
                 }
             }
-
             if (mGridPoints != null)
                 canvas.drawLines(mGridPoints, mCropGridPaint);
         }
-
         if (mShowCropFrame)
             canvas.drawRect(mCropViewRect, mCropFramePaint);
-
         if (mFreestyleCropMode != FREESTYLE_CROP_MODE_DISABLE) {
             canvas.save();
-
             mTempRect.set(mCropViewRect);
             mTempRect.inset(mCropRectCornerTouchAreaLineLength, -mCropRectCornerTouchAreaLineLength);
             canvas.clipRect(mTempRect, Region.Op.DIFFERENCE);
-
             mTempRect.set(mCropViewRect);
             mTempRect.inset(-mCropRectCornerTouchAreaLineLength, mCropRectCornerTouchAreaLineLength);
             canvas.clipRect(mTempRect, Region.Op.DIFFERENCE);
-
             canvas.drawRect(mCropViewRect, mCropFrameCornersPaint);
-
             canvas.restore();
         }
     }
@@ -522,15 +447,12 @@ public class OverlayView extends View {
      */
     protected void processStyledAttributes(@NonNull TypedArray a) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false);
-        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color,
-                ContextCompat.getColor(getContext(), R.color.durban_CropDimmed));
+        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(getContext(), R.color.durban_CropDimmed));
         mDimmedStrokePaint.setColor(mDimmedColor);
         mDimmedStrokePaint.setStyle(Paint.Style.STROKE);
         mDimmedStrokePaint.setStrokeWidth(1);
-
         initCropFrameStyle(a);
         mShowCropFrame = a.getBoolean(R.styleable.durban_CropView_durban_show_frame, true);
-
         initCropGridStyle(a);
         mShowCropGrid = a.getBoolean(R.styleable.durban_CropView_durban_show_grid, true);
     }
@@ -539,14 +461,11 @@ public class OverlayView extends View {
      * This method setups Paint object for the crop bounds.
      */
     private void initCropFrameStyle(@NonNull TypedArray a) {
-        int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-        int cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color,
-                ContextCompat.getColor(getContext(), R.color.durban_CropFrameLine));
+        int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        int cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(getContext(), R.color.durban_CropFrameLine));
         mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
         mCropFramePaint.setColor(cropFrameColor);
         mCropFramePaint.setStyle(Paint.Style.STROKE);
-
         mCropFrameCornersPaint.setStrokeWidth(cropFrameStrokeSize * 3);
         mCropFrameCornersPaint.setColor(cropFrameColor);
         mCropFrameCornersPaint.setStyle(Paint.Style.STROKE);
@@ -556,17 +475,13 @@ public class OverlayView extends View {
      * This method setups Paint object for the crop guidelines.
      */
     private void initCropGridStyle(@NonNull TypedArray a) {
-        int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size,
-                getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-        int cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color,
-                ContextCompat.getColor(getContext(), R.color.durban_CropGridLine));
+        int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        int cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(getContext(), R.color.durban_CropGridLine));
         mCropGridPaint.setStrokeWidth(cropGridStrokeSize);
         mCropGridPaint.setColor(cropGridColor);
-
         mCropGridRowCount = a.getInt(R.styleable.durban_CropView_durban_grid_row_count, 2);
         mCropGridColumnCount = a.getInt(R.styleable.durban_CropView_durban_grid_column_count, 2);
     }
-
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH})

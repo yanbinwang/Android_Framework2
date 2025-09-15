@@ -129,18 +129,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
 //    companion object {
 //        /**
-//         * 根据传入的颜色阈值决定状态栏/导航栏电池图标的深浅（黑或白）
-//         */
-//        @JvmStatic
-//        fun getBatteryIcon(@ColorInt backgroundColor: Int): Boolean {
-//            // 使用系统API获取相对亮度（0.0-1.0之间）
-//            val luminance = calculateLuminance(backgroundColor)
-//            // 亮度阈值，这里使用0.5作为中间值
-//            // 白色的相对亮度（luminance）是 1.0（最高值），黑色是 0.0（最低值）
-//            return if (luminance < 0.5) true else false
-//        }
-//
-//        /**
 //         * 提取Bitmap颜色
 //         */
 //        @JvmStatic
@@ -171,7 +159,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //                    } ?: run {
 //                        Color.WHITE
 //                    }
-//                    colorList[index] = getBatteryIcon(color) to color
+//                    colorList[index] = shouldUseWhiteSystemBarsForColor(color) to color
 //                }
 //                colorList
 //            }
