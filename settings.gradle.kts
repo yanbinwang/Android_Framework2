@@ -14,6 +14,7 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
+        // 1. 优先使用国内镜像（加速下载）
         /**
          * 第三方开源项目的 “便捷分发仓库”
          * 不在 Maven Central/Google 仓库里的开源项目（比如 GitHub 上的个人库、小众库）。
@@ -42,6 +43,7 @@ dependencyResolutionManagement {
          * - 同步了 Gradle 插件仓库的大部分内容
          */
         maven("https://maven.aliyun.com/repository/public")
+        // 2. 官方仓库放最后（作为镜像的 fallback）
         google()
         mavenCentral()
     }
