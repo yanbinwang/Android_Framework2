@@ -37,7 +37,7 @@ class AdActivity : BaseActivity<ActivityAdBinding>(), OnRefreshListener {
         mBinding?.viewCover.size(height = 330.pt + statusBarHeight)
         mBinding?.avBanner.margin(top = statusBarHeight)
         mBinding?.refresh?.setHeaderMaxDragRate()
-        mBinding?.refresh?.setProgressTint(R.color.bgWhite)
+        mBinding?.refresh?.setProgressTint(R.color.bgBlack)
         mBinding?.refresh?.setHeaderDragListener { _: Boolean, _: Float, offset: Int, _: Int, _: Int ->
             val imgBgHeight = mBinding?.avBanner?.measuredHeight.orZero
             if (imgBgHeight <= 0) return@setHeaderDragListener
@@ -50,19 +50,19 @@ class AdActivity : BaseActivity<ActivityAdBinding>(), OnRefreshListener {
         super.initEvent()
         mBinding?.refresh?.setOnRefreshListener(this)
         viewModel.data.observe {
-            mBinding?.avBanner?.setConfiguration(localAsset = true)
-            mBinding?.avBanner?.setWindowBar(this.second) {
-                val windowBarStatus = it.first
-                val coverBg = it.second
-                if (windowBarStatus != statusBarDark) {
-                    statusBarDark = windowBarStatus
-                    initImmersionBar(statusBarDark)
-                    mBinding?.refresh?.setProgressTint(if (statusBarDark) R.color.bgBlack else R.color.bgWhite)
-                }
-                mBinding?.viewCover?.setBackgroundColor(coverBg)
-            }
+            mBinding?.avBanner?.setConfiguration(localAsset = true, barList = this.second)
             mBinding?.avBanner?.start(this.first)
         }
+        mBinding?.avBanner?.setAdvertisingListener(onPageScrolled = {
+            val windowBarStatus = it.first
+            val coverBg = it.second
+            if (windowBarStatus != statusBarDark) {
+                statusBarDark = windowBarStatus
+                initImmersionBar(statusBarDark)
+                mBinding?.refresh?.setProgressTint(if (statusBarDark) R.color.bgBlack else R.color.bgWhite)
+            }
+            mBinding?.viewCover?.setBackgroundColor(coverBg)
+        })
     }
 
     override fun initData() {

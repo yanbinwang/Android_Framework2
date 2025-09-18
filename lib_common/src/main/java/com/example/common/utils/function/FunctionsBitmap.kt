@@ -106,12 +106,20 @@ fun String?.isValidImage(): Boolean {
 }
 
 /**
- * 安全回收Bitmap的扩展函数
+ * 提取Bitmap在x轴中心点颜色
  */
-fun Bitmap?.safeRecycle() {
-    this ?: return
-    if (!isRecycled) {
-        recycle()
+fun Bitmap?.getCenterPixelColor(): Int {
+    // 如果bitmap为空，返回默认颜色值
+    this ?: return Color.WHITE
+    // 计算中心坐标
+    val centerX = width / 2
+    // Y轴取第1个像素（索引从0开始，所以是0）
+    val topY = 0
+    // 确保坐标在有效范围内
+    return if (width > 0 && height > 0 && centerX in 0 until width && topY in 0 until height) {
+        getPixel(centerX, topY)
+    } else {
+        Color.WHITE
     }
 }
 
@@ -204,6 +212,16 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
 //    }
 //    return scaleBitmap(scale, true)
 //}
+
+/**
+ * 安全回收Bitmap的扩展函数
+ */
+fun Bitmap?.safeRecycle() {
+    this ?: return
+    if (!isRecycled) {
+        recycle()
+    }
+}
 
 /**
  * 安全获取Bitmap的扩展函数

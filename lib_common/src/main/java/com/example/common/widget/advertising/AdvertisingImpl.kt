@@ -21,8 +21,9 @@ interface AdvertisingImpl {
      * @param ovalList 圆点资源
      * @param ovalLayout 圆点容器,可为空
      * @param scroll 是否自动滚动,默认是
+     * @param barList 图片背景/状态栏深浅
      */
-    fun setConfiguration(radius: Int = 0, localAsset: Boolean = false, scroll: Boolean = true, ovalList: Triple<Drawable, Drawable, Int>? = null, ovalLayout: LinearLayout? = null)
+    fun setConfiguration(radius: Int = 0, localAsset: Boolean = false, scroll: Boolean = true, ovalList: Triple<Drawable, Drawable, Int>? = null, ovalLayout: LinearLayout? = null, barList: ArrayList<Pair<Boolean, Int>>? = null)
 
     /**
      * 设置方向
@@ -33,12 +34,5 @@ interface AdvertisingImpl {
      * 设置边距
      */
     fun setPageTransformer(marginPx: Int)
-
-    /**
-     * 设置背景色/状态栏深浅
-     * @param barList 图片背景/状态栏深浅
-     * @param onPageScrolled 滑动渐变背景
-     */
-    fun setWindowBar(barList: ArrayList<Pair<Boolean, Int>>, onPageScrolled: ((data: Pair<Boolean, Int>) -> Unit))
 
 }
