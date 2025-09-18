@@ -2,6 +2,7 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.util.AttributeSet
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -19,7 +21,9 @@ import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.common.utils.function.pt
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.createOvalDrawable
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -71,8 +75,8 @@ import java.util.TimerTask
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     // 图片路径数组
     private var list = ArrayList<String>()
-//    // 图片背景数组
-//    private var coverList = ArrayList<Int>()
+    // 图片背景数组
+    private var coverList = ArrayList<Pair<Boolean, Int>>()
     // 是否允许滑动
     private var allowScroll = true
     // 是否自动滚动
@@ -93,8 +97,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     // 注册广告监听
     private val callback by lazy { object : OnPageChangeCallback() {
-        private var curIndex = 0//当前选中的数组索引
-        private var oldIndex = 0//上次选中的数组索引
+        // 当前选中的数组索引
+        private var curIndex = 0
+        // 上次选中的数组索引
+        private var oldIndex = 0
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
             // 切换圆点
@@ -113,17 +119,21 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             allowScroll = positionOffsetPixels == 0
-//            // 无需复杂容错，colorList已完整
-//            if (position >= coverList.size - 1) return
-//            val startColor = coverList[position]
-//            val endColor = coverList[position + 1]
-//            val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
-//            viewPagerContainer.setBackgroundColor(blendedColor)
+            // 无需复杂容错，colorList已完整
+            if (coverList.safeSize > 0) {
+                val mPosition = position % list.size
+                if (mPosition >= coverList.size - 1) return
+                val startColor = coverList.safeGet(mPosition)?.second.orZero
+                val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
+                val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
+                onPageScrolled?.invoke(coverList.safeGet(mPosition)?.first.orFalse to blendedColor.orZero)
+            }
         }
     }}
     // 回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
+    private var onPageScrolled: ((data: Pair<Boolean, Int>) -> Unit)? = null
     // 获取当前下标
     private val absolutePosition get() = halfPosition - halfPosition % list.size
 
@@ -172,6 +182,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //         */
 //        private suspend fun getImageCover(context: Context, imageUrl: String?): Int {
 //            return withContext(IO) {
+//                var bitmap: Bitmap? = null
 //                var futureTarget: FutureTarget<Bitmap>? = null
 //                try {
 //                    if (imageUrl.isNullOrEmpty()) {
@@ -184,8 +195,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //                        .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                        // 限制图片尺寸，加速处理
 //                        .submit(200, 200)
-//                    // 等待结果，设置超时
-//                    val bitmap = futureTarget.get(3, TimeUnit.SECONDS) ?: return@withContext Color.WHITE
+//                    // 等待结果
+//                    bitmap = futureTarget.get() ?: return@withContext Color.WHITE
 //                    // 配置Palette，提高颜色提取质量
 //                    val palette = Palette.from(bitmap)
 //                        // 增加颜色数量
@@ -193,10 +204,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //                        .generate()
 //                    // 多种颜色提取策略，提高成功率
 //                    val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
-//                    // 释放Bitmap内存
-//                    if (!bitmap.isRecycled) {
-//                        bitmap.recycle()
-//                    }
+//                    // 记得释放Bitmap内存
 //                    return@withContext pageColor
 //                } catch (e: Exception) {
 //                    e.printStackTrace()
@@ -206,6 +214,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 //                    futureTarget?.let {
 //                        Glide.with(context).clear(it)
 //                    }
+//                    bitmap.safeRecycle()
 //                }
 //            }
 //        }
@@ -326,6 +335,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
+    }
+
+    override fun setWindowBar(barList: ArrayList<Pair<Boolean, Int>>, onPageScrolled: (Pair<Boolean, Int>) -> Unit) {
+        this.coverList = barList
+        this.onPageScrolled = onPageScrolled
     }
 
     /**

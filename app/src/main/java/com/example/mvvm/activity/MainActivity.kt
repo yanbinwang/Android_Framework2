@@ -394,7 +394,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
-            viewModel.getShare()
+            navigation(ARouterPath.AdActivity)
+//            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()

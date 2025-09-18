@@ -34,4 +34,11 @@ interface AdvertisingImpl {
      */
     fun setPageTransformer(marginPx: Int)
 
+    /**
+     * 设置背景色/状态栏深浅
+     * @param barList 图片背景/状态栏深浅
+     * @param onPageScrolled 滑动渐变背景
+     */
+    fun setWindowBar(barList: ArrayList<Pair<Boolean, Int>>, onPageScrolled: ((data: Pair<Boolean, Int>) -> Unit))
+
 }
