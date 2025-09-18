@@ -20,14 +20,14 @@ class ZoomTransform(private var target: ImageView) : ImageViewTarget<Bitmap>(tar
 
     override fun setResource(resource: Bitmap?) {
         view.setImageBitmap(resource)
-        //获取原图的宽高
+        // 获取原图的宽高
         val width = resource?.width.orZero
         val height = resource?.height.orZero
-        //获取imageView的宽
+        // 获取imageView的宽
         val targetWidth = target.width
-        //计算缩放比例
+        // 计算缩放比例
         val sy = (targetWidth * 0.1).toSafeFloat() / (width * 0.1).toSafeFloat()
-        //计算图片等比例放大后的高
+        // 计算图片等比例放大后的高
         val targetHeight = (height * sy).toSafeInt()
         val params = target.layoutParams
         params?.height = targetHeight

@@ -1,5 +1,6 @@
 package com.example.glide
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
@@ -40,6 +41,7 @@ import java.io.File
  * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
  */
 //class ImageLoader private constructor() : GlideModule(), GlideImpl {
+@SuppressLint("CheckResult")
 class ImageLoader private constructor() {
     private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 
@@ -362,9 +364,13 @@ class ImageLoader private constructor() {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply {
-                setExceptCorner(overrideCorners)
-            }))
+            .also {
+                if (cornerRadius > 0) {
+                    val cornerTransform = CornerTransform(view.context, cornerRadius.toSafeFloat())
+                    cornerTransform.setExceptCorner(overrideCorners)
+                    it.apply(RequestOptions.bitmapTransform(cornerTransform))
+                }
+            }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
 //            .dontAnimate()
@@ -384,9 +390,13 @@ class ImageLoader private constructor() {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
-            .apply(RequestOptions.bitmapTransform(CornerTransform(view.context, cornerRadius.toSafeFloat()).apply {
-                setExceptCorner(overrideCorners)
-            }))
+            .also {
+                if (cornerRadius > 0) {
+                    val cornerTransform = CornerTransform(view.context, cornerRadius.toSafeFloat())
+                    cornerTransform.setExceptCorner(overrideCorners)
+                    it.apply(RequestOptions.bitmapTransform(cornerTransform))
+                }
+            }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
 //            .dontAnimate()
