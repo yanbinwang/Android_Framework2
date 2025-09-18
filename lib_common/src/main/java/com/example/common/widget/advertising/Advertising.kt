@@ -2,6 +2,8 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.os.Looper
 import android.util.AttributeSet
@@ -10,16 +12,24 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.FutureTarget
+import com.example.common.utils.function.getCenterPixelColor
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.safeRecycle
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.createOvalDrawable
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -29,6 +39,8 @@ import com.example.framework.utils.function.view.reduceSensitivity
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import java.util.Timer
 import java.util.TimerTask
 
@@ -71,8 +83,8 @@ import java.util.TimerTask
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
     // 图片路径数组
     private var list = ArrayList<String>()
-//    // 图片背景数组
-//    private var coverList = ArrayList<Int>()
+    // 图片背景数组
+    private var coverList = ArrayList<Pair<Boolean, Int>>()
     // 是否允许滑动
     private var allowScroll = true
     // 是否自动滚动
@@ -93,8 +105,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     // 注册广告监听
     private val callback by lazy { object : OnPageChangeCallback() {
-        private var curIndex = 0//当前选中的数组索引
-        private var oldIndex = 0//上次选中的数组索引
+        // 当前选中的数组索引
+        private var curIndex = 0
+        // 上次选中的数组索引
+        private var oldIndex = 0
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
             // 切换圆点
@@ -113,103 +127,77 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             allowScroll = positionOffsetPixels == 0
-//            // 无需复杂容错，colorList已完整
-//            if (position >= coverList.size - 1) return
-//            val startColor = coverList[position]
-//            val endColor = coverList[position + 1]
-//            val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
-//            viewPagerContainer.setBackgroundColor(blendedColor)
+            // 无需复杂容错，colorList已完整
+            if (coverList.safeSize > 0) {
+                val mPosition = position % list.size
+                if (mPosition >= coverList.size - 1) return
+                val startColor = coverList.safeGet(mPosition)?.second.orZero
+                val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
+                val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
+                onPageScrolled?.invoke(coverList.safeGet(mPosition)?.first.orFalse to blendedColor.orZero)
+            }
         }
     }}
     // 回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
+    private var onPageScrolled: ((data: Pair<Boolean, Int>) -> Unit)? = null
     // 获取当前下标
     private val absolutePosition get() = halfPosition - halfPosition % list.size
 
-//    companion object {
-//        /**
-//         * 提取Bitmap颜色
-//         */
-//        @JvmStatic
-//        fun getAdvCover(originalBitmap: Bitmap?): Int {
-//            originalBitmap ?: return 0
-//            // 获取顶部中心位置的像素颜色
-//            val centerX = originalBitmap.getWidth().orZero / 2
-//            // 顶部y坐标（0表示最顶部）
-//            val topY = 0
-//            // 确保坐标在有效范围内
-//            return if (centerX >= 0 && centerX < originalBitmap.getWidth() && topY < originalBitmap.getHeight()) {
-//                originalBitmap[centerX, topY]
-//            } else {
-//                0
-//            }
-//        }
-//
-//        /**
-//         * 获取完服务器集合后,可在对应协程里在加一个获取背景的协程事务
-//         */
-//        suspend fun suspendingGetImageCover(context: Context, uriList: ArrayList<String>): MutableList<Pair<Boolean, Int>> {
-//            return withContext(IO) {
-//                val colorList = MutableList(uriList.size) { true to Color.WHITE }
-//                uriList.forEachIndexed { index, imgUrl ->
-//                    // 为每个图片处理设置超时 5秒超时
-//                    val color = withTimeoutOrNull(5000) {
-//                        getImageCover(context, imgUrl)
-//                    } ?: run {
-//                        Color.WHITE
-//                    }
-//                    colorList[index] = shouldUseWhiteSystemBarsForColor(color) to color
-//                }
-//                colorList
-//            }
-//        }
-//
-//        /**
-//         * 获取图片背景
-//         * @param context 上下文对象
-//         * @return 图片背景色，如果获取失败返回白色
-//         */
-//        private suspend fun getImageCover(context: Context, imageUrl: String?): Int {
-//            return withContext(IO) {
-//                var futureTarget: FutureTarget<Bitmap>? = null
-//                try {
-//                    if (imageUrl.isNullOrEmpty()) {
-//                        return@withContext Color.WHITE
-//                    }
-//                    // 加载图片时可以指定尺寸，避免过大的Bitmap占用过多内存
-//                    futureTarget = Glide.with(context)
-//                        .asBitmap()
-//                        .load(imageUrl)
-//                        .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                        // 限制图片尺寸，加速处理
-//                        .submit(200, 200)
-//                    // 等待结果，设置超时
-//                    val bitmap = futureTarget.get(3, TimeUnit.SECONDS) ?: return@withContext Color.WHITE
-//                    // 配置Palette，提高颜色提取质量
-//                    val palette = Palette.from(bitmap)
-//                        // 增加颜色数量
-//                        .maximumColorCount(32)
-//                        .generate()
-//                    // 多种颜色提取策略，提高成功率
-//                    val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
-//                    // 释放Bitmap内存
-//                    if (!bitmap.isRecycled) {
-//                        bitmap.recycle()
-//                    }
-//                    return@withContext pageColor
-//                } catch (e: Exception) {
-//                    e.printStackTrace()
-//                    return@withContext Color.WHITE
-//                } finally {
-//                    // 取消Glide请求，避免内存泄漏
-//                    futureTarget?.let {
-//                        Glide.with(context).clear(it)
-//                    }
-//                }
-//            }
-//        }
-//    }
+    companion object {
+        /**
+         * 异步获取图片的中心像素颜色（用于封面色、主题色等场景）
+         * @param context 上下文（注意：若为Activity/Fragment，需确保不泄露，建议用ApplicationContext）
+         * @param imageSource 图片源（支持Int资源ID、String网络/本地URL等Glide支持的类型）
+         * @return 中心像素颜色，获取失败时返回白色（Color.WHITE）
+         * // 配置Palette，提高颜色提取质量
+         * val palette = Palette.from(bitmap)
+         *     // 增加颜色数量
+         *     .maximumColorCount(32)
+         *     .generate()
+         * // 多种颜色提取策略，提高成功率
+         * val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
+         */
+        @SuppressLint("CheckResult")
+        suspend fun getImageCenterPixelColor(context: Context, imageSource: Any): Int {
+            return withContext(IO) {
+                var bitmap: Bitmap? = null
+                var futureTarget: FutureTarget<Bitmap>? = null
+                try {
+                    // 加载图片时可以指定尺寸，避免过大的Bitmap占用过多内存
+                    futureTarget = Glide.with(context)
+                        .asBitmap()
+                        .also {
+                            when (imageSource) {
+                                is Int -> it.load(imageSource)
+                                is String -> it.load(imageSource)
+                                // 若需支持更多类型（如File、Uri），可补充case
+                                // is File -> requestBuilder.load(imageSource)
+                                // is Uri -> requestBuilder.load(imageSource)
+                            }
+                        }
+                        // 缓存所有版本，减少重复加载
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        // 限制输出200x200像素，平衡精度与内存
+                        .submit(200, 200)
+                    // 等待Glide加载完成，获取Bitmap（超时会抛异常，被catch捕获）
+                    bitmap = futureTarget.get() ?: return@withContext Color.WHITE
+                    // 计算中心像素坐标，获取颜色
+                    bitmap.getCenterPixelColor()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return@withContext Color.WHITE
+                } finally {
+                    // 取消Glide请求，避免内存泄漏
+                    futureTarget?.let {
+                        Glide.with(context).clear(it)
+                    }
+                    bitmap.safeRecycle()
+                }
+            }
+        }
+    }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
@@ -313,9 +301,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 放在start方法之前调取，不然会走默认
      */
-    override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?) {
+    override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?, barList: ArrayList<Pair<Boolean, Int>>?) {
         this.autoScroll = scroll
         this.ovalLayout = ovalLayout
+        this.coverList = barList ?: ArrayList()
         this.advAdapter.setParams(radius, localAsset)
         if (ovalList != null) this.triple = ovalList
     }
@@ -375,9 +364,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 设置广告监听
      */
-    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit, onPagerCurrent: (index: Int) -> Unit) {
+    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit = {}, onPagerCurrent: (index: Int) -> Unit = {}, onPageScrolled: (Pair<Boolean, Int>) -> Unit = {}) {
         this.onPagerClick = onPagerClick
         this.onPagerCurrent = onPagerCurrent
+        this.onPageScrolled = onPageScrolled
     }
     // </editor-fold>
 
