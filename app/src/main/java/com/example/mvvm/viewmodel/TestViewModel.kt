@@ -23,6 +23,7 @@ import com.example.common.utils.builder.suspendingSavePic
 import com.example.common.utils.builder.suspendingSaveView
 import com.example.common.utils.function.byServerUrl
 import com.example.common.utils.function.decodeAsset
+import com.example.common.utils.function.decodeDimensions
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.getBitmap
 import com.example.common.utils.function.insertImageResolver
@@ -32,8 +33,12 @@ import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
 import com.example.framework.utils.function.view.bottomToBottomOf
+import com.example.framework.utils.function.view.bottomToTopOf
+import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.endToEndOf
+import com.example.framework.utils.function.view.endToStartOf
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.safeRecycle
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.startToStartOf
@@ -268,6 +273,112 @@ class TestViewModel : BaseViewModel() {
                 // 开始生成bitmap
                 val shareBit = suspendingSaveView(rootView, 335, 300, true)
 //                shareBit = suspendingSaveView(rootView, 335.pt, 300.pt)
+                // 将bitmap存至本地
+                val filePath = suspendingSavePic(shareBit)
+                // 回收所有引用的bitmap
+                rootView.background.getBitmap()?.safeRecycle()
+                ivQrCode.safeRecycle()
+                shareBg?.bitmap?.safeRecycle()
+                qrBit?.safeRecycle()
+                shareBit.safeRecycle()
+                // 返回本地地址
+                filePath
+            } ?: ""
+        }
+    }
+
+    /**
+     * 通过camera拍摄了一张图片,如果需要分享,需要对原图做一个修改
+     */
+    suspend fun suspendingCameraShare(sourcePath: String): String? {
+        return withContext(IO) {
+            mContext?.let {
+                // 获取拍摄的照片
+                val shareBg = BitmapFactory.decodeFile(sourcePath, BitmapFactory.Options().apply {
+                    // 强制用最高精度格式（支持透明+全色域，4字节/像素）
+                    inPreferredConfig = Bitmap.Config.ARGB_8888
+                    // 禁用系统自动缩放（避免加载时就压缩像素）
+                    inScaled = false
+                    // 禁用内存复用（避免复用低精度 Bitmap 的内存，导致细节丢失）
+                    inMutable = false
+                })?.toDrawable(it.resources)
+                // 获取照片的实际宽高
+                val shotDimensions = sourcePath.decodeDimensions() ?: intArrayOf(0, 0)
+                // 生成父布局
+                val rootView = ConstraintLayout(it)
+                rootView.size(shotDimensions[0], shotDimensions[1])
+                rootView.background = shareBg
+                // 生成底部经纬度布局
+                val latLngView = ConstraintLayout(it)
+                latLngView.id = generateViewId()
+                latLngView.size(shotDimensions[0], 107.pt)
+                latLngView.background(R.mipmap.bg_menu_shadow)
+                latLngView.padding(start = 24.pt, end = 24.pt)
+                rootView.addView(latLngView)
+                rootView.applyConstraints {
+                    val viewId = latLngView.id
+                    bottomToBottomOf(viewId)
+                }
+                // 生成二维码
+                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".byServerUrl
+                val qrBit = QRCodeEncoder.syncEncodeQRCode(content, 400, Color.BLACK, Color.WHITE, mContext.decodeResource(R.mipmap.ic_qr_code))
+                val ivQrCode = ImageView(it)
+                ivQrCode.id = generateViewId()
+                ivQrCode.size(60.pt, 60.pt)
+                ivQrCode.setImageBitmap(qrBit)
+                latLngView.addView(ivQrCode)
+                latLngView.applyConstraints {
+                    val viewId = ivQrCode.id
+                    centerVertically(viewId)
+                    endToEndOf(viewId)
+                }
+                // 生成经纬度
+                val tvLatLng = TextView(it)
+                tvLatLng.id = generateViewId()
+                tvLatLng.text = "经度：120.161893  纬度：30.28989"
+                tvLatLng.setTextAppearance(it, R.style.TextShadow)
+                tvLatLng.textSize(R.dimen.textSize10)
+                tvLatLng.textColor(R.color.textWhite)
+                latLngView.addView(tvLatLng)
+                latLngView.applyConstraints {
+                    val viewId = tvLatLng.id
+                    centerVertically(viewId)
+                    startToStartOf(viewId)
+                    endToEndOf(viewId, ivQrCode.id)
+                }
+                tvLatLng.margin(end = 14.pt)
+                // 生成日期
+                val tvDate = TextView(it)
+                tvDate.id = generateViewId()
+                tvDate.text = "2021年6月20日 21:32:45"
+                tvDate.setTextAppearance(it, R.style.TextShadow)
+                tvDate.textSize(R.dimen.textSize10)
+                tvDate.textColor(R.color.textWhite)
+                latLngView.addView(tvDate)
+                latLngView.applyConstraints {
+                    val viewId = tvDate.id
+                    bottomToTopOf(viewId, tvLatLng.id)
+                    endToStartOf(viewId, ivQrCode.id)
+                    startToStartOf(viewId)
+                }
+                tvDate.margin(bottom = 4.pt)
+                // 生成地址
+                val tvAddress = TextView(it)
+                tvAddress.id = generateViewId()
+                tvAddress.text = "浙江省杭州市余杭区"
+                tvAddress.setTextAppearance(it, R.style.TextShadow)
+                tvAddress.textSize(R.dimen.textSize10)
+                tvAddress.textColor(R.color.textWhite)
+                latLngView.addView(tvAddress)
+                latLngView.applyConstraints {
+                    val viewId = tvAddress.id
+                    topToBottomOf(viewId, tvLatLng.id)
+                    endToStartOf(viewId, ivQrCode.id)
+                    startToStartOf(viewId)
+                }
+                tvAddress.margin(top = 4.pt)
+                // 开始生成bitmap
+                val shareBit = suspendingSaveView(rootView, shotDimensions[0], shotDimensions[1])
                 // 将bitmap存至本地
                 val filePath = suspendingSavePic(shareBit)
                 // 回收所有引用的bitmap
