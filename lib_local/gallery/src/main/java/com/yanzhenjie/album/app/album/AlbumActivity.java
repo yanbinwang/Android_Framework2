@@ -87,6 +87,12 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
         mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
         mMediaReadTask.execute();
+        // 全局返回
+        setOnBackPressedListener(() -> {
+            if (mMediaReadTask != null) mMediaReadTask.cancel(true);
+            callbackCancel();
+            return null;
+        });
     }
 
     private void initializeArgument() {
@@ -484,13 +490,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         } else {
             callbackResult();
         }
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void onBackPressed() {
-        if (mMediaReadTask != null) mMediaReadTask.cancel(true);
-        callbackCancel();
     }
 
     /**

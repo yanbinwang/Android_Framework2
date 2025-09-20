@@ -47,6 +47,10 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             mView.setCurrentItem(sCurrentPosition);
         }
         setCheckedCount();
+        setOnBackPressedListener(() -> {
+            finish();
+            return null;
+        });
     }
 
     private void setCheckedCount() {
@@ -142,11 +146,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             sCallback.onPreviewComplete();
             finish();
         }
-    }
-
-    @Override
-    public void onBackPressed() {
-        finish();
     }
 
     @Override

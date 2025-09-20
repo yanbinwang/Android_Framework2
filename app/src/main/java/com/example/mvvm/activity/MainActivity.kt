@@ -394,17 +394,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
-            navigation(ARouterPath.AdActivity)
+//            navigation(ARouterPath.AdActivity)
 //            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions {
-//                if (it) {
-//                    gallery.imageSelection(hasDurban = true)
-////                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
+            mPermission.requestPermissions {isGranted, permissions ->
+                if (isGranted) {
+                    gallery.imageSelection(hasDurban = true)
+//                    navigation(ARouterPath.TestActivity)
+                }
+            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
