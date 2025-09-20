@@ -70,8 +70,8 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         AlbumFile albumFile = sAlbumFiles.get(position);
         mView.setChecked(albumFile.isChecked());
         mView.setLayerDisplay(albumFile.isDisable());
-        if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
-            mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
+        if (albumFile.getMMediaType() == AlbumFile.TYPE_VIDEO) {
+            mView.setDuration(AlbumUtils.convertDuration(albumFile.getMDuration()));
             mView.setDurationDisplay(true);
         } else {
             mView.setDurationDisplay(false);

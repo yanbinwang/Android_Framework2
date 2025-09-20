@@ -79,9 +79,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
         // 设置图标样式
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getMStatusBarColor());
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getMNavigationBarColor());
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getMNavigationBarColor());
         // 扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
@@ -110,7 +110,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * @return layout id.
      */
     private int createView() {
-        switch (mWidget.getUiStyle()) {
+        switch (mWidget.getMUiStyle()) {
             case Widget.STYLE_DARK: {
                 return R.layout.album_activity_album_dark;
             }
@@ -261,7 +261,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (mCurrentFolder == 0) {
             filePath = AlbumUtils.randomJPGPath();
         } else {
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
+            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getMPath());
             filePath = AlbumUtils.randomJPGPath(file.getParentFile());
         }
         Album.camera(this)
@@ -276,7 +276,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (mCurrentFolder == 0) {
             filePath = AlbumUtils.randomMP4Path();
         } else {
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
+            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getMPath());
             filePath = AlbumUtils.randomMP4Path(file.getParentFile());
         }
         Album.camera(this)

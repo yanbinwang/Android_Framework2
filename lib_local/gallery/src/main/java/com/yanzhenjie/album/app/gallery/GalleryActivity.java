@@ -44,7 +44,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
         mCheckedMap = new HashMap<>();
         for (String path : mPathList) mCheckedMap.put(path, true);
-        mView.setTitle(mWidget.getTitle());
+        mView.setTitle(mWidget.getMTitle());
         mView.setupViews(mWidget, mCheckable);
         if (!mCheckable) mView.setBottomDisplay(false);
         mView.setLayerDisplay(false);

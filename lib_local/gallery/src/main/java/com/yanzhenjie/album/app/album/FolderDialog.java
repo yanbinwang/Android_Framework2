@@ -37,7 +37,7 @@ public class FolderDialog extends BottomSheetDialog {
         RecyclerView recyclerView = getDelegate().findViewById(R.id.rv_content_list);
         assert recyclerView != null;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
+        mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getMBucketItemCheckSelector());
         mFolderAdapter.setItemClickListener((view, position) -> {
             if (mCurrentPosition != position) {
                 mAlbumFolders.get(mCurrentPosition).setChecked(false);

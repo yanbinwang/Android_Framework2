@@ -83,9 +83,9 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         AlbumFile albumFile = mAlbumFiles.get(position);
         if (mCheckable) mView.setChecked(albumFile.isChecked());
         mView.setLayerDisplay(albumFile.isDisable());
-        if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
+        if (albumFile.getMMediaType() == AlbumFile.TYPE_VIDEO) {
             if (!mCheckable) mView.setBottomDisplay(true);
-            mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
+            mView.setDuration(AlbumUtils.convertDuration(albumFile.getMDuration()));
             mView.setDurationDisplay(true);
         } else {
             if (!mCheckable) mView.setBottomDisplay(false);

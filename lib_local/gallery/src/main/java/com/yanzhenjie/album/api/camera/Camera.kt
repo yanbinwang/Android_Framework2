@@ -1,18 +1,18 @@
-package com.yanzhenjie.album.api.camera;
+package com.yanzhenjie.album.api.camera
 
 /**
  * Created by YanZhenjie on 2017/8/18.
  */
-public interface Camera<Image, Video> {
+interface Camera<Image, Video> {
 
     /**
      * Take picture.
      */
-    Image image();
+    fun image(): Image
 
     /**
      * Take video.
      */
-    Video video();
+    fun video(): Video
 
 }

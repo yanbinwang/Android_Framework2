@@ -1,23 +1,25 @@
-package com.yanzhenjie.album.provider;
+package com.yanzhenjie.album.provider
 
-import android.content.Context;
-
-import androidx.core.content.FileProvider;
+import android.content.Context
+import androidx.core.content.FileProvider
 
 /**
  * <p>For external access to files.</p>
  * Created by Yan Zhenjie on 2017/3/31.
  */
-public class CameraFileProvider extends FileProvider {
+class CameraFileProvider : FileProvider() {
 
-    /**
-     * Get the provider of the external file path.
-     *
-     * @param context context.
-     * @return provider.
-     */
-    public static String getProviderName(Context context) {
-        return context.getPackageName() + ".app.file.provider";
+    companion object {
+        /**
+         * Get the provider of the external file path.
+         *
+         * @param context context.
+         * @return provider.
+         */
+        @JvmStatic
+        fun getProviderName(context: Context): String {
+            return context.packageName + ".app.file.provider"
+        }
     }
 
 }

@@ -14,8 +14,8 @@ import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFile;
 import com.example.gallery.R;
+import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.impl.OnCheckedClickListener;
 import com.yanzhenjie.album.impl.OnItemClickListener;
 import com.yanzhenjie.album.util.AlbumUtils;
@@ -77,7 +77,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
             default: {
                 position = hasCamera ? position - 1 : position;
                 AlbumFile albumFile = mAlbumFiles.get(position);
-                return albumFile.getMediaType() == AlbumFile.TYPE_VIDEO ? TYPE_VIDEO : TYPE_IMAGE;
+                return albumFile.getMMediaType() == AlbumFile.TYPE_VIDEO ? TYPE_VIDEO : TYPE_IMAGE;
             }
         }
     }
@@ -228,7 +228,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public void setData(AlbumFile albumFile) {
             Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFile);
             mCheckBox.setChecked(albumFile.isChecked());
-            mTvDuration.setText(AlbumUtils.convertDuration(albumFile.getDuration()));
+            mTvDuration.setText(AlbumUtils.convertDuration(albumFile.getMDuration()));
             mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
         }
 

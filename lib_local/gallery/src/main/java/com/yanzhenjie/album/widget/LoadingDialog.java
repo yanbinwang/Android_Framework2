@@ -33,11 +33,11 @@ public class LoadingDialog extends Dialog {
      * @param widget widget.
      */
     public void setupViews(Widget widget) {
-        if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
+        if (widget.getMUiStyle() == Widget.STYLE_LIGHT) {
             int color = ContextCompat.getColor(getContext(), R.color.albumLoadingDark);
             mProgressBar.setColorFilter(color);
         } else {
-            int color = ContextCompat.getColor(getContext(), widget.getStatusBarColor());
+            int color = ContextCompat.getColor(getContext(), widget.getMStatusBarColor());
             mProgressBar.setColorFilter(color);
         }
     }

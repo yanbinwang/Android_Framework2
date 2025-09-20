@@ -72,7 +72,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
             mCompleteMenu.setVisible(false);
             mCheckBox.setVisibility(View.GONE);
         } else {
-            ColorStateList itemSelector = widget.getMediaItemCheckSelector();
+            ColorStateList itemSelector = widget.getMMediaItemCheckSelector();
             mCheckBox.setBackgroundTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);
         }

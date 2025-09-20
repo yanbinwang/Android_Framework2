@@ -1,28 +1,20 @@
-package com.yanzhenjie.album.api.choice;
+package com.yanzhenjie.album.api.choice
 
-import android.content.Context;
-
-import com.yanzhenjie.album.api.AlbumMultipleWrapper;
-import com.yanzhenjie.album.api.AlbumSingleWrapper;
+import android.content.Context
+import com.yanzhenjie.album.api.AlbumMultipleWrapper
+import com.yanzhenjie.album.api.AlbumSingleWrapper
 
 /**
  * Created by YanZhenjie on 2017/8/16.
  */
-public final class AlbumChoice implements Choice<AlbumMultipleWrapper, AlbumSingleWrapper> {
-    private Context mContext;
+class AlbumChoice(private val mContext: Context) : Choice<AlbumMultipleWrapper, AlbumSingleWrapper> {
 
-    public AlbumChoice(Context context) {
-        mContext = context;
+    override fun multipleChoice(): AlbumMultipleWrapper {
+        return AlbumMultipleWrapper(mContext)
     }
 
-    @Override
-    public AlbumMultipleWrapper multipleChoice() {
-        return new AlbumMultipleWrapper(mContext);
-    }
-
-    @Override
-    public AlbumSingleWrapper singleChoice() {
-        return new AlbumSingleWrapper(mContext);
+    override fun singleChoice(): AlbumSingleWrapper {
+        return AlbumSingleWrapper(mContext)
     }
 
 }

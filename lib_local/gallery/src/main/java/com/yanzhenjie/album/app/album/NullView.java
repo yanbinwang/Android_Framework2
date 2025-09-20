@@ -42,13 +42,13 @@ class NullView extends Contract.NullView implements View.OnClickListener {
 
     @Override
     public void setupViews(Widget widget) {
-        int mStatusColor = widget.getStatusBarColor();
+        int mStatusColor = widget.getMStatusBarColor();
         mToolbar.setBackgroundColor(getColor(mStatusColor));
         mToolbar.setSubtitleTextColor(getColor(mStatusColor));
         mToolbar.setTitleTextColor(getColor(mStatusColor));
-        mTitle.setText(widget.getTitle());
+        mTitle.setText(widget.getMTitle());
         Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
-        if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
+        if (widget.getMUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
@@ -56,11 +56,11 @@ class NullView extends Contract.NullView implements View.OnClickListener {
             mTitle.setTextColor(getColor(R.color.textWhite));
             setHomeAsUpIndicator(navigationIcon);
         }
-        Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
-        ColorStateList buttonSelector = buttonStyle.getButtonSelector();
+        Widget.Companion.ButtonStyle buttonStyle = widget.getMButtonStyle();
+        ColorStateList buttonSelector = buttonStyle.getMButtonSelector();
         mBtnTakeImage.setBackgroundTintList(buttonSelector);
         mBtnTakeVideo.setBackgroundTintList(buttonSelector);
-        if (buttonStyle.getUiStyle() == Widget.STYLE_LIGHT) {
+        if (buttonStyle.getMUiStyle() == Widget.STYLE_LIGHT) {
             Drawable drawable = mBtnTakeImage.getCompoundDrawables()[0];
             AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeImage.setCompoundDrawables(drawable, null, null, null);

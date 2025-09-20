@@ -13,7 +13,7 @@ import com.yanzhenjie.album.AlbumLoader
 class GlideLoader : AlbumLoader {
 
     override fun load(imageView: ImageView, albumFile: AlbumFile) {
-        load(imageView, albumFile.path)
+        load(imageView, albumFile.mPath.orEmpty())
     }
 
     override fun load(imageView: ImageView, url: String) {

@@ -78,12 +78,12 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
 
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
-        int mStatusColor = widget.getStatusBarColor();
-        mTitle.setText(widget.getTitle());
+        int mStatusColor = widget.getMStatusBarColor();
+        mTitle.setText(widget.getMTitle());
         mToolbar.setBackgroundColor(getColor(mStatusColor));
         mToolbar.setSubtitleTextColor(getColor(mStatusColor));
         mToolbar.setTitleTextColor(getColor(mStatusColor));
-        if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
+        if (widget.getMUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
             Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
@@ -95,7 +95,7 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
             mCompleteMenu.setIcon(completeIcon);
         } else {
             mTitle.setTextColor(getColor(R.color.textWhite));
-            mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
+            mProgressBar.setColorFilter(getColor(widget.getMStatusBarColor()));
             setHomeAsUpIndicator(R.drawable.album_ic_back_white);
         }
         if (choiceMode == Album.MODE_SINGLE) {
@@ -106,7 +106,7 @@ class AlbumView extends Contract.AlbumView implements View.OnClickListener {
         mRecyclerView.setLayoutManager(mLayoutManager);
         int dividerSize = getResources().getDimensionPixelSize(R.dimen.album_dp_4);
         mRecyclerView.addItemDecoration(new Api21ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize));
-        mAdapter = new AlbumAdapter(getContext(), hasCamera, choiceMode, widget.getMediaItemCheckSelector());
+        mAdapter = new AlbumAdapter(getContext(), hasCamera, choiceMode, widget.getMMediaItemCheckSelector());
         mAdapter.setAddClickListener((view, position) -> getPresenter().clickCamera(view));
         mAdapter.setCheckedClickListener((button, position) -> getPresenter().tryCheckItem(button, position));
         mAdapter.setItemClickListener((view, position) -> getPresenter().tryPreviewItem(position));

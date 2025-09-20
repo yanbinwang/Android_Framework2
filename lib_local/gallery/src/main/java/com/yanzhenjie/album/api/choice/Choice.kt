@@ -1,18 +1,18 @@
-package com.yanzhenjie.album.api.choice;
+package com.yanzhenjie.album.api.choice
 
 /**
  * Created by YanZhenjie on 2017/8/16.
  */
-public interface Choice<Multiple, Single> {
+interface Choice<Multiple, Single> {
 
     /**
      * Multiple choice.
      */
-    Multiple multipleChoice();
+    fun multipleChoice(): Multiple
 
     /**
      * Single choice.
      */
-    Single singleChoice();
+    fun singleChoice(): Single
 
 }

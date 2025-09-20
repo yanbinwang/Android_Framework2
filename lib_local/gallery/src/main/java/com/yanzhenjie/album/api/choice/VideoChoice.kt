@@ -1,28 +1,20 @@
-package com.yanzhenjie.album.api.choice;
+package com.yanzhenjie.album.api.choice
 
-import android.content.Context;
-
-import com.yanzhenjie.album.api.VideoMultipleWrapper;
-import com.yanzhenjie.album.api.VideoSingleWrapper;
+import android.content.Context
+import com.yanzhenjie.album.api.VideoMultipleWrapper
+import com.yanzhenjie.album.api.VideoSingleWrapper
 
 /**
  * Created by YanZhenjie on 2017/8/16.
  */
-public final class VideoChoice implements Choice<VideoMultipleWrapper, VideoSingleWrapper> {
-    private Context mContext;
+class VideoChoice(private val mContext: Context) : Choice<VideoMultipleWrapper, VideoSingleWrapper> {
 
-    public VideoChoice(Context context) {
-        mContext = context;
+    override fun multipleChoice(): VideoMultipleWrapper {
+        return VideoMultipleWrapper(mContext)
     }
 
-    @Override
-    public VideoMultipleWrapper multipleChoice() {
-        return new VideoMultipleWrapper(mContext);
-    }
-
-    @Override
-    public VideoSingleWrapper singleChoice() {
-        return new VideoSingleWrapper(mContext);
+    override fun singleChoice(): VideoSingleWrapper {
+        return VideoSingleWrapper(mContext)
     }
 
 }

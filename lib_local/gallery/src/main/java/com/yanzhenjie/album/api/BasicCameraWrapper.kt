@@ -1,22 +1,20 @@
-package com.yanzhenjie.album.api;
+package com.yanzhenjie.album.api
 
-import android.content.Context;
-
-import androidx.annotation.Nullable;
-
-import com.yanzhenjie.album.Action;
+import android.content.Context
+import com.yanzhenjie.album.Action
 
 /**
  * Created by YanZhenjie on 2017/8/18.
  */
-public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
-    String mFilePath;
-    Context mContext;
-    Action<String> mResult;
-    Action<String> mCancel;
+@Suppress("FINITE_BOUNDS_VIOLATION_IN_JAVA")
+abstract class BasicCameraWrapper<Returner : BasicCameraWrapper<Returner>>(context: Context) {
+    var mFilePath: String? = null
+    var mContext: Context? = null
+    var mResult: Action<String>? = null
+    var mCancel: Action<String>? = null
 
-    public BasicCameraWrapper(Context context) {
-        this.mContext = context;
+    init {
+        this.mContext = context
     }
 
     /**
@@ -24,9 +22,9 @@ public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
      *
      * @param result action when producing result.
      */
-    public final Returner onResult(Action<String> result) {
-        this.mResult = result;
-        return (Returner) this;
+    fun onResult(result: Action<String>): Returner {
+        this.mResult = result
+        return this as Returner
     }
 
     /**
@@ -34,9 +32,9 @@ public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
      *
      * @param cancel action when canceled.
      */
-    public final Returner onCancel(Action<String> cancel) {
-        this.mCancel = cancel;
-        return (Returner) this;
+    fun onCancel(cancel: Action<String>): Returner {
+        this.mCancel = cancel
+        return this as Returner
     }
 
     /**
@@ -44,14 +42,14 @@ public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
      *
      * @param filePath storage path.
      */
-    public Returner filePath(@Nullable String filePath) {
-        this.mFilePath = filePath;
-        return (Returner) this;
+    fun filePath(filePath: String): Returner {
+        this.mFilePath = filePath
+        return this as Returner
     }
 
     /**
      * Start up.
      */
-    public abstract void start();
+    abstract fun start()
 
 }

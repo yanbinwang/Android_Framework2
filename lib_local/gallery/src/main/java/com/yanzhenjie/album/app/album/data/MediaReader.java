@@ -77,14 +77,14 @@ public class MediaReader {
                 float longitude = cursor.getFloat(5);
                 long size = cursor.getLong(6);
                 AlbumFile imageFile = new AlbumFile();
-                imageFile.setMediaType(AlbumFile.TYPE_IMAGE);
-                imageFile.setPath(path);
-                imageFile.setBucketName(bucketName);
-                imageFile.setMimeType(mimeType);
-                imageFile.setAddDate(addDate);
-                imageFile.setLatitude(latitude);
-                imageFile.setLongitude(longitude);
-                imageFile.setSize(size);
+                imageFile.setMMediaType(AlbumFile.TYPE_IMAGE);
+                imageFile.setMPath(path);
+                imageFile.setMBucketName(bucketName);
+                imageFile.setMMimeType(mimeType);
+                imageFile.setMAddDate(addDate);
+                imageFile.setMLatitude(latitude);
+                imageFile.setMLongitude(longitude);
+                imageFile.setMSize(size);
                 if (mSizeFilter != null && mSizeFilter.filter(size)) {
                     if (!mFilterVisibility) continue;
                     imageFile.setDisable(true);
@@ -126,15 +126,15 @@ public class MediaReader {
                 long size = cursor.getLong(6);
                 long duration = cursor.getLong(7);
                 AlbumFile videoFile = new AlbumFile();
-                videoFile.setMediaType(AlbumFile.TYPE_VIDEO);
-                videoFile.setPath(path);
-                videoFile.setBucketName(bucketName);
-                videoFile.setMimeType(mimeType);
-                videoFile.setAddDate(addDate);
-                videoFile.setLatitude(latitude);
-                videoFile.setLongitude(longitude);
-                videoFile.setSize(size);
-                videoFile.setDuration(duration);
+                videoFile.setMMediaType(AlbumFile.TYPE_VIDEO);
+                videoFile.setMPath(path);
+                videoFile.setMBucketName(bucketName);
+                videoFile.setMMimeType(mimeType);
+                videoFile.setMAddDate(addDate);
+                videoFile.setMLatitude(latitude);
+                videoFile.setMLongitude(longitude);
+                videoFile.setMSize(size);
+                videoFile.setMDuration(duration);
                 if (mSizeFilter != null && mSizeFilter.filter(size)) {
                     if (!mFilterVisibility) continue;
                     videoFile.setDisable(true);

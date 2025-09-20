@@ -10,9 +10,11 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.hour
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.gallery.R
 import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.Filter
 import com.yanzhenjie.album.api.ImageCameraWrapper
 import com.yanzhenjie.album.api.ImageMultipleWrapper
 import com.yanzhenjie.album.api.ImageSingleWrapper
@@ -71,7 +73,7 @@ class GalleryHelper {
      */
     private fun Context?.getAlbumWidget(color: Int = R.color.bgBlack): Widget? {
         this ?: return null
-        return Widget.newDarkBuilder(this)
+        return Widget.newDarkBuilder()
             //标题 ---标题颜色只有黑色白色
             .title(string(R.string.albumTitle))
             //状态栏颜色
@@ -121,23 +123,31 @@ class GalleryHelper {
             //多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
             ?.singleChoice()
             //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-            ?.widget(widget)
+            ?.also { multiple ->
+                widget?.let {
+                    multiple.widget(it)
+                }
+            }
             //是否具备相机
             ?.camera(hasCamera)
             //页面列表的列数
             ?.columnCount(3)
             //防止加载系统缓存图片
-            ?.filterSize { it == 0L }
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             //筛选文件的可见性
             ?.afterFilterVisibility(false)
             //选择后回调
             ?.onResult {
                 it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
+                    if (mSize.orZero > megabyte.mb) {
                         string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    if (hasDurban) toDurban(path) else listener.invoke(path)
+                    if (hasDurban) toDurban(mPath.orEmpty()) else listener.invoke(mPath)
                 }
             }
             ?.start()
@@ -149,18 +159,26 @@ class GalleryHelper {
     fun videoSelection(megabyte: Long = 100, listener: (albumPath: String?) -> Unit = {}) {
         videoMultiple
             ?.singleChoice()
-            ?.widget(widget)
+            ?.also { multiple ->
+                widget?.let {
+                    multiple.widget(it)
+                }
+            }
             ?.camera(true)
             ?.columnCount(3)
-            ?.filterSize { it == 0L }
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             ?.afterFilterVisibility(false)
             ?.onResult {
                 it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
+                    if (mSize.orZero > megabyte.mb) {
                         string(R.string.albumVideoError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    listener.invoke(path)
+                    listener.invoke(mPath)
                 }
             }
             ?.start()

@@ -1,57 +1,54 @@
-package com.yanzhenjie.album.util;
+package com.yanzhenjie.album.util
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.webkit.MimeTypeMap;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.core.graphics.drawable.DrawableCompat;
-
-import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.divider.Api20ItemDivider;
-import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
-import com.yanzhenjie.album.widget.divider.Divider;
-
-import java.io.File;
-import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import android.R
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.webkit.MimeTypeMap
+import androidx.annotation.ColorInt
+import androidx.annotation.IntRange
+import androidx.core.content.FileProvider.getUriForFile
+import androidx.core.graphics.drawable.DrawableCompat
+import com.yanzhenjie.album.provider.CameraFileProvider
+import com.yanzhenjie.album.widget.divider.Api20ItemDivider
+import com.yanzhenjie.album.widget.divider.Api21ItemDivider
+import com.yanzhenjie.album.widget.divider.Divider
+import java.io.File
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 /**
  * <p>Helper for album.</p>
  * Created by Yan Zhenjie on 2016/10/30.
  */
-public class AlbumUtils {
-    private static final String CACHE_DIRECTORY = "AlbumCache";
+object AlbumUtils {
+    private const val CACHE_DIRECTORY = "AlbumCache"
 
     /**
      * Get a writable root directory.
      *
      * @param context context.
-     * @return {@link File}.
+     * @return [File].
      */
-    @NonNull
-    public static File getAlbumRootPath(Context context) {
-        if (sdCardIsAvailable()) {
-            return new File(Environment.getExternalStorageDirectory(), CACHE_DIRECTORY);
+    @JvmStatic
+    fun getAlbumRootPath(context: Context): File {
+        return if (sdCardIsAvailable()) {
+            File(Environment.getExternalStorageDirectory(), CACHE_DIRECTORY)
         } else {
-            return new File(context.getFilesDir(), CACHE_DIRECTORY);
+            File(context.filesDir, CACHE_DIRECTORY)
         }
     }
 
@@ -60,49 +57,53 @@ public class AlbumUtils {
      *
      * @return true when available, other wise is false.
      */
-    public static boolean sdCardIsAvailable() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            return Environment.getExternalStorageDirectory().canWrite();
-        } else
-            return false;
+    @JvmStatic
+    fun sdCardIsAvailable(): Boolean {
+        return if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+            Environment.getExternalStorageDirectory().canWrite()
+        } else {
+            false
+        }
     }
 
     /**
      * Take picture.
      *
      * @param activity    activity.
-     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
+     * @param requestCode code, see [`onActivityResult`(int, int, Intent)][Activity].
      * @param outPath     file path.
      */
-    public static void takeImage(@NonNull Activity activity, int requestCode, File outPath) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = getUri(activity, outPath);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        activity.startActivityForResult(intent, requestCode);
+    @JvmStatic
+    fun takeImage(activity: Activity, requestCode: Int, outPath: File) {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val uri = getUri(activity, outPath)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        activity.startActivityForResult(intent, requestCode)
     }
 
     /**
      * Take video.
      *
      * @param activity    activity.
-     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
+     * @param requestCode code, see [`onActivityResult`(int, int, Intent)][Activity].
      * @param outPath     file path.
      * @param quality     currently value 0 means low quality, suitable for MMS messages, and  value 1 means high quality.
      * @param duration    specify the maximum allowed recording duration in seconds.
      * @param limitBytes  specify the maximum allowed size.
      */
-    public static void takeVideo(@NonNull Activity activity, int requestCode, File outPath, @IntRange(from = 0, to = 1) int quality, @IntRange(from = 1) long duration, @IntRange(from = 1) long limitBytes) {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        Uri uri = getUri(activity, outPath);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality);
-        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, duration);
-        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, limitBytes);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        activity.startActivityForResult(intent, requestCode);
+    @JvmStatic
+    fun takeVideo(activity: Activity, requestCode: Int, outPath: File, @IntRange(from = 0, to = 1) quality: Int, @IntRange(from = 1) duration: Long, @IntRange(from = 1) limitBytes: Long) {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        val uri = getUri(activity, outPath)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
+        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, duration)
+        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, limitBytes)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        activity.startActivityForResult(intent, requestCode)
     }
 
     /**
@@ -112,28 +113,27 @@ public class AlbumUtils {
      * @param outPath file path.
      * @return the uri address of the file.
      */
-    @NonNull
-    public static Uri getUri(@NonNull Context context, @NonNull File outPath) {
-        Uri uri;
+    @JvmStatic
+    fun getUri(context: Context, outPath: File): Uri {
+        val uri: Uri
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            uri = Uri.fromFile(outPath);
+            uri = Uri.fromFile(outPath)
         } else {
-            uri = CameraFileProvider.getUriForFile(context, CameraFileProvider.getProviderName(context), outPath);
+            uri = getUriForFile(context, CameraFileProvider.getProviderName(context), outPath)
         }
-        return uri;
+        return uri
     }
 
     /**
      * Generate a random jpg file path.
      *
      * @return file path.
-     * @deprecated use {@link #randomJPGPath(Context)} instead.
      */
-    @NonNull
-    @Deprecated
-    public static String randomJPGPath() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        return randomJPGPath(bucket);
+    @Deprecated("use {@link #randomJPGPath(Context)} instead.")
+    @JvmStatic
+    fun randomJPGPath(): String {
+        val bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+        return randomJPGPath(bucket)
     }
 
     /**
@@ -142,12 +142,12 @@ public class AlbumUtils {
      * @param context context.
      * @return file path.
      */
-    @NonNull
-    public static String randomJPGPath(Context context) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return randomJPGPath(context.getCacheDir());
+    @JvmStatic
+    fun randomJPGPath(context: Context): String {
+        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
+            return randomJPGPath(context.cacheDir)
         }
-        return randomJPGPath();
+        return randomJPGPath()
     }
 
     /**
@@ -156,22 +156,21 @@ public class AlbumUtils {
      * @param bucket specify the directory.
      * @return file path.
      */
-    @NonNull
-    public static String randomJPGPath(File bucket) {
-        return randomMediaPath(bucket, ".jpg");
+    @JvmStatic
+    fun randomJPGPath(bucket: File): String {
+        return randomMediaPath(bucket, ".jpg")
     }
 
     /**
      * Generate a random mp4 file path.
      *
      * @return file path.
-     * @deprecated use {@link #randomMP4Path(Context)} instead.
      */
-    @NonNull
-    @Deprecated
-    public static String randomMP4Path() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        return randomMP4Path(bucket);
+    @Deprecated("use {@link #randomMP4Path(Context)} instead.")
+    @JvmStatic
+    fun randomMP4Path(): String {
+        val bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+        return randomMP4Path(bucket)
     }
 
     /**
@@ -180,12 +179,12 @@ public class AlbumUtils {
      * @param context context.
      * @return file path.
      */
-    @NonNull
-    public static String randomMP4Path(Context context) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return randomMP4Path(context.getCacheDir());
+    @JvmStatic
+    fun randomMP4Path(context: Context): String {
+        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
+            return randomMP4Path(context.cacheDir)
         }
-        return randomMP4Path();
+        return randomMP4Path()
     }
 
     /**
@@ -193,9 +192,9 @@ public class AlbumUtils {
      *
      * @return file path.
      */
-    @NonNull
-    public static String randomMP4Path(File bucket) {
-        return randomMediaPath(bucket, ".mp4");
+    @JvmStatic
+    fun randomMP4Path(bucket: File): String {
+        return randomMediaPath(bucket, ".mp4")
     }
 
     /**
@@ -205,13 +204,12 @@ public class AlbumUtils {
      * @param extension extension.
      * @return file path.
      */
-    @NonNull
-    private static String randomMediaPath(File bucket, String extension) {
-        if (bucket.exists() && bucket.isFile()) bucket.delete();
-        if (!bucket.exists()) bucket.mkdirs();
-        String outFilePath = AlbumUtils.getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension;
-        File file = new File(bucket, outFilePath);
-        return file.getAbsolutePath();
+    private fun randomMediaPath(bucket: File, extension: String?): String {
+        if (bucket.exists() && bucket.isFile()) bucket.delete()
+        if (!bucket.exists()) bucket.mkdirs()
+        val outFilePath = getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension
+        val file = File(bucket, outFilePath)
+        return file.absolutePath
     }
 
     /**
@@ -219,11 +217,11 @@ public class AlbumUtils {
      *
      * @return the time string.
      */
-    @NonNull
-    public static String getNowDateTime(@NonNull String format) {
-        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.ENGLISH);
-        Date curDate = new Date(System.currentTimeMillis());
-        return formatter.format(curDate);
+    @JvmStatic
+    fun getNowDateTime(format: String): String {
+        val formatter = SimpleDateFormat(format, Locale.ENGLISH)
+        val curDate = Date(System.currentTimeMillis())
+        return formatter.format(curDate)
     }
 
     /**
@@ -232,11 +230,12 @@ public class AlbumUtils {
      * @param url file url.
      * @return mime type.
      */
-    public static String getMimeType(String url) {
-        String extension = getExtension(url);
-        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return "";
-        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        return TextUtils.isEmpty(mimeType) ? "" : mimeType;
+    @JvmStatic
+    fun getMimeType(url: String?): String {
+        val extension = getExtension(url)
+        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return ""
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+        return if (mimeType.isNullOrEmpty()) "" else mimeType
     }
 
     /**
@@ -245,53 +244,58 @@ public class AlbumUtils {
      * @param url file url.
      * @return extension.
      */
-    public static String getExtension(String url) {
-        url = TextUtils.isEmpty(url) ? "" : url.toLowerCase();
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        return TextUtils.isEmpty(extension) ? "" : extension;
+    @JvmStatic
+    fun getExtension(url: String?): String {
+        var mUrl = url
+        mUrl = if (mUrl.isNullOrEmpty()) "" else mUrl.lowercase(Locale.getDefault())
+        val extension = MimeTypeMap.getFileExtensionFromUrl(mUrl)
+        return (if (extension.isNullOrEmpty()) "" else extension)
     }
 
     /**
-     * Specifies a tint for {@code drawable}.
+     * Specifies a tint for `drawable`.
      *
      * @param drawable drawable target, mutate.
      * @param color    color.
      */
-    public static void setDrawableTint(@NonNull Drawable drawable, @ColorInt int color) {
-        DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color);
+    @JvmStatic
+    fun setDrawableTint(drawable: Drawable, @ColorInt color: Int) {
+        DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color)
     }
 
     /**
-     * Specifies a tint for {@code drawable}.
+     * Specifies a tint for `drawable`.
      *
      * @param drawable drawable target, mutate.
      * @param color    color.
      * @return convert drawable.
      */
-    @NonNull
-    public static Drawable getTintDrawable(@NonNull Drawable drawable, @ColorInt int color) {
-        drawable = DrawableCompat.wrap(drawable.mutate());
-        DrawableCompat.setTint(drawable, color);
-        return drawable;
+    @JvmStatic
+    fun getTintDrawable(drawable: Drawable, @ColorInt color: Int): Drawable {
+        var drawable = drawable
+        drawable = DrawableCompat.wrap(drawable.mutate())
+        DrawableCompat.setTint(drawable, color)
+        return drawable
     }
 
     /**
-     * {@link ColorStateList}.
+     * [ColorStateList].
      *
      * @param normal    normal color.
      * @param highLight highLight color.
-     * @return {@link ColorStateList}.
+     * @return [ColorStateList].
      */
-    public static ColorStateList getColorStateList(@ColorInt int normal, @ColorInt int highLight) {
-        int[][] states = new int[6][];
-        states[0] = new int[]{android.R.attr.state_checked};
-        states[1] = new int[]{android.R.attr.state_pressed};
-        states[2] = new int[]{android.R.attr.state_selected};
-        states[3] = new int[]{};
-        states[4] = new int[]{};
-        states[5] = new int[]{};
-        int[] colors = new int[]{highLight, highLight, highLight, normal, normal, normal};
-        return new ColorStateList(states, colors);
+    @JvmStatic
+    fun getColorStateList(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
+        val states = arrayOfNulls<IntArray>(6)
+        states[0] = intArrayOf(R.attr.state_checked)
+        states[1] = intArrayOf(R.attr.state_pressed)
+        states[2] = intArrayOf(R.attr.state_selected)
+        states[3] = intArrayOf()
+        states[4] = intArrayOf()
+        states[5] = intArrayOf()
+        val colors = intArrayOf(highLight, highLight, highLight, normal, normal, normal)
+        return ColorStateList(states, colors)
     }
 
     /**
@@ -301,13 +305,13 @@ public class AlbumUtils {
      * @param start   start index.
      * @param end     end index.
      * @param color   color.
-     * @return {@code SpannableString}.
+     * @return `SpannableString`.
      */
-    @NonNull
-    public static SpannableString getColorText(@NonNull CharSequence content, int start, int end, @ColorInt int color) {
-        SpannableString stringSpan = new SpannableString(content);
-        stringSpan.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return stringSpan;
+    @JvmStatic
+    fun getColorText(content: CharSequence, start: Int, end: Int, @ColorInt color: Int): SpannableString {
+        val stringSpan = SpannableString(content)
+        stringSpan.setSpan(ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return stringSpan
     }
 
     /**
@@ -317,69 +321,70 @@ public class AlbumUtils {
      * @param alpha alpha, alpha component [0..255] of the color.
      */
     @ColorInt
-    public static int getAlphaColor(@ColorInt int color, @IntRange(from = 0, to = 255) int alpha) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        return Color.argb(alpha, red, green, blue);
+    @JvmStatic
+    fun getAlphaColor(@ColorInt color: Int, @IntRange(from = 0, to = 255) alpha: Int): Int {
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+        return Color.argb(alpha, red, green, blue)
     }
 
     /**
      * Generate divider.
      *
      * @param color color.
-     * @return {@link Divider}.
+     * @return [Divider].
      */
-    public static Divider getDivider(@ColorInt int color) {
+    @JvmStatic
+    fun getDivider(@ColorInt color: Int): Divider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new Api21ItemDivider(color);
+            return Api21ItemDivider(color)
         }
-        return new Api20ItemDivider(color);
+        return Api20ItemDivider(color)
     }
 
     /**
      * Time conversion.
      *
      * @param duration ms.
-     * @return such as: {@code 00:00:00}, {@code 00:00}.
+     * @return such as: `00:00:00`, `00:00`.
      */
-    @NonNull
-    public static String convertDuration(@IntRange(from = 1) long duration) {
-        duration /= 1000;
-        int hour = (int) (duration / 3600);
-        int minute = (int) ((duration - hour * 3600) / 60);
-        int second = (int) (duration - hour * 3600 - minute * 60);
-        String hourValue = "";
-        String minuteValue;
-        String secondValue;
+    @JvmStatic
+    fun convertDuration(@IntRange(from = 1) duration: Long): String {
+        var duration = duration
+        duration /= 1000
+        val hour = (duration / 3600).toInt()
+        val minute = ((duration - hour * 3600) / 60).toInt()
+        val second = (duration - hour * 3600 - minute * 60).toInt()
+        var hourValue = ""
         if (hour > 0) {
-            if (hour >= 10) {
-                hourValue = Integer.toString(hour);
+            hourValue = if (hour >= 10) {
+                hour.toString()
             } else {
-                hourValue = "0" + hour;
+                "0$hour"
             }
-            hourValue += ":";
+            hourValue += ":"
         }
-        if (minute > 0) {
+        var minuteValue = if (minute > 0) {
             if (minute >= 10) {
-                minuteValue = Integer.toString(minute);
+                minute.toString()
             } else {
-                minuteValue = "0" + minute;
+                "0$minute"
             }
         } else {
-            minuteValue = "00";
+            "00"
         }
-        minuteValue += ":";
-        if (second > 0) {
+        minuteValue += ":"
+        val secondValue = if (second > 0) {
             if (second >= 10) {
-                secondValue = Integer.toString(second);
+                second.toString()
             } else {
-                secondValue = "0" + second;
+                "0$second"
             }
         } else {
-            secondValue = "00";
+            "00"
         }
-        return hourValue + minuteValue + secondValue;
+        return hourValue + minuteValue + secondValue
     }
 
     /**
@@ -388,26 +393,27 @@ public class AlbumUtils {
      * @param content the target string.
      * @return the MD5 value.
      */
-    public static String getMD5ForString(String content) {
-        StringBuilder md5Buffer = new StringBuilder();
+    @JvmStatic
+    fun getMD5ForString(content: String): String {
+        val md5Buffer = StringBuilder()
         try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] tempBytes = digest.digest(content.getBytes());
-            int digital;
-            for (int i = 0; i < tempBytes.length; i++) {
-                digital = tempBytes[i];
+            val digest = MessageDigest.getInstance("MD5")
+            val tempBytes = digest.digest(content.toByteArray())
+            var digital: Int
+            for (i in tempBytes.indices) {
+                digital = tempBytes[i].toInt()
                 if (digital < 0) {
-                    digital += 256;
+                    digital += 256
                 }
                 if (digital < 16) {
-                    md5Buffer.append("0");
+                    md5Buffer.append("0")
                 }
-                md5Buffer.append(Integer.toHexString(digital));
+                md5Buffer.append(Integer.toHexString(digital))
             }
-        } catch (Exception ignored) {
-            return Integer.toString(content.hashCode());
+        } catch (_: Exception) {
+            return content.hashCode().toString()
         }
-        return md5Buffer.toString();
+        return md5Buffer.toString()
     }
 
 }

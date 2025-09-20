@@ -43,11 +43,11 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
     @Override
     protected ArrayList<AlbumFile> doInBackground(Void... params) {
         for (AlbumFile albumFile : mAlbumFiles) {
-            int mediaType = albumFile.getMediaType();
+            int mediaType = albumFile.getMMediaType();
             if (mediaType == AlbumFile.TYPE_IMAGE) {
-                albumFile.setThumbPath(mThumbnailBuilder.createThumbnailForImage(albumFile.getPath()));
+                albumFile.setMThumbPath(mThumbnailBuilder.createThumbnailForImage(albumFile.getMPath()));
             } else if (mediaType == AlbumFile.TYPE_VIDEO) {
-                albumFile.setThumbPath(mThumbnailBuilder.createThumbnailForVideo(albumFile.getPath()));
+                albumFile.setMThumbPath(mThumbnailBuilder.createThumbnailForVideo(albumFile.getMPath()));
             }
         }
         return mAlbumFiles;

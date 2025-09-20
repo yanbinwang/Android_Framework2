@@ -31,14 +31,14 @@ public class PathConversion {
     public AlbumFile convert(String filePath) {
         File file = new File(filePath);
         AlbumFile albumFile = new AlbumFile();
-        albumFile.setPath(filePath);
+        albumFile.setMPath(filePath);
         File parentFile = file.getParentFile();
-        albumFile.setBucketName(parentFile.getName());
+        albumFile.setMBucketName(parentFile.getName());
         String mimeType = AlbumUtils.getMimeType(filePath);
-        albumFile.setMimeType(mimeType);
+        albumFile.setMMimeType(mimeType);
         long nowTime = System.currentTimeMillis();
-        albumFile.setAddDate(nowTime);
-        albumFile.setSize(file.length());
+        albumFile.setMAddDate(nowTime);
+        albumFile.setMSize(file.length());
         int mediaType = 0;
         if (!TextUtils.isEmpty(mimeType)) {
             if (mimeType.contains("video"))
@@ -46,7 +46,7 @@ public class PathConversion {
             if (mimeType.contains("image"))
                 mediaType = AlbumFile.TYPE_IMAGE;
         }
-        albumFile.setMediaType(mediaType);
+        albumFile.setMMediaType(mediaType);
         if (mSizeFilter != null && mSizeFilter.filter(file.length())) {
             albumFile.setDisable(true);
         }
@@ -58,13 +58,13 @@ public class PathConversion {
             try {
                 player.setDataSource(filePath);
                 player.prepare();
-                albumFile.setDuration(player.getDuration());
+                albumFile.setMDuration((long) player.getDuration());
             } catch (Exception ignored) {
             } finally {
                 player.release();
             }
 
-            if (mDurationFilter != null && mDurationFilter.filter(albumFile.getDuration())) {
+            if (mDurationFilter != null && mDurationFilter.filter(albumFile.getMDuration())) {
                 albumFile.setDisable(true);
             }
         }

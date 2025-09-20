@@ -1,165 +1,170 @@
-package com.yanzhenjie.album.util;
+package com.yanzhenjie.album.util
 
-import android.app.Activity;
-import android.graphics.Color;
-import android.os.Build;
-import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-
-import androidx.annotation.RequiresApi;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import android.annotation.SuppressLint
+import android.app.Activity
+import android.graphics.Color
+import android.os.Build
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
+import androidx.annotation.RequiresApi
 
 /**
  * Created by YanZhenjie on 2018/4/10.
  */
-public class SystemBar {
+@SuppressLint("ObsoleteSdkInt")
+object SystemBar {
 
     /**
      * Set the status bar color.
      */
-    public static void setStatusBarColor(Activity activity, int statusBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            setStatusBarColor(activity.getWindow(), statusBarColor);
+    @JvmStatic
+    fun setStatusBarColor(activity: Activity, statusBarColor: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setStatusBarColor(activity.window, statusBarColor)
     }
 
     /**
      * Set the status bar color.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void setStatusBarColor(Window window, int statusBarColor) {
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setStatusBarColor(statusBarColor);
+    @JvmStatic
+    fun setStatusBarColor(window: Window, statusBarColor: Int) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.statusBarColor = statusBarColor
     }
 
     /**
      * Set the navigation bar color.
      */
-    public static void setNavigationBarColor(Activity activity, int navigationBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            setNavigationBarColor(activity.getWindow(), navigationBarColor);
+    @JvmStatic
+    fun setNavigationBarColor(activity: Activity, navigationBarColor: Int) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) setNavigationBarColor(activity.window, navigationBarColor)
     }
 
     /**
      * Set the navigation bar color.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void setNavigationBarColor(Window window, int navigationBarColor) {
-        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-        window.setNavigationBarColor(navigationBarColor);
+    @JvmStatic
+    fun setNavigationBarColor(window: Window, navigationBarColor: Int) {
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+        window.navigationBarColor = navigationBarColor
     }
 
     /**
      * Set the content layout full the StatusBar, but do not hide StatusBar.
      */
-    public static void invasionStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            invasionStatusBar(activity.getWindow());
+    @JvmStatic
+    fun invasionStatusBar(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) invasionStatusBar(activity.window)
     }
 
     /**
      * Set the content layout full the StatusBar, but do not hide StatusBar.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void invasionStatusBar(Window window) {
-        View decorView = window.getDecorView();
-        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        window.setStatusBarColor(Color.TRANSPARENT);
+    @JvmStatic
+    fun invasionStatusBar(window: Window) {
+        val decorView = window.decorView
+        decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        window.statusBarColor = Color.TRANSPARENT
     }
 
     /**
      * Set the content layout full the NavigationBar, but do not hide NavigationBar.
      */
-    public static void invasionNavigationBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-            invasionNavigationBar(activity.getWindow());
+    @JvmStatic
+    fun invasionNavigationBar(activity: Activity) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) invasionNavigationBar(activity.window)
     }
 
     /**
      * Set the content layout full the NavigationBar, but do not hide NavigationBar.
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public static void invasionNavigationBar(Window window) {
-        View decorView = window.getDecorView();
-        decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-        window.setNavigationBarColor(Color.TRANSPARENT);
+    @JvmStatic
+    fun invasionNavigationBar(window: Window) {
+        val decorView = window.decorView
+        decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+        window.navigationBarColor = Color.TRANSPARENT
     }
 
     /**
      * Set the status bar to dark.
      */
-    public static boolean setStatusBarDarkFont(Activity activity, boolean darkFont) {
-        return setStatusBarDarkFont(activity.getWindow(), darkFont);
+    @JvmStatic
+    fun setStatusBarDarkFont(activity: Activity, darkFont: Boolean): Boolean {
+        return setStatusBarDarkFont(activity.window, darkFont)
     }
 
     /**
      * Set the status bar to dark.
      */
-    public static boolean setStatusBarDarkFont(Window window, boolean darkFont) {
+    @JvmStatic
+    fun setStatusBarDarkFont(window: Window, darkFont: Boolean): Boolean {
         if (setMIUIStatusBarFont(window, darkFont)) {
-            setDefaultStatusBarFont(window, darkFont);
-            return true;
+            setDefaultStatusBarFont(window, darkFont)
+            return true
         } else if (setMeizuStatusBarFont(window, darkFont)) {
-            setDefaultStatusBarFont(window, darkFont);
-            return true;
+            setDefaultStatusBarFont(window, darkFont)
+            return true
         } else {
-            return setDefaultStatusBarFont(window, darkFont);
+            return setDefaultStatusBarFont(window, darkFont)
         }
     }
 
-    private static boolean setMeizuStatusBarFont(Window window, boolean darkFont) {
+    private fun setMeizuStatusBarFont(window: Window, darkFont: Boolean): Boolean {
         try {
-            WindowManager.LayoutParams lp = window.getAttributes();
-            Field darkFlag = WindowManager.LayoutParams.class.getDeclaredField("MEIZU_FLAG_DARK_STATUS_BAR_ICON");
-            Field meizuFlags = WindowManager.LayoutParams.class.getDeclaredField("meizuFlags");
-            darkFlag.setAccessible(true);
-            meizuFlags.setAccessible(true);
-            int bit = darkFlag.getInt(null);
-            int value = meizuFlags.getInt(lp);
-            if (darkFont) {
-                value |= bit;
+            val lp = window.attributes
+            val darkFlag = WindowManager.LayoutParams::class.java.getDeclaredField("MEIZU_FLAG_DARK_STATUS_BAR_ICON")
+            val meizuFlags = WindowManager.LayoutParams::class.java.getDeclaredField("meizuFlags")
+            darkFlag.isAccessible = true
+            meizuFlags.isAccessible = true
+            val bit = darkFlag.getInt(null)
+            var value = meizuFlags.getInt(lp)
+            value = if (darkFont) {
+                value or bit
             } else {
-                value &= ~bit;
+                value and bit.inv()
             }
-            meizuFlags.setInt(lp, value);
-            window.setAttributes(lp);
-            return true;
-        } catch (Exception ignored) {
+            meizuFlags.setInt(lp, value)
+            window.setAttributes(lp)
+            return true
+        } catch (_: Exception) {
         }
-        return false;
+        return false
     }
 
-    private static boolean setMIUIStatusBarFont(Window window, boolean dark) {
-        Class<?> clazz = window.getClass();
+    @SuppressLint("PrivateApi")
+    private fun setMIUIStatusBarFont(window: Window, dark: Boolean): Boolean {
+        val clazz: Class<*> = window.javaClass
         try {
-            Class layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
-            Field field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE");
-            int darkModeFlag = field.getInt(layoutParams);
-            Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
+            val layoutParams = Class.forName("android.view.MiuiWindowManager\$LayoutParams")
+            val field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE")
+            val darkModeFlag = field.getInt(layoutParams)
+            val extraFlagField = clazz.getMethod("setExtraFlags", Int::class.javaPrimitiveType, Int::class.javaPrimitiveType)
             if (dark) {
-                extraFlagField.invoke(window, darkModeFlag, darkModeFlag);
+                extraFlagField.invoke(window, darkModeFlag, darkModeFlag)
             } else {
-                extraFlagField.invoke(window, 0, darkModeFlag);
+                extraFlagField.invoke(window, 0, darkModeFlag)
             }
-            return true;
-        } catch (Exception ignored) {
+            return true
+        } catch (_: Exception) {
         }
-        return false;
+        return false
     }
 
-    private static boolean setDefaultStatusBarFont(Window window, boolean dark) {
+    private fun setDefaultStatusBarFont(window: Window, dark: Boolean): Boolean {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            View decorView = window.getDecorView();
+            val decorView = window.decorView
             if (dark) {
-                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                decorView.systemUiVisibility = decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR
             } else {
-                decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() & ~View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+                decorView.systemUiVisibility = decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
             }
-            return true;
+            return true
         }
-        return false;
+        return false
     }
 
 }
