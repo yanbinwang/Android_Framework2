@@ -20,7 +20,7 @@ import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
-import com.example.common.widget.xrecyclerview.refresh.setHeaderMaxDragRate
+import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.getHolder
@@ -153,8 +153,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新的一些操作
      */
-    fun setHeaderMaxDragRate() {
-        refresh.setHeaderMaxDragRate()
+    fun setHeaderDragRate(headerHeight: Int = 40.pt) {
+        refresh.setHeaderDragRate(headerHeight)
     }
 
     fun setProgressTint(@ColorRes color: Int) {
