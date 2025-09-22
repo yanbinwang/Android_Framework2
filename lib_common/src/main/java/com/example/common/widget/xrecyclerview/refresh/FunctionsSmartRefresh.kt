@@ -1,11 +1,9 @@
 package com.example.common.widget.xrecyclerview.refresh
 
-import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.ColorRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
@@ -53,6 +51,17 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
     }
     setHeaderAndFooterHeight()
 //    applyFullScreen()
+}
+
+/**
+ * 设置透明头(content内容不会被下拉,只会下拉刷新控件)
+ */
+fun SmartRefreshLayout?.initTranslation(header: RefreshHeader) {
+    this ?: return
+    // 是否下拉Header的时候向下平移列表或者内容
+    setEnableHeaderTranslationContent(false)
+    setRefreshHeader(header)
+    setHeaderAndFooterHeight()
 }
 
 /**
@@ -131,19 +140,19 @@ fun SmartRefreshLayout?.noMoreOnInit() {
  * app:srlEnableLoadMore="false"
  * app:srlEnableRefresh="true"
  */
-fun SmartRefreshLayout?.setHeaderMaxDragRate() {
+fun SmartRefreshLayout?.setHeaderDragRate(headerHeight: Int = 40.pt) {
     this ?: return
     applyToHeaderAndFooter { header, _ ->
         header?.apply {
             val statusHeight = getStatusBarHeight()
             padding(top = statusHeight)
             setStatusBarHeight(statusHeight)
-            val height = 40.ptFloat
+//            val height = 40.ptFloat
             /**
              * 设置下拉最大高度和Header高度的比率（将会影响可以下拉的最大高度）
              * rate – ratio = (the maximum height to drag header)/(the height of header) 比率 = 下拉最大高度 / Header的高度
              */
-            setHeaderMaxDragRate(height * 2.5f / (statusHeight + height))
+            setHeaderMaxDragRate(headerHeight * 2.5f / (statusHeight + headerHeight))
         }
     }
 }
@@ -197,7 +206,7 @@ inline fun <T : SmartRefreshLayout> T.applyToHeaderAndFooter(crossinline action:
         action(header, footer)
     }
 }
-
+//
 ///**
 // * 全屏
 // */
