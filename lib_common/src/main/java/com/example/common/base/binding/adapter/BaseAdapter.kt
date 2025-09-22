@@ -41,7 +41,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 默认是返回集合
      */
     constructor() {
-        data = ArrayList() // 显式初始化空列表
+        data = ArrayList()
     }
 
     /**
@@ -105,15 +105,26 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 如果payloads不为空，回调里做局部刷新
      */
     private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>?) {
+        // 扁平化 payloads，处理系统多套的一层 List
+        val flatPayloads = mutableListOf<Any>()
+        payloads?.forEach { item ->
+            // 如果 item 是 List，就把里面的元素拆出来（扁平化）；否则直接添加
+            if (item is List<*>) {
+                // 过滤非 Any 类型，避免强转错误
+                flatPayloads.addAll(item.filterIsInstance<Any>())
+            } else {
+                flatPayloads.add(item)
+            }
+        }
         val position = holder.absoluteAdapterPosition
-        //注意判断当前适配器是否具有头部view
+        // 注意判断当前适配器是否具有头部view
         holder.itemView.click {
             onItemClick?.invoke(it, data.safeGet(position), position)
         }
         holder.itemView.setOnLongClickListener {
             onItemLongClick?.invoke(it, data.safeGet(position), position).orFalse
         }
-        onConvert(holder, getItem(position), payloads)
+        onConvert(holder, getItem(position), flatPayloads)
     }
 
     /**

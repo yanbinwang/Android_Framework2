@@ -56,6 +56,11 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             mView.setCurrentItem(mCurrentPosition);
         }
         setCheckedCount();
+        setOnBackPressedListener(() -> {
+            if (sCancel != null) sCancel.onAction("User canceled.");
+            finish();
+            return null;
+        });
     }
 
     private void setCheckedCount() {
@@ -105,12 +110,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             }
             sResult.onAction(checkedList);
         }
-        finish();
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (sCancel != null) sCancel.onAction("User canceled.");
         finish();
     }
 
