@@ -38,7 +38,6 @@ import com.example.thirdparty.media.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.media.oss.network.OssApi
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -61,19 +60,19 @@ import kotlin.random.Random
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
-    //是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
+    // 是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
     @Volatile
     private var isAuthorize = false
-    //oss基础类
+    // Oss基础类
     private var oss: OSS? = null
-    //key->保全号（服务器唯一id）value->对应oss的传输类/协程
+    // key->保全号（服务器唯一id）value->对应oss的传输类/协程
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
     private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
-    //对象锁，缩小范围减少开销
+    // 对象锁，缩小范围减少开销
     private val postLock by lazy { Any() }
-    //传入页面的lifecycle以及页面实现的OssImpl
+    // 传入页面的lifecycle以及页面实现的OssImpl
     private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
-    //协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
+    // 协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
     private var initJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -190,18 +189,16 @@ class OssFactory private constructor() : CoroutineScope {
         val taskIterator = ossMap.iterator()
         while (taskIterator.hasNext()) {
             try {
-                //在调用了cancel()后还会继续走几次progress
+                // 在调用了cancel()后还会继续走几次progress
                 val value = taskIterator.next()
                 (value as? OSSAsyncTask<*>?)?.cancel()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        //取消所有协程
         val jobIterator = ossJobMap.iterator()
         while (jobIterator.hasNext()) {
             try {
-                //在调用了cancel()后还会继续走几次progress
                 val value = jobIterator.next()
                 (value as? Job)?.cancel()
             } catch (e: Exception) {
@@ -211,7 +208,7 @@ class OssFactory private constructor() : CoroutineScope {
         ossMap.clear()
         ossJobMap.clear()
         ossImpl.get().clear()
-        //取消页面协程
+        // 取消页面协程
         initJob?.cancel()
 //        job.cancel()
         coroutineContext.cancelChildren()
@@ -232,98 +229,96 @@ class OssFactory private constructor() : CoroutineScope {
         sourcePath ?: return
         synchronized(postLock) {
             if (isInit()) {
-                //校验是否上传
+                // 校验是否上传
                 if (OssDBHelper.isUpload(baoquan)) return
-                //查询或获取存储的值
-                val query = queryOrInsert(baoquan, sourcePath, fileType)
-                //设置对应文件的断点文件存放路径
+                // 设置对应文件的断点文件存放路径
                 val file = File(sourcePath)
                 val fileName = file.name.split(".")[0]
-                //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+                // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
                 val recordDirectory = "${file.parent}/${fileName}_record"
-                //之前是否已经上传成功
+                // 之前是否已经上传成功
                 if (OssDBHelper.isComplete(baoquan)) {
-                    success(query, fileType, recordDirectory)
-                } else {
-                    val recordDir = File(recordDirectory)
-                    //确保断点记录的保存路径已存在，如果不存在则新建断点记录的保存路径
-                    if (!recordDir.exists()) recordDir.mkdirs()
-                    //创建断点上传请求，并指定断点记录文件的保存路径，保存路径为断点记录文件的绝对路径。
-                    val request = ResumableUploadRequest(bucketName(), query.objectName, sourcePath, recordDirectory)
-                    //调用OSSAsyncTask cancel()方法时，设置DeleteUploadOnCancelling为false，则不删除断点记录文件
-                    //如果不设置此参数，则默认值为true，表示删除断点记录文件，下次再上传同一个文件时则重新上传
-                    request.setDeleteUploadOnCancelling(false)
-//                    //设置上传过程回调(进度条)
-//                    var percentage = 0
-//                    request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
-//                        percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
-//                        callback(1, baoquan, percentage)
-//                        log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
-//                    }
-                    //设置上传过程回调(进度条)
-                    var percentage = 0
-                    var lastPercentage = 0
-                    var randomMod = Random.nextInt(5, 11)
-                    val maxInterval = 7 //最大间隔，避免长时间无回调
-                    val isCallBack = sourcePath.getLength() >= 100.mb//是否需要回调（目前只有100M+的文件需要进度条）
-                    var isUploadStarted = false
-                    request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
-                        if (!isUploadStarted && currentSize > 0) {
-                            isUploadStarted = true
-                            // 在这里执行上传开始后的操作，比如更新UI显示上传已开始
-                            callback(0 , baoquan)
-                        }
-                        percentage = currentSize.divide(totalSize, 2).multiply(100).toSafeInt()
-                        if (isCallBack) {
-                            when (percentage) {
-                                0, 100 -> {
+                    val bean = OssDBHelper.query(baoquan)
+                    success(bean, fileType, recordDirectory)
+                    return
+                }
+                // 查询或获取存储的值
+                val query = queryOrInsert(baoquan, sourcePath, fileType)
+                // 创建断点上传文件夹
+                val recordDir = File(recordDirectory)
+                // 确保断点记录的保存路径已存在，如果不存在则新建断点记录的保存路径
+                if (!recordDir.exists()) recordDir.mkdirs()
+                // 创建断点上传请求，并指定断点记录文件的保存路径，保存路径为断点记录文件的绝对路径。
+                val request = ResumableUploadRequest(bucketName(), query.objectName, sourcePath, recordDirectory)
+                // 调用OSSAsyncTask cancel()方法时，设置DeleteUploadOnCancelling为false，则不删除断点记录文件
+                // 如果不设置此参数，则默认值为true，表示删除断点记录文件，下次再上传同一个文件时则重新上传
+                request.setDeleteUploadOnCancelling(false)
+                // 设置上传过程回调(进度条)
+                var percentage = 0
+                var lastPercentage = 0
+                var randomMod = Random.nextInt(5, 11)
+                // 最大间隔，避免长时间无回调
+                val maxInterval = 7
+                // 是否需要回调（目前只有100M+的文件需要进度条）
+//                val isCallBack = sourcePath.getLength() >= 100.mb
+                val isCallBack = true
+                var isUploadStarted = false
+                request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+                    if (!isUploadStarted && currentSize > 0) {
+                        isUploadStarted = true
+                        // 在这里执行上传开始后的操作，比如更新UI显示上传已开始
+                        callback(0 , baoquan)
+                    }
+                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
+                    if (isCallBack) {
+                        when (percentage) {
+                            0, 100 -> {
+                                callback(1, baoquan, percentage)
+                                lastPercentage = percentage
+                                if (percentage < 100) {
+                                    randomMod = Random.nextInt(5, 11)
+                                }
+                            }
+                            in 1..99 -> {
+                                if (percentage % randomMod == 0 || percentage - lastPercentage >= maxInterval) {
                                     callback(1, baoquan, percentage)
                                     lastPercentage = percentage
-                                    if (percentage < 100) {
-                                        randomMod = Random.nextInt(5, 11)
-                                    }
-                                }
-                                in 1..99 -> {
-                                    if (percentage % randomMod == 0 || percentage - lastPercentage >= maxInterval) {
-                                        callback(1, baoquan, percentage)
-                                        lastPercentage = percentage
-                                        randomMod = Random.nextInt(5, 11)
-                                    }
+                                    randomMod = Random.nextInt(5, 11)
                                 }
                             }
                         }
-                        log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
                     }
-                    val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
-                        override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
-                            //此处每次一个片成功都会回调，所以在监听时写通知服务器
-                            log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJson()}")
-                            //记录oss的值
-                            query.objectKey = result?.objectKey
-                            response(true, query, fileType, recordDirectory, percentage)
-                        }
-
-                        override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
-                            var result = "上传失败\n保全号：${baoquan}"
-                            //请求异常
-                            if (clientExcepion != null) {
-                                result += "\n本地异常：\n${clientExcepion.message}"
-                                //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
-                                if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
-                            }
-                            if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
-                            log(sourcePath, result)
-                            //异常处理->刷新列表
-                            response(false, query, fileType, recordDirectory, errorMessage = "传输状态：${result}")
-                        }
-                    })
-                    //等待完成断点上传任务
-//                resumableTask?.waitUntilFinished()
-                    ossMap[baoquan] = resumableTask
+                    log(sourcePath, "上传中\n保全号：${baoquan}\n已上传大小（currentSize）:${currentSize}\n总大小（totalSize）:${totalSize}\n上传百分比（percentage）:${percentage}%")
                 }
+                // 执行文件上传
+                val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
+                    override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
+                        // 此处每次一个片成功都会回调，所以在监听时写通知服务器
+                        log(sourcePath, "上传成功\n保全号：${baoquan}\n${result.toJson()}")
+                        // 记录oss的值
+                        query.objectKey = result?.objectKey
+                        response(true, query, fileType, recordDirectory, percentage)
+                    }
+
+                    override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
+                        var result = "上传失败\n保全号：${baoquan}"
+                        // 请求异常
+                        if (clientExcepion != null) {
+                            result += "\n本地异常：\n${clientExcepion.message}"
+                            // 本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                        }
+                        if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
+                        log(sourcePath, result)
+                        // 异常处理->刷新列表
+                        response(false, query, fileType, recordDirectory, errorMessage = "传输状态：${result}")
+                    }
+                })
+                // 等待完成断点上传任务
+//                resumableTask?.waitUntilFinished()
+                ossMap[baoquan] = resumableTask
             } else {
                 queryOrInsert(baoquan, sourcePath, fileType, false)
-//                failure(baoquan, "oss初始化失败")
             }
         }
     }
@@ -333,7 +328,7 @@ class OssFactory private constructor() : CoroutineScope {
      * success默认是成功的，列表回调也是，如果上传时oss初始化失败会为false
      */
     private fun queryOrInsert(baoquan: String, sourcePath: String, fileType: String, isInit: Boolean = true): OssDB {
-        //查询本地存储的数据，不存在则添加一条
+        // 查询本地存储的数据，不存在则添加一条
         var query = OssDBHelper.query(baoquan)
         if (null == query) {
             query = OssDB().also {
@@ -347,7 +342,8 @@ class OssFactory private constructor() : CoroutineScope {
             OssDBHelper.insert(query)
         }
         OssDBHelper.update(baoquan, if (isInit) 0 else 1)
-        callback(if (isInit) 0 else 2, baoquan, success = false)//2的时候才会有success参数
+        // 2的时候才会有success参数
+        callback(if (isInit) 0 else 2, baoquan, success = false)
         return query
     }
 
@@ -357,14 +353,14 @@ class OssFactory private constructor() : CoroutineScope {
     private fun response(isSuccess: Boolean, query: OssDB, fileType: String, recordDirectory: String?, percentage: Int = 0, errorMessage: String? = "") {
         val baoquan = query.baoquan
         if (isSuccess) {
-            //全部传完停止服务器
+            // 全部传完停止服务器
             if (percentage == 100) {
                 //优先保证本地数据库记录成功
                 OssDBHelper.update(baoquan, 2)
                 success(query, fileType, recordDirectory.orEmpty())
             }
         } else {
-            //即刻停止当前请求，刷新列表，并通知服务器错误信息
+            // 即刻停止当前请求，刷新列表，并通知服务器错误信息
             val value = ossMap[baoquan]
             (value as? OSSAsyncTask<*>?)?.cancel()
             failure(baoquan, errorMessage)
@@ -375,18 +371,18 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * 告知服务器此次成功的链接地址
      */
-    private fun success(query: OssDB, fileType: String, recordDirectory: String) {
-        val baoquan = query.baoquan
+    private fun success(query: OssDB?, fileType: String, recordDirectory: String) {
+        val baoquan = query?.baoquan.orEmpty()
         ossJobMap[baoquan] = launch {
             flow {
-                emit(request({ OssApi.instance.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query.objectKey)) }))
+                emit(request({ OssApi.instance.getOssEditApi(baoquan, reqBodyOf("fileUrl" to query?.objectKey)) }))
             }.withHandling({
                 failure(baoquan, it.errMessage)
             }, {
                 end(baoquan)
             }).collect {
-                //删除对应断点续传的文件夹和源文件
-                query.sourcePath.deleteFile()
+                // 删除对应断点续传的文件夹和源文件
+                query?.sourcePath.deleteFile()
                 recordDirectory.deleteFile()
                 OssDBHelper.delete(query)
                 callback(2, baoquan, success = true)
@@ -462,15 +458,15 @@ class OssFactory private constructor() : CoroutineScope {
         synchronized(postLock) {
             if (isInit()) {
                 onStart.invoke()
-                //设置对应文件的断点文件存放路径
+                // 设置对应文件的断点文件存放路径
                 val file = File(sourcePath)
                 val fileName = file.name.split(".")[0]
-                //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+                // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
                 val storeDir = File(getStoragePath("选择的文件"))
                 val recordDirectory = "${storeDir.parent}/${fileName}_record"
                 val recordDir = File(recordDirectory)
                 if (!recordDir.exists()) recordDir.mkdirs()
-                //构建请求
+                // 构建请求
                 val request = ResumableUploadRequest(bucketName(false, privately), objectName("5", sourcePath), sourcePath, recordDirectory)
                 request.setDeleteUploadOnCancelling(false)
                 var progress = 0
@@ -489,10 +485,8 @@ class OssFactory private constructor() : CoroutineScope {
 
                     override fun onFailure(request: ResumableUploadRequest?, clientExcepion: ClientException?, serviceException: ServiceException?) {
                         var result = "上传失败"
-                        //请求异常
                         if (clientExcepion != null) {
                             result += "\n本地异常：\n${clientExcepion.message}"
-                            //本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
                             if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
                         }
                         if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
