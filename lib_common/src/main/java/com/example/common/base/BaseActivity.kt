@@ -123,6 +123,8 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
             })
+            // 在 Java/Kotlin 中，isAssignableFrom() 是 Class 类的一个方法，用于判断两个类之间的继承或实现关系。
+            // 具体来说，A.isAssignableFrom(B) 的含义是：判断类 B 是否是类 A 的子类（或实现类），或者 B 与 A 是同一个类。
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
 
