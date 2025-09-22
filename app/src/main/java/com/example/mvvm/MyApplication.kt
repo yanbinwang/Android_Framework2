@@ -28,14 +28,14 @@ import kotlin.system.exitProcess
  * 2.如果依赖了common库，且在thirdparty中做了二次工具类的封装，此时若还需在application中初始化，放在MyApplication中
  */
 class MyApplication : BaseApplication() {
-    //数据库
+    // 数据库
     private lateinit var daoMaster: DaoMaster
     private lateinit var boxStore: BoxStore
 
     companion object {
         val instance: MyApplication
             get() = BaseApplication.instance as MyApplication
-        //my中的三方库是否完成加载
+        // my中的三方库是否完成加载
         var isLoaded = AtomicBoolean(false)
     }
 
@@ -44,36 +44,36 @@ class MyApplication : BaseApplication() {
         initialize()
     }
 
-    //初始化一些第三方控件和单例工具类等
+    // 初始化一些第三方控件和单例工具类等
     private fun initialize() {
         if (isDebug) {
             initDebugging()
         } else {
             initCrashHandler()
         }
-        //通知栏初始化
+        // 通知栏初始化
         initNotification()
-        //初始化图片库类
+        // 初始化图片库类
         initAlbum()
-        //数据库初始化
+        // 数据库初始化
         initDao()
         initOssDao()
-        //初始化oss
+        // 初始化oss
         initOss()
-        //初始化进程监听
+        // 初始化进程监听
         setOnStateChangedListener {
             if (it) {
                 initOss()
             }
         }
-        //授权初始化
+        // 授权初始化
         setOnPrivacyAgreedListener {
             if (it && !isLoaded.get()) {
                 isLoaded.set(true)
                 initAMap()
             }
         }
-        //初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
+        // 初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
         initPrivacyAgreed(false)
     }
 
@@ -121,12 +121,12 @@ class MyApplication : BaseApplication() {
 
     private fun initAlbum() {
         Album.initialize(AlbumConfig.newBuilder()
-            .setAlbumLoader(GlideLoader()) //设置Album加载器。
+            .setAlbumLoader(GlideLoader()) // 设置Album加载器。
             .build())
     }
 
     private fun initDao() {
-        //确保只初始化一次（Kotlin内部处理线程安全）
+        // 确保只初始化一次（Kotlin内部处理线程安全）
         if (!::daoMaster.isInitialized) {
             try {
                 val dbOpenHelper = DaoMaster.DevOpenHelper(applicationContext, "${VERSION_NAME}.db", null)
@@ -153,7 +153,7 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initAMap() {
-        //高德地图隐私政策合规
+        // 高德地图隐私政策合规
         ServiceSettings.updatePrivacyShow(applicationContext, true, true)
         ServiceSettings.updatePrivacyAgree(applicationContext, true)
     }

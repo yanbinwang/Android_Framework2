@@ -66,13 +66,13 @@ abstract class BaseApplication : Application() {
     }
 
     companion object {
-        //单列
+        // 单列
         lateinit var instance: BaseApplication
-        //是否需要回首頁->只有推送LinkActivity拉起的时候会为true，并且会在首页变回false
+        // 是否需要回首頁->只有推送LinkActivity拉起的时候会为true，并且会在首页变回false
         var needOpenHome = AtomicBoolean(false)
-        //当前app进程是否处于前台
+        // 当前app进程是否处于前台
         var isForeground = AtomicBoolean(true)
-        //首次启动标记（仅在 onCreate 初始化）
+        // 首次启动标记（仅在 onCreate 初始化）
         var isFirstLaunch = AtomicBoolean(true)
         // 最近一次点击图标启动的时间戳
         var lastClickTime = AtomicLong(0L)
@@ -84,42 +84,42 @@ abstract class BaseApplication : Application() {
         initialize()
     }
 
-    //初始化一些第三方控件和单例工具类等
+    // 初始化一些第三方控件和单例工具类等
     private fun initialize() {
-        //初次赋值
+        // 初次赋值
         lastClickTime.set(SystemClock.elapsedRealtime())
         isFirstLaunch.set(true)
-        //布局初始化
+        // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
             .supportSubunits = Subunits.PT
-        //腾讯读写mmkv初始化
+        // 腾讯读写mmkv初始化
         MMKV.initialize(applicationContext)
-        //服务器地址类初始化
+        // 服务器地址类初始化
         ServerConfig.init()
-        //注册网络监听
+        // 注册网络监听
         NetWorkUtil.init(ProcessLifecycleOwner.get())
 //        initReceiver()
-        //防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
+        // 防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
 //        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
 //        closeAndroidPDialog()
-        //阿里路由跳转初始化
+        // 阿里路由跳转初始化
         initARouter()
-        //部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
+        // 部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
-        //全局刷新控件的样式
+        // 全局刷新控件的样式
         initSmartRefresh()
-        //全局toast
+        // 全局toast
         initToast()
-        //初始化socket
+        // 初始化socket
         initSocket()
-        //全局进程
+        // 全局进程
         initLifecycle()
-        //初始化友盟/人脸识别->延后
+        // 初始化友盟/人脸识别->延后
         initPrivacyAgreed()
     }
 
@@ -147,7 +147,7 @@ abstract class BaseApplication : Application() {
 //    }
 
     private fun initARouter() {
-        //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
+        // 开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
         if (isDebug) {
             ARouter.openLog()//打印日志
             ARouter.openDebug()
@@ -163,14 +163,20 @@ abstract class BaseApplication : Application() {
 //    }
 
     private fun initListener() {
+        // 所有继承了BaseActivity的页面在应用进程内都有关闭监听
         BaseActivity.onFinishListener = object : OnFinishListener {
             override fun onFinish(act: BaseActivity<*>) {
+                // 是否需要打开首页(任务栈最底层显示的页面 -> Main/Home)
                 if (!needOpenHome.get()) return
+                // 推送/模块内使用startActivity/startActivityForResult扩展函数调用的页面处于只能在开启状态时不会被调用
                 if (BaseActivity.isAnyActivityStarting) return
+                // 获取关闭的页面的class名,校验是否处于排除规则内,如果是则不会被调用
                 val clazzName = act.javaClass.simpleName.lowercase(Locale.getDefault())
                 if (excludedRouterPaths.contains(clazzName)) return
+                // 判断当前选中位于最前端的用户页面是否是关闭的页面,以及当前任务栈内是否只存在一个页面
                 if (AppManager.currentActivity() != act) return
                 if (AppManager.dequeCount <= 1) {
+                    // 拉起首页(配置了singleTask,栈内不会重复)
                     needOpenHome.set(false)
                     ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
                 }
@@ -180,7 +186,7 @@ abstract class BaseApplication : Application() {
 
     private fun initSmartRefresh() {
         SmartRefreshLayout.setDefaultRefreshHeaderCreator { context, _ ->
-            //全局设置主题颜色
+            // 全局设置主题颜色
 //            layout.setPrimaryColorsId(R.color.grey_f6f8ff, R.color.white_00ffffff)
             ProjectRefreshHeader(context)
         }
@@ -192,9 +198,9 @@ abstract class BaseApplication : Application() {
     private fun initToast() {
         ToastBuilder.setResToastBuilder { message, length ->
             val toast = Toast(instance)
-            //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
+            // 设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
             toast.setGravity(Gravity.CENTER, 0, 0)
-            //设置显示时间
+            // 设置显示时间
             toast.duration = length
             val view = TextView(instance)
             view.text = string(message)
@@ -211,9 +217,7 @@ abstract class BaseApplication : Application() {
         }
         ToastBuilder.setTextToastBuilder { message, length ->
             val toast = Toast(instance)
-            //设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
             toast.setGravity(Gravity.CENTER, 0, 0)
-            //设置显示时间
             toast.duration = length
             val view = TextView(instance)
             view.text = message
@@ -259,7 +263,7 @@ abstract class BaseApplication : Application() {
                         } else {
                             val stampTimeDiff = System.currentTimeMillis() - timeStamp
                             val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
-                            //此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
+                            // 此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
                             if (stampTimeDiff - nanoTimeDiff > 120.minute) {
                                 onStateChangedListener.invoke(true)
                             }
@@ -268,7 +272,7 @@ abstract class BaseApplication : Application() {
                         }
                     }
                     Lifecycle.Event.ON_STOP -> {
-                        //判断本程序process中是否有在任意前台
+                        // 判断本程序process中是否有在任意前台
                         val isAnyProcessForeground = try {
                             (getSystemService(ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses?.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND }
                         } catch (e: Exception) {
@@ -300,9 +304,9 @@ abstract class BaseApplication : Application() {
     fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
         if (ConfigHelper.getPrivacyAgreed()) {
             if (isBaseLoaded) {
-//            //友盟日志收集
+//            // 友盟日志收集
 //            initUM()
-//            //支付宝人脸识别
+//            // 支付宝人脸识别
 //            initVerify()
             }
             onPrivacyAgreedListener.invoke(true)

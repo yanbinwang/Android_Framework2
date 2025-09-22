@@ -33,14 +33,14 @@ class LinkActivity : BaseActivity<Nothing>() {
     private var timeOutJob: Job? = null
 
     companion object {
-        //push信息用的intent
+        // push信息用的intent
         @JvmStatic
         fun byPush(context: Context, vararg pairs: Pair<String, Any?>): Intent {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
             return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
         }
 
-        //正常启动
+        // 正常启动
         @JvmStatic
         fun start(context: Context, vararg pairs: Pair<String, Any?>) {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
