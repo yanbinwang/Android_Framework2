@@ -23,7 +23,7 @@ class MyApplication : BaseApplication() {
     companion object {
         val instance: MyApplication
             get() = BaseApplication.instance as MyApplication
-        //my中的三方库是否完成加载
+        // my中的三方库是否完成加载
         var isLoaded = AtomicBoolean(false)
     }
 
@@ -32,42 +32,42 @@ class MyApplication : BaseApplication() {
         initialize()
     }
 
-    //初始化一些第三方控件和单例工具类等
+    // 初始化一些第三方控件和单例工具类等
     private fun initialize() {
-        //初始化系统通知
+        // 初始化系统通知
         initNotification()
-        //不同包体初始化不同类
+        // 不同包体初始化不同类
         if (isDebug) {
             initDebugging()
         } else {
             initCrashHandler()
         }
         try {
-            //初始化firebase->没有谷歌服务的手机会报错
+            // 初始化firebase->没有谷歌服务的手机会报错
             initFireBase()
         } catch (e: Exception) {
             e.printStackTrace()
         }
-//        //初始化图片库类
+//        // 初始化图片库类
 //        initAlbum()
-//        //数据库初始化
+//        // 数据库初始化
 //        initOssDao()
-//        //初始化oss
+//        // 初始化oss
 //        initOss()
-//        //初始化进程监听
+//        // 初始化进程监听
 //        setOnStateChangedListener {
 //            if (it) {
 //                initOss()
 //            }
 //        }
-//        //授权初始化
+//        // 授权初始化
 //        setOnPrivacyAgreedListener {
 //            if (it && !isLoaded.get()) {
 //                isLoaded.set(true)
 //                initAMap()
 //            }
 //        }
-//        //初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
+//        // 初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
 //        initPrivacyAgreed(false)
     }
 
