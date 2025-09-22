@@ -261,6 +261,18 @@ fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>) {
 
 /**
  * 获取holder
+ * 1. 只能获取「活跃状态」的 ViewHolder
+ * 原生方法仅返回以下两种状态的 ViewHolder，其他情况返回 null：
+ * 正在屏幕内显示的 ViewHolder（Item 在可见区域内）；
+ * 刚滚出屏幕、暂存在 Scrap 缓存（一级缓存）的 ViewHolder（还没被回收至 RecycledViewPool）。
+ * 若 Item 满足以下条件，getHolder 会返回 null：
+ * Item 还没创建（比如首次加载时，屏幕外的 Item 未初始化）；
+ * Item 已滚出屏幕并被回收至 RecycledViewPool（二级缓存）；
+ * Item 已从数据集中删除（比如调用 notifyItemRemoved 后）。
+ * 2. 可能返回 “复用后的旧 ViewHolder”
+ * RecyclerView 有复用机制：一个 ViewHolder 可能先绑定 position=0，滚出屏幕后复用给 position=10。若在「复用已发生但 onBindViewHolder 未执行完毕」的间隙调用 getHolder(0)，可能返回已复用给 position=10 的 ViewHolder，导致操作错误的 Item。
+ * 3. 配置变更后会失效
+ * 当屏幕旋转、语言切换等配置变更发生时，RecyclerView 和 Adapter 会重建，原来的 ViewHolder 会被销毁，此时调用 getHolder 会返回 null。
  */
 fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
     if (this == null) return null
