@@ -3,6 +3,7 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
@@ -30,6 +31,7 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
@@ -37,8 +39,11 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
+import com.example.mvvm.BR
 import com.example.mvvm.R
+import com.example.mvvm.bean.DataBindingBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
@@ -49,6 +54,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.random.Random
 
 /**
  *  <data>
@@ -387,6 +393,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun isImmersionBarEnabled() = false
 
+    private var index = 0
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
@@ -394,17 +402,56 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        BaseApplication.instance.initPrivacyAgreed()
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         mBinding?.ivArrow.click {
+//            // 2s一跳,测试刷新
+//            timerBuilder.startTask("10086",{
+//                var logText = "------ 测试数据 ------\n"
+//                val bean = DataBindingBean()
+//                val txtRan = Random.nextInt(1, 3)
+//                if (txtRan % 2 == 0) {
+//                    logText = logText+"高亮文本:\n高亮文本 -> $index\n"
+//                    bean.spannable = TextSpan().add("高亮文本 -> $index", ColorSpan(color(R.color.bgMain))).build()
+//                } else {
+//                    logText = logText+"普通文本:\n普通文本 -> $index\n"
+//                    bean.text = "普通文本 -> $index"
+//                }
+//                val colorRan = Random.nextInt(1, 3)
+//                if (colorRan % 2 == 0) {
+//                    logText = logText+"文本颜色:\n文本颜色 -> ${R.color.bgBlack}\n"
+//                    bean.textColor = R.color.bgBlack
+//                } else {
+//                    logText = logText+"文本颜色:\n文本颜色 -> ${R.color.bgWhite}\n"
+//                    bean.textColor = R.color.bgWhite
+//                }
+//                val backRan = Random.nextInt(1, 3)
+//                if (backRan % 2 == 0) {
+//                    logText = logText+"背景:\n背景 -> ${R.drawable.shape_r20_blue}\n"
+//                    bean.background = R.drawable.shape_r20_blue
+//                } else {
+//                    logText = logText+"背景:\n背景 -> ${R.drawable.shape_r20_grey}\n"
+//                    bean.background = R.drawable.shape_r20_grey
+//                }
+//                val visRan = Random.nextInt(1, 3)
+//                if (visRan % 2 == 0) {
+//                    logText = logText+"可见性:\n可见性 -> ${View.VISIBLE}\n"
+//                    bean.visibility = View.VISIBLE
+//                } else {
+//                    logText = logText+"可见性:\n可见性 -> ${View.GONE}\n"
+//                    bean.visibility = View.GONE
+//                }
+//                mBinding?.setVariable(BR.bean,bean)
+//                logText.logWTF("wyb")
+//            },2000)
 //            navigation(ARouterPath.AdActivity)
 //            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions {isGranted, permissions ->
-                if (isGranted) {
-                    gallery.imageSelection(hasDurban = true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions {isGranted, permissions ->
+//                if (isGranted) {
+//                    gallery.imageSelection(hasDurban = true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景

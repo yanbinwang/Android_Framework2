@@ -44,6 +44,10 @@
     <data>
 
         <import type="com.example.mvvm.R" />
+
+        <variable
+            name="bean"
+            type="com.example.mvvm.bean.DataBindingBean" />
     </data>
 
     <FrameLayout
@@ -199,6 +203,19 @@
             android:id="@+id/finder"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <TextView
+            android:id="@+id/tv_binding"
+            background="@{bean.background}"
+            spannable="@{bean.spannable}"
+            text="@{bean.text}"
+            textColor="@{bean.textColor}"
+            visibility="@{bean.visibility}"
+            android:layout_width="200pt"
+            android:layout_height="48pt"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="@dimen/textSize18" />
 
     </FrameLayout>
 
