@@ -19,7 +19,7 @@ class FullyLinearLayoutManager : LinearLayoutManager {
 
     constructor(context: Context, orientation: Int, reverseLayout: Boolean) : super(context, orientation, reverseLayout)
 
-    override fun onMeasure(recycler: RecyclerView.Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
+    override fun onMeasure(recycler: Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         val widthMode = View.MeasureSpec.getMode(widthSpec)
         val heightMode = View.MeasureSpec.getMode(heightSpec)
         val widthSize = View.MeasureSpec.getSize(widthSpec)
@@ -53,7 +53,7 @@ class FullyLinearLayoutManager : LinearLayoutManager {
 
     private fun measureScrapChild(recycler: Recycler, position: Int, widthSpec: Int, heightSpec: Int, measuredDimension: IntArray) {
         try {
-            //fix 动态添加时报IndexOutOfBoundsException
+            // fix 动态添加时报IndexOutOfBoundsException
             val view = recycler.getViewForPosition(0)
             val p = view.layoutParams as? RecyclerView.LayoutParams
             val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, p?.width.orZero)

@@ -36,8 +36,8 @@ class AdActivity : BaseActivity<ActivityAdBinding>(), OnRefreshListener {
         val statusBarHeight = getStatusBarHeight()
         mBinding?.viewCover.size(height = 330.pt + statusBarHeight)
         mBinding?.avBanner.margin(top = statusBarHeight)
-        mBinding?.refresh?.setHeaderDragRate()
         mBinding?.refresh?.setProgressTint(R.color.bgBlack)
+        mBinding?.refresh?.setHeaderDragRate()
         mBinding?.refresh?.setHeaderDragListener { _: Boolean, _: Float, offset: Int, _: Int, _: Int ->
             val imgBgHeight = mBinding?.avBanner?.measuredHeight.orZero
             if (imgBgHeight <= 0) return@setHeaderDragListener

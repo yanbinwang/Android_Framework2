@@ -59,7 +59,7 @@ class FullyGridLayoutManager : GridLayoutManager {
     private fun measureScrapChild(recycler: RecyclerView.Recycler, position: Int, widthSpec: Int, heightSpec: Int, measuredDimension: IntArray) {
         if (position < getItemCount()) {
             try {
-                //fix 动态添加时报IndexOutOfBoundsException
+                // fix 动态添加时报IndexOutOfBoundsException
                 val view = recycler.getViewForPosition(0)
                 val p = view.layoutParams as? RecyclerView.LayoutParams
                 val childWidthSpec = ViewGroup.getChildMeasureSpec(widthSpec, paddingLeft + paddingRight, p?.width.orZero)
