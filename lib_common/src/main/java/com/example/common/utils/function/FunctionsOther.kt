@@ -313,9 +313,32 @@ fun I18nTextView?.setI18nContent(i18nTextRes: Int, vararg contents: String) {
 fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
     this ?: return
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        func.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
+        // 确保menuHeight不为0，避免除零异常
+        if (menuHeight <= 0) {
+            func(0f)
+            return@OnScrollChangeListener
+        }
+        // 计算透明度：在0到menuHeight范围内从0平滑过渡到1
+        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
+        func(alpha)
+//        func.invoke(if (scrollY <= menuHeight / 2f) 0 + scrollY / (menuHeight / 4f) else 1f)
     })
 }
+
+//private static final int SCROLL_THRESHOLD = 500;
+//
+//scrollView.setOnScrollChangeListener(new ViewTreeObserver.OnScrollChangedListener() {
+//    @Override
+//    public void onScrollChanged() {
+//        // 获取当前滚动的垂直距离（像素）
+//        int scrollY = scrollView.getScrollY();
+//        // 限制范围并计算透明度
+//        int clampedScrollY = Math.max(0, Math.min(scrollY, SCROLL_THRESHOLD));
+//        float alpha = (float) clampedScrollY / SCROLL_THRESHOLD;
+//        // 应用透明度
+//        backgroundBlock.setAlpha(alpha);
+//    }
+//})
 
 ///**
 // * 自定义反向动画

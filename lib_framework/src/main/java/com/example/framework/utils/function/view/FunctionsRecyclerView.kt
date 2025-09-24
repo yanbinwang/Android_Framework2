@@ -89,20 +89,20 @@ fun RecyclerView?.enableViewHolderCache() {
  */
 fun RecyclerView?.withTempDisabledCache(block: () -> Unit) {
     this ?: return
-    // 1. 保存当前动画状态
+    // 保存当前动画状态
     val originalAnimations = (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations ?: true
-    // 2. 临时禁用缓存
+    // 临时禁用缓存
     disableViewHolderCache()
-    // 3. 执行具体操作（如刷新数据）
+    // 执行具体操作（如刷新数据）
     block()
-    // 4. 恢复缓存策略（在 block 之后执行）
+    // 恢复缓存策略（在 block 之后执行）
     enableViewHolderCache()
-    // 5. 恢复原始动画状态（在 block 之后执行）
+    // 恢复原始动画状态（在 block 之后执行）
     (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations = originalAnimations
 }
 //* // 使用示例
 //* recyclerView.withAsyncTempDisabledCache { onComplete ->
-//    *     // ② 启动异步请求
+//    *     // 启动异步请求
 //    *     viewModel.fetchData { result ->
 //        *         adapter.updateData(result)
 //        *         onComplete()  // 请求完成后调用回调
@@ -303,20 +303,20 @@ fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((manag
     })
 }
 
-fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener2(onCurrent: ((index: Int) -> Unit)?) {
-    if (this == null) return
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            onCurrent?.invoke(getFirstVisibleItemPosition())
-        }
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-            onCurrent?.invoke(getFirstVisibleItemPosition())
-        }
-    })
-}
+//fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener2(onCurrent: ((index: Int) -> Unit)?) {
+//    if (this == null) return
+//    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+//        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+//            super.onScrollStateChanged(recyclerView, newState)
+//            onCurrent?.invoke(getFirstVisibleItemPosition())
+//        }
+//
+//        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+//            super.onScrolled(recyclerView, dx, dy)
+//            onCurrent?.invoke(getFirstVisibleItemPosition())
+//        }
+//    })
+//}
 
 fun RecyclerView?.getFirstVisibleItemPosition(): Int {
     if (this == null) return 0
