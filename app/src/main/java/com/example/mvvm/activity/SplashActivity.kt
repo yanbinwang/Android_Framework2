@@ -5,6 +5,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.MotionEvent
+import android.view.ViewTreeObserver
 import android.widget.ImageView
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
@@ -14,6 +15,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.getFadePreview
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -56,11 +58,6 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 
     override fun isSplashScreenEnabled() = isHighVersion
 
-//    /**
-//     * style 中的 windowBackground 已经显示了启动图， setContentView 会重复绘制，导致闪烁
-//     */
-//    override fun isBindingEnabled() = isHighVersion
-
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         // 进页面先修正图片比例
@@ -74,6 +71,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             finish()
             return
         }
+        // 冷热启动都应用一次全屏
         window.applyFullScreen()
         // 当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {
@@ -119,7 +117,23 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 })
                 initSplash()
             } else {
-                jump(true)
+                // 定义一次性监听器（触发后立即移除）
+                val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
+                    override fun onPreDraw(): Boolean {
+                        // 先移除监听器，避免重复触发
+                        mBinding?.root?.viewTreeObserver?.removeOnPreDrawListener(this)
+                        // 执行完整全屏配置
+                        window.applyFullScreen()
+                        // 跳转页面
+                        schedule(this@SplashActivity, {
+                            jump(true)
+                        },500)
+                        // 允许绘制
+                        return true
+                    }
+                }
+                // 注册监听器
+                mBinding?.root?.viewTreeObserver?.addOnPreDrawListener(preDrawListener)
             }
         }
     }
