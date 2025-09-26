@@ -29,6 +29,8 @@
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
 <!--        <item name="android:windowIsTranslucent">true</item>--> <!-- 加了高版本会直接导致首页被加载前先看到桌面 -->
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
+        <item name="android:windowTranslucentNavigation">true</item>
     </style>
 
     <!--注册选择页背景是蓝色，故而使用此样式-->
