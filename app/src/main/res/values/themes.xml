@@ -28,8 +28,6 @@
     <style name="SplashTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
-        <!--        <item name="android:windowTranslucentStatus">true</item>-->
-        <!--        <item name="android:windowTranslucentNavigation">true</item>-->
         <!--
             1.安卓9及以下版本让android:windowLightNavigationBar为false了冷启动时也是不会响应的,系统会强制开启一个自带样式
             2.如果一定要底部导航栏也是偏白色,可以开启windowTranslucentNavigation为true,此时导航栏变为灰色,但是和顶部颜色也对不上,不推荐这么写
@@ -37,6 +35,9 @@
         -->
         <item name="android:windowLightStatusBar">true</item>
         <item name="android:windowLightNavigationBar">true</item>
+        <!--        <item name="android:windowTranslucentStatus">true</item>-->
+        <!--        <item name="android:windowTranslucentNavigation">true</item>-->
+        <!--        <item name="android:windowFullscreen">true</item>-->
     </style>
 
     <!--注册选择页背景是蓝色，故而使用此样式-->
@@ -60,16 +61,16 @@
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
     </style>
 
-<!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
-<!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
-<!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenBackground">@color/bgWhite</item>-->
-<!--        &lt;!&ndash; 启动图标。就是显示在启动界面中间的图片，也可以是动画 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>-->
-<!--        &lt;!&ndash; 设置动画的长度。注意这里最大只能1000ms，如果需要动画时间更长，则需要通过代码的手段让启动画面在屏幕上显示更长时间 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
-<!--        &lt;!&ndash; 直接在启动屏幕后面设置“应用”的主题 &ndash;&gt;-->
-<!--        <item name="postSplashScreenTheme">@style/AppTheme</item>-->
-<!--    </style>-->
+    <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
+    <!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
+    <!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenBackground">@color/bgWhite</item>-->
+    <!--        &lt;!&ndash; 启动图标。就是显示在启动界面中间的图片，也可以是动画 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>-->
+    <!--        &lt;!&ndash; 设置动画的长度。注意这里最大只能1000ms，如果需要动画时间更长，则需要通过代码的手段让启动画面在屏幕上显示更长时间 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
+    <!--        &lt;!&ndash; 直接在启动屏幕后面设置“应用”的主题 &ndash;&gt;-->
+    <!--        <item name="postSplashScreenTheme">@style/AppTheme</item>-->
+    <!--    </style>-->
 
 </resources>
