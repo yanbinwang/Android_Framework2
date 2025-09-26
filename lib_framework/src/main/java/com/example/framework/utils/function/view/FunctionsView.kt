@@ -8,6 +8,7 @@ import android.graphics.Bitmap
 import android.graphics.Paint
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
@@ -44,6 +45,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
@@ -808,6 +810,25 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
 fun ImageView?.tint(@ColorRes res: Int) {
     this ?: return
     setColorFilter(context.color(res))
+}
+
+/**
+ * 如果一个图片是在LayerDrawable内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
+ */
+fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int): IntArray {
+    this ?: return intArrayOf(0, 0)
+    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable
+    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
+    val dimensions = bitmapDrawable?.let {
+        intArrayOf(it.intrinsicWidth, it.intrinsicHeight)
+    } ?: intArrayOf(0, 0)
+    size(dimensions[0], dimensions[1])
+    return intArrayOf(
+        layerDrawable?.getLayerInsetStart(targetItemIndex).orZero,
+        layerDrawable?.getLayerInsetTop(targetItemIndex).orZero,
+        layerDrawable?.getLayerInsetEnd(targetItemIndex).orZero,
+        layerDrawable?.getLayerInsetBottom(targetItemIndex).orZero
+    )
 }
 
 /**
