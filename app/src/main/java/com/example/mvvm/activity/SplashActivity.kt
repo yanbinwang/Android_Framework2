@@ -49,47 +49,25 @@ import java.util.concurrent.atomic.AtomicBoolean
  */
 @Route(path = ARouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ActivitySplashBinding>() {
+    // 是否引入高版本启动页
+    private val isHighVersion get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     // 高版本splash存在开关
     private var mKeepOn = AtomicBoolean(true)
-
-    companion object {
-        /**
-         * 是否引入高版本启动页
-         */
-        private val isHighVersion get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
-
-        /**
-         * 安卓12之前版本点击图标启动app需要配置一个xml,但是xml中的宽高到实时获取的宽高值时会有出入,增加获取文件的方法做校准
-         */
-        @JvmStatic
-        fun adjustSplash(ivSplash: ImageView?) {
-            if (!isHighVersion) {
-                ivSplash?.apply {
-                    val targetItemIndex = 1
-                    val layerDrawable = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash)
-                    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
-                    val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
-                    val dimensions = bitmapDrawable.decodeDimensions()
-                    size(dimensions[0],dimensions[1])
-                    margin(top = marginTopDp)
-                }
-            }
-        }
-
-    }
 
     override fun isImmersionBarEnabled() = false
 
     override fun isSplashScreenEnabled() = isHighVersion
 
-    /**
-     * style 中的 windowBackground 已经显示了启动图， setContentView 会重复绘制，导致闪烁
-     */
-    override fun isBindingEnabled() = isHighVersion
+//    /**
+//     * style 中的 windowBackground 已经显示了启动图， setContentView 会重复绘制，导致闪烁
+//     */
+//    override fun isBindingEnabled() = isHighVersion
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        // 进页面先修正图片比例
         adjustSplash(mBinding?.ivSplash)
+        // 检测是否是重复开启(冷启动系统BUG)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
             && intent.action != null
@@ -99,7 +77,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             return
         }
         window.applyFullScreen()
-        //当前Activity不是任务栈的根，可能是通过其他Activity启动的
+        // 当前Activity不是任务栈的根，可能是通过其他Activity启动的
         if (!isTaskRoot) {
             jump()
         } else {
@@ -144,6 +122,23 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 initSplash()
             } else {
                 jump(true)
+            }
+        }
+    }
+
+    /**
+     * 安卓12之前版本点击图标启动app需要配置一个xml,但是xml中的宽高到实时获取的宽高值时会有出入,增加获取文件的方法做校准
+     */
+    private fun adjustSplash(ivSplash: ImageView?) {
+        if (!isHighVersion) {
+            ivSplash?.apply {
+                val targetItemIndex = 1
+                val layerDrawable = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash)
+                val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
+                val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
+                val dimensions = bitmapDrawable.decodeDimensions()
+                size(dimensions[0],dimensions[1])
+                margin(top = marginTopDp)
             }
         }
     }
