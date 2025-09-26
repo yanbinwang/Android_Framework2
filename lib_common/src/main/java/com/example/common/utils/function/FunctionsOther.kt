@@ -340,13 +340,6 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
 //    }
 //})
 
-///**
-// * 自定义反向动画
-// */
-//fun Context.translate(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-//    return loadAnimation(if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out, onStart, onEnd, onRepeat)
-//}
-
 /**
  * 点击链接的span
  * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){

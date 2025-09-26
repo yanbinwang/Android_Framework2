@@ -1,8 +1,6 @@
 package com.example.mvvm.activity
 
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.LayerDrawable
 import android.os.Build
 import android.os.Bundle
 import android.os.SystemClock
@@ -16,11 +14,11 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.getFadePreview
 import com.example.common.config.ARouterPath
 import com.example.common.utils.applyFullScreen
-import com.example.common.utils.function.decodeDimensions
-import com.example.common.utils.function.getTypedDrawable
+import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.margin
-import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
 import kotlinx.coroutines.delay
@@ -66,7 +64,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         // 进页面先修正图片比例
-        adjustSplash(mBinding?.ivSplash)
+        adjustSplashUi(mBinding?.ivSplash)
         // 检测是否是重复开启(冷启动系统BUG)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
@@ -129,16 +127,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     /**
      * 安卓12之前版本点击图标启动app需要配置一个xml,但是xml中的宽高到实时获取的宽高值时会有出入,增加获取文件的方法做校准
      */
-    private fun adjustSplash(ivSplash: ImageView?) {
+    private fun adjustSplashUi(ivSplash: ImageView?) {
         if (!isHighVersion) {
-            ivSplash?.apply {
-                val targetItemIndex = 1
-                val layerDrawable = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash)
-                val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
-                val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
-                val dimensions = bitmapDrawable.decodeDimensions()
-                size(dimensions[0],dimensions[1])
-                margin(top = marginTopDp)
+            ivSplash.doOnceAfterLayout {
+                it.margin(top = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)[1])
+                it.visible()
             }
         }
     }
