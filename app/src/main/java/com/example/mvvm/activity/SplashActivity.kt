@@ -18,7 +18,6 @@ import com.example.common.utils.applyFullScreen
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
-import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
@@ -143,7 +142,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
      */
     private fun adjustSplashUi(ivSplash: ImageView?) {
         if (!isHighVersion) {
-            ivSplash.doOnceAfterLayout {
+            ivSplash.let {
                 it.margin(top = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)[1])
                 it.visible()
             }
