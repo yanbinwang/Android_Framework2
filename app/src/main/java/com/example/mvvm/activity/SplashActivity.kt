@@ -6,7 +6,6 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewTreeObserver
-import android.widget.ImageView
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreenViewProvider
 import com.alibaba.android.arouter.facade.annotation.Route
@@ -60,7 +59,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         // 进页面先修正图片比例
-        adjustSplashUi(mBinding?.ivSplash)
+        adjustSplashUi()
         // 检测是否是重复开启(冷启动系统BUG)
         if (!isTaskRoot
             && intent.hasCategory(Intent.CATEGORY_LAUNCHER)
@@ -140,11 +139,10 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     /**
      * 安卓12之前版本点击图标启动app需要配置一个xml,但是xml中的宽高到实时获取的宽高值时会有出入,增加获取文件的方法做校准
      */
-    private fun adjustSplashUi(ivSplash: ImageView?) {
+    private fun adjustSplashUi() {
         if (!isHighVersion) {
-            ivSplash.let {
+            mBinding?.ivSplash.let {
                 it.margin(top = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)[1])
-                it.visible()
             }
         }
     }
