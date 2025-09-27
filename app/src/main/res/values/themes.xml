@@ -28,6 +28,8 @@
     <style name="SplashTheme" parent="TransparentTheme">
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
         <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <item name="android:opacity">opaque</item>
+        <item name="android:fitsSystemWindows">false</item>
         <!--
             1.安卓9及以下版本让android:windowLightNavigationBar为false了冷启动时也是不会响应的,系统会强制开启一个自带样式
             2.如果一定要底部导航栏也是偏白色,可以开启windowTranslucentNavigation为true,此时导航栏变为灰色,但是和顶部颜色也对不上,不推荐这么写

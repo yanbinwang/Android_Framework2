@@ -108,6 +108,8 @@
 
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
     <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowAnimationStyle">@null</item>
         <item name="android:windowContentTransitions">false</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
@@ -170,8 +172,8 @@
         <item name="windowNoTitle">true</item>
         <!-- 移除窗口边框（设置为无） -->
         <item name="android:windowFrame">@null</item>
-<!--        &lt;!&ndash; 窗口动画（提升交互体验） &ndash;&gt;-->
-<!--        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>-->
+        <!--        &lt;!&ndash; 窗口动画（提升交互体验） &ndash;&gt;-->
+        <!--        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>-->
         <!-- 窗口设为悬浮模式（类似对话框的浮动效果） -->
         <item name="android:windowIsFloating">true</item>
         <!-- 移除窗口内容的叠加层（如阴影或边框叠加效果） -->
@@ -182,8 +184,8 @@
         <item name="android:background">@null</item>
         <!-- 启用背景模糊/变暗效果（打开对话框时，背后的界面会变暗） -->
         <item name="android:backgroundDimEnabled">true</item>
-<!--        &lt;!&ndash; 0~1之间，值越小背景越亮 (需要配合 android:backgroundDimEnabled="true" 一起使用) &ndash;&gt;-->
-<!--        <item name="android:backgroundDimAmount">0.5</item> -->
+        <!--        &lt;!&ndash; 0~1之间，值越小背景越亮 (需要配合 android:backgroundDimEnabled="true" 一起使用) &ndash;&gt;-->
+        <!--        <item name="android:backgroundDimAmount">0.5</item> -->
     </style>
 
     <!-- 布局画高线样式 -->
