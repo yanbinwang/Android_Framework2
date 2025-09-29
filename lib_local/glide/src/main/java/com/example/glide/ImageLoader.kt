@@ -10,6 +10,7 @@ import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestBuilder
 import com.bumptech.glide.TransitionOptions
+import com.bumptech.glide.load.DecodeFormat
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
@@ -118,33 +119,6 @@ class ImageLoader private constructor() {
     }
 
     /**
-     * 加载图片并根据设置的宽度等比例拉伸高度
-     * @param view 用于显示图片的 ImageView
-     * @param imageUrl 图片的 URL 地址
-     * @param onLoadStart 图片开始加载时的回调
-     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
-     */
-    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
-        view ?: return
-        Glide.with(view.context)
-            .asBitmap()
-            .load(imageUrl)
-            .placeholder(DEFAULT_MASK_RESOURCE)
-//            .dontAnimate()
-            .smartFade(view)
-            .listener(object : GlideRequestListener<Bitmap>() {
-                override fun onLoadStart() {
-                    onLoadStart()
-                }
-
-                override fun onLoadFinished(resource: Bitmap?) {
-                    onLoadComplete(resource)
-                }
-            })
-            .into(ZoomTransform(view))
-    }
-
-    /**
      * 加载线上视频的某一帧，所需帧的时间位置，单位为微秒。如果为负，返回一个代表性帧
      *  1秒 = 10分秒
      *  1分秒 = 10厘秒
@@ -159,42 +133,30 @@ class ImageLoader private constructor() {
     fun loadVideoFrame(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000) {
         view ?: return
         try {
+            // 使用RequestOptions构建器明确配置
+            val options = RequestOptions()
+                .frame(frameTimeMicros)
+                .fitCenter()
+                .placeholder(DEFAULT_RESOURCE)
+                .error(DEFAULT_MASK_RESOURCE)
+                // 禁用内存缓存
+                .skipMemoryCache(true)
+                // 仅缓存原始数据（减少缓存占用，保留基本容错）
+                .diskCacheStrategy(DiskCacheStrategy.DATA)
+                // 增加解码选项，提高准确性
+                .format(DecodeFormat.PREFER_ARGB_8888)
+                // 禁用硬件解码，提高兼容性
+                .disallowHardwareConfig()
+            // 开始尝试加载视频1s的图片
             Glide.with(view.context)
-                .setDefaultRequestOptions(RequestOptions().frame(frameTimeMicros).centerCrop())
+                .setDefaultRequestOptions(options)
                 .load(videoUrl)
-//                .dontAnimate()
                 .smartFade(view)
                 .into(view)
         } catch (e: Exception) {
             e.printStackTrace()
             view.setBackgroundResource(DEFAULT_MASK_RESOURCE)
         }
-    }
-
-    /**
-     * 加载网络 GIF 图片
-     * @param view 用于显示 GIF 图片的 ImageView
-     * @param gifUrl GIF 图片的 URL 地址
-     */
-    fun loadGifFromUrl(view: ImageView?, gifUrl: String?) {
-        view ?: return
-        Glide.with(view.context)
-            .asGif()
-            .load(gifUrl)
-            .into(view)
-    }
-
-    /**
-     * 加载本地 GIF 图片
-     * @param view 用于显示 GIF 图片的 ImageView
-     * @param gifResource 本地 GIF 图片的资源 ID
-     */
-    fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
-        view ?: return
-        Glide.with(view.context)
-            .asGif()
-            .load(gifResource)
-            .into(view)
     }
 
     /**
@@ -246,6 +208,59 @@ class ImageLoader private constructor() {
         awaitClose {
             ProgressInterceptor.removeListener(imageUrl)
         }
+    }
+
+    /**
+     * 加载图片并根据设置的宽度等比例拉伸高度
+     * @param view 用于显示图片的 ImageView
+     * @param imageUrl 图片的 URL 地址
+     * @param onLoadStart 图片开始加载时的回调
+     * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
+     */
+    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
+        view ?: return
+        Glide.with(view.context)
+            .asBitmap()
+            .load(imageUrl)
+            .placeholder(DEFAULT_MASK_RESOURCE)
+//            .dontAnimate()
+            .smartFade(view)
+            .listener(object : GlideRequestListener<Bitmap>() {
+                override fun onLoadStart() {
+                    onLoadStart()
+                }
+
+                override fun onLoadFinished(resource: Bitmap?) {
+                    onLoadComplete(resource)
+                }
+            })
+            .into(ZoomTransform(view))
+    }
+
+    /**
+     * 加载网络 GIF 图片
+     * @param view 用于显示 GIF 图片的 ImageView
+     * @param gifUrl GIF 图片的 URL 地址
+     */
+    fun loadGifFromUrl(view: ImageView?, gifUrl: String?) {
+        view ?: return
+        Glide.with(view.context)
+            .asGif()
+            .load(gifUrl)
+            .into(view)
+    }
+
+    /**
+     * 加载本地 GIF 图片
+     * @param view 用于显示 GIF 图片的 ImageView
+     * @param gifResource 本地 GIF 图片的资源 ID
+     */
+    fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
+        view ?: return
+        Glide.with(view.context)
+            .asGif()
+            .load(gifResource)
+            .into(view)
     }
 
     /**
