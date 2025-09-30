@@ -10,7 +10,7 @@ import androidx.databinding.ViewDataBinding
  *
  * 1）ViewPager2(isAdded如果是无缓存模式下记得做判断，但如果只有2个页面无需判断，因为默认不管如何都是加载左右两个页面，3个及以上需要管控)
  * 1.子页面在适配器加载出来时只会加载当前下标页面的onResume方法，比如2个子页面，一开始适配器加载出来只会执行第一个页面的onResume方法
- * 2.所有子页面的onHiddenChanged会在主页面的Activity被盖住时全部触发，并且触发多次（如果你并未点击到后面几页，就只会频繁触发当前页的onHiddenChanged）且还会触发当前选中子页面的onPause，然后页面重新回来后，执行当前选中子页面的onResume方法
+ * 2.所有子页面的onHiddenChanged会在主页面的Activity/Fragment被盖住时全部触发，并且触发多次（如果你并未点击到后面几页，就只会频繁触发当前页的onHiddenChanged）且还会触发当前选中子页面的onPause，然后页面重新回来后，执行当前选中子页面的onResume方法
  *
  * ------第一次进页面生命周期------
  * 当前页数：第1页---生命周期：onResume---页面显影（hidden-false显示，true不显示）：显示
@@ -28,7 +28,6 @@ import androidx.databinding.ViewDataBinding
  *
  * 总结：如果是Activity内的Viewpager2，管控好onResume和onPause即可，左右子页面切换之前的子页面会回调onPause，当前子页面会onResume，属于正常交互情况
  * 如果是Fragment内的Viewpager2，onHiddenChanged也需要管控，Fragment切成另一个页面，切过去和切回来都会触发onHiddenChanged，但onHiddenChanged不会在页面初始化加载时触发
- *
  *
  * 2)FragmentManager
  * 1.replace方法会直接清空之前的管理器内的所有页面，重新创建，所以只要管控好当前选中的页面的onResume方法即可，可以在该生命周期内网络请求或者刷新(replace不要使用addToBackStack，不然资源释放会出问题)
