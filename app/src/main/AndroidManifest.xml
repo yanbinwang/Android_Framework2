@@ -61,9 +61,19 @@
         <package android:name="com.autonavi.minimap" />
     </queries>
 
+    <!--
+        android:allowBackup="false" 是在 AndroidManifest.xml 的 <application> 标签中设置的一个重要属性，用于控制应用是否允许被备份和恢复
+        禁用备份（allowBackup="false"）通常是出于数据安全考虑
+        设为 false 后，用户无法通过系统备份功能保留应用数据，卸载重装或更换设备时数据会丢失（除非应用自行实现了云端备份方案）。
+        该设置不影响应用内部的数据存储逻辑，仅限制系统级别的备份行为。
+        Android 12 开始对应用数据的备份和迁移机制进行了升级，原有的 android:allowBackup 过于简单（仅能整体开启 / 关闭备份），无法满足更精细的权限控制需求。
+        新的 dataExtractionRules 允许你精确配置哪些数据可以被备份、哪些不可以，更灵活地适配云端备份和设备间迁移场景
+        对于 Android 12 以下设备，dataExtractionRules 会被忽略，仍需保留 android:allowBackup 控制备份行为(系统是否能把这些已存在的数据备份到外部（如云端、电脑)
+    -->
     <application
         android:name=".MyApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
         android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
@@ -84,22 +94,22 @@
             android:name="ScopedStorage"
             android:value="true" />
 
-        <!--全屏设置-->
+        <!-- 全屏设置 -->
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
 
-        <!--适配华为（huawei）刘海屏-->
+        <!-- 适配华为（huawei）刘海屏 -->
         <meta-data
             android:name="android.notch_support"
             android:value="true" />
 
-        <!--适配小米（xiaomi）刘海屏-->
+        <!-- 适配小米（xiaomi）刘海屏 -->
         <meta-data
             android:name="notch.config"
             android:value="portrait|landscape" />
 
-        <!--AutoSize-->
+        <!-- AutoSize -->
         <meta-data
             android:name="design_width_in_dp"
             android:value="${DESIGN_WIDTH}" />
@@ -113,7 +123,6 @@
             android:name="com.amap.api.v2.apikey"
             android:value="${AMAP_API_KEY}" />
         <!-- ******************************************************基础全局配置****************************************************** -->
-
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
