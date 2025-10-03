@@ -97,6 +97,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
+                mBinding?.lifecycleOwner = lifecycleOwner
                 if (popupAnimStyle == TRANSLATE) {
                     parentView.addView(mBinding?.root)
                     parentView.addView(navigationBarView)

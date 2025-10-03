@@ -401,6 +401,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
+        ActivityMainBinding.inflate(layoutInflater)
         mBinding?.ivArrow.click {
 //            // 2s一跳,测试刷新
 //            timerBuilder.startTask("10086",{
