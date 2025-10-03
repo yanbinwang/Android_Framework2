@@ -277,7 +277,6 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             reset()
             statusBarDarkFont(statusBarDark, 0.2f)
             navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
-//            navigationBarColor(navigationBarColor)//颜色的配置在高版本上容易出问题,统一改为底部方法
             init()
         }
     }

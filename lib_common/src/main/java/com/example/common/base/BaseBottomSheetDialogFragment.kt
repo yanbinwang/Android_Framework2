@@ -16,6 +16,7 @@ import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
@@ -80,6 +81,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
@@ -261,7 +263,9 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         dialog?.window?.apply {
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
-            setNavigationBarDrawable(navigationBarColor)
+            setNavigationBarDrawable(navigationBarColor) {
+                onWindowInsetsChanged?.invoke(it)
+            }
         }
         immersionBar?.apply {
             reset()
@@ -297,6 +301,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         super.onDestroyView()
         dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
+        clearOnWindowInsetsChanged()
         mActivityResult.unregister()
         mBinding?.unbind()
     }
@@ -329,6 +334,14 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     protected fun clearOnActivityResultListener() {
         onActivityResultListener = null
+    }
+
+    protected fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+        this.onWindowInsetsChanged = onWindowInsetsChanged
+    }
+
+    protected fun clearOnWindowInsetsChanged() {
+        onWindowInsetsChanged = null
     }
 
     open fun show(manager: FragmentManager) {

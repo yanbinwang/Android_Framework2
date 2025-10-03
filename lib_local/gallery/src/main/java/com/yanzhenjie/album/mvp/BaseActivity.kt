@@ -7,12 +7,9 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
-import androidx.core.graphics.ColorUtils.calculateLuminance
 import com.example.common.R
-import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
