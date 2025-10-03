@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- 禁用云端备份 -->
+    <cloud-backup disableAllBackup="true" />
+    <!-- 禁用水印迁移（设备间本地迁移） -->
+    <device-transfer disableAllBackup="true" />
+</data-extraction-rules>
