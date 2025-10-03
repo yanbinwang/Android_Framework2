@@ -388,7 +388,6 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
  * 更新导航栏高度和 padding
  */
 private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int) {
-//    val actualNavBottom = if (!v.hasNavigationBar()) 0 else getNavigationBarHeight()
     if (v.paddingBottom != navBottom) {
         v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
     }
@@ -425,6 +424,7 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         invalidateSelf()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return PixelFormat.TRANSLUCENT
     }
