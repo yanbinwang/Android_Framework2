@@ -60,6 +60,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
                 val vdbClass = type.actualTypeArguments[0] as? Class<VDB>
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, layoutInflater) as? VDB
+                mBinding?.lifecycleOwner = lifecycleOwner
                 mBinding?.root?.let { setContentView(it) }
             } catch (e: Exception) {
                 e.printStackTrace()
