@@ -290,8 +290,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         val drawableWidth = drawable.intrinsicWidth
         val drawableHeight = drawable.intrinsicHeight
         val point = transformCoordTouchToBitmap((viewWidth.orZero / 2).toSafeFloat(), (viewHeight.orZero / 2).toSafeFloat(), true)
-        point.x /= drawableWidth.toFloat()
-        point.y /= drawableHeight.toFloat()
+        point.x /= drawableWidth.toSafeFloat()
+        point.y /= drawableHeight.toSafeFloat()
         return point
     }
 
