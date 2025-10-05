@@ -47,8 +47,6 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //框架库
+    // 框架库
     implementation(project(":lib_common"))
-//    //转圈控件
-//    implementation("com.yanzhenjie:loading:1.0.2")
 }

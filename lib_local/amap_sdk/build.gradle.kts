@@ -38,8 +38,8 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //框架库
+    // 框架库
     implementation(project(":lib_framework"))
-    //高德地图
+    // 高德地图
     api(files("libs/AMap3DMap_10.1.300_AMapSearch_9.7.4_AMapLocation_6.4.9_20250509.jar"))
 }

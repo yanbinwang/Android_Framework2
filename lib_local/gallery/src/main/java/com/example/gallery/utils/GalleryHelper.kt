@@ -38,6 +38,31 @@ class GalleryHelper {
     private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
+    companion object {
+        /**
+         * 计算适合第三方库aspectRatio(x: Float, y: Float)方法的浮点参数
+         * @return Pair<Float, Float> 宽比例和高比例的浮点形式（如16:9返回(16f, 9f)）
+         */
+        @JvmStatic
+        fun calculateFloatAspectRatio(width: Int, height: Int): Pair<Float, Float> {
+            if (width == 0 || height == 0) {
+                return 0f to 0f // 处理无效值
+            }
+            // 计算最大公约数简化比例
+            val gcd = gcd(width, height)
+            val simplifiedWidth = width / gcd
+            val simplifiedHeight = height / gcd
+            // 转换为浮点型返回
+            return simplifiedWidth.toFloat() to simplifiedHeight.toFloat()
+        }
+
+        // 最大公约数计算（复用之前的实现）
+        private fun gcd(a: Int, b: Int): Int {
+            return if (b == 0) a else gcd(b, a % b)
+        }
+
+    }
+
     /**
      * 1.AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
      * 2.FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
@@ -69,16 +94,16 @@ class GalleryHelper {
     /**
      * 创建相册统一配置
      */
-    private fun Context?.getAlbumWidget(color: Int = R.color.bgBlack): Widget? {
+    private fun Context?.getAlbumWidget(barColor: Int = R.color.bgBlack): Widget? {
         this ?: return null
         return Widget.newDarkBuilder(this)
-            //标题 ---标题颜色只有黑色白色
+            // 标题 ---标题颜色只有黑色白色
             .title(string(R.string.albumTitle))
-            //状态栏颜色
-            .statusBarColor(color)
-            //导航栏颜色
-            .navigationBarColor(color)
-            //构建配置
+            // 状态栏颜色
+            .statusBarColor(barColor)
+            // 导航栏颜色
+            .navigationBarColor(barColor)
+            // 构建配置
             .build()
     }
 
@@ -99,14 +124,15 @@ class GalleryHelper {
      */
     fun recordVideo(filePath: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
         imageCamera?.video()
-            //视频输出路径
+            // 视频输出路径
             ?.filePath(filePath)
-            //视频质量, [0, 1].
+            // 视频质量, [0, 1].
             ?.quality(1)
-            //视频的最长持续时间以毫秒为单位
+            // 视频的最长持续时间以毫秒为单位
             ?.limitDuration(duration)
-//                           .limitBytes(Long.MAX_VALUE)//视频的最大大小，以字节为单位
-            //完成回调
+//            // 视频的最大大小，以字节为单位
+//            .limitBytes(Long.MAX_VALUE)
+            // 完成回调
             ?.onResult {
                 listener.invoke(it)
             }
@@ -118,19 +144,19 @@ class GalleryHelper {
      */
     fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String?) -> Unit = {}) {
         imageMultiple
-            //多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
+            // 多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
             ?.singleChoice()
-            //状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
+            // 状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
             ?.widget(widget)
-            //是否具备相机
+            // 是否具备相机
             ?.camera(hasCamera)
-            //页面列表的列数
+            // 页面列表的列数
             ?.columnCount(3)
-            //防止加载系统缓存图片
+            // 防止加载系统缓存图片
             ?.filterSize { it == 0L }
-            //筛选文件的可见性
+            // 筛选文件的可见性
             ?.afterFilterVisibility(false)
-            //选择后回调
+            // 选择后回调
             ?.onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {
@@ -177,45 +203,45 @@ class GalleryHelper {
      * }
      * }
      */
-    fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, quality: Int = 80) {
+    fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, @Durban.FormatTypes format: Int = Durban.COMPRESS_JPEG, @Durban.GestureTypes gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
         durban
-            //裁剪界面的标题
+            // 裁剪界面的标题
             ?.title(string(R.string.durbanTitle))
-            //状态栏颜色
+            // 状态栏颜色
             ?.statusBarColor(R.color.bgBlack)
-            //导航栏颜色
+            // 导航栏颜色
             ?.navigationBarColor(R.color.bgBlack)
-            //图片路径list或者数组
+            // 图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
-            //图片输出文件夹路径
+            // 图片输出文件夹路径
             ?.outputDirectory(getStoragePath("裁剪图片"))
-            //裁剪图片输出的最大宽高
+            // 裁剪图片输出的最大宽高
             ?.maxWidthHeight(width, height)
-            //裁剪时的宽高比
-            ?.aspectRatio(1f, 1f)
-            //图片压缩格式：JPEG、PNG
-            ?.compressFormat(Durban.COMPRESS_JPEG)
-            //图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
+            // 裁剪时的宽高比
+            ?.aspectRatio(x, y)
+            // 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
             ?.compressQuality(quality)
-            //裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-            ?.gesture(Durban.GESTURE_SCALE)
-            //底部操作栏配置
+            // 图片压缩格式：JPEG、PNG
+            ?.compressFormat(format)
+            // 裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
+            ?.gesture(gesture)
+            // 底部操作栏配置
             ?.controller(Controller.newBuilder()
-                //是否开启控制面板
-                .enable(false)
-                //是否有旋转按钮
+                // 是否开启控制面板
+                .enable(controller)
+                // 是否有旋转按钮
                 .rotation(true)
-                //旋转控制按钮上面的标题
+                // 旋转控制按钮上面的标题
                 .rotationTitle(true)
-                //是否有缩放按钮
+                // 是否有缩放按钮
                 .scale(true)
-                //缩放控制按钮上面的标题
+                // 缩放控制按钮上面的标题
                 .scaleTitle(true)
-                //构建配置
+                // 构建配置
                 .build())
-            //创建控制面板配置
+            // 创建控制面板配置
             ?.requestCode(RESULT_ALBUM)
-            //开始跳转
+            // 开始跳转
             ?.start()
     }
 
