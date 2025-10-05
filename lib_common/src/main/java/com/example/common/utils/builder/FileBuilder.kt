@@ -98,7 +98,7 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Sa
                 //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
                 bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
                 outputStream.flush()
-                bitmap.recycle()
+                bitmap.safeRecycle()
             }
             file.absolutePath
         } else {
