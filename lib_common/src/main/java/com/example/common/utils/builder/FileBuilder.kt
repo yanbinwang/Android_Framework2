@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat.JPEG
 import android.graphics.Bitmap.CompressFormat.PNG
+import android.graphics.Bitmap.CompressFormat.WEBP
 import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.Color
@@ -15,12 +16,16 @@ import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
 import androidx.exifinterface.media.ExifInterface
-import androidx.exifinterface.media.ExifInterface.ORIENTATION_NORMAL
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_FLIP_HORIZONTAL
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_FLIP_VERTICAL
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_180
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270
 import androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSPOSE
+import androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSVERSE
 import androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION
 import com.example.common.R
 import com.example.common.network.CommonApi
@@ -36,6 +41,7 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.read
+import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
 import com.example.common.utils.i18n.string
@@ -73,20 +79,21 @@ import kotlin.coroutines.resumeWithException
 suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     return withContext(IO) {
         if (null != bitmap) {
-            //存储目录文件
+            // 存储目录文件
             val storeDir = File(root)
-            //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+            // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
             if (deleteDir) root.deleteDir()
             root.isMkdirs()
-            //根据要保存的格式，返回对应后缀名->安卓只支持以下三种
+            // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
             val suffix = when (format) {
                 JPEG -> "jpg"
                 PNG -> "png"
-                else -> "webp"
+                WEBP -> "webp"
+                else -> "jpg"
             }
-            //在目录文件夹下生成一个新的图片
+            // 在目录文件夹下生成一个新的图片
             val file = File(storeDir, "${fileName}.${suffix}")
-            //开流开始写入
+            // 开流开始写入
             file.outputStream().use { outputStream ->
                 //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
                 bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
@@ -123,7 +130,7 @@ suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
 }
 
 suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
-    //选择渲染哪一页的渲染数据
+    // 选择渲染哪一页的渲染数据
     return renderer.use {
         if (index > it.pageCount - 1) return null
         val page = it.openPage(index)
@@ -218,34 +225,64 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
  * 修整部分图片方向不正常
  * 取得一个新的图片文件
  */
-suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): File? {
+/**
+ * 旋转图片
+ * 修整部分图片方向不正常
+ * 取得一个新的图片文件
+ */
+suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100, originalDegree: Int = -1): File? {
     return try {
         withContext(IO) {
-            var mFile = file
-            if (readDegree(file.absolutePath) != 0f) {
-                var bitmap: Bitmap
-                val matrix = Matrix()
-                BitmapFactory.decodeFile(file.absolutePath).let {
-                    bitmap = Bitmap.createBitmap(it, 0, 0, it.width, it.height, matrix, true)
-                    it.recycle()
-                }
-                //根据格式，返回对应后缀名->安卓只支持以下三种
-                val suffix = when (format) {
-                    JPEG -> "jpg"
-                    PNG -> "png"
-                    else -> "webp"
-                }
-                val tempFile = File(getStoragePath("Save Image"), file.name.replace(".${suffix}", "_degree.${suffix}"))
-                if (tempFile.exists()) tempFile.delete()
-                tempFile.outputStream().use { outputStream ->
-                    //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-                    bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
-                    if (deleteDir) file.delete()
-                    mFile = tempFile
-                }
-                bitmap.recycle()
+            val degree = if (-1 == originalDegree) {
+                readImageRotation(file.absolutePath)
+            } else {
+                originalDegree
             }
-            mFile
+            // 如果不需要旋转，直接返回原文件
+            if (degree == 0) {
+                return@withContext file
+            }
+            // 解码图片,解码失败返回原文件
+            val originalBitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@withContext file
+            // 执行旋转
+            val rotatedBitmap = try {
+                // 应用旋转角度
+                val matrix = Matrix().apply {
+                    postRotate(degree.toSafeFloat())
+                }
+                // 按原始尺寸旋转，第三个参数true=保持图片抗锯齿（更清晰）
+                Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.width, originalBitmap.height, matrix, true)
+            } catch (e: Exception) {
+                // 旋转失败时返回原图（如内存不足）
+                e.printStackTrace()
+                originalBitmap
+            }
+            // 根据格式，返回对应后缀名->安卓只支持以下三种
+            val suffix = when (format) {
+                JPEG -> "jpg"
+                PNG -> "png"
+                WEBP -> "webp"
+                else -> "jpg"
+            }
+            // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
+            val rotatedFileName = file.name.replace(Regex("\\.${suffix}$"), "_rotated.${suffix}")
+            val rotatedFile = File(file.parent ?: getStoragePath("Save Image"), rotatedFileName)
+            // 保存旋转后的图片
+            rotatedFile.outputStream().use { outputStream ->
+                // 如果是PNG，无论quality为何值，压缩后图片文件大小都不会变化
+                val actualQuality = if (format == PNG) 100 else quality
+                rotatedBitmap.compress(format, actualQuality, outputStream)
+            }
+            // 回收资源
+            if (originalBitmap != rotatedBitmap) {
+                originalBitmap.safeRecycle()
+            }
+            rotatedBitmap.safeRecycle()
+            // 删除原文件
+            if (deleteDir && rotatedFile.exists() && file.exists()) {
+                file.delete()
+            }
+            if (rotatedFile.exists() && rotatedFile.length() > 0) rotatedFile else file
         }
     } catch (e: Exception) {
         throw e
@@ -253,23 +290,77 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
 }
 
 /**
- * 读取图片的方向
- * 部分手机拍摄需要设置手机屏幕screenOrientation
- * 不然会读取为0
+ * 读取图片的旋转角度:
+ * 1)使用手机相机拍摄照片时，相机会在图片文件（如 JPEG）中嵌入一组 Exif 元数据，其中包含拍摄时的设备方向、焦距、时间等信息
+ * 2)通过路径访问图片时，程序实际是在解析图片文件的二进制数据，从中提取出 Exif 区块中的Orientation值。这个值不是手机 “实时判断” 的，而是拍摄时就已经写入文件了
+ *
+ * 读不出角度的常见原因:
+ * 1)图片经过编辑、压缩或格式转换后，Exif 信息可能被清除
+ * 2)部分相机应用未规范写入Orientation标签
+ * 3)非相机拍摄的图片（如截图、网络图片）通常没有旋转角度信息
+ * 4)Android 10 + 的文件权限限制，可能导致直接通过路径无法读取 Exif（需用输入流方式）
  */
-private fun readDegree(path: String): Float {
-    var degree = 0f
-    var exifInterface: ExifInterface? = null
-    try {
-        exifInterface = ExifInterface(path)
-    } catch (_: IOException) {
+private fun readImageRotation(path: String): Int {
+    return try {
+        // 对于Android Q及以上版本，推荐使用ExifInterface的InputStream构造方法
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            readRotationFromStream(path)
+        } else {
+            readRotationFromPath(path)
+        }
+    } catch (e: Exception) {
+        // 输出异常以便调试
+        e.printStackTrace()
+        0
     }
-    when (exifInterface?.getAttributeInt(TAG_ORIENTATION, ORIENTATION_NORMAL)) {
-        ORIENTATION_ROTATE_90 -> degree = 90f
-        ORIENTATION_ROTATE_180 -> degree = 180f
-        ORIENTATION_ROTATE_270 -> degree = 270f
+}
+
+/**
+ * 从文件路径读取旋转角度（适用于Android Q以下）
+ */
+private fun readRotationFromPath(path: String): Int {
+    val exif = ExifInterface(path)
+    return getRotationFromExif(exif)
+}
+
+/**
+ * 从输入流读取旋转角度（适用于Android Q及以上）
+ */
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun readRotationFromStream(path: String): Int {
+    // 对于Android Q及以上，使用输入流方式更可靠
+    return try {
+        File(path).inputStream().use { inputStream ->
+            val exif = ExifInterface(inputStream)
+            getRotationFromExif(exif)
+        }
+    } catch (e: IOException) {
+        e.printStackTrace()
+        // 尝试降级使用路径方式
+        readRotationFromPath(path)
     }
-    return degree
+}
+
+/**
+ * 从ExifInterface中解析旋转角度
+ */
+private fun getRotationFromExif(exif: ExifInterface): Int {
+    val orientation = exif.getAttributeInt(TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
+    return when (orientation) {
+        ORIENTATION_ROTATE_90 -> 90
+        ORIENTATION_ROTATE_180 -> 180
+        ORIENTATION_ROTATE_270 -> 270
+        // 水平翻转无需旋转
+        ORIENTATION_FLIP_HORIZONTAL -> 0
+        // 垂直翻转等效180度
+        ORIENTATION_FLIP_VERTICAL -> 180
+        // 转置等效90度
+        ORIENTATION_TRANSPOSE -> 90
+        // 反转置等效270度
+        ORIENTATION_TRANSVERSE -> 270
+        // 其他情况默认不需要旋转
+        else -> 0
+    }
 }
 
 /**
@@ -361,13 +452,13 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
         throw RuntimeException(string(R.string.linkError))
     }
-    //清除目录下的所有文件
+    // 清除目录下的所有文件
     filePath.deleteDir()
-    //创建一个安装的文件，开启io协程写入
+    // 创建一个安装的文件，开启io协程写入
     val file = File(filePath.isMkdirs(), fileName)
     return withContext(IO) {
         try {
-            //开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
+            // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
             val body = CommonApi.instance.getDownloadApi(downloadUrl)
             val buf = ByteArray(2048)
             val total = body.contentLength()
@@ -396,9 +487,9 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
  */
 suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
     return withContext(IO) {
-        //存储目录文件
+        // 存储目录文件
         val storeDir = File(root)
-        //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+        // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
         if (deleteDir) root.deleteDir()
         root.isMkdirs()
         suspendingGlideDownload(mContext, string, storeDir)
@@ -407,7 +498,7 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
 
 private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
     ImageLoader.instance.downloadImage(mContext, string) { file ->
-        //此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+        // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
         if (null == file || !file.exists()) {
             it.resumeWithException(RuntimeException("下载失败"))
         } else {
