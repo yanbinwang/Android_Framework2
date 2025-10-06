@@ -59,14 +59,14 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //框架库
+    // 框架库
     api(project(":lib_framework"))
-    //不依赖于common的库统一放在lib_local里
+    // 不依赖于common的库统一放在lib_local里
     api(project(":lib_local:glide"))
     api(project(":lib_local:topsheet"))
-    //网络请求
+    // 网络请求
     api(libs.bundles.networking)
-    //其余第三方库
+    // 其余第三方库
     api(libs.autosize)
     api(libs.smartrefresh)
     api(libs.guide)
@@ -74,7 +74,7 @@ dependencies {
     api(libs.immersionbar)
     implementation(libs.stomp)
     implementation(libs.mmkv)
-    //页面路由
+    // 页面路由
     api(libs.alibaba.arouter.api)
     kapt(libs.alibaba.arouter.compiler)
 }
