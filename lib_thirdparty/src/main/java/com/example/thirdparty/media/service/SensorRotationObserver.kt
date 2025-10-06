@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils
+package com.example.thirdparty.media.service
 
 import android.content.Context
 import android.hardware.Sensor
@@ -7,6 +7,10 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.view.Surface
 import android.view.WindowManager
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * 手势处理帮助类
@@ -26,15 +30,19 @@ import android.view.WindowManager
  *    // 使用这个角度处理照片...
  * }
  */
-class SensorRotationHandler(context: Context) {
+class SensorRotationObserver(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     // 初始化传感器管理器
-    private val sensorManager by lazy { context.getSystemService(Context.SENSOR_SERVICE) as? SensorManager }
+    private val sensorManager by lazy { mActivity.getSystemService(Context.SENSOR_SERVICE) as? SensorManager }
     // 获取旋转矢量传感器
     private val rotationSensor by lazy { sensorManager?.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR) }
     // 获取窗口管理器用于获取显示旋转信息
-    private val windowManager by lazy { context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager }
+    private val windowManager by lazy { mActivity.getSystemService(Context.WINDOW_SERVICE) as? WindowManager }
     // 照片旋转角度变量
     var photoRotation = 0
+
+    init {
+        mActivity.lifecycle.addObserver(this)
+    }
 
     // 传感器监听器
     private val sensorEventListener by lazy { object : SensorEventListener {
@@ -56,7 +64,7 @@ class SensorRotationHandler(context: Context) {
         }
 
         override fun onAccuracyChanged(sensor: Sensor, accuracy: Int) {
-            // 精度变化时的处理（通常无需特别操作）
+        // 精度变化时的处理（通常无需特别操作）
         }
     }}
 
@@ -70,6 +78,17 @@ class SensorRotationHandler(context: Context) {
     // 取消传感器监听（重要：避免内存泄漏）
     fun unregisterSensorListener() {
         sensorManager?.unregisterListener(sensorEventListener)
+    }
+
+    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+        when (event) {
+            Lifecycle.Event.ON_RESUME -> registerSensorListener()
+            Lifecycle.Event.ON_PAUSE -> {
+                unregisterSensorListener()
+                source.lifecycle.removeObserver(this)
+            }
+            else -> {}
+        }
     }
 
 }
