@@ -87,7 +87,8 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> register()
+            Lifecycle.Event.ON_RESUME -> register()
+//            Lifecycle.Event.ON_PAUSE -> unregister() // 应用退到后台需要抓取,故而不注销
             Lifecycle.Event.ON_DESTROY -> {
                 unregister()
                 source.lifecycle.removeObserver(this)
@@ -100,6 +101,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
      * 注册监听
      */
     private fun register() {
+        unregister()
         mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
     }
 
