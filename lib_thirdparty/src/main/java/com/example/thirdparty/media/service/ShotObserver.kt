@@ -30,7 +30,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
-        //Query [ 图片媒体集 ] 包括： DCIM/ 和 Pictures/ 目录
+        // Query [ 图片媒体集 ] 包括： DCIM/ 和 Pictures/ 目录
 //        val columns = arrayOf(MediaStore.MediaColumns.DATE_ADDED, MediaStore.MediaColumns.DATA, MediaStore.Images.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Images.Media.MIME_TYPE, MediaStore.Images.Media.SIZE)
         val columns = arrayOf(
             MediaStore.MediaColumns.DATE_ADDED,
@@ -48,7 +48,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
 //                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 //                        cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
 //                    )
-                    //获取监听的路径
+                    // 获取监听的路径
 //                    val queryPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
                     val queryPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val sdPath = mActivity.getExternalFilesDir(null)?.absolutePath.orEmpty()
