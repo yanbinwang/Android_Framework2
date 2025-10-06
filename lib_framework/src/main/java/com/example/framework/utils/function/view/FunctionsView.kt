@@ -867,7 +867,7 @@ fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
     // 优先使用传入的 observer，否则自动获取当前 View 所在的 LifecycleOwner
     val targetObserver = observer ?: getLifecycleOwner()
     // 检查 Lifecycle 是否已销毁（避免给销毁的页面设置 Bitmap）
-    if (targetObserver?.lifecycle?.currentState?.isAtLeast(Lifecycle.State.DESTROYED).orFalse) {
+    if (targetObserver?.lifecycle?.currentState == Lifecycle.State.DESTROYED) {
         // 直接回收新 Bitmap，不设置
         if (!bit.isRecycled) {
             bit.recycle()
