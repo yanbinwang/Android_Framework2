@@ -217,7 +217,7 @@ class ImageLoader private constructor() {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
      */
-    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit, onLoadComplete: (bitmap: Bitmap?) -> Unit) {
+    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
         Glide.with(view.context)
             .asBitmap()
