@@ -5,6 +5,7 @@ import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
+import android.os.Build
 import android.view.Surface
 import android.view.WindowManager
 import androidx.fragment.app.FragmentActivity
@@ -55,7 +56,8 @@ class SensorRotationObserver(private val mActivity: FragmentActivity) : Lifecycl
     // 获取窗口管理器用于获取显示旋转信息
     private val windowManager by lazy { mActivity.getSystemService(Context.WINDOW_SERVICE) as? WindowManager }
     // 照片旋转角度变量
-    var photoRotation = 0
+    var screenRotationAngle = 0
+        private set
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -65,25 +67,31 @@ class SensorRotationObserver(private val mActivity: FragmentActivity) : Lifecycl
     private val sensorEventListener by lazy { object : SensorEventListener {
         override fun onSensorChanged(event: SensorEvent) {
             if (event.sensor.type == Sensor.TYPE_ROTATION_VECTOR) {
-                // 实际使用传感器数据计算旋转角度
-                val rotationMatrix = FloatArray(9)
-                SensorManager.getRotationMatrixFromVector(rotationMatrix, event.values)
-                // 获取设备旋转角度
-                val orientations = FloatArray(3)
-                SensorManager.getOrientation(rotationMatrix, orientations)
-                // 转换为角度（0-360度）
-                val degrees = (Math.toDegrees(orientations[0].toDouble()) + 360) % 360
-                photoRotation = degrees.toInt()
-                // 结合屏幕旋转进行修正
-                val displayRotation = windowManager?.defaultDisplay?.rotation ?: 0
-                photoRotation += when (displayRotation) {
-                    Surface.ROTATION_0 -> 0    // 竖屏（自然方向）
-                    Surface.ROTATION_90 -> 90   // 横向（右侧横屏）
-                    Surface.ROTATION_180 -> 180 // 倒置竖屏
-                    Surface.ROTATION_270 -> 270 // 横向（左侧横屏）
+                // 直接获取系统屏幕旋转状态对应的标准角度
+                screenRotationAngle = getScreenRotation()
+            }
+        }
+
+        /**
+         * 兼容API 23+的屏幕旋转角度获取方法
+         * 避免使用已过期的defaultDisplay.rotation
+         */
+        private fun getScreenRotation(): Int {
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // API 30+ 新方法
+                mActivity.display?.rotation
+            } else {
+                // API 23-29 兼容方法
+                windowManager?.defaultDisplay?.rotation
+            }.let { rotation ->
+                // 转换为对应的角度值
+                when (rotation) {
+                    Surface.ROTATION_0 -> 0
+                    Surface.ROTATION_90 -> 90
+                    Surface.ROTATION_180 -> 180
+                    Surface.ROTATION_270 -> 270
                     else -> 0
                 }
-                photoRotation %= 360
             }
         }
 
