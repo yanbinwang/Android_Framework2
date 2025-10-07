@@ -30,23 +30,6 @@ import androidx.lifecycle.LifecycleOwner
  *    val rotation = rotationHandler.photoRotation
  *    // 使用这个角度处理照片...
  * }
- * <!-- 在AndroidManifest.xml中添加 -->
- * <uses-permission android:name="android.permission.INTERNET" />
- * <!-- 传感器基础权限（非危险权限，无需动态申请） -->
- * <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
- * <uses-feature android:name="android.hardware.sensor.rotation_vector" android:required="false" />
- * android:required="false"表示应用可以在没有该传感器的设备上运行。
- * 从 Android 10 (API 29) 开始，对后台传感器使用有严格限制：
- * 当应用处于后台时，传感器更新频率会降低或停止
- * 如果需要在后台使用，需在AndroidManifest.xml中添加：
- * xml
- * <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
- * 并在代码中动态申请（虽然这是定位权限，但传感器在后台使用时可能需要）：
- * kotlin
- * // 在Activity中申请
- * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
- *     requestPermissions(arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION), 1001)
- * }
  */
 class SensorRotationObserver(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     // 初始化传感器管理器
