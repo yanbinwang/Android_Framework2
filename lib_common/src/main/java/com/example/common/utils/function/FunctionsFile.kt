@@ -253,6 +253,59 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
 }
 
 /**
+ * 重命名文件
+ * @param this 原始文件
+ * @param newFileName 新的文件名（仅文件名，不包含路径）
+ * @return 是否重命名成功
+ */
+fun File?.renameFile(newFileName: String): Boolean {
+    this ?: return false
+    // 检查原始文件是否存在
+    if (!exists()) {
+        return false
+    }
+    // 获取原始文件的父目录
+    val parentDir = parentFile
+    if (parentDir == null || !parentDir.exists()) {
+        return false
+    }
+    // 创建目标文件（新路径 + 新文件名）
+    val targetFile = File(parentDir, newFileName)
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    // 执行重命名操作
+    return renameTo(targetFile)
+}
+
+/**
+ * 重命名文件（可以指定新路径）
+ * @param this 原始文件
+ * @param targetFile 目标文件（包含新路径和新文件名）
+ * @return 是否重命名成功
+ */
+fun File?.renameFileTo(targetFile: File): Boolean {
+    this ?: return false
+    if (!exists()) {
+        return false
+    }
+    // 确保目标文件的父目录存在
+    val targetParent = targetFile.parentFile
+    if (targetParent != null && !targetParent.exists()) {
+        // 创建父目录（包括所有必要的父目录）
+        if (!targetParent.mkdirs()) {
+            return false
+        }
+    }
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    return renameTo(targetFile)
+}
+
+/**
  * 读取文件到文本（文本，找不到文件或读取错返回null）
  * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
@@ -300,26 +353,6 @@ internal fun File?.getBase64(): String {
  * 获取文件hash值
  * 满足64位哈希，不足则前位补0
  */
-//internal fun File?.getHash(): String {
-//    this ?: return ""
-//    return inputStream().use { input ->
-//        val digest = MessageDigest.getInstance("SHA-256")
-//        val array = ByteArray(1024)
-//        var len: Int
-//        while (input.read(array, 0, 1024).also { len = it } != -1) {
-//            digest.update(array, 0, len)
-//        }
-//        //检测是否需要补0
-//        val bigInt = BigInteger(1, digest.digest())
-//        var hash = bigInt.toString(16)
-//        if (hash.length < 64) {
-//            for (i in 0 until 64 - hash.length) {
-//                hash = "0$hash"
-//            }
-//        }
-//        hash
-//    }
-//}
 internal fun File?.getHash(): String {
     return this?.inputStream()?.use { input ->
         val digest = MessageDigest.getInstance("SHA-256")
