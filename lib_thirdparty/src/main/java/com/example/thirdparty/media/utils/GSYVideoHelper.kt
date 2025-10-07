@@ -5,6 +5,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
@@ -23,15 +24,11 @@ import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @description 播放器帮助类
@@ -47,18 +44,18 @@ import kotlin.coroutines.CoroutineContext
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, LifecycleEventObserver {
+class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isPause = false
     private var isPlay = false
     private var retryWithPlay = false
-    private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
+    private var restartJob: Job? = null
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val mGSYSampleCallBack by lazy { object : GSYSampleCallBack() {
         override fun onPrepared(url: String?, vararg objects: Any?) {
             super.onPrepared(url, *objects)
-            //开始播放了才能旋转和全屏
+            // 开始播放了才能旋转和全屏
             isPlay = true
             orientationUtils?.isEnable = true
         }
@@ -74,8 +71,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
                 retryWithPlay = true
                 player.disable()
                 restartJob?.cancel()
-                restartJob = launch {
-                    //允许硬件解码，装载IJK播放器内核
+                restartJob = mActivity.lifecycleScope.launch {
+                    // 允许硬件解码，装载IJK播放器内核
 //                GSYVideoType.enableMediaCodec()
                     GSYVideoType.enableMediaCodecTexture()
                     PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
@@ -87,8 +84,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
             }
         }
     }}
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -99,30 +94,30 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
      */
     fun bind(player: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
         this.player = player
-        //屏幕展示效果->采用基础配资
+        // 屏幕展示效果 -> 采用基础配资
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
-        //设置底层渲染,关闭硬件解码
+        // 设置底层渲染,关闭硬件解码
         GSYVideoType.setRenderType(GSYVideoType.GLSURFACE)
 //        GSYVideoType.disableMediaCodec()
         GSYVideoType.disableMediaCodecTexture()
-        //默认采用exo内核，播放报错则切ijk内核
+        // 默认采用exo内核，播放报错则切ijk内核
         PlayerFactory.setPlayManager(Exo2PlayerManager::class.java)
         CacheFactory.setCacheManager(ExoPlayerCacheManager::class.java)
-        //配置适配遮罩，隐藏默认的顶部菜单的返回/标题
+        // 配置适配遮罩，隐藏默认的顶部菜单的返回/标题
         player?.thumbImageView = mBinding.root
         player?.titleTextView?.gone()
         player?.backButton?.gone()
         if (!fullScreen) {
             player?.fullscreenButton?.gone()
         } else {
-            //外部辅助的旋转，帮助全屏
+            // 外部辅助的旋转，帮助全屏
             orientationUtils = OrientationUtils(mActivity, player)
-            //初始化不打开外部的旋转
+            // 初始化不打开外部的旋转
             orientationUtils?.isEnable = false
-            //直接横屏
+            // 直接横屏
             player?.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
-                //第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
+                // 第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
                 player.startWindowFullscreen(player.context, true, true)
             }
         }
@@ -132,7 +127,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
      * 设置播放路径，缩略图，是否自动开始播放
      */
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
-        //加载图片
+        // 加载图片
         if (thumbUrl.isNullOrEmpty()) {
             ImageLoader.instance.loadVideoFrame(mBinding.ivThumb, url)
         } else {
@@ -237,7 +232,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
      */
     fun destroy() {
         restartJob?.cancel()
-        job.cancel()
         orientationUtils?.releaseListener()
         player?.currentPlayer?.release()
         player?.release()
