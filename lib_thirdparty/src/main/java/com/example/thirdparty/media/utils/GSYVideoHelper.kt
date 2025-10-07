@@ -60,7 +60,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
             super.onPrepared(url, *objects)
             //开始播放了才能旋转和全屏
             isPlay = true
-            orientationUtils?.setEnable(true)
+            orientationUtils?.isEnable = true
         }
 
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
@@ -139,14 +139,24 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : CoroutineScope, 
             ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
         }
         GSYVideoOptionBuilder()
+            // 是否可以滑动界面改变进度，声音等 默认true
             .setIsTouchWiget(false)
+            // 是否开启自动旋转
             .setRotateViewAuto(false)
+            // 是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏，注意，这时候默认旋转无效
             .setAutoFullWithSize(true)
+            // 是否使用全屏动画效果
             .setShowFullAnimation(false)
+            // 是否需要显示流量提示,默认true
+            .setNeedShowWifiTip(false)
+            // 是否需要全屏锁定屏幕功能 如果单独使用请设置setIfCurrentIsFullscreen为true
             .setNeedLockFull(false)
 //            .setSetUpLazy(setUpLazy)
+            // 播放url
             .setUrl(url)
+            // 是否边缓存，m3u8等无效
             .setCacheWithPlay(false)
+            // 设置播放过程中的回调
             .setVideoAllCallBack(mGSYSampleCallBack)
 //            .setLockClickListener { _, lock ->
 //                //配合下方的onConfigurationChanged
