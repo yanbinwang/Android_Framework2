@@ -6,6 +6,7 @@ import com.bumptech.glide.request.target.ImageViewTarget
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.doOnceAfterLayout
 
 /**
  *  Created by wangyanbin
@@ -19,19 +20,29 @@ import com.example.framework.utils.function.value.toSafeInt
 class ZoomTransform(private var target: ImageView) : ImageViewTarget<Bitmap>(target) {
 
     override fun setResource(resource: Bitmap?) {
-        view.setImageBitmap(resource)
-        // 获取原图的宽高
-        val width = resource?.width.orZero
-        val height = resource?.height.orZero
-        // 获取imageView的宽
-        val targetWidth = target.width
-        // 计算缩放比例
-        val sy = (targetWidth * 0.1).toSafeFloat() / (width * 0.1).toSafeFloat()
-        // 计算图片等比例放大后的高
-        val targetHeight = (height * sy).toSafeInt()
-        val params = target.layoutParams
-        params?.height = targetHeight
-        target.layoutParams = params
+        resource ?: return
+        // 显式使用 target 调用扩展函数，与类成员变量保持一致
+        target.doOnceAfterLayout { imageView ->
+            // 获取原图宽高
+            val originalWidth = resource.width
+            val originalHeight = resource.height
+            // 获取ImageView宽高（此时已确保布局完成）
+            val targetWidth = imageView.width
+            // 安全校验：避免原图宽高为0导致的异常
+            if (originalWidth <= 0 || originalHeight <= 0 || targetWidth <= 0) {
+                target.setImageBitmap(resource)
+                return@doOnceAfterLayout
+            }
+            // 计算缩放比例
+            val scale = targetWidth.toFloat() / originalWidth.toFloat()
+            // 计算目标高度（保持比例）
+            val targetHeight = (originalHeight * scale).toInt()
+            // 设置图片和调整高度
+            target.setImageBitmap(resource)
+            target.layoutParams?.height = targetHeight
+//            // 某些场景下需要显式触发布局更新
+//            target.requestLayout()
+        }
     }
 
 }
