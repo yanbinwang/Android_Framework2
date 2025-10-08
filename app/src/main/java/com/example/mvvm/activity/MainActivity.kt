@@ -41,6 +41,7 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
+import com.example.glide.ImageLoader
 import com.example.mvvm.BR
 import com.example.mvvm.R
 import com.example.mvvm.bean.DataBindingBean
@@ -53,6 +54,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 import kotlin.random.Random
 
@@ -400,6 +402,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         super.initView(savedInstanceState)
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
+        launch {
+            delay(3000)
+//            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
+//                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg",
+//                cornerRadius = 20.pt)
+            ImageLoader.instance.loadScaledImage(mBinding?.ivThumb,
+                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
+        }
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         ActivityMainBinding.inflate(layoutInflater)
         mBinding?.ivArrow.click {

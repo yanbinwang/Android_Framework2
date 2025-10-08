@@ -48,7 +48,6 @@ class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
                 } else {
                     R.string.responseError.shortToast()
                 }
-                mBinding?.ivCover.fade()
                 mBinding?.ivTake.enable()
             }
 
@@ -60,7 +59,7 @@ class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
 
     override fun onClick(v: View?) {
         when(v?.id){
-            R.id.iv_take -> camera.takePicture(mBinding?.ivCover)
+            R.id.iv_take -> camera.takePicture()
             R.id.fl_flash -> camera.flash()
             R.id.fl_switch -> camera.toggleFacing()
         }

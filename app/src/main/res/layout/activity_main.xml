@@ -217,6 +217,13 @@
             android:gravity="center"
             android:textSize="@dimen/textSize18" />
 
+        <ImageView
+            android:id="@+id/iv_thumb"
+            android:layout_width="match_parent"
+            android:layout_height="400pt"
+            android:layout_gravity="center"
+            android:scaleType="fitXY" />
+
     </FrameLayout>
 
 </layout>

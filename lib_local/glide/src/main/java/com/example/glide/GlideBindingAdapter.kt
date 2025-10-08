@@ -1,5 +1,6 @@
 package com.example.glide
 
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.databinding.BindingAdapter
@@ -110,18 +111,20 @@ object GlideBindingAdapter {
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius"], requireAll = false)
-    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, cornerRadius: Int?) {
+    @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius", "rounded_overrideColor"], requireAll = false)
+    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
         val effectiveErrorResource = errorResource ?: DEFAULT_ROUNDED_RESOURCE
         val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
-        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt())
+        val effectiveOverrideColor = overrideColor ?: Color.WHITE
+        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius"], requireAll = false)
-    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int?, cornerRadius: Int?) {
+    @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius", "rounded_overrideColor"], requireAll = false)
+    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
         val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
-        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt())
+        val effectiveOverrideColor = overrideColor ?: Color.WHITE
+        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor)
     }
 
     /**
