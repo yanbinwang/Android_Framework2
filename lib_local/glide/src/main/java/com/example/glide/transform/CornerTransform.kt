@@ -24,7 +24,7 @@ import java.security.MessageDigest
  * @overRide leftTop/rightTop/leftBottom/rightBottom
  * @radius 弧度
  */
-class CornerTransform(context: Context, private var overRide: BooleanArray, private var adjustedRadius: Float, private val bgColor: Int = Color.WHITE) : Transformation<Bitmap> {
+class CornerTransform(context: Context, private var overRide: BooleanArray, private var targetRadius: Float, private val bgColor: Int = Color.WHITE) : Transformation<Bitmap> {
     // 当前Glide线程池
     private val mBitmapPool = Glide.get(context).bitmapPool
 
@@ -55,7 +55,7 @@ class CornerTransform(context: Context, private var overRide: BooleanArray, priv
         paint.shader = shader
         // 绘制圆角矩形
         val rectF = RectF(0f, 0f, finalWidth.toSafeFloat(), finalHeight.toSafeFloat())
-        canvas.drawRoundRect(rectF, adjustedRadius, adjustedRadius, paint)
+        canvas.drawRoundRect(rectF, targetRadius, targetRadius, paint)
         // 绘制“扣掉内部圆角的遮罩”，覆盖边缘灰色
         val maskPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = bgColor // 必须与背景色一致！！
@@ -66,23 +66,23 @@ class CornerTransform(context: Context, private var overRide: BooleanArray, priv
         // 先添加外层大矩形（覆盖整个图片）
         maskPath.addRect(0f, 0f, finalWidth.toFloat(), finalHeight.toFloat(), Path.Direction.CW)
         // 再减去内部圆角矩形（与图片圆角一致）
-        maskPath.addRoundRect(rectF, adjustedRadius, adjustedRadius, Path.Direction.CW)
+        maskPath.addRoundRect(rectF, targetRadius, targetRadius, Path.Direction.CW)
         // 设置路径运算模式：DIFFERENCE = 外层 - 内层（得到环形区域）
         maskPath.fillType = Path.FillType.EVEN_ODD
         // 绘制遮罩（环形区域会覆盖图片边缘，包括灰色部分）
         canvas.drawPath(maskPath, maskPaint)
         // 处理需要排除的角（绘制直角）
         if (overRide[0]) {
-            canvas.drawRect(0f, 0f, adjustedRadius, adjustedRadius, paint)
+            canvas.drawRect(0f, 0f, targetRadius, targetRadius, paint)
         }
         if (overRide[1]) {
-            canvas.drawRect(finalWidth - adjustedRadius, 0f, finalWidth.toSafeFloat(), adjustedRadius, paint)
+            canvas.drawRect(finalWidth - targetRadius, 0f, finalWidth.toSafeFloat(), targetRadius, paint)
         }
         if (overRide[2]) {
-            canvas.drawRect(0f, finalHeight - adjustedRadius, adjustedRadius, finalHeight.toSafeFloat(), paint)
+            canvas.drawRect(0f, finalHeight - targetRadius, targetRadius, finalHeight.toSafeFloat(), paint)
         }
         if (overRide[3]) {
-            canvas.drawRect(finalWidth - adjustedRadius, finalHeight - adjustedRadius, finalWidth.toSafeFloat(), finalHeight.toSafeFloat(), paint)
+            canvas.drawRect(finalWidth - targetRadius, finalHeight - targetRadius, finalWidth.toSafeFloat(), finalHeight.toSafeFloat(), paint)
         }
         // 回收原始资源
         resource.recycle()
@@ -100,7 +100,7 @@ class CornerTransform(context: Context, private var overRide: BooleanArray, priv
         // 更新“变换标识”（固定字符串，区分不同Transform）
         messageDigest.update("CornerTransform".toByteArray())
         // 更新“圆角半径”（转成字节数组）
-        messageDigest.update(adjustedRadius.toString().toByteArray())
+        messageDigest.update(targetRadius.toString().toByteArray())
         // 更新“排除角数组”（遍历每个布尔值，转成字节）
         for (bool in overRide) {
             messageDigest.update(if (bool) "1".toByteArray() else "0".toByteArray())

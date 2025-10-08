@@ -251,6 +251,34 @@
     </style>
 
     <!--
+        弧形cardview默认配置,需要注意是4个角都是弧形
+        CardView(context).apply {
+                // 阴影高度设为0
+                cardElevation = 0f
+                // 最大阴影高度设为0
+                maxCardElevation = 0f
+                // 兼容低版本的阴影属性
+                elevation = 0f
+                // 圆角半径（按需调整）
+                radius = cornerRadius
+                // 防止图片溢出圆角
+                preventCornerOverlap = true
+                // 无阴影时可关闭兼容padding
+                useCompatPadding = false
+                // 透明背景
+                setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+            }
+    -->
+    <style name="CardViewStyle">
+        <item name="elevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardPreventCornerOverlap">true</item>
+        <item name="cardUseCompatPadding">false</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
+    </style>
+
+    <!--
         App全局定义CheckBox样式
         <CheckBox
           android:id="@+id/ckClause"
