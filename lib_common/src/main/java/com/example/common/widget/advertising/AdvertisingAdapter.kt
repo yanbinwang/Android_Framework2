@@ -2,15 +2,19 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.utils.function.pt
+import com.example.common.R
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.size
 import com.example.glide.ImageLoader
-
 
 /**
  *  Created by wangyanbin
@@ -24,7 +28,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ImageView(parent.context))
+        return ViewHolder(CardView(ContextThemeWrapper(parent.context, R.style.CardViewStyle)).apply {
+            radius = radius.ptFloat
+        })
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
@@ -32,12 +38,18 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             click {
                 onItemClick?.invoke(position.mod(list.safeSize))
             }
-            val bean = list.safeGet(position.mod(list.safeSize)) ?: return
-            val image = (this as? ImageView) ?: return
+            val uri = list.safeGet(position.mod(list.safeSize)) ?: return
+            val image = ImageView(context)
+            image.scaleType = ImageView.ScaleType.FIT_XY
+            (this as? CardView)?.also {
+                it.addView(image)
+                it.radius = this@AdvertisingAdapter.radius.ptFloat
+            }
+            image.size(MATCH_PARENT,MATCH_PARENT)
             if (localAsset) {
-                ImageLoader.instance.loadRoundedDrawableFromResource(image, context.defTypeMipmap(bean), cornerRadius = radius.pt)
+                ImageLoader.instance.loadImageDrawableFromResource(image, context.defTypeMipmap(uri))
             } else {
-                ImageLoader.instance.loadRoundedImageFromUrl(image, bean, cornerRadius = radius.pt)
+                ImageLoader.instance.loadImageDrawableFromUrl(image, uri)
             }
         }
     }
@@ -61,11 +73,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         this.onItemClick = onItemClick
     }
 
-    class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
+    class ViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
         init {
-            //设置缩放方式
-            itemView.scaleType = ImageView.ScaleType.FIT_XY
-            itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
+            itemView.layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }
     }
 

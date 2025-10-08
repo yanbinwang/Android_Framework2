@@ -224,6 +224,12 @@
             android:layout_gravity="center"
             android:scaleType="fitXY" />
 
+        <FrameLayout
+            android:id="@+id/fl_card"
+            android:layout_gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="600pt"/>
+
     </FrameLayout>
 
 </layout>

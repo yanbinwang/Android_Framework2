@@ -3,7 +3,10 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.ImageView
+import androidx.appcompat.view.ContextThemeWrapper
+import androidx.cardview.widget.CardView
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
@@ -16,6 +19,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -31,7 +35,6 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
-import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
@@ -39,12 +42,9 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
-import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
 import com.example.glide.ImageLoader
-import com.example.mvvm.BR
 import com.example.mvvm.R
-import com.example.mvvm.bean.DataBindingBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
@@ -56,7 +56,6 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import kotlin.random.Random
 
 /**
  *  <data>
@@ -406,9 +405,20 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             delay(3000)
 //            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg",
-//                cornerRadius = 20.pt)
-            ImageLoader.instance.loadScaledImage(mBinding?.ivThumb,
+//                cornerRadius = 60.dp)
+//            ImageLoader.instance.loadScaledImage(mBinding?.ivThumb,
+//                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
+            val card = CardView(ContextThemeWrapper(this@MainActivity, R.style.CardViewStyle)).apply {
+                radius = 10.ptFloat
+            }
+            card.size(MATCH_PARENT,MATCH_PARENT)
+            val imageView = ImageView(this@MainActivity)
+            imageView.scaleType = ImageView.ScaleType.FIT_XY
+            card.addView(imageView)
+            imageView.size(MATCH_PARENT,MATCH_PARENT)
+            ImageLoader.instance.loadImageFromUrl(imageView,
                 "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
+            mBinding?.flCard?.addView(card)
         }
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         ActivityMainBinding.inflate(layoutInflater)
