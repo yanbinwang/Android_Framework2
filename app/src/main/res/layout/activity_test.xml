@@ -28,14 +28,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/title_root" />
 
-        <ImageView
-            android:id="@+id/iv_cover"
-            android:layout_width="match_parent"
-            android:layout_height="0pt"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="@id/camera"
-            app:layout_constraintTop_toBottomOf="@id/title_root" />
-
         <com.example.thirdparty.media.widget.ViewfinderView
             android:id="@+id/mask"
             android:layout_width="match_parent"

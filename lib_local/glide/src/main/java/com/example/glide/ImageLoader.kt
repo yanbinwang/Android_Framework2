@@ -3,6 +3,7 @@ package com.example.glide
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
@@ -20,10 +21,10 @@ import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
-import com.example.glide.transform.ZoomTransform
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -79,6 +80,12 @@ class ImageLoader private constructor() {
          */
         @JvmStatic
         val DEFAULT_CORNER_RADIUS = 5
+
+        /**
+         * 获取默认弧形遮罩背景
+         */
+        @JvmStatic
+        val DEFAULT_CORNER_COLOR = Color.WHITE
 
         /**
          * 圆角图片4个边是否都是弧线
@@ -180,7 +187,9 @@ class ImageLoader private constructor() {
         val progressFlow = createProgressFlow(imageUrl)
         Glide.with(view.context)
             .load(imageUrl)
-            .apply(RequestOptions().skipMemoryCache(true).diskCacheStrategy(DiskCacheStrategy.NONE))
+            .apply(RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE))
             .addListener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
                     scope.launch {
@@ -222,7 +231,11 @@ class ImageLoader private constructor() {
         Glide.with(view.context)
             .asBitmap()
             .load(imageUrl)
-            .placeholder(DEFAULT_MASK_RESOURCE)
+            .apply(RequestOptions()
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.NONE))
+            .placeholder(DEFAULT_RESOURCE)
+            .error(DEFAULT_MASK_RESOURCE)
 //            .dontAnimate()
             .smartFade(view)
             .listener(object : GlideRequestListener<Bitmap>() {
@@ -232,9 +245,32 @@ class ImageLoader private constructor() {
 
                 override fun onLoadFinished(resource: Bitmap?) {
                     onLoadComplete(resource)
+                    if (null != resource) {
+                        transform(view, resource)
+                    }
                 }
             })
-            .into(ZoomTransform(view))
+            .into(view)
+    }
+
+    private fun transform(target: ImageView, resource: Bitmap) {
+        target.doOnceAfterLayout { imageView ->
+            // 获取原图宽高
+            val originalWidth = resource.width
+            val originalHeight = resource.height
+            // 获取ImageView宽高（此时已确保布局完成）
+            val targetWidth = imageView.width
+            // 安全校验：避免原图宽高为0导致的异常
+            if (originalWidth <= 0 || originalHeight <= 0 || targetWidth <= 0) {
+                return@doOnceAfterLayout
+            }
+            // 计算缩放比例
+            val scale = targetWidth.toFloat() / originalWidth.toFloat()
+            // 计算目标高度（保持比例）
+            val targetHeight = (originalHeight * scale).toInt()
+            // 调整高度
+            target.layoutParams?.height = targetHeight
+        }
     }
 
     /**
@@ -351,8 +387,8 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
-        loadRoundedDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
+    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
+        loadRoundedDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners, overrideColor)
     }
 
     /**
@@ -363,8 +399,8 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
-        loadRoundedDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners)
+    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
+        loadRoundedDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners, overrideColor)
     }
 
     /**
@@ -375,15 +411,14 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径，默认值为 5
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
+    fun loadRoundedDrawableFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
         view ?: return
         Glide.with(view.context)
             .load(imageUrl)
             .also {
                 if (cornerRadius > 0) {
-                    val cornerTransform = CornerTransform(view.context, cornerRadius.toSafeFloat())
-                    cornerTransform.setExceptCorner(overrideCorners)
-                    it.apply(RequestOptions.bitmapTransform(cornerTransform))
+                    val transformation = CornerTransform(view.context, overrideCorners, cornerRadius.toSafeFloat(), overrideColor)
+                    it.apply(RequestOptions.bitmapTransform(transformation))
                 }
             }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
@@ -401,15 +436,14 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径，默认值为 5
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS) {
+    fun loadRoundedDrawableFromResource(view: ImageView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultRoundedDrawable(view), cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
         view ?: return
         Glide.with(view.context)
             .load(imageDrawable)
             .also {
                 if (cornerRadius > 0) {
-                    val cornerTransform = CornerTransform(view.context, cornerRadius.toSafeFloat())
-                    cornerTransform.setExceptCorner(overrideCorners)
-                    it.apply(RequestOptions.bitmapTransform(cornerTransform))
+                    val transformation = CornerTransform(view.context, overrideCorners, cornerRadius.toSafeFloat(), overrideColor)
+                    it.apply(RequestOptions.bitmapTransform(transformation))
                 }
             }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
