@@ -79,7 +79,7 @@ object GlideBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["scaled_imageUrl"])
     fun bindingScaledImage(view: ImageView, imageUrl: String?) {
-        ImageLoader.instance.loadScaledImage(view, imageUrl, { view.disable() }, { view.enable() })
+        ImageLoader.instance.loadScaledImage(view, imageUrl, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**

@@ -123,7 +123,6 @@ class ImageLoader private constructor() {
             }
             return transition(options as TransitionOptions<*, in T>)
         }
-
     }
 
     /**
@@ -224,10 +223,11 @@ class ImageLoader private constructor() {
      * 加载图片并根据设置的宽度等比例拉伸高度
      * @param view 用于显示图片的 ImageView
      * @param imageUrl 图片的 URL 地址
+     * @param errorDrawable 加载失败时显示的错误 Drawable
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
      */
-    fun loadScaledImage(view: ImageView?, imageUrl: String?, onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
+    fun loadScaledImage(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
         Glide.with(view.context)
             .asBitmap()
@@ -236,7 +236,7 @@ class ImageLoader private constructor() {
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE))
             .placeholder(DEFAULT_RESOURCE)
-            .error(DEFAULT_MASK_RESOURCE)
+            .error(errorDrawable)
 //            .dontAnimate()
             .smartFade(view)
             .listener(object : GlideRequestListener<Bitmap>() {
