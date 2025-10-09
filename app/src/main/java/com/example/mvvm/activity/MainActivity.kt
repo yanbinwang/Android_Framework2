@@ -2,20 +2,8 @@ package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
-import android.graphics.drawable.LayerDrawable
-import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
-import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.widget.ImageView
-import androidx.annotation.ColorRes
-import androidx.appcompat.view.ContextThemeWrapper
-import androidx.cardview.widget.CardView
 import androidx.core.graphics.drawable.toBitmapOrNull
-import androidx.core.graphics.drawable.toDrawable
-import androidx.lifecycle.ViewModel
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
@@ -23,12 +11,11 @@ import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
-import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.adjustRadiusDrawable
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.ptFloat
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -52,7 +39,6 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
 import com.example.gallery.utils.GalleryHelper
-import com.example.glide.ImageLoader
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
@@ -404,21 +390,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun isImmersionBarEnabled() = false
 
     private var index = 0
-
-    fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
-        this ?: return
-        val windowBackground = when (background) {
-            is ColorDrawable -> background
-            is BitmapDrawable, is VectorDrawable -> background
-            else -> null
-        } ?: color(R.color.appWindowBackground).toDrawable()
-        val bottomColor = color(color)
-        val bottomDrawable = NavigationBarDrawable(bottomColor)
-        bottomDrawable.paint.color = bottomColor
-        bottomDrawable.updateNavigationBarHeight(radius)
-        val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
-        background = combinedDrawable
-    }
 
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {

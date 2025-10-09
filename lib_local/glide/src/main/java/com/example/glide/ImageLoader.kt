@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -22,6 +24,7 @@ import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.size
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
 import com.example.glide.transform.CornerTransform
@@ -137,7 +140,7 @@ class ImageLoader private constructor() {
      * @param videoUrl 视频的 URL 地址
      * @param frameTimeMicros 要提取的帧的时间（微秒）
      */
-    fun loadVideoFrame(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000) {
+    fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000) {
         view ?: return
         try {
             // 使用RequestOptions构建器明确配置
@@ -174,7 +177,7 @@ class ImageLoader private constructor() {
      * @param onLoadProgress 图片加载进度的回调
      * @param onLoadResult 图片加载结果的回调，true 表示加载成功，false 表示失败
      */
-    fun loadImageWithProgress(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadResult: (result: Boolean) -> Unit = {}) {
+    fun loadProgressFromUrl(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadResult: (result: Boolean) -> Unit = {}) {
         view ?: return
         /**
          * 避免频繁创建协程
@@ -227,7 +230,7 @@ class ImageLoader private constructor() {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Bitmap
      */
-    fun loadScaledImage(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
+    fun loadScaledFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
         Glide.with(view.context)
             .asBitmap()
@@ -298,6 +301,29 @@ class ImageLoader private constructor() {
             .asGif()
             .load(gifResource)
             .into(view)
+    }
+
+    /**
+     * CardView绘制完成后,直接内部加载图片使用该方法
+     */
+    fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        view ?: return
+        view.removeAllViews()
+        val imageView = ImageView(view.context)
+        imageView.scaleType = ImageView.ScaleType.FIT_XY
+        view.addView(imageView)
+        imageView.size(MATCH_PARENT, MATCH_PARENT)
+        loadImageFromUrl(imageView, imageUrl, errorResource, onLoadStart, onLoadComplete)
+    }
+
+    fun loadCardViewFromResource(view: CardView?, imageResource: Int?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        view ?: return
+        view.removeAllViews()
+        val imageView = ImageView(view.context)
+        imageView.scaleType = ImageView.ScaleType.FIT_XY
+        view.addView(imageView)
+        imageView.size(MATCH_PARENT, MATCH_PARENT)
+        loadImageFromResource(imageView, imageResource, errorResource, onLoadStart, onLoadComplete)
     }
 
     /**

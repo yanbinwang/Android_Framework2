@@ -129,7 +129,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         // 加载图片
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.loadVideoFrame(mBinding.ivThumb, url)
+            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url)
         } else {
             ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
         }

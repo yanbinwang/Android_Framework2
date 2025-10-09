@@ -3,6 +3,7 @@ package com.example.glide
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.value.areDrawablesSame
 import com.example.framework.utils.function.value.toSafeInt
@@ -78,8 +79,8 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["scaled_imageUrl"])
-    fun bindingScaledImage(view: ImageView, imageUrl: String?) {
-        ImageLoader.instance.loadScaledImage(view, imageUrl, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    fun bindingScaledFromUrl(view: ImageView, imageUrl: String?) {
+        ImageLoader.instance.loadScaledFromUrl(view, imageUrl, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**
@@ -105,6 +106,19 @@ object GlideBindingAdapter {
     @BindingAdapter(value = ["imageResource"])
     fun bindingImageFromResource(view: ImageView, imageResource: Int?) {
         ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource"], requireAll = false)
+    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, errorResource: Int?) {
+        val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
+        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["cardview_imageResource"])
+    fun bindingCardViewFromResource(view: CardView, imageResource: Int?) {
+        ImageLoader.instance.loadCardViewFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**

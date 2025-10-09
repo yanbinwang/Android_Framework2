@@ -68,7 +68,7 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     fun load(url: String) {
-        ImageLoader.instance.loadImageWithProgress(iv, url, {
+        ImageLoader.instance.loadProgressFromUrl(iv, url, {
             disable()
             iv.gone()
             iv.clearClick()
