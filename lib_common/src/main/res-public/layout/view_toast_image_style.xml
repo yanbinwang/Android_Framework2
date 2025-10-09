@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/shape_toast"
+        android:gravity="center"
+        android:paddingHorizontal="15pt"
+        android:paddingVertical="10pt">
+
+        <ImageView
+            android:id="@+id/iv_type"
+            android:layout_width="24pt"
+            android:layout_height="24pt"
+            tools:src="@mipmap/ic_toast" />
+
+        <TextView
+            android:id="@+id/tv_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10pt"
+            android:gravity="center"
+            android:textColor="@color/textWhite"
+            android:textSize="@dimen/textSize12"
+            tools:text="复制成功" />
+
+    </LinearLayout>
+
+</layout>
