@@ -308,22 +308,21 @@ class ImageLoader private constructor() {
      */
     fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
-        view.removeAllViews()
-        val imageView = ImageView(view.context)
-        imageView.scaleType = ImageView.ScaleType.FIT_XY
-        view.addView(imageView)
-        imageView.size(MATCH_PARENT, MATCH_PARENT)
-        loadImageFromUrl(imageView, imageUrl, errorResource, onLoadStart, onLoadComplete)
+        loadImageFromUrl(getCardViewImage(view), imageUrl, errorResource, onLoadStart, onLoadComplete)
     }
 
     fun loadCardViewFromResource(view: CardView?, imageResource: Int?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
+        loadImageFromResource(getCardViewImage(view), imageResource, errorResource, onLoadStart, onLoadComplete)
+    }
+
+    private fun getCardViewImage(view: CardView): ImageView {
         view.removeAllViews()
         val imageView = ImageView(view.context)
         imageView.scaleType = ImageView.ScaleType.FIT_XY
         view.addView(imageView)
         imageView.size(MATCH_PARENT, MATCH_PARENT)
-        loadImageFromResource(imageView, imageResource, errorResource, onLoadStart, onLoadComplete)
+        return imageView
     }
 
     /**
