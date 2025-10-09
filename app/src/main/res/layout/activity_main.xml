@@ -217,18 +217,45 @@
             android:gravity="center"
             android:textSize="@dimen/textSize18" />
 
-        <ImageView
-            android:id="@+id/iv_thumb"
-            android:layout_width="match_parent"
-            android:layout_height="400pt"
-            android:layout_gravity="center"
-            android:scaleType="fitXY" />
+        <!--        <ImageView-->
+        <!--            android:id="@+id/iv_thumb"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="400pt"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:scaleType="fitXY" />-->
+
+        <!--        <FrameLayout-->
+        <!--            android:id="@+id/fl_card"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="600pt"/>-->
 
         <FrameLayout
             android:id="@+id/fl_card"
-            android:layout_gravity="center"
             android:layout_width="match_parent"
-            android:layout_height="600pt"/>
+            android:layout_height="600pt"
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="5pt"
+            android:background="@color/bgTransparent">
+
+            <androidx.cardview.widget.CardView
+                style="@style/CardViewStyle"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:cardBackgroundColor="@color/bgBlue"
+                app:cardCornerRadius="5pt">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="4143423"
+                    android:textColor="@color/textWhite"
+                    android:textSize="@dimen/textSize34" />
+
+            </androidx.cardview.widget.CardView>
+
+        </FrameLayout>
 
     </FrameLayout>
 

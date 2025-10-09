@@ -2,12 +2,20 @@ package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.VectorDrawable
 import android.os.Bundle
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
+import androidx.annotation.ColorRes
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.cardview.widget.CardView
 import androidx.core.graphics.drawable.toBitmapOrNull
+import androidx.core.graphics.drawable.toDrawable
+import androidx.lifecycle.ViewModel
 import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
@@ -15,6 +23,7 @@ import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
+import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
@@ -396,29 +405,44 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     private var index = 0
 
+    fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
+        this ?: return
+        val windowBackground = when (background) {
+            is ColorDrawable -> background
+            is BitmapDrawable, is VectorDrawable -> background
+            else -> null
+        } ?: color(R.color.appWindowBackground).toDrawable()
+        val bottomColor = color(color)
+        val bottomDrawable = NavigationBarDrawable(bottomColor)
+        bottomDrawable.paint.color = bottomColor
+        bottomDrawable.updateNavigationBarHeight(radius)
+        val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
+        background = combinedDrawable
+    }
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
+        mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
         launch {
-            delay(3000)
 //            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg",
 //                cornerRadius = 60.dp)
 //            ImageLoader.instance.loadScaledImage(mBinding?.ivThumb,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
-            val card = CardView(ContextThemeWrapper(this@MainActivity, R.style.CardViewStyle)).apply {
-                radius = 10.ptFloat
-            }
-            card.size(MATCH_PARENT,MATCH_PARENT)
-            val imageView = ImageView(this@MainActivity)
-            imageView.scaleType = ImageView.ScaleType.FIT_XY
-            card.addView(imageView)
-            imageView.size(MATCH_PARENT,MATCH_PARENT)
-            ImageLoader.instance.loadImageFromUrl(imageView,
-                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
-            mBinding?.flCard?.addView(card)
+//            val card = CardView(ContextThemeWrapper(this@MainActivity, R.style.CardViewStyle)).apply {
+//                radius = 10.ptFloat
+//            }
+//            card.size(MATCH_PARENT,MATCH_PARENT)
+//            val imageView = ImageView(this@MainActivity)
+//            imageView.scaleType = ImageView.ScaleType.FIT_XY
+//            card.addView(imageView)
+//            imageView.size(MATCH_PARENT,MATCH_PARENT)
+//            ImageLoader.instance.loadImageFromUrl(imageView,
+//                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
+//            mBinding?.flCard?.addView(card)
         }
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         ActivityMainBinding.inflate(layoutInflater)
