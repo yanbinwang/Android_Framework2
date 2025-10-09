@@ -3,7 +3,11 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.VectorDrawable
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -17,6 +21,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
@@ -24,6 +29,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
+import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.ScreenUtil.hasNavigationBar
@@ -117,18 +123,18 @@ fun getNavigationBarHeight(): Int {
     }
 }
 
-/**
- * 获取应用缓存大小并格式化为易读的字符串
- * @return 格式化后的缓存大小字符串，如 "2.5M"
- */
-fun getFormattedCacheSize(): String {
-    val mContext = BaseApplication.instance.applicationContext
-    var value = "0M"
-    mContext?.cacheDir?.apply {
-        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
-    }
-    return value
-}
+///**
+// * 获取应用缓存大小并格式化为易读的字符串
+// * @return 格式化后的缓存大小字符串，如 "2.5M"
+// */
+//fun getFormattedCacheSize(): String {
+//    val mContext = BaseApplication.instance.applicationContext
+//    var value = "0M"
+//    mContext?.cacheDir?.apply {
+//        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
+//    }
+//    return value
+//}
 
 /**
  * 读取layer-list的xml内的图片数据
@@ -225,6 +231,25 @@ fun String?.orNoData(): String {
 fun String?.setPrimaryClip(label: String = "Label") {
     if (this == null) return
     BaseApplication.instance.setPrimaryClip(label, this)
+}
+
+/**
+ * 使用CardView时,4个角都会带有弧度,但是有些xml在绘制时,底部是不需要的
+ * 可以外层套一个FrameLayout,背景设为透明,内部套CardView,cardBackgroundColor设为对应纯色或图片,然后调用该扩展
+ */
+fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
+    this ?: return
+    val windowBackground = when (background) {
+        is ColorDrawable -> background
+        is BitmapDrawable, is VectorDrawable -> background
+        else -> null
+    } ?: color(R.color.appWindowBackground).toDrawable()
+    val bottomColor = color(color)
+    val bottomDrawable = NavigationBarDrawable(bottomColor)
+    bottomDrawable.paint.color = bottomColor
+    bottomDrawable.updateNavigationBarHeight(radius)
+    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
+    background = combinedDrawable
 }
 
 /**
