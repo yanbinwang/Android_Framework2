@@ -5,8 +5,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
+import androidx.annotation.RawRes
 import androidx.cardview.widget.CardView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -100,13 +103,13 @@ class ImageLoader private constructor() {
          * 获取drawable的图片
          */
         @JvmStatic
-        private fun getDefaultDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_RESOURCE)
+        private fun getDefaultDrawable(view: View?) = view?.context?.drawable(DEFAULT_RESOURCE)
 
         @JvmStatic
-        private fun getDefaultRoundedDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_ROUNDED_RESOURCE)
+        private fun getDefaultRoundedDrawable(view: View?) = view?.context?.drawable(DEFAULT_ROUNDED_RESOURCE)
 
         @JvmStatic
-        private fun getDefaultCircularDrawable(view: ImageView?) = view?.context?.drawable(DEFAULT_CIRCULAR_RESOURCE)
+        private fun getDefaultCircularDrawable(view: View?) = view?.context?.drawable(DEFAULT_CIRCULAR_RESOURCE)
 
         /**
          * dontAnimate()会造成闪屏，切换为渐隐动画，使其“流畅”
@@ -240,7 +243,6 @@ class ImageLoader private constructor() {
                 .diskCacheStrategy(DiskCacheStrategy.NONE))
             .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .listener(object : GlideRequestListener<Bitmap>() {
                 override fun onLoadStart() {
@@ -295,7 +297,7 @@ class ImageLoader private constructor() {
      * @param view 用于显示 GIF 图片的 ImageView
      * @param gifResource 本地 GIF 图片的资源 ID
      */
-    fun loadGifFromResource(view: ImageView?, gifResource: Int?) {
+    fun loadGifFromResource(view: ImageView?, @RawRes @DrawableRes gifResource: Int?) {
         view ?: return
         Glide.with(view.context)
             .asGif()
@@ -306,14 +308,24 @@ class ImageLoader private constructor() {
     /**
      * CardView绘制完成后,直接内部加载图片使用该方法
      */
-    fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, @DrawableRes errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
         loadImageFromUrl(getCardViewImage(view), imageUrl, errorResource, onLoadStart, onLoadComplete)
     }
 
-    fun loadCardViewFromResource(view: CardView?, imageResource: Int?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadCardViewFromResource(view: CardView?, @DrawableRes imageResource: Int?, @DrawableRes errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
         loadImageFromResource(getCardViewImage(view), imageResource, errorResource, onLoadStart, onLoadComplete)
+    }
+
+    fun loadCardViewDrawableFromUrl(view: CardView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        view ?: return
+        loadImageDrawableFromUrl(getCardViewImage(view), imageUrl, errorDrawable, onLoadStart, onLoadComplete)
+    }
+
+    fun loadCardViewDrawableFromResource(view: CardView?, imageDrawable: Drawable?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        view ?: return
+        loadImageDrawableFromResource(getCardViewImage(view), imageDrawable, errorDrawable, onLoadStart, onLoadComplete)
     }
 
     private fun getCardViewImage(view: CardView): ImageView {
@@ -333,7 +345,7 @@ class ImageLoader private constructor() {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadImageFromUrl(view: ImageView?, imageUrl: String?, @DrawableRes errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImageDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
@@ -345,7 +357,7 @@ class ImageLoader private constructor() {
      * @param onLoadStart 图片开始加载时的回调
      * @param onLoadComplete 图片加载完成时的回调，返回加载的 Drawable
      */
-    fun loadImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadImageFromResource(view: ImageView?, @DrawableRes imageResource: Int?, @DrawableRes errorResource: Int? = DEFAULT_RESOURCE, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImageDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), onLoadStart, onLoadComplete)
     }
 
@@ -363,7 +375,6 @@ class ImageLoader private constructor() {
             .load(imageUrl)
             .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .listener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
@@ -391,7 +402,6 @@ class ImageLoader private constructor() {
             .load(imageDrawable)
             .placeholder(DEFAULT_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .listener(object : GlideRequestListener<Drawable>() {
                 override fun onLoadStart() {
@@ -413,7 +423,7 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
+    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, @DrawableRes errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
         loadRoundedDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners, overrideColor)
     }
 
@@ -425,7 +435,7 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
+    fun loadRoundedImageFromResource(view: ImageView?, @DrawableRes imageResource: Int?, @DrawableRes errorResource: Int? = DEFAULT_ROUNDED_RESOURCE, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR) {
         loadRoundedDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero), cornerRadius, overrideCorners, overrideColor)
     }
 
@@ -449,7 +459,6 @@ class ImageLoader private constructor() {
             }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .into(view)
     }
@@ -474,7 +483,6 @@ class ImageLoader private constructor() {
             }
             .placeholder(DEFAULT_ROUNDED_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .into(view)
     }
@@ -485,7 +493,7 @@ class ImageLoader private constructor() {
      * @param imageUrl 图片的 URL 地址
      * @param errorResource 加载失败时显示的错误图片资源 ID
      */
-    fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
+    fun loadCircularImageFromUrl(view: ImageView?, imageUrl: String?, @DrawableRes errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
         loadCircularDrawableFromUrl(view, imageUrl, view?.context?.drawable(errorResource.orZero))
     }
 
@@ -495,7 +503,7 @@ class ImageLoader private constructor() {
      * @param imageResource 图片的资源 ID
      * @param errorResource 加载失败时显示的错误图片资源 ID
      */
-    fun loadCircularImageFromResource(view: ImageView?, imageResource: Int?, errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
+    fun loadCircularImageFromResource(view: ImageView?, @DrawableRes imageResource: Int?, @DrawableRes errorResource: Int? = DEFAULT_CIRCULAR_RESOURCE) {
         loadCircularDrawableFromResource(view, view?.context?.drawable(imageResource.orZero), view?.context?.drawable(errorResource.orZero))
     }
 
@@ -512,7 +520,6 @@ class ImageLoader private constructor() {
             .apply(RequestOptions.circleCropTransform())
             .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .into(view)
     }
@@ -530,7 +537,6 @@ class ImageLoader private constructor() {
             .apply(RequestOptions.circleCropTransform())
             .placeholder(DEFAULT_CIRCULAR_RESOURCE)
             .error(errorDrawable)
-//            .dontAnimate()
             .smartFade(view)
             .into(view)
     }
