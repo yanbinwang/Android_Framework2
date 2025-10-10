@@ -12,7 +12,6 @@ import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.setResource
-import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
 import com.example.framework.widget.BaseViewGroup
@@ -32,30 +31,16 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 @SuppressLint("RestrictedApi")
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
-    private val mBinding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header, this, false)) }
+    private val mBinding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-        mBinding.root.size(MATCH_PARENT, 40.pt)
+//        mBinding.root.size(MATCH_PARENT, 40.pt)
         mBinding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
-    }
-
-    /**
-     * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
-     */
-    fun setStatusBarSpacing(statusBarHeight: Int) {
-        mBinding.root.apply {
-            size(LayoutParams.MATCH_PARENT, 80.pt + statusBarHeight)
-            padding(top = statusBarHeight)
-        }
-    }
-
-    fun setProgressTint(@ColorRes color: Int) {
-        mBinding.ivProgress.tint(color)
     }
 
     override fun onInflate() {
@@ -121,6 +106,25 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
 
     override fun isSupportHorizontalDrag(): Boolean {
         return false
+    }
+
+    override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
+        return true
+    }
+
+    /**
+     * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
+     */
+    fun setStatusBarHeight(statusBarHeight: Int) {
+        //40*2.5
+        mBinding.root.size(MATCH_PARENT, 100.pt + statusBarHeight)
+    }
+
+    /**
+     * 转圈颜色
+     */
+    fun setProgressTint(@ColorRes color: Int) {
+        mBinding.ivProgress.tint(color)
     }
 
 }

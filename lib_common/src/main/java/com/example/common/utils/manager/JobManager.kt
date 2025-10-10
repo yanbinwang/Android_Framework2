@@ -9,9 +9,15 @@ import java.util.concurrent.ConcurrentHashMap
  * 管理对应页面所有的job对象
  * val key = object {}.javaClass.enclosingMethod?.name ?: "unknown"
  */
-class JobManager {
-    //用于存储协程 Job 的线程安全集合
+class JobManager(observer: LifecycleOwner?) {
+    // 用于存储协程 Job 的线程安全集合
     private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
+
+    init {
+        observer.doOnDestroy {
+            destroy()
+        }
+    }
 
 //    companion object {
 //
@@ -38,7 +44,7 @@ class JobManager {
      * key: String = getCallerMethodName()
      */
     fun manageJob(job: Job, key: String) {
-        //如果之前的 Job 存在，取消并从集合中移除
+        // 如果之前的 Job 存在，取消并从集合中移除
         jobMap[key]?.let {
             it.cancel()
             jobMap.remove(key)
@@ -48,23 +54,10 @@ class JobManager {
     }
 
     /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.doOnDestroy {
-            destroy()
-        }
-    }
-
-    /**
-     * 释放
+     * 释放/清除所有 Job
      */
     fun destroy() {
-        //清除所有 Job
-        jobMap.values.forEach {
-            it.cancel()
-        }
+        jobMap.values.forEach { it.cancel() }
         jobMap.clear()
     }
 

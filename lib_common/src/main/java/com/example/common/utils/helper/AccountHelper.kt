@@ -7,7 +7,9 @@ import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
+import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
 import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.CacheDataManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
 
@@ -158,12 +160,27 @@ object AccountHelper {
      */
     @JvmStatic
     fun signOut(isNavigation: Boolean = true) {
+        // 1.清除mmkv和默认配置的数据库等缓存数据
         userBean.del()
         userInfoBean.del()
+        CacheDataManager.clearCacheBySignOut()
+        // 2.断开/终止三方库的连接(其内部应包含数据的删除)
 //        WebSocketConnect.disconnect()
-//        EVENT_USER_LOGIN_OUT.post()
-        AppManager.finishAll()
-//        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
+        // 3.根据app的实际情况分为一下两种处理
+        /**
+         * App需要强制登录后才能进入首页
+         * 1)isNavigation: Boolean = true删除
+         * 2)拉起透明页面,通过AppManager.reboot
+         * 3)LoginActivity/StartActivity使用singleTask
+         */
+        AppManager.reboot(ARouterPath.LoginActivity)
+
+        /**
+         * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
+         * 1)isNavigation: Boolean = true保留,部分页面无需强制拉起首页
+         * 2)LoginActivity使用singleTop
+         */
+        EVENT_USER_LOGIN_OUT.post()
         if (isNavigation) {
             ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
         }

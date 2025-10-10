@@ -1,23 +1,25 @@
 package com.example.framework.utils.builder
 
 import android.os.CountDownTimer
-import android.os.Looper
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.second
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import java.util.Timer
-import java.util.TimerTask
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 定时器构建类
  */
-class TimerBuilder(observer: LifecycleOwner) {
-    private val timerMap by lazy { ConcurrentHashMap<String, Pair<Timer?, TimerTask?>>() }
+class TimerBuilder(private val observer: LifecycleOwner) {
+    private val timerMap by lazy { ConcurrentHashMap<String, Job>() }
     private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
 
     companion object {
@@ -25,17 +27,15 @@ class TimerBuilder(observer: LifecycleOwner) {
         private const val TASK_DEFAULT_TAG = "TASK_DEFAULT"
         //默认倒计时tag
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
-        //默认全局延时handler
-        private val handler by lazy { WeakHandler(Looper.getMainLooper()) }
 
         /**
          * delayMillis：延时时间（单位：毫秒）
          */
         @JvmStatic
-        fun schedule(observer: LifecycleOwner, run: (() -> Unit), delayMillis: Long = 1000) {
-            observer.lifecycleScope.launch {
+        fun schedule(observer: LifecycleOwner?, run: (() -> Unit), delayMillis: Long = 1000) {
+            observer?.lifecycleScope?.launch {
                 delay(delayMillis)
-                run.invoke()
+                withContext(Main.immediate) { run() }
             }
         }
     }
@@ -43,15 +43,8 @@ class TimerBuilder(observer: LifecycleOwner) {
     init {
         //完全销毁所有定时器
         observer.doOnDestroy {
-            for ((_, value) in timerMap) {
-                value.apply {
-                    first?.cancel()
-                    second?.cancel()
-                }
-            }
-            for ((_, value) in countDownMap) {
-                value?.cancel()
-            }
+            timerMap.values.forEach { it.cancel() }
+            countDownMap.values.forEach { it?.cancel() }
             timerMap.clear()
             countDownMap.clear()
         }
@@ -72,16 +65,18 @@ class TimerBuilder(observer: LifecycleOwner) {
     fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
         stopTask(tag)//先停止旧的任务
         if (timerMap[tag] == null) {
-            timerMap[tag] = Timer() to object : TimerTask() {
-                override fun run() {
-                    handler.post {
-                        run.invoke()
+            val job = observer.lifecycleScope.launch {
+                delay(delay)
+                flow {
+                    while (true) {
+                        emit(Unit)
+                        delay(period)
                     }
+                }.flowOn(IO).collect {
+                    withContext(Main) { run() }
                 }
             }
-        }
-        timerMap[tag]?.apply {
-            first?.schedule(second, delay, period)
+            timerMap[tag] = job
         }
     }
 
@@ -89,10 +84,7 @@ class TimerBuilder(observer: LifecycleOwner) {
      * 计时（累加）-结束
      */
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
-        timerMap[tag]?.apply {
-            first?.cancel()
-            second?.cancel()
-        }
+        timerMap[tag]?.cancel()
         timerMap.remove(tag)
     }
 
@@ -110,7 +102,7 @@ class TimerBuilder(observer: LifecycleOwner) {
      * countDownInterval:-》间隔时间
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
-    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1000, countDownInterval: Long = 1.second) {
+    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.second, countDownInterval: Long = 1000) {
         stopCountDown(tag)
         if (countDownMap[tag] == null) {
             countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
@@ -123,8 +115,8 @@ class TimerBuilder(observer: LifecycleOwner) {
                     onFinish.invoke()
                 }
             }
+            countDownMap[tag]?.start()
         }
-        countDownMap[tag]?.start()
     }
 
     /**

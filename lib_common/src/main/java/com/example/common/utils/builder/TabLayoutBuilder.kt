@@ -1,7 +1,9 @@
 package com.example.common.utils.builder
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
+import android.os.Looper
 import android.util.SparseArray
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -10,14 +12,19 @@ import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.FragmentBuilder
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.bind
+import com.example.framework.utils.function.view.clearClick
+import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * @author yan
@@ -107,15 +114,64 @@ import com.google.android.material.tabs.TabLayoutMediator
  *         }
  *     }
  */
+@SuppressLint("ClickableViewAccessibility")
 abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
     private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
+    private var hasAction: Boolean = false//是否重写过点击
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
+    private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
+    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val tabViews by lazy { SparseArray<VDB>() }
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
     private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
     private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
+    private val tabListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabSelected(tab: TabLayout.Tab?) {
+            //处理选中事件
+            //可以在这里更新页面内容或者改变选中标签的样式
+            onTabBind(tab, true)
+            listener?.onSelected(tab?.position.orZero)
+        }
+
+        override fun onTabUnselected(tab: TabLayout.Tab?) {
+            //处理取消选中事件
+            onTabBind(tab, false)
+            listener?.onUnselected(tab?.position.orZero)
+        }
+
+        override fun onTabReselected(tab: TabLayout.Tab?) {
+            //处理再次选中同一个标签的事件
+            //可以在这里执行相应的操作
+            listener?.onReselected(tab?.position.orZero)
+        }
+
+        private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
+            tab?.customView ?: return
+            tab.position.orZero.apply {
+                //子tab状态回调
+                onBindView(tabViews[this], tabList.safeGet(this), selected, this)
+                //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
+                if (selected && 0 == bindMode) builder?.commit(this)
+            }
+        }
+    }
+    private val clickAllowedAction = { mTab: TabLayout.Tab?, i: Int ->
+        val action = clickActions[i]
+        if (action != null) {
+            action.invoke()
+        } else {
+            allowedResetAction(mTab, i)
+        }
+    }
+    private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
+        mTab?.select()
+        for (j in 0 until mTabCount) {
+            onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+        }
+        if (0 == bindMode) builder?.commit(i)
+    }
 
     /**
      * 无特殊绑定的自定义头
@@ -139,9 +195,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     /**
      * 注入viewpager2
      * userInputEnabled:是否左右滑动
-     * pageLimit：是否预加载数据（如果只有2个fragment就只会预加载2个页面，超过的话，设为false则会在滑到第三页的时候销毁第一页）
+     * pageLimit：是否预加载数据（懒加载为false）
      */
-    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false, default: Int = 0) {
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = true, default: Int = 0) {
         bindMode = 1
         pager?.adapter = null
         mediator?.detach()
@@ -162,47 +218,18 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      * 这个方法需要放在setupWithViewPager()后面
      */
     private fun initEvent(default: Int = 0) {
-        for (i in 0 until tab?.tabCount.orZero) {
+        for (i in 0 until mTabCount) {
             tab?.getTabAt(i)?.apply {
-                val mBinding = getBindView()
-                if (tabViews[i] == null) tabViews.put(i, mBinding)
-                customView = mBinding.root
+                val bindView = getBindView()
+                if (tabViews[i] == null) tabViews.put(i, bindView)
+                customView = bindView.root
                 customView.size(WRAP_CONTENT, MATCH_PARENT)
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                onBindView(mBinding, tabList.safeGet(i), i == 0, i)
+                onBindView(bindView, tabList.safeGet(i), i == 0, i)
             }
         }
-        tab?.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                //处理选中事件
-                //可以在这里更新页面内容或者改变选中标签的样式
-                onTabBind(tab, true)
-                listener?.onSelected(tab?.position.orZero)
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-                //处理取消选中事件
-                onTabBind(tab, false)
-                listener?.onUnselected(tab?.position.orZero)
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-                //处理再次选中同一个标签的事件
-                //可以在这里执行相应的操作
-                listener?.onReselected(tab?.position.orZero)
-            }
-
-            private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
-                tab?.customView ?: return
-                tab.position.orZero.apply {
-                    //子tab状态回调
-                    onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                    //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
-                    if (selected && 0 == bindMode) builder?.selectTab(this)
-                }
-            }
-        })
+        tab?.addOnTabSelectedListener(tabListener)
         //强制设置tab宽度
         val tabParent = tab?.getChildAt(0) as? ViewGroup
         for (i in 0 until tabParent?.childCount.orZero) {
@@ -238,6 +265,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
     }
 
     /**
+     * 获取某个下标的tab
+     */
+    fun getTab(index: Int): VDB? {
+        return tabViews[index]
+    }
+
+    /**
      * 获取当前选中的下标
      */
     fun getCurrentIndex(): Int {
@@ -250,19 +284,104 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
      */
     fun setSelect(index: Int, recreate: Boolean = false) {
         if (recreate) {
-            builder?.selectTab(index, true)
+            if (0 == bindMode) builder?.commit(index, true)
             selectTabNow(index)
         } else {
-            if (mCurrentItem == index || index > mTabCount - 1 || index < 0) return
+            if (index == mCurrentItem || index > mTabCount - 1 || index < 0) return
             selectTabNow(index)
         }
     }
 
+    /**
+     * view.post {} 的工作原理
+     * 当你调用 view.post(Runnable) 时：
+     * 如果当前线程是 UI 线程，Runnable 会立即执行
+     * 如果当前线程不是 UI 线程，Runnable 会被发送到 UI 线程的消息队列中执行
+     */
     private fun selectTabNow(index: Int) {
-        tab?.postDelayed({
-            tab.getTabAt(index)?.select()
-        }, 500)
-//        tab?.getTabAt(index)?.select()
+        if (hasAction) {
+            allowedResetAction(tab?.getTabAt(index), index)
+        } else {
+            tab?.post {
+                // 当代码执行到这里时，TabLayout 已经完成初始化
+                tab.getTabAt(index)?.select()
+            }
+        }
+    }
+
+    /**
+     * 对应下标需求对应不同的点击，改为自定义
+     */
+    fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
+        hasAction = true
+        clickActions = ConcurrentHashMap(params.toMap())
+        for (i in 0 until mTabCount) {
+            val mTab = tab?.getTabAt(i)
+            mTab?.customView.let {
+                it?.isClickable = true
+                it?.click {
+                    if (isMainThread) {
+                        clickAllowedAction(mTab, i)
+                    } else {
+                        weakHandler.post {
+                            clickAllowedAction(mTab, i)
+                        }
+                    }
+                }
+            }
+        }
+        tab?.removeOnTabSelectedListener(tabListener)
+        // 移除之前的拦截器
+        tab?.setOnTouchListener(null)
+    }
+
+    /**
+     * 还原对应下标的点击
+     * addClickAllowed后可还原
+     */
+    fun allowedReset(index: Int) {
+        hasAction = true
+        val action = clickActions[index]
+        if (action != null) {
+            val mTab = tab?.getTabAt(index)
+            mTab?.customView.click {
+                if (isMainThread) {
+                    allowedResetAction(mTab, index)
+                } else {
+                    weakHandler.post {
+                        allowedResetAction(mTab, index)
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * 整个TabLayout的操作，拦截所有，改为自己的点击
+     * true拦截 false不拦截
+     */
+    fun setClickable(isClickable: Boolean, listener: (() -> Unit)? = {}) {
+        for (i in 0 until mTabCount) {
+            tab?.getTabAt(i)?.customView.let {
+                it?.isClickable = isClickable
+                if (isClickable) {
+                    it?.click {
+                        listener?.invoke()
+                    }
+                } else {
+                    it?.clearClick()
+                }
+            }
+        }
+        if (isClickable) {
+            tab?.removeOnTabSelectedListener(tabListener)
+            // 移除之前的拦截器
+            tab?.setOnTouchListener(null)
+        } else {
+            tab?.addOnTabSelectedListener(tabListener)
+            // 设置触摸拦截器
+            tab?.setOnTouchListener { _, _ -> true }
+        }
     }
 
     /**

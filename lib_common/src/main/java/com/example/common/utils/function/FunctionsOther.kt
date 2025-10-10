@@ -3,34 +3,47 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.VectorDrawable
+import android.text.Spannable
+import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
-import com.example.common.utils.ScreenUtil
+import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.ScreenUtil.getRealSize
 import com.example.common.utils.ScreenUtil.getRealSizeFloat
+import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.manager.AppManager
+import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
@@ -62,6 +75,130 @@ val Number?.dp: Int
     }
 
 /**
+ * 获取Manifest中的参数
+ */
+fun getManifestString(name: String): String? {
+    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+}
+
+/**
+ * 获取顶栏高度(静态默认值)
+ * 设备出厂时定义的固定值（如大多数手机为 24dp~32dp），写死在系统资源文件中；
+ * 不考虑当前窗口的状态（如是否全屏、是否隐藏状态栏、是否启用边缘到边缘模式）；
+ * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
+ * BaseBindingAdapter
+ * AppToolbar
+ */
+fun getStatusBarHeight(): Int {
+//    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+    val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+    val currentActivity = AppManager.currentActivity()
+    return if (null == currentActivity) {
+        baseStatusBarHeight
+    } else {
+        val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
+        insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: baseStatusBarHeight
+    }
+}
+
+/**
+ * 获取底栏高度(静态默认值)
+ */
+fun getNavigationBarHeight(): Int {
+//    val mContext = BaseApplication.instance.applicationContext
+//    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
+//    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+    val mContext = BaseApplication.instance.applicationContext
+    val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+    val currentActivity = AppManager.currentActivity()
+    return if (null == currentActivity) {
+        if (!hasNavigationBar(mContext)) {
+            0
+        } else {
+            baseNavigationBarHeight
+        }
+    } else {
+        val decodeView = currentActivity.window.decorView
+        if (decodeView.hasNavigationBar()) {
+            val insets = ViewCompat.getRootWindowInsets(decodeView)
+            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+        } else {
+            0
+        }
+    }
+}
+
+///**
+// * 获取应用缓存大小并格式化为易读的字符串
+// * @return 格式化后的缓存大小字符串，如 "2.5M"
+// */
+//fun getFormattedCacheSize(): String {
+//    val mContext = BaseApplication.instance.applicationContext
+//    var value = "0M"
+//    mContext?.cacheDir?.apply {
+//        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
+//    }
+//    return value
+//}
+
+/**
+ * 读取layer-list的xml内的图片数据
+ * <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+ *
+ *     <item android:drawable="@color/bgWhite" />
+ *
+ *     <item android:top="104dp">
+ *         <bitmap
+ *             android:antialias="true"
+ *             android:gravity="top|center_horizontal"
+ *             android:scaleType="fitXY"
+ *             android:width="300dp"
+ *             android:height="354dp"
+ *             android:src="@mipmap/bg_splash"
+ *             android:tileMode="disabled" />
+ *     </item>
+ *
+ * </layer-list>
+ * // 1. 目标 item 下标（这里假设是第二个 item，索引为1）
+ *  val targetItemIndex = 1
+ *  val drawableInfo = context.layerDrawable(R.drawable.layout_list_splash, targetItemIndex)
+ *  // 2. 解析 layer-list 资源
+ *  val layerDrawable = drawableInfo?.first
+ *  // 3. 获取目标 item
+ *  val bitmapDrawable = drawableInfo?.second
+ *  // 4. 获取XML中定义的item偏移（margin），单位是dp，需转为px
+ *  val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
+ * // val marginLeftDp = layerDrawable?.getLayerInsetLeft(targetItemIndex)
+ * // val marginRightDp = layerDrawable?.getLayerInsetRight(targetItemIndex)
+ * // val marginBottomDp = layerDrawable?.getLayerInsetBottom(targetItemIndex)
+ *  // 5. 获取XML中定义的bitmap宽高（android:width/android:height）注意：如果XML中是wrap_content，需用bitmap自身尺寸
+ *  val xmlWidthPx = try {
+ *      // 从drawable的固有宽高中获取XML定义的尺寸（仅对显式设置了宽高的有效）
+ *      bitmapDrawable?.intrinsicWidth
+ *  } catch (e: Exception) {
+ *      e.printStackTrace()
+ *      0
+ *  }.orZero
+ *  val xmlHeightPx = try {
+ *      bitmapDrawable?.intrinsicHeight
+ *  } catch (e: Exception) {
+ *      e.printStackTrace()
+ *      0
+ *  }.orZero
+ */
+inline fun <reified T : Drawable> getTypedDrawable(@DrawableRes res: Int): T? {
+    val mContext = BaseApplication.instance.applicationContext
+    val drawable = ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme)
+    return drawable as? T
+}
+
+inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
+    this ?: return null
+    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
+    return drawable as? T
+}
+
+/**
  * 获取resources中的color
  */
 @ColorInt
@@ -71,6 +208,8 @@ fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.
  * 获取图片
  */
 fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+
+fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
 
 /**
  *  <string name="dollar">\$%1$s</string>
@@ -103,7 +242,8 @@ fun string(@StringRes res: Int): String {
 fun resString(@StringRes res: Int): String {
     return try {
         BaseApplication.instance.getString(res)
-    } catch (ignore: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -124,70 +264,77 @@ fun String?.setPrimaryClip(label: String = "Label") {
 }
 
 /**
- * 自定义反向动画
+ * 使用CardView时,4个角都会带有弧度,但是有些xml在绘制时,底部是不需要的
+ * 可以外层套一个FrameLayout,背景设为透明,内部套CardView,cardBackgroundColor设为对应纯色或图片,然后调用该扩展
  */
-fun Context.translateAnimation(onStart: () -> Unit = {}, onEnd: () -> Unit = {}, onRepeat: () -> Unit = {}, isShown: Boolean = true): Animation {
-    return AnimationUtils.loadAnimation(this, if (isShown) R.anim.set_translate_bottom_in else R.anim.set_translate_bottom_out).apply {
-        setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-                onStart.invoke()
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd.invoke()
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-                onRepeat.invoke()
-            }
-        })
-    }
-}
-
-/**
- * 获取Manifest中的参数
- */
-fun getManifestString(name: String): String? {
-    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
-}
-
-/**
- * 获取顶栏高度
- */
-fun getStatusBarHeight(): Int {
-    return ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
-}
-
-/**
- * 获取底栏高度
- */
-fun getNavigationBarHeight(): Int {
-    val mContext = BaseApplication.instance.applicationContext
-    if (!ScreenUtil.hasNavigationBar(mContext)) return 0
-    return ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
+    this ?: return
+    val windowBackground = when (background) {
+        is ColorDrawable -> background
+        is BitmapDrawable, is VectorDrawable -> background
+        else -> null
+    } ?: color(R.color.appWindowBackground).toDrawable()
+    val bottomColor = color(color)
+    val bottomDrawable = NavigationBarDrawable(bottomColor)
+    bottomDrawable.paint.color = bottomColor
+    bottomDrawable.updateNavigationBarHeight(radius)
+    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
+    background = combinedDrawable
 }
 
 /**
  * 设置textview内容当中某一段的颜色
  */
-fun TextView?.setSpanFirst(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
+fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
-    text = txt.setSpanFirst(keyword, ColorSpan(context.color(colorRes)))
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    val keywordToProcess = when (keyword) {
+        is Int -> string(keyword)
+        is String -> keyword
+        else -> ""
+    }
+    val span = ColorSpan(context.color(colorRes))
+    text = if (spanAll) {
+        textToProcess.setSpanAll(keywordToProcess, span)
+    } else {
+        textToProcess.setSpanFirst(keywordToProcess, span)
+    }
 }
 
-fun TextView?.setSpanFirst(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
+/**
+ * 设置点击跳转
+ */
+fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
-    setSpanFirst(string(res), string(resKeyword), colorRes)
+    val textToProcess = when (txt) {
+        is Int -> string(txt)
+        is String -> txt
+        else -> ""
+    }
+    var content: Spannable = SpannableString.valueOf(textToProcess)
+    keywords.forEach {
+        val keyword = when (val res = it.first) {
+            is Int -> string(res)
+            is String -> res
+            else -> ""
+        }
+        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
+            override fun onLinkClick(widget: View) {
+                it.third.invoke()
+            }
+        }))
+    }
+    setSpannable(content)
 }
 
-fun TextView?.setSpanAll(txt: String, keyword: String, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    text = txt.setSpanAll(keyword, ColorSpan(context.color(colorRes)))
-}
-
-fun TextView?.setSpanAll(@StringRes res: Int, @StringRes resKeyword: Int, colorRes: Int = R.color.appTheme) {
-    this ?: return
-    setSpanAll(string(res), string(resKeyword), colorRes)
+fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, colorRes: Int = R.color.appTheme) {
+    setSpan(txt, *keywords.map {
+        Triple(it.first, colorRes, it.second)
+    }.toTypedArray())
 }
 
 /**
@@ -206,9 +353,32 @@ fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId
 fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
     this ?: return
     setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        func.invoke(if (scrollY <= menuHeight.pt / 2f) 0 + scrollY / (menuHeight.pt / 4f) else 1f)
+        // 确保menuHeight不为0，避免除零异常
+        if (menuHeight <= 0) {
+            func(0f)
+            return@OnScrollChangeListener
+        }
+        // 计算透明度：在0到menuHeight范围内从0平滑过渡到1
+        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
+        func(alpha)
+//        func.invoke(if (scrollY <= menuHeight / 2f) 0 + scrollY / (menuHeight / 4f) else 1f)
     })
 }
+
+//private static final int SCROLL_THRESHOLD = 500;
+//
+//scrollView.setOnScrollChangeListener(new ViewTreeObserver.OnScrollChangedListener() {
+//    @Override
+//    public void onScrollChanged() {
+//        // 获取当前滚动的垂直距离（像素）
+//        int scrollY = scrollView.getScrollY();
+//        // 限制范围并计算透明度
+//        int clampedScrollY = Math.max(0, Math.min(scrollY, SCROLL_THRESHOLD));
+//        float alpha = (float) clampedScrollY / SCROLL_THRESHOLD;
+//        // 应用透明度
+//        backgroundBlock.setAlpha(alpha);
+//    }
+//})
 
 /**
  * 点击链接的span
@@ -221,6 +391,7 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
  *          "点击隐私政策".logWTF
  *      }
  *  }))
+ *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
  */
 abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
 

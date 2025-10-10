@@ -30,7 +30,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
-        //Query [ 图片媒体集 ] 包括： DCIM/ 和 Pictures/ 目录
+        // Query [ 图片媒体集 ] 包括： DCIM/ 和 Pictures/ 目录
 //        val columns = arrayOf(MediaStore.MediaColumns.DATE_ADDED, MediaStore.MediaColumns.DATA, MediaStore.Images.Media._ID, MediaStore.Images.Media.TITLE, MediaStore.Images.Media.MIME_TYPE, MediaStore.Images.Media.SIZE)
         val columns = arrayOf(
             MediaStore.MediaColumns.DATE_ADDED,
@@ -48,7 +48,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
 //                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
 //                        cursor.getLong(cursor.getColumnIndex(BaseColumns._ID))
 //                    )
-                    //获取监听的路径
+                    // 获取监听的路径
 //                    val queryPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
                     val queryPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         val sdPath = mActivity.getExternalFilesDir(null)?.absolutePath.orEmpty()
@@ -59,15 +59,7 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
                     }
                     if (filePath != queryPath) {
                         filePath = queryPath
-//                        //inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
-//                        val options = BitmapFactory.Options()
-//                        options.inJustDecodeBounds = true
-//                        BitmapFactory.decodeFile(queryPath, options)
-//                        if (options.outWidth != -1) {
-//                            val file = File(queryPath)
-//                            " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
-//                            listener.invoke(queryPath)
-//                        }
+                        //判断当前路径是否为图片，是的话捕获文件路径
                         if (queryPath.isValidImage()) {
                             val file = File(queryPath)
                             " \n生成图片的路径:$queryPath\n手机截屏的路径：${file.parent}".logE(TAG)
@@ -76,7 +68,8 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
                     }
                 }
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         } finally {
             cursor?.close()
         }
@@ -85,14 +78,17 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
     /**
      * 返回查询结果
      */
-    private fun getQueryResult(cursor: Cursor, columnName: String) = cursor.getString(cursor.getColumnIndex(columnName).orZero)
+    private fun getQueryResult(cursor: Cursor, columnName: String): String {
+        return cursor.getString(cursor.getColumnIndex(columnName).orZero)
+    }
 
     /**
      * 生命周期回调
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> register()
+            Lifecycle.Event.ON_RESUME -> register()
+//            Lifecycle.Event.ON_PAUSE -> unregister() // 应用退到后台需要抓取,故而不注销
             Lifecycle.Event.ON_DESTROY -> {
                 unregister()
                 source.lifecycle.removeObserver(this)
@@ -104,12 +100,17 @@ class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(nu
     /**
      * 注册监听
      */
-    private fun register() = mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+    private fun register() {
+        unregister()
+        mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+    }
 
     /**
      * 注销监听
      */
-    private fun unregister() = mActivity.contentResolver?.unregisterContentObserver(this)
+    private fun unregister() {
+        mActivity.contentResolver?.unregisterContentObserver(this)
+    }
 
     /**
      * exists->true表示开始录屏，此时可以显示页面倒计时，false表示录屏结束，此时可以做停止的操作

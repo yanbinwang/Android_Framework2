@@ -9,9 +9,16 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!--震动提示-->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!--后台服务及窗口-->
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <!--通知弹出权限(安卓13开始强制要求授予)-->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!--录屏服务窗口-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!--声明前台服务权限 -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
     <!-- 定位（组） -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -29,20 +36,50 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <!-- 麦克风（组） -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-    <!-- 存储空间（组） -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- 存储空间（组->32） -->
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <!-- 存储空间（组-<=32） -->
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
 
+    <queries>
+        <!--支付宝-正式环境-->
+        <package android:name="com.eg.android.AlipayGphone" />
+        <!--支付宝-沙箱环境-->
+        <package android:name="com.eg.android.AlipayGphoneRC" />
+        <package android:name="hk.alipay.wallet" />
+        <!--微信-->
+        <package android:name="com.tencent.mm" />
+        <!--地图-->
+        <package android:name="com.baidu.BaiduMap" />
+        <package android:name="com.autonavi.minimap" />
+    </queries>
+
+    <!--
+        android:allowBackup="false" 是在 AndroidManifest.xml 的 <application> 标签中设置的一个重要属性，用于控制应用是否允许被备份和恢复
+        禁用备份（allowBackup="false"）通常是出于数据安全考虑
+        设为 false 后，用户无法通过系统备份功能保留应用数据，卸载重装或更换设备时数据会丢失（除非应用自行实现了云端备份方案）。
+        该设置不影响应用内部的数据存储逻辑，仅限制系统级别的备份行为。
+        Android 12 开始对应用数据的备份和迁移机制进行了升级，原有的 android:allowBackup 过于简单（仅能整体开启 / 关闭备份），无法满足更精细的权限控制需求。
+        新的 dataExtractionRules 允许你精确配置哪些数据可以被备份、哪些不可以，更灵活地适配云端备份和设备间迁移场景
+        对于 Android 12 以下设备，dataExtractionRules 会被忽略，仍需保留 android:allowBackup 控制备份行为(系统是否能把这些已存在的数据备份到外部（如云端、电脑)
+    -->
     <application
         android:name=".MyApplication"
         android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="false"
-        android:hardwareAccelerated="false"
+        android:hardwareAccelerated="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/appName"
         android:largeHeap="true"
+        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
@@ -57,22 +94,22 @@
             android:name="ScopedStorage"
             android:value="true" />
 
-        <!--全屏设置-->
+        <!-- 全屏设置 -->
         <meta-data
             android:name="android.max_aspect"
             android:value="2.4" />
 
-        <!--适配华为（huawei）刘海屏-->
+        <!-- 适配华为（huawei）刘海屏 -->
         <meta-data
             android:name="android.notch_support"
             android:value="true" />
 
-        <!--适配小米（xiaomi）刘海屏-->
+        <!-- 适配小米（xiaomi）刘海屏 -->
         <meta-data
             android:name="notch.config"
             android:value="portrait|landscape" />
 
-        <!--AutoSize-->
+        <!-- AutoSize -->
         <meta-data
             android:name="design_width_in_dp"
             android:value="${DESIGN_WIDTH}" />
@@ -86,7 +123,6 @@
             android:name="com.amap.api.v2.apikey"
             android:value="${AMAP_API_KEY}" />
         <!-- ******************************************************基础全局配置****************************************************** -->
-
         <activity
             android:name=".activity.SplashActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
@@ -162,23 +198,70 @@
                 调整当前活动的内容，以便用户可以看到当前获得焦点的视图。
         -->
 
+        <!-- 不可变一般是adjustPan  可变会拉伸则是adjustResize(注册,登录等有输入框的页面) -->
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+            android:theme="@style/MainTheme"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
         <activity
             android:name=".activity.TestActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan" />
+        <!--        &lt;!&ndash;-->
+        <!--        当触发屏幕方向变化（比如从竖屏切横屏）时，Activity 会执行 onDestroy() → onCreate() 的重建流程-->
+        <!--        &ndash;&gt;-->
+        <!--        <activity-->
+        <!--            android:name=".activity.TestActivity"-->
+        <!--            android:configChanges="keyboardHidden|screenLayout|uiMode"-->
+        <!--            android:windowSoftInputMode="stateHidden|adjustPan" />-->
+        <activity
+            android:name=".activity.Test2Activity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+
+        <activity
+            android:name=".activity.AdActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <!-- ******************************************************首页模块****************************************************** -->
+        <!-- 推送 -->
+        <activity
+            android:name="com.example.home.activity.LinkActivity"
+            android:exported="true"
+            android:theme="@style/LinkTheme" />
         <!-- 伸縮大圖 -->
         <activity
             android:name="com.example.home.activity.ScaleActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:theme="@style/TransparentTheme"
+            android:theme="@style/TranslucentTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <!-- 网页 -->
+        <activity
+            android:name="com.example.home.activity.WebActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <!-- ******************************************************微信 SDK****************************************************** -->
+        <activity
+            android:name="com.dataqin.baoquan.wxapi.WXEntryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/TranslucentTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
+        <activity
+            android:name="com.dataqin.baoquan.wxapi.WXPayEntryActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:exported="true"
+            android:launchMode="singleTask"
+            android:theme="@style/TranslucentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************服务****************************************************** -->
         <!-- 高德地图 -->
@@ -188,9 +271,17 @@
         <!-- 屏幕录制 -->
         <service
             android:name="com.example.thirdparty.media.service.DisplayService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaProjection" />
+        <!-- 录音录制 -->
+        <service
+            android:name="com.example.thirdparty.media.service.RecordingService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

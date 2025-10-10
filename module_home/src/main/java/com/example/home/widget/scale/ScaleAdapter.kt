@@ -19,17 +19,28 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
         return data.safeSize.orZero
     }
 
+    /**
+     * 1. Java 的 ==
+     * 基本类型：比较值是否相等（如 int, double）
+     * 引用类型：比较引用是否指向同一个对象（即内存地址是否相同）
+     * 2. Kotlin 的 == 和 ===
+     * ==：等价于调用 equals() 方法，比较值是否相等
+     * ===：比较两个引用是否指向同一个对象（与 Java 的 == 对引用类型的行为一致）
+     */
     override fun isViewFromObject(view: View, any: Any): Boolean {
         return view === any
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
-        container.removeView(data.safeGet(position)?.first)
+//        container.removeView(data.safeGet(position)?.first)
+        container.removeView(any as? ScaleImageView) // 直接移除传入的对象
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-        val img = data.safeGet(position)?.first ?: return Any()
-        ImageLoader.instance.display(img, data.safeGet(position)?.second.orEmpty())
+//        val img = data.safeGet(position)?.first ?: return Any()
+        val item = data.safeGet(position) ?: throw IndexOutOfBoundsException("Invalid position: $position")
+        val img = item.first
+        ImageLoader.instance.loadImageFromUrl(img, data.safeGet(position)?.second.orEmpty())
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
         return img
     }

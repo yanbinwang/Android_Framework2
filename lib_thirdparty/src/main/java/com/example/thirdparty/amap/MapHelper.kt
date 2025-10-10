@@ -17,7 +17,8 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
-import com.example.amap.utils.CoordinateTransUtil
+import com.example.amap.utils.CoordinateUtil
+import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
 import com.example.framework.utils.function.value.orFalse
@@ -30,11 +31,24 @@ import kotlin.math.roundToInt
 /**
  *  Created by wangyanbin
  *  高德地图工具类
+ *  override fun onSaveInstanceState(outState: Bundle) {
+ *     super.onSaveInstanceState(outState)
+ *     helper.saveInstanceState(outState)
+ * }
+ *
+ * override fun initView(savedInstanceState: Bundle?) {
+ *     super.initView(savedInstanceState)
+ *     //绑定地图，让地图移动到传入的经纬度点
+ *     helper.bind(savedInstanceState, mBinding?.aMap)
+ *     helper.moveCamera(LatLng(bean?.latitude.orZero, bean?.longitude.orZero))
+ *     //禁止滑动
+ *     helper.aMap?.uiSettings?.isScrollGesturesEnabled = false
+ * }
  */
-class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
-    private val location by lazy { LocationHelper(mActivity) }
+    private val location by lazy { LocationHelper(mActivity, registrar) }
     /**
      * 地址控件
      */
@@ -72,7 +86,8 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
                 val child = mapView.getChildAt(0) as? ViewGroup //地图框架
                 val logo = child?.getChildAt(2)
                 logo?.gone() //隐藏logo
-            } catch (_: Exception) {
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
         aMap?.isTrafficEnabled = true //显示实时交通状况
@@ -125,7 +140,9 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     /**
      * 移动到中心点
      */
-    fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) = moveCamera(CoordinateTransUtil.getCenterPoint(latLngList), zoom, anim)
+    fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) {
+        moveCamera(CoordinateUtil.calculateCenterPoint(latLngList), zoom, anim)
+    }
 
     /**
      * 需要移动的经纬度，需要移动的范围（米）
@@ -198,36 +215,27 @@ class MapHelper(private val mActivity: FragmentActivity) : LifecycleEventObserve
     /**
      * 存储-保存地图当前的状态（对应页面调取）
      */
-    fun saveInstanceState(outState: Bundle) = mapView?.onSaveInstanceState(outState)
+    fun saveInstanceState(outState: Bundle) {
+        mapView?.onSaveInstanceState(outState)
+    }
 
     /**
      * 生命周期管控
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> resume()
-            Lifecycle.Event.ON_PAUSE -> pause()
+            Lifecycle.Event.ON_RESUME -> {
+                mapView?.onResume()
+            }
+            Lifecycle.Event.ON_PAUSE -> {
+                mapView?.onPause()
+            }
             Lifecycle.Event.ON_DESTROY -> {
-                destroy()
+                mapView?.onDestroy()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}
         }
     }
-
-    /**
-     * 加载
-     */
-    private fun resume() = mapView?.onResume()
-
-    /**
-     * 暂停
-     */
-    private fun pause() = mapView?.onPause()
-
-    /**
-     * 销毁
-     */
-    private fun destroy() = mapView?.onDestroy()
 
 }

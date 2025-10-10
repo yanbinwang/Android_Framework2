@@ -11,8 +11,8 @@ import com.example.framework.utils.function.isAvailable
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
@@ -25,8 +25,7 @@ import kotlin.coroutines.CoroutineContext
 class AlipayPay(private val mActivity: FragmentActivity) : CoroutineScope {
     private var payJob: Job? = null
     private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + job
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     init {
         mActivity.doOnDestroy {

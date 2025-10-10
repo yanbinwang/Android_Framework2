@@ -28,7 +28,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                 isLooping = looping //设置是否循环播放
                 prepareAsync()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -39,7 +40,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
         try {
             if (isPlaying()) return
             player.start()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -50,7 +52,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
         try {
             if (!isPlaying()) return
             player.pause()
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -74,7 +77,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
     fun getCurrentPosition(): Int {
         return try {
             player.currentPosition
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
             0
         }
     }
@@ -85,7 +89,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
     fun seekTo(position: Int) {
         try {
             player.seekTo(position)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -121,7 +126,8 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                 reset()
                 release()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 

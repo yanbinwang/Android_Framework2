@@ -12,16 +12,19 @@ import android.view.View.OnFocusChangeListener
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
+import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.passwordDevelopment
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.visible
@@ -49,36 +52,42 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         }
         mBinding.ivShow.apply { click { setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes)) }}
         //以下属性在xml中前缀使用app:调取
-        if (attrs != null) {
-            val typedArray = context.obtainStyledAttributes(attrs, R.styleable.PasswordEditText)
+        context.withStyledAttributes(attrs, R.styleable.PasswordEditText) {
             //文本内容
-            val text = typedArray.getResourceId(R.styleable.PasswordEditText_text, -1)
+            val text = getResourceId(R.styleable.PasswordEditText_text, -1)
             if (text != -1) setText(text)
             //文字大小
-            val textSize = typedArray.getDimension(R.styleable.PasswordEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = getDimension(R.styleable.PasswordEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
             //文字颜色
-            val textColor = typedArray.getColor(R.styleable.PasswordEditText_textColor, color(R.color.textPrimary))
+            val textColor = getColor(R.styleable.PasswordEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
             //无内容显示的文本内容
-            val hint = typedArray.getResourceId(R.styleable.PasswordEditText_hint, -1)
+            val hint = getResourceId(R.styleable.PasswordEditText_hint, -1)
             if (hint != -1) setHint(hint)
             //无为内容显示的文本内容颜色
-            val hintColor = typedArray.getColor(R.styleable.PasswordEditText_textColorHint, color(R.color.textHint))
+            val hintColor = getColor(R.styleable.PasswordEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
             //文本方向
-            val gravity = typedArray.getInt(R.styleable.PasswordEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
+            val gravity = getInt(R.styleable.PasswordEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
             //睁眼闭眼图片资源
-            hideRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_password_hide)
-            showRes = typedArray.getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_password_show)
+            hideRes = getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_password_hide)
+            showRes = getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_password_show)
             //文案最大范围
-            val maxLength = typedArray.getInt(R.styleable.PasswordEditText_maxLength, -1)
+            val maxLength = getInt(R.styleable.PasswordEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
             //配置输入法右下角按钮的样式
-            val imeOptions = typedArray.getInt(R.styleable.PasswordEditText_imeOptions, 0)
+            val imeOptions = getInt(R.styleable.PasswordEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
-            typedArray.recycle()
+            //内部容器修正
+            val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
+            val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
+            if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
+            //撑满父容器
+            setPadding(0, 0, 0, 0)
+            //子容器添加padding
+            mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
     }
 

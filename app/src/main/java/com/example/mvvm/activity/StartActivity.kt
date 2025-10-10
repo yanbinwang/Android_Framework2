@@ -17,7 +17,7 @@ import com.example.mvvm.databinding.ActivityStartBinding
 class StartActivity : BaseActivity<ActivityStartBinding>() {
     private val weakHandler by lazy {
         WeakHandler {
-            navigation(ARouterPath.MainActivity).finish()
+            navigation(ARouterPath.MainActivity)?.finish()
             false
         }
     }

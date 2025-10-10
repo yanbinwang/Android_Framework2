@@ -2,25 +2,34 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.graphics.drawable.GradientDrawable
-import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
 import android.widget.LinearLayout
+import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.FutureTarget
+import com.example.common.utils.function.getCenterPixelColor
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.safeRecycle
 import com.example.framework.utils.WeakHandler
+import com.example.framework.utils.function.value.createOvalDrawable
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -30,6 +39,8 @@ import com.example.framework.utils.function.view.reduceSensitivity
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 import java.util.Timer
 import java.util.TimerTask
 
@@ -70,33 +81,37 @@ import java.util.TimerTask
  */
 @SuppressLint("ClickableViewAccessibility")
 class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), AdvertisingImpl, LifecycleEventObserver {
-    //图片路径数组
+    // 图片路径数组
     private var list = ArrayList<String>()
-    //是否允许滑动
+    // 图片背景数组
+    private var coverList = ArrayList<Pair<Boolean, Int>>()
+    // 是否允许滑动
     private var allowScroll = true
-    //是否自动滚动
+    // 是否自动滚动
     private var autoScroll = true
-    //3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
-    private var triple = Triple(drawable("#3d81f2"), drawable("#6e7ce2"), 10)
-    //自动滚动的定时器
+    // 3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
+    private var triple = Triple(createOvalDrawable("#3d81f2"), createOvalDrawable("#6e7ce2"), 10)
+    // 自动滚动的定时器
     private var timer: Timer? = null
-    //广告容器
+    // 广告容器
     private var banner: ViewPager2? = null
-    //圆点容器
+    // 圆点容器
     private var ovalLayout: LinearLayout? = null
-    //设定一个中心值下标
+    // 设定一个中心值下标
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }
-    //图片适配器
+    // 图片适配器
     private val advAdapter by lazy { AdvertisingAdapter() }
-    //切线程
+    // 切线程
     private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
-    //注册广告监听
+    // 注册广告监听
     private val callback by lazy { object : OnPageChangeCallback() {
-        private var curIndex = 0//当前选中的数组索引
-        private var oldIndex = 0//上次选中的数组索引
+        // 当前选中的数组索引
+        private var curIndex = 0
+        // 上次选中的数组索引
+        private var oldIndex = 0
         override fun onPageSelected(position: Int) {
             super.onPageSelected(position)
-            //切换圆点
+            // 切换圆点
             curIndex = position % list.size
             if (null != ovalLayout) {
                 if (list.size > 1) {
@@ -105,24 +120,89 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                     oldIndex = curIndex
                 }
             }
-            //切换
+            // 切换
             onPagerCurrent?.invoke(curIndex)
         }
 
         override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
             super.onPageScrolled(position, positionOffset, positionOffsetPixels)
             allowScroll = positionOffsetPixels == 0
+            // 无需复杂容错，colorList已完整
+            if (coverList.safeSize > 0) {
+                val mPosition = position % list.size
+                if (mPosition >= coverList.size - 1) return
+                val startColor = coverList.safeGet(mPosition)?.second.orZero
+                val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
+                val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
+                onPageScrolled?.invoke(coverList.safeGet(mPosition)?.first.orFalse to blendedColor.orZero)
+            }
         }
     }}
-    //回调方法
+    // 回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
-    //获取当前下标
+    private var onPageScrolled: ((data: Pair<Boolean, Int>) -> Unit)? = null
+    // 获取当前下标
     private val absolutePosition get() = halfPosition - halfPosition % list.size
+
+    companion object {
+        /**
+         * 异步获取图片的中心像素颜色（用于封面色、主题色等场景）
+         * @param context 上下文（注意：若为Activity/Fragment，需确保不泄露，建议用ApplicationContext）
+         * @param imageSource 图片源（支持Int资源ID、String网络/本地URL等Glide支持的类型）
+         * @return 中心像素颜色，获取失败时返回白色（Color.WHITE）
+         * // 配置Palette，提高颜色提取质量
+         * val palette = Palette.from(bitmap)
+         *     // 增加颜色数量
+         *     .maximumColorCount(32)
+         *     .generate()
+         * // 多种颜色提取策略，提高成功率
+         * val pageColor = palette.getVibrantColor(palette.getMutedColor(palette.getLightVibrantColor(palette.getDarkVibrantColor(Color.WHITE))))
+         */
+        @SuppressLint("CheckResult")
+        suspend fun getImageCenterPixelColor(context: Context, imageSource: Any): Int {
+            return withContext(IO) {
+                var bitmap: Bitmap? = null
+                var futureTarget: FutureTarget<Bitmap>? = null
+                try {
+                    // 加载图片时可以指定尺寸，避免过大的Bitmap占用过多内存
+                    futureTarget = Glide.with(context)
+                        .asBitmap()
+                        .also {
+                            when (imageSource) {
+                                is Int -> it.load(imageSource)
+                                is String -> it.load(imageSource)
+                                // 若需支持更多类型（如File、Uri），可补充case
+                                // is File -> requestBuilder.load(imageSource)
+                                // is Uri -> requestBuilder.load(imageSource)
+                            }
+                        }
+                        // 缓存所有版本，减少重复加载
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        // 限制输出200x200像素，平衡精度与内存
+                        .submit(200, 200)
+                    // 等待Glide加载完成，获取Bitmap（超时会抛异常，被catch捕获）
+                    bitmap = futureTarget.get() ?: return@withContext Color.WHITE
+                    // 计算中心像素坐标，获取颜色
+                    bitmap.getCenterPixelColor()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return@withContext Color.WHITE
+                } finally {
+                    // 取消Glide请求，避免内存泄漏
+                    futureTarget?.let {
+                        Glide.with(context).clear(it)
+                    }
+                    bitmap.safeRecycle()
+                }
+            }
+        }
+    }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     init {
         banner = ViewPager2(context).apply {
+            size(MATCH_PARENT, MATCH_PARENT)
             reduceSensitivity()
             adapter(advAdapter)
             registerOnPageChangeCallback(callback)
@@ -141,6 +221,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (isInflate) addView(banner)
     }
 
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        lifecycleOwner?.lifecycle?.addObserver(this)
+    }
+
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         stopRoll()
@@ -152,6 +237,8 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             Lifecycle.Event.ON_RESUME -> startRoll()
             Lifecycle.Event.ON_PAUSE -> stopRoll()
             Lifecycle.Event.ON_DESTROY -> {
+                stopRoll()
+                weakHandler.removeCallbacksAndMessages(null)
                 banner?.unregisterOnPageChangeCallback(callback)
                 source.lifecycle.removeObserver(this)
             }
@@ -215,9 +302,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 放在start方法之前调取，不然会走默认
      */
-    override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?) {
+    override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?, barList: ArrayList<Pair<Boolean, Int>>?) {
         this.autoScroll = scroll
         this.ovalLayout = ovalLayout
+        this.coverList = barList ?: ArrayList()
         this.advAdapter.setParams(radius, localAsset)
         if (ovalList != null) this.triple = ovalList
     }
@@ -228,16 +316,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     override fun setPageTransformer(marginPx: Int) {
         banner?.setPageTransformer(MarginPageTransformer(marginPx.pt))
-    }
-
-    /**
-     * 默认图片资源
-     */
-    private fun drawable(colorString:String): Drawable {
-        return GradientDrawable().apply {
-            shape = OVAL
-            setColor(colorString.parseColor())
-        }
     }
 
     /**
@@ -276,20 +354,21 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         }
     }
 
-    /**
-     * 绑定对应页面的生命周期-》对应回调重写对应方法
-     * @param observer
-     */
-    fun addObserver(observer: LifecycleOwner) {
-        observer.lifecycle.addObserver(this)
-    }
+//    /**
+//     * 绑定对应页面的生命周期-》对应回调重写对应方法
+//     * @param observer
+//     */
+//    fun addObserver(observer: LifecycleOwner) {
+//        observer.lifecycle.addObserver(this)
+//    }
 
     /**
      * 设置广告监听
      */
-    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit, onPagerCurrent: (index: Int) -> Unit) {
+    fun setAdvertisingListener(onPagerClick: (index: Int) -> Unit = {}, onPagerCurrent: (index: Int) -> Unit = {}, onPageScrolled: (Pair<Boolean, Int>) -> Unit = {}) {
         this.onPagerClick = onPagerClick
         this.onPagerCurrent = onPagerCurrent
+        this.onPageScrolled = onPageScrolled
     }
     // </editor-fold>
 

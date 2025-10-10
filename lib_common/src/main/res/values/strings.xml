@@ -6,10 +6,11 @@
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="refresh">刷新</string>
+    <string name="copySuccess">复制成功</string>
     <!-- app内的默认单位 -->
     <string name="unitNoData">--</string>
     <!-- 权限库的的提示语句 -->
-    <string name="permissionGoSetting">当前缺少以下权限:\n\n%1$s\n请前往设置页面开启</string>
+    <string name="permissionGoSetting">当前缺少以下权限:\n%1$s请前往设置页面开启</string>
     <string name="permissionLocation">定位权限,该权限用于手机定位</string>
     <string name="permissionCamera">相机权限,该权限用于拍摄照片</string>
     <string name="permissionMicrophone">麦克风权限,该权限用于录制音频</string>

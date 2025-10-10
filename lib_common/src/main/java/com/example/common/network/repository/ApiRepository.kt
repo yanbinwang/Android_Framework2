@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
 /**
@@ -57,21 +58,35 @@ suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
-    try {
-        //请求+响应数据
-        val response = withContext(IO) { coroutineScope() }
-        if (!response.tokenExpired() && response.successful()) {
-            return response
-        } else {
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
+        // 忽略 CancellationException，直接重新抛出
+        if (e is CancellationException) {
+            throw e
+        }
+        val wrapper = wrapper(e)
+        err(wrapper)
+        throw wrapper
+    }.also { response ->
+        if (!response.successful() || response.tokenExpired()) {
             val wrapper = ResponseWrapper(response.code, response.msg)
-            err.invoke(wrapper)
+            err(wrapper)
             throw wrapper
         }
-    } catch (e: Exception) {
-        throw e
     }
 }
 
+/**
+ * 如果外层嵌套了flow，且flow也写了catch，会导致内部的catch不自信，外层抢先一步获取
+ * 直接在flow的emit这catch，抓取到此次异常
+ * try {
+ *     emit(requestLayer(coroutineScope, err))
+ *  } catch (e: Throwable) {
+ *    // 可以在这里做额外处理
+ *     throw e
+ * }
+ */
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>) -> Unit,
@@ -84,10 +99,9 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
-    try {
-        val response = withContext(IO) { coroutineScope() }
-        return response
-    } catch (e: Exception) {
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
         throw e
     }
 }
@@ -106,7 +120,7 @@ fun <T> Flow<T>.withHandling(
     err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false,
-    isShowDialog: Boolean = false
+    isShowDialog: Boolean = true
 ): Flow<T> {
     return withHandling(err, {
         if (isShowDialog) view?.hideDialog()
@@ -121,16 +135,27 @@ fun <T> Flow<T>.withHandling(
     end: () -> Unit = {},
     isShowToast: Boolean = false,
 ): Flow<T> {
-    return flowOn(Main).catch { exception ->
-        val wrapper: ResponseWrapper = when (exception) {
-            is ResponseWrapper -> exception
-            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    return flowOn(Main.immediate).catch { exception ->
+        // 忽略 CancellationException，不做处理
+        if (exception is CancellationException) {
+            throw exception
         }
+        val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
         err(wrapper)
-    }.onCompletion {
-        end()
+    }.onCompletion { cause ->
+        if (cause !is CancellationException) {
+            end()
+        }
     }
+}
+
+private fun wrapper(exception: Throwable): ResponseWrapper {
+    val wrapper: ResponseWrapper = when (exception) {
+        is ResponseWrapper -> exception
+        else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    }
+    return wrapper
 }
 
 /**
@@ -149,6 +174,21 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
         }
     }
     return map.requestBody()
+}
+
+/**
+ * 取得async异步协程集合后，拿取对应的值强转
+ * reified:保留类型参数 T 的具体类型信息
+ */
+inline fun <reified T> List<Any?>?.safeAs(position: Int): T? {
+    if (this == null || position < 0 || position >= size) return null
+    val value = get(position)
+    return if (value is T) value else null
+}
+
+inline fun <reified T> Any?.safeAs(): T? {
+    if (this == null) return null
+    return if (this is T) this else null
 }
 
 /**

@@ -1,15 +1,21 @@
 package com.example.framework.utils.function.value
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Bundle
 import android.os.Looper
+import android.view.View
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
+import java.util.regex.Pattern
 
 //------------------------------------方法工具类------------------------------------
 /**
@@ -73,17 +79,72 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
- * 获取Color String中的color
- * eg: "#ffffff"
+ * 安全解析颜色字符串为 [ColorInt]，支持 null 处理和格式验证
+ * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
+ * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
  */
 @ColorInt
-fun String?.parseColor() = Color.parseColor(this ?: "#ffffff")
+fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
+    return this?.let { colorString ->
+        val colorPattern = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+        if (colorPattern.matcher(colorString).matches()) {
+            try {
+                colorString.toColorInt()
+            } catch (_: IllegalArgumentException) {
+                defaultColor
+            }
+        } else {
+            defaultColor
+        }
+    } ?: defaultColor
+}
 
 /**
  * 不指定name，默认返回class命名
  */
 fun Class<*>.getSimpleName(name: String? = null): String {
     return name ?: this.simpleName.lowercase(Locale.getDefault())
+}
+
+/**
+ * 减少本地背景文件的绘制，直接代码绘制
+ * colorString 颜色字符 -> "#cf111111"
+ * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+ */
+fun createCornerDrawable(colorString: String, radius: Float = 0f): Drawable {
+    return GradientDrawable().apply {
+        setColor(colorString.parseColor())
+        cornerRadius = radius
+    }
+}
+
+fun createOvalDrawable(colorString: String): Drawable {
+    return GradientDrawable().apply {
+        shape = OVAL
+        setColor(colorString.parseColor())
+    }
+}
+
+/**
+ * 比较两个 Drawable 是否来自同一资源或完全相同（仅支持 API 21+）
+ * 1. 先检查实例引用是否相同
+ * 2. 再检查 constantState
+ */
+fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
+    // 处理 null 情况
+    if (d1 == null && d2 == null) return true
+    if (d1 == null || d2 == null) return false
+    // 快速比较实例引用
+    if (d1 === d2) return true
+    // 使用 constantState 比较
+    val cs1 = d1.constantState
+    val cs2 = d2.constantState
+    // 防御性编程：处理 constantState 为 null 的罕见情况
+    return when {
+        cs1 == null && cs2 == null -> false
+        cs1 == null || cs2 == null -> false
+        else -> cs1 == cs2
+    }
 }
 
 /**
@@ -100,7 +161,8 @@ fun getMemInfo(): Long {
         //int值乘以1024转换为long类型
         memory = systemMemory.toSafeLong() * 1024
         localBufferedReader.close()
-    } catch (_: IOException) {
+    } catch (e: IOException) {
+        e.printStackTrace()
     }
     return memory
 }
@@ -114,7 +176,8 @@ fun getCpuInfo(): String {
         val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
         localBufferedReader.close()
         return if ("0" == info || info.isEmpty()) "" else info
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -127,7 +190,8 @@ fun mobileIsRoot(): Boolean {
         for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
             if (File(element + "su").exists()) return true
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return false
 }

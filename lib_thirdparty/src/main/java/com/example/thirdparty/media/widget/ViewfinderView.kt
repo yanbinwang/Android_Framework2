@@ -27,10 +27,10 @@ class ViewfinderView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     override fun onDraw(canvas: Canvas) {
         val frame = Rect(0, 0, width, height)
-        //画笔颜色
+        // 画笔颜色
         val maskColor = Color.GREEN
         paint.color = maskColor
-        //画扫描框边上的角，总共8个部分
+        // 画扫描框边上的角，总共8个部分
         paint.color = Color.YELLOW
         canvas.apply {
             drawRect(frame.left.toSafeFloat(), frame.top.toSafeFloat(), (frame.left + screenRate).toSafeFloat(), (frame.top + cornerWidth).toSafeFloat(), paint)

@@ -1,6 +1,5 @@
 package com.example.thirdparty.media.service
 
-import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
@@ -12,23 +11,23 @@ import android.media.projection.MediaProjectionManager
 import android.os.Build
 import android.os.PowerManager
 import androidx.core.app.NotificationCompat
-import androidx.lifecycle.LifecycleService
-import androidx.lifecycle.lifecycleScope
 import com.example.common.base.page.Extra
-import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getExtra
+import com.example.framework.utils.function.TrackableLifecycleService
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
+import com.example.thirdparty.R
+import com.example.thirdparty.media.utils.DisplayHelper.Companion.calculateBitRate
+import com.example.thirdparty.media.utils.DisplayHelper.Companion.getCompatibleParameters
+import com.example.thirdparty.media.utils.DisplayHelper.Companion.isEncoderSupported
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import com.example.thirdparty.utils.NotificationUtil.notificationId
 
 /**
  *  Created by wangyanbin
@@ -79,14 +78,13 @@ import kotlinx.coroutines.withContext
  *     1. softwareRendering
  *       说明：当服务需要使用软件渲染时，可设置为该类型。例如，一些图形处理应用在进行复杂的图形渲染时，可能会使用软件渲染方式，此时将服务标记为 softwareRendering 类型，系统会为其分配相应的资源。
  */
-class DisplayService : LifecycleService() {
-    private var isRelease = false
+class DisplayService : TrackableLifecycleService() {
     private var folderPath: String? = null
     private var recorder: MediaRecorder? = null
     private var projection: MediaProjection? = null
     private var display: VirtualDisplay? = null
     private var wakeLock: PowerManager.WakeLock? = null
-    private val timerTick by lazy { TimerTick(this) }
+    private val timerTick by lazy { TimerTick(this, this) }
 
     companion object {
         /**
@@ -106,16 +104,28 @@ class DisplayService : LifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
-            startForeground(1, Notification())
-        } else {
-            val notificationManager = getSystemService(NOTIFICATION_SERVICE) as? NotificationManager
-            notificationManager?.createNotificationChannel(NotificationChannel(packageName, packageName, NotificationManager.IMPORTANCE_DEFAULT))
-            val builder = NotificationCompat.Builder(this, packageName)
-            //id不为0即可，该方法表示将服务设置为前台服务
-            startForeground(1, builder.build())
+        // 1. 创建符合Android 15要求的通知渠道
+        val channelId = string(R.string.notificationChannelId)
+        val channelName = string(R.string.notificationChannelName)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            // 录屏服务建议使用低重要性，避免打扰用户
+            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
+                description = "用于显示屏幕录制状态"
+                setSound(null, null) // 关闭通知声音
+            }
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
         }
-//        stopForeground(true)//关闭录屏的图标-可注释
+        // 2. 构建完整的通知（必须包含图标、标题）
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("正在录屏") // 强制要求：标题
+            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setOngoing(true) // 标记为持续通知，用户无法手动清除
+            .setSilent(true) // 静音通知
+            .build()
+        // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
+        startForeground(notificationId, notification)
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
@@ -123,13 +133,12 @@ class DisplayService : LifecycleService() {
         //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
         wakeLock?.acquire()
         //计时器挂载弹框
-        timerTick.start(lifecycle)
+        timerTick.start()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         //获取到页面OnActivityResult取得的值
         val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-//        val resultData = intent?.getParcelableExtra(Extra.BUNDLE_BEAN) ?: Intent()
         val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
         startRecording(resultCode, resultData)
 //        return START_STICKY
@@ -139,35 +148,58 @@ class DisplayService : LifecycleService() {
     private fun startRecording(resultCode: Int?, resultData: Intent?) {
         try {
             if (resultData == null) throw RuntimeException("resultData is Empty")
+            // 先检查原始参数是否支持
+            var currentWidth = previewWidth
+            var currentHeight = previewHeight
+            var currentBitRate = calculateBitRate(currentWidth, currentHeight)
+            // 如果不支持，动态降级参数
+            if (!isEncoderSupported(currentWidth, currentHeight, currentBitRate, 30)) {
+                val (compatibleW, compatibleH, compatibleBitRate) = getCompatibleParameters(currentWidth, currentHeight)
+                currentWidth = compatibleW
+                currentHeight = compatibleH
+                currentBitRate = compatibleBitRate
+            }
             val screenFile = StorageUtil.getOutputFile(StorageType.SCREEN)
             folderPath = screenFile?.absolutePath
             recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
             recorder?.apply {
+                // 视频源（录屏必须用 SURFACE）
                 setVideoSource(MediaRecorder.VideoSource.SURFACE)
+                // 音频源
                 setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setVideoEncodingBitRate(5 * previewWidth * previewHeight)
+                // 输出格式
+                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
+                // 视频编码（H264 兼容性最好）
                 setVideoEncoder(MediaRecorder.VideoEncoder.H264)
+                // 音频编码
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setVideoSize(previewWidth, previewHeight)
-                setVideoFrameRate(60)
-                //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
+                // 视频尺寸（必须与 VirtualDisplay 一致）
+                setVideoSize(currentWidth, currentHeight)
+                // 帧率（60 降为 30，高版本对 60fps 支持有限）
+                setVideoFrameRate(30)
+                // 比特率（关键修改：用计算值替代固定公式）
+                setVideoEncodingBitRate(currentBitRate)
+                // 屏幕旋转角度（根据实际情况调整，0 表示默认）
+                setOrientationHint(0)
+                // 输出文件
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     setOutputFile(screenFile?.absolutePath)
                 } else {
                     setOutputFile(screenFile)
                 }
+                // 准备
                 prepare()
             }
             projection = (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
-            display = projection?.createVirtualDisplay("mediaProjection", previewWidth, previewHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
+            display = projection?.createVirtualDisplay("mediaProjection", currentWidth, currentHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
             recorder?.start()
             //仅在 start 成功后触发
             listener?.onStart(folderPath)
         } catch (e: Exception) {
-            isRelease = true
+            isDestroy = true
+            releaseDisplay()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
             listener?.onError(e)
-            releaseDisplay()
+            stopSelf()
         }
     }
 
@@ -176,31 +208,14 @@ class DisplayService : LifecycleService() {
      */
     private fun stopRecording() {
         listener?.onShutter()
-        lifecycleScope.launch {
-            flow {
-                //阻塞直到文件写入完成,切到ui线程做停止
-                withContext(IO) { recorder?.stop() }
-                emit(releaseDisplay())
-            }.withHandling({
-                listener?.onError(it.throwable as? Exception)
-            }).collect {
-                listener?.onStop()
-            }
+        recorder?.runCatching {
+            stop()//阻塞直到文件写入完成
+            releaseDisplay()
+        }?.onSuccess {
+            listener?.onStop()
+        }?.onFailure {
+            listener?.onError(it as? Exception)
         }
-//        var exception: Exception? = null
-//        try {
-//            //阻塞直到文件写入完成
-//            recorder?.stop()
-//            releaseDisplay()
-//        } catch (e: Exception) {
-//            exception = e
-//        } finally {
-//            if (null != exception) {
-//                listener?.onError(exception)
-//            } else {
-//                listener?.onStop()
-//            }
-//        }
     }
 
     private fun releaseDisplay() {
@@ -231,11 +246,7 @@ class DisplayService : LifecycleService() {
             releaseDisplay()
             folderPath.deleteFile()
         } else {
-            if (!isRelease) {
-                stopRecording()
-            } else {
-                isRelease = false
-            }
+            stopRecording()
         }
     }
 

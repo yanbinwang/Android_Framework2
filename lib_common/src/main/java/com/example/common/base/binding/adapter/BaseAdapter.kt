@@ -1,17 +1,16 @@
 package com.example.common.base.binding.adapter
 
 import android.annotation.SuppressLint
+import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
 import com.example.common.base.bridge.BaseViewModel
-import com.example.framework.utils.function.value.findAndRemove
 import com.example.framework.utils.function.value.findIndexOf
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.click
 
 /**
@@ -23,7 +22,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 适配器类型-后续可扩展
      */
-    private var itemType = BEAN
+    private var itemType: BaseItemType = LIST // 默认是 LIST 类型
     /**
      * 数据类型为集合
      */
@@ -35,18 +34,22 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 点击回调，返回对象和下标
      */
-    private var onItemClick: ((t: T?, position: Int) -> Unit)? = null
+    protected var onItemClick: ((v: View?, t: T?, position: Int) -> Unit)? = null
+    protected var onItemLongClick: ((v: View?, t: T?, position: Int) -> Boolean)? = null
 
     /**
-     * 默认是返回对象
+     * 默认是返回集合
      */
-    constructor()
+    constructor() {
+        data = ArrayList()
+    }
 
     /**
      * 传入对象的方法
      */
     constructor(bean: T?) {
         itemType = BEAN
+        bean ?: return
         t = bean
     }
 
@@ -55,54 +58,104 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     constructor(list: ArrayList<T>?) {
         itemType = LIST
-        data = list.orEmpty().toArrayList()
+        list ?: return
+        data = list
     }
 
     override fun getItemCount(): Int {
         return when (itemType) {
             LIST -> data.safeSize
-            BEAN -> 1
+            BEAN -> if (t != null) 1 else 0
         }
     }
 
+    /**
+     * 基础重载方法，当 RecyclerView 需要完全重新绑定一个 ViewHolder 时会调用此方法。常见的触发场景包括：
+     * 该方法用于完全重新绑定 ViewHolder，意味着它会更新 ViewHolder 中的所有视图元素，以反映数据集中对应位置的数据
+     * 1）首次创建 ViewHolder 并进行绑定时。
+     * 2）调用 notifyDataSetChanged() 方法，它会通知 RecyclerView 整个数据集可能已改变，此时所有可见的 ViewHolder 都会调用此方法进行重新绑定。
+     * 3）调用 notifyItemChanged(position) 但没有传递 payload 时，RecyclerView 会认为需要完全更新该位置的 ViewHolder
+     */
     override fun onBindViewHolder(holder: BaseViewDataBindingHolder, position: Int) {
-        onConvertHolder(holder)
+        onConvertHolder(holder, null)
     }
 
     /**
-     * 局部刷新notifyItemChanged可传入一个集合，用来判断是否刷新item里的某一个view，此时可以使用payloads集合
+     * 这个重载方法在调用 notifyItemChanged(position, payload) 时被触发，
+     * 其中 payload 是一个包含变化信息的对象。它允许你只更新 ViewHolder 中部分视图，而不是整个视图。这种方式更高效，因为它避免了不必要的视图更新
+     * if (payloads.isEmpty()) {
+     *         // 如果 payloads 为空，说明没有部分更新信息，调用全量更新方法
+     *         onBindViewHolder(holder, position)
+     *     } else {
+     *         // 根据 payloads 中的信息进行局部更新
+     *         for (payload in payloads) {
+     *             if (payload is UpdateTitlePayload) {
+     *                 holder.titleTextView.text = getItem(position).title
+     *             } else if (payload is UpdateDescriptionPayload) {
+     *                 holder.descriptionTextView.text = getItem(position).description
+     *             }
+     *         }
+     *     }
      */
     override fun onBindViewHolder(holder: BaseViewDataBindingHolder, position: Int, payloads: MutableList<Any>) {
         onConvertHolder(holder, payloads)
     }
 
-    private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>? = null) {
+    /**
+     * 如果payloads不为空，回调里做局部刷新
+     */
+    private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>?) {
+        // 扁平化 payloads，处理系统多套的一层 List
+        val flatPayloads = mutableListOf<Any>()
+        payloads?.forEach { item ->
+            // 如果 item 是 List，就把里面的元素拆出来（扁平化）；否则直接添加
+            if (item is List<*>) {
+                // 过滤非 Any 类型，避免强转错误
+                flatPayloads.addAll(item.filterIsInstance<Any>())
+            } else {
+                flatPayloads.add(item)
+            }
+        }
         val position = holder.absoluteAdapterPosition
-        //注意判断当前适配器是否具有头部view
-        holder.itemView.click { onItemClick?.invoke(data.safeGet(position), position) }
-        onConvert(holder, when (itemType) {
-            LIST -> data.safeGet(position)
+        // 注意判断当前适配器是否具有头部view
+        holder.itemView.click {
+            onItemClick?.invoke(it, data.safeGet(position), position)
+        }
+        holder.itemView.setOnLongClickListener {
+            onItemLongClick?.invoke(it, data.safeGet(position), position).orFalse
+        }
+        onConvert(holder, getItem(position), flatPayloads)
+    }
+
+    /**
+     * 获取对应下标的class
+     */
+    private fun getItem(position: Int): T? {
+        return when (itemType) {
+            LIST -> if (position in data.indices) data.safeGet(position) else null
             BEAN -> t
-        }, payloads)
+        }
     }
 
     /**
      * 统一回调
      */
-    protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>? = null)
+    protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?)
 
     /**
      * 刷新符合条件的item（数据在item内部更改）
      */
     fun changed(func: ((T) -> Boolean)) {
-        data.findIndexOf(func).apply { if (this != -1) notifyItemChanged(this) }
+        data.findIndexOf(func).apply {
+            if (this != -1) notifyItemChanged(this)
+        }
     }
 
     /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      */
     fun changed(func: ((T) -> Boolean), bean: T?) {
-        changed(findIndexOf(func), bean)
+        changed(findIndex(func), bean)
     }
 
     /**
@@ -110,34 +163,40 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(index: Int?, bean: T?) {
         if (index == null || bean == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index)
         }
     }
 
-    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>?, bean: T?) {
+    /**
+     * 传入符合条件的下标，给到需要刷新的payloads，以及对应的新data class
+     */
+    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T?) {
         changed(data.findIndexOf(func), payloads, bean)
     }
 
-    fun changed(index: Int?, payloads: MutableList<Any>?, bean: T?) {
+    fun changed(index: Int?, payloads: MutableList<Any>, bean: T?) {
         if (index == null || bean == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }
     }
 
     /**
-     * 删除某个条目
+     * 删除符合条件的对象
      */
     fun removed(func: ((T) -> Boolean)) {
-        data.findAndRemove(func)
+        removed(findIndex(func))
     }
 
+    /**
+     * 删除指定下标对象
+     */
     fun removed(index: Int?) {
         if (index == null) return
-        if (index != -1 && data.safeGet(index) != null) {
+        if (index in data.indices) {
             data.removeAt(index)
             notifyItemRemoved(index)
         }
@@ -146,7 +205,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找并返回符合条件的对象
      */
-    fun find(func: ((T) -> Boolean)): T? {
+    fun findItem(func: ((T) -> Boolean)): T? {
         val index = data.findIndexOf(func)
         return data.safeGet(index)
     }
@@ -154,8 +213,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun find(func: ((T) -> Boolean), listener: (position: Int, bean: T?) -> Unit) {
-        data.findIndexOf(func).apply { listener.invoke(this, data.safeGet(this)) }
+    fun findItemOf(func: ((T) -> Boolean)): Pair<Int, T?> {
+        val index = data.findIndexOf(func)
+        return index to data.safeGet(index)
     }
 
     /**
@@ -168,7 +228,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 返回查找到的符合条件的下标
      */
-    fun findIndexOf(func: ((T) -> Boolean)): Int {
+    fun findIndex(func: ((T) -> Boolean)): Int {
         return data.findIndexOf(func)
     }
 
@@ -191,7 +251,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 获取当前集合长度
      */
     fun size(): Int {
-        return data.safeSize
+        return if (itemType == LIST) data.safeSize else 1
     }
 
     /**
@@ -278,10 +338,37 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 更新集合->假设两组集合长度相同，固定socket推送
+     * 重写T的equals和hashCode
+     */
+    fun update(list: List<T>?) {
+        if (null == list) return
+        val diffIndices = mutableListOf<Int>()
+        // 遍历新集合和旧集合，找出不相等元素的下标
+        for (i in list.indices) {
+            if (i < data.safeSize && list.safeGet(i) != data.safeGet(i)) {
+                diffIndices.add(i)
+            }
+        }
+        // 更新数据
+        data.clear()
+        data.addAll(list)
+        // 刷新不同的项
+        for (index in diffIndices) {
+            // 这里直接使用 index 来更新对应位置的项
+            notifyItemChanged(index)
+        }
+    }
+
+    /**
      * 适配器点击
      */
-    fun setOnItemClickListener(onItemClick: ((t: T?, position: Int) -> Unit)) {
-        this.onItemClick = onItemClick
+    fun setOnItemClickListener(listener: ((v: View?, t: T?, position: Int) -> Unit)) {
+        this.onItemClick = listener
+    }
+
+    fun setOnItemLongClickListener(listener: ((v: View?, t: T?, position: Int) -> Boolean)) {
+        this.onItemLongClick = listener
     }
 
 }

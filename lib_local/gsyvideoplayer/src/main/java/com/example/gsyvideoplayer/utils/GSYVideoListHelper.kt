@@ -1,6 +1,5 @@
-package com.example.gsyvideoplayer.utils
+package com.example.thirdparty.media.utils
 
-import android.view.View
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -8,8 +7,10 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.value.orZero
-import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.gone
 import com.shuyu.gsyvideoplayer.GSYVideoManager
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.max
 
@@ -24,21 +25,11 @@ import kotlin.math.max
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private var recycler: RecyclerView? = null
+class GSYVideoListHelper(private val mActivity: FragmentActivity, private val recycler: RecyclerView?) : LifecycleEventObserver {
     private val data by lazy { ConcurrentHashMap<Int, String>() }
-
 
     init {
         mActivity.lifecycle.addObserver(this)
-    }
-
-    /**
-     * 绑定列表
-     */
-    fun bind(recycler: RecyclerView?) {
-        this.recycler = recycler
-        this.data.clear()
     }
 
     /**
@@ -52,11 +43,11 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
         //设置每个列表的url
         player?.setUpLazy(url, true, null, null, "这是title")
         //增加title
-        player?.titleTextView?.visibility = View.GONE
+        player?.titleTextView?.gone()
         //设置返回键
-        player?.backButton?.setVisibility(View.GONE)
+        player?.backButton?.gone()
         //设置全屏按键功能
-        player?.fullscreenButton?.setOnClickListener {
+        player?.fullscreenButton?.click {
             player.startWindowFullscreen(player.context, false, true)
         }
         //防止错位设置(下标+url)
@@ -75,7 +66,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
     /**
      * 设置列表监听
      */
-    fun setOnScrollListener(listener: (() -> Unit)) {
+    fun setOnScrollListener(listener: ((position: Int) -> Unit)) {
         recycler?.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
@@ -86,10 +77,10 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                 val visibleItemCount = max(0, layoutManager?.childCount.orZero)
                 // 获取最后一个可见的item的索引
                 val lastVisibleItem = firstVisibleItem + visibleItemCount - 1
+                //当前播放的位置
+                val position = GSYVideoManager.instance().playPosition
                 //大于0说明有播放
-                if (GSYVideoManager.instance().playPosition >= 0) {
-                    //当前播放的位置
-                    val position = GSYVideoManager.instance().playPosition
+                if (position >= 0) {
                     //当前播放tag
                     val playTag = data[position]
                     //对应的播放列表TAG
@@ -100,7 +91,7 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
                         //如果滑出去了上面和下面就是否，和今日头条一样
 //                        GSYVideoManager.releaseAllVideos()
 //                        adapter.notifyDataSetChanged()
-                        listener.invoke()
+                        listener.invoke(position)
                     }
                 }
             }
@@ -119,6 +110,13 @@ class GSYVideoListHelper(private val mActivity: FragmentActivity) : LifecycleEve
      */
     fun onBackPressed(): Boolean {
         return GSYVideoManager.backFromWindowFull(mActivity)
+    }
+
+    /**
+     * 页面全局刷新时清空本地data后再覆盖赋值
+     */
+    fun onRefresh() {
+        data.clear()
     }
 
     /**

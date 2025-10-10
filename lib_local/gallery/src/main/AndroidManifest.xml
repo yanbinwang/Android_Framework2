@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <application>
+        <!-- 裁剪 -->
+        <!-- 裁剪操作页 -->
+        <activity
+            android:name="com.yanzhenjie.durban.DurbanActivity"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
+
+        <!-- 相册 -->
+        <!-- 相册整体页 -->
+        <activity
+            android:name="com.yanzhenjie.album.app.album.AlbumActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 多选模式下,右下角的眼睛可以进入画廊引导页 -->
+        <activity
+            android:name="com.yanzhenjie.album.app.album.GalleryActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相册无数据加载页 -->
+        <activity
+            android:name="com.yanzhenjie.album.app.album.NullActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <activity
+            android:name="com.yanzhenjie.album.app.gallery.GalleryActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <activity
+            android:name="com.yanzhenjie.album.app.gallery.GalleryAlbumActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <activity
+            android:name="com.yanzhenjie.album.app.camera.CameraActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity.Transparent"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+
+        <provider
+            android:name="com.yanzhenjie.album.provider.CameraFileProvider"
+            android:authorities="${applicationId}.app.file.provider"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            android:multiprocess="true" >
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/album_camera_provider" />
+        </provider>
+    </application>
+
+</manifest>

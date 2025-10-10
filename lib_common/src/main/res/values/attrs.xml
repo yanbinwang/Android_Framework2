@@ -5,12 +5,15 @@
     <declare-styleable name="XRecyclerView">
         <attr name="xrvEnableRefresh" format="boolean" />
         <attr name="xrvEnableEmpty" format="boolean" />
-        <attr name="xrvEmptyHeight" format="dimension" />
+        <attr name="xrvEnableEmptyClickable" format="boolean" />
+        <attr name="xrvFixedHeight" format="integer" />
     </declare-styleable>
 
     <!-- 自定义EmptyLayout -->
     <declare-styleable name="EmptyLayout">
         <attr name="elEnableFullScreen" format="boolean" />
+        <attr name="elEnableWindow" format="boolean" />
+        <attr name="elEnableClickable" format="boolean" />
     </declare-styleable>
 
     <!-- 删除按钮edittext -->

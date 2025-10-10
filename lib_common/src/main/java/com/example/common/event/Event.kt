@@ -67,6 +67,7 @@ class Code<T> {
     }
 
     var action = actionTime++
+        private set
 
     fun post(obj: T? = null) = EventBus.instance.post(Event(action, obj))
 

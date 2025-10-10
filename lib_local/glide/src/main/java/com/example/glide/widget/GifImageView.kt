@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.glide.ImageLoader
 import com.example.glide.R
+import androidx.core.content.withStyledAttributes
 
 /**
  * @description 加载gif动图
@@ -18,10 +19,10 @@ import com.example.glide.R
 class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.GifImageView)
-        val res = typedArray.getResourceId(R.styleable.GifImageView_android_src, -1)
-        if (res != -1) ImageLoader.instance.displayGif(this, res)
-        typedArray.recycle()
+        context.withStyledAttributes(attrs, R.styleable.GifImageView) {
+            val res = getResourceId(R.styleable.GifImageView_android_src, -1)
+            if (res != -1) ImageLoader.instance.loadGifFromResource(this@GifImageView, res)
+        }
     }
 
 }

@@ -8,50 +8,52 @@
         android:layout_width="320pt"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_default">
+        android:background="@drawable/shape_default"
+        android:paddingTop="8pt">
 
         <TextView
-            android:id="@+id/tv_tip"
-            android:layout_width="match_parent"
+            android:id="@+id/tv_title"
+            android:layout_width="0pt"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="24pt"
+            android:layout_marginTop="18pt"
             android:ellipsize="end"
             android:gravity="center"
-            android:paddingHorizontal="5pt"
-            android:paddingTop="24pt"
             android:singleLine="true"
-            android:textColor="@color/textPrimary"
+            android:textColor="@color/appTheme"
             android:textSize="@dimen/textSize14"
             android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             tools:text="标题" />
 
         <TextView
             android:id="@+id/tv_message"
-            android:layout_width="match_parent"
+            android:layout_width="0pt"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24pt"
             android:layout_marginTop="16pt"
             android:gravity="center"
             android:lineSpacingExtra="2pt"
             android:textColor="@color/textPrimary"
-            android:textSize="@dimen/textSize14"
+            android:textSize="@dimen/textSize12"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tv_tip"
+            app:layout_constraintTop_toBottomOf="@+id/tv_title"
             tools:text="内容" />
 
         <View
-            android:id="@+id/view_split_line"
+            android:id="@+id/view_controller_line"
             style="@style/LineConstraintWidth"
-            android:layout_marginTop="24pt"
+            android:layout_marginTop="16pt"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tv_message" />
 
         <TextView
-            android:id="@+id/tv_cancel"
-            android:layout_width="0dp"
+            android:id="@+id/tv_negative"
+            android:layout_width="0pt"
             android:layout_height="48pt"
             android:ellipsize="end"
             android:gravity="center"
@@ -59,23 +61,23 @@
             android:singleLine="true"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14"
-            app:layout_constraintEnd_toStartOf="@+id/tv_sure"
+            app:layout_constraintEnd_toStartOf="@+id/tv_positive"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/view_split_line"
+            app:layout_constraintTop_toBottomOf="@+id/view_controller_line"
             tools:text="取消" />
 
         <View
             android:id="@+id/view_line"
             style="@style/LineConstraintHeight"
-            app:layout_constraintBottom_toBottomOf="@id/tv_sure"
+            app:layout_constraintBottom_toBottomOf="@id/tv_positive"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@id/tv_sure" />
+            app:layout_constraintTop_toTopOf="@id/tv_positive" />
 
         <TextView
-            android:id="@+id/tv_sure"
-            android:layout_width="0dp"
+            android:id="@+id/tv_positive"
+            android:layout_width="0pt"
             android:layout_height="48pt"
             android:ellipsize="end"
             android:gravity="center"
@@ -83,10 +85,11 @@
             android:singleLine="true"
             android:textColor="@color/appTheme"
             android:textSize="@dimen/textSize14"
+            android:textStyle="bold"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@+id/tv_cancel"
-            app:layout_constraintTop_toBottomOf="@+id/view_split_line"
+            app:layout_constraintStart_toEndOf="@+id/tv_negative"
+            app:layout_constraintTop_toBottomOf="@+id/view_controller_line"
             tools:text="确定" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

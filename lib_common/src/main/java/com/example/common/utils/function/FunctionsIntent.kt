@@ -2,24 +2,33 @@ package com.example.common.utils.function
 
 import android.app.Activity
 import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
+import android.view.View
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
-import androidx.fragment.app.FragmentActivity
+import androidx.core.net.toUri
+import androidx.core.util.Pair
+import androidx.fragment.app.Fragment
 import com.example.common.R
-import com.example.common.base.page.RequestCode.REQUEST_ALBUM
-import com.example.common.base.page.RequestCode.REQUEST_IMAGE
-import com.example.common.base.page.RequestCode.REQUEST_VIDEO
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
+import com.example.common.base.page.ResultCode.RESULT_IMAGE
+import com.example.common.base.page.ResultCode.RESULT_VIDEO
 import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
@@ -27,7 +36,6 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
-import androidx.core.net.toUri
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
@@ -42,11 +50,21 @@ import androidx.core.net.toUri
  *     }
  * }
  */
-fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        func.invoke(it)
+interface ActivityResultRegistrar {
+    val activityResultCaller: ActivityResultCaller
+    fun registerResult(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> {
+        return activityResultCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            func.invoke(it)
+        }
     }
+}
+
+fun AppCompatActivity.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
+}
+
+fun Fragment.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
 }
 
 /**
@@ -79,7 +97,7 @@ fun Activity?.pullUpAlbum() {
     this ?: return
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    startActivityForResult(intent, REQUEST_ALBUM)
+    startActivityForResult(intent, RESULT_ALBUM)
 }
 
 /**
@@ -90,7 +108,7 @@ fun Activity?.pullUpImage() {
     this ?: return
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    getResult(file, intent, REQUEST_IMAGE)
+    forResult(file, intent, RESULT_IMAGE)
 }
 
 /**
@@ -103,10 +121,10 @@ fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    getResult(file, intent, REQUEST_VIDEO)
+    forResult(file, intent, RESULT_VIDEO)
 }
 
-private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
+private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
     if (null == file || null == this) return
     try {
         val uri: Uri?
@@ -118,22 +136,59 @@ private fun Activity?.getResult(file: File?, intent: Intent, requestCode: Int) {
         }
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         startActivityForResult(intent, requestCode)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 高版本后台服务有浮层需要允许当前设置
+ * Settings.canDrawOverlays(this)
  */
-fun Activity?.pullUpOverlay(): Boolean {
-    this ?: return false
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-        intent.data = "package:${packageName}".toUri()
+fun Context?.pullUpOverlay() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+    intent.data = "package:${packageName}".toUri()
+    startActivity(intent)
+}
+
+/**
+ * 拉起无障碍设置页面
+ */
+fun Context?.pullUpAccessibility() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    startActivity(intent)
+}
+
+/**
+ * 拉起通知设置
+ */
+fun Context?.pullUpNotification() {
+    this ?: return
+    val intent = when {
+        // Android 8.0+（API 26+）：直接跳通知设置
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                // 指定应用包名
+                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+        }
+        // Android 6.0-7.1（API 23-25）：跳应用详情页
+        else -> {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = "package:$packageName".toUri()
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+    }
+    // 尝试启动Intent，防止仍有设备不支持
+    try {
         startActivity(intent)
-        false
-    } else {
-        true
+    } catch (e: ActivityNotFoundException) {
+        e.printStackTrace()
+        // 跳系统设置首页
+        startActivity(Intent(Settings.ACTION_SETTINGS))
     }
 }
 
@@ -153,7 +208,8 @@ fun Context?.pullUpPackage(packageName: String) {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -239,15 +295,20 @@ fun Context?.openFile(filePath: String, type: String) {
     this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
-            } else {
-                setDataAndType("file://$filePath".toUri(), type)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        })
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
+                } else {
+                    setDataAndType("file://$filePath".toUri(), type)
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "未找到合适的应用来打开此文件，请安装相关应用".shortToast()
+        }
     }
 }
 
@@ -259,16 +320,20 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
     this ?: return
     val file = File(filePath)
     if (file.fileValidation()) {
-        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
-            } else {
-                putExtra(Intent.EXTRA_STREAM, file)
-            }
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            type = fileType//此处可发送多种文件
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }, title))
+        try {
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                    putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
+                } else {
+                    putExtra(Intent.EXTRA_STREAM, file)
+                }
+                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                type = fileType//此处可发送多种文件
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+            }, title))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
@@ -326,4 +391,120 @@ fun <T : Parcelable> Intent?.getArrayListExtra(name: String, clazz: Class<T>): A
 fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
     this ?: return null
     return getSerializableExtra(name) as? ArrayList<T>
+}
+
+/**
+ * makeCustomAnimation
+ * 效果：借助自定义的动画资源，达成 Activity 切换时的过渡效果。
+ * 用法：
+ * // 从activityA跳转到activityB时使用自定义动画
+ * Intent intent = new Intent(activityA, activityB);
+ * ActivityOptions options = ActivityOptions.makeCustomAnimation(
+ *     activityA,
+ *     R.anim.slide_in_right,  // 进入动画
+ *     R.anim.slide_out_left   // 退出动画
+ * ActivityCompat.startActivity(activityA, intent, options.toBundle());
+ * 实现效果：新 Activity 从右侧滑入，旧 Activity 向左侧滑出。
+ */
+fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeCustomAnimation(context, enterResId, exitResId)
+}
+
+/**
+ * makeScaleUpAnimation
+ * 效果：新 Activity 从特定位置开始，进行缩放和淡入操作。
+ * 用法：
+ * // 从坐标(startX, startY)处以初始尺寸(startWidth, startHeight)开始缩放
+ * ActivityOptions options = ActivityOptions.makeScaleUpAnimation(
+ *     view,           // 动画起始的视图
+ *     startX,         // X轴起始坐标
+ *     startY,         // Y轴起始坐标
+ *     startWidth,     // 初始宽度
+ *     startHeight     // 初始高度
+ * );
+ * 实现效果：新 Activity 从指定点开始，逐渐放大到全屏
+ */
+fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeScaleUpAnimation(view, startX, startY, width, height)
+}
+
+/**
+ * makeThumbnailScaleUpAnimation
+ * 效果：以缩略图为基础，实现 Activity 的缩放过渡效果。
+ * 用法：
+ * // 共享缩略图的缩放动画
+ * Bitmap thumbnail = getThumbnailBitmap(); // 获取缩略图
+ * ActivityOptions options = ActivityOptions.makeThumbnailScaleUpAnimation(
+ *     sourceView,     // 源视图
+ *     thumbnail,      // 缩略图
+ *     startX,         // 起始X坐标
+ *     startY          // 起始Y坐标
+ * );
+ * 实现效果：新 Activity 从缩略图位置开始，逐步放大到全屏。
+ */
+fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, thumbnail, startX, startY)
+}
+
+/**
+ * makeSceneTransitionAnimation
+ * 效果：实现共享元素在不同 Activity 之间的平滑过渡。
+ * 用法：
+ * // 共享元素的场景过渡动画
+ * Intent intent = new Intent(this, DetailActivity.class);
+ * ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+ *     this,
+ *     Pair.create(view1, "shared_element_name1"), // 共享元素1
+ *     Pair.create(view2, "shared_element_name2")  // 共享元素2
+ * );
+ * ActivityCompat.startActivity(this, intent, options.toBundle());
+ * 实现效果：共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换。
+ */
+fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements)
+}
+
+/**
+ * makeClipRevealAnimation
+ * 效果：以圆形或矩形的方式，显示新 Activity。
+ * 用法：
+ * // 从指定位置开始的圆形显示动画
+ * ActivityOptions options = ActivityOptions.makeClipRevealAnimation(
+ *     targetView,     // 目标视图
+ *     startX,         // 起始X坐标
+ *     startY,         // 起始Y坐标
+ *     width,          // 宽度
+ *     height          // 高度
+ * );
+ * 实现效果：新 Activity 从指定点开始，像水波一样逐渐显示出来。
+ */
+@RequiresApi(Build.VERSION_CODES.M)
+fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeClipRevealAnimation(view, startX, startY, width, height)
+}
+
+/**
+ * makeTaskLaunchBehind
+ * 效果：在当前 Activity 的后面启动新的 Activity 任务。
+ * 用法：
+ * // 在当前Activity后面启动新任务
+ * ActivityOptions options = ActivityOptions.makeTaskLaunchBehind();
+ * startActivity(intent, options.toBundle());
+ */
+fun getTaskLaunchBehind(): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeTaskLaunchBehind()
+}
+
+/**
+ * setLaunchBounds
+ * 效果：对 Activity 的启动区域进行限制。
+ * 用法：
+ * // 设置Activity的启动边界
+ * ActivityOptions options = ActivityOptions.makeBasic();
+ * options.setLaunchBounds(new Rect(left, top, right, bottom));
+ * startActivity(intent, options.toBundle());
+ */
+@RequiresApi(Build.VERSION_CODES.N)
+fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
 }

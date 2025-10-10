@@ -14,6 +14,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
 import com.example.common.config.Constants
+import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -23,6 +24,7 @@ import com.example.framework.utils.logE
 import java.io.File
 import java.io.RandomAccessFile
 import java.math.BigDecimal
+import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -54,7 +56,8 @@ fun Context.getApplicationIcon(): Bitmap? {
             draw(canvas)
             return bitmap
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return null
 }
@@ -145,7 +148,6 @@ fun totalSizeWithFile(file: File): Long {
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
-//    return Formatter.formatFileSize(BaseApplication.instance.applicationContext, length())
 }
 
 fun Number?.getSizeFormat(): String {
@@ -153,13 +155,20 @@ fun Number?.getSizeFormat(): String {
     val byteResult = this.toSafeLong() / 1024
     if (byteResult < 1) return "<1K"
     val kiloByteResult = byteResult / 1024
-    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}K"
+    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}K"
     val mByteResult = kiloByteResult / 1024
-    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}M"
+    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}M"
     val gigaByteResult = mByteResult / 1024
-    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}GB"
+    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}GB"
     val teraByteResult = BigDecimal(gigaByteResult)
-    return "${teraByteResult.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString()}TB"
+    return "${teraByteResult.setScale(2, ROUND_HALF_UP).toPlainString()}TB"
+}
+
+/**
+ * 文件长度
+ */
+fun String?.getLength(): Long {
+    return this?.let { File(it).length() } ?: 0L
 }
 
 /**
@@ -244,6 +253,59 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
 }
 
 /**
+ * 重命名文件
+ * @param this 原始文件
+ * @param newFileName 新的文件名（仅文件名，不包含路径）
+ * @return 是否重命名成功
+ */
+fun File?.renameFile(newFileName: String): Boolean {
+    this ?: return false
+    // 检查原始文件是否存在
+    if (!exists()) {
+        return false
+    }
+    // 获取原始文件的父目录
+    val parentDir = parentFile
+    if (parentDir == null || !parentDir.exists()) {
+        return false
+    }
+    // 创建目标文件（新路径 + 新文件名）
+    val targetFile = File(parentDir, newFileName)
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    // 执行重命名操作
+    return renameTo(targetFile)
+}
+
+/**
+ * 重命名文件（可以指定新路径）
+ * @param this 原始文件
+ * @param targetFile 目标文件（包含新路径和新文件名）
+ * @return 是否重命名成功
+ */
+fun File?.renameFileTo(targetFile: File): Boolean {
+    this ?: return false
+    if (!exists()) {
+        return false
+    }
+    // 确保目标文件的父目录存在
+    val targetParent = targetFile.parentFile
+    if (targetParent != null && !targetParent.exists()) {
+        // 创建父目录（包括所有必要的父目录）
+        if (!targetParent.mkdirs()) {
+            return false
+        }
+    }
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    return renameTo(targetFile)
+}
+
+/**
  * 读取文件到文本（文本，找不到文件或读取错返回null）
  * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
  * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
@@ -292,24 +354,19 @@ internal fun File?.getBase64(): String {
  * 满足64位哈希，不足则前位补0
  */
 internal fun File?.getHash(): String {
-    this ?: return ""
-    return inputStream().use { input ->
+    return this?.inputStream()?.use { input ->
         val digest = MessageDigest.getInstance("SHA-256")
-        val array = ByteArray(1024)
-        var len: Int
-        while (input.read(array, 0, 1024).also { len = it } != -1) {
-            digest.update(array, 0, len)
+        val buffer = ByteArray(1024)
+        var bytesRead: Int
+        while (input.read(buffer).also { bytesRead = it } != -1) {
+            digest.update(buffer, 0, bytesRead)
         }
-        //检测是否需要补0
-        val bigInt = BigInteger(1, digest.digest())
-        var hash = bigInt.toString(16)
-        if (hash.length < 64) {
-            for (i in 0 until 64 - hash.length) {
-                hash = "0$hash"
-            }
-        }
-        hash
-    }
+        digest.digest().toHexString()
+    } ?: ""
+}
+
+private fun ByteArray.toHexString(): String {
+    return BigInteger(1, this).toString(16).padStart(64, '0')
 }
 
 /**
@@ -323,11 +380,12 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-//        //视频时长（毫秒）/1000=x秒
-//        (player.duration.toString()).divide("1000").toSafeInt().apply { "文件时长：${this}秒".logE() }
+        //视频时长（毫秒）/1000=x秒
         val duration = player.duration.orZero
-        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
-    } catch (_: Exception) {
+        duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
+//        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
+    } catch (e: Exception) {
+        e.printStackTrace()
         0
     } finally {
         try {
@@ -336,7 +394,8 @@ internal fun File?.getDuration(): Int {
                 reset()
                 release()
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 }

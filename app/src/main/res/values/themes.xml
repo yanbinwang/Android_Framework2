@@ -25,34 +25,75 @@
     总之，在使用窗口背景时，请注意避免出现屏幕残留问题。如果出现了残留问题，可以尝试以上方法进行解决。建议在开发过程中经常测试应用程序，以确保应用程序的性能和用户体验。
     -->
     <!-- 启动页，直接背景是一张启动页图，点开app就是引导页的展示 -->
-    <style name="SplashTheme" parent="TransitionTheme">
-        <item name="colorPrimaryDark">@color/appTheme</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
+    <style name="SplashTheme" parent="TransparentTheme">
+        <!-- 指定窗口的背景，可以是颜色、图片或 Drawable 资源 -->
         <item name="android:windowBackground">@drawable/layout_list_splash</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowLightStatusBar">false</item>
-        <!--        <item name="android:windowIsTranslucent">true</item>-->
-        <!--        <item name="android:windowBackground">@color/white_00ffffff</item>-->
-        <!--        <item name="android:windowAnimationStyle">@null</item>-->
+        <!--
+            控制窗口内容如何适配设备的「刘海屏 / 挖孔屏」（DisplayCutout）区域
+            default（默认，避开刘海）
+            never（完全避开所有刘海）
+            always（允许内容延伸到所有刘海区域）
+            shortEdges 表示窗口内容可以延伸到屏幕短边（如手机顶部和底部）的刘海区域，允许内容填充刘海部分
+        -->
+        <item name="android:windowLayoutInDisplayCutoutMode">shortEdges</item>
+        <!--
+            定义窗口的不透明度类型，opaque 表示窗口完全不透明，系统会优化绘制逻辑（无需渲染下层内容）
+            transparent（完全透明）、translucent（半透明）
+        -->
+        <item name="android:opacity">opaque</item>
+        <!--
+            控制视图是否自动调整布局以避让系统窗口（状态栏、导航栏等）
+            false 表示不自动避让，内容可能延伸到系统窗口区域（如状态栏覆盖内容）；true 则会自动添加内边距避免遮挡
+         -->
+        <item name="android:fitsSystemWindows">false</item>
+        <!--
+            1.安卓9及以下版本让android:windowLightNavigationBar为false了冷启动时也是不会响应的,系统会强制开启一个自带样式
+            2.如果一定要底部导航栏也是偏白色,可以开启windowTranslucentNavigation为true,此时导航栏变为灰色,但是和顶部颜色也对不上,不推荐这么写
+            3.统一冷启动时状态栏/导航栏都是黑电池,之后热启动则会响应全屏代码
+        -->
+        <!-- 控制状态栏图标颜色是否为浅色 -->
+        <item name="android:windowLightStatusBar">true</item>
+        <!-- 控制导航栏图标颜色是否为浅色 -->
+        <item name="android:windowLightNavigationBar">true</item>
+        <!-- 设置状态栏是否半透明 -->
+        <!--        <item name="android:windowTranslucentStatus">true</item>-->
+        <!-- 设置导航栏是否半透明 -->
+        <!--        <item name="android:windowTranslucentNavigation">true</item>-->
+        <!-- 控制窗口是否全屏显示 -->
+        <!--        <item name="android:windowFullscreen">true</item>-->
     </style>
 
     <!--注册选择页背景是蓝色，故而使用此样式-->
-    <style name="StartTheme" parent="TransitionTheme">
+    <style name="StartTheme" parent="TransparentTheme">
+        <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowBackground">@color/appTheme</item>
-        <item name="android:windowAnimationStyle">@null</item>
         <item name="android:navigationBarColor">@color/appTheme</item>
     </style>
 
-<!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
-<!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
-<!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenBackground">@color/bgWhite</item>-->
-<!--        &lt;!&ndash; 启动图标。就是显示在启动界面中间的图片，也可以是动画 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>-->
-<!--        &lt;!&ndash; 设置动画的长度。注意这里最大只能1000ms，如果需要动画时间更长，则需要通过代码的手段让启动画面在屏幕上显示更长时间 &ndash;&gt;-->
-<!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
-<!--        &lt;!&ndash; 直接在启动屏幕后面设置“应用”的主题 &ndash;&gt;-->
-<!--        <item name="postSplashScreenTheme">@style/AppTheme</item>-->
-<!--    </style>-->
+    <!--首页(android:windowBackground属性还是必要的,关乎到开启页面展示的背景) 对应页面设置overridePendingTransition(0, 0) -->
+    <style name="MainTheme" parent="TransparentTheme">
+        <item name="android:windowBackground">@color/appWindowBackground</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
+    </style>
+
+    <!-- 选择页背景直接是白色默认(白色背景但不需要动画) 对应页面设置overridePendingTransition(0, 0)-->
+    <style name="DefaultTheme" parent="TransparentTheme">
+        <item name="android:windowBackground">@color/bgDefault</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        <item name="android:navigationBarColor">@color/appNavigationBar</item>
+    </style>
+
+    <!-- https://cloud.tencent.com/developer/article/1946216?areaSource=102001.14&traceId=cOGlHQmuBlUqVJUXnEtT9 -->
+    <!--    <style name="SplashTheme" parent="Theme.SplashScreen">-->
+    <!--        &lt;!&ndash; 设置启动画面的背景色 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenBackground">@color/bgWhite</item>-->
+    <!--        &lt;!&ndash; 启动图标。就是显示在启动界面中间的图片，也可以是动画 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>-->
+    <!--        &lt;!&ndash; 设置动画的长度。注意这里最大只能1000ms，如果需要动画时间更长，则需要通过代码的手段让启动画面在屏幕上显示更长时间 &ndash;&gt;-->
+    <!--        <item name="windowSplashScreenAnimationDuration">1000</item>-->
+    <!--        &lt;!&ndash; 直接在启动屏幕后面设置“应用”的主题 &ndash;&gt;-->
+    <!--        <item name="postSplashScreenTheme">@style/AppTheme</item>-->
+    <!--    </style>-->
 
 </resources>

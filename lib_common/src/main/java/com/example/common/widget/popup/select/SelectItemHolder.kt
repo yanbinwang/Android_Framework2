@@ -7,16 +7,18 @@ import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 
 /**
- * first->文案
- * second->下标
+ * item->文案
+ * index->下标
  */
-class SelectItemHolder(parent: ViewGroup, triple: Pair<String, Int>) {
+class SelectItemHolder(parent: ViewGroup, item: String?, index: Int) {
     internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
     internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
 
     init {
-        mBinding.tvLabel.text = triple.first
-        mBinding.root.click { onItemClick?.invoke(triple.first, triple.second) }
+        mBinding.tvLabel.text = item
+        mBinding.root.click {
+            onItemClick?.invoke(item, index)
+        }
     }
 
 }

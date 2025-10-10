@@ -1,42 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints">
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgBlue">
+        android:background="@color/bgDefault">
 
         <ImageView
-            android:layout_width="280dp"
-            android:layout_height="60dp"
+            android:id="@+id/iv_splash"
+            android:layout_width="300pt"
+            android:layout_height="354pt"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="215dp"
+            android:layout_marginTop="104pt"
             android:scaleType="fitXY"
-            android:src="@mipmap/bg_splash_header" />
-
-        <ImageView
-            android:id="@+id/iv_footer"
-            android:layout_width="184dp"
-            android:layout_height="78dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="60dp"
-            android:scaleType="fitXY"
-            android:src="@mipmap/bg_splash_footer" />
-
-        <TextView
-            android:id="@+id/tv_refresh"
-            android:layout_width="80dp"
-            android:layout_height="32dp"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="180dp"
-            android:background="@drawable/shape_r5_blue"
-            android:gravity="center"
-            android:text="刷新"
-            android:textColor="@color/appTheme"
-            android:textSize="12sp"
-            android:visibility="gone" />
+            android:src="@mipmap/bg_splash" />
 
     </FrameLayout>
 

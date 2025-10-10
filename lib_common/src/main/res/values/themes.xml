@@ -4,20 +4,43 @@
     <style name="AppTheme" parent="AppTheme.Base" />
 
     <style name="AppTheme.Base" parent="Theme.AppCompat">
+        <!-- 禁用 ActionBar 并隐藏标题栏 -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <!-- 设置页面切换动画 -->
         <item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
-        <!-- 字体颜色 -->
-        <item name="colorPrimary">@color/appPrimary</item>
-        <!-- 状态栏栏颜色 -->
-        <item name="colorPrimaryDark">@color/appPrimaryDark</item>
-        <!-- 状态栏深色UI -->
+        <!-- 状态栏使用深色图标（适用于浅色状态栏背景）API 23+ 生效，低于则忽略 -->
         <item name="android:windowLightStatusBar">true</item>
-        <!-- 导航栏颜色 -->
+        <!-- 状态栏颜色 低于 API 21 时，该属性被忽略，状态栏保持系统默认颜色（通常为黑色） -->
+        <item name="android:statusBarColor">@color/appStatusBar</item>
+        <!-- 导航栏使用深色图标（适用于浅色导航栏背景）API 26+ 生效，低于则忽略 -->
+        <item name="android:windowLightNavigationBar">true</item>
+        <!-- 导航栏颜色 低于 API 21 时，该属性被忽略，导航栏保持系统默认颜色-->
         <item name="android:navigationBarColor">@color/appNavigationBar</item>
         <!-- 页面背景色 -->
         <item name="android:windowBackground">@color/appWindowBackground</item>
+        <!-- 屏蔽页面加载过度页 -->
+        <item name="android:windowDisablePreview">true</item>
+        <!-- 允许窗口绘制系统栏背景 -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <!-- 启用系统内容过渡动画（适配12+高版本启用 -> 系统会优先使用「内容过渡体系」，而 ActivityOptionsCompat.makeCustomAnimation()（传统动画配置方式）会被直接忽略） -->
+        <item name="android:windowContentTransitions">false</item>
+        <!-- 移除文本的默认字体内边距（上下留白），使文本更紧凑 -->
+        <item name="android:includeFontPadding">false</item>
+        <!-- 禁用系统强制深色模式（即使系统开启深色模式，应用也不会自动切换为深色主题） -->
+        <item name="android:forceDarkAllowed">false</item>
+        <!-- 移除滚动视图（如 ListView、ScrollView）边缘的渐变淡出效果 -->
+        <item name="android:fadingEdge">none</item>
+        <!-- 禁用滚动视图的过度滚动效果（如滚动到顶部 / 底部时的弹性反馈） -->
+        <item name="android:overScrollMode">never</item>
+        <!-- 设置提示文本（如 EditText 的 hint）的颜色，引用 textHint 资源 -->
+        <item name="android:textColorHint">@color/textHint</item>
+        <!-- 主题深色强调色（API < 21 时影响状态栏颜色） -->
+        <item name="colorPrimaryDark">@color/appPrimaryDark</item>
+        <!-- 主题主色调（影响ActionBar、标题栏等背景） -->
+        <item name="colorPrimary">@color/appPrimary</item>
         <!-- 控件被选中时的颜色（光标） -->
         <item name="colorAccent">@color/appAccent</item>
         <!-- 控制控件的默认颜色 -->
@@ -35,42 +58,6 @@
         <item name="android:activityOpenExitAnimation">@anim/set_translate_left_out</item>
         <item name="android:activityCloseEnterAnimation">@anim/set_translate_left_in</item>
         <item name="android:activityCloseExitAnimation">@anim/set_translate_right_out</item>
-    </style>
-
-    <!-- 布局画高线样式 -->
-    <style name="LineHeight">
-        <item name="android:layout_width">1dp</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/bgLine</item>
-    </style>
-
-    <style name="LineConstraintHeight" parent="LineHeight">
-        <item name="android:layout_width">1dp</item>
-        <item name="android:layout_height">0dp</item>
-        <item name="layout_constraintTop_toTopOf">parent</item>
-        <item name="layout_constraintBottom_toBottomOf">parent</item>
-    </style>
-
-    <!-- 布局画横线样式 -->
-    <style name="LineWidth">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="android:background">@color/bgLine</item>
-    </style>
-
-    <style name="LineConstraintWidth" parent="LineWidth">
-        <item name="android:layout_width">0dp</item>
-        <item name="android:layout_height">1dp</item>
-        <item name="layout_constraintEnd_toEndOf">parent</item>
-        <item name="layout_constraintStart_toStartOf">parent</item>
-    </style>
-
-    <!-- 文本阴影样式 -->
-    <style name="TextShadow">
-        <item name="android:shadowColor">@color/bgShadow</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowDx">3</item>
-        <item name="android:shadowDy">3</item>
     </style>
 
     <!-- 底部弹窗动画 -->
@@ -92,7 +79,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 透明主题
+    <!-- 透明主题(部分三方库,无动画无过渡的透明页面)
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
@@ -111,92 +98,148 @@
             }
         }
     -->
-    <style name="TransparentTheme" parent="NoAnimTheme">
+    <style name="TranslucentTheme" parent="NoAnimTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
     <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
-    <style name="TransitionTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowBackground">@color/bgWhite</item>
+    <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
         <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:navigationBarColor">@color/appNavigationBar</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
     <!--底部弹出样式 -->
     <style name="TransparentBottomSheetStyle" parent="Theme.Design.Light.BottomSheetDialog">
+        <!-- 指定 BottomSheet 本体样式，关联到自定义的 SheetStyle -->
         <item name="bottomSheetStyle">@style/SheetStyle</item>
+        <!-- 设为 false ，让 BottomSheet 占满屏幕宽度，而非默认悬浮形态 -->
         <item name="android:windowIsFloating">false</item>
+        <!-- 软键盘弹出时，调整 BottomSheet 尺寸避免内容被遮挡 -->
         <item name="android:windowSoftInputMode">adjustResize</item>
+        <!-- 将状态栏背景设为透明，使内容可延伸到状态栏区域 -->
         <item name="android:statusBarColor">@android:color/transparent</item>
+        <!-- 将导航栏背景设为透明，使内容可延伸到导航栏区域 -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
     </style>
 
     <style name="SheetStyle" parent="android:Widget">
+        <!-- 把 BottomSheet 背景设为透明，可自定义内容背景 -->
         <item name="android:background">@android:color/transparent</item>
+        <!-- 收起状态下，预览高度设为自动适配（或可配固定值） -->
         <item name="behavior_peekHeight">auto</item>
+        <!-- 允许用户下滑时完全隐藏 BottomSheet ，而非仅收起 -->
         <item name="behavior_hideable">true</item>
+        <!-- 打开时直接全屏展开，跳过“半收起预览”状态 -->
         <item name="behavior_skipCollapsed">true</item>
     </style>
 
-    <!-- 数据请求的动画样式 -->
-    <style name="LoadingStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowBackground">@drawable/shape_loading</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:background">@null</item>
-        <item name="android:backgroundDimEnabled">false</item>
-    </style>
-
     <!-- 系统默认提示框样式 -->
-    <style name="AndDialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:width">600pt</item>
-        <!-- 去除标题头等多余的部分 -->
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <!-- 背景颜色 -->
-        <item name="android:windowBackground">@color/bgDefault</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <!-- 提示框背景颜色 -->
-        <item name="android:background">@null</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <!-- 标题，确认取消按钮的颜色 -->
+    <style name="AndDialogStyle" parent="DialogStyle">
+        <!-- 背景样式/颜色 -->
+        <item name="android:windowBackground">@drawable/shape_default</item>
+        <!-- 弹框宽度 -->
+        <item name="android:width">300pt</item>
+        <!-- 标题，确认取消按钮的颜色/文字大小 -->
         <item name="android:textColor">@color/appTheme</item>
         <!-- 内容颜色 -->
         <item name="android:textColorPrimary">@color/textPrimary</item>
     </style>
 
-    <!-- App全局定义提示框样式 -->
-    <style name="DialogStyle" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowBackground">@color/bgAppDialog</item>
-        <item name="android:windowIsFloating">true</item>
+    <!-- 数据请求的动画样式 -->
+    <style name="LoadingStyle" parent="DialogStyle">
         <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowBackground">@drawable/shape_loading</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
+    <!-- App全局定义提示框样式 -->
+    <style name="DialogStyle" parent="Theme.AppCompat.Dialog">
+        <!-- 禁用 ActionBar 并隐藏标题栏 -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <!-- 移除窗口边框（设置为无） -->
+        <item name="android:windowFrame">@null</item>
+        <!--        &lt;!&ndash; 窗口动画（提升交互体验） &ndash;&gt;-->
+        <!--        <item name="android:windowAnimationStyle">@style/DialogAnimation</item>-->
+        <!-- 窗口设为悬浮模式（类似对话框的浮动效果） -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 移除窗口内容的叠加层（如阴影或边框叠加效果） -->
+        <item name="android:windowContentOverlay">@null</item>
+        <!-- 窗口背景设置为指定颜色（作用于整个窗口的背景,包括对话框的整体区域（如边框、圆角范围等） -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 控件背景设为透明（作用于样式所应用的具体控件本身,最外层容器视图） -->
         <item name="android:background">@null</item>
+        <!-- 启用背景模糊/变暗效果（打开对话框时，背后的界面会变暗） -->
         <item name="android:backgroundDimEnabled">true</item>
+        <!--        &lt;!&ndash; 0~1之间，值越小背景越亮 (需要配合 android:backgroundDimEnabled="true" 一起使用) &ndash;&gt;-->
+        <!--        <item name="android:backgroundDimAmount">0.5</item> -->
     </style>
 
     <!--
          全局默认tablayout样式
+         app:tabIndicator="@android:color/transparent"->去除默认下划线
          app:tabMode="scrollable"
          app:tabIndicatorFullWidth = false 指示器宽度跟随文本宽度
          实际项目中往往会有自定义的导航栏，此处在原有的基础上在扩展一些属性 -->
     <style name="TabLayoutStyle" parent="Base.Widget.Design.TabLayout">
+        <item name="android:overScrollMode">never</item>
+        <item name="android:clipChildren">true</item>
+        <item name="android:clipToPadding">false</item>
         <item name="tabBackground">@android:color/transparent</item>
-        <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
+        <item name="tabIndicatorColor">@color/bgMain</item>
         <item name="tabIndicatorFullWidth">false</item>
+        <item name="tabIndicatorHeight">3pt</item>
+        <item name="tabMinWidth">0pt</item>
+        <item name="tabRippleColor">@android:color/transparent</item>
         <item name="tabSelectedTextColor">@color/appTheme</item>
         <item name="tabTextColor">@color/textHint</item>
-        <item name="android:overScrollMode">never</item>
-        <item name="tabPaddingStart">0dp</item>
-        <item name="tabPaddingTop">0dp</item>
-        <item name="tabPaddingEnd">0dp</item>
-        <item name="tabPaddingBottom">0dp</item>
-        <item name="tabMinWidth">0dp</item>
+        <item name="tabPadding">0pt</item>
+        <item name="tabPaddingStart">0pt</item>
+        <item name="tabPaddingTop">0pt</item>
+        <item name="tabPaddingEnd">0pt</item>
+        <item name="tabPaddingBottom">0pt</item>
+    </style>
+
+    <!--
+        弧形cardview默认配置,需要注意是4个角都是弧形
+        CardView(context).apply {
+                // 阴影高度设为0
+                cardElevation = 0f
+                // 最大阴影高度设为0
+                maxCardElevation = 0f
+                // 兼容低版本的阴影属性
+                elevation = 0f
+                // 圆角半径（按需调整）
+                radius = cornerRadius
+                // 防止图片溢出圆角
+                preventCornerOverlap = true
+                // 无阴影时可关闭兼容padding
+                useCompatPadding = false
+                // 透明背景
+                setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+            }
+    -->
+    <style name="CardViewStyle">
+        <item name="elevation">0dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="cardPreventCornerOverlap">true</item>
+        <item name="cardUseCompatPadding">false</item>
+        <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
     <!--
@@ -210,6 +253,42 @@
         <item name="android:background">@drawable/selector_check_thumb</item>
         <item name="android:layout_width">20pt</item>
         <item name="android:layout_height">20pt</item>
+    </style>
+
+    <!-- 布局画高线样式 -->
+    <style name="LineHeight">
+        <item name="android:layout_width">1pt</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/bgLine</item>
+    </style>
+
+    <style name="LineConstraintHeight" parent="LineHeight">
+        <item name="android:layout_width">1pt</item>
+        <item name="android:layout_height">0pt</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+    </style>
+
+    <!-- 布局画横线样式 -->
+    <style name="LineWidth">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1pt</item>
+        <item name="android:background">@color/bgLine</item>
+    </style>
+
+    <style name="LineConstraintWidth" parent="LineWidth">
+        <item name="android:layout_width">0pt</item>
+        <item name="android:layout_height">1pt</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+    </style>
+
+    <!-- 文本阴影样式 -->
+    <style name="TextShadow">
+        <item name="android:shadowColor">@color/bgShadow</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
     </style>
 
 </resources>
