@@ -16,9 +16,9 @@ import kotlin.coroutines.CoroutineContext
 /**
  * 支付类
  */
-class PayBuilder(private val mActivity: FragmentActivity?, private val mView: BaseView? = null) : CoroutineScope {
-    private val alipay by lazy { mActivity?.let { AlipayPay(it) } }
-    private val wechat by lazy { mActivity?.let { WXPay(it) } }
+class PayBuilder(private val mActivity: FragmentActivity, private val mView: BaseView? = null) : CoroutineScope {
+    private val alipay by lazy { AlipayPay(mActivity) }
+    private val wechat by lazy { WXPay(mActivity) }
     private var payJob: Job? = null
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
