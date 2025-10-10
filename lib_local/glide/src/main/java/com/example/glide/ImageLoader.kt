@@ -180,7 +180,7 @@ class ImageLoader private constructor() {
      * @param onLoadProgress 图片加载进度的回调
      * @param onLoadResult 图片加载结果的回调，true 表示加载成功，false 表示失败
      */
-    fun loadProgressFromUrl(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadResult: (result: Boolean) -> Unit = {}) {
+    fun loadProgressFromUrl(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadComplete: (resource: Drawable?) -> Unit = {}) {
         view ?: return
         /**
          * 避免频繁创建协程
@@ -210,7 +210,7 @@ class ImageLoader private constructor() {
 
                 override fun onLoadFinished(resource: Drawable?) {
                     ProgressInterceptor.removeListener(imageUrl)
-                    onLoadResult(resource != null)
+                    onLoadComplete(resource)
                 }
             })
             .into(view)
