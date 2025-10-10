@@ -6,10 +6,8 @@ import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.config.ARouterPath
-import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
-import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.adapter

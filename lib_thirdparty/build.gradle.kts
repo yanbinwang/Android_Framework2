@@ -71,6 +71,8 @@ dependencies {
     // 相机/播放器
     api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:11.1.0")
     api("com.otaliastudios:cameraview:2.7.2")
+
+    api(project(":lib_local:gsyvideoplayer"))
     // 支付宝/微信
     api("com.alipay.sdk:alipaysdk-android:15.8.38@aar")
     api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
