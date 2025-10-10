@@ -1,16 +1,28 @@
 package com.example.thirdparty.media.utils
 
+import android.content.Context
+import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.view.View
+import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.size
+import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
@@ -24,11 +36,14 @@ import com.shuyu.gsyvideoplayer.player.PlayerFactory
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoControlView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
+import java.lang.reflect.Constructor
 
 /**
  * @description 播放器帮助类
@@ -92,8 +107,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 绑定页面-设置基础配资
      */
-    fun bind(player: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
-        this.player = player
+    fun bind(standardGSYVideoPlayer: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
+        player = standardGSYVideoPlayer
         // 屏幕展示效果 -> 采用基础配资
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
         // 设置底层渲染,关闭硬件解码
@@ -118,10 +133,46 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             player?.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
                 // 第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                player.startWindowFullscreen(player.context, true, true)
+                val gsy = player?.startWindowFullscreen(player?.context, true, true)
+                // 当视图被添加到窗口时回调
+                val parentView = gsy?.parent as? FrameLayout
+                // 如果是垂直全屏
+                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    parentView.padding(top = getStatusBarHeight())
+                } else {
+                    parentView.padding(top = 0)
+                }
+//                val statusBarHeight = getStatusBarHeight()
+//                val topContainer = getTopContainer(gsy as? GSYVideoControlView)
+//                topContainer.doOnceAfterLayout {
+//                    val measureHeight = it.measuredHeight
+//                    if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+//                        it.size(height = measureHeight + statusBarHeight)
+//                        it.padding(top = statusBarHeight)
+//                    } else {
+//                        it.size(height = measureHeight)
+//                        it.padding(top = 0)
+//                    }
+//                }
             }
         }
     }
+
+//    private fun getTopContainer(controlView: GSYVideoControlView?): ViewGroup? {
+//        return try {
+//            // 获取GSYVideoControlView类的Class对象
+//            val clazz = GSYVideoControlView::class.java
+//            // 获取名为"mTopContainer"的字段
+//            val field = clazz.getDeclaredField("mTopContainer")
+//            // 设置可访问，允许访问受保护的字段
+//            field.isAccessible = true
+//            // 获取字段值并转换为ViewGroup类型
+//            field.get(controlView) as? ViewGroup
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            null
+//        }
+//    }
 
     /**
      * 设置播放路径，缩略图，是否自动开始播放
