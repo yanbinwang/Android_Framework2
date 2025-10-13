@@ -3,8 +3,12 @@ package com.example.thirdparty.media.utils
 import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
+import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowInsets
+import android.view.WindowInsetsController
+import android.view.WindowManager
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.fragment.app.FragmentActivity
@@ -12,7 +16,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
+import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
@@ -33,6 +39,7 @@ import com.shuyu.gsyvideoplayer.cache.ProxyCacheManager
 import com.shuyu.gsyvideoplayer.listener.GSYSampleCallBack
 import com.shuyu.gsyvideoplayer.player.IjkPlayerManager
 import com.shuyu.gsyvideoplayer.player.PlayerFactory
+import com.shuyu.gsyvideoplayer.utils.CommonUtil
 import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
@@ -79,22 +86,58 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             super.onEnterFullscreen(url, *objects)
             // 进入全屏,拿取此时的播放器
             val gsy = objects[1] as? GSYBaseVideoPlayer
+//            // 如果是垂直全屏
+//            val statusBarHeight = getStatusBarHeight()
+//            val topContainer = getTopContainer(gsy as? GSYVideoControlView)
+//            topContainer.doOnceAfterLayout {
+//                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+//                    it.setBackgroundColor(color(R.color.bottom_container_bg))
+//                    it.size(height = it.measuredHeight + statusBarHeight)
+//                    it.padding(top = statusBarHeight)
+//                } else {
+//                    it.padding(top = 0)
+//                }
+//            }
+            // 当视图被添加到窗口时回调
+            val parentView = gsy?.parent as? FrameLayout
             // 如果是垂直全屏
-            val statusBarHeight = getStatusBarHeight()
-            val topContainer = getTopContainer(gsy as? GSYVideoControlView)
-            topContainer.doOnceAfterLayout {
-                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                    it.size(height = it.measuredHeight + statusBarHeight)
-                    it.padding(top = statusBarHeight)
-                } else {
-                    it.padding(top = 0)
+            if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                parentView.padding(top = getStatusBarHeight())
+                // 获取Window对象
+                CommonUtil.getActivityNestWrapper(parentView?.context).window?.apply {
+                    // 清除全屏标志（让状态栏显示），保留导航栏隐藏状态
+                    clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+                    // 控制系统UI可见性，只显示状态栏，隐藏导航栏
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        // Android 11+（API 30+）使用WindowInsetsController
+                        insetsController?.apply {
+                            // 显示状态栏
+                            show(WindowInsets.Type.statusBars())
+                            // 隐藏导航栏
+                            hide(WindowInsets.Type.navigationBars())
+                            // 设置状态栏文字样式（0表示默认浅色文字，适用于深色背景）
+                            setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
+                        }
+                    } else {
+                        // Android 6.0-10（API 23-29）使用systemUiVisibility
+                        var flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // 隐藏导航栏,沉浸式（下拉时临时显示）
+                        // 清除状态栏隐藏标志（确保状态栏显示）
+                        flags = flags and View.SYSTEM_UI_FLAG_FULLSCREEN.inv()
+                        // 设置状态栏文字样式
+                        flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() // 浅色文字
+                        // flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR // 深色文字
+                        decorView.systemUiVisibility = flags
+                    }
                 }
+            } else {
+                parentView.padding(top = 0)
             }
         }
 
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
             super.onQuitFullscreen(url, *objects)
             orientationUtils?.backToProtVideo()
+            mActivity.window?.setStatusBarLightMode(true)
         }
 
         override fun onPlayError(url: String?, vararg objects: Any?) {
@@ -150,7 +193,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             player?.fullscreenButton?.click {
                 orientationUtils?.resolveByClick()
                 // 第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
-                val gsy = player?.startWindowFullscreen(player?.context, true, true)
+                player?.startWindowFullscreen(player?.context, true, true)
+//                val gsy = player?.startWindowFullscreen(player?.context, true, true)
 //                // 当视图被添加到窗口时回调
 //                val parentView = gsy?.parent as? FrameLayout
 //                // 如果是垂直全屏
