@@ -22,11 +22,14 @@ import com.bumptech.glide.load.resource.bitmap.BitmapTransitionOptions
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestOptions
+import com.example.framework.utils.PropertyAnimator
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.size
 import com.example.glide.callback.GlideRequestListener
 import com.example.glide.callback.progress.ProgressInterceptor
@@ -235,48 +238,61 @@ class ImageLoader private constructor() {
      */
     fun loadScaledFromUrl(view: ImageView?, imageUrl: String?, errorDrawable: Drawable? = getDefaultDrawable(view), onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
-        Glide.with(view.context)
-            .asBitmap()
-            .load(imageUrl)
-            .apply(RequestOptions()
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE))
-            .placeholder(DEFAULT_RESOURCE)
-            .error(errorDrawable)
-            .smartFade(view)
-            .listener(object : GlideRequestListener<Bitmap>() {
-                override fun onLoadStart() {
-                    onLoadStart()
-                }
-
-                override fun onLoadFinished(resource: Bitmap?) {
-                    onLoadComplete(resource)
-                    if (null != resource) {
-                        transform(view, resource)
+        view.doOnceAfterLayout {
+            Glide.with(view.context)
+                .asBitmap()
+                .load(imageUrl)
+                .apply(RequestOptions()
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE))
+                .placeholder(DEFAULT_RESOURCE)
+                .error(errorDrawable)
+//                .smartFade(view)
+                .listener(object : GlideRequestListener<Bitmap>() {
+                    override fun onLoadStart() {
+                        onLoadStart()
+                        view.gone()
                     }
-                }
-            })
-            .into(view)
+
+                    override fun onLoadFinished(resource: Bitmap?) {
+                        if (null != resource) {
+                            transform(view, resource, onLoadComplete)
+                        } else {
+                            view.appear()
+                            onLoadComplete(resource)
+                        }
+                    }
+                })
+                .into(view)
+        }
     }
 
-    private fun transform(target: ImageView, resource: Bitmap) {
-        target.doOnceAfterLayout { imageView ->
-            // 获取原图宽高
-            val originalWidth = resource.width
-            val originalHeight = resource.height
-            // 获取ImageView宽高（此时已确保布局完成）
-            val targetWidth = imageView.width
-            // 安全校验：避免原图宽高为0导致的异常
-            if (originalWidth <= 0 || originalHeight <= 0 || targetWidth <= 0) {
-                return@doOnceAfterLayout
-            }
-            // 计算缩放比例
-            val scale = targetWidth.toFloat() / originalWidth.toFloat()
-            // 计算目标高度（保持比例）
-            val targetHeight = (originalHeight * scale).toInt()
-            // 调整高度
-            target.layoutParams?.height = targetHeight
+    private fun transform(target: ImageView, resource: Bitmap, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
+        // 执行渐隐藏动画
+        target.appear()
+        // 获取原图宽高
+        val originalWidth = resource.width
+        val originalHeight = resource.height
+        // 获取ImageView宽高（此时已确保布局完成）
+        val targetWidth = target.width
+        // 安全校验：避免原图宽高为0导致的异常
+        if (originalWidth <= 0 || originalHeight <= 0 || targetWidth <= 0) {
+            return
         }
+        // 计算缩放比例
+        val scale = targetWidth.toFloat() / originalWidth.toFloat()
+        // 计算目标高度（保持比例）
+        val targetHeight = (originalHeight * scale).toInt()
+//        // 调整高度
+//        target.layoutParams?.height = targetHeight
+//        // 返回
+//        onLoadComplete(resource)
+        // 执行伸缩动画
+        PropertyAnimator(target, 300)
+            .animateHeight(originalHeight, targetHeight)
+            .start(onEnd = {
+                onLoadComplete(resource)
+            })
     }
 
     /**

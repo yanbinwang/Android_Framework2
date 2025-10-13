@@ -75,6 +75,23 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             orientationUtils?.isEnable = true
         }
 
+        override fun onEnterFullscreen(url: String?, vararg objects: Any?) {
+            super.onEnterFullscreen(url, *objects)
+            // 进入全屏,拿取此时的播放器
+            val gsy = objects[1] as? GSYBaseVideoPlayer
+            // 如果是垂直全屏
+            val statusBarHeight = getStatusBarHeight()
+            val topContainer = getTopContainer(gsy as? GSYVideoControlView)
+            topContainer.doOnceAfterLayout {
+                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                    it.size(height = it.measuredHeight + statusBarHeight)
+                    it.padding(top = statusBarHeight)
+                } else {
+                    it.padding(top = 0)
+                }
+            }
+        }
+
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
             super.onQuitFullscreen(url, *objects)
             orientationUtils?.backToProtVideo()
@@ -134,14 +151,14 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 orientationUtils?.resolveByClick()
                 // 第一个true是否需要隐藏actionbar，第二个true是否需要隐藏statusbar
                 val gsy = player?.startWindowFullscreen(player?.context, true, true)
-                // 当视图被添加到窗口时回调
-                val parentView = gsy?.parent as? FrameLayout
-                // 如果是垂直全屏
-                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-                    parentView.padding(top = getStatusBarHeight())
-                } else {
-                    parentView.padding(top = 0)
-                }
+//                // 当视图被添加到窗口时回调
+//                val parentView = gsy?.parent as? FrameLayout
+//                // 如果是垂直全屏
+//                if (orientationUtils?.screenType == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+//                    parentView.padding(top = getStatusBarHeight())
+//                } else {
+//                    parentView.padding(top = 0)
+//                }
 //                val statusBarHeight = getStatusBarHeight()
 //                val topContainer = getTopContainer(gsy as? GSYVideoControlView)
 //                topContainer.doOnceAfterLayout {
@@ -158,21 +175,21 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         }
     }
 
-//    private fun getTopContainer(controlView: GSYVideoControlView?): ViewGroup? {
-//        return try {
-//            // 获取GSYVideoControlView类的Class对象
-//            val clazz = GSYVideoControlView::class.java
-//            // 获取名为"mTopContainer"的字段
-//            val field = clazz.getDeclaredField("mTopContainer")
-//            // 设置可访问，允许访问受保护的字段
-//            field.isAccessible = true
-//            // 获取字段值并转换为ViewGroup类型
-//            field.get(controlView) as? ViewGroup
-//        } catch (e: Exception) {
-//            e.printStackTrace()
-//            null
-//        }
-//    }
+    private fun getTopContainer(controlView: GSYVideoControlView?): ViewGroup? {
+        return try {
+            // 获取GSYVideoControlView类的Class对象
+            val clazz = GSYVideoControlView::class.java
+            // 获取名为"mTopContainer"的字段
+            val field = clazz.getDeclaredField("mTopContainer")
+            // 设置可访问，允许访问受保护的字段
+            field.isAccessible = true
+            // 获取字段值并转换为ViewGroup类型
+            field.get(controlView) as? ViewGroup
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
 
     /**
      * 设置播放路径，缩略图，是否自动开始播放
