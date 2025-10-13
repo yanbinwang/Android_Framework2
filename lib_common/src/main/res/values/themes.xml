@@ -188,42 +188,6 @@
         <!--        <item name="android:backgroundDimAmount">0.5</item> -->
     </style>
 
-    <!-- 布局画高线样式 -->
-    <style name="LineHeight">
-        <item name="android:layout_width">1pt</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="android:background">@color/bgLine</item>
-    </style>
-
-    <style name="LineConstraintHeight" parent="LineHeight">
-        <item name="android:layout_width">1pt</item>
-        <item name="android:layout_height">0pt</item>
-        <item name="layout_constraintTop_toTopOf">parent</item>
-        <item name="layout_constraintBottom_toBottomOf">parent</item>
-    </style>
-
-    <!-- 布局画横线样式 -->
-    <style name="LineWidth">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">1pt</item>
-        <item name="android:background">@color/bgLine</item>
-    </style>
-
-    <style name="LineConstraintWidth" parent="LineWidth">
-        <item name="android:layout_width">0pt</item>
-        <item name="android:layout_height">1pt</item>
-        <item name="layout_constraintEnd_toEndOf">parent</item>
-        <item name="layout_constraintStart_toStartOf">parent</item>
-    </style>
-
-    <!-- 文本阴影样式 -->
-    <style name="TextShadow">
-        <item name="android:shadowColor">@color/bgShadow</item>
-        <item name="android:shadowRadius">1</item>
-        <item name="android:shadowDx">3</item>
-        <item name="android:shadowDy">3</item>
-    </style>
-
     <!--
          全局默认tablayout样式
          app:tabIndicator="@android:color/transparent"->去除默认下划线
@@ -289,6 +253,42 @@
         <item name="android:background">@drawable/selector_check_thumb</item>
         <item name="android:layout_width">20pt</item>
         <item name="android:layout_height">20pt</item>
+    </style>
+
+    <!-- 布局画高线样式 -->
+    <style name="LineHeight">
+        <item name="android:layout_width">1pt</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="android:background">@color/bgLine</item>
+    </style>
+
+    <style name="LineConstraintHeight" parent="LineHeight">
+        <item name="android:layout_width">1pt</item>
+        <item name="android:layout_height">0pt</item>
+        <item name="layout_constraintTop_toTopOf">parent</item>
+        <item name="layout_constraintBottom_toBottomOf">parent</item>
+    </style>
+
+    <!-- 布局画横线样式 -->
+    <style name="LineWidth">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1pt</item>
+        <item name="android:background">@color/bgLine</item>
+    </style>
+
+    <style name="LineConstraintWidth" parent="LineWidth">
+        <item name="android:layout_width">0pt</item>
+        <item name="android:layout_height">1pt</item>
+        <item name="layout_constraintEnd_toEndOf">parent</item>
+        <item name="layout_constraintStart_toStartOf">parent</item>
+    </style>
+
+    <!-- 文本阴影样式 -->
+    <style name="TextShadow">
+        <item name="android:shadowColor">@color/bgShadow</item>
+        <item name="android:shadowRadius">1</item>
+        <item name="android:shadowDx">3</item>
+        <item name="android:shadowDy">3</item>
     </style>
 
 </resources>
