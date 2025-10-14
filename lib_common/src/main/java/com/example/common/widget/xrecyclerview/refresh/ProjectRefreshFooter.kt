@@ -93,7 +93,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
-        return true
+        return false
     }
 
     override fun setNoMoreData(noMoreData: Boolean): Boolean {
