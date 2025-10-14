@@ -286,6 +286,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
 //        if (videoOrientation == ORIENTATION_LANDSCAPE) {
 //            lockLand = true
 //        }
+        // 构建配置
         GSYVideoOptionBuilder()
             // 是否可以滑动界面改变进度，声音等 默认true
             .setIsTouchWiget(false)
