@@ -401,10 +401,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 
-        // 绑定
         gsyHelper.bind(mBinding?.gsyPlayer, true)
         // 竖屏
-        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
+//        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
+        // 横屏
+        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
         gsyHelper.setOnQuitFullscreenListener {
             initImmersionBar()
         }

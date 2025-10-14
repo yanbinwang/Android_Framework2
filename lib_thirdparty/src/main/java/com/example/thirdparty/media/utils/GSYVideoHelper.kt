@@ -32,6 +32,7 @@ import com.example.framework.utils.function.view.size
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
+import com.gyf.immersionbar.ImmersionBar
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.cache.CacheFactory
@@ -76,6 +77,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var orientationUtils: OrientationUtils? = null
     private var onQuitFullscreenListener: (() -> Unit)? = null
     private var onPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
+    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val mGSYSampleCallBack by lazy { object : GSYSampleCallBack() {
         override fun onStartPrepared(url: String?, vararg objects: Any?) {
@@ -104,7 +106,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             val statusBarHeight = insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top.orZero
             // 默认全屏窗体的状态
             controllerToggle(window, true)
-            window.setStatusBarLightMode(false) // 可能部分机型会有问题,不过基本是兼容的
+            // 可能部分机型会有问题,不过基本是兼容的
+            window.setStatusBarLightMode(false)
+            immersionBar?.apply {
+                reset()
+                statusBarDarkFont(false, 0.2f)
+                init()
+            }
             // 拿取播放器的顶部菜单,空出状态栏的高度距离
             val topContainer = getTopContainer(gsy as? GSYVideoControlView) as? LinearLayout
             topContainer.doOnceAfterLayout {
@@ -188,7 +196,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private fun controllerToggle(window: Window, isShow: Boolean) {
         toggleJob?.cancel()
         toggleJob = mActivity.lifecycleScope.launch {
-            delay(500)
+            delay(300)
             window.apply {
                 // 清除全屏标志（让状态栏显示），保留导航栏隐藏状态
                 if (isShow) {
