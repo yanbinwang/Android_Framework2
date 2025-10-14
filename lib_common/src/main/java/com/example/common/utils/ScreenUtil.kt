@@ -508,7 +508,7 @@ fun Window.setNavigationBarLightMode(isLight: Boolean) {
  */
 fun Window.setStatusBarLightMode(isLight: Boolean) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // Android 11+（API 30+）推荐使用 InsetsController
+        // Android 11+（API 30+）推荐使用 InsetsController(appearance:1（常量值）= 启用黑色图标 / 0 = 禁用黑色图标（即启用白色图标）)
         insetsController?.apply {
             if (isLight) {
                 // 浅色模式（黑色图标）

@@ -1,37 +1,32 @@
 package com.example.thirdparty.media.utils
 
-import android.content.Context
 import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
 import android.view.View
 import android.view.ViewGroup
+import android.view.Window
 import android.view.WindowInsets
-import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.FrameLayout
-import android.widget.LinearLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
-import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.padding
-import com.example.framework.utils.function.view.size
-import com.example.framework.utils.logWTF
 import com.example.glide.ImageLoader
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
+import com.example.thirdparty.media.utils.VideoOrientationUtil.ORIENTATION_LANDSCAPE
+import com.example.thirdparty.media.utils.VideoOrientationUtil.getVideoOrientationAndRotation
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
 import com.shuyu.gsyvideoplayer.cache.CacheFactory
@@ -50,7 +45,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
-import java.lang.reflect.Constructor
 
 /**
  * @description 播放器帮助类
@@ -72,6 +66,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var retryWithPlay = false
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
+    private var onQuitFullscreenListener: (() -> Unit)? = null
     private var restartJob: Job? = null
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val mGSYSampleCallBack by lazy { object : GSYSampleCallBack() {
@@ -115,19 +110,18 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                             show(WindowInsets.Type.statusBars())
                             // 隐藏导航栏
                             hide(WindowInsets.Type.navigationBars())
-                            // 设置状态栏文字样式（0表示默认浅色文字，适用于深色背景）
-                            setSystemBarsAppearance(0, WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS)
                         }
                     } else {
                         // Android 6.0-10（API 23-29）使用systemUiVisibility
-                        var flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY // 隐藏导航栏,沉浸式（下拉时临时显示）
+                        // 隐藏导航栏,沉浸式（下拉时临时显示）
+                        var flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         // 清除状态栏隐藏标志（确保状态栏显示）
                         flags = flags and View.SYSTEM_UI_FLAG_FULLSCREEN.inv()
                         // 设置状态栏文字样式
-                        flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv() // 浅色文字
-                        // flags = flags or View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR // 深色文字
                         decorView.systemUiVisibility = flags
                     }
+                    // 浅色导航栏UI
+                    setStatusBarLightMode(false)
                 }
             } else {
                 parentView.padding(top = 0)
@@ -137,7 +131,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
             super.onQuitFullscreen(url, *objects)
             orientationUtils?.backToProtVideo()
-            mActivity.window?.setStatusBarLightMode(true)
+            onQuitFullscreenListener?.invoke()
         }
 
         override fun onPlayError(url: String?, vararg objects: Any?) {
@@ -235,6 +229,46 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         }
     }
 
+    private fun controllerToggle(window: Window, isShow: Boolean) {
+        window.apply {
+            // 清除全屏标志（让状态栏显示），保留导航栏隐藏状态
+            clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            // 控制系统UI可见性，只显示状态栏，隐藏导航栏
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+（API 30+）使用WindowInsetsController
+                insetsController?.apply {
+                    if (isShow) {
+                        // 显示状态栏
+                        show(WindowInsets.Type.statusBars())
+                    } else {
+                        // 隐藏状态栏
+                        hide(WindowInsets.Type.statusBars())
+                    }
+                    // 隐藏导航栏
+                    hide(WindowInsets.Type.navigationBars())
+                }
+            } else {
+                // Android 6.0-10（API 23-29）使用systemUiVisibility
+                var flags: Int
+                if (isShow) {
+                    // 隐藏导航栏,沉浸式（下拉时临时显示）
+                    flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+                    // 清除状态栏隐藏标志（确保状态栏显示）
+                    flags = flags and View.SYSTEM_UI_FLAG_FULLSCREEN.inv()
+                } else {
+                    // 隐藏导航栏和状态栏，沉浸式（下拉时临时显示）
+                    flags = View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or
+                            View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or
+                            View.SYSTEM_UI_FLAG_FULLSCREEN
+                    // 清除状态栏文字样式相关标志（因为状态栏已隐藏，无需设置）
+                    flags = flags and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR.inv()
+                }
+                // 设置状态栏样式
+                decorView.systemUiVisibility = flags
+            }
+        }
+    }
+
     /**
      * 设置播放路径，缩略图，是否自动开始播放
      */
@@ -245,6 +279,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         } else {
             ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
         }
+//        // 读取原视频方向角
+//        val videoInfo = getVideoOrientationAndRotation(url)
+//        val videoOrientation = videoInfo[0] // 视频方向
+////            val needRotation = videoInfo[1] // 播放器需旋转的角度
+//        if (videoOrientation == ORIENTATION_LANDSCAPE) {
+//            lockLand = true
+//        }
         GSYVideoOptionBuilder()
             // 是否可以滑动界面改变进度，声音等 默认true
             .setIsTouchWiget(false)
@@ -259,6 +300,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             // 是否需要全屏锁定屏幕功能 如果单独使用请设置setIfCurrentIsFullscreen为true
             .setNeedLockFull(false)
 //            .setSetUpLazy(setUpLazy)
+            // 一全屏就锁屏横屏，默认false竖屏，可配合setRotateViewAuto使用
+            .setLockLand(false)
             // 播放url
             .setUrl(url)
             // 是否边缓存，m3u8等无效
@@ -343,12 +386,21 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * 销毁
      */
     fun destroy() {
-        restartJob?.cancel()
+        clearOnQuitFullscreenListener()
         orientationUtils?.releaseListener()
         player?.currentPlayer?.release()
         player?.release()
         player = null
+        restartJob?.cancel()
         mActivity.lifecycle.removeObserver(this)
+    }
+
+    fun setOnQuitFullscreenListener(onQuitFullscreenListener: () -> Unit) {
+        this.onQuitFullscreenListener = onQuitFullscreenListener
+    }
+
+    fun clearOnQuitFullscreenListener() {
+        onQuitFullscreenListener = null
     }
 
 }

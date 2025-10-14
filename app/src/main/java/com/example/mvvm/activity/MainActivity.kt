@@ -390,6 +390,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     override fun isImmersionBarEnabled() = false
 
     private var index = 0
+    //https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc
 
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
