@@ -43,6 +43,7 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
+import com.example.thirdparty.media.utils.GSYVideoHelper
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -392,11 +393,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private var index = 0
     //https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc
 
+    private val gsyHelper by lazy { GSYVideoHelper(this) }
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
+
+        // 绑定
+        gsyHelper.bind(mBinding?.gsyPlayer, true)
+        // 竖屏
+        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
+        gsyHelper.setOnQuitFullscreenListener {
+            initImmersionBar()
+        }
+
+
         mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
         launch {
 //            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
