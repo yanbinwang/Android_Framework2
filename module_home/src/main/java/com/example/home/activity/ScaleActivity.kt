@@ -6,10 +6,8 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.config.ARouterPath
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
-import com.example.framework.utils.function.view.appear
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
@@ -40,12 +38,10 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
 
     override fun initData() {
         super.initData()
-        val imgList = list?.toNewList { ScaleImageView(this) to it }
-        mBinding?.vpPage?.apply {
-            adapter = ScaleAdapter(imgList.orEmpty())
-            currentItem = 0
-//            animation = elasticityEnter()
-            appear()
+        val imgList = list?.toNewList { ScaleImageView(this) to it }.orEmpty()
+        mBinding?.vpPage?.let {
+            it.adapter = ScaleAdapter(imgList)
+            it.currentItem = 0
         }
     }
 
