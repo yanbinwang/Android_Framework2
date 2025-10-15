@@ -7,6 +7,8 @@ import androidx.viewpager.widget.PagerAdapter
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.invisible
 import com.example.glide.ImageLoader
 
 /**
@@ -33,14 +35,20 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
 
     override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
 //        container.removeView(data.safeGet(position)?.first)
-        container.removeView(any as? ScaleImageView) // 直接移除传入的对象
+        // 直接移除传入的对象
+        container.removeView(any as? ScaleImageView)
     }
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
 //        val img = data.safeGet(position)?.first ?: return Any()
         val item = data.safeGet(position) ?: throw IndexOutOfBoundsException("Invalid position: $position")
         val img = item.first
-        ImageLoader.instance.loadImageFromUrl(img, data.safeGet(position)?.second.orEmpty())
+        val imageUrl = data.safeGet(position)?.second.orEmpty()
+        ImageLoader.instance.loadImageFromUrl(img, imageUrl, onLoadStart = {
+            img.invisible()
+        }, onLoadComplete = {
+            img.appear(1000)
+        })
         container.addView(img, MATCH_PARENT, MATCH_PARENT)
         return img
     }

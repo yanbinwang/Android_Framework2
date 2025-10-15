@@ -109,7 +109,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
-        return true
+        return false
     }
 
     /**
