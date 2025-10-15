@@ -14,6 +14,7 @@ import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -42,9 +43,12 @@ import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.setSpannable
+import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
@@ -330,6 +334,56 @@ fun I18nTextView?.setI18nTheme(resText: Int = -1, colorRes: Int = R.color.appThe
 fun I18nTextView?.setI18nContent(i18nTextRes: Int, vararg contents: String) {
     this ?: return
     setI18nContent(i18nTextRes, *contents)
+}
+
+/**
+ * 列表滑动时移动到某个输入框下
+ * @root
+ * mBinding?.root -> scrollview的外层父类
+ * @list
+ * 当前页面所有的输入框放在集合内
+ * @trans
+ * var lastImeBottom = 0
+ * setOnWindowInsetsChanged { insets ->
+ *    // 1. 精准获取软键盘高度及显示状态
+ *    val imeType = WindowInsetsCompat.Type.ime()
+ *    val isImeVisible = insets.isVisible(imeType)
+ *    val imeBottom = if (isImeVisible) insets.getInsets(imeType).bottom else 0
+ *    // 2. 只有当任意值变化时，才触发回调（避免频繁调用）
+ *    if (imeBottom != lastImeBottom) {
+ *        lastImeBottom = imeBottom
+ *        helper.setScrollTo(lastImeBottom)
+ *    }
+ * }
+ * 对应页面设置
+ * android:windowSoftInputMode="stateHidden|adjustResize"
+ */
+fun NestedScrollView?.setScrollTo(root: View?, list: List<View?>, trans: Int) {
+    this ?: return
+    // 获取外层父类的准确高度
+    val parentHeight = (root?.parent as? ViewGroup)?.height ?: return
+    // 重设外层父类大小
+    root.size(height = parentHeight - trans + getNavigationBarHeight())
+    // 确保重设完成绘制
+    root.doOnceAfterLayout {
+        for (v in list) {
+            if (!v?.isFocused.orFalse) continue
+            val topLength = v?.getTopLength().orZero
+            val top = (topLength - scrollY.orZero)
+            val bottom = top + v?.height.orZero
+            if (top < getStatusBarHeight()) {
+                scrollTo(0, topLength - getStatusBarHeight())
+            } else if (bottom > height.orZero) {
+                scrollTo(0, bottom - height.orZero)
+            }
+        }
+    }
+}
+
+private fun View.getTopLength(): Int {
+    val arr = IntArray(2)
+    getLocationOnScreen(arr)
+    return arr[1]
 }
 
 /**
