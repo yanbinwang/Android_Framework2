@@ -55,7 +55,6 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.string
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
@@ -322,22 +321,9 @@ var View?.layoutGravity: Int
     }
 
 /**
- * 递归查找特定类型的父视图
- * val nestedScrollView = myView.findParentOfType(NestedScrollView::class.java)
- */
-fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
-    var mParent: ViewParent? = parent
-    while (mParent != null) {
-        if (clazz.isInstance(mParent)) {
-            return mParent as T
-        }
-        mParent = mParent.parent
-    }
-    return null
-}
-
-/**
- * val recyclerView: RecyclerView? = findParentOfType()
+ * 在视图层级中递归查找特定类型的父视图
+ * 调用时不需要传入类对象，直接指定泛型类型即可
+ * val recyclerView = view.findParentOfType<RecyclerView>()
  */
 inline fun <reified T : ViewParent> View.findParentOfType(): T? {
     var mParent: ViewParent? = parent
@@ -351,14 +337,18 @@ inline fun <reified T : ViewParent> View.findParentOfType(): T? {
 }
 
 /**
- * 获取view的LifecycleOwner
- * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
- * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
- * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
- * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
+ * 调用时需要显式传入类对象作为参数(更适合需要与 Java 交互的场景)
+ * val nestedScrollView = view.findParentOfType(NestedScrollView::class.java)
  */
-fun View?.getLifecycleOwner(): LifecycleOwner? {
-    return this?.findViewTreeLifecycleOwner()
+fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
+    var mParent: ViewParent? = parent
+    while (mParent != null) {
+        if (clazz.isInstance(mParent)) {
+            return mParent as T
+        }
+        mParent = mParent.parent
+    }
+    return null
 }
 
 /**
@@ -387,6 +377,29 @@ inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit
     if (this == null) return
     if (null == tag) tag = any
     listener.invoke(this, tag as? T)
+}
+
+/**
+ * 获取view的LifecycleOwner
+ * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
+ * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
+ * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
+ * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
+ */
+fun View?.getLifecycleOwner(): LifecycleOwner? {
+    return this?.findViewTreeLifecycleOwner()
+}
+
+/**
+ * 获取视图在屏幕上的顶部位置距离屏幕顶部的长度
+ * location[0] 会被赋值为视图左上角的 x 坐标（水平位置）
+ * location[1] 会被赋值为视图左上角的 y 坐标（垂直位置）
+ */
+fun View?.getScreenLocation(): IntArray {
+    this ?: return intArrayOf(0, 0)
+    val location = IntArray(2)
+    getLocationOnScreen(location)
+    return location
 }
 
 /**
