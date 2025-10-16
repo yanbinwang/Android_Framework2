@@ -15,6 +15,7 @@ import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -46,7 +47,7 @@ import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
-import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.getScreenLocation
 import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
@@ -338,52 +339,60 @@ fun I18nTextView?.setI18nContent(i18nTextRes: Int, vararg contents: String) {
 
 /**
  * 列表滑动时移动到某个输入框下
- * @root
- * mBinding?.root -> scrollview的外层父类
- * @list
- * 当前页面所有的输入框放在集合内
- * @trans
- * var lastImeBottom = 0
- * setOnWindowInsetsChanged { insets ->
- *    // 1. 精准获取软键盘高度及显示状态
- *    val imeType = WindowInsetsCompat.Type.ime()
- *    val isImeVisible = insets.isVisible(imeType)
- *    val imeBottom = if (isImeVisible) insets.getInsets(imeType).bottom else 0
- *    // 2. 只有当任意值变化时，才触发回调（避免频繁调用）
- *    if (imeBottom != lastImeBottom) {
- *        lastImeBottom = imeBottom
- *        helper.setScrollTo(lastImeBottom)
- *    }
- * }
- * 对应页面设置
+ * 对应页面设置:
  * android:windowSoftInputMode="stateHidden|adjustResize"
  */
-fun NestedScrollView?.setScrollTo(root: View?, list: List<View?>, trans: Int) {
+fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list: List<View?>, onImeShow: () -> Unit = {}, onImeDismiss: () -> Unit = {}) {
     this ?: return
-    // 获取外层父类的准确高度
-    val parentHeight = (root?.parent as? ViewGroup)?.height ?: return
-    // 重设外层父类大小
-    root.size(height = parentHeight - trans + getNavigationBarHeight())
-    // 确保重设完成绘制
-    root.doOnceAfterLayout {
+    // 从 tag 中获取当前实例的 lastImeBottom，默认为 0
+    val lastImeHeight = getTag(R.id.theme_ime_height_tag) as? Int ?: 0
+    // 获取软键盘高度及显示状态
+    val imeType = WindowInsetsCompat.Type.ime()
+    val isImeVisible = insets.isVisible(imeType)
+    // 输入法的高度包含了底部导航栏
+    val imeHeight = if (isImeVisible) insets.getInsets(imeType).bottom else 0
+    // 获取状态栏/导航栏高度
+    val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+    val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+    // 0的情况有些特殊,可能是用户手动隐藏导航栏
+    val lastNavigationHeight = getTag(R.id.theme_ime_navigation_tag) as? Int ?: 0
+    if (navigationBarHeight != lastNavigationHeight) {
+        setTag(R.id.theme_ime_navigation_tag, navigationBarHeight)
+        root.size(MATCH_PARENT, MATCH_PARENT)
+    }
+    // 只有当任意值变化时，才触发回调（避免频繁调用）
+    if (imeHeight != lastImeHeight) {
+        // 保存当前值到 tag 中
+        setTag(R.id.theme_ime_height_tag, imeHeight)
+        // 最外层父类布局的高度是不变的,此处拉取一次作为复位的计算值
+        val parentHeight = (root?.parent as? ViewGroup)?.height ?: return
+        // 此次是否是显示输入法
+        val isShow = imeHeight != 0
+        // 此处的root是mBinding.root,我们设置它缩小/放大就可以让NestedScrollView被挤压从而实现滚动
+        // 重设外层父类大小/页面采用的是EdgeToEdge,一整个屏幕都是手机app的操作空间,所以要把系统弹出的输入法的底部高度加回去
+        if (isShow) {
+            root.size(height = parentHeight - imeHeight + navigationBarHeight)
+        } else {
+            root.size(height = parentHeight)
+        }
+        // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
         for (v in list) {
             if (!v?.isFocused.orFalse) continue
-            val topLength = v?.getTopLength().orZero
-            val top = (topLength - scrollY.orZero)
+            val topY = v?.getScreenLocation()?.get(1).orZero
+            val top = (topY - scrollY.orZero)
             val bottom = top + v?.height.orZero
-            if (top < getStatusBarHeight()) {
-                scrollTo(0, topLength - getStatusBarHeight())
+            if (top < statusBarHeight) {
+                scrollTo(0, topY - statusBarHeight)
             } else if (bottom > height.orZero) {
                 scrollTo(0, bottom - height.orZero)
             }
         }
+        if (isShow) {
+            onImeShow.invoke()
+        } else {
+            onImeDismiss.invoke()
+        }
     }
-}
-
-private fun View.getTopLength(): Int {
-    val arr = IntArray(2)
-    getLocationOnScreen(arr)
-    return arr[1]
 }
 
 /**
