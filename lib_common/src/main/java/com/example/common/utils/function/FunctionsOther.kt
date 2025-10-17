@@ -16,6 +16,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -40,11 +41,12 @@ import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.i18n.I18nTextView
+import com.example.common.widget.textview.edittext.ClearEditText
+import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.getScreenLocation
@@ -377,7 +379,9 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         }
         // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
         for (v in list) {
-            if (!v?.isFocused.orFalse) continue
+            val actualInputView = getActualInputView(v)
+            // 若不是输入类控件，或输入控件未聚焦，直接跳过
+            if (actualInputView == null || !actualInputView.isFocused) continue
             val topY = v?.getScreenLocation()?.get(1).orZero
             val top = (topY - scrollY.orZero)
             val bottom = top + v?.height.orZero
@@ -396,6 +400,21 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
 }
 
 /**
+ * 统一获取控件内部的“实际输入 View”（EditText）
+ */
+private fun getActualInputView(v: View?): EditText? {
+    return when (v) {
+        is ClearEditText -> v.editText
+        is PasswordEditText -> v.editText
+        is EditText -> v
+        // 后续新增自定义输入控件，只需在这里加分支
+        // is SearchEditText -> v.editText
+        else -> null // 非输入类控件，返回null
+    }
+}
+
+
+/**
  * 联动滑动时某个控件显影，传入对应控件的高度（dp）
  */
 fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
@@ -412,21 +431,6 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
 //        func.invoke(if (scrollY <= menuHeight / 2f) 0 + scrollY / (menuHeight / 4f) else 1f)
     })
 }
-
-//private static final int SCROLL_THRESHOLD = 500;
-//
-//scrollView.setOnScrollChangeListener(new ViewTreeObserver.OnScrollChangedListener() {
-//    @Override
-//    public void onScrollChanged() {
-//        // 获取当前滚动的垂直距离（像素）
-//        int scrollY = scrollView.getScrollY();
-//        // 限制范围并计算透明度
-//        int clampedScrollY = Math.max(0, Math.min(scrollY, SCROLL_THRESHOLD));
-//        float alpha = (float) clampedScrollY / SCROLL_THRESHOLD;
-//        // 应用透明度
-//        backgroundBlock.setAlpha(alpha);
-//    }
-//})
 
 /**
  * 点击链接的span
