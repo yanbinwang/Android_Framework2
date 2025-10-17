@@ -346,8 +346,6 @@ fun I18nTextView?.setI18nContent(i18nTextRes: Int, vararg contents: String) {
  */
 fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list: List<View?>, onImeShow: () -> Unit = {}, onImeDismiss: () -> Unit = {}) {
     this ?: return
-    // 从 tag 中获取当前实例的 lastImeBottom，默认为 0
-    val lastImeHeight = getTag(R.id.theme_ime_height_tag) as? Int ?: 0
     // 获取软键盘高度及显示状态
     val imeType = WindowInsetsCompat.Type.ime()
     val isImeVisible = insets.isVisible(imeType)
@@ -362,6 +360,8 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         setTag(R.id.theme_ime_navigation_tag, navigationBarHeight)
         root.size(MATCH_PARENT, MATCH_PARENT)
     }
+    // 从 tag 中获取当前实例的 lastImeBottom，默认为 0
+    val lastImeHeight = getTag(R.id.theme_ime_height_tag) as? Int ?: 0
     // 只有当任意值变化时，才触发回调（避免频繁调用）
     if (imeHeight != lastImeHeight) {
         // 保存当前值到 tag 中
