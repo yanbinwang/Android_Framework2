@@ -46,30 +46,26 @@ import kotlin.properties.Delegates
 object ScreenUtil {
 
     /**
-     * 获取屏幕高度（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕高度（像素值px）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenHeight by lazy(NONE) { screenHeight() }
 
     /**
-     * 获取屏幕高度（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕宽度（像素值px）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenWidth by lazy(NONE) { screenWidth() }
 
     /**
-     * 获取屏幕比值（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕密度/比值（dpi值）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenDensity by lazy(NONE) { screenDensity() }
 
     /**
-     * 根据autosize设置来获取设定的宽度
-     */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
-
-    /**
      * 获取屏幕宽度（px）
+     * 根据屏幕方向返回宽度：竖屏时为 widthPixels，横屏时为 heightPixels（因横屏时宽高会交换）
      */
     private fun screenWidth(context: Context = BaseApplication.instance): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -81,6 +77,7 @@ object ScreenUtil {
 
     /**
      * 获取屏幕高度（px）
+     * 根据屏幕方向返回高度：竖屏时为 heightPixels，横屏时为 widthPixels
      */
     private fun screenHeight(context: Context = BaseApplication.instance): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -91,15 +88,24 @@ object ScreenUtil {
     }
 
     /**
-     * 屏幕比值
+     * 屏幕密度/比值(dpi值)
+     * 返回屏幕密度（dpi），即 displayMetrics.densityDpi
      */
     private fun screenDensity(context: Context = BaseApplication.instance): Int {
         return context.resources.displayMetrics.densityDpi
     }
 
     /**
-     * 设计图宽度转实际宽度
+     * 根据AutoSize设置来获取设定的宽度
+     * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
      */
+    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+
+    /**
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值
+     * 计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+     */
+    @JvmStatic
     fun getRealSize(length: Int): Int {
         return if (length > 0) {
             (length * screenWidth.toDouble() / designWidth).toInt().min(1)
@@ -108,6 +114,7 @@ object ScreenUtil {
         }
     }
 
+    @JvmStatic
     fun getRealSize(length: Double): Int {
         return if (length > 0) {
             (length * screenWidth.toDouble() / designWidth).toInt().min(1)
@@ -116,24 +123,25 @@ object ScreenUtil {
         }
     }
 
-    /**
-     * 设计图宽度转实际宽度
-     */
+    @JvmStatic
     fun getRealSize(context: Context, length: Int): Int {
         return length * screenWidth(context) / designWidth
     }
 
+    @JvmStatic
     fun getRealSize(context: Context, length: Double): Int {
         return (length * screenWidth(context).toDouble() / designWidth).toInt()
     }
 
     /**
-     * 设计图宽度转实际宽度
+     * 返回 Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
+    @JvmStatic
     fun getRealSizeFloat(context: Context, length: Int): Float {
         return getRealSizeFloat(context, length.toFloat())
     }
 
+    @JvmStatic
     fun getRealSizeFloat(context: Context, length: Float): Float {
         return length * screenWidth(context).toFloat() / designWidth.toFloat()
     }
@@ -145,10 +153,10 @@ object ScreenUtil {
     @RequiresApi(Build.VERSION_CODES.P)
     fun Activity?.getTopCutoutHeight(): Int {
         this ?: return 0
-        // 1. 获取 WindowInsets（可能为 null，需判空）
+        // 获取 WindowInsets（可能为 null，需判空）
         val windowInsets = window?.decorView?.rootWindowInsets
         val displayCutout = windowInsets?.displayCutout ?: return 0
-        // 2. 解析顶部刘海区域
+        // 解析顶部刘海区域
         var cutoutHeight = 0
         displayCutout.boundingRects.forEach { rect ->
             // 顶部刘海的 top 坐标为 0（状态栏起始位置）
@@ -170,6 +178,7 @@ object ScreenUtil {
         return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 
+    @JvmStatic
     fun hasNavigationBar(context: Context): Boolean {
         val appUsableSize = getAppUsableScreenSize(context)
         val realScreenSize = getRealScreenSize(context)
@@ -188,11 +197,11 @@ object ScreenUtil {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val currentMetrics = windowManager?.currentWindowMetrics
-            // 1. 获取当前窗口的整体边界（包含系统栏）
+            // 获取当前窗口的整体边界（包含系统栏）
             val bounds = currentMetrics?.bounds
-            // 2. 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
+            // 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
             val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
-            // 3. 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
+            // 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
             val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
             val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
             Point(usableWidth, usableHeight)
@@ -258,10 +267,10 @@ object ScreenUtil {
  * setContentView 的作用是将布局文件加载到 decorView 的子容器中（通常是 android.R.id.content 对应的容器），但不影响 decorView 本身的存在。
  */
 fun Window.applyFullScreen() {
-    // 1. 基础全屏标志（全版本通用）
+    // 基础全屏标志（全版本通用）
     clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
     setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-    // 2. 版本差异化处理
+    // 版本差异化处理
     when {
         // 安卓11+：现代全屏方案
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
@@ -321,9 +330,9 @@ private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegate
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
  */
 fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit) = {}) {
-    // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
+    // 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
-    // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
+    // 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
     val windowBackground = decorView.background?.let { background ->
         when (background) {
             // 纯颜色背景直接使用
@@ -339,12 +348,12 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
             }
         }
     } ?: color(R.color.appWindowBackground).toDrawable()
-    // 3. 创建底部色块 Drawable
+    // 创建底部色块 Drawable
     val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(color(mNavigationBarColor))
     bottomBarDrawable.paint.color = color(mNavigationBarColor) // 确保颜色正确
-    // 4. 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
+    // 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
-    // 5. 设置为 decorView 背景（此时两者会叠加显示）
+    // 设置为 decorView 背景（此时两者会叠加显示）
     val currentBackground = decorView.background
     if (currentBackground !is LayerDrawable ||
         currentBackground.numberOfLayers != 2 ||
@@ -353,7 +362,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
     ) {
         decorView.background = combinedDrawable
     }
-    // 6. 处理导航栏高度变化
+    // 处理导航栏高度变化
     /**
      * 监听视图自身布局边界的变化，当视图的位置（left/top/right/bottom）或尺寸（宽高）发生改变时触发
      * 视图首次布局完成时。
@@ -425,6 +434,7 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         invalidateSelf()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return PixelFormat.TRANSLUCENT
     }
@@ -461,16 +471,16 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
  * 释放导航栏相关的监听器和资源
  */
 fun Window.removeNavigationBarDrawable() {
-    // 1. 移除布局变化监听器
+    // 移除布局变化监听器
     try {
         decorView.removeOnLayoutChangeListener(layoutChangeListener)
     } catch (e: Exception) {
         // 防止未初始化时调用导致的异常（如未调用set就调用remove）
         e.printStackTrace()
     }
-    // 2. 移除WindowInsets监听器
+    // 移除WindowInsets监听器
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
-    // 3. 重置decorView背景（避免自定义Drawable残留引用-->Dialog 的 Window 和 Activity 的 Window 是完全独立的两个实例，它们分别持有各自的decorView）
+    // 重置decorView背景（避免自定义Drawable残留引用-->Dialog 的 Window 和 Activity 的 Window 是完全独立的两个实例，它们分别持有各自的decorView）
     // 注意：若页面有自己的背景设置，可注释此行，避免覆盖业务背景
     if (decorView.background is LayerDrawable) {
         decorView.background = null

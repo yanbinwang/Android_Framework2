@@ -104,7 +104,7 @@ class DisplayService : TrackableLifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        // 1. 创建符合Android 15要求的通知渠道
+        // 创建符合Android 15要求的通知渠道
         val channelId = string(R.string.notificationChannelId)
         val channelName = string(R.string.notificationChannelName)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -116,7 +116,7 @@ class DisplayService : TrackableLifecycleService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-        // 2. 构建完整的通知（必须包含图标、标题）
+        // 构建完整的通知（必须包含图标、标题）
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("正在录屏") // 强制要求：标题
             .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
@@ -124,7 +124,7 @@ class DisplayService : TrackableLifecycleService() {
             .setOngoing(true) // 标记为持续通知，用户无法手动清除
             .setSilent(true) // 静音通知
             .build()
-        // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
+        // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         startForeground(notificationId, notification)
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager

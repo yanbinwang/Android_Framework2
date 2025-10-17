@@ -160,13 +160,13 @@ object AccountHelper {
      */
     @JvmStatic
     fun signOut(isNavigation: Boolean = true) {
-        // 1.清除mmkv和默认配置的数据库等缓存数据
+        // 清除mmkv和默认配置的数据库等缓存数据
         userBean.del()
         userInfoBean.del()
         CacheDataManager.clearCacheBySignOut()
-        // 2.断开/终止三方库的连接(其内部应包含数据的删除)
+        // 断开/终止三方库的连接(其内部应包含数据的删除)
 //        WebSocketConnect.disconnect()
-        // 3.根据app的实际情况分为一下两种处理
+        // 根据app的实际情况分为一下两种处理
         /**
          * App需要强制登录后才能进入首页
          * 1)isNavigation: Boolean = true删除

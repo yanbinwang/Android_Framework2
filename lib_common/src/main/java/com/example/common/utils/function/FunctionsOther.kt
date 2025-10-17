@@ -16,6 +16,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
@@ -38,6 +39,8 @@ import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.manager.AppManager
+import com.example.common.widget.textview.edittext.ClearEditText
+import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
@@ -113,15 +116,15 @@ fun getNavigationBarHeight(): Int {
     val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
     val currentActivity = AppManager.currentActivity()
     return if (null == currentActivity) {
-        if (!hasNavigationBar(mContext)) {
-            0
-        } else {
+        if (hasNavigationBar(mContext)) {
             baseNavigationBarHeight
+        } else {
+            0
         }
     } else {
-        val decodeView = currentActivity.window.decorView
-        if (decodeView.hasNavigationBar()) {
-            val insets = ViewCompat.getRootWindowInsets(decodeView)
+        val decorView = currentActivity.window.decorView
+        if (decorView.hasNavigationBar()) {
+            val insets = ViewCompat.getRootWindowInsets(decorView)
             insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
         } else {
             0
@@ -388,7 +391,10 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         }
         // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
         for (v in list) {
-            if (!v?.isFocused.orFalse) continue
+//            if (!v?.isFocused.orFalse) continue
+            val actualInputView = getActualInputView(v)
+            // 若不是输入类控件，或输入控件未聚焦，直接跳过
+            if (actualInputView == null || !actualInputView.isFocused) continue
             val topY = v?.getScreenLocation()?.get(1).orZero
             val top = (topY - scrollY.orZero)
             val bottom = top + v?.height.orZero
@@ -403,6 +409,20 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         } else {
             onImeDismiss.invoke()
         }
+    }
+}
+
+/**
+ * 统一获取控件内部的“实际输入 View”（EditText）
+ */
+private fun getActualInputView(v: View?): EditText? {
+    return when (v) {
+        is ClearEditText -> v.editText
+        is PasswordEditText -> v.editText
+        is EditText -> v
+        // 后续新增自定义输入控件，只需在这里加分支
+        // is SearchEditText -> v.editText
+        else -> null // 非输入类控件，返回null
     }
 }
 
@@ -485,8 +505,10 @@ object ExtraNumber {
     }
 
     /**
-     * 获取顶栏高度
+     * 获取状态栏/导航栏高度
+     * 直接取系统层配置的像素值作为保底措施
      */
+    @JvmStatic
     fun getInternalDimensionSize(context: Context, key: String): Int {
         val result = 0
         try {
@@ -503,7 +525,7 @@ object ExtraNumber {
                     (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
                 }
             }
-        } catch (ignored: Resources.NotFoundException) {
+        } catch (_: Resources.NotFoundException) {
             return 0
         }
         return result

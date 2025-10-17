@@ -101,9 +101,9 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
          */
         @JvmStatic
         fun calculateBitRate(width: Int, height: Int): Int {
-            // 1. 降低基础系数至0.07（Android 15对高比特率更敏感）
+            // 降低基础系数至0.07（Android 15对高比特率更敏感）
             val baseBitRate = (width * height * 30 * 0.07).toInt()
-            // 2. 根据分辨率动态调整最高上限
+            // 根据分辨率动态调整最高上限
             val maxBitRate = when {
                 // 2K及以上分辨率（如2560x1440）限制更低
                 width * height >= 2560 * 1440 -> 6 * 1024 * 1024  // 6Mbps
@@ -112,9 +112,9 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                 // 720P及以下（1280x720）
                 else -> 5 * 1024 * 1024  // 5Mbps
             }
-            // 3. 限制最低比特率（避免画质过差）
+            // 限制最低比特率（避免画质过差）
             val minBitRate = 1 * 1024 * 1024  // 1Mbps
-            // 4. 最终返回钳位后的值
+            // 最终返回钳位后的值
             return baseBitRate.coerceIn(minBitRate, maxBitRate)
         }
 
