@@ -372,6 +372,15 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
 
 /**
  * 列表频繁刷新时除外层重写equals和hashcode方法外，内部赋值再嵌套一层做比较
+ * 一次性绑定 + 立即执行初始化逻辑：比如页面初始化时，给多个静态 View（不复用、不刷新）绑定固定数据，并立即设置样式 / 点击事件。
+ * // 给3个按钮绑定不同的功能数据，并立即设置文本和点击事件
+ * listOf(btn_a, btn_b, btn_c).forEachIndexed { index, btn ->
+ *     btn.setItem<FunctionData>(FunctionData(index, "功能$index")) { view, data ->
+ *         view.text = data?.name
+ *         view.setOnClickListener { executeFunction(data?.type) }
+ *     }
+ * }
+ * 避免重复写 “tag 判空 + 强转”：如果需要频繁通过 tag 给 View 传数据，且每次都要执行类似逻辑，用它能少写 tag as? T 的重复代码。
  */
 inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit) {
     if (this == null) return

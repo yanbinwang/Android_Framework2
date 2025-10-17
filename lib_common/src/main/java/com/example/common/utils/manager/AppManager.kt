@@ -128,22 +128,22 @@ object AppManager {
     fun finishNotTargetActivity(vararg cls: Class<*>?) {
         try {
             synchronized(activityDeque) {
-                // 1. 过滤cls数组中的null，得到“有效保留类列表”
+                // 过滤cls数组中的null，得到“有效保留类列表”
                 val validKeepClasses = cls.filterNotNull()
-                // 2. 特殊逻辑：若有效保留类为空（即传入的全是null），则结束所有存活Activity
+                // 特殊逻辑：若有效保留类为空（即传入的全是null），则结束所有存活Activity
                 val shouldFinishAll = validKeepClasses.isEmpty()
-                // 3. 过滤出需要结束的Activity
+                // 过滤出需要结束的Activity
                 val activitiesToFinish = activityDeque.mapNotNull { it.get() }
                     .filter { activity ->
                         // 条件：若需结束所有，则直接保留；否则排除“有效保留类”
                         (shouldFinishAll || activity.javaClass !in validKeepClasses) && !activity.isDestroyed && !activity.isFinishing
                     }
                     .toList()
-                // 4. 批量结束Activity
+                // 批量结束Activity
                 activitiesToFinish.forEach { activity ->
                     finishActivity(activity)
                 }
-                // 5. 清理无效引用
+                // 清理无效引用
                 cleanDestroyedActivities()
             }
         } catch (e: Exception) {

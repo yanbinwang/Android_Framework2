@@ -71,11 +71,11 @@ object NetWorkUtil {
         } else {
             val network = connectivityManager?.activeNetwork ?: return false
             val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
-            // 1. 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
+            // 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
             val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-            // 2. 检查网络是否已通过系统验证（可联网）
+            // 检查网络是否已通过系统验证（可联网）
             val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            // 3.返回联网结果
+            // 返回联网结果
             return hasTransport && isValidated
         }
         return false

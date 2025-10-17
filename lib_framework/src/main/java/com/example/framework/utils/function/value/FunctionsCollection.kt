@@ -429,9 +429,9 @@ val CharArray?.randomItem: Char?
  */
 fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
-    // 1. 生成重复集合（在两个列表中都存在的用户）
+    // 生成重复集合（在两个列表中都存在的用户）
     val repeated = toSet().intersect(list.toSet())
-    // 2. 生成不重复集合（只存在于一个列表中的用户）
+    // 生成不重复集合（只存在于一个列表中的用户）
     val allUsers = toSet().union(list.toSet())
     val unique = allUsers.subtract(repeated)
     return if (isRepeated) repeated.toList() else unique.toList()

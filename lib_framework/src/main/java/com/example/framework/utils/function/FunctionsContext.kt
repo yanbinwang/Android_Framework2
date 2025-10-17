@@ -205,9 +205,9 @@ val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() }// 服务状态�
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    // 1. 检查自维护的服务状态
+    // 检查自维护的服务状态
     val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
-    // 2. 检查应用进程是否存活（避免进程被杀后状态未更新）
+    // 检查应用进程是否存活（避免进程被杀后状态未更新）
     val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
         processInfo.uid == applicationInfo.uid &&
                 processInfo.processName == packageName &&
