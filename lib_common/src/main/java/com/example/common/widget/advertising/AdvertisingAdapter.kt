@@ -3,15 +3,14 @@ package com.example.common.widget.advertising
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.R
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.init
 import com.example.glide.ImageLoader
 
 /**
@@ -26,7 +25,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(CardView(ContextThemeWrapper(parent.context, R.style.CardViewStyle)))
+        return ViewHolder(CardView(parent.context).also { it.init(radius.ptFloat) })
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {

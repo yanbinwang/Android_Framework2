@@ -42,6 +42,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -932,6 +933,37 @@ fun ImageView?.safeRecycle() {
 }
 
 /**
+ * 可折叠list初始化
+ */
+fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
+    this ?: return
+    setGroupIndicator(null)//去除右侧箭头
+    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    setAdapter(adapter)
+}
+
+/**
+ * 无阴影的CardView
+ */
+fun CardView?.init(cornerRadius: Float = 0f) {
+    this ?: return
+    // 阴影高度设为0
+    cardElevation = 0f
+    // 最大阴影高度设为0
+    maxCardElevation = 0f
+    // 兼容低版本的阴影属性
+    elevation = 0f
+    // 圆角半径（按需调整）
+    radius = cornerRadius
+    // 防止图片溢出圆角
+    preventCornerOverlap = true
+    // 无阴影时可关闭兼容padding
+    useCompatPadding = false
+    // 透明背景
+    setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+}
+
+/**
  * appbar监听
  */
 fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
@@ -941,16 +973,6 @@ fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -
             func.invoke(state)
         }
     })
-}
-
-/**
- * 可折叠list初始化
- */
-fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
-    this ?: return
-    setGroupIndicator(null)//去除右侧箭头
-    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
-    setAdapter(adapter)
 }
 
 /**
