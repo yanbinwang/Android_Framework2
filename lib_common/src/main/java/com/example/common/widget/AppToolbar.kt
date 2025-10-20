@@ -12,6 +12,8 @@ import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
@@ -94,7 +96,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * bgColor->背景颜色
      * hasShade->标题底部是否带阴影
      */
-    fun setTitle(title: Any? = null, titleColor: Int = R.color.textPrimary, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
         if (null != title) {
             createOrUpdateView<I18nTextView>(KEY_TITLE_TEXT, {
@@ -123,7 +125,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setSecondaryTitle(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }, bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setSecondaryTitle(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
         rootView.setBackgroundColor(if (0 == bgColor) Color.TRANSPARENT else context.color(bgColor))
         if (hasShade) createShade()
         setLeftButton(resId, tintColor, onClick = onClick)
@@ -150,11 +152,11 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 1.继承BaseActivity，在xml中include对应标题布局
      * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val AppToolbar by lazy { AppToolbar(this, mBinding?.titleRoot) }）
      */
-    fun setTransparent(title: Any? = null, titleColor: Int = R.color.textPrimary): AppToolbar {
+    fun setTransparent(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary): AppToolbar {
         return setTitle(title, titleColor, 0)
     }
 
-    fun setSecondaryTransparent(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
+    fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         return setSecondaryTitle(resId, tintColor, onClick, 0)
     }
 
@@ -165,7 +167,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * width/height->本身宽高
      * onClick->点击事件
      */
-    fun setLeftButton(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
+    fun setLeftButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         createImageView(KEY_LEFT_ICON, resId, tintColor, onClick) {
             startToStartOf(it)
             centerVertically(it)
@@ -183,7 +185,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * onClick->点击事件
      */
-    fun setLeftText(label: Any, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
+    fun setLeftText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onClick) {
             startToStartOf(it)
             centerVertically(it)
@@ -209,7 +211,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setRightButton(resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = {}): AppToolbar {
+    fun setRightButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = {}): AppToolbar {
         createImageView(KEY_RIGHT_ICON, resId, tintColor, onClick) {
             endToEndOf(it)
             centerVertically(it)
@@ -217,7 +219,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setRightText(label: Any, labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): AppToolbar {
+    fun setRightText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): AppToolbar {
         createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, onClick) {
             endToEndOf(it)
             centerVertically(it)
@@ -236,11 +238,11 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 创建左右侧按钮方法
      */
-    private fun createImageView(key: String, resId: Int, tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<ImageView>(key, {
             ImageView(context).also {
                 it.setResource(resId)
-                if (tintColor != 0) it.tint(tintColor)
+                if (tintColor != -1) it.tint(tintColor)
                 it.size(44.pt, 44.pt)
                 it.padding(10.pt, 10.pt, 10.pt, 10.pt)
                 it.click {
@@ -250,7 +252,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }, block)
     }
 
-    private fun createTextView(key: String, label: Any, labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createTextView(key: String, label: Any, @ColorRes labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<I18nTextView>(key, {
             I18nTextView(context).also {
                 when (label) {
