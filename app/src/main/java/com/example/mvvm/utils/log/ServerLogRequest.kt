@@ -27,7 +27,6 @@ object ServerLogRequest : LifecycleEventObserver {
     /**
      * 动态添加生命周期管理
      */
-    @JvmStatic
     private fun add(owner: LifecycleOwner) {
         if (!owner.isLogRequest) return
         list.add(WeakReference(ServerLogProxy()) to WeakReference(owner))
@@ -37,7 +36,6 @@ object ServerLogRequest : LifecycleEventObserver {
     /**
      * 页面关闭时销毁
      */
-    @JvmStatic
     private fun remove(owner: LifecycleOwner) {
         if (!owner.isLogRequest) return
         destroy(owner)
@@ -60,7 +58,6 @@ object ServerLogRequest : LifecycleEventObserver {
     /**
      * 获取当前绑定的生命周期的日志上传类
      */
-    @JvmStatic
     private fun proxy(owner: LifecycleOwner): ServerLogProxy? {
         return list.filter { it.second.get() == owner }.safeGet(0)?.first?.get()
     }

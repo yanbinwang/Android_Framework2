@@ -36,6 +36,8 @@ import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
 import com.example.common.utils.function.getHash
+import com.example.common.utils.function.getSizeFormat
+import com.example.common.utils.function.getTotalSize
 import com.example.common.utils.function.isMkdirs
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
@@ -569,6 +571,18 @@ suspend fun suspendingFileDuration(sourcePath: String?): Int {
     return withContext(IO) {
         File(sourcePath).getDuration()
     }
+}
+
+/**
+ * 获取当前手机缓存目录下的缓存文件大小,
+ * @return 返回格式化后的缓存大小字符串，如 "2.5M"
+ */
+fun retrieveCacheFormatters(mContext: Context?): String {
+    var value = "0M"
+    mContext?.cacheDir?.apply {
+        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
+    }
+    return value
 }
 
 /**

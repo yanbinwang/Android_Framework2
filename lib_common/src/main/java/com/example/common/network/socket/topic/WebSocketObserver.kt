@@ -28,7 +28,6 @@ object WebSocketObserver : LifecycleEventObserver {
     /**
      * 添加
      */
-    @JvmStatic
     private fun add(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
         atomicRefList.get().add(WeakReference(owner))
@@ -38,7 +37,6 @@ object WebSocketObserver : LifecycleEventObserver {
     /**
      * 删除
      */
-    @JvmStatic
     private fun remove(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
         atomicRefList.get().removeAll { it.get() == owner }
