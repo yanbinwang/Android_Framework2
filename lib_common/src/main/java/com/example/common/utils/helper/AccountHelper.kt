@@ -24,7 +24,6 @@ object AccountHelper {
     /**
      * 存储用户对象
      */
-    @JvmStatic
     private fun setUser(bean: UserBean?) {
         bean ?: return
         userBean.set(bean)
@@ -33,7 +32,6 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    @JvmStatic
     fun getUser(): UserBean {
         return userBean.get() ?: UserBean()
     }

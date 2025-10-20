@@ -89,7 +89,6 @@ object OssDBHelper2 {
     /**
      * 针对当前用户的保全号的删除
      */
-    @JvmStatic
     private fun getOssDBByBaoquan(baoquan: String?): Query<OssDB>? {
         baoquan ?: return null
         return try {
