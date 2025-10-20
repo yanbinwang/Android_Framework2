@@ -129,19 +129,6 @@ fun getNavigationBarHeight(): Int {
     }
 }
 
-///**
-// * 获取应用缓存大小并格式化为易读的字符串
-// * @return 格式化后的缓存大小字符串，如 "2.5M"
-// */
-//fun getFormattedCacheSize(): String {
-//    val mContext = BaseApplication.instance.applicationContext
-//    var value = "0M"
-//    mContext?.cacheDir?.apply {
-//        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
-//    }
-//    return value
-//}
-
 /**
  * 读取layer-list的xml内的图片数据
  * <layer-list xmlns:android="http://schemas.android.com/apk/res/android">

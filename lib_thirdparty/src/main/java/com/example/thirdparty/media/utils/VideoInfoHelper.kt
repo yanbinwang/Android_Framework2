@@ -2,6 +2,7 @@ package com.example.thirdparty.media.utils
 
 import android.media.MediaMetadataRetriever
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
@@ -39,9 +40,8 @@ object VideoInfoHelper {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)
                 // 优先读取旋转元数据
-                val rotationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)
-                if (rotationStr != null && !rotationStr.isEmpty()) {
-                    val rotation = rotationStr.toInt()
+                val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toSafeInt()
+                if (rotation != null) {
                     // 记录需旋转角度
                     result[1] = rotation
                     // 根据旋转角度判断方向
@@ -53,12 +53,13 @@ object VideoInfoHelper {
                     }
                     "通过旋转元数据判断：方向=${getOrientationDesc(result[0])}，需旋转=${rotation}度".logWTF(TAG)
                     result
+                } else {
+                    // 旋转元数据无效，用宽高比兜底判断
+                    result[0] = getOrientationBySize(retriever)
+                    result[1] = 0 // 宽高比判断时，默认无需旋转（需根据播放器实际渲染调整）
+                    "通过宽高比兜底判断：方向=${getOrientationDesc(result[0])}".logWTF(TAG)
+                    result
                 }
-                // 旋转元数据无效，用宽高比兜底判断
-                result[0] = getOrientationBySize(retriever)
-                result[1] = 0 // 宽高比判断时，默认无需旋转（需根据播放器实际渲染调整）
-                "通过宽高比兜底判断：方向=${getOrientationDesc(result[0])}".logWTF(TAG)
-                result
             } catch (e: Exception) {
                 "读取视频元数据失败：${e.message}".logWTF(TAG)
                 result
@@ -76,13 +77,10 @@ object VideoInfoHelper {
      */
     private fun getOrientationBySize(retriever: MediaMetadataRetriever): Int {
         try {
-            val widthStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-            val heightStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-            if (widthStr != null && heightStr != null) {
-                val width = widthStr.toInt()
-                val height = heightStr.toInt()
-                return if (width > height) ORIENTATION_LANDSCAPE else ORIENTATION_PORTRAIT
-            }
+            val rawInfo = retriever.decodeDimensions()
+            val rawWidth = rawInfo[0]
+            val rawHeight = rawInfo[1]
+            return if (rawWidth > rawHeight) ORIENTATION_LANDSCAPE else ORIENTATION_PORTRAIT
         } catch (e: Exception) {
             "读取视频宽高失败：${e.message}".logWTF(TAG)
         }
@@ -126,9 +124,11 @@ object VideoInfoHelper {
             try {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)
+                // 获取宽高信息
+                val rawInfo = retriever.decodeDimensions()
                 // 获取视频文件本身的宽、高（未考虑旋转）
-                val rawWidth = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toSafeInt()
-                val rawHeight = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toSafeInt()
+                val rawWidth = rawInfo[0]
+                val rawHeight = rawInfo[1]
                 // 获取视频旋转角度（解决竖屏录制视频的比例问题）
                 val rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION)?.toSafeInt()
                 // 根据旋转角度计算实际显示的宽高比
@@ -150,4 +150,18 @@ object VideoInfoHelper {
         }
     }
 
+}
+
+/**
+ * 获取视频的宽高
+ * retriever.setDataSource(videoUrl)之后调用
+ */
+fun MediaMetadataRetriever?.decodeDimensions(): IntArray {
+    this ?: return intArrayOf(0, 0)
+    return try {
+        intArrayOf(extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toSafeInt().orZero, extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toSafeInt().orZero)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        intArrayOf(0, 0)
+    }
 }

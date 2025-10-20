@@ -105,11 +105,11 @@ class MyApplication : BaseApplication() {
     private fun initCrashHandler() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-            // 1. 捕获异常并生成日志
+            // 捕获异常并生成日志
             val crashLog = generateCrashLog(throwable, thread.let { it.name to it.id })
-            // 2. 保存日志到本地文件
+            // 保存日志到本地文件
             saveCrashLogToFile(crashLog)
-            // 3.正常退出，不强行重启
+            // 正常退出，不强行重启
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(0)
         }

@@ -14,13 +14,13 @@ import java.io.File
  * launch {
  * flow {
  * withContext(IO) { mContext?.cleanInternalCache() }
- * emit(getFormattedCacheSize())
+ * emit(retrieveCacheFormatters(mContext))
  * }.withHandling(mView, isShowToast = true).collect {
  * cache.postValue(it)
  * }
  * }.manageJob()
  * } else {
- * cache.postValue(getFormattedCacheSize())
+ * cache.postValue(retrieveCacheFormatters(mContext))
  * }
  */
 
