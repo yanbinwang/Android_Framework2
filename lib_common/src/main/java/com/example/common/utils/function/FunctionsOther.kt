@@ -45,7 +45,6 @@ import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.setPrimaryClip
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
@@ -94,8 +93,6 @@ fun getManifestString(name: String): String? {
  * 设备出厂时定义的固定值（如大多数手机为 24dp~32dp），写死在系统资源文件中；
  * 不考虑当前窗口的状态（如是否全屏、是否隐藏状态栏、是否启用边缘到边缘模式）；
  * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
- * BaseBindingAdapter
- * AppToolbar
  */
 fun getStatusBarHeight(): Int {
     val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
@@ -289,7 +286,7 @@ fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
 /**
  * 设置textview内容当中某一段的颜色
  */
-fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
+fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
     val textToProcess = when (txt) {
         is Int -> string(txt)
@@ -302,11 +299,11 @@ fun TextView?.setSpan(txt: Any, keyword: Any, colorRes: Int = R.color.appTheme, 
         else -> ""
     }
     val span = ColorSpan(context.color(colorRes))
-    text = if (spanAll) {
+    setSpannable(if (spanAll) {
         textToProcess.setSpanAll(keywordToProcess, span)
     } else {
         textToProcess.setSpanFirst(keywordToProcess, span)
-    }
+    })
 }
 
 /**
@@ -335,7 +332,7 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     setSpannable(content)
 }
 
-fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, colorRes: Int = R.color.appTheme) {
+fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
     setSpan(txt, *keywords.map {
         Triple(it.first, colorRes, it.second)
     }.toTypedArray())
@@ -344,7 +341,7 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, colorRes
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setTheme(txt: String = "", colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
