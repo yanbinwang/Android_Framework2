@@ -22,16 +22,21 @@ import com.example.common.utils.function.color
 import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.setBitmap
 import com.example.framework.utils.function.view.size
 import com.example.glide.ImageLoader
+import com.example.glide.ImageLoader.Companion.DEFAULT_MASK_RESOURCE
+import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
+import com.example.thirdparty.media.utils.VideoInfoHelper.suspendingThumbnail
 import com.gyf.immersionbar.ImmersionBar
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
@@ -71,6 +76,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var isPlay = false
     private var lastVisible = true
     private var retryWithPlay = false
+    private var thumbJob: Job? = null
     private var toggleJob: Job? = null
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
@@ -283,17 +289,24 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         // 加载图片
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url)
+            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadComplete = {
+                if (it == null) {
+                    // 如果Glide加载失败,采用视频工具类的suspendingThumbnail方法再次尝试进行加载
+                    mBinding.ivThumb.background(DEFAULT_RESOURCE)
+                    thumbJob?.cancel()
+                    thumbJob = mActivity.lifecycleScope.launch {
+                        val bitmap = suspendingThumbnail(url)
+                        if (null != bitmap) {
+                            mBinding.ivThumb.setBitmap(mActivity, bitmap)
+                        } else {
+                            mBinding.ivThumb.background(DEFAULT_MASK_RESOURCE)
+                        }
+                    }
+                }
+            })
         } else {
             ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
         }
-//        // 读取原视频方向角
-//        val videoInfo = getVideoOrientationAndRotation(url)
-//        val videoOrientation = videoInfo[0] // 视频方向
-////            val needRotation = videoInfo[1] // 播放器需旋转的角度
-//        if (videoOrientation == ORIENTATION_LANDSCAPE) {
-//            lockLand = true
-//        }
         // 构建配置
         GSYVideoOptionBuilder()
             // 是否可以滑动界面改变进度，声音等 默认true
@@ -404,6 +417,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         player?.currentPlayer?.release()
         player?.release()
         player = null
+        thumbJob?.cancel()
         toggleJob?.cancel()
         restartJob?.cancel()
         mActivity.lifecycle.removeObserver(this)
