@@ -146,7 +146,7 @@ class ImageLoader private constructor() {
      * @param videoUrl 视频的 URL 地址
      * @param frameTimeMicros 要提取的帧的时间（微秒）
      */
-    fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000) {
+    fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
         try {
             // 使用RequestOptions构建器明确配置
@@ -168,6 +168,15 @@ class ImageLoader private constructor() {
                 .setDefaultRequestOptions(options)
                 .load(videoUrl)
                 .smartFade(view)
+                .listener(object : GlideRequestListener<Drawable>() {
+                    override fun onLoadStart() {
+                        onLoadStart()
+                    }
+
+                    override fun onLoadFinished(resource: Drawable?) {
+                        onLoadComplete(resource)
+                    }
+                })
                 .into(view)
         } catch (e: Exception) {
             e.printStackTrace()

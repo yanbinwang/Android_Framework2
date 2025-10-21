@@ -1,5 +1,6 @@
 package com.example.thirdparty.media.utils
 
+import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.framework.utils.function.value.orZero
@@ -28,10 +29,16 @@ object VideoInfoHelper {
      *     "视频文件不存在或路径为空：${videoPath}".logWTF(TAG)
      *     return result
      * }
+     * val videoInfo = suspendingOrientationAndRotation(url)
+     * val videoOrientation = videoInfo[0] // 视频方向
+     * val needRotation = videoInfo[1] // 播放器需旋转的角度
+     * if (videoOrientation == ORIENTATION_LANDSCAPE) {
+     *     lockLand = true
+     * }
      * @param videoUrl 视频路径
      * @return int数组：[0]为视频方向（ORIENTATION_*），[1]为播放器需旋转角度（0/90/180/270）
      */
-    suspend fun getOrientationAndRotation(videoUrl: String?): IntArray {
+    suspend fun suspendingOrientationAndRotation(videoUrl: String?): IntArray {
         // 初始化返回结果：默认未知方向，旋转0度
         val result = intArrayOf(ORIENTATION_UNKNOWN, 0)
         val retriever = MediaMetadataRetriever()
@@ -77,7 +84,7 @@ object VideoInfoHelper {
      */
     private fun getOrientationBySize(retriever: MediaMetadataRetriever): Int {
         try {
-            val rawInfo = retriever.decodeDimensions()
+            val rawInfo = getMediaDimensions(retriever)
             val rawWidth = rawInfo[0]
             val rawHeight = rawInfo[1]
             return if (rawWidth > rawHeight) ORIENTATION_LANDSCAPE else ORIENTATION_PORTRAIT
@@ -103,7 +110,7 @@ object VideoInfoHelper {
     /**
      * 在 Activity/Fragment 中调用（需在主线程获取屏幕宽度）
      */
-    suspend fun calculateAdaptiveHeight(videoUrl: String, targetWidth: Int = screenWidth): Int {
+    suspend fun suspendingCalculateHeight(videoUrl: String, targetWidth: Int = screenWidth): Int {
         return withContext(Main.immediate) {
             // 获取视频宽高比
             val videoRatio = getDisplayAspectRatio(videoUrl)
@@ -125,7 +132,7 @@ object VideoInfoHelper {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)
                 // 获取宽高信息
-                val rawInfo = retriever.decodeDimensions()
+                val rawInfo = getMediaDimensions(retriever)
                 // 获取视频文件本身的宽、高（未考虑旋转）
                 val rawWidth = rawInfo[0]
                 val rawHeight = rawInfo[1]
@@ -150,18 +157,44 @@ object VideoInfoHelper {
         }
     }
 
-}
-
-/**
- * 获取视频的宽高
- * retriever.setDataSource(videoUrl)之后调用
- */
-fun MediaMetadataRetriever?.decodeDimensions(): IntArray {
-    this ?: return intArrayOf(0, 0)
-    return try {
-        intArrayOf(extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toSafeInt().orZero, extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toSafeInt().orZero)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        intArrayOf(0, 0)
+    /**
+     * 获取视频缩略图
+     * @param videoUrl 视频文件路径（本地路径或网络URL）
+     * @param timeUs 截取帧的时间点（微秒，如 1000000 表示 1秒处）
+     * @return 缩略图 Bitmap，失败返回 null
+     */
+    suspend fun suspendingThumbnail(videoUrl: String, timeUs: Long = 1000000L): Bitmap? {
+        val retriever = MediaMetadataRetriever()
+        return withContext(IO) {
+            try {
+                // 设置数据源
+                retriever.setDataSource(videoUrl)
+                // 获取指定时间点的帧（返回 Bitmap）OPTION_CLOSEST 表示取最接近该时间的帧
+                retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
+            } catch (e: Exception) {
+                "读取视频元数据失败：${e.message}".logWTF(TAG)
+                null
+            } finally {
+                // 释放资源，避免内存泄漏
+                retriever.release()
+            }
+        }
     }
+
+    /**
+     * 获取视频的宽高
+     */
+    private fun getMediaDimensions(retriever: MediaMetadataRetriever): IntArray {
+        return try {
+            intArrayOf(
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
+                    ?.toSafeInt().orZero,
+                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
+                    ?.toSafeInt().orZero
+            )
+        } catch (e: Exception) {
+            throw e
+        }
+    }
+
 }
