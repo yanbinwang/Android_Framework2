@@ -186,12 +186,7 @@ object VideoInfoHelper {
      */
     private fun getMediaDimensions(retriever: MediaMetadataRetriever): IntArray {
         return try {
-            intArrayOf(
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)
-                    ?.toSafeInt().orZero,
-                retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)
-                    ?.toSafeInt().orZero
-            )
+            intArrayOf(retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH)?.toSafeInt().orZero, retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT)?.toSafeInt().orZero)
         } catch (e: Exception) {
             throw e
         }
