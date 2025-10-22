@@ -6,5 +6,5 @@
     <item name="theme_background_tag" type="id"/>
     <item name="theme_visibility_tag" type="id"/>
     <item name="theme_ime_height_tag" type="id"/>
-    <item name="theme_ime_navigation_tag" type="id"/>
+    <item name="theme_input_focus_tag" type="id"/>
 </resources>
