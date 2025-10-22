@@ -3,6 +3,7 @@ package com.example.common.utils.function
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
+import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
@@ -48,6 +49,7 @@ import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getScreenLocation
 import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.size
@@ -340,20 +342,20 @@ fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTh
  * 对应页面设置:
  * android:windowSoftInputMode="stateHidden|adjustResize"
  */
-fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list: List<View?>, onImeShow: () -> Unit = {}, onImeDismiss: () -> Unit = {}) {
+fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list: List<View?>, onImeShow: (imeHeight: Int) -> Unit = {}, onImeDismiss: () -> Unit = {}) {
     this ?: return
     // 获取软键盘高度及显示状态
     val imeType = WindowInsetsCompat.Type.ime()
     val isImeVisible = insets.isVisible(imeType)
     // 输入法的高度包含了底部导航栏
     val imeHeight = if (isImeVisible) insets.getInsets(imeType).bottom else 0
+    val hasIme = imeHeight > 0
     // 获取状态栏/导航栏高度
     val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
     val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-    // 0的情况有些特殊,可能是用户手动隐藏导航栏
-    val lastNavigationHeight = getTag(R.id.theme_ime_navigation_tag) as? Int ?: 0
-    if (navigationBarHeight != lastNavigationHeight) {
-        setTag(R.id.theme_ime_navigation_tag, navigationBarHeight)
+    val hasNavigationBar = navigationBarHeight > 0
+    // 0的情况有些特殊,可能是用户手动隐藏导航栏,存在底部导航栏的情况下是需要全屏的
+    if (hasNavigationBar || (!hasNavigationBar && hasIme)) {
         root.size(MATCH_PARENT, MATCH_PARENT)
     }
     // 从 tag 中获取当前实例的 lastImeBottom，默认为 0
@@ -364,34 +366,91 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         setTag(R.id.theme_ime_height_tag, imeHeight)
         // 最外层父类布局的高度是不变的,此处拉取一次作为复位的计算值
         val parentHeight = (root?.parent as? ViewGroup)?.height ?: return
-        // 此次是否是显示输入法
-        val isShow = imeHeight != 0
         // 此处的root是mBinding.root,我们设置它缩小/放大就可以让NestedScrollView被挤压从而实现滚动
-        // 重设外层父类大小/页面采用的是EdgeToEdge,一整个屏幕都是手机app的操作空间,所以要把系统弹出的输入法的底部高度加回去
-        if (isShow) {
+        if (hasIme) {
+            // 重设外层父类大小/页面采用的是EdgeToEdge,一整个屏幕都是手机app的操作空间,所以要把系统弹出的输入法的底部高度加回去
             root.size(height = parentHeight - imeHeight + navigationBarHeight)
+            onImeShow.invoke(imeHeight)
         } else {
             root.size(height = parentHeight)
-        }
-        // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
-        for (v in list) {
-//            if (!v?.isFocused.orFalse) continue
-            val actualInputView = getActualInputView(v)
-            // 若不是输入类控件，或输入控件未聚焦，直接跳过
-            if (actualInputView == null || !actualInputView.isFocused) continue
-            val topY = v?.getScreenLocation()?.get(1).orZero
-            val top = (topY - scrollY.orZero)
-            val bottom = top + v?.height.orZero
-            if (top < statusBarHeight) {
-                scrollTo(0, topY - statusBarHeight)
-            } else if (bottom > height.orZero) {
-                scrollTo(0, bottom - height.orZero)
-            }
-        }
-        if (isShow) {
-            onImeShow.invoke()
-        } else {
             onImeDismiss.invoke()
+        }
+        root.doOnceAfterLayout {
+            // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
+            for (v in list) {
+                // 若不是输入类控件，直接跳过
+                val actualInputView = getActualInputView(v) ?: continue
+//                if (!actualInputView.isFocused) continue
+                // 用tag判断是否已绑定过焦点监听，避免重复注册
+                val listenerTag = actualInputView.getTag(R.id.theme_input_focus_tag)
+                if (listenerTag == true) {
+                    // 已绑定过，直接跳过
+                    continue
+                }
+                // 输入框获取焦点可能会滞后
+                setOnFocusChangeListener { _, hasFocus ->
+                    // 只有获取焦点时才触发
+                    if (hasFocus) {
+                        // 延迟一小段时间（确保焦点稳定），再执行滚动
+                        postDelayed({
+                            // 校验输入框是否至少部分在屏幕内
+                            val screenRect = Rect()
+                            // 屏幕可视区域（排除状态栏/软键盘）
+                            v?.getWindowVisibleDisplayFrame(screenRect)
+                            val viewRect = Rect()
+                            // 输入框在屏幕上的可见区域
+                            v?.getGlobalVisibleRect(viewRect)
+                            // 输入框完全在屏幕外，跳过（避免无效计算）
+                            if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
+                            // 滑动控件的直接子View（内容容器）
+                            val contentView = getChildAt(0)
+                            // 最大可滚动距离
+                            val maxScrollY = (contentView?.height ?: height) - height
+                            // 计算输入框在滑动控件内的相对坐标（初始状态）
+                            val inputLocation = v.getScreenLocation()
+                            val scrollLocation = getScreenLocation()
+                            val inputYInScroll = inputLocation[1] - scrollLocation[1]
+                            // 定义滚动到顶后的处理逻辑
+                            val onScrollFinished = {
+                                // 二次校验：输入框仍聚焦且滚动已到顶
+                                if (actualInputView.isFocused && scrollY <= 2) {
+                                    // 计算输入框在顶部状态下的位置（此时scrollY=0）
+                                    val top = inputYInScroll
+                                    val bottom = top + v?.height.orZero
+                                    // 计算目标滚动位置（处理边界）
+                                    val targetScrollY = when {
+                                        top < statusBarHeight -> {
+                                            // 顶部边界：不小于0
+                                            maxOf(inputYInScroll - statusBarHeight, 0)
+                                        }
+                                        bottom > height -> {
+                                            // 底部边界：不大于最大可滚动距离
+                                            val temp = inputYInScroll + v?.height.orZero - height
+                                            minOf(temp, maxScrollY)
+                                        }
+                                        else -> 0 // 无需滚动
+                                    }
+                                    // 执行最终滚动
+                                    smoothScrollTo(0, targetScrollY)
+                                }
+                                // 移除监听，避免内存泄漏
+                                setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+                            }
+                            // 设置滚动监听，等待滚动到顶
+                            setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                                // 当滚动到顶（scrollY == 0）且滚动状态停止（oldScrollY == scrollY）/ 允许 scrollY <= 2，视为已到顶
+                                if (scrollY <= 2 && oldScrollY == scrollY) {
+                                    onScrollFinished()
+                                }
+                            }
+                            // 启动滚动到顶
+                            smoothScrollTo(0, 0)
+                        }, 50)
+                    }
+                }
+                // 标记“已绑定监听”，存入tag
+                actualInputView.setTag(R.id.theme_input_focus_tag, true)
+            }
         }
     }
 }

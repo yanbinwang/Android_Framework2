@@ -287,9 +287,17 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * 设置播放路径，缩略图，是否自动开始播放
      */
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
-        // 加载图片
+        // 加载图片(非自动播放的情况下加载中不可点击)
+        val onLoadStartAction = {
+            if (!setUpLazy) player?.startButton.disable()
+        }
+        val onLoadCompleteAction = {
+            if (!setUpLazy) player?.startButton.enable()
+        }
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadComplete = {
+            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadStart = {
+                onLoadStartAction()
+            }, onLoadComplete = {
                 if (it == null) {
                     // 如果Glide加载失败,采用视频工具类的suspendingThumbnail方法再次尝试进行加载
                     mBinding.ivThumb.background(DEFAULT_RESOURCE)
@@ -301,11 +309,18 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                         } else {
                             mBinding.ivThumb.background(DEFAULT_MASK_RESOURCE)
                         }
+                        onLoadCompleteAction()
                     }
+                } else {
+                    onLoadCompleteAction()
                 }
             })
         } else {
-            ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl)
+            ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl, onLoadStart = {
+                onLoadStartAction()
+            }, onLoadComplete = {
+                onLoadCompleteAction()
+            })
         }
         // 构建配置
         GSYVideoOptionBuilder()
