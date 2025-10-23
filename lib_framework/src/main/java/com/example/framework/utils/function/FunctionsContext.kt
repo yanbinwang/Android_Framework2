@@ -65,7 +65,14 @@ fun Context.font(@FontRes res: Int) = ResourcesCompat.getFont(this, res)
 /**
  * 获取Resources中的Dimes
  */
-fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
+fun Context.dimen(@DimenRes res: Int): Float {
+    return try {
+        resources.getDimension(res)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0f
+    }
+}
 
 /**
  * 获取Resources中的String

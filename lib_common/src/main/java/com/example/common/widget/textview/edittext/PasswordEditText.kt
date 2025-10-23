@@ -8,7 +8,6 @@ import android.util.TypedValue
 import android.view.Gravity
 import android.view.KeyEvent
 import android.view.View
-import android.view.View.OnFocusChangeListener
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes

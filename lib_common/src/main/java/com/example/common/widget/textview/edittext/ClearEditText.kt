@@ -9,11 +9,11 @@ import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.View
-import android.view.View.OnFocusChangeListener
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
@@ -22,19 +22,18 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.inputType
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 import java.util.Arrays
-import androidx.core.content.withStyledAttributes
-import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.padding
 
 /**
  * @description 带删除按钮的输入框
