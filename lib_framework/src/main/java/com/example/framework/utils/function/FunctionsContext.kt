@@ -57,15 +57,22 @@ fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
 fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, res)
 
 /**
- * 获取Resources中的Dimes
- */
-fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
-
-/**
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
 fun Context.font(@FontRes res: Int) = ResourcesCompat.getFont(this, res)
+
+/**
+ * 获取Resources中的Dimes
+ */
+fun Context.dimen(@DimenRes res: Int): Float {
+    return try {
+        resources.getDimension(res)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0f
+    }
+}
 
 /**
  * 获取Resources中的String

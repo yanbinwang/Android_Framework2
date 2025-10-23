@@ -576,9 +576,10 @@ suspend fun suspendingFileDuration(sourcePath: String?): Int {
  * 获取当前手机缓存目录下的缓存文件大小,
  * @return 返回格式化后的缓存大小字符串，如 "2.5M"
  */
-fun retrieveCacheFormatters(mContext: Context?): String {
+fun Context?.retrieveCacheFormatters(): String {
     var value = "0M"
-    mContext?.cacheDir?.apply {
+    this ?: return value
+    cacheDir?.apply {
         value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
     }
     return value
