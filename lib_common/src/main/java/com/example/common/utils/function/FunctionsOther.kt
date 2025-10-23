@@ -21,6 +21,7 @@ import android.widget.EditText
 import android.widget.TextView
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -45,6 +46,8 @@ import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.dimen
+import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
@@ -192,14 +195,19 @@ inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: In
  * 获取resources中的color
  */
 @ColorInt
-fun color(@ColorRes res: Int) = ContextCompat.getColor(BaseApplication.instance.applicationContext, res)
+fun color(@ColorRes res: Int) = BaseApplication.instance.applicationContext.color(res)
 
 /**
  * 获取图片
  */
-fun drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(BaseApplication.instance.applicationContext, res)
+fun drawable(@DrawableRes res: Int) = BaseApplication.instance.applicationContext.drawable(res)
 
 fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
+
+/**
+ * 获取字体大小
+ */
+fun dimen(@DimenRes res: Int) = BaseApplication.instance.applicationContext.dimen(res)
 
 /**
  *  <string name="dollar">\$%1$s</string>
