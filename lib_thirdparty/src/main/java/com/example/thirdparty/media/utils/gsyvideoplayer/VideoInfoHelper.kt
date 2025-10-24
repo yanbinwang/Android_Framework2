@@ -1,14 +1,13 @@
-package com.example.thirdparty.media.utils
+package com.example.thirdparty.media.utils.gsyvideoplayer
 
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
-import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.ScreenUtil
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 /**
@@ -42,7 +41,7 @@ object VideoInfoHelper {
         // 初始化返回结果：默认未知方向，旋转0度
         val result = intArrayOf(ORIENTATION_UNKNOWN, 0)
         val retriever = MediaMetadataRetriever()
-        return withContext(IO) {
+        return withContext(Dispatchers.IO) {
             try {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)
@@ -110,8 +109,8 @@ object VideoInfoHelper {
     /**
      * 在 Activity/Fragment 中调用（需在主线程获取屏幕宽度）
      */
-    suspend fun suspendingCalculateHeight(videoUrl: String, targetWidth: Int = screenWidth): Int {
-        return withContext(Main.immediate) {
+    suspend fun suspendingCalculateHeight(videoUrl: String, targetWidth: Int = ScreenUtil.screenWidth): Int {
+        return withContext(Dispatchers.Main.immediate) {
             // 获取视频宽高比
             val videoRatio = getDisplayAspectRatio(videoUrl)
             // 计算目标高度（确保为正数）
@@ -127,7 +126,7 @@ object VideoInfoHelper {
      */
     private suspend fun getDisplayAspectRatio(videoUrl: String): Float {
         val retriever = MediaMetadataRetriever()
-        return withContext(IO) {
+        return withContext(Dispatchers.IO) {
             try {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)
@@ -165,7 +164,7 @@ object VideoInfoHelper {
      */
     suspend fun suspendingThumbnail(videoUrl: String, timeUs: Long = 1000000L): Bitmap? {
         val retriever = MediaMetadataRetriever()
-        return withContext(IO) {
+        return withContext(Dispatchers.IO) {
             try {
                 // 设置数据源
                 retriever.setDataSource(videoUrl)

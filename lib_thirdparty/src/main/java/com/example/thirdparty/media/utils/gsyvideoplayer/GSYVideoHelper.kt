@@ -36,7 +36,7 @@ import com.example.glide.ImageLoader.Companion.DEFAULT_MASK_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewGsyvideoThumbBinding
-import com.example.thirdparty.media.utils.VideoInfoHelper.suspendingThumbnail
+import com.example.thirdparty.media.utils.gsyvideoplayer.VideoInfoHelper.suspendingThumbnail
 import com.gyf.immersionbar.ImmersionBar
 import com.shuyu.gsyvideoplayer.GSYVideoManager
 import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder
