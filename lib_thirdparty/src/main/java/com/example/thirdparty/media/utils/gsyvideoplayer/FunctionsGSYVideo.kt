@@ -104,26 +104,27 @@ fun RecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: Strin
  * 一个列表（或一个独立的播放场景）使用唯一的 playTag，而不是每个 Item 单独设置不同的 Tag。
  */
 @Synchronized
-fun setUpLazy(player: StandardGSYVideoPlayer?, url: String, position: Int, playTag: String) {
+fun StandardGSYVideoPlayer?.setUpLazy(url: String, position: Int, tag: String) {
+    this ?: return
     // 设置每个列表的url
-    player?.setUpLazy(url, true, null, null, "这是title")
+    setUpLazy(url, true, null, null, "这是title")
     // 增加title
-    player?.titleTextView?.gone()
+    titleTextView?.gone()
     // 设置返回键
-    player?.backButton?.gone()
+    backButton?.gone()
     // 设置全屏按键功能
-    player?.fullscreenButton?.click {
-        player.startWindowFullscreen(player.context, false, true)
+    fullscreenButton?.click {
+        startWindowFullscreen(context, false, true)
     }
     // 防止错位设置(针对列表所带的页面)
-    player?.playTag = playTag
-    player?.playPosition = position
+    playTag = tag
+    playPosition = position
     // 是否根据视频尺寸，自动选择竖屏全屏或者横屏全屏
-    player?.isAutoFullWithSize = true
+    isAutoFullWithSize = true
     // 音频焦点冲突时是否释放
-    player?.isReleaseWhenLossAudio = false
+    isReleaseWhenLossAudio = false
     // 全屏动画
-    player?.isShowFullAnimation = true
+    isShowFullAnimation = true
     // 小屏时不触摸滑动
-    player?.setIsTouchWiget(false)
+    setIsTouchWiget(false)
 }
