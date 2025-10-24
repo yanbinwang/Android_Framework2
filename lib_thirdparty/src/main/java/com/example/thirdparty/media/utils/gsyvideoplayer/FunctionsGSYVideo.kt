@@ -6,6 +6,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
@@ -41,6 +42,11 @@ import kotlin.math.max
  * //        return GSYVideoManager.backFromWindowFull(mActivity)
  * //    }
  */
+fun XRecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: String, listener: ((position: Int) -> Unit)) {
+    this ?: return
+    recycler.setOnScrollListener(activity, playTag, listener)
+}
+
 fun RecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: String, listener: ((position: Int) -> Unit)) {
     this ?: return
     /**
