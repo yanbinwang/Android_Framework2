@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.utils
+package com.example.thirdparty.media.utils.gsyvideoplayer
 
 import android.content.res.Configuration
 import android.os.Build
