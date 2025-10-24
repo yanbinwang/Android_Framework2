@@ -16,6 +16,7 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.example.framework.utils.WeakHandler;
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
@@ -28,7 +29,6 @@ import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
 import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.mediascanner.MediaScanner;

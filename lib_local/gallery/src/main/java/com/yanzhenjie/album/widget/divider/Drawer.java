@@ -7,7 +7,7 @@ import android.view.View;
 /**
  * Created by YanZhenjie on 2018/4/20.
  */
-class Drawer {
+public class Drawer {
     private final int mWidth;
     private final int mHeight;
     private final Drawable mDivider;

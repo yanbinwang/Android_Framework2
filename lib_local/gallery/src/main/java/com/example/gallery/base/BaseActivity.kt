@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.mvp
+package com.example.gallery.base
 
 import android.os.Build
 import android.os.Bundle
@@ -19,6 +19,7 @@ import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
 /**

@@ -230,54 +230,54 @@
         <!--            android:layout_width="match_parent"-->
         <!--            android:layout_height="600pt"/>-->
 
-        <FrameLayout
-            android:id="@+id/fl_card"
-            android:layout_width="match_parent"
-            android:layout_height="600pt"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="5pt"
-            android:background="@color/bgTransparent">
+<!--        <FrameLayout-->
+<!--            android:id="@+id/fl_card"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="600pt"-->
+<!--            android:layout_gravity="center"-->
+<!--            android:layout_marginHorizontal="5pt"-->
+<!--            android:background="@color/bgTransparent">-->
 
-            <androidx.cardview.widget.CardView
-                style="@style/CardViewStyle"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:cardBackgroundColor="@color/bgBlue"
-                app:cardCornerRadius="5pt">
+<!--            <androidx.cardview.widget.CardView-->
+<!--                style="@style/CardViewStyle"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="match_parent"-->
+<!--                app:cardBackgroundColor="@color/bgBlue"-->
+<!--                app:cardCornerRadius="5pt">-->
 
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="4143423"
-                    android:textColor="@color/textWhite"
-                    android:textSize="@dimen/textSize34" />
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"-->
+<!--                    android:gravity="center"-->
+<!--                    android:text="4143423"-->
+<!--                    android:textColor="@color/textWhite"-->
+<!--                    android:textSize="@dimen/textSize34" />-->
 
-            </androidx.cardview.widget.CardView>
+<!--            </androidx.cardview.widget.CardView>-->
 
-        </FrameLayout>
+<!--        </FrameLayout>-->
 
-        <LinearLayout
-            statusBar_padding="@{true}"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/bgWhite"
-            android:orientation="vertical">
+<!--        <LinearLayout-->
+<!--            statusBar_padding="@{true}"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@color/bgWhite"-->
+<!--            android:orientation="vertical">-->
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="48pt"
-                android:gravity="center"
-                android:text="标题"
-                android:textColor="@color/textPrimary"
-                android:textSize="@dimen/textSize18" />
+<!--            <TextView-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="48pt"-->
+<!--                android:gravity="center"-->
+<!--                android:text="标题"-->
+<!--                android:textColor="@color/textPrimary"-->
+<!--                android:textSize="@dimen/textSize18" />-->
 
-            <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
-                android:id="@+id/gsy_player"
-                android:layout_width="match_parent"
-                android:layout_height="280pt" />
+<!--            <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
+<!--                android:id="@+id/gsy_player"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="280pt" />-->
 
-        </LinearLayout>
+<!--        </LinearLayout>-->
 
     </FrameLayout>
 

@@ -21,7 +21,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.mvp.BaseActivity;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.view.CropView;
 import com.yanzhenjie.durban.view.GestureCropImageView;

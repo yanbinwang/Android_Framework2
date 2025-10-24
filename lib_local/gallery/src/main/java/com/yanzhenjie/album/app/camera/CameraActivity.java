@@ -8,9 +8,9 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 import com.yanzhenjie.album.util.SystemBar;
 

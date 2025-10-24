@@ -12,7 +12,6 @@ import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.adjustRadiusDrawable
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -43,14 +42,12 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
-import com.example.thirdparty.media.utils.GSYVideoHelper
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -393,7 +390,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     private var index = 0
     //https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc
 
-    private val gsyHelper by lazy { GSYVideoHelper(this) }
+//    private val gsyHelper by lazy { GSYVideoHelper(this) }
 
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
@@ -401,18 +398,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 
-        gsyHelper.bind(mBinding?.gsyPlayer, true)
-        // 竖屏
-//        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
-        // 横屏
-        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
-        gsyHelper.setOnQuitFullscreenListener {
-            initImmersionBar()
-        }
-
-
-        mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
-        launch {
+//        gsyHelper.bind(mBinding?.gsyPlayer, true)
+//        // 竖屏
+////        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
+//        // 横屏
+//        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
+//        gsyHelper.setOnQuitFullscreenListener {
+//            initImmersionBar()
+//        }
+//
+//
+//        mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
+//        launch {
 //            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg",
 //                cornerRadius = 60.dp)
@@ -429,7 +426,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            ImageLoader.instance.loadImageFromUrl(imageView,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg")
 //            mBinding?.flCard?.addView(card)
-        }
+//        }
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
         ActivityMainBinding.inflate(layoutInflater)
         mBinding?.ivArrow.click {
@@ -477,12 +474,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions {isGranted, permissions ->
-//                if (isGranted) {
-//                    gallery.imageSelection(hasDurban = true)
-////                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
+            mPermission.requestPermissions {isGranted, permissions ->
+                if (isGranted) {
+                    gallery.imageSelection(hasDurban = true)
+//                    navigation(ARouterPath.TestActivity)
+                }
+            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
