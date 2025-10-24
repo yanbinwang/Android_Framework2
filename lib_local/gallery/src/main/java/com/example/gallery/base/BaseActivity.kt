@@ -3,6 +3,7 @@ package com.example.gallery.base
 import android.os.Build
 import android.os.Bundle
 import android.view.Window
+import android.widget.ImageButton
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
@@ -22,6 +23,7 @@ import com.example.framework.utils.function.view.size
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
+
 /**
  * 针对所有相册页面的基类
  */
@@ -38,7 +40,35 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             toolbar.doOnceAfterLayout {
                 it.size(height = it.measuredHeight + getStatusBarHeight())
                 it.padding(top = getStatusBarHeight())
+                // 返回按钮调整
+                val navButton = getNavButtonView(it)
+                // 去除长按文字
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    navButton?.tooltipText = null
+                }
+                navButton?.setContentDescription(null)
+                navButton?.setOnLongClickListener { v -> true }
+                // 去除水波纹
+                navButton?.background = null
             }
+        }
+
+        /**
+         * 反射获取 Toolbar 中的私有字段 mNavButtonView（返回按钮）
+         */
+        private fun getNavButtonView(toolbar: Toolbar): ImageButton? {
+            try {
+                // 获取 Toolbar 类中的 mNavButtonView 字段
+                val field = Toolbar::class.java.getDeclaredField("mNavButtonView")
+                // 设置字段可访问（私有字段需要开启）
+                field.isAccessible = true
+                // 获取字段值（即返回按钮的 ImageButton 实例）
+                return field.get(toolbar) as? ImageButton
+            } catch (e: Exception) {
+                // 转换异常
+                e.printStackTrace()
+            }
+            return null
         }
 
     }

@@ -107,7 +107,8 @@ public class DurbanActivity extends BaseActivity {
         // 通过getSupportActionBar()操作这个Toolbar
         final ActionBar actionBar = getSupportActionBar();
         assert actionBar != null;
-        actionBar.setDisplayHomeAsUpEnabled(true); // 显示返回键
+        // 显示返回键
+        actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("");
         // 设置Toolbar样式
         setSupportToolbar(toolbar);
@@ -278,6 +279,8 @@ public class DurbanActivity extends BaseActivity {
         getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
         // 获取右侧菜单按钮的 MenuItem
         MenuItem okItem = menu.findItem(R.id.menu_action_ok);
+        // 去除长按的文字提示
+        okItem.setTitle("");
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
             Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
