@@ -1,339 +1,292 @@
-package com.yanzhenjie.durban;
+package com.yanzhenjie.durban
 
-import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
-
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
-
-import com.example.gallery.R;
-import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.view.CropView;
-import com.yanzhenjie.durban.view.GestureCropImageView;
-import com.yanzhenjie.durban.view.OverlayView;
-import com.yanzhenjie.durban.view.TransformImageView;
-
-import java.util.ArrayList;
+import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import com.example.common.utils.ScreenUtil
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.intentInt
+import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.logWTF
+import com.example.gallery.R
+import com.example.gallery.base.BaseActivity
+import com.yanzhenjie.durban.callback.BitmapCropCallback
+import com.yanzhenjie.durban.view.CropView
+import com.yanzhenjie.durban.view.GestureCropImageView
+import com.yanzhenjie.durban.view.OverlayView
+import com.yanzhenjie.durban.view.TransformImageView
 
 /**
  * Update by Yan Zhenjie on 2017/5/23.
  */
-public class DurbanActivity extends BaseActivity {
-    private int mStatusColor;
-    private int mNavigationColor;
-    private int mGesture;
-    private int mCompressQuality;
-    private String mTitle;
-    private String mOutputDirectory;
-    private int[] mMaxWidthHeight;
-    private float[] mAspectRatio;
-    private ArrayList<String> mInputPathList;
-    private ArrayList<String> mOutputPathList;
-    private Bitmap.CompressFormat mCompressFormat;
-    private Controller mController;
-    private CropView mCropView;
-    private GestureCropImageView mCropImageView;
-
-    @Override
-    protected boolean isImmersionBarEnabled() {
-        return false;
+class DurbanActivity : BaseActivity() {
+    private var mCropView: CropView? = null
+    private var mCropImageView: GestureCropImageView? = null
+    private val mStatusColor by lazy { intentInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark) }
+    private val mNavigationColor by lazy { intentInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack) }
+    private val mGesture by lazy { intentInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL) }
+    private val mCompressQuality by lazy { intentInt(Durban.KEY_INPUT_COMPRESS_QUALITY, 90) }
+    private val mCompressFormat by lazy {
+        val compressFormat = intentInt(Durban.KEY_INPUT_COMPRESS_FORMAT, 0)
+        if (compressFormat == Durban.COMPRESS_PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
     }
+    private val mTitle by lazy { intentString(Durban.KEY_INPUT_TITLE, string(R.string.durban_title_crop)) }
+    private val mOutputDirectory by lazy { intentString(Durban.KEY_INPUT_DIRECTORY, filesDir.absolutePath) }
+    private val mController by lazy { intentParcelable(Durban.KEY_INPUT_CONTROLLER) ?: Controller.newBuilder().build() }
+    private val mMaxWidthHeight by lazy { intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT) ?: intArrayOf(500, 500) }
+    private val mAspectRatio by lazy { intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO) ?: floatArrayOf(0f, 0f) }
+    private val mInputPathList by lazy { intent.getStringArrayListExtra(Durban.KEY_INPUT_PATH_ARRAY) }
+    private val mOutputPathList by lazy { ArrayList<String>() }
+    private val TAG = "Durban"
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.durban_activity_photobox);
-        final Intent intent = getIntent();
-        initArgument(intent);
-        initFrameViews();
-        initContentViews();
-        initControllerViews();
-        cropNextImage();
-    }
+    override fun isImmersionBarEnabled() = false
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (mCropImageView != null) mCropImageView.cancelAllAnimations();
-    }
-
-    /**
-     * 处理页面传输而来的参数
-     */
-    private void initArgument(Intent intent) {
-        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
-        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
-        mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
-        if (TextUtils.isEmpty(mTitle)) mTitle = getString(R.string.durban_title_crop);
-        mGesture = intent.getIntExtra(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
-        mAspectRatio = intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO);
-        if (mAspectRatio == null) mAspectRatio = new float[]{0, 0};
-        mMaxWidthHeight = intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
-        if (mMaxWidthHeight == null) mMaxWidthHeight = new int[]{500, 500};
-        //noinspection JavacQuirks
-        int compressFormat = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
-        mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
-        mCompressQuality = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
-        mOutputDirectory = intent.getStringExtra(Durban.KEY_INPUT_DIRECTORY);
-        if (TextUtils.isEmpty(mOutputDirectory)) mOutputDirectory = getFilesDir().getAbsolutePath();
-        mInputPathList = intent.getStringArrayListExtra(Durban.KEY_INPUT_PATH_ARRAY);
-        mController = intent.getParcelableExtra(Durban.KEY_INPUT_CONTROLLER);
-        if (mController == null) mController = Controller.newBuilder().build();
-        mOutputPathList = new ArrayList<>();
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.durban_activity_photobox)
+        initFrameViews()
+        initContentViews()
+        initControllerViews()
+        cropNextImage()
     }
 
     /**
      * 初始化窗体(状态栏/导航栏)
      */
-    private void initFrameViews() {
+    private fun initFrameViews() {
         // 获取自定义Toolbar并设置为ActionBar替代品
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
         // 通过getSupportActionBar()操作这个Toolbar
-        final ActionBar actionBar = getSupportActionBar();
-        assert actionBar != null;
+        val actionBar = supportActionBar
         // 显示返回键
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("");
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+        actionBar?.title = ""
         // 设置Toolbar样式
-        setSupportToolbar(toolbar);
-        toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusColor));
-        toolbar.setSubtitleTextColor(ContextCompat.getColor(this, mStatusColor));
-        toolbar.setTitleTextColor(ContextCompat.getColor(this, mStatusColor));
+        setSupportToolbar(toolbar)
+        val mStatusColorRes = color(mStatusColor)
+        toolbar.setBackgroundColor(mStatusColorRes)
+        toolbar.setSubtitleTextColor(mStatusColorRes)
+        toolbar.setTitleTextColor(mStatusColorRes)
         // 设置图标样式
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusColor);
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationColor);
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationColor);
+        val statusBarBattery = ScreenUtil.shouldUseWhiteSystemBarsForRes(mStatusColor)
+        val navigationBarBattery = ScreenUtil.shouldUseWhiteSystemBarsForRes(mNavigationColor)
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationColor)
         // 设置标题
-        final TextView tvTitle = findViewById(R.id.tv_title);
-        tvTitle.setText(mTitle);
+        val tvTitle = findViewById<TextView>(R.id.tv_title)
+        tvTitle.text = mTitle
         if (statusBarBattery) {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textWhite));
+            tvTitle.setTextColor(color(R.color.textWhite))
         } else {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textBlack));
+            tvTitle.setTextColor(color(R.color.textBlack))
         }
         // 设置返回按钮
-        Drawable navigationIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_back_white);
-        assert navigationIcon != null;
+        val navigationIcon = drawable(R.drawable.durban_ic_back_white)
         if (!statusBarBattery) {
-            navigationIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+            navigationIcon?.setTint(color(R.color.bgBlack))
         }
-        toolbar.setNavigationIcon(navigationIcon);
+        toolbar.setNavigationIcon(navigationIcon)
     }
 
-    private void initContentViews() {
-        mCropView = findViewById(R.id.crop_view);
-        mCropImageView = mCropView.getCropImageView();
-        mCropImageView.setOutputDirectory(mOutputDirectory);
-        mCropImageView.setTransformImageListener(mImageListener);
-        mCropImageView.setScaleEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE);
-        mCropImageView.setRotateEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE);
+    private fun initContentViews() {
+        mCropView = findViewById(R.id.crop_view)
+        mCropImageView = mCropView?.cropImageView
+        mCropImageView?.outputDirectory = mOutputDirectory
+        mCropImageView?.setTransformImageListener(object : TransformImageView.TransformImageListener {
+            override fun onLoadComplete() {
+                mCropView?.animate()
+                    ?.alpha(1f)
+                    ?.setDuration(300)
+                    ?.interpolator = AccelerateInterpolator()
+            }
+
+            override fun onLoadFailure() {
+                cropNextImage()
+            }
+
+            override fun onRotate(currentAngle: Float) {
+            }
+
+            override fun onScale(currentScale: Float) {
+            }
+        })
+        mCropImageView?.isScaleEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE
+        mCropImageView?.isRotateEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE
         // Durban image view options
-        mCropImageView.setMaxBitmapSize(GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE);
-        mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER);
-        mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION);
+        mCropImageView?.maxBitmapSize = GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE
+        mCropImageView?.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER)
+        mCropImageView?.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
         // Overlay view options
-        OverlayView overlayView = mCropView.getOverlayView();
-        overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE);
-        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durban_CropDimmed));
-        overlayView.setCircleDimmedLayer(false);
-        overlayView.setShowCropFrame(true);
-        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durban_CropFrameLine));
-        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-        overlayView.setShowCropGrid(true);
-        overlayView.setCropGridRowCount(2);
-        overlayView.setCropGridColumnCount(2);
-        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durban_CropGridLine));
-        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        val overlayView = mCropView?.overlayView
+        overlayView?.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE)
+        overlayView?.setDimmedColor(color(R.color.durban_CropDimmed))
+        overlayView?.setCircleDimmedLayer(false)
+        overlayView?.setShowCropFrame(true)
+        overlayView?.setCropFrameColor(color(R.color.durban_CropFrameLine))
+        overlayView?.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1))
+        overlayView?.setShowCropGrid(true)
+        overlayView?.setCropGridRowCount(2)
+        overlayView?.setCropGridColumnCount(2)
+        overlayView?.setCropGridColor(color(R.color.durban_CropGridLine))
+        overlayView?.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1))
         // Aspect ratio options
-        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0)
-            mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
-        else mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) mCropImageView?.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])
+        else mCropImageView?.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO)
         // Result exception max size options
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
-            mCropImageView.setMaxResultImageSizeX(mMaxWidthHeight[0]);
-            mCropImageView.setMaxResultImageSizeY(mMaxWidthHeight[1]);
+            mCropImageView?.setMaxResultImageSizeX(mMaxWidthHeight[0])
+            mCropImageView?.setMaxResultImageSizeY(mMaxWidthHeight[1])
         }
     }
 
-    private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
-        @Override
-        public void onRotate(float currentAngle) {
-        }
-
-        @Override
-        public void onScale(float currentScale) {
-        }
-
-        @Override
-        public void onLoadComplete() {
-            ViewCompat.animate(mCropView)
-                    .alpha(1)
-                    .setDuration(300)
-                    .setInterpolator(new AccelerateInterpolator());
-        }
-
-        @Override
-        public void onLoadFailure() {
-            cropNextImage();
-        }
-    };
-
-    private void initControllerViews() {
-        View controllerRoot = findViewById(R.id.iv_controller_root);
-        View rotationTitle = findViewById(R.id.tv_controller_title_rotation);
-        View rotationLeft = findViewById(R.id.layout_controller_rotation_left);
-        View rotationRight = findViewById(R.id.layout_controller_rotation_right);
-        View scaleTitle = findViewById(R.id.tv_controller_title_scale);
-        View scaleBig = findViewById(R.id.layout_controller_scale_big);
-        View scaleSmall = findViewById(R.id.layout_controller_scale_small);
-        controllerRoot.setVisibility(mController.isEnable() ? View.VISIBLE : View.GONE);
-        rotationTitle.setVisibility(mController.isRotationTitle() ? View.VISIBLE : View.INVISIBLE);
-        rotationLeft.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
-        rotationRight.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
-        scaleTitle.setVisibility(mController.isScaleTitle() ? View.VISIBLE : View.INVISIBLE);
-        scaleBig.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
-        scaleSmall.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
-        if (!mController.isRotationTitle() && !mController.isScaleTitle())
-            findViewById(R.id.layout_controller_title_root).setVisibility(View.GONE);
-        if (!mController.isRotation())
-            rotationTitle.setVisibility(View.GONE);
-        if (!mController.isScale())
-            scaleTitle.setVisibility(View.GONE);
-        rotationLeft.setOnClickListener(mControllerClick);
-        rotationRight.setOnClickListener(mControllerClick);
-        scaleBig.setOnClickListener(mControllerClick);
-        scaleSmall.setOnClickListener(mControllerClick);
+    private fun initControllerViews() {
+        val controllerRoot = findViewById<View>(R.id.iv_controller_root)
+        val rotationTitle = findViewById<View>(R.id.tv_controller_title_rotation)
+        val rotationLeft = findViewById<View>(R.id.layout_controller_rotation_left)
+        val rotationRight = findViewById<View>(R.id.layout_controller_rotation_right)
+        val scaleTitle = findViewById<View>(R.id.tv_controller_title_scale)
+        val scaleBig = findViewById<View>(R.id.layout_controller_scale_big)
+        val scaleSmall = findViewById<View>(R.id.layout_controller_scale_small)
+        controllerRoot.visibility = if (mController.isEnable) View.VISIBLE else View.GONE
+        rotationTitle.visibility = if (mController.isRotationTitle) View.VISIBLE else View.INVISIBLE
+        rotationLeft.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
+        rotationRight.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
+        scaleTitle.visibility = if (mController.isScaleTitle) View.VISIBLE else View.INVISIBLE
+        scaleBig.visibility = if (mController.isScale) View.VISIBLE else View.GONE
+        scaleSmall.visibility = if (mController.isScale) View.VISIBLE else View.GONE
+        if (!mController.isRotationTitle && !mController.isScaleTitle) findViewById<View>(R.id.layout_controller_title_root).visibility = View.GONE
+        if (!mController.isRotation) rotationTitle.visibility = View.GONE
+        if (!mController.isScale) scaleTitle.visibility = View.GONE
+        rotationLeft.setOnClickListener(mControllerClick)
+        rotationRight.setOnClickListener(mControllerClick)
+        scaleBig.setOnClickListener(mControllerClick)
+        scaleSmall.setOnClickListener(mControllerClick)
     }
 
-    private View.OnClickListener mControllerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int id = v.getId();
-            if (id == R.id.layout_controller_rotation_left) {
-                mCropImageView.postRotate(-90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_rotation_right) {
-                mCropImageView.postRotate(90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_big) {
-                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_small) {
-                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
+    private val mControllerClick = View.OnClickListener { v ->
+        when (v?.id) {
+            R.id.layout_controller_rotation_left -> {
+                mCropImageView?.postRotate(-90f)
+                mCropImageView?.setImageToWrapCropBounds()
+            }
+            R.id.layout_controller_rotation_right -> {
+                mCropImageView?.postRotate(90f)
+                mCropImageView?.setImageToWrapCropBounds()
+            }
+            R.id.layout_controller_scale_big -> {
+                mCropImageView?.zoomOutImage(mCropImageView?.currentScale.orZero + ((mCropImageView?.maxScale.orZero - mCropImageView?.minScale.orZero) / 10))
+                mCropImageView?.setImageToWrapCropBounds()
+            }
+            R.id.layout_controller_scale_small -> {
+                mCropImageView?.zoomInImage(mCropImageView?.currentScale.orZero - ((mCropImageView?.maxScale.orZero - mCropImageView?.minScale.orZero) / 10))
+                mCropImageView?.setImageToWrapCropBounds()
             }
         }
-    };
+    }
 
     /**
      * Start cropping and request permission if there is no permission.
      */
-    private void cropNextImage() {
-        resetRotation();
-        cropNextImageWithPermission();
+    private fun cropNextImage() {
+        resetRotation()
+        cropNextImageWithPermission()
     }
 
     /**
      * Restore the rotation angle.
      */
-    private void resetRotation() {
-        mCropImageView.postRotate(-mCropImageView.getCurrentAngle());
-        mCropImageView.setImageToWrapCropBounds();
+    private fun resetRotation() {
+        mCropImageView?.postRotate(-mCropImageView?.currentAngle.orZero)
+        mCropImageView?.setImageToWrapCropBounds()
     }
 
-    private void cropNextImageWithPermission() {
+    private fun cropNextImageWithPermission() {
         if (mInputPathList != null) {
-            if (mInputPathList.size() > 0) {
-                String currentPath = mInputPathList.remove(0);
+            if (mInputPathList.safeSize > 0) {
+                val currentPath = mInputPathList?.removeAt(0).orEmpty()
                 try {
-                    mCropImageView.setImagePath(currentPath);
-                } catch (Exception e) {
-                    cropNextImage();
+                    mCropImageView?.setImagePath(currentPath)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    cropNextImage()
                 }
-            } else if (mOutputPathList.size() > 0) setResultSuccessful();
-            else setResultFailure();
+            } else if (mOutputPathList.safeSize > 0) setResultSuccessful()
+            else setResultFailure()
         } else {
-            Log.e("Durban", "The file list is empty.");
-            setResultFailure();
+            "The file list is empty.".logWTF(TAG)
+            setResultFailure()
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
+    private fun cropAndSaveImage() {
+        mCropImageView?.cropAndSaveImage(mCompressFormat, mCompressQuality, cropCallback)
+    }
+
+    private val cropCallback = object : BitmapCropCallback {
+        override fun onBitmapCropped(imagePath: String, imageWidth: Int, imageHeight: Int) {
+            mOutputPathList.add(imagePath)
+            cropNextImage()
+        }
+
+        override fun onCropFailure(t: Throwable) {
+            cropNextImage()
+        }
+    }
+
+    private fun setResultSuccessful() {
+        val intent = Intent()
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        setResult(RESULT_OK, intent)
+        finish()
+    }
+
+    private fun setResultFailure() {
+        val intent = Intent()
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        setResult(RESULT_CANCELED, intent)
+        finish()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        mCropImageView?.cancelAllAnimations()
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.durban_menu_activity, menu)
         // 获取右侧菜单按钮的 MenuItem
-        MenuItem okItem = menu.findItem(R.id.menu_action_ok);
+        val okItem = menu?.findItem(R.id.menu_action_ok)
         // 去除长按的文字提示
-        okItem.setTitle("");
+        okItem?.title = ""
         // 根据导航栏颜色定义对应的图片
-        if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
-            Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
-            assert doneIcon != null;
-            doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+        if (!ScreenUtil.shouldUseWhiteSystemBarsForRes(mStatusColor)) {
+            val doneIcon = drawable(R.drawable.durban_ic_done_white)
+            doneIcon?.setTint(color(R.color.bgBlack))
             // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
-            View okView = okItem.getActionView();
-            if (okView != null) {
-                okView.setBackground(doneIcon);
-            }
+            val okView = okItem?.actionView
+            okView?.background = doneIcon
         }
-        return true;
+        return true
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_action_ok) {
-            cropAndSaveImage();
-        } else if (item.getItemId() == android.R.id.home) {
-            setResultFailure();
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (item.itemId == R.id.menu_action_ok) {
+            cropAndSaveImage()
+        } else if (item.itemId == android.R.id.home) {
+            setResultFailure()
         }
-        return true;
-    }
-
-    private void cropAndSaveImage() {
-        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, cropCallback);
-    }
-
-    private BitmapCropCallback cropCallback = new BitmapCropCallback() {
-        @Override
-        public void onBitmapCropped(@NonNull String imagePath, int imageWidth, int imageHeight) {
-            mOutputPathList.add(imagePath);
-            cropNextImage();
-        }
-
-        @Override
-        public void onCropFailure(@NonNull Throwable t) {
-            cropNextImage();
-        }
-    };
-
-    private void setResultSuccessful() {
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
-    private void setResultFailure() {
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
-        setResult(RESULT_CANCELED, intent);
-        finish();
+        return true
     }
 
 }

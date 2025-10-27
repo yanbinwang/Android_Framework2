@@ -23,9 +23,15 @@ import com.example.framework.utils.function.view.size
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
-
 /**
  * 针对所有相册页面的基类
+ * com.yanzhenjie.durban.DurbanActivity
+ * com.yanzhenjie.album.app.album.AlbumActivity
+ * com.yanzhenjie.album.app.album.GalleryActivity
+ * com.yanzhenjie.album.app.album.NullActivity
+ * com.yanzhenjie.album.app.gallery.GalleryActivity
+ * com.yanzhenjie.album.app.gallery.GalleryAlbumActivity
+ * com.yanzhenjie.album.app.camera.CameraActivity
  */
 abstract class BaseActivity : AppCompatActivity(), Bye {
     private val immersionBar by lazy { ImmersionBar.with(this) }
