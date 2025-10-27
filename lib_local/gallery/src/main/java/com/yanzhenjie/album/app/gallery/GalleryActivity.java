@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import kotlin.Unit;
+
 /**
  * Created by YanZhenjie on 2017/8/16.
  */
@@ -57,9 +59,11 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
         setCheckedCount();
         setOnBackPressedListener(() -> {
-            if (sCancel != null) sCancel.onAction("User canceled.");
+            if (sCancel != null) {
+                sCancel.onAction("User canceled.");
+            }
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 

@@ -68,7 +68,7 @@ public class AlbumFolder implements Parcelable {
         return 0;
     }
 
-    public static final Creator<AlbumFolder> CREATOR = new Creator<AlbumFolder>() {
+    public static final Creator<AlbumFolder> CREATOR = new Creator<>() {
         @Override
         public AlbumFolder createFromParcel(Parcel in) {
             return new AlbumFolder(in);

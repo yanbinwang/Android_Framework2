@@ -15,6 +15,8 @@ import com.yanzhenjie.album.util.AlbumUtils;
 
 import java.util.ArrayList;
 
+import kotlin.Unit;
+
 /**
  * <p>Preview the pictures in the folder in enlarged form.</p>
  * Created by Yan Zhenjie on 2017/3/25.
@@ -49,7 +51,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         setCheckedCount();
         setOnBackPressedListener(() -> {
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 

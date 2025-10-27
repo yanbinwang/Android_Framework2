@@ -37,6 +37,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import kotlin.Unit;
+
 /**
  * <p>Responsible for controlling the album data and the overall logic.</p>
  * Created by Yan Zhenjie on 2016/10/17.
@@ -89,9 +91,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mMediaReadTask.execute();
         // 全局返回
         setOnBackPressedListener(() -> {
-            if (mMediaReadTask != null) mMediaReadTask.cancel(true);
+            if (mMediaReadTask != null) {
+                mMediaReadTask.cancel(true);
+            }
             callbackCancel();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 
@@ -130,7 +134,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mView.onConfigurationChanged(newConfig);
         if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
@@ -178,7 +182,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             if (resultCode == RESULT_OK) {
                 String imagePath = NullActivity.parsePath(data);
                 String mimeType = AlbumUtils.getMimeType(imagePath);
-                if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
+                if (!TextUtils.isEmpty(mimeType)) {
+                    mCameraAction.onAction(imagePath);
+                }
             } else {
                 callbackCancel();
             }
@@ -193,7 +199,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 showFolderAlbumFiles(mCurrentFolder);
             });
         }
-        if (!mFolderDialog.isShowing()) mFolderDialog.show();
+        if (!mFolderDialog.isShowing()) {
+            mFolderDialog.show();
+        }
     }
 
     /**
@@ -295,14 +303,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 .start();
     }
 
-    private Action<String> mCameraAction = new Action<>() {
+    private final Action<String> mCameraAction = new Action<>() {
         @Override
         public void onAction(@NonNull String result) {
             if (mMediaScanner == null) {
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
             }
             mMediaScanner.scan(result);
-
             PathConversion conversion = new PathConversion(sSizeFilter, sMimeFilter, sDurationFilter);
             PathConvertTask task = new PathConvertTask(conversion, AlbumActivity.this);
             task.execute(result);
@@ -330,7 +337,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void addFileToList(AlbumFile albumFile) {
         if (mCurrentFolder != 0) {
             List<AlbumFile> albumFiles = mAlbumFolders.get(0).getAlbumFiles();
-            if (albumFiles.size() > 0) albumFiles.add(0, albumFile);
+            if (!albumFiles.isEmpty()) albumFiles.add(0, albumFile);
             else albumFiles.add(albumFile);
         }
         AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
@@ -434,7 +441,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void tryPreviewChecked() {
-        if (mCheckedList.size() > 0) {
+        if (!mCheckedList.isEmpty()) {
             GalleryActivity.sAlbumFiles = new ArrayList<>(mCheckedList);
             GalleryActivity.sCheckedCount = mCheckedList.size();
             GalleryActivity.sCurrentPosition = 0;
@@ -456,7 +463,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         int position = albumFiles.indexOf(albumFile);
         int notifyPosition = mHasCamera ? position + 1 : position;
         mView.notifyItem(notifyPosition);
-
         if (albumFile.isChecked()) {
             if (!mCheckedList.contains(albumFile)) mCheckedList.add(albumFile);
         } else {

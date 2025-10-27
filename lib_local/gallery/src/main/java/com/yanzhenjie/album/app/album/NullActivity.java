@@ -26,13 +26,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     private Contract.NullView mView;
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
-    private Action<String> mCameraAction = result -> {
-        Intent intent = new Intent();
-        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
-        setResult(RESULT_OK, intent);
-        finish();
-    };
-
     @Override
     protected boolean isImmersionBarEnabled() {
         return false;
@@ -101,6 +94,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 .onResult(mCameraAction)
                 .start();
     }
+
+    private final Action<String> mCameraAction = result -> {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
+        setResult(RESULT_OK, intent);
+        finish();
+    };
 
     public static String parsePath(Intent intent) {
         return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);

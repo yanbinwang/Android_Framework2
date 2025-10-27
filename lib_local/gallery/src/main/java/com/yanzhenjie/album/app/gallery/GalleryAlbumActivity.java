@@ -16,6 +16,8 @@ import com.yanzhenjie.album.util.AlbumUtils;
 
 import java.util.ArrayList;
 
+import kotlin.Unit;
+
 /**
  * Created by YanZhenjie on 2017/8/16.
  */
@@ -51,9 +53,11 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         }
         setCheckedCount();
         setOnBackPressedListener(() -> {
-            if (sCancel != null) sCancel.onAction("User canceled.");
+            if (sCancel != null) {
+                sCancel.onAction("User canceled.");
+            }
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 

@@ -18,7 +18,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
@@ -69,7 +68,9 @@ public class DurbanActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        if (mCropImageView != null) mCropImageView.cancelAllAnimations();
+        if (mCropImageView != null) {
+            mCropImageView.cancelAllAnimations();
+        }
     }
 
     /**
@@ -79,21 +80,30 @@ public class DurbanActivity extends BaseActivity {
         mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
         mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
         mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
-        if (TextUtils.isEmpty(mTitle)) mTitle = getString(R.string.durban_title_crop);
+        if (TextUtils.isEmpty(mTitle)) {
+            mTitle = getString(R.string.durban_title_crop);
+        }
         mGesture = intent.getIntExtra(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
         mAspectRatio = intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO);
-        if (mAspectRatio == null) mAspectRatio = new float[]{0, 0};
+        if (mAspectRatio == null) {
+            mAspectRatio = new float[]{0, 0};
+        }
         mMaxWidthHeight = intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
-        if (mMaxWidthHeight == null) mMaxWidthHeight = new int[]{500, 500};
-        //noinspection JavacQuirks
+        if (mMaxWidthHeight == null) {
+            mMaxWidthHeight = new int[]{500, 500};
+        }
         int compressFormat = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
         mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
         mCompressQuality = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
         mOutputDirectory = intent.getStringExtra(Durban.KEY_INPUT_DIRECTORY);
-        if (TextUtils.isEmpty(mOutputDirectory)) mOutputDirectory = getFilesDir().getAbsolutePath();
+        if (TextUtils.isEmpty(mOutputDirectory)) {
+            mOutputDirectory = getFilesDir().getAbsolutePath();
+        }
         mInputPathList = intent.getStringArrayListExtra(Durban.KEY_INPUT_PATH_ARRAY);
         mController = intent.getParcelableExtra(Durban.KEY_INPUT_CONTROLLER);
-        if (mController == null) mController = Controller.newBuilder().build();
+        if (mController == null) {
+            mController = Controller.newBuilder().build();
+        }
         mOutputPathList = new ArrayList<>();
     }
 
@@ -161,9 +171,11 @@ public class DurbanActivity extends BaseActivity {
         overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durban_CropGridLine));
         overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
         // Aspect ratio options
-        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0)
+        if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
-        else mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+        } else {
+            mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+        }
         // Result exception max size options
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
             mCropImageView.setMaxResultImageSizeX(mMaxWidthHeight[0]);
@@ -171,7 +183,7 @@ public class DurbanActivity extends BaseActivity {
         }
     }
 
-    private TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
+    private final TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
         @Override
         public void onRotate(float currentAngle) {
         }
@@ -182,10 +194,11 @@ public class DurbanActivity extends BaseActivity {
 
         @Override
         public void onLoadComplete() {
-            ViewCompat.animate(mCropView)
-                    .alpha(1)
+            mCropView.animate()
+                    .alpha(1f)
                     .setDuration(300)
-                    .setInterpolator(new AccelerateInterpolator());
+                    .setInterpolator(new AccelerateInterpolator())
+                    .start();
         }
 
         @Override
@@ -209,19 +222,22 @@ public class DurbanActivity extends BaseActivity {
         scaleTitle.setVisibility(mController.isScaleTitle() ? View.VISIBLE : View.INVISIBLE);
         scaleBig.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
         scaleSmall.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
-        if (!mController.isRotationTitle() && !mController.isScaleTitle())
+        if (!mController.isRotationTitle() && !mController.isScaleTitle()) {
             findViewById(R.id.layout_controller_title_root).setVisibility(View.GONE);
-        if (!mController.isRotation())
+        }
+        if (!mController.isRotation()) {
             rotationTitle.setVisibility(View.GONE);
-        if (!mController.isScale())
+        }
+        if (!mController.isScale()) {
             scaleTitle.setVisibility(View.GONE);
+        }
         rotationLeft.setOnClickListener(mControllerClick);
         rotationRight.setOnClickListener(mControllerClick);
         scaleBig.setOnClickListener(mControllerClick);
         scaleSmall.setOnClickListener(mControllerClick);
     }
 
-    private View.OnClickListener mControllerClick = new View.OnClickListener() {
+    private final View.OnClickListener mControllerClick = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             int id = v.getId();
@@ -259,15 +275,20 @@ public class DurbanActivity extends BaseActivity {
 
     private void cropNextImageWithPermission() {
         if (mInputPathList != null) {
-            if (mInputPathList.size() > 0) {
+            if (!mInputPathList.isEmpty()) {
                 String currentPath = mInputPathList.remove(0);
                 try {
                     mCropImageView.setImagePath(currentPath);
                 } catch (Exception e) {
                     cropNextImage();
                 }
-            } else if (mOutputPathList.size() > 0) setResultSuccessful();
-            else setResultFailure();
+            } else {
+                if (!mOutputPathList.isEmpty()) {
+                    setResultSuccessful();
+                } else {
+                    setResultFailure();
+                }
+            }
         } else {
             Log.e("Durban", "The file list is empty.");
             setResultFailure();
@@ -309,7 +330,7 @@ public class DurbanActivity extends BaseActivity {
         mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, cropCallback);
     }
 
-    private BitmapCropCallback cropCallback = new BitmapCropCallback() {
+    private final BitmapCropCallback cropCallback = new BitmapCropCallback() {
         @Override
         public void onBitmapCropped(@NonNull String imagePath, int imageWidth, int imageHeight) {
             mOutputPathList.add(imagePath);
