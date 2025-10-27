@@ -2,7 +2,6 @@ package com.yanzhenjie.album.app.album;
 
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -175,9 +174,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_ACTIVITY_NULL) {
             if (resultCode == RESULT_OK) {
                 String imagePath = NullActivity.parsePath(data);
@@ -514,7 +513,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
-        if (sResult != null) sResult.onAction(albumFiles);
+        if (sResult != null) {
+            sResult.onAction(albumFiles);
+        }
         dismissLoadingDialog();
         finish();
     }
@@ -523,7 +524,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * Callback cancel action.
      */
     private void callbackCancel() {
-        if (sCancel != null) sCancel.onAction("User canceled.");
+        if (sCancel != null) {
+            sCancel.onAction("User canceled.");
+        }
         finish();
     }
 
