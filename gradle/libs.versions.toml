@@ -1,31 +1,31 @@
 [versions]
-#---------------------------------------------settings.gradle版本---------------------------------------------
+#--------------------------------------------- settings.gradle版本 ---------------------------------------------
 agp = "8.13.0"
 kotlin = "2.2.21"
-#---------------------------------------------模块测试库版本---------------------------------------------
+#--------------------------------------------- 模块测试库版本 ---------------------------------------------
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
-#---------------------------------------------安卓x库版本---------------------------------------------
+#--------------------------------------------- 安卓x库版本 ---------------------------------------------
 appcompat = "1.6.1"
 constraintlayout = "2.1.4"
 recyclerview = "1.3.0"
 splashscreen = "1.0.1"
 coreKtx = "1.13.1"
-lifecycleRuntimeKtx = "2.8.7"#runtime库包含了viewmodel，livedata等一系列jetpack库
-#---------------------------------------------google扩展控件版本---------------------------------------------
+lifecycleRuntimeKtx = "2.8.7" # runtime库包含了viewmodel，livedata等一系列jetpack库
+#--------------------------------------------- google扩展控件版本 ---------------------------------------------
 material = "1.10.0"
 flexbox = "3.0.0"
-#---------------------------------------------网络请求库retrofit2版本---------------------------------------------
+#--------------------------------------------- 网络请求库retrofit2版本 ---------------------------------------------
 retrofit = "3.0.0"
 converterGson = "3.0.0"
-#---------------------------------------------阿里路由版本---------------------------------------------
+#--------------------------------------------- 阿里路由版本 ---------------------------------------------
 arouterApi = "1.5.2"
 arouterCompiler = "1.5.2"
-#---------------------------------------------调试库---------------------------------------------
+#--------------------------------------------- 调试库 ---------------------------------------------
 recovery = "1.0.0"
 #leakcanary = "2.11"
-#---------------------------------------------其余三方控件版本---------------------------------------------
+#--------------------------------------------- 其余三方控件版本 ---------------------------------------------
 androidAutoSize = "v1.2.1"
 mmkvStatic = "2.2.4"
 newbieGuide = "v2.4.4"
@@ -34,24 +34,25 @@ xxpermissions = "25.2"
 immersionbar = "3.2.2"
 stomp = "4.1.0"
 #---------------------------------------------全局版本配置---------------------------------------------
-compileSdkVersion = "36" #构建版本号
-minSdkVersion = "23" #最低安装版本
-targetSdkVersion = "36" #最高安装版本/应用在运行时将遵循哪个版本的行为和特性
-versionCode = "1" #版本号
-versionName = "1.0.0" #版本名
+compileSdkVersion = "36" # 构建版本号
+minSdkVersion = "23" # 最低安装版本
+targetSdkVersion = "36" # 最高安装版本/应用在运行时将遵循哪个版本的行为和特性
+versionCode = "1" # 版本号
+versionName = "1.0.0" # 版本名
 #---------------------------------------------基础参数配置---------------------------------------------
-applicationId = "com.example.mvvm" #主appId（包名）
+applicationId = "com.example.mvvm" # 主appId（包名）
 designWidth = "375"
 designHeight = "667"
 amapApiKey = "feb098c99b26513b0bfa5008b64eefa7"
 
+# 各个库模块
 [libraries]
-#测试库
+# 测试库
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 
-#安卓x库
+# 安卓x库
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 androidx-constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
@@ -59,23 +60,23 @@ androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", v
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 
-#google扩展控件
+# google扩展控件
 google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
 google-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
 
-#网络请求库retrofit3
+# 网络请求库retrofit3
 squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 squareup-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
 
-#阿里路由
+# 阿里路由
 alibaba-arouter-api = { group = "com.alibaba", name = "arouter-api", version.ref = "arouterApi" }
 alibaba-arouter-compiler = { group = "com.alibaba", name = "arouter-compiler", version.ref = "arouterCompiler" }
 
-#调试库
+# 调试库
 debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
 #debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } #内存泄露捕捉
 
-#其余三方控件
+# 其余三方控件
 autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidAutoSize" } #今日头条布局兼容
 mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkvStatic" } #腾讯读写库
 guide = { group = "com.github.huburt-Hu", name = "NewbieGuide", version.ref = "newbieGuide" } #遮罩引导
@@ -84,7 +85,7 @@ xxpermissions = { group = "com.github.getActivity", name = "XXPermissions", vers
 immersionbar = { group = "com.geyifeng.immersionbar", name = "immersionbar", version.ref = "immersionbar" } #状态栏
 stomp = { group = "cn.zhxu", name = "okhttps-stomp", version.ref = "stomp" } #socket
 
-#settings.gradle配置
+# 各个gradle配置模块[plugins]标签配置
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
@@ -92,7 +93,7 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-kapt = { id = "kotlin-kapt" }
 kotlin-parcelize = { id = "kotlin-parcelize" }
 
-#相关库打包
+# 相关库打包
 [bundles]
 # Android 仪器化测试库
 androidx-testing = ["androidx-junit", "androidx-espresso-core"]
