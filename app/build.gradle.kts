@@ -47,7 +47,10 @@ android {
 //    }
 
     namespace = "com.example.mvvm"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     defaultConfig {
         applicationId = libs.versions.applicationId.get()
