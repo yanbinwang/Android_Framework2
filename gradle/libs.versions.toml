@@ -61,8 +61,8 @@ androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 
 # google扩展控件
-google-material = { group = "com.google.android.material", name = "material", version.ref = "material" }#design库
-google-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" }#谷歌官方自动换行布局
+google-material = { group = "com.google.android.material", name = "material", version.ref = "material" } # design库
+google-flexbox = { group = "com.google.android.flexbox", name = "flexbox", version.ref = "flexbox" } # 谷歌官方自动换行布局
 
 # 网络请求库retrofit3
 squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
@@ -73,17 +73,17 @@ alibaba-arouter-api = { group = "com.alibaba", name = "arouter-api", version.ref
 alibaba-arouter-compiler = { group = "com.alibaba", name = "arouter-compiler", version.ref = "arouterCompiler" }
 
 # 调试库
-debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } #闪退抓捕
-#debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } #内存泄露捕捉
+debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } # 闪退抓捕
+#debugging-leakcanary = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" } # 内存泄露捕捉
 
 # 其余三方控件
-autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidAutoSize" } #今日头条布局兼容
-mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkvStatic" } #腾讯读写库
-guide = { group = "com.github.huburt-Hu", name = "NewbieGuide", version.ref = "newbieGuide" } #遮罩引导
-smartrefresh = { group = "io.github.scwang90", name = "refresh-layout-kernel", version.ref = "refreshLayoutKernel" } #刷新控件
-xxpermissions = { group = "com.github.getActivity", name = "XXPermissions", version.ref = "xxpermissions" } #权限
-immersionbar = { group = "com.geyifeng.immersionbar", name = "immersionbar", version.ref = "immersionbar" } #状态栏
-stomp = { group = "cn.zhxu", name = "okhttps-stomp", version.ref = "stomp" } #socket
+autosize = { group = "com.github.JessYanCoding", name = "AndroidAutoSize", version.ref = "androidAutoSize" } # 今日头条布局兼容
+mmkv = { group = "com.tencent", name = "mmkv-static", version.ref = "mmkvStatic" } # 腾讯读写库
+guide = { group = "com.github.huburt-Hu", name = "NewbieGuide", version.ref = "newbieGuide" } # 遮罩引导
+smartrefresh = { group = "io.github.scwang90", name = "refresh-layout-kernel", version.ref = "refreshLayoutKernel" } # 刷新控件
+xxpermissions = { group = "com.github.getActivity", name = "XXPermissions", version.ref = "xxpermissions" } # 权限
+immersionbar = { group = "com.geyifeng.immersionbar", name = "immersionbar", version.ref = "immersionbar" } # 状态栏
+stomp = { group = "cn.zhxu", name = "okhttps-stomp", version.ref = "stomp" } # socket
 
 # 各个gradle配置模块[plugins]标签配置
 [plugins]
