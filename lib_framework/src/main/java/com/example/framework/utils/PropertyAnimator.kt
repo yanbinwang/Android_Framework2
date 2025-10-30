@@ -24,7 +24,7 @@ import androidx.core.graphics.toColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.view.setPxTextSize
+import com.example.framework.utils.function.view.pxTextSize
 import java.math.RoundingMode
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
@@ -183,7 +183,7 @@ class PropertyAnimator(private val view: View?, private val millisecond: Long) {
     fun animateTextSize(start: Float, end: Float): PropertyAnimator {
         if (view !is TextView) return this
         return createAnimator(start, end) { value ->
-            view.setPxTextSize(value.orZero)
+            view.pxTextSize(value.orZero)
         }
     }
 
