@@ -163,7 +163,9 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
          * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
          * 3. 支持文字亮 / 暗色，对比度由系统管理
          */
-        enableEdgeToEdge()
+        if (!shouldExcludeFullScreen()) {
+            enableEdgeToEdge()
+        }
         super.onCreate(savedInstanceState)
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
@@ -190,6 +192,19 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         initView(savedInstanceState)
         initEvent()
         initData()
+    }
+
+    /**
+     * 定义需要排除全屏的第三方包名前缀集合
+     */
+    private val excludeFullScreenPrefixes = listOf(
+        "io.rong.imkit",    // 融云IM相关页面
+        "com.xxx.thirdlib"  // 其他需要排除的第三方库包名前缀，按需添加
+    )
+    private fun shouldExcludeFullScreen(): Boolean {
+        val currentClassName = this::class.java.name
+        // 遍历前缀集合，只要匹配任意一个就返回true（需要排除）
+        return excludeFullScreenPrefixes.any { currentClassName.startsWith(it) }
     }
 
     /**
