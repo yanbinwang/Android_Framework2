@@ -20,4 +20,5 @@ class SquareLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, widthMeasureSpec)
     }
+
 }
