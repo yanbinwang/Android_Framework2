@@ -23,7 +23,7 @@ import java.util.List;
  * <p>BottomSheet dialog adapter, show all folder.</p>
  * Created by Yan Zhenjie on 2016/10/18.
  */
-class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
+public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
     private List<AlbumFolder> mAlbumFolders;
     private ColorStateList mSelector;
     private LayoutInflater mInflater;

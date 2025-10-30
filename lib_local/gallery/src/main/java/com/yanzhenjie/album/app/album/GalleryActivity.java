@@ -5,15 +5,17 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 
 import java.util.ArrayList;
+
+import kotlin.Unit;
 
 /**
  * <p>Preview the pictures in the folder in enlarged form.</p>
@@ -49,7 +51,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         setCheckedCount();
         setOnBackPressedListener(() -> {
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 

@@ -5,16 +5,18 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.ItemAction;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.mvp.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import kotlin.Unit;
 
 /**
  * Created by YanZhenjie on 2017/8/16.
@@ -43,10 +45,14 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
         mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
         mCheckedMap = new HashMap<>();
-        for (String path : mPathList) mCheckedMap.put(path, true);
+        for (String path : mPathList) {
+            mCheckedMap.put(path, true);
+        }
         mView.setTitle(mWidget.getTitle());
         mView.setupViews(mWidget, mCheckable);
-        if (!mCheckable) mView.setBottomDisplay(false);
+        if (!mCheckable) {
+            mView.setBottomDisplay(false);
+        }
         mView.setLayerDisplay(false);
         mView.setDurationDisplay(false);
         mView.bindData(mPathList);
@@ -57,16 +63,20 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
         setCheckedCount();
         setOnBackPressedListener(() -> {
-            if (sCancel != null) sCancel.onAction("User canceled.");
+            if (sCancel != null) {
+                sCancel.onAction("User canceled.");
+            }
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 
     private void setCheckedCount() {
         int checkedCount = 0;
         for (Map.Entry<String, Boolean> entry : mCheckedMap.entrySet()) {
-            if (entry.getValue()) checkedCount += 1;
+            if (entry.getValue()) {
+                checkedCount += 1;
+            }
         }
         String completeText = getString(R.string.album_menu_finish);
         completeText += "(" + checkedCount + " / " + mPathList.size() + ")";
@@ -91,7 +101,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
         mView.setSubTitle(position + 1 + " / " + mPathList.size());
-        if (mCheckable) mView.setChecked(mCheckedMap.get(mPathList.get(position)));
+        if (mCheckable) {
+            mView.setChecked(mCheckedMap.get(mPathList.get(position)));
+        }
     }
 
     @Override
@@ -106,7 +118,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         if (sResult != null) {
             ArrayList<String> checkedList = new ArrayList<>();
             for (Map.Entry<String, Boolean> entry : mCheckedMap.entrySet()) {
-                if (entry.getValue()) checkedList.add(entry.getKey());
+                if (entry.getValue()) {
+                    checkedList.add(entry.getKey());
+                }
             }
             sResult.onAction(checkedList);
         }

@@ -1,6 +1,5 @@
 package com.yanzhenjie.album.app.camera;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -8,9 +7,9 @@ import android.text.TextUtils;
 
 import androidx.annotation.Nullable;
 
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 import com.yanzhenjie.album.util.SystemBar;
 
@@ -58,14 +57,16 @@ public class CameraActivity extends BaseActivity {
             mLimitBytes = bundle.getLong(Album.KEY_INPUT_CAMERA_BYTES);
             switch (mFunction) {
                 case Album.FUNCTION_CAMERA_IMAGE: {
-                    if (TextUtils.isEmpty(mCameraFilePath))
+                    if (TextUtils.isEmpty(mCameraFilePath)) {
                         mCameraFilePath = AlbumUtils.randomJPGPath(this);
+                    }
                     AlbumUtils.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
                     break;
                 }
                 case Album.FUNCTION_CAMERA_VIDEO: {
-                    if (TextUtils.isEmpty(mCameraFilePath))
+                    if (TextUtils.isEmpty(mCameraFilePath)) {
                         mCameraFilePath = AlbumUtils.randomMP4Path(this);
+                    }
                     AlbumUtils.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
                     break;
                 }
@@ -86,9 +87,9 @@ public class CameraActivity extends BaseActivity {
         super.onSaveInstanceState(outState);
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode) {
             case CODE_ACTIVITY_TAKE_IMAGE:
             case CODE_ACTIVITY_TAKE_VIDEO: {

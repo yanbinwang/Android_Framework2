@@ -5,11 +5,11 @@ import android.content.res.Configuration;
 import android.view.View;
 import android.widget.CompoundButton;
 
+import com.example.gallery.base.bridge.BasePresenter;
+import com.example.gallery.base.bridge.BaseView;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
-import com.yanzhenjie.album.mvp.BasePresenter;
-import com.yanzhenjie.album.mvp.BaseView;
 
 import java.util.List;
 

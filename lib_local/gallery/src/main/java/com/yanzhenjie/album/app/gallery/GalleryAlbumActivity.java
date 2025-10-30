@@ -5,16 +5,18 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.ItemAction;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 
 import java.util.ArrayList;
+
+import kotlin.Unit;
 
 /**
  * Created by YanZhenjie on 2017/8/16.
@@ -51,16 +53,20 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         }
         setCheckedCount();
         setOnBackPressedListener(() -> {
-            if (sCancel != null) sCancel.onAction("User canceled.");
+            if (sCancel != null) {
+                sCancel.onAction("User canceled.");
+            }
             finish();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 
     private void setCheckedCount() {
         int checkedCount = 0;
         for (AlbumFile albumFile : mAlbumFiles) {
-            if (albumFile.isChecked()) checkedCount += 1;
+            if (albumFile.isChecked()) {
+                checkedCount += 1;
+            }
         }
         String completeText = getString(R.string.album_menu_finish);
         completeText += "(" + checkedCount + " / " + mAlbumFiles.size() + ")";
@@ -86,14 +92,20 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         mCurrentPosition = position;
         mView.setSubTitle(position + 1 + " / " + mAlbumFiles.size());
         AlbumFile albumFile = mAlbumFiles.get(position);
-        if (mCheckable) mView.setChecked(albumFile.isChecked());
+        if (mCheckable) {
+            mView.setChecked(albumFile.isChecked());
+        }
         mView.setLayerDisplay(albumFile.isDisable());
         if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
-            if (!mCheckable) mView.setBottomDisplay(true);
+            if (!mCheckable) {
+                mView.setBottomDisplay(true);
+            }
             mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
         } else {
-            if (!mCheckable) mView.setBottomDisplay(false);
+            if (!mCheckable) {
+                mView.setBottomDisplay(false);
+            }
             mView.setDurationDisplay(false);
         }
     }
@@ -110,7 +122,9 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         if (sResult != null) {
             ArrayList<AlbumFile> checkedList = new ArrayList<>();
             for (AlbumFile albumFile : mAlbumFiles) {
-                if (albumFile.isChecked()) checkedList.add(albumFile);
+                if (albumFile.isChecked()) {
+                    checkedList.add(albumFile);
+                }
             }
             sResult.onAction(checkedList);
         }

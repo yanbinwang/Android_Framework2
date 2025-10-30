@@ -8,11 +8,11 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.mvp.BaseActivity;
 
 /**
  * 相册内无任何数据的空页面
@@ -25,13 +25,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     private Widget mWidget;
     private Contract.NullView mView;
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
-
-    private Action<String> mCameraAction = result -> {
-        Intent intent = new Intent();
-        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
-        setResult(RESULT_OK, intent);
-        finish();
-    };
 
     @Override
     protected boolean isImmersionBarEnabled() {
@@ -101,6 +94,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 .onResult(mCameraAction)
                 .start();
     }
+
+    private final Action<String> mCameraAction = result -> {
+        Intent intent = new Intent();
+        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
+        setResult(RESULT_OK, intent);
+        finish();
+    };
 
     public static String parsePath(Intent intent) {
         return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);

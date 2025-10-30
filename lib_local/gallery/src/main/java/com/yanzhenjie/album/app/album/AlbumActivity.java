@@ -2,7 +2,6 @@ package com.yanzhenjie.album.app.album;
 
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -16,6 +15,7 @@ import androidx.appcompat.widget.PopupMenu;
 
 import com.example.framework.utils.WeakHandler;
 import com.example.gallery.R;
+import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
@@ -28,7 +28,6 @@ import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
 import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
-import com.yanzhenjie.album.mvp.BaseActivity;
 import com.yanzhenjie.album.util.AlbumUtils;
 import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.mediascanner.MediaScanner;
@@ -36,6 +35,8 @@ import com.yanzhenjie.mediascanner.MediaScanner;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.Unit;
 
 /**
  * <p>Responsible for controlling the album data and the overall logic.</p>
@@ -89,9 +90,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mMediaReadTask.execute();
         // 全局返回
         setOnBackPressedListener(() -> {
-            if (mMediaReadTask != null) mMediaReadTask.cancel(true);
+            if (mMediaReadTask != null) {
+                mMediaReadTask.cancel(true);
+            }
             callbackCancel();
-            return null;
+            return Unit.INSTANCE;
         });
     }
 
@@ -130,7 +133,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     @Override
-    public void onConfigurationChanged(Configuration newConfig) {
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         mView.onConfigurationChanged(newConfig);
         if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
@@ -171,14 +174,16 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
-    @SuppressLint("MissingSuperCall")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CODE_ACTIVITY_NULL) {
             if (resultCode == RESULT_OK) {
                 String imagePath = NullActivity.parsePath(data);
                 String mimeType = AlbumUtils.getMimeType(imagePath);
-                if (!TextUtils.isEmpty(mimeType)) mCameraAction.onAction(imagePath);
+                if (!TextUtils.isEmpty(mimeType)) {
+                    mCameraAction.onAction(imagePath);
+                }
             } else {
                 callbackCancel();
             }
@@ -193,7 +198,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 showFolderAlbumFiles(mCurrentFolder);
             });
         }
-        if (!mFolderDialog.isShowing()) mFolderDialog.show();
+        if (!mFolderDialog.isShowing()) {
+            mFolderDialog.show();
+        }
     }
 
     /**
@@ -295,14 +302,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 .start();
     }
 
-    private Action<String> mCameraAction = new Action<>() {
+    private final Action<String> mCameraAction = new Action<>() {
         @Override
         public void onAction(@NonNull String result) {
             if (mMediaScanner == null) {
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
             }
             mMediaScanner.scan(result);
-
             PathConversion conversion = new PathConversion(sSizeFilter, sMimeFilter, sDurationFilter);
             PathConvertTask task = new PathConvertTask(conversion, AlbumActivity.this);
             task.execute(result);
@@ -330,7 +336,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void addFileToList(AlbumFile albumFile) {
         if (mCurrentFolder != 0) {
             List<AlbumFile> albumFiles = mAlbumFolders.get(0).getAlbumFiles();
-            if (albumFiles.size() > 0) albumFiles.add(0, albumFile);
+            if (!albumFiles.isEmpty()) albumFiles.add(0, albumFile);
             else albumFiles.add(albumFile);
         }
         AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
@@ -434,7 +440,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void tryPreviewChecked() {
-        if (mCheckedList.size() > 0) {
+        if (!mCheckedList.isEmpty()) {
             GalleryActivity.sAlbumFiles = new ArrayList<>(mCheckedList);
             GalleryActivity.sCheckedCount = mCheckedList.size();
             GalleryActivity.sCurrentPosition = 0;
@@ -456,7 +462,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         int position = albumFiles.indexOf(albumFile);
         int notifyPosition = mHasCamera ? position + 1 : position;
         mView.notifyItem(notifyPosition);
-
         if (albumFile.isChecked()) {
             if (!mCheckedList.contains(albumFile)) mCheckedList.add(albumFile);
         } else {
@@ -508,7 +513,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
-        if (sResult != null) sResult.onAction(albumFiles);
+        if (sResult != null) {
+            sResult.onAction(albumFiles);
+        }
         dismissLoadingDialog();
         finish();
     }
@@ -517,7 +524,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * Callback cancel action.
      */
     private void callbackCancel() {
-        if (sCancel != null) sCancel.onAction("User canceled.");
+        if (sCancel != null) {
+            sCancel.onAction("User canceled.");
+        }
         finish();
     }
 

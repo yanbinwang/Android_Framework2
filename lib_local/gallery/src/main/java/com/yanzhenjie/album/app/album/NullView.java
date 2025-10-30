@@ -1,6 +1,6 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
+import static com.example.gallery.base.BaseActivity.setSupportToolbar;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
@@ -19,7 +19,7 @@ import com.yanzhenjie.album.util.AlbumUtils;
 /**
  * Created by YanZhenjie on 2018/4/7.
  */
-class NullView extends Contract.NullView implements View.OnClickListener {
+public class NullView extends Contract.NullView implements View.OnClickListener {
     private Activity mActivity;
     private Toolbar mToolbar;
     private TextView mTitle;

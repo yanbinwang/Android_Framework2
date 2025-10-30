@@ -1,13 +1,13 @@
-package com.yanzhenjie.album.mvp;
+package com.example.gallery.base.bridge
 
 /**
  * Created by YanZhenjie on 2017/12/27.
  */
-public interface Bye {
+interface Bye {
 
     /**
      * Finish.
      */
-    void bye();
+    fun bye()
 
 }

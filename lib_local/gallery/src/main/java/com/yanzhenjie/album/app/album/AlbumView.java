@@ -1,6 +1,6 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.yanzhenjie.album.mvp.BaseActivity.setSupportToolbar;
+import static com.example.gallery.base.BaseActivity.setSupportToolbar;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -33,7 +33,7 @@ import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
  * Created by YanZhenjie on 2018/4/7.
  */
 @SuppressLint("NotifyDataSetChanged")
-class AlbumView extends Contract.AlbumView implements View.OnClickListener {
+public class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     private Activity mActivity;
     private Toolbar mToolbar;
     private MenuItem mCompleteMenu;

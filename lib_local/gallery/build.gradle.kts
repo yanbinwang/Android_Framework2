@@ -5,7 +5,10 @@ plugins {
 
 android {
     namespace = "com.example.gallery"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     sourceSets {
         getByName("main") {
