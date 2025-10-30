@@ -23,19 +23,20 @@ class PageInterceptor : IInterceptor {
     private val TAG = "PageInterceptor"
 
     companion object {
-        const val INTERCEPTOR_LOGIN_CODE = 1 //阿里路由登录全局拦截器编号
+        // 阿里路由登录全局拦截器编号
+        const val INTERCEPTOR_LOGIN_CODE = 1
     }
 
     override fun process(postcard: Postcard, callback: InterceptorCallback) {
         "PageInterceptor---开始执行".logE(TAG)
-        //给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
-        //先判断需不需要
+        // 给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
+        // 先判断需不需要
         if (postcard.extra == INTERCEPTOR_LOGIN_CODE) {
-            //判断用户的登录情况，可以把值保存在sp中
+            // 判断用户的登录情况，可以把值保存在sp中
             if (AccountHelper.isLogin()) {
                 callback.onContinue(postcard)
             } else {
-                //没有登录,注意需要传入context
+                // 没有登录,注意需要传入context
                 try {
                     ARouter.getInstance().build(ARouterPath.LoginActivity).navigation(postcard.context)
                     callback.onInterrupt(RuntimeException("用户未登录，请先登录"))
@@ -45,7 +46,7 @@ class PageInterceptor : IInterceptor {
                 }
             }
         } else {
-            //没有extra参数时则继续执行，不做拦截
+            // 没有extra参数时则继续执行，不做拦截
             callback.onContinue(postcard)
         }
     }
