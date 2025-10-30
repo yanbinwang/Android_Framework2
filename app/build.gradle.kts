@@ -45,7 +45,10 @@ android {
 //    }
 
     namespace = "com.example.mvvm"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     defaultConfig {
         applicationId = libs.versions.applicationId.get()
@@ -61,14 +64,12 @@ android {
 //        // 告知 Gradle 只打包 hdpi、xhdpi 和 xxhdpi 这三种屏幕密度的资源->如果23最低版本，启用这行
 //        resConfigs("hdpi", "xhdpi", "xxhdpi")
         // Manifest 配置引用
-        manifestPlaceholders.putAll(
-            mutableMapOf(
-                "PACKAGE_NAME" to libs.versions.applicationId.get(),
-                "DESIGN_WIDTH" to libs.versions.designWidth.get(),
-                "DESIGN_HEIGHT" to libs.versions.designHeight.get(),
-                "AMAP_API_KEY" to libs.versions.amapApiKey.get()
-            )
-        )
+        manifestPlaceholders.putAll(mutableMapOf(
+            "PACKAGE_NAME" to libs.versions.applicationId.get(),
+            "DESIGN_WIDTH" to libs.versions.designWidth.get(),
+            "DESIGN_HEIGHT" to libs.versions.designHeight.get(),
+            "AMAP_API_KEY" to libs.versions.amapApiKey.get()
+        ))
     }
 
     buildFeatures {
