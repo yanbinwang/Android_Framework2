@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    // 只需在 Application 模块中配置即可
     id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
 }
@@ -66,14 +67,12 @@ android {
 //        // 告知 Gradle 只打包 hdpi、xhdpi 和 xxhdpi 这三种屏幕密度的资源->如果23最低版本，启用这行
 //        resConfigs("hdpi", "xhdpi", "xxhdpi")
         // Manifest 配置引用
-        manifestPlaceholders.putAll(
-            mutableMapOf(
-                "PACKAGE_NAME" to libs.versions.applicationId.get(),
-                "DESIGN_WIDTH" to libs.versions.designWidth.get(),
-                "DESIGN_HEIGHT" to libs.versions.designHeight.get(),
-                "GOOGLE_AUTH_API" to libs.versions.googleAuthApi.get()
-            )
-        )
+        manifestPlaceholders.putAll(mutableMapOf(
+            "PACKAGE_NAME" to libs.versions.applicationId.get(),
+            "DESIGN_WIDTH" to libs.versions.designWidth.get(),
+            "DESIGN_HEIGHT" to libs.versions.designHeight.get(),
+            "GOOGLE_AUTH_API" to libs.versions.googleAuthApi.get()
+        ))
     }
 
     buildFeatures {
@@ -184,11 +183,11 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //调试库
+    // 调试库
     debugImplementation(project(":lib_debugging"))
-    //基础库
+    // 基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
-    //页面路由
+    // 页面路由
     kapt(libs.alibaba.arouter.compiler)
 }
