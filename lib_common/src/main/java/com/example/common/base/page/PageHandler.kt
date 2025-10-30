@@ -29,7 +29,7 @@ import com.example.framework.utils.function.value.toBundle
 fun XRecyclerView?.setState(length: Int = 0, imgRes: Int? = null, text: String? = null) {
     this ?: return
     finishRefreshing()
-    //判断集合长度，有长度不展示emptyview只做提示
+    // 判断集合长度，有长度不展示EmptyLayout只做提示
     if (length <= 0) empty.setEmptyState(imgRes, text)
 }
 
@@ -65,36 +65,36 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
  * 页面跳转的构建
  */
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
-    //构建arouter跳转
+    // 构建arouter跳转
     val postcard = ARouter.getInstance().build(path)
-    //获取一下要跳转的页面及class
+    // 获取一下要跳转的页面及class
     val clazz = postcard.getPostcardClass() ?: return
     val intent = Intent(this, clazz)
-    //检查目标页面是否已经在任务栈中，在的话直接拉起来
+    // 检查目标页面是否已经在任务栈中，在的话直接拉起来
     if (AppManager.isActivityAlive(clazz)) {
-        //Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
-        //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
+        // Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
+        // 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
     }
-    //判断一下跳转参数
+    // 判断一下跳转参数
     var hasResultCode = false
     if (params.isNotEmpty()) {
-        //过滤掉 null 值
+        // 过滤掉 null 值
         val nonNullParams = params.filterNotNull()
         hasResultCode = nonNullParams.find { it.first == RESULT_CODE } != null
-        //排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
+        // 排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
         val bundle = nonNullParams.filter { it.first != RESULT_CODE }.toBundle { this }
         intent.putExtras(bundle)
     }
-    //标记是否有动画配置
+    // 标记是否有动画配置
     if (null != options) {
         intent.putExtra(BUNDLE_OPTIONS, true)
     }
-    //获取一下拦截器
+    // 获取一下拦截器
     postcard.navigateWithInterceptors({
-        //检查 Activity 是否存活
+        // 检查 Activity 是否存活
         if (!isFinishing && !isDestroyed) {
-            //跳转对应页面
+            // 跳转对应页面
             if (!hasResultCode) {
                 startActivity(intent, options?.toBundle())
             } else {
@@ -111,7 +111,6 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
  * Postcard 仅在 ARouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
  */
 fun Postcard.getPostcardClass(): Class<*>? {
-//    context = mContext
     return try {
         LogisticsCenter.completion(this)
         destination
@@ -121,13 +120,7 @@ fun Postcard.getPostcardClass(): Class<*>? {
     }
 }
 
-//fun Context.getPostcardClass(path: String): Class<*>? {
-//    return ARouter.getInstance().build(path).getPostcardClass(this)
-//}
-
 fun String.getPostcardClass(): Class<*>? {
-//    val context = BaseApplication.instance.applicationContext
-//    return context.getPostcardClass(this)
     return ARouter.getInstance().build(this).getPostcardClass()
 }
 
