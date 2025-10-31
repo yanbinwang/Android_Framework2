@@ -10,13 +10,13 @@ import java.util.Deque
  */
 class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
     private val deque: Deque<T> by lazy { ArrayDeque(maxSize) }
-    private val postLock by lazy { Any() }
+    private val LOCK = Any()
 
     /**
      * 首位添加
      */
     fun addFirst(element: T) {
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (deque.size >= maxSize) {
                 deque.removeLast()
             }
@@ -28,7 +28,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
      * 结尾添加
      */
     fun addLast(element: T) {
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (deque.size >= maxSize) {
                 deque.removeFirst()
             }
@@ -40,7 +40,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
      * 首位删除
      */
     fun removeFirst(): T? {
-        return synchronized(postLock) {
+        return synchronized(LOCK) {
             try {
                 deque.removeFirst()
             } catch (e: NoSuchElementException) {
@@ -53,7 +53,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
      * 底部增加
      */
     fun removeLast(): T? {
-        return synchronized(postLock) {
+        return synchronized(LOCK) {
             try {
                 deque.removeLast()
             } catch (e: NoSuchElementException) {
@@ -66,7 +66,7 @@ class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
      * 获取当前集合
      */
     fun getReadOnlyList(): List<T> {
-        return synchronized(postLock) {
+        return synchronized(LOCK) {
             deque.toList()
         }
     }

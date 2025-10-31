@@ -17,27 +17,24 @@ import java.lang.ref.WeakReference
 /**
  * description 管理App中Activity的类
  * author yan
+ * 方法嵌套导致多个LOCK锁开启,其实本质是同一把锁，且 synchronized 是可重入锁，嵌套不会导致死锁，只会产生 “重入计数” 的轻微开销
  */
 object AppManager {
+    // 对象锁
+    private val LOCK = Any()
     // 存储 Activity 的弱引用（避免内存泄漏）
     private val activityDeque = ArrayDeque<WeakReference<Activity>>()
-    // 当前栈内所有的 Activity 总数
-    val dequeCount get() = activityDeque.size
 
     /**
-     * 获取当前栈顶Activity（非销毁状态）
+     * 当前栈内所有的 Activity 总数
      */
-    fun currentActivity(): Activity? {
-        return synchronized(activityDeque) {
-            // 从栈顶开始查找未销毁的Activity
-            activityDeque.asReversed().firstOrNull { ref ->
-                ref.get()?.let { !it.isDestroyed && !it.isFinishing } ?: false
-            }?.get()
+    val dequeCount: Int
+        get() {
+            return synchronized(LOCK) { activityDeque.size }
         }
-    }
 
     /**
-     * 获取当前Activity名称（优化API兼容性）
+     * 获取当前栈顶Activity全称（包含包名路径,优化API兼容性）
      */
     val currentActivityName: String?
         get() {
@@ -47,11 +44,35 @@ object AppManager {
         }
 
     /**
+     * 获取当前栈顶Activity（非销毁状态）
+     */
+    fun currentActivity(): Activity? {
+        return synchronized(LOCK) {
+            // 从栈顶开始查找未销毁的Activity
+            activityDeque
+                .asReversed()
+                .firstOrNull { ref ->
+                    ref.get()?.let {
+                        !it.isDestroyed && !it.isFinishing
+                    } ?: false
+                }?.get()
+        }
+    }
+
+
+    /**
      * 遍历所有存活的Activity
+     * 批量关闭 ->
+     * AppManager.forEachAlive {
+     *     if (!isFinishing && !isDestroyed) {
+     *         finish()
+     *     }
+     * }
      */
     fun forEachAlive(func: Activity.() -> Unit) {
-        synchronized(activityDeque) {
-            activityDeque.mapNotNull { it.get() }
+        synchronized(LOCK) {
+            activityDeque
+                .mapNotNull { it.get() }
                 .filter { !it.isDestroyed && !it.isFinishing }
                 .forEach(func)
         }
@@ -65,7 +86,7 @@ object AppManager {
      */
     fun addActivity(activity: Activity?) {
         activity ?: return
-        synchronized(activityDeque) {
+        synchronized(LOCK) {
             // 先移除已存在的相同实例，避免重复
             activityDeque.removeAll { it.get() == activity }
             activityDeque.add(WeakReference(activity))
@@ -79,7 +100,7 @@ object AppManager {
      */
     fun removeActivity(activity: Activity?) {
         activity ?: return
-        synchronized(activityDeque) {
+        synchronized(LOCK) {
             activityDeque.removeAll { it.get() == activity }
         }
     }
@@ -91,7 +112,7 @@ object AppManager {
         activity ?: return
         if (activity.isFinishing || activity.isDestroyed) return
         try {
-            synchronized(activityDeque) {
+            synchronized(LOCK) {
                 activityDeque.removeAll { it.get() == activity }
             }
             activity.finish()
@@ -112,11 +133,13 @@ object AppManager {
      */
     fun finishActivitiesOfClass(cls: Class<*>?) {
         if (cls == null) return
-        synchronized(activityDeque) {
-            activityDeque.mapNotNull { it.get() }
+        synchronized(LOCK) {
+            activityDeque
+                .mapNotNull { it.get() }
                 .filter { it.javaClass == cls }
                 .forEach { activity ->
-                    finishActivity(activity) // 复用已加try/catch的finishActivity
+                    // 复用已加try/catch的finishActivity
+                    finishActivity(activity)
                 }
         }
     }
@@ -127,13 +150,14 @@ object AppManager {
      */
     fun finishNotTargetActivity(vararg cls: Class<*>?) {
         try {
-            synchronized(activityDeque) {
+            synchronized(LOCK) {
                 // 过滤cls数组中的null，得到“有效保留类列表”
                 val validKeepClasses = cls.filterNotNull()
                 // 特殊逻辑：若有效保留类为空（即传入的全是null），则结束所有存活Activity
                 val shouldFinishAll = validKeepClasses.isEmpty()
                 // 过滤出需要结束的Activity
-                val activitiesToFinish = activityDeque.mapNotNull { it.get() }
+                val activitiesToFinish = activityDeque
+                    .mapNotNull { it.get() }
                     .filter { activity ->
                         // 条件：若需结束所有，则直接保留；否则排除“有效保留类”
                         (shouldFinishAll || activity.javaClass !in validKeepClasses) && !activity.isDestroyed && !activity.isFinishing
@@ -157,10 +181,11 @@ object AppManager {
      */
     fun finishTargetActivity(vararg cls: Class<*>?) {
         try {
-            synchronized(activityDeque) {
+            synchronized(LOCK) {
                 val validTargetClasses = cls.filterNotNull()
                 if (validTargetClasses.isEmpty()) return
-                val activitiesToFinish = activityDeque.mapNotNull { it.get() }
+                val activitiesToFinish = activityDeque
+                    .mapNotNull { it.get() }
                     .filter { activity ->
                         activity.javaClass in validTargetClasses && !activity.isDestroyed && !activity.isFinishing
                     }
@@ -179,18 +204,18 @@ object AppManager {
      * 结束所有Activity（保留核心逻辑，加锁保证线程安全），可通过application再次拉起
      */
     fun finishAllActivities() {
-        synchronized(activityDeque) {
-            val activities = activityDeque.mapNotNull { it.get() }
-            activityDeque.clear()
-            activities.forEach { activity ->
-                try {
+        try {
+            synchronized(LOCK) {
+                val activities = activityDeque.mapNotNull { it.get() }
+                activityDeque.clear()
+                activities.forEach { activity ->
                     if (!activity.isFinishing && !activity.isDestroyed) {
                         activity.finish()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -207,24 +232,26 @@ object AppManager {
      */
     fun finishAllExcept(cls: Class<*>?) {
         cls ?: return
-        synchronized(activityDeque) {
-            val targetActivity = activityDeque.mapNotNull { it.get() }
-                .find { it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
-            val activitiesToFinish = activityDeque.mapNotNull { it.get() }
-                .filter { it.javaClass != cls }
-            activitiesToFinish.forEach { activity ->
-                try {
+        try {
+            synchronized(LOCK) {
+                val targetActivity = activityDeque
+                    .mapNotNull { it.get() }
+                    .find { it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
+                val activitiesToFinish = activityDeque
+                    .mapNotNull { it.get() }
+                    .filter { it.javaClass != cls }
+                activitiesToFinish.forEach { activity ->
                     if (!activity.isFinishing && !activity.isDestroyed) {
                         activity.finish()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
+                if (targetActivity == null) {
+                    launchTargetActivity(cls)
+                }
+                cleanDestroyedActivities()
             }
-            if (targetActivity == null) {
-                launchTargetActivity(cls)
-            }
-            cleanDestroyedActivities()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -267,14 +294,15 @@ object AppManager {
 
     /**
      * 清理栈中已销毁的Activity引用（避免弱引用未及时回收的残留）
+     * 调用前确保已在synchronized(LOCK)块内
      */
     private fun cleanDestroyedActivities() {
-        synchronized(activityDeque) {
-            activityDeque.removeAll { ref ->
-                val activity = ref.get()
-                activity == null || activity.isDestroyed || activity.isFinishing
-            }
+//        synchronized(LOCK) {
+        activityDeque.removeAll { ref ->
+            val activity = ref.get()
+            activity == null || activity.isDestroyed || activity.isFinishing
         }
+//        }
     }
 
     /**
@@ -282,8 +310,9 @@ object AppManager {
      */
     fun isActivityAlive(cls: Class<*>?): Boolean {
         cls ?: return false
-        synchronized(activityDeque) {
-            return activityDeque.mapNotNull { it.get() }
+        synchronized(LOCK) {
+            return activityDeque
+                .mapNotNull { it.get() }
                 .any { it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
         }
     }
@@ -293,8 +322,9 @@ object AppManager {
      */
     fun isOtherActivityAlive(current: Activity, cls: Class<*>?): Boolean {
         cls ?: return false
-        synchronized(activityDeque) {
-            return activityDeque.mapNotNull { it.get() }
+        synchronized(LOCK) {
+            return activityDeque
+                .mapNotNull { it.get() }
                 .any { it !== current && it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
         }
     }
@@ -304,10 +334,11 @@ object AppManager {
      * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
      * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun reboot(className: String) {
+    fun rebootTaskStackAndLaunchTarget(className: String? = ARouterPath.StartActivity) {
         ARouter.getInstance().build(ARouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
-            .withString(Extra.ID, className).navigation()
+            .withString(Extra.ID, className)
+            .navigation()
     }
 
     /**
@@ -315,11 +346,12 @@ object AppManager {
      * 1)确保任务栈内存在首页
      * 2)确保任务栈内至少存在一个页面
      */
-    fun reboot(context: Context, resp: () -> Unit) {
+    fun ensureMainActivityAliveWithFallback(context: Context, resp: () -> Unit) {
         val mainClazz = ARouterPath.MainActivity.getPostcardClass()
         if (!isActivityAlive(mainClazz)) {
             ARouter.getInstance().build(ARouterPath.MainActivity)
-                .withOptionsCompat(context.getNoneOptions()).navigation()
+                .withOptionsCompat(context.getNoneOptions())
+                .navigation()
         }
         resp.invoke()
     }

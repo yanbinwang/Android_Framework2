@@ -23,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toDrawable
@@ -49,6 +50,7 @@ import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.font
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
@@ -319,6 +321,38 @@ fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTh
     textColor(colorRes)
     if (-1 != resId) background(resId)
 }
+
+///**
+// * 如果app使用了购买的字体库,需按照如下配置,字重的概念可参考textFontWeight扩展函数
+// * 1.先在style内部全局配置样式
+// *  <item name="android:textStyle">normal</item>
+// *  <item name="android:fontFamily">@font/font_regular</item>
+// *  2.根据UI提供的字体库做枚举区分
+// *  font_regular:常规（默认）
+// *  font_semi_bold:半粗
+// *  font_bold:加粗（标准）
+// */
+//// 定义字体格式常量
+//const val REGULAR = 0
+//const val SEMI_BOLD = 1
+//const val BOLD = 2
+//
+//// 定义注解，约束参数只能是上述常量
+//@IntDef(REGULAR, SEMI_BOLD, BOLD)
+//// 仅在源码阶段生效，不影响编译后字节码
+//@Retention(AnnotationRetention.SOURCE)
+//annotation class FontTypes
+//
+//fun TextView?.setTextFontType(@FontTypes type: Int = REGULAR) {
+//    this ?: return
+//    context?.let {
+//        setTypeface(it.font(when (type) {
+//            REGULAR -> R.font.font_regular
+//            SEMI_BOLD -> R.font.font_semi_bold
+//            else -> R.font.font_bold
+//        }))
+//    }
+//}
 
 /**
  * 國際化文本操作

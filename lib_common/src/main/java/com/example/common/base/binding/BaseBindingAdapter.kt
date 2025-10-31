@@ -242,6 +242,28 @@ object BaseBindingAdapter {
         textview.linearGradient(startColor, endColor)
     }
 
+//    /**
+//     * 设置textview加粗样式
+//     * ids加入
+//     *    <!-- 字体类型常量 -->
+//     *     <integer name="font_regular">0</integer>
+//     *     <integer name="font_semi_bold">1</integer>
+//     *     <integer name="font_bold">2</integer>
+//     *     <TextView
+//     *     android:layout_width="wrap_content"
+//     *     android:layout_height="wrap_content"
+//     *     textFontType="@{@integer/font_regular}" /> <!-- 常规字体 -->
+//     * <TextView
+//     *     textFontType="@{@integer/font_semi_bold}" /> <!-- 半粗字体 -->
+//     * <TextView
+//     *     textFontType="@{@integer/font_bold}" /> <!-- 加粗字体 -->
+//     */
+//    @JvmStatic
+//    @BindingAdapter(value = ["textFontType"])
+//    fun bindingTextViewFontType(textview: TextView, @FontTypes type: Int) {
+//        textview.setTextFontType(type)
+//    }
+
     /**
      * textview绘制图片
      * <TextView-->不需要配置自定义text值
