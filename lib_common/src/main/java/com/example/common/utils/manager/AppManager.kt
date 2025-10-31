@@ -30,7 +30,7 @@ object AppManager {
      */
     val dequeCount: Int
         get() {
-            return activityDeque.size
+            return synchronized(LOCK) { activityDeque.size }
         }
 
     /**
@@ -204,18 +204,18 @@ object AppManager {
      * 结束所有Activity（保留核心逻辑，加锁保证线程安全），可通过application再次拉起
      */
     fun finishAllActivities() {
-        synchronized(LOCK) {
-            val activities = activityDeque.mapNotNull { it.get() }
-            activityDeque.clear()
-            activities.forEach { activity ->
-                try {
+        try {
+            synchronized(LOCK) {
+                val activities = activityDeque.mapNotNull { it.get() }
+                activityDeque.clear()
+                activities.forEach { activity ->
                     if (!activity.isFinishing && !activity.isDestroyed) {
                         activity.finish()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
             }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -232,26 +232,26 @@ object AppManager {
      */
     fun finishAllExcept(cls: Class<*>?) {
         cls ?: return
-        synchronized(LOCK) {
-            val targetActivity = activityDeque
-                .mapNotNull { it.get() }
-                .find { it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
-            val activitiesToFinish = activityDeque
-                .mapNotNull { it.get() }
-                .filter { it.javaClass != cls }
-            activitiesToFinish.forEach { activity ->
-                try {
+        try {
+            synchronized(LOCK) {
+                val targetActivity = activityDeque
+                    .mapNotNull { it.get() }
+                    .find { it.javaClass == cls && !it.isDestroyed && !it.isFinishing }
+                val activitiesToFinish = activityDeque
+                    .mapNotNull { it.get() }
+                    .filter { it.javaClass != cls }
+                activitiesToFinish.forEach { activity ->
                     if (!activity.isFinishing && !activity.isDestroyed) {
                         activity.finish()
                     }
-                } catch (e: Exception) {
-                    e.printStackTrace()
                 }
+                if (targetActivity == null) {
+                    launchTargetActivity(cls)
+                }
+                cleanDestroyedActivities()
             }
-            if (targetActivity == null) {
-                launchTargetActivity(cls)
-            }
-            cleanDestroyedActivities()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
@@ -334,7 +334,7 @@ object AppManager {
      * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
      * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun reboot(className: String? = ARouterPath.StartActivity) {
+    fun rebootTaskStackAndLaunchTarget(className: String? = ARouterPath.StartActivity) {
         ARouter.getInstance().build(ARouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
             .withString(Extra.ID, className)
@@ -346,7 +346,7 @@ object AppManager {
      * 1)确保任务栈内存在首页
      * 2)确保任务栈内至少存在一个页面
      */
-    fun reboot(context: Context, resp: () -> Unit) {
+    fun ensureMainActivityAliveWithFallback(context: Context, resp: () -> Unit) {
         val mainClazz = ARouterPath.MainActivity.getPostcardClass()
         if (!isActivityAlive(mainClazz)) {
             ARouter.getInstance().build(ARouterPath.MainActivity)

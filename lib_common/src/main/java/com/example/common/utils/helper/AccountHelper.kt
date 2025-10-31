@@ -171,7 +171,7 @@ object AccountHelper {
          * 2)拉起透明页面,通过AppManager.reboot
          * 3)LoginActivity/StartActivity使用singleTask
          */
-        AppManager.reboot(ARouterPath.LoginActivity)
+        AppManager.rebootTaskStackAndLaunchTarget(ARouterPath.LoginActivity)
 
         /**
          * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
