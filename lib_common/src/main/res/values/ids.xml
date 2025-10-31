@@ -7,4 +7,8 @@
     <item name="theme_visibility_tag" type="id"/>
     <item name="theme_ime_height_tag" type="id"/>
     <item name="theme_input_focus_tag" type="id"/>
+<!--    &lt;!&ndash; 字体类型常量 &ndash;&gt;-->
+<!--    <integer name="font_regular">0</integer>-->
+<!--    <integer name="font_semi_bold">1</integer>-->
+<!--    <integer name="font_bold">2</integer>-->
 </resources>
