@@ -23,8 +23,6 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getLength
-import com.example.common.utils.function.mb
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
 import com.example.framework.utils.function.doOnDestroy
@@ -65,11 +63,11 @@ class OssFactory private constructor() : CoroutineScope {
     private var isAuthorize = false
     // Oss基础类
     private var oss: OSS? = null
+    // 对象锁，缩小范围减少开销
+    private val LOCK = Any()
     // key->保全号（服务器唯一id）value->对应oss的传输类/协程
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
     private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
-    // 对象锁，缩小范围减少开销
-    private val postLock by lazy { Any() }
     // 传入页面的lifecycle以及页面实现的OssImpl
     private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
     // 协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
@@ -110,7 +108,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
     fun initialize() {
-        synchronized(postLock) {
+        synchronized(LOCK) {
             initJob?.cancel()
             initJob = launch {
                 flow {
@@ -227,7 +225,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(baoquan: String, sourcePath: String?, fileType: String) {
         sourcePath ?: return
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (isInit()) {
                 // 校验是否上传
                 if (OssDBHelper.isUpload(baoquan)) return
@@ -455,7 +453,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(sourcePath: String?, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
         sourcePath ?: return
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (isInit()) {
                 onStart.invoke()
                 // 设置对应文件的断点文件存放路径
