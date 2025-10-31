@@ -100,7 +100,7 @@ class LinkActivity : BaseActivity<Nothing>() {
                 if (path != ARouterPath.MainActivity) {
                     excludedList.add(ARouterPath.MainActivity.getPostcardClass())
                 }
-                AppManager.reboot(this) {
+                AppManager.ensureMainActivityAliveWithFallback(this) {
                     // 跳转对应页面
                     navigation(path, options = getFadeOptions())
                     // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
