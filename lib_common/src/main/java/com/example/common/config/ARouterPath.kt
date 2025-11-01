@@ -10,12 +10,11 @@ object ARouterPath {
     const val SplashActivity = "/app/SplashActivity"
     const val StartActivity = "/app/StartActivity"
     const val MainActivity = "/app/MainActivity"
-    const val LoginActivity = "/app/LoginActivity"
-    const val TestActivity = "/app/TestActivity"
-    const val TestActivity2 = "/app/TestActivity2"
-    const val AdActivity = "/app/AdActivity"
+    const val KLineActivity = "/app/KLineActivity"
     //home模块
     const val LinkActivity = "/home/LinkActivity"//推送跳转
     const val WebActivity = "/home/WebActivity"//网页
     const val ScaleActivity = "/home/ScaleActivity"//伸缩图片展示
+    //account模块
+    const val LoginActivity = "/account/LoginActivity"
 }

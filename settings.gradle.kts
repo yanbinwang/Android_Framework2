@@ -63,8 +63,11 @@ include(":lib_common")
 include(":lib_framework")
 include(":lib_local:glide")
 include(":lib_local:topsheet")
-include(":lib_local:amap_sdk")
+include(":lib_local:klinechart")
+include(":lib_local:gallery")
 include(":lib_local:greendao")
 include(":lib_local:objectbox")
-include(":lib_local:gallery")
-include(":lib_debugging")//调试库，正式包不会被打入
+include(":lib_local:amap_sdk")
+
+// 调试库，正式包不会被打入
+include(":lib_debugging")

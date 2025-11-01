@@ -136,68 +136,6 @@
             </intent-filter>
         </activity>
 
-        <!--        &lt;!&ndash; 启动页 &ndash;&gt;-->
-        <!--        <activity-->
-        <!--            android:name=".activity.StartActivity"-->
-        <!--            android:screenOrientation="portrait"-->
-        <!--            android:theme="@style/NoAnimTheme" />-->
-
-        <!--        <activity-->
-        <!--            android:name=".activity.MainActivity"-->
-        <!--            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"-->
-        <!--            android:launchMode="singleTask"-->
-        <!--            android:screenOrientation="portrait"-->
-        <!--            android:theme="@style/MainTheme"-->
-        <!--            android:windowSoftInputMode="stateHidden|adjustUnspecified" />-->
-
-        <!--
-            在Android中，configChanges属性用于指示Activity或Fragment可处理哪些配置更改事件。以下是所有可能的configChanges配置：
-                mcc：mcc更改
-                mnc：mnc更改
-                locale：语言环境更改
-                touchscreen：触摸屏幕类型更改
-                keyboard：物理键盘可见性更改（隐藏/显示）
-                keyboardHidden：虚拟键盘可见性更改（隐藏/显示）
-                navigation：导航方式更改（方向键等）
-                orientation：设备方向更改（横向/纵向）
-                screenLayout：屏幕布局更改
-                fontScale：字体大小更改
-                uiMode：UI模式更改（夜间模式等）
-                screenSize：屏幕尺寸更改
-                smallestScreenSize：最小屏幕尺寸更改
-                layoutDirection：布局方向更改
-                例如，以下代码演示如何在AndroidManifest.xml文件中使用configChanges参数声明要处理设备方向更改和屏幕尺寸更改
-            <activity
-                android:name=".MainActivity"
-                android:configChanges="orientation|screenSize">
-                在上面的示例中，MainActivity类具有处理设备方向和屏幕尺寸更改的能力，并且不会在这些事件发生时被销毁和重新创建，而是保留其当前状态。
-                需要注意的是，虽然使用configChanges参数可以避免Activity或Fragment被销毁并重新创建，但它可能会增加代码复杂性和管理难度。
-                因此，在使用configChanges参数时需要仔细权衡利弊，并确保在处理配置更改时正确管理组件状态。
-                //一个activity注册时基本标配的属性
-                android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-                android:screenOrientation="portrait"
-
-            關於windowSoftInputMode
-                stateUnspecified
-                默认状态，没有任何特定的行为设置。
-                stateUnchanged
-                当用户从一个可输入视图跳转到另一个可输入视图时，保持窗口不变。
-                stateHidden
-                当用户从一个可输入视图跳转到非可输入视图时，隐藏软键盘。
-                stateAlwaysHidden
-                始终隐藏软键盘。
-                stateVisible
-                当用户从一个可输入视图跳转到另一个可输入视图时，显示软键盘。
-                stateAlwaysVisible
-                始终显示软键盘。
-                adjustUnspecified
-                默认状态，没有任何特定的调整设置。
-                adjustResize*
-                当软键盘出现时，调整窗口大小以便在屏幕上显示所有内容。
-                adjustPan*
-                调整当前活动的内容，以便用户可以看到当前获得焦点的视图。
-        -->
-
         <!-- 不可变一般是adjustPan  可变会拉伸则是adjustResize(注册,登录等有输入框的页面) -->
         <activity
             android:name=".activity.MainActivity"
@@ -208,25 +146,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
 
         <activity
-            android:name=".activity.TestActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <!--        &lt;!&ndash;-->
-        <!--        当触发屏幕方向变化（比如从竖屏切横屏）时，Activity 会执行 onDestroy() → onCreate() 的重建流程-->
-        <!--        &ndash;&gt;-->
-        <!--        <activity-->
-        <!--            android:name=".activity.TestActivity"-->
-        <!--            android:configChanges="keyboardHidden|screenLayout|uiMode"-->
-        <!--            android:windowSoftInputMode="stateHidden|adjustPan" />-->
-        <activity
-            android:name=".activity.Test2Activity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-
-        <activity
-            android:name=".activity.AdActivity"
+            android:name=".activity.KLineActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan" />

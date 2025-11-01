@@ -187,4 +187,6 @@ dependencies {
     implementation(project(":module_account"))
     //页面路由
     kapt(libs.alibaba.arouter.compiler)
+
+    implementation(project(":lib_local:klinechart"))
 }

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="主图"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tv_ma"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="MA"
+                android:textColor="@color/btnMainPressed"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_boll"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="BOLL"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_main_hide"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="隐藏"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="副图"
+                android:textColor="@color/textPrimary"
+                android:textSize="@dimen/textSize14" />
+
+            <TextView
+                android:id="@+id/tv_macd"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="MACD"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_kdj"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="KDJ"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_rsi"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="RSI"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_wr"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="WR"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_sub_hide"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="隐藏"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:id="@+id/tv_fen"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="分时"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+            <TextView
+                android:id="@+id/tv_k"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:padding="5pt"
+                android:text="k线图"
+                android:textColor="@color/btnMainDisabled"
+                android:textSize="@dimen/textSize12" />
+
+        </LinearLayout>
+
+        <View style="@style/LineWidth" />
+
+        <com.example.klinechart.widget.KLineChartView
+            android:id="@+id/kline"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+    </LinearLayout>
+
+</layout>
