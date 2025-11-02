@@ -17,7 +17,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     }
 
     override fun getDate(position: Int): String {
-        return data[position].Date
+        return data[position].mDate
     }
 
     /**

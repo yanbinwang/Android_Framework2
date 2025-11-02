@@ -26,7 +26,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     protected var mScaleX = 1f
     protected var mScaleXMax = 2f
     protected var mScaleXMin = 0.5f
-    protected var isLongPress = false
+    protected var mIsLongPress = false
     protected var touch = false
     protected var mDetector: GestureDetectorCompat? = null
     protected var mScaleDetector: ScaleGestureDetector? = null
@@ -50,11 +50,11 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     }
 
     override fun onLongPress(e: MotionEvent) {
-        isLongPress = true
+        mIsLongPress = true
     }
 
     override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
-        if (!isLongPress && !isMultipleTouch()) {
+        if (!mIsLongPress && !isMultipleTouch()) {
             scrollBy(distanceX.roundToInt(), 0)
             return true
         }
@@ -95,7 +95,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         event ?: return false
         // 按压手指超过1个
         if (event.pointerCount.orZero > 1) {
-            isLongPress = false
+            mIsLongPress = false
         }
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
@@ -104,7 +104,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
             }
             // 长按之后移动
             MotionEvent.ACTION_MOVE -> {
-                if (isLongPress) {
+                if (mIsLongPress) {
                     onLongPress(event)
                 }
             }
@@ -113,15 +113,15 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
             }
             MotionEvent.ACTION_UP -> {
                 if (x == event.x) {
-                    if (isLongPress) {
-                        isLongPress = false
+                    if (mIsLongPress) {
+                        mIsLongPress = false
                     }
                 }
                 touch = false
                 invalidate()
             }
             MotionEvent.ACTION_CANCEL -> {
-                isLongPress = false
+                mIsLongPress = false
                 touch = false
                 invalidate()
             }
@@ -185,7 +185,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         invalidate()
     }
 
-    protected fun checkAndFixScrollX() {
+    protected open fun checkAndFixScrollX() {
         if (mScrollX < getMinScrollX()) {
             mScrollX = getMinScrollX()
             mScroller?.forceFinished(true)
@@ -213,14 +213,6 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         return mMultipleTouch
     }
 
-    fun getScaleXMax(): Float {
-        return mScaleXMax
-    }
-
-    fun getScaleXMin(): Float {
-        return mScaleXMin
-    }
-
     fun isScrollEnable(): Boolean {
         return mScrollEnable
     }
@@ -229,17 +221,25 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         return mScaleEnable
     }
 
+    fun getScaleXMax(): Float {
+        return mScaleXMax
+    }
+
+    fun getScaleXMin(): Float {
+        return mScaleXMin
+    }
+
     /**
      * 设置缩放的最大值
      */
-    fun setScaleXMax(scaleXMax: Float) {
+    open fun setScaleXMax(scaleXMax: Float) {
         mScaleXMax = scaleXMax
     }
 
     /**
      * 设置缩放的最小值
      */
-    fun setScaleXMin(scaleXMin: Float) {
+    open fun setScaleXMin(scaleXMin: Float) {
         mScaleXMin = scaleXMin
     }
 

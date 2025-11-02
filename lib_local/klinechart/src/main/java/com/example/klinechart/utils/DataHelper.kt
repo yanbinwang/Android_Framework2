@@ -15,7 +15,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateRSI(dataList: MutableList<KLineEntity>) {
+    fun calculateRSI(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         var rsi: Float?
         var rsiABSEma = 0f
         var rsiMaxEma = 0f
@@ -37,7 +38,7 @@ object DataHelper {
                 rsi = 0f
             }
             if (rsi.isNaN()) rsi = 0f
-            point.rsi = rsi
+            point.mRsi = rsi
         }
     }
 
@@ -47,7 +48,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateKDJ(dataList: MutableList<KLineEntity>) {
+    fun calculateKDJ(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         var k = 0f
         var d = 0f
         for (i in dataList.indices) {
@@ -75,17 +77,17 @@ object DataHelper {
                 d = (k + 2f * d) / 3f
             }
             if (i < 13) {
-                point.k = 0f
-                point.d = 0f
-                point.j = 0f
+                point.mK = 0f
+                point.mD = 0f
+                point.mJ = 0f
             } else if (i == 13 || i == 14) {
-                point.k = k
-                point.d = 0f
-                point.j = 0f
+                point.mK = k
+                point.mD = 0f
+                point.mJ = 0f
             } else {
-                point.k = k
-                point.d = d
-                point.j = 3f * k - 2 * d
+                point.mK = k
+                point.mD = d
+                point.mJ = 3f * k - 2 * d
             }
         }
     }
@@ -96,7 +98,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateWR(dataList: MutableList<KLineEntity>) {
+    fun calculateWR(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         var r: Float
         for (i in dataList.indices) {
             val point = dataList[i]
@@ -111,13 +114,13 @@ object DataHelper {
                 min14 = min14.coerceAtMost(dataList[index].getLowPrice())
             }
             if (i < 13) {
-                point.r = -10f
+                point.mR = -10f
             } else {
                 r = -100 * (max14 - dataList[i].getClosePrice()) / (max14 - min14)
                 if (r.isNaN()) {
-                    point.r = 0f
+                    point.mR = 0f
                 } else {
-                    point.r = r
+                    point.mR = r
                 }
             }
         }
@@ -129,7 +132,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateMACD(dataList: MutableList<KLineEntity>) {
+    fun calculateMACD(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         var ema12 = 0f
         var ema26 = 0f
         var dif: Float
@@ -153,9 +157,9 @@ object DataHelper {
             dif = ema12 - ema26
             dea = dea * 8f / 10f + dif * 2f / 10f
             macd = (dif - dea) * 2f
-            point.dif = dif
-            point.dea = dea
-            point.macd = macd
+            point.mDif = dif
+            point.mDea = dea
+            point.mMacd = macd
         }
     }
 
@@ -165,13 +169,14 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateBOLL(dataList: MutableList<KLineEntity>) {
+    fun calculateBOLL(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         for (i in dataList.indices) {
             val point = dataList[i]
             if (i < 19) {
-                point.mb = 0f
-                point.up = 0f
-                point.dn = 0f
+                point.mMb = 0f
+                point.mUp = 0f
+                point.mDn = 0f
             } else {
                 val n = 20
                 var md = 0f
@@ -183,9 +188,9 @@ object DataHelper {
                 }
                 md /= (n - 1)
                 md = sqrt(md.toDouble()).toFloat()
-                point.mb = point.getMA20Price()
-                point.up = point.mb + 2f * md
-                point.dn = point.mb - 2f * md
+                point.mMb = point.getMA20Price()
+                point.mUp = point.mMb + 2f * md
+                point.mDn = point.mMb - 2f * md
             }
         }
     }
@@ -196,7 +201,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculateMA(dataList: MutableList<KLineEntity>) {
+    fun calculateMA(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         var ma5 = 0f
         var ma10 = 0f
         var ma20 = 0f
@@ -211,44 +217,44 @@ object DataHelper {
             ma30 += closePrice
             ma60 += closePrice
             if (i == 4) {
-                point.MA5Price = ma5 / 5f
+                point.mMA5Price = ma5 / 5f
             } else if (i >= 5) {
                 ma5 -= dataList[i - 5].getClosePrice()
-                point.MA5Price = ma5 / 5f
+                point.mMA5Price = ma5 / 5f
             } else {
-                point.MA5Price = 0f
+                point.mMA5Price = 0f
             }
             if (i == 9) {
-                point.MA10Price = ma10 / 10f
+                point.mMA10Price = ma10 / 10f
             } else if (i >= 10) {
                 ma10 -= dataList[i - 10].getClosePrice()
-                point.MA10Price = ma10 / 10f
+                point.mMA10Price = ma10 / 10f
             } else {
-                point.MA10Price = 0f
+                point.mMA10Price = 0f
             }
             if (i == 19) {
-                point.MA20Price = ma20 / 20f
+                point.mMA20Price = ma20 / 20f
             } else if (i >= 20) {
                 ma20 -= dataList[i - 20].getClosePrice()
-                point.MA20Price = ma20 / 20f
+                point.mMA20Price = ma20 / 20f
             } else {
-                point.MA20Price = 0f
+                point.mMA20Price = 0f
             }
             if (i == 29) {
-                point.MA30Price = ma30 / 30f
+                point.mMA30Price = ma30 / 30f
             } else if (i >= 30) {
                 ma30 -= dataList[i - 30].getClosePrice()
-                point.MA30Price = ma30 / 30f
+                point.mMA30Price = ma30 / 30f
             } else {
-                point.MA30Price = 0f
+                point.mMA30Price = 0f
             }
             if (i == 59) {
-                point.MA60Price = ma60 / 60f
+                point.mMA60Price = ma60 / 60f
             } else if (i >= 60) {
                 ma60 -= dataList[i - 60].getClosePrice()
-                point.MA60Price = ma60 / 60f
+                point.mMA60Price = ma60 / 60f
             } else {
-                point.MA60Price = 0f
+                point.mMA60Price = 0f
             }
         }
     }
@@ -259,7 +265,8 @@ object DataHelper {
      * @param dataList
      */
     @JvmStatic
-    fun calculate(dataList: MutableList<KLineEntity>) {
+    fun calculate(dataList: MutableList<KLineEntity>?) {
+        dataList ?: return
         calculateMA(dataList)
         calculateMACD(dataList)
         calculateBOLL(dataList)
@@ -277,20 +284,20 @@ object DataHelper {
             volumeMa5 += entry.getVolume()
             volumeMa10 += entry.getVolume()
             if (i == 4) {
-                entry.MA5Volume = (volumeMa5 / 5f)
+                entry.mMA5Volume = (volumeMa5 / 5f)
             } else if (i > 4) {
                 volumeMa5 -= entries[i - 5].getVolume()
-                entry.MA5Volume = volumeMa5 / 5f
+                entry.mMA5Volume = volumeMa5 / 5f
             } else {
-                entry.MA5Volume = 0f
+                entry.mMA5Volume = 0f
             }
             if (i == 9) {
-                entry.MA10Volume = volumeMa10 / 10f
+                entry.mMA10Volume = volumeMa10 / 10f
             } else if (i > 9) {
                 volumeMa10 -= entries[i - 10].getVolume()
-                entry.MA10Volume = volumeMa10 / 10f
+                entry.mMA10Volume = volumeMa10 / 10f
             } else {
-                entry.MA10Volume = 0f
+                entry.mMA10Volume = 0f
             }
         }
     }

@@ -183,18 +183,6 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         return ContextCompat.getColor(context, resId)
     }
 
-    /**
-     * 设置刷新监听
-     */
-    fun setRefreshListener(refreshListener: KChartRefreshListener) {
-        mRefreshListener = refreshListener
-    }
-
-    fun setMainDrawLine(isLine: Boolean) {
-        mMainDraw?.setLine(isLine)
-        invalidate()
-    }
-
     fun showLoading() {
         if (!isLoadMoreEnd && !isRefreshing) {
             isRefreshing = true
@@ -209,7 +197,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     fun justShowLoading() {
         if (!isRefreshing) {
-            isLongPress = false
+            mIsLongPress = false
             isRefreshing = true
             mProgressBar?.visibility = VISIBLE
             mRefreshListener?.onLoadMoreBegin(this)
@@ -230,7 +218,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      * 隐藏选择器内容
      */
     fun hideSelectData() {
-        isLongPress = false
+        mIsLongPress = false
         invalidate()
     }
 
@@ -402,6 +390,18 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     fun setRSI3Color(color: Int) {
         mRSIDraw?.setRSI3Color(color)
+    }
+
+    fun setMainDrawLine(isLine: Boolean) {
+        mMainDraw?.setLine(isLine)
+        invalidate()
+    }
+
+    /**
+     * 设置刷新监听
+     */
+    fun setRefreshListener(refreshListener: KChartRefreshListener) {
+        mRefreshListener = refreshListener
     }
 
     interface KChartRefreshListener {

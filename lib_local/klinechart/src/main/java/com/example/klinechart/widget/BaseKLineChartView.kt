@@ -141,7 +141,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             drawK(this)
             drawText(this)
             drawMaxAndMin(this)
-            drawValue(this, if (isLongPress) mSelectedIndex else mStopIndex)
+            drawValue(this, if (mIsLongPress) mSelectedIndex else mStopIndex)
         }
     }
 
@@ -252,7 +252,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
                 }
             }
             // 画选择线
-            if (isLongPress) {
+            if (mIsLongPress) {
                 val point = getItem(mSelectedIndex) as? IKLine
                 val x = getX(mSelectedIndex)
                 val y = getMainY(point?.getClosePrice().orZero)
@@ -350,7 +350,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             val text = getAdapter()?.getDate(mStopIndex).orEmpty()
             canvas.drawText(text, mWidth - mTextPaint.measureText(text), y, mTextPaint)
         }
-        if (isLongPress) {
+        if (mIsLongPress) {
             // 画Y值
             val point = getItem(mSelectedIndex) as? IKLine
             val w1 = ViewUtil.Dp2Px(context, 5f)
@@ -592,38 +592,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         mTranslateX = scrollX + getMinTranslateX()
     }
 
-    fun getMainY(value: Float): Float {
-        return (mMainMaxValue - value) * mMainScaleY + mMainRect?.top.orZero
-    }
-
-    fun getMainBottom(): Float {
-        return mMainRect?.bottom.toSafeFloat()
-    }
-
-    fun getVolY(value: Float): Float {
-        return (mVolMaxValue - value) * mVolScaleY + mVolRect?.top.orZero
-    }
-
-    fun getChildY(value: Float): Float {
-        return (mChildMaxValue - value) * mChildScaleY + mChildRect?.top.orZero
-    }
-
-    /**
-     * 解决text居中的问题
-     */
-    fun fixTextY(y: Float): Float {
-        val fontMetrics = mTextPaint.getFontMetrics()
-        return y + fontMetrics.descent - fontMetrics.ascent
-    }
-
-    /**
-     * 解决text居中的问题
-     */
-    fun fixTextY1(y: Float): Float {
-        val fontMetrics = mTextPaint.getFontMetrics()
-        return (y + (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.descent)
-    }
-
     fun dp2px(dp: Float): Int {
         val scale = context.resources.displayMetrics.density
         return (dp * scale + 0.5f).toSafeInt()
@@ -635,6 +603,15 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
+     * 开始动画
+     */
+    fun startAnimation() {
+        if (mAnimator != null) {
+            mAnimator?.start()
+        }
+    }
+
+    /**
      * 格式化值
      */
     fun formatValue(value: Float): String {
@@ -642,6 +619,39 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             setValueFormatter(ValueFormatter())
         }
         return getValueFormatter()?.format(value).orEmpty()
+    }
+
+    /**
+     * 格式化时间
+     *
+     * @param date
+     */
+    fun formatDateTime(date: Date?): String {
+        if (getDateTimeFormatter() == null) {
+            setDateTimeFormatter(TimeFormatter())
+        }
+        return getDateTimeFormatter()?.format(date).orEmpty()
+    }
+
+    /**
+     * 给子区域添加画图方法
+     *
+     * @param childDraw IChartDraw
+     */
+    fun addChildDraw(childDraw: IChartDraw<Any>?) {
+        childDraw ?: return
+        mChildDraws.add(childDraw)
+    }
+
+    /**
+     * 隐藏子图
+     */
+    fun hideChildDraw() {
+        mChildDrawPosition = -1
+        isShowChild = false
+        mChildDraw = null
+        initRect()
+        invalidate()
     }
 
     /**
@@ -663,6 +673,22 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
+     * 解决text居中的问题
+     */
+    fun fixTextY(y: Float): Float {
+        val fontMetrics = mTextPaint.getFontMetrics()
+        return y + fontMetrics.descent - fontMetrics.ascent
+    }
+
+    /**
+     * 解决text居中的问题
+     */
+    fun fixTextY1(y: Float): Float {
+        val fontMetrics = mTextPaint.getFontMetrics()
+        return (y + (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.descent)
+    }
+
+    /**
      * MA/BOLL切换及隐藏
      *
      * @param status MA/BOLL/NONE
@@ -676,6 +702,51 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     fun indexOfTranslateX(translateX: Float): Int {
         return indexOfTranslateX(translateX, 0, mItemCount - 1)
+    }
+
+    /**
+     * 二分查找当前值的index
+     *
+     * @return
+     */
+    fun indexOfTranslateX(translateX: Float, start: Int, end: Int): Int {
+        if (end == start) {
+            return start
+        }
+        if (end - start == 1) {
+            val startValue = getX(start)
+            val endValue = getX(end)
+            return if (abs(translateX - startValue) < abs(translateX - endValue)) start else end
+        }
+        val mid = start + (end - start) / 2
+        val midValue = getX(mid)
+        return if (translateX < midValue) {
+            indexOfTranslateX(translateX, start, mid)
+        } else if (translateX > midValue) {
+            indexOfTranslateX(translateX, mid, end)
+        } else {
+            mid
+        }
+    }
+
+    /**
+     * view中的x转化为TranslateX
+     *
+     * @param x
+     * @return
+     */
+    fun xToTranslateX(x: Float): Float {
+        return -mTranslateX + x / mScaleX
+    }
+
+    /**
+     * translateX转化为view中的x
+     *
+     * @param translateX
+     * @return
+     */
+    fun translateXtoX(translateX: Float): Float {
+        return (translateX + mTranslateX) * mScaleX
     }
 
     /**
@@ -733,6 +804,42 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
+     * 是否长按
+     */
+    fun isLongPress(): Boolean {
+        return mIsLongPress
+    }
+
+    /**
+     * 数据是否充满屏幕
+     *
+     * @return
+     */
+    fun isFullScreen(): Boolean {
+        return mDataLen >= mWidth / mScaleX
+    }
+
+    fun getBackgroundPaint(): Paint {
+        return mBackgroundPaint
+    }
+
+    fun getMainY(value: Float): Float {
+        return (mMainMaxValue - value) * mMainScaleY + mMainRect?.top.orZero
+    }
+
+    fun getMainBottom(): Float {
+        return mMainRect?.bottom.toSafeFloat()
+    }
+
+    fun getVolY(value: Float): Float {
+        return (mVolMaxValue - value) * mVolScaleY + mVolRect?.top.orZero
+    }
+
+    fun getChildY(value: Float): Float {
+        return (mChildMaxValue - value) * mChildScaleY + mChildRect?.top.orZero
+    }
+
+    /**
      * 根据索引获取实体
      *
      * @param position 索引值
@@ -766,60 +873,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 设置当前子图
-     *
-     * @param position
-     */
-    fun setChildDraw(position: Int) {
-        if (mChildDrawPosition != position) {
-            if (!isShowChild) {
-                isShowChild = true
-                initRect()
-            }
-            mChildDraw = mChildDraws[position]
-            mChildDrawPosition = position
-            isWR = position == 5
-            invalidate()
-        }
-    }
-
-    /**
-     * 隐藏子图
-     */
-    fun hideChildDraw() {
-        mChildDrawPosition = -1
-        isShowChild = false
-        mChildDraw = null
-        initRect()
-        invalidate()
-    }
-
-    /**
-     * 给子区域添加画图方法
-     *
-     * @param childDraw IChartDraw
-     */
-    fun addChildDraw(childDraw: IChartDraw<Any>?) {
-        childDraw ?: return
-        mChildDraws.add(childDraw)
-    }
-
-    /**
      * 获取ValueFormatter
      *
      * @return
      */
     fun getValueFormatter(): IValueFormatter? {
         return mValueFormatter
-    }
-
-    /**
-     * 设置ValueFormatter
-     *
-     * @param valueFormatter value格式化器
-     */
-    fun setValueFormatter(valueFormatter: IValueFormatter) {
-        this.mValueFormatter = valueFormatter
     }
 
     /**
@@ -832,27 +891,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 设置dateTimeFormatter
-     *
-     * @param dateTimeFormatter 时间格式化器
-     */
-    fun setDateTimeFormatter(dateTimeFormatter: IDateTimeFormatter) {
-        mDateTimeFormatter = dateTimeFormatter
-    }
-
-    /**
-     * 格式化时间
-     *
-     * @param date
-     */
-    fun formatDateTime(date: Date?): String {
-        if (getDateTimeFormatter() == null) {
-            setDateTimeFormatter(TimeFormatter())
-        }
-        return getDateTimeFormatter()?.format(date).orEmpty()
-    }
-
-    /**
      * 获取主区域的 IChartDraw
      *
      * @return IChartDraw
@@ -861,126 +899,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         return mMainDraw
     }
 
-    /**
-     * 设置主区域的 IChartDraw
-     *
-     * @param mainDraw IChartDraw
-     */
-    fun setMainDraw(mainDraw: IChartDraw<Any>?) {
-        mainDraw ?: return
-        mMainDraw = mainDraw
-        this.mainDraw = mMainDraw as? MainDraw
-    }
-
     fun getVolDraw(): IChartDraw<Any>? {
         return mVolDraw
-    }
-
-    fun setVolDraw(mVolDraw: IChartDraw<Any>?) {
-        mVolDraw ?: return
-        this.mVolDraw = mVolDraw
-    }
-
-    /**
-     * 二分查找当前值的index
-     *
-     * @return
-     */
-    fun indexOfTranslateX(translateX: Float, start: Int, end: Int): Int {
-        if (end == start) {
-            return start
-        }
-        if (end - start == 1) {
-            val startValue = getX(start)
-            val endValue = getX(end)
-            return if (abs(translateX - startValue) < abs(translateX - endValue)) start else end
-        }
-        val mid = start + (end - start) / 2
-        val midValue = getX(mid)
-        return if (translateX < midValue) {
-            indexOfTranslateX(translateX, start, mid)
-        } else if (translateX > midValue) {
-            indexOfTranslateX(translateX, mid, end)
-        } else {
-            mid
-        }
-    }
-
-    /**
-     * 设置数据适配器
-     */
-    fun setAdapter(adapter: IAdapter?) {
-        if (mAdapter != null) {
-            mAdapter?.unregisterDataSetObserver(mDataSetObserver)
-        }
-        mAdapter = adapter
-        if (mAdapter != null) {
-            mAdapter?.registerDataSetObserver(mDataSetObserver)
-            mItemCount = mAdapter?.getCount().orZero
-        } else {
-            mItemCount = 0
-        }
-        notifyChanged()
-    }
-
-    /**
-     * 开始动画
-     */
-    fun startAnimation() {
-        if (mAnimator != null) {
-            mAnimator?.start()
-        }
-    }
-
-    /**
-     * 设置动画时间
-     */
-    fun setAnimationDuration(duration: Long) {
-        if (mAnimator != null) {
-            mAnimator?.setDuration(duration)
-        }
-    }
-
-    /**
-     * 设置表格行数
-     */
-    fun setGridRows(gridRows: Int) {
-        var gridRows = gridRows
-        if (gridRows < 1) {
-            gridRows = 1
-        }
-        mGridRows = gridRows
-    }
-
-    /**
-     * 设置表格列数
-     */
-    fun setGridColumns(gridColumns: Int) {
-        var gridColumns = gridColumns
-        if (gridColumns < 1) {
-            gridColumns = 1
-        }
-        mGridColumns = gridColumns
-    }
-
-    /**
-     * view中的x转化为TranslateX
-     *
-     * @param x
-     * @return
-     */
-    fun xToTranslateX(x: Float): Float {
-        return -mTranslateX + x / mScaleX
-    }
-
-    /**
-     * translateX转化为view中的x
-     *
-     * @param translateX
-     * @return
-     */
-    fun translateXtoX(translateX: Float): Float {
-        return (translateX + mTranslateX) * mScaleX
     }
 
     /**
@@ -1014,13 +934,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 是否长按
-     */
-    fun isLongPress(): Boolean {
-        return isLongPress
-    }
-
-    /**
      * 获取选择索引
      */
     fun getSelectedIndex(): Int {
@@ -1036,29 +949,131 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 设置选择监听
+     * 获取文字大小
      */
-    fun setOnSelectedChangedListener(l: OnSelectedChangedListener) {
-        this.mOnSelectedChangedListener = l
+    fun getTextSize(): Float {
+        return mTextPaint.textSize
     }
 
-    fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
-        mOnSelectedChangedListener?.onSelectedChanged(view, point, index)
+    fun getTextPaint(): Paint {
+        return mTextPaint
     }
 
     /**
-     * 数据是否充满屏幕
-     *
-     * @return
+     * 获取曲线宽度
      */
-    fun isFullScreen(): Boolean {
-        return mDataLen >= mWidth / mScaleX
+    fun getLineWidth(): Float {
+        return mLineWidth
+    }
+
+    fun getDisplayHeight(): Int {
+        return displayHeight + mTopPadding + mBottomPadding
+    }
+
+    /**
+     * 设置当前子图
+     *
+     * @param position
+     */
+    open fun setChildDraw(position: Int) {
+        if (mChildDrawPosition != position) {
+            if (!isShowChild) {
+                isShowChild = true
+                initRect()
+            }
+            mChildDraw = mChildDraws[position]
+            mChildDrawPosition = position
+            isWR = position == 5
+            invalidate()
+        }
+    }
+
+    /**
+     * 设置ValueFormatter
+     *
+     * @param valueFormatter value格式化器
+     */
+    open fun setValueFormatter(valueFormatter: IValueFormatter) {
+        this.mValueFormatter = valueFormatter
+    }
+
+    /**
+     * 设置dateTimeFormatter
+     *
+     * @param dateTimeFormatter 时间格式化器
+     */
+    open fun setDateTimeFormatter(dateTimeFormatter: IDateTimeFormatter) {
+        mDateTimeFormatter = dateTimeFormatter
+    }
+
+    /**
+     * 设置主区域的 IChartDraw
+     *
+     * @param mainDraw IChartDraw
+     */
+    open fun setMainDraw(mainDraw: IChartDraw<Any>?) {
+        mainDraw ?: return
+        mMainDraw = mainDraw
+        this.mainDraw = mMainDraw as? MainDraw
+    }
+
+    open fun setVolDraw(mVolDraw: IChartDraw<Any>?) {
+        mVolDraw ?: return
+        this.mVolDraw = mVolDraw
+    }
+
+    /**
+     * 设置数据适配器
+     */
+    open fun setAdapter(adapter: IAdapter?) {
+        if (mAdapter != null) {
+            mAdapter?.unregisterDataSetObserver(mDataSetObserver)
+        }
+        mAdapter = adapter
+        if (mAdapter != null) {
+            mAdapter?.registerDataSetObserver(mDataSetObserver)
+            mItemCount = mAdapter?.getCount().orZero
+        } else {
+            mItemCount = 0
+        }
+        notifyChanged()
+    }
+
+    /**
+     * 设置动画时间
+     */
+    open fun setAnimationDuration(duration: Long) {
+        if (mAnimator != null) {
+            mAnimator?.setDuration(duration)
+        }
+    }
+
+    /**
+     * 设置表格行数
+     */
+    open fun setGridRows(gridRows: Int) {
+        var gridRows = gridRows
+        if (gridRows < 1) {
+            gridRows = 1
+        }
+        mGridRows = gridRows
+    }
+
+    /**
+     * 设置表格列数
+     */
+    open fun setGridColumns(gridColumns: Int) {
+        var gridColumns = gridColumns
+        if (gridColumns < 1) {
+            gridColumns = 1
+        }
+        mGridColumns = gridColumns
     }
 
     /**
      * 设置超出右方后可滑动的范围
      */
-    fun setOverScrollRange(overScrollRange: Float) {
+    open fun setOverScrollRange(overScrollRange: Float) {
         var overScrollRange = overScrollRange
         if (overScrollRange < 0) {
             overScrollRange = 0f
@@ -1071,7 +1086,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      *
      * @param topPadding
      */
-    fun setTopPadding(topPadding: Int) {
+    open fun setTopPadding(topPadding: Int) {
         mTopPadding = topPadding
     }
 
@@ -1080,49 +1095,53 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      *
      * @param bottomPadding
      */
-    fun setBottomPadding(bottomPadding: Int) {
+    open fun setBottomPadding(bottomPadding: Int) {
         mBottomPadding = bottomPadding
     }
 
     /**
      * 设置表格线宽度
      */
-    fun setGridLineWidth(width: Float) {
+    open fun setGridLineWidth(width: Float) {
         mGridPaint.strokeWidth = width
     }
 
     /**
      * 设置表格线颜色
      */
-    fun setGridLineColor(color: Int) {
+    open fun setGridLineColor(color: Int) {
         mGridPaint.setColor(color)
+    }
+
+    open fun getGridPaint(): Paint {
+        return mGridPaint
     }
 
     /**
      * 设置选择器横线宽度
      */
-    fun setSelectedXLineWidth(width: Float) {
+    open fun setSelectedXLineWidth(width: Float) {
         mSelectedXLinePaint.strokeWidth = width
     }
 
     /**
      * 设置选择器横线颜色
      */
-    fun setSelectedXLineColor(color: Int) {
+    open fun setSelectedXLineColor(color: Int) {
         mSelectedXLinePaint.setColor(color)
     }
 
     /**
      * 设置选择器竖线宽度
      */
-    fun setSelectedYLineWidth(width: Float) {
+    open fun setSelectedYLineWidth(width: Float) {
         mSelectedYLinePaint.strokeWidth = width
     }
 
     /**
      * 设置选择器竖线颜色
      */
-    fun setSelectedYLineColor(color: Int) {
+    open fun setSelectedYLineColor(color: Int) {
         mSelectedYLinePaint.setColor(color)
     }
 
@@ -1143,36 +1162,22 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置最大值/最小值文字颜色
      */
-    fun setMTextColor(color: Int) {
+    open fun setMTextColor(color: Int) {
         mMaxMinPaint.setColor(color)
     }
 
     /**
      * 设置最大值/最小值文字大小
      */
-    fun setMTextSize(textSize: Float) {
+    open fun setMTextSize(textSize: Float) {
         mMaxMinPaint.textSize = textSize
     }
 
     /**
      * 设置选中point 值显示背景
      */
-    fun setSelectPointColor(color: Int) {
+    open fun setSelectPointColor(color: Int) {
         mSelectPointPaint.setColor(color)
-    }
-
-    /**
-     * 获取文字大小
-     */
-    fun getTextSize(): Float {
-        return mTextPaint.textSize
-    }
-
-    /**
-     * 获取曲线宽度
-     */
-    fun getLineWidth(): Float {
-        return mLineWidth
     }
 
     /**
@@ -1185,24 +1190,19 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置每个点的宽度
      */
-    fun setPointWidth(pointWidth: Float) {
+    open fun setPointWidth(pointWidth: Float) {
         mPointWidth = pointWidth
     }
 
-    fun getGridPaint(): Paint {
-        return mGridPaint
+    /**
+     * 设置选择监听
+     */
+    fun setOnSelectedChangedListener(l: OnSelectedChangedListener) {
+        this.mOnSelectedChangedListener = l
     }
 
-    fun getTextPaint(): Paint {
-        return mTextPaint
-    }
-
-    fun getBackgroundPaint(): Paint {
-        return mBackgroundPaint
-    }
-
-    fun getDisplayHeight(): Int {
-        return displayHeight + mTopPadding + mBottomPadding
+    fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
+        mOnSelectedChangedListener?.onSelectedChanged(view, point, index)
     }
 
     /**
