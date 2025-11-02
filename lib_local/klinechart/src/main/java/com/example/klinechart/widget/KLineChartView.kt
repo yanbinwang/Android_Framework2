@@ -18,11 +18,14 @@ import com.example.klinechart.draw.MainDraw
 import com.example.klinechart.draw.RSIDraw
 import com.example.klinechart.draw.VolumeDraw
 import com.example.klinechart.draw.WRDraw
+import com.example.klinechart.utils.ViewUtil
 import kotlin.math.abs
+import androidx.core.graphics.toColorInt
 
 /**
  * k线图
  */
+@Suppress("UNCHECKED_CAST")
 class KLineChartView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseKLineChartView(context, attrs, defStyleAttr) {
     private var startX = 0
     private var startY = 0
@@ -41,7 +44,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     init {
         mProgressBar = ProgressBar(getContext())
-        val layoutParams = LayoutParams(dp2px(50f), dp2px(50f))
+        val layoutParams = LayoutParams(ViewUtil.dp2px(getContext(), 50f), ViewUtil.dp2px(getContext(), 50f))
         layoutParams.addRule(CENTER_IN_PARENT)
         addView(mProgressBar, layoutParams)
         mProgressBar?.visibility = GONE
@@ -70,7 +73,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
                 setSelectPointColor(getColor(R.styleable.KLineChartView_kc_background_color, getColor(R.color.chart_point_bac)))
                 setSelectedXLineColor(Color.WHITE)
                 setSelectedXLineWidth(getDimension(R.dimen.chart_line_width))
-                setSelectedYLineColor(Color.parseColor("#8040424D"))
+                setSelectedYLineColor("#8040424D".toColorInt())
                 setSelectedYLineWidth(getDimension(R.dimen.chart_point_width))
                 setGridLineWidth(getDimension(R.styleable.KLineChartView_kc_grid_line_width, getDimension(R.dimen.chart_grid_line_width)))
                 setGridLineColor(getColor(R.styleable.KLineChartView_kc_grid_line_color, getColor(R.color.chart_grid_line)))
@@ -276,8 +279,8 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      *
      * @param MACDWidth
      */
-    fun setMACDWidth(MACDWidth: Float) {
-        mMACDDraw?.setMACDWidth(MACDWidth)
+    fun setMACDWidth(mACDWidth: Float) {
+        mMACDDraw?.setMACDWidth(mACDWidth)
     }
 
     /**

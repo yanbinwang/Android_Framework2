@@ -116,7 +116,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         mAnimator = ValueAnimator.ofFloat(0f, 1f)
         mAnimator?.setDuration(mAnimationDuration)
         mAnimator?.addUpdateListener { invalidate() }
-        mSelectorFramePaint.strokeWidth = ViewUtil.Dp2Px(getContext(), 0.6f).toSafeFloat()
+        mSelectorFramePaint.strokeWidth = ViewUtil.dp2px(getContext(), 0.6f).toSafeFloat()
         mSelectorFramePaint.style = Paint.Style.STROKE
         mSelectorFramePaint.setColor(Color.WHITE)
     }
@@ -353,8 +353,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         if (mIsLongPress) {
             // 画Y值
             val point = getItem(mSelectedIndex) as? IKLine
-            val w1 = ViewUtil.Dp2Px(context, 5f)
-            val w2 = ViewUtil.Dp2Px(context, 3f)
+            val w1 = ViewUtil.dp2px(context, 5f)
+            val w2 = ViewUtil.dp2px(context, 3f)
             var r = textHeight / 2 + w2
             y = getMainY(point?.getClosePrice().orZero)
             var x: Float
@@ -592,23 +592,11 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         mTranslateX = scrollX + getMinTranslateX()
     }
 
-    fun dp2px(dp: Float): Int {
-        val scale = context.resources.displayMetrics.density
-        return (dp * scale + 0.5f).toSafeInt()
-    }
-
-    fun sp2px(spValue: Float): Int {
-        val fontScale = context.resources.displayMetrics.scaledDensity
-        return (spValue * fontScale + 0.5f).toSafeInt()
-    }
-
     /**
      * 开始动画
      */
     fun startAnimation() {
-        if (mAnimator != null) {
-            mAnimator?.start()
-        }
+        mAnimator?.start()
     }
 
     /**

@@ -245,8 +245,8 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         val metrics = mSelectorTextPaint.getFontMetrics()
         val textHeight = metrics.descent - metrics.ascent
         val index = view.getSelectedIndex()
-        val padding = ViewUtil.Dp2Px(mContext, 5f)
-        val margin = ViewUtil.Dp2Px(mContext, 5f)
+        val padding = ViewUtil.dp2px(mContext, 5f)
+        val margin = ViewUtil.dp2px(mContext, 5f)
         var width = 0f
         val left: Float
         val top = margin + view.getTopPadding()
@@ -379,9 +379,9 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         if (isLine != line) {
             isLine = line
             if (isLine) {
-                kChartView?.setCandleWidth(kChartView?.dp2px(7f).toSafeFloat())
+                kChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 7f).toSafeFloat())
             } else {
-                kChartView?.setCandleWidth(kChartView?.dp2px(6f).toSafeFloat())
+                kChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 6f).toSafeFloat())
             }
         }
     }

@@ -23,7 +23,7 @@ class VolumeDraw(view: BaseKLineChartView) : IChartDraw<IVolume> {
         val context = view.context
         mRedPaint.setColor(ContextCompat.getColor(context, R.color.chart_red))
         mGreenPaint.setColor(ContextCompat.getColor(context, R.color.chart_green))
-        pillarWidth = ViewUtil.Dp2Px(context, 4f)
+        pillarWidth = ViewUtil.dp2px(context, 4f)
     }
 
     override fun drawTranslated(lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
