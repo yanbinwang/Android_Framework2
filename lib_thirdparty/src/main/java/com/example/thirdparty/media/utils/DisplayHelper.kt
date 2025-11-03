@@ -21,6 +21,7 @@ import com.example.common.utils.function.pullUpScreen
 import com.example.common.utils.function.string
 import com.example.common.widget.dialog.AndDialog
 import com.example.framework.utils.function.isServiceRunning
+import com.example.framework.utils.function.startForegroundService
 import com.example.framework.utils.function.startService
 import com.example.framework.utils.function.stopService
 import com.example.framework.utils.function.value.currentTimeNano
@@ -49,7 +50,8 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
      */
     private val result = registrar.registerResult {
         if (it.resultCode == RESULT_OK) {
-            mActivity.startService(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
+            DisplayService.isDestroy = false
+            mActivity.startForegroundService(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             mActivity.moveTaskToBack(true)
         } else {
             R.string.screenCancel.shortToast()
