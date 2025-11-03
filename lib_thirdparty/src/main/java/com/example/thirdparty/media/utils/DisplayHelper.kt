@@ -126,20 +126,24 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
         @JvmStatic
         fun isEncoderSupported(width: Int, height: Int, bitRate: Int, frameRate: Int): Boolean {
             return try {
-                // 创建与实际录制一致的格式（关键：必须包含颜色格式）
+                // 创建与实际录制一致的格式（必须包含颜色格式）
                 val format = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height).apply {
                     setInteger(MediaFormat.KEY_BIT_RATE, bitRate)
                     setInteger(MediaFormat.KEY_FRAME_RATE, frameRate)
-                    setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10) // 与实际录制保持一致
-                    // 关键：录屏场景必须使用COLOR_FormatSurface
+                    // 与实际录制保持一致
+                    setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 10)
+                    // 录屏场景必须使用COLOR_FormatSurface
                     setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
                 }
                 // 查找支持该格式的编码器
                 val codecList = MediaCodecList(MediaCodecList.REGULAR_CODECS)
                 val codecName = codecList.findEncoderForFormat(format)
-                codecName != null // 有可用编码器则返回true
+                // 有可用编码器则返回true
+                codecName != null
             } catch (e: Exception) {
-                false // 任何异常都视为不支持
+                e.printStackTrace()
+                // 任何异常都视为不支持
+                false
             }
         }
 
@@ -159,7 +163,8 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                 // 确保宽高为偶数（编码器硬性要求）
                 val validW = if (w % 2 == 0) w else w - 1
                 val validH = if (h % 2 == 0) h else h - 1
-                Triple(validW, validH, 30) // 帧率固定30fps
+                // 帧率固定30fps
+                Triple(validW, validH, 30)
             }
             // 遍历候选参数，返回第一个支持的组合
             for ((w, h, fps) in paramCandidates) {
@@ -175,9 +180,9 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
     }
 
     init {
-        //加入页面生命周期管控
+        // 加入页面生命周期管控
         mActivity.lifecycle.addObserver(this)
-        //获取录屏屏幕宽高，高版本进行修正->页面是锁死竖屏的，故而校验只需一次
+        // 获取录屏屏幕宽高，高版本进行修正->页面是锁死竖屏的，故而校验只需一次
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             var destroy = false
             if (mActivity.isFinishing.orFalse) destroy = true
@@ -197,7 +202,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                 }
             }
         }
-        //只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
+        // 只要在录屏中，截一张图就copy一张到目标目录，但是需要及时清空
         observer.setOnShotListener {
             if (isZip) {
                 it ?: return@setOnShotListener
@@ -207,7 +212,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                 }
             }
         }
-        //开始进行录屏
+        // 开始进行录屏
         DisplayService.setOnDisplayListener(object : DisplayService.OnDisplayListener {
             override fun onStart(folderPath: String?) {
                 R.string.screenStart.shortToast()
@@ -220,7 +225,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
             }
 
             override fun onShutter() {
-                //此处是开始处理值，需要有加载动画之类的做拦截
+                // 此处是开始处理值，需要有加载动画之类的做拦截
                 listener?.onShutter()
             }
 
@@ -231,9 +236,9 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                     if (list.safeSize == 0) {
                         listener?.onStop(listOf(filePath), false)
                     } else {
-                        //拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
+                        // 拿到保存的截屏文件夹地址下的所有文件目录，并将录屏源文件路径也添加进其中
                         list.add(filePath.orEmpty())
-                        //放入页面协程操作
+                        // 放入页面协程操作
 //                        // 拿到源文件路径
 //                        val folderPath = list.safeLast()
 //                        // 压缩包输出路径（会以录屏文件的命名方式来命名）
@@ -251,7 +256,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
             }
 
             override fun onError(e: Exception?) {
-                //有转圈动画记得关闭
+                // 有转圈动画记得关闭
                 R.string.screenError.shortToast()
                 isRecording = false
                 listener?.onCancel()
