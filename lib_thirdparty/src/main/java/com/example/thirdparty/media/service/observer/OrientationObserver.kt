@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.service
+package com.example.thirdparty.media.service.observer
 
 import android.view.OrientationEventListener
 import androidx.fragment.app.FragmentActivity

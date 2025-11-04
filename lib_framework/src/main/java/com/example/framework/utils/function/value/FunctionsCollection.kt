@@ -6,7 +6,6 @@ import android.util.SparseArray
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
-import kotlin.collections.set
 import kotlin.random.Random
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
@@ -454,24 +453,29 @@ fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? 
  *     }
  * }
  * }.join(",")
+ * return reduce { acc, string -> "${acc}${separator}${string}" }
+ * val list = listOf("a", "b", "c")
+ * val result = list.joinToString(separator = ",")
+ * // 结果："a,b,c"
  */
-fun List<String>?.join(separator: String): String {
-    if (isNullOrEmpty()) return ""
-    val sb = StringBuilder()
-    forEachIndexed { index, s ->
-        if (index > 0) sb.append(separator)
-        sb.append(s)
-    }
-    return sb.toString()
-}
-
+//fun List<String>?.join(separator: String): String {
+//    if (isNullOrEmpty()) return ""
+//    val sb = StringBuilder()
+//    forEachIndexed { index, s ->
+//        if (index > 0) sb.append(separator)
+//        sb.append(s)
+//    }
+//    return sb.toString()
+//}
+//
 /**
  *  val list = listOf("1" to true, "2" to true, "3" to true)
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
-fun List<Pair<String, Boolean>>?.joinFilter(separator: String): String {
+fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
     if (isNullOrEmpty()) return ""
-    return filter { it.second }.toNewList { it.first }.join(separator)
+//    return filter { it.second }.toNewList { it.first }.join(separator)
+    return filter { it.second }.toNewList { it.first }.joinToString(separator)
 }
 
 /**
@@ -493,21 +497,23 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
     return json
 }
 
-/**
- * 获取一串拼接的json
- */
-fun <T> ArrayList<T>?.requestParams(): String {
-    if (isNullOrEmpty()) return ""
-    val builder = StringBuilder("[")
-    for (i in indices) {
-        builder.append(safeGet(i))
-        if (i < lastIndex) {
-            builder.append("],[")
-        }
-    }
-    builder.append("]")
-    return builder.toString()
-}
+///**
+// * 获取一串拼接的json
+// */
+//fun <T> ArrayList<T>?.requestParams(): String {
+//    if (isNullOrEmpty()) return ""
+//    val builder = StringBuilder("[")
+//    for (i in indices) {
+//        builder.append(safeGet(i))
+//        if (i < lastIndex) {
+//            builder.append("],[")
+//        }
+//    }
+//    builder.append("]")
+//    return builder.toString()
+//    return joinToString(separator = "],[").let { "[$it]" }
+//    return fold("[") { acc, t -> "${acc}],[${t}"}.run { "${this}]" }
+//}
 
 /**
  * pair处理（如果都不为空，则返回true）

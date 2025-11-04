@@ -34,10 +34,10 @@ object StorageUtil {
             "未找到手机sd卡".logE()
             return null
         }
-        //根据类型在sd卡picture目录下建立对应app名称的对应类型文件
-        val storageInfo = getStorageInfo(mimeType)
-        //先在包名目录下建立对应类型的文件夹，构建失败直接返回null
-        val storageDir = File(storageInfo.first)
+        // 根据类型在sd卡picture目录下建立对应app名称的对应类型文件
+        val (pathname, suffix) = getStorageInfo(mimeType)
+        // 先在包名目录下建立对应类型的文件夹，构建失败直接返回null
+        val storageDir = File(pathname)
         if (!storageDir.exists()) {
             "开始创建文件目录\n地址:${storageDir.path}".logE()
             if (!storageDir.mkdirs()) {
@@ -47,7 +47,7 @@ object StorageUtil {
         } else {
             "文件目录已创建\n地址:${storageDir.path}".logE()
         }
-        return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${storageInfo.second}")
+        return File("${storageDir.path}/${"yyyyMMdd_HHmmss".convert(Date())}.${suffix}")
     }
 
     /**
@@ -56,13 +56,13 @@ object StorageUtil {
     @JvmStatic
     fun getStorageInfo(mimeType: StorageType): Pair<String, String> {
         return when (mimeType) {
-            //拍照/抓拍
+            // 拍照/抓拍
             StorageType.IMAGE -> getStoragePath("拍照") to "jpg"
-            //录像
+            // 录像
             StorageType.VIDEO -> getStoragePath("录像") to "mp4"
-            //录音
+            // 录音
             StorageType.AUDIO -> getStoragePath("录音") to "wav"
-            //录屏
+            // 录屏
             StorageType.SCREEN -> getStoragePath("录屏") to "mp4"
         }
     }
