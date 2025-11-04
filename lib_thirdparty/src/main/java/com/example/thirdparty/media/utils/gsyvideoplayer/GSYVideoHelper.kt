@@ -73,7 +73,7 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
  */
 class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
     private var isPause = false
-    private var isPlay = false
+    private var isPrepared = false
     private var lastVisible = true
     private var retryWithPlay = false
     private var thumbJob: Job? = null
@@ -94,7 +94,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         override fun onPrepared(url: String?, vararg objects: Any?) {
             super.onPrepared(url, *objects)
             // 开始播放了才能旋转和全屏
-            isPlay = true
+            isPrepared = true
             orientationUtils?.isEnable = true
             player?.fullscreenButton?.enable()
         }
@@ -383,7 +383,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * }
      */
     fun onConfigurationChanged(newConfig: Configuration) {
-        if (isPlay && !isPause) player?.onConfigurationChanged(mActivity, newConfig, orientationUtils, true, true)
+        if (isPrepared && !isPause) player?.onConfigurationChanged(mActivity, newConfig, orientationUtils, true, true)
     }
 
     /**
@@ -402,7 +402,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * 播放-默认一次切内核的重试机会
      */
     fun start() {
-        isPlay = false
+        isPrepared = false
         retryWithPlay = false
         player?.startPlayLogic()
     }
