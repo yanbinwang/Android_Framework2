@@ -41,9 +41,7 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
 
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
 //        val img = data.safeGet(position)?.first ?: return Any()
-        val item = data.safeGet(position) ?: throw IndexOutOfBoundsException("Invalid position: $position")
-        val img = item.first
-        val imageUrl = data.safeGet(position)?.second.orEmpty()
+        val (img, imageUrl) = data.safeGet(position) ?: throw IndexOutOfBoundsException("Invalid position: $position")
         ImageLoader.instance.loadImageFromUrl(img, imageUrl, onLoadStart = {
             img.invisible()
         }, onLoadComplete = {
