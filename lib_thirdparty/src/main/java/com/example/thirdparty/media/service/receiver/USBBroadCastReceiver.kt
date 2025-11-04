@@ -56,6 +56,7 @@ class USBBroadCastReceiver : BroadcastReceiver() {
          */
         @Volatile
         var isUSBDeviceConnected = false
+            private set
 
         /**
          * 获取 USB 广播过滤器（简化注册流程）
@@ -152,6 +153,7 @@ class USBBroadCastReceiver : BroadcastReceiver() {
      * 注销广播时清除回调（避免内存泄漏）
      */
     fun clearListener() {
+        isUSBDeviceConnected = false
         stateChangeListener?.clear()
         stateChangeListener = null
     }
