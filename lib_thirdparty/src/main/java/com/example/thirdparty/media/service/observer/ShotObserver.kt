@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.service
+package com.example.thirdparty.media.service.observer
 
 import android.database.ContentObserver
 import android.database.Cursor

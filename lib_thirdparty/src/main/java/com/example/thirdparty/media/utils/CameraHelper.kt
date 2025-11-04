@@ -14,7 +14,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
-import com.example.thirdparty.media.service.KeyEventReceiver
+import com.example.thirdparty.media.service.receiver.KeyEventReceiver
 import com.otaliastudios.cameraview.CameraListener
 import com.otaliastudios.cameraview.CameraView
 import com.otaliastudios.cameraview.PictureResult

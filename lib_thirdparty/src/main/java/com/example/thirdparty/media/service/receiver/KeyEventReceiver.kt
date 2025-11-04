@@ -1,10 +1,10 @@
-package com.example.thirdparty.media.service
+package com.example.thirdparty.media.service.receiver
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.view.KeyEvent
-import com.example.common.event.EventCode.EVENT_MENU_ACTION
+import com.example.common.event.EventCode
 
 /**
  *  Created by wangyanbin
@@ -13,7 +13,9 @@ import com.example.common.event.EventCode.EVENT_MENU_ACTION
 class KeyEventReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        when (intent?.action) {
+        if (context == null || intent == null) return
+        val action = intent.action ?: return
+        when (action) {
             /**
              * 请求关闭临时系统对话框广播
              * 接收 ACTION_CLOSE_SYSTEM_DIALOGS 广播不需要申请 BROADCAST_CLOSE_SYSTEM_DIALOGS 权限（该权限仅用于发送此广播），接收时无需额外权限。
@@ -30,11 +32,11 @@ class KeyEventReceiver : BroadcastReceiver() {
                  * "accessibility"	辅助功能相关操作触发（如通过辅助服务执行的系统交互）
                  */
                 when (intent.getStringExtra("reason")) {
-                    "homekey", "recentapps" -> EVENT_MENU_ACTION.post()
+                    "homekey", "recentapps" -> EventCode.EVENT_MENU_ACTION.post()
                 }
             }
             // 电源键广播
-            Intent.ACTION_SCREEN_OFF, Intent.ACTION_SCREEN_ON -> EVENT_MENU_ACTION.post()
+            Intent.ACTION_SCREEN_OFF, Intent.ACTION_SCREEN_ON -> EventCode.EVENT_MENU_ACTION.post()
             // 多媒体按键广播
             Intent.ACTION_MEDIA_BUTTON -> {
                 /**

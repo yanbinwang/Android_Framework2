@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.service
+package com.example.thirdparty.media.service.observer
 
 import android.content.Context
 import android.os.Build

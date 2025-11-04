@@ -28,7 +28,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeSize
 import com.example.thirdparty.R
 import com.example.thirdparty.media.service.DisplayService
-import com.example.thirdparty.media.service.ShotObserver
+import com.example.thirdparty.media.service.observer.ShotObserver
 
 /**
  * @description 录屏工具类
