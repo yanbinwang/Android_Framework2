@@ -26,6 +26,7 @@ import java.io.RandomAccessFile
 import java.math.BigDecimal
 import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
+import java.math.RoundingMode
 import java.security.MessageDigest
 
 /**
@@ -196,14 +197,9 @@ fun File?.safeDelete(): Boolean {
 /**
  * 文件本身的整体大小
  */
-fun String?.getTotalSize(): Long {
+fun String?.totalSize(): Long {
     this ?: return 0
     return File(this).totalSize()
-}
-
-fun File?.getTotalSize(): Long {
-    this ?: return 0
-    return totalSize()
 }
 
 fun File?.totalSize(): Long {
@@ -228,45 +224,36 @@ fun File?.totalSize(): Long {
  * 获取对应大小的文字
  * 新api --> Formatter.formatFileSize()
  */
-fun String?.getSizeFormat(): String {
+private const val STORAGE_UNIT_BASE = 1024.0 // 用 Double 避免类型转换
+
+fun String?.storageSizeFormat(): String {
     this ?: return ""
-    return getFileLength().getSizeFormat()
+    return File(this).storageSizeFormat()
 }
 
-fun File?.getSizeFormat(): String {
+fun File?.storageSizeFormat(): String {
     this ?: return ""
-    return length().getSizeFormat()
-}
-
-fun Number?.getSizeFormat(): String {
-    this ?: return ""
-    val byteResult = this.toSafeLong() / 1024
-    if (byteResult < 1) return "<1K"
-    val kiloByteResult = byteResult / 1024
-    if (kiloByteResult < 1) return "${BigDecimal(byteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}K"
-    val mByteResult = kiloByteResult / 1024
-    if (mByteResult < 1) return "${BigDecimal(kiloByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}M"
-    val gigaByteResult = mByteResult / 1024
-    if (gigaByteResult < 1) return "${BigDecimal(mByteResult.toString()).setScale(2, ROUND_HALF_UP).toPlainString()}GB"
-    val teraByteResult = BigDecimal(gigaByteResult)
-    return "${teraByteResult.setScale(2, ROUND_HALF_UP).toPlainString()}TB"
+    // 字节数
+    val bytes = length().toSafeLong()
+    // 用 Double 简化计算，避免重复整除丢失精度
+    val kb = bytes / STORAGE_UNIT_BASE
+    return when {
+        kb < 1 -> "<1K"
+        kb < STORAGE_UNIT_BASE -> "${formatStorageValue(kb)}K"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / STORAGE_UNIT_BASE)}M"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}GB"
+        else -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}TB"
+    }
 }
 
 /**
- * 扩展函数：获取字符串路径对应的文件/目录长度
- * - 若为文件：返回文件大小（字节）
- * - 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
- * - 路径为空/文件不存在/异常：返回 0L
+ * 统一格式化存储大小数值（保留2位小数，四舍五入）
  */
-fun String?.getFileLength(): Long {
-    this ?: return 0L
-    return try {
-        val file = File(this.trim())
-        if (file.exists()) file.length() else 0L
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0L
-    }
+private fun formatStorageValue(value: Double): String {
+    return BigDecimal.valueOf(value)
+        // 显式指定 RoundingMode，避免歧义
+        .setScale(2, RoundingMode.HALF_UP)
+        .toPlainString()
 }
 
 /**
@@ -321,6 +308,42 @@ fun File?.renameFileTo(targetFile: File): Boolean {
         return false
     }
     return renameTo(targetFile)
+}
+
+/**
+ * 扩展函数：获取字符串路径对应的文件/目录长度
+ * - 若为文件：返回文件大小（字节）
+ * - 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
+ * - 路径为空/文件不存在/异常：返回 0L
+ */
+fun String?.getFileLength(): Long {
+    this ?: return 0L
+    return try {
+        val file = File(this.trim())
+        if (file.exists()) file.length() else 0L
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0L
+    }
+}
+
+/**
+ * 获取当前手机缓存目录下的缓存文件大小,
+ * @return 返回格式化后的缓存大小字符串，如 "2.5M"
+ */
+fun Context?.getFormattedCacheSize(): String {
+    var formattedSize = "0M"
+    this ?: return formattedSize
+    // 安全获取缓存目录，计算总大小并格式化
+    cacheDir?.takeIf { it.exists() }?.apply {
+        val totalCacheBytes = totalSize()
+        formattedSize = if (totalCacheBytes > 0) {
+            storageSizeFormat()
+        } else {
+            formattedSize
+        }
+    }
+    return formattedSize
 }
 
 /**
