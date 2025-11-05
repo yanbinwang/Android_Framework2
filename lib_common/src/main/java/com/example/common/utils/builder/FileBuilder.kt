@@ -33,16 +33,17 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.copy
 import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
 import com.example.common.utils.function.getHash
 import com.example.common.utils.function.getSizeFormat
 import com.example.common.utils.function.getTotalSize
-import com.example.common.utils.function.isMkdirs
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.read
+import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
@@ -86,8 +87,9 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("�
             val storeDir = File(root)
             // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
             if (deleteDir) root.deleteDir()
-            root.isMkdirs()
-            //根据要保存的格式，返回对应后缀名->安卓只支持以下三种
+            // 确保目录创建
+            root.ensureDirExists()
+            // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
             val suffix = when (format) {
                 JPEG -> "jpg"
                 PNG -> "png"
@@ -453,7 +455,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     // 清除目录下的所有文件
     filePath.deleteDir()
     // 创建一个安装的文件，开启io协程写入
-    val file = File(filePath.isMkdirs(), fileName)
+    val file = File(filePath.ensureDirExists(), fileName)
     return withContext(IO) {
         try {
             // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
@@ -487,11 +489,12 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
  */
 suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
     return withContext(IO) {
-        //存储目录文件
+        // 存储目录文件
         val storeDir = File(root)
-        //先判断是否需要清空目录，再判断是否存在（不存在则创建）
+        // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
         if (deleteDir) root.deleteDir()
-        root.isMkdirs()
+        // 确保目录创建
+        root.ensureDirExists()
         suspendingGlideDownload(mContext, string, storeDir)
     }
 }
@@ -632,5 +635,65 @@ fun saveCrashLogToFile(logContent: String) {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+    }
+}
+
+/**
+ * 获取到所有存储崩溃日志的文件集合
+ */
+fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false)): List<File> {
+    // 路径为空直接返回空列表
+    logDirPath ?: return emptyList()
+    // 验证目录是否存在
+    val logDir = File(logDirPath)
+    // 目录不存在/不是目录：尝试创建目录（后续可能需要写入日志），返回空列表
+    if (!logDir.exists()) {
+        logDir.mkdirs()
+        return emptyList()
+    }
+    if (!logDir.isDirectory) {
+        return emptyList()
+    }
+    // 筛选逻辑优化：
+    // 1.仅保留txt文件
+    // 2.过滤空文件/全空白文件（自动删除）
+    // 3.按修改时间升序排序（优先上传旧日志）
+    return logDir.listFiles { file ->
+        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && file.isNonEmptyLogFile()
+    }?.sortedBy { it.lastModified() } ?: emptyList()
+}
+
+/**
+ * 检测文件是否为有效日志文件（非空+有实际内容）
+ * @return true：文件非空且有有效内容；false：空文件（直接删除）
+ */
+private fun File.isNonEmptyLogFile(): Boolean {
+    // 快速校验文件大小（0字节直接删除）
+    if (length() == 0L) {
+        safeDelete()
+        return false
+    }
+    // 校验是否有非空白内容（避免全是空格/换行的无效文件）
+    return try {
+        // 流式读取，仅判断是否存在非空白行，不加载全部内容（优化内存）
+        bufferedReader().use { reader ->
+            // 最多读取前10行，避免超大空白文件耗时读取
+            val hasValidContent = reader.lineSequence()
+                .take(10)
+                .any { line -> line.isNotBlank() }
+            if (!hasValidContent) {
+                safeDelete()
+            }
+            hasValidContent
+        }
+    } catch (e: IOException) {
+        // 文件读取异常（如损坏、权限不足），视为无效文件
+        e.printStackTrace()
+        safeDelete()
+        false
+    } catch (e: SecurityException) {
+        // 捕获权限异常（Android 13+ 分区存储场景）
+        e.printStackTrace()
+        false
     }
 }
