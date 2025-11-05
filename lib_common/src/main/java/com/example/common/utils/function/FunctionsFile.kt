@@ -63,14 +63,41 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
- * 判断目录是否存在,不存在则创建
- * 返回对应路径
+ * 确保目录存在（不存在则创建），返回目录绝对路径
+ * mkdirs():创建目录（文件夹）
+ * createNewFile():创建文件
  */
-fun String?.isMkdirs(): String {
+fun String?.ensureDirExists(): String {
+    // 空路径直接返回空
     this ?: return ""
-    val file = File(this)
-    if (!file.mkdirs()) file.createNewFile()
-    return file.absolutePath
+    // 去除首尾空格（避免路径含无效空格导致创建失败）
+    val dirPath = trim()
+    if (dirPath.isEmpty()) return ""
+    // 取得文件类
+    val dir = File(dirPath)
+    return try {
+        // 目录已存在 → 直接返回绝对路径
+        if (dir.exists()) {
+            // 路径存在但不是目录 → 返回空
+            if (dir.isDirectory) {
+                dir.absolutePath
+            } else {
+                ""
+            }
+        } else {
+            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）
+            if (dir.mkdirs()) {
+                dir.absolutePath
+            } else {
+                // 创建成功返回路径，失败返回空
+                ""
+            }
+        }
+    } catch (e: Exception) {
+        // 捕获异常（权限不足、路径无效等）
+        e.printStackTrace()
+        ""
+    }
 }
 
 /**
@@ -86,34 +113,83 @@ fun String?.isExists(): Boolean {
  */
 fun String?.deleteFile() {
     this ?: return
-    File(this).deleteFile()
+    File(this).safeDelete()
 }
 
-fun File?.deleteFile() {
-    this ?: return
-    if (isFile && exists()) delete()
-}
+//fun File?.deleteFile() {
+//    this ?: return
+//    if (isFile && exists()) delete()
+//}
 
 /**
- * 删除路径下的所有文件
+ * 删除目录下的所有文件,包含目录本身
  */
 fun String?.deleteDir() {
     this ?: return
-    File(this).deleteDir()
+    File(this).deleteRecursively()
 }
 
-fun File?.deleteDir() {
-    this ?: return
-    deleteDirWithFile(this)
-}
+//fun File?.deleteDir() {
+//    this ?: return
+//    deleteDirWithFile(this)
+//}
+//
+//private fun deleteDirWithFile(dir: File?) {
+//    if (dir == null || !dir.exists() || !dir.isDirectory) return
+//    for (file in dir.listFiles().orEmpty()) {
+//        // 删除所有文件
+//        if (file.isFile) {
+//            file.delete()
+//        } else if (file.isDirectory) {
+//            // 递规的方式删除文件夹
+//            deleteDirWithFile(file)
+//        }
+//    }
+//    // 删除目录本身
+//    dir.delete()
+//}
 
-private fun deleteDirWithFile(dir: File?) {
-    if (dir == null || !dir.exists() || !dir.isDirectory) return
-    for (file in dir.listFiles().orEmpty()) {
-        if (file.isFile) file.delete() //删除所有文件
-        else if (file.isDirectory) deleteDirWithFile(file) //递规的方式删除文件夹
+/**
+ * 安全删除文件（处理文件占用等异常）
+ */
+fun File?.safeDelete(): Boolean {
+    // 避免空路径文件
+    this ?: return false
+    if (this == File("")) return false
+    return try {
+        when {
+            // 文件不存在，视为删除成功
+            !exists() -> true
+            /**
+             * 兼容目录（防止误传目录）
+             * Kotlin 标准库中 File 类的递归删除方法，核心作用是：删除文件或目录（包括目录下所有子文件、子目录），一步到位清理整个文件树
+             */
+            isDirectory -> deleteRecursively()
+            // 余下的进入删除逻辑
+            else -> {
+                // 直接删除
+                if (delete()) return true
+                // 文件被占用，先重命名再删除
+                val tempFile = File(parent, "${name}.tmp.${System.currentTimeMillis()}")
+                if (renameTo(tempFile)) {
+                    tempFile.delete()
+                } else {
+                    /**
+                     * 最后尝试强制删除（部分场景有效）
+                     * 当调用 file.deleteOnExit() 时，JVM 会将该文件的路径添加到一个内部注册表中（本质是一个线程安全的集合）
+                     * 当 JVM 正常终止（比如 App 正常退出、进程被系统正常回收）时，会遍历这个注册表，尝试删除所有注册的文件
+                     * 删除顺序与注册顺序相反（先注册的后删除）
+                     * 仅对「文件」有效，对「目录」无效（目录需手动删除或用 deleteRecursively()）
+                     */
+                    deleteOnExit()
+                    false
+                }
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
     }
-    dir.delete() //删除目录本身
 }
 
 /**
@@ -121,30 +197,41 @@ private fun deleteDirWithFile(dir: File?) {
  */
 fun String?.getTotalSize(): Long {
     this ?: return 0
-    return File(this).getTotalSize()
+    return File(this).totalSizeWithFile()
 }
 
 fun File?.getTotalSize(): Long {
     this ?: return 0
-    return totalSizeWithFile(this)
+    return totalSizeWithFile()
 }
 
-fun totalSizeWithFile(file: File): Long {
+fun File?.totalSizeWithFile(): Long {
+    this ?: return 0
+    // 文件/目录不存在直接返回 0，避免无效遍历
+    if (!exists()) return 0
     var size = 0L
-    for (mFile in file.listFiles().orEmpty()) {
-        size = if (mFile.isDirectory) {
-            size + totalSizeWithFile(mFile)
+    // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
+    for (mFile in listFiles().orEmpty()) {
+        size += if (mFile.isDirectory) {
+            // 递归调用时要传 mFile
+            mFile.totalSizeWithFile()
         } else {
-            size + mFile.length()
+            mFile.length()
         }
     }
-    return size
+    // 如果是单个文件，直接返回自身大小
+    return if (isFile) length() else size
 }
 
 /**
  * 获取对应大小的文字
  * 新api --> Formatter.formatFileSize()
  */
+fun String?.getSizeFormat(): String {
+    this ?: return ""
+    return getLength().getSizeFormat()
+}
+
 fun File?.getSizeFormat(): String {
     this ?: return ""
     return length().getSizeFormat()
@@ -177,36 +264,36 @@ fun String?.getLength(): Long {
  */
 internal fun File?.split(chunkSize: Long): MutableList<String> {
     this ?: return arrayListOf()
-    //分割文件总大小
+    // 分割文件总大小
     val targetLength = length()
-    //总分片数
+    // 总分片数
     val numChunks = if (targetLength.mod(chunkSize) == 0L) {
         targetLength.div(chunkSize)
     } else {
         targetLength.div(chunkSize).plus(1)
     }.toSafeInt()
-    //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+    // 获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
     val splitList = ArrayList<String>()
     RandomAccessFile(this, "r").use { accessFile ->
-        //文件的总大小
+        // 文件的总大小
         val length = accessFile.length()
-        //文件切片后每片的最大大小
+        // 文件切片后每片的最大大小
         val maxSize = length / numChunks
-        //初始化偏移量
+        // 初始化偏移量
         var offSet = 0L
-        //开始切片
+        // 开始切片
         for (i in 0 until numChunks - 1) {
             val begin = offSet
             val end = (i + 1) * maxSize
-            val tmpInfo = write(absolutePath, i, begin, end)
-            offSet = tmpInfo.second.orZero
-            splitList.add(tmpInfo.first.orEmpty())
+            val (mFilePath, mOffSet) = write(absolutePath, i, begin, end)
+            offSet = mOffSet.orZero
+            splitList.add(mFilePath.orEmpty())
         }
-        //剩余部分（若存在）
+        // 剩余部分（若存在）
         if (length - offSet > 0) {
             splitList.add(write(absolutePath, numChunks - 1, offSet, length).first.orEmpty())
         }
-        //确保返回的集合中不包含空路径
+        // 确保返回的集合中不包含空路径
         for (i in splitList.indices.reversed()) {
             if (splitList.safeGet(i).isNullOrEmpty()) {
                 splitList.removeAt(i)
@@ -225,28 +312,28 @@ internal fun File?.split(chunkSize: Long): MutableList<String> {
  * @return first->分割文件地址 second->分割文件大小
  */
 private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
-    //源文件
+    // 源文件
     val file = File(filePath)
 //    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
 //    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
     val fileName = file.name.split(".")[0]
-    //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+    // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
     val recordDirectory = "${file.parent}/${fileName}_record"
-    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
+    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
     val tmpFile = File("${recordDirectory}/${fileName}_${index}.tmp")
-    //如果不存在，则创建一个或继续写入
+    // 如果不存在，则创建一个或继续写入
     return RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
         RandomAccessFile(file, "r").use { inAccessFile ->
-            //申明具体每一文件的字节数组
+            // 申明具体每一文件的字节数组
             val b = ByteArray(1024)
             var n: Int
-            //从指定位置读取文件字节流
+            // 从指定位置读取文件字节流
             inAccessFile.seek(begin)
-            //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
+            // 判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
             while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
                 outAccessFile.write(b, 0, n)
             }
-            //关闭输入输出流,赋值
+            // 关闭输入输出流,赋值
             tmpFile.absolutePath to inAccessFile.filePointer
         }
     }
