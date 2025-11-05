@@ -48,6 +48,7 @@ import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
 import com.example.common.utils.function.string
+import com.example.common.utils.function.totalSize
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -583,7 +584,7 @@ fun Context?.retrieveCacheFormatters(): String {
     var value = "0M"
     this ?: return value
     cacheDir?.apply {
-        value = getTotalSize().let { if (it > 0) it.getSizeFormat() else value }
+        value = totalSize().let { if (it > 0) it.getSizeFormat() else value }
     }
     return value
 }
