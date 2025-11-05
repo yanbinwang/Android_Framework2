@@ -77,6 +77,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var lastVisible = true
     private var retryWithPlay = false
     private var thumbJob: Job? = null
+    private var thumbLoadingJob: Job? = null
     private var toggleJob: Job? = null
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
@@ -289,10 +290,19 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         // 加载图片(非自动播放的情况下加载中不可点击)
         val onLoadStartAction = {
-            if (!setUpLazy) player?.startButton.disable()
+            if (!setUpLazy) {
+                player?.startButton.disable()
+                thumbLoadingJob?.cancel()
+                thumbLoadingJob = mActivity.lifecycleScope.launch {
+                    delay(5000)
+                    player?.startButton.enable()
+                }
+            }
         }
         val onLoadCompleteAction = {
-            if (!setUpLazy) player?.startButton.enable()
+            if (!setUpLazy) {
+                player?.startButton.enable()
+            }
         }
         if (thumbUrl.isNullOrEmpty()) {
             ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadStart = {
