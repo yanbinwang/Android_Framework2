@@ -177,36 +177,36 @@ fun String?.getLength(): Long {
  */
 internal fun File?.split(chunkSize: Long): MutableList<String> {
     this ?: return arrayListOf()
-    //分割文件总大小
+    // 分割文件总大小
     val targetLength = length()
-    //总分片数
+    // 总分片数
     val numChunks = if (targetLength.mod(chunkSize) == 0L) {
         targetLength.div(chunkSize)
     } else {
         targetLength.div(chunkSize).plus(1)
     }.toSafeInt()
-    //获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+    // 获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
     val splitList = ArrayList<String>()
     RandomAccessFile(this, "r").use { accessFile ->
-        //文件的总大小
+        // 文件的总大小
         val length = accessFile.length()
-        //文件切片后每片的最大大小
+        // 文件切片后每片的最大大小
         val maxSize = length / numChunks
-        //初始化偏移量
+        // 初始化偏移量
         var offSet = 0L
-        //开始切片
+        // 开始切片
         for (i in 0 until numChunks - 1) {
             val begin = offSet
             val end = (i + 1) * maxSize
-            val tmpInfo = write(absolutePath, i, begin, end)
-            offSet = tmpInfo.second.orZero
-            splitList.add(tmpInfo.first.orEmpty())
+            val (mFilePath, mOffSet) = write(absolutePath, i, begin, end)
+            offSet = mOffSet.orZero
+            splitList.add(mFilePath.orEmpty())
         }
-        //剩余部分（若存在）
+        // 剩余部分（若存在）
         if (length - offSet > 0) {
             splitList.add(write(absolutePath, numChunks - 1, offSet, length).first.orEmpty())
         }
-        //确保返回的集合中不包含空路径
+        // 确保返回的集合中不包含空路径
         for (i in splitList.indices.reversed()) {
             if (splitList.safeGet(i).isNullOrEmpty()) {
                 splitList.removeAt(i)
@@ -225,28 +225,28 @@ internal fun File?.split(chunkSize: Long): MutableList<String> {
  * @return first->分割文件地址 second->分割文件大小
  */
 private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
-    //源文件
+    // 源文件
     val file = File(filePath)
 //    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
 //    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
     val fileName = file.name.split(".")[0]
-    //本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+    // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
     val recordDirectory = "${file.parent}/${fileName}_record"
-    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
+    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
     val tmpFile = File("${recordDirectory}/${fileName}_${index}.tmp")
-    //如果不存在，则创建一个或继续写入
+    // 如果不存在，则创建一个或继续写入
     return RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
         RandomAccessFile(file, "r").use { inAccessFile ->
-            //申明具体每一文件的字节数组
+            // 申明具体每一文件的字节数组
             val b = ByteArray(1024)
             var n: Int
-            //从指定位置读取文件字节流
+            // 从指定位置读取文件字节流
             inAccessFile.seek(begin)
-            //判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
+            // 判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
             while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
                 outAccessFile.write(b, 0, n)
             }
-            //关闭输入输出流,赋值
+            // 关闭输入输出流,赋值
             tmpFile.absolutePath to inAccessFile.filePointer
         }
     }
