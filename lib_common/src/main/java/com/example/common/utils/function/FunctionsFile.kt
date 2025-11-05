@@ -238,9 +238,9 @@ fun File?.storageSizeFormat(): String {
     // 用 Double 简化计算，避免重复整除丢失精度
     val kb = bytes / STORAGE_UNIT_BASE
     return when {
-        kb < 1 -> "<1KB"
-        kb < STORAGE_UNIT_BASE -> "${formatStorageValue(kb)}KB"
-        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / STORAGE_UNIT_BASE)}MB"
+        kb < 1 -> "<1K"
+        kb < STORAGE_UNIT_BASE -> "${formatStorageValue(kb)}K"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / STORAGE_UNIT_BASE)}M"
         kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}GB"
         else -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}TB"
     }
@@ -325,6 +325,25 @@ fun String?.getFileLength(): Long {
         e.printStackTrace()
         0L
     }
+}
+
+/**
+ * 获取当前手机缓存目录下的缓存文件大小,
+ * @return 返回格式化后的缓存大小字符串，如 "2.5M"
+ */
+fun Context?.getFormattedCacheSize(): String {
+    var formattedSize = "0M"
+    this ?: return formattedSize
+    // 安全获取缓存目录，计算总大小并格式化
+    cacheDir?.takeIf { it.exists() }?.apply {
+        val totalCacheBytes = totalSize()
+        formattedSize = if (totalCacheBytes > 0) {
+            storageSizeFormat()
+        } else {
+            formattedSize
+        }
+    }
+    return formattedSize
 }
 
 /**

@@ -45,9 +45,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
-import com.example.common.utils.function.storageSizeFormat
 import com.example.common.utils.function.string
-import com.example.common.utils.function.totalSize
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -573,25 +571,6 @@ suspend fun suspendingFileDuration(sourcePath: String?): Int {
     return withContext(IO) {
         File(sourcePath).getDuration()
     }
-}
-
-/**
- * 获取当前手机缓存目录下的缓存文件大小,
- * @return 返回格式化后的缓存大小字符串，如 "2.5M"
- */
-fun Context?.retrieveCacheFormatters(): String {
-    var value = "0M"
-    this ?: return value
-    cacheDir?.apply {
-        value = totalSize().let {
-            if (it > 0) {
-                storageSizeFormat()
-            } else {
-                value
-            }
-        }
-    }
-    return value
 }
 
 /**
