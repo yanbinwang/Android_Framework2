@@ -258,7 +258,7 @@ class OssFactory private constructor() : CoroutineScope {
                 // 最大间隔，避免长时间无回调
                 val maxInterval = 7
                 // 是否需要回调（目前只有100M+的文件需要进度条）
-//                val isCallBack = sourcePath.getLength() >= 100.mb
+//                val isCallBack = sourcePath.getFileLength() >= 100.mb
                 val isCallBack = true
                 var isUploadStarted = false
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->

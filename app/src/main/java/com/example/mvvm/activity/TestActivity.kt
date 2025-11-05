@@ -8,12 +8,11 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.ARouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.insertImageResolver
-import com.example.common.utils.function.isExists
+import com.example.common.utils.function.isPathExists
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
-import com.example.framework.utils.function.view.fade
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityTestBinding
 import com.example.thirdparty.media.utils.CameraHelper
@@ -42,7 +41,7 @@ class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
             }
 
             override fun onTaken(sourcePath: String?) {
-                if (sourcePath.isExists()) {
+                if (sourcePath.isPathExists()) {
                     insertImageResolver(File(sourcePath.orEmpty()))
                     "拍摄完成".shortToast()
                 } else {

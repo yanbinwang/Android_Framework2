@@ -63,6 +63,15 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
+ * 判断字符串路径对应的文件/目录是否存在
+ * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
+ */
+fun String?.isPathExists(): Boolean {
+    this ?: return false
+    return File(this.trim()).exists()
+}
+
+/**
  * 确保目录存在（不存在则创建），返回目录绝对路径
  * mkdirs():创建目录（文件夹）
  * createNewFile():创建文件
@@ -98,14 +107,6 @@ fun String?.ensureDirExists(): String {
         e.printStackTrace()
         ""
     }
-}
-
-/**
- * 判断是否存在
- */
-fun String?.isExists(): Boolean {
-    this ?: return false
-    return File(this).exists()
 }
 
 /**
@@ -197,15 +198,15 @@ fun File?.safeDelete(): Boolean {
  */
 fun String?.getTotalSize(): Long {
     this ?: return 0
-    return File(this).totalSizeWithFile()
+    return File(this).totalSize()
 }
 
 fun File?.getTotalSize(): Long {
     this ?: return 0
-    return totalSizeWithFile()
+    return totalSize()
 }
 
-fun File?.totalSizeWithFile(): Long {
+fun File?.totalSize(): Long {
     this ?: return 0
     // 文件/目录不存在直接返回 0，避免无效遍历
     if (!exists()) return 0
@@ -214,7 +215,7 @@ fun File?.totalSizeWithFile(): Long {
     for (mFile in listFiles().orEmpty()) {
         size += if (mFile.isDirectory) {
             // 递归调用时要传 mFile
-            mFile.totalSizeWithFile()
+            mFile.totalSize()
         } else {
             mFile.length()
         }
@@ -229,7 +230,7 @@ fun File?.totalSizeWithFile(): Long {
  */
 fun String?.getSizeFormat(): String {
     this ?: return ""
-    return getLength().getSizeFormat()
+    return getFileLength().getSizeFormat()
 }
 
 fun File?.getSizeFormat(): String {
@@ -252,10 +253,125 @@ fun Number?.getSizeFormat(): String {
 }
 
 /**
- * 文件长度
+ * 扩展函数：获取字符串路径对应的文件/目录长度
+ * - 若为文件：返回文件大小（字节）
+ * - 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
+ * - 路径为空/文件不存在/异常：返回 0L
  */
-fun String?.getLength(): Long {
-    return this?.let { File(it).length() } ?: 0L
+fun String?.getFileLength(): Long {
+    this ?: return 0L
+    return try {
+        val file = File(this.trim())
+        if (file.exists()) file.length() else 0L
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0L
+    }
+}
+
+/**
+ * 重命名文件(只能改文件名，路径固定（原文件父目录）)
+ * @param this 原始文件
+ * @param newFileName 新的文件名（仅文件名，不包含路径）
+ * @return 是否重命名成功
+ */
+fun File?.renameFile(newFileName: String): Boolean {
+    this ?: return false
+    // 仅对文件生效，避免目录误操作
+    if (!exists() || !isFile) return false
+    val parentDir = parentFile ?: return false
+    // 确保父目录存在（极端情况父目录被删除，避免重命名失败）
+    if (!parentDir.exists() && !parentDir.mkdirs()) {
+        return false
+    }
+    // 创建目标文件（新路径 + 新文件名）
+    val targetFile = File(parentDir, newFileName)
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    // 执行重命名操作
+    return renameTo(targetFile)
+}
+
+/**
+ * 重命名文件（可改路径 + 文件名，更灵活）
+ * @param this 原始文件
+ * @param targetFile 目标文件（包含新路径和新文件名）
+ * @return 是否重命名成功
+ * 若「原文件和目标文件在同一个分区」（如都在 /data/user/0/ 下）：仅修改文件的路径和名称，文件数据本身不移动（速度极快）；
+ * 若「原文件和目标文件在不同分区」（如原文件在内部存储，目标在 SD 卡）：会先复制文件数据到新路径，再删除原文件（速度取决于文件大小）；
+ * 无论哪种情况，最终只有一个文件存在（原文件会消失）
+ */
+fun File?.renameFileTo(targetFile: File): Boolean {
+    this ?: return false
+    if (!exists()) {
+        return false
+    }
+    // 确保目标文件的父目录存在
+    val targetParent = targetFile.parentFile
+    if (targetParent != null && !targetParent.exists()) {
+        // 创建父目录（包括所有必要的父目录）
+        if (!targetParent.mkdirs()) {
+            return false
+        }
+    }
+    // 避免覆盖已存在的文件
+    if (targetFile.exists()) {
+        return false
+    }
+    return renameTo(targetFile)
+}
+
+/**
+ * 通过uri获取到一个文件
+ */
+fun Uri?.getFileFromUri(): File? {
+    this ?: return null
+    return this.toString().getFileFromUri()
+}
+
+fun String?.getFileFromUri(): File? {
+    this ?: return null
+    val uri = toUri()
+    if (uri.path == null) return null
+    if (uri.scheme == "file") return File(this)
+    if (uri.scheme.isNullOrEmpty()) return File(this)
+    var realPath = String()
+    val databaseUri: Uri
+    val selection: String?
+    val selectionArgs: Array<String>?
+    if (uri.path?.contains("/document/image:").orFalse) {
+        databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        selection = "_id=?"
+        selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1])
+    } else {
+        databaseUri = uri
+        selection = null
+        selectionArgs = null
+    }
+    try {
+        val column = "_data"
+        val projection = arrayOf(column)
+        val cursor = BaseApplication.instance.contentResolver.query(databaseUri, projection, selection, selectionArgs, null)
+        cursor?.let {
+            if (it.moveToFirst()) {
+                val columnIndex = cursor.getColumnIndexOrThrow(column)
+                realPath = cursor.getString(columnIndex)
+            }
+            cursor.close()
+        }
+    } catch (e: Exception) {
+        e.logE
+    }
+    val path = realPath.ifEmpty {
+        when {
+            uri.path?.contains("/document/raw:").orFalse -> uri.path?.replace("/document/raw:", "")
+            uri.path?.contains("/document/primary:").orFalse -> uri.path?.replace("/document/primary:", "/storage/emulated/0/")
+            else -> return null
+        }
+    } ?: return null
+    return File(path)
 }
 
 /**
@@ -337,60 +453,6 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
             tmpFile.absolutePath to inAccessFile.filePointer
         }
     }
-}
-
-/**
- * 重命名文件(只能改文件名，路径固定（原文件父目录）)
- * @param this 原始文件
- * @param newFileName 新的文件名（仅文件名，不包含路径）
- * @return 是否重命名成功
- */
-fun File?.renameFile(newFileName: String): Boolean {
-    this ?: return false
-    // 仅对文件生效，避免目录误操作
-    if (!exists() || !isFile) return false
-    val parentDir = parentFile ?: return false
-    // 确保父目录存在（极端情况父目录被删除，避免重命名失败）
-    if (!parentDir.exists() && !parentDir.mkdirs()) {
-        return false
-    }
-    // 创建目标文件（新路径 + 新文件名）
-    val targetFile = File(parentDir, newFileName)
-    // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
-    // 执行重命名操作
-    return renameTo(targetFile)
-}
-
-/**
- * 重命名文件（可改路径 + 文件名，更灵活）
- * @param this 原始文件
- * @param targetFile 目标文件（包含新路径和新文件名）
- * @return 是否重命名成功
- * 若「原文件和目标文件在同一个分区」（如都在 /data/user/0/ 下）：仅修改文件的路径和名称，文件数据本身不移动（速度极快）；
- * 若「原文件和目标文件在不同分区」（如原文件在内部存储，目标在 SD 卡）：会先复制文件数据到新路径，再删除原文件（速度取决于文件大小）；
- * 无论哪种情况，最终只有一个文件存在（原文件会消失）
- */
-fun File?.renameFileTo(targetFile: File): Boolean {
-    this ?: return false
-    if (!exists()) {
-        return false
-    }
-    // 确保目标文件的父目录存在
-    val targetParent = targetFile.parentFile
-    if (targetParent != null && !targetParent.exists()) {
-        // 创建父目录（包括所有必要的父目录）
-        if (!targetParent.mkdirs()) {
-            return false
-        }
-    }
-    // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
-    return renameTo(targetFile)
 }
 
 /**
@@ -486,55 +548,4 @@ internal fun File?.getDuration(): Int {
             e.printStackTrace()
         }
     }
-}
-
-/**
- * 通过uri获取到一个文件
- */
-fun Uri?.getFileFromUri(): File? {
-    this ?: return null
-    return this.toString().getFileFromUri()
-}
-
-fun String?.getFileFromUri(): File? {
-    this ?: return null
-    val uri = toUri()
-    if (uri.path == null) return null
-    if (uri.scheme == "file") return File(this)
-    if (uri.scheme.isNullOrEmpty()) return File(this)
-    var realPath = String()
-    val databaseUri: Uri
-    val selection: String?
-    val selectionArgs: Array<String>?
-    if (uri.path?.contains("/document/image:").orFalse) {
-        databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        selection = "_id=?"
-        selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1])
-    } else {
-        databaseUri = uri
-        selection = null
-        selectionArgs = null
-    }
-    try {
-        val column = "_data"
-        val projection = arrayOf(column)
-        val cursor = BaseApplication.instance.contentResolver.query(databaseUri, projection, selection, selectionArgs, null)
-        cursor?.let {
-            if (it.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndexOrThrow(column)
-                realPath = cursor.getString(columnIndex)
-            }
-            cursor.close()
-        }
-    } catch (e: Exception) {
-        e.logE
-    }
-    val path = realPath.ifEmpty {
-        when {
-            uri.path?.contains("/document/raw:").orFalse -> uri.path?.replace("/document/raw:", "")
-            uri.path?.contains("/document/primary:").orFalse -> uri.path?.replace("/document/primary:", "/storage/emulated/0/")
-            else -> return null
-        }
-    } ?: return null
-    return File(path)
 }

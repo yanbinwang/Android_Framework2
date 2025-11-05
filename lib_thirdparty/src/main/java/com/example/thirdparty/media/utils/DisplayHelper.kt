@@ -15,7 +15,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.ActivityResultRegistrar
-import com.example.common.utils.function.isExists
+import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpOverlay
 import com.example.common.utils.function.pullUpScreen
 import com.example.common.utils.function.string
@@ -206,7 +206,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
             if (isZip) {
                 it ?: return@setOnShotListener
                 if (isRecording) {
-                    if (!it.isExists()) return@setOnShotListener
+                    if (!it.isPathExists()) return@setOnShotListener
                     list.add(it)
                 }
             }
