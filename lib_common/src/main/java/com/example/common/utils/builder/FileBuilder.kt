@@ -37,8 +37,6 @@ import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
 import com.example.common.utils.function.getHash
-import com.example.common.utils.function.getSizeFormat
-import com.example.common.utils.function.getTotalSize
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
@@ -47,6 +45,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
+import com.example.common.utils.function.storageSizeFormat
 import com.example.common.utils.function.string
 import com.example.common.utils.function.totalSize
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
@@ -584,7 +583,13 @@ fun Context?.retrieveCacheFormatters(): String {
     var value = "0M"
     this ?: return value
     cacheDir?.apply {
-        value = totalSize().let { if (it > 0) it.getSizeFormat() else value }
+        value = totalSize().let {
+            if (it > 0) {
+                storageSizeFormat()
+            } else {
+                value
+            }
+        }
     }
     return value
 }
