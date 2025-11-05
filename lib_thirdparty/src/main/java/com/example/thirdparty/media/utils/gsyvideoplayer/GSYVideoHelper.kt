@@ -54,6 +54,7 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoControlView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 
@@ -77,7 +78,6 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var lastVisible = true
     private var retryWithPlay = false
     private var thumbJob: Job? = null
-    private var thumbLoadingJob: Job? = null
     private var toggleJob: Job? = null
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
@@ -292,9 +292,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         val onLoadStartAction = {
             if (!setUpLazy) {
                 player?.startButton.disable()
-                thumbLoadingJob?.cancel()
-                thumbLoadingJob = mActivity.lifecycleScope.launch {
-                    delay(5000)
+                thumbJob?.cancel()
+                thumbJob = mActivity.lifecycleScope.launch {
+                    delay(3000)
                     player?.startButton.enable()
                 }
             }
@@ -313,7 +313,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     mBinding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
                     thumbJob = mActivity.lifecycleScope.launch {
-                        val bitmap = suspendingThumbnail(url)
+                        val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(url) }
                         if (null != bitmap) {
                             mBinding.ivThumb.setBitmap(mActivity, bitmap)
                         } else {
