@@ -340,20 +340,18 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
 }
 
 /**
- * 重命名文件
+ * 重命名文件(只能改文件名，路径固定（原文件父目录）)
  * @param this 原始文件
  * @param newFileName 新的文件名（仅文件名，不包含路径）
  * @return 是否重命名成功
  */
 fun File?.renameFile(newFileName: String): Boolean {
     this ?: return false
-    // 检查原始文件是否存在
-    if (!exists()) {
-        return false
-    }
-    // 获取原始文件的父目录
-    val parentDir = parentFile
-    if (parentDir == null || !parentDir.exists()) {
+    // 仅对文件生效，避免目录误操作
+    if (!exists() || !isFile) return false
+    val parentDir = parentFile ?: return false
+    // 确保父目录存在（极端情况父目录被删除，避免重命名失败）
+    if (!parentDir.exists() && !parentDir.mkdirs()) {
         return false
     }
     // 创建目标文件（新路径 + 新文件名）
@@ -367,10 +365,13 @@ fun File?.renameFile(newFileName: String): Boolean {
 }
 
 /**
- * 重命名文件（可以指定新路径）
+ * 重命名文件（可改路径 + 文件名，更灵活）
  * @param this 原始文件
  * @param targetFile 目标文件（包含新路径和新文件名）
  * @return 是否重命名成功
+ * 若「原文件和目标文件在同一个分区」（如都在 /data/user/0/ 下）：仅修改文件的路径和名称，文件数据本身不移动（速度极快）；
+ * 若「原文件和目标文件在不同分区」（如原文件在内部存储，目标在 SD 卡）：会先复制文件数据到新路径，再删除原文件（速度取决于文件大小）；
+ * 无论哪种情况，最终只有一个文件存在（原文件会消失）
  */
 fun File?.renameFileTo(targetFile: File): Boolean {
     this ?: return false
