@@ -876,7 +876,8 @@ fun ImageView?.setResource(@DrawableRes resId: Int) {
  */
 fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
     this ?: return
-    setImageResource(if (!triple.first) triple.third else triple.second)
+    val (isDisplay, showRes, hideRes) = triple
+    setImageResource(if (!isDisplay) hideRes else showRes)
 }
 
 /**
