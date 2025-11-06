@@ -49,43 +49,47 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
                 false
             }
         }
-        mBinding.ivShow.apply { click { setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes)) }}
-        //以下属性在xml中前缀使用app:调取
+        mBinding.ivShow.apply {
+            click {
+                setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes))
+            }
+        }
+        // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.PasswordEditText) {
-            //文本内容
+            // 文本内容
             val text = getResourceId(R.styleable.PasswordEditText_text, -1)
             if (text != -1) setText(text)
-            //文字大小
+            // 文字大小
             val textSize = getDimension(R.styleable.PasswordEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
-            //文字颜色
+            // 文字颜色
             val textColor = getColor(R.styleable.PasswordEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
-            //无内容显示的文本内容
+            // 无内容显示的文本内容
             val hint = getResourceId(R.styleable.PasswordEditText_hint, -1)
             if (hint != -1) setHint(hint)
-            //无为内容显示的文本内容颜色
+            // 无为内容显示的文本内容颜色
             val hintColor = getColor(R.styleable.PasswordEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
-            //文本方向
+            // 文本方向
             val gravity = getInt(R.styleable.PasswordEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
-            //睁眼闭眼图片资源
+            // 睁眼闭眼图片资源
             hideRes = getResourceId(R.styleable.PasswordEditText_btnImageHide, R.mipmap.ic_password_hide)
             showRes = getResourceId(R.styleable.PasswordEditText_btnImageShow, R.mipmap.ic_password_show)
-            //文案最大范围
+            // 文案最大范围
             val maxLength = getInt(R.styleable.PasswordEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
-            //配置输入法右下角按钮的样式
+            // 配置输入法右下角按钮的样式
             val imeOptions = getInt(R.styleable.PasswordEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
-            //内部容器修正
+            // 内部容器修正
             val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
             val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
             if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
-            //撑满父容器
+            // 撑满父容器
             setPadding(0, 0, 0, 0)
-            //子容器添加padding
+            // 子容器添加padding
             mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
     }
@@ -153,7 +157,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        val filters = mBinding.etClear.filters.copyOf(mBinding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
         mBinding.etClear.filters = filters
     }

@@ -40,8 +40,8 @@ import java.util.Arrays
  */
 @SuppressLint("CustomViewStyleable")
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
-    private var isDisabled = false//是否不可操作
-    private var isShowBtn = true//是否显示清除按钮
+    private var isDisabled = false // 是否不可操作
+    private var isShowBtn = true // 是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
     private val mBinding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = mBinding.etClear
@@ -55,34 +55,36 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 onTextChanged?.invoke(it)
             }
         }
-        mBinding.ivClear.click { mBinding.etClear.setText("") }
-        //以下属性在xml中前缀使用app:调取
+        mBinding.ivClear.click {
+            mBinding.etClear.setText("")
+        }
+        // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.ClearEditText) {
-            //文本内容
+            // 文本内容
             val text = getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
-            //文字大小
+            // 文字大小
             val textSize = getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
             setTextSize(textSize)
-            //文字颜色
+            // 文字颜色
             val textColor = getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
             setTextColor(textColor)
-            //无内容显示的文本内容
+            // 无内容显示的文本内容
             val hint = getResourceId(R.styleable.ClearEditText_hint, -1)
             if (hint != -1) setHint(hint)
-            //无为内容显示的文本内容颜色
+            // 无为内容显示的文本内容颜色
             val hintColor = getColor(R.styleable.ClearEditText_textColorHint, color(R.color.textHint))
             setHintTextColor(hintColor)
-            //文本方向
+            // 文本方向
             val gravity = getInt(R.styleable.ClearEditText_gravity, Gravity.CENTER_VERTICAL or Gravity.START)
             setGravity(gravity)
-            //清除按钮图片资源
+            // 清除按钮图片资源
             val clearBtnImage = getResourceId(R.styleable.ClearEditText_clearBtnImage, R.mipmap.ic_clear)
             setImageResource(clearBtnImage)
-            //文案最大范围
+            // 文案最大范围
             val maxLength = getInt(R.styleable.ClearEditText_maxLength, -1)
             if (maxLength != -1) setMaxLength(maxLength)
-            //最小和最大函数，不设置默认单行
+            // 最小和最大函数，不设置默认单行
             val minLine = getInt(R.styleable.ClearEditText_minLine, -1)
             val maxLine = getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
@@ -96,22 +98,22 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             if (maxLine > 0) mBinding.etClear.maxLines = maxLine
             val minHeight = getDimension(R.styleable.ClearEditText_android_minHeight, 40.ptFloat)
             mBinding.etClear.minHeight = minHeight.toInt()
-            //当前控件是否可用
+            // 当前控件是否可用
             val disabled = getBoolean(R.styleable.ClearEditText_disabled, false)
             if (disabled) setDisabled()
-            //配置文案输入的格式
+            // 配置文案输入的格式
             val inputType = getInt(R.styleable.ClearEditText_inputType, 0)
             mBinding.etClear.inputType(inputType)
-            //配置输入法右下角按钮的样式
+            // 配置输入法右下角按钮的样式
             val imeOptions = getInt(R.styleable.ClearEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
-            //内部容器修正
+            // 内部容器修正
             val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
             val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
             if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
-            //撑满父容器
+            // 撑满父容器
             setPadding(0, 0, 0, 0)
-            //子容器添加padding
+            // 子容器添加padding
             mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
     }
@@ -222,7 +224,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        val filters = mBinding.etClear.filters.copyOf(mBinding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
         mBinding.etClear.filters = filters
     }
