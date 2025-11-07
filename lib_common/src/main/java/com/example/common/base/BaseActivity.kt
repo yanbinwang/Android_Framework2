@@ -96,7 +96,7 @@ import kotlin.coroutines.CoroutineContext
  * }
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())

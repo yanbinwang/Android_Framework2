@@ -64,7 +64,7 @@ import kotlin.coroutines.CoroutineContext
  * 可实现顶部弹出后，导航栏于弹框一致
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding?> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }

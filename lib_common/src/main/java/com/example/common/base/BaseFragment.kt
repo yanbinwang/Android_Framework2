@@ -82,7 +82,7 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
-abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
