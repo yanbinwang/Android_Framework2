@@ -115,10 +115,12 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             controllerToggle(window, true)
             // 可能部分机型会有问题,不过基本是兼容的
             window.setStatusBarLightMode(false)
-            immersionBar?.apply {
-                reset()
-                statusBarDarkFont(false, 0.2f)
-                init()
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                immersionBar?.apply {
+                    reset()
+                    statusBarDarkFont(false, 0.2f)
+                    init()
+                }
             }
             // 拿取播放器的顶部菜单,空出状态栏的高度距离
             val topContainer = getTopContainer(gsy as? GSYVideoControlView) as? LinearLayout
