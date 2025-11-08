@@ -2,9 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- 系统 -->
+    <!-- 获取网络状态（判断是否连接） -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission
+        android:name="android.permission.ACCESS_NETWORK_STATE"
+        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission
+        android:name="android.permission.ACCESS_WIFI_STATE"
+        android:usesPermissionFlags="neverForLocation" />
     <!--震动提示-->
     <uses-permission android:name="android.permission.VIBRATE" />
     <!--通知弹出权限(安卓13开始强制要求授予)-->
