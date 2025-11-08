@@ -4,12 +4,8 @@
 
     <!-- 获取网络状态（判断是否连接） -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission
-        android:name="android.permission.ACCESS_NETWORK_STATE"
-        android:usesPermissionFlags="neverForLocation" />
-    <uses-permission
-        android:name="android.permission.ACCESS_WIFI_STATE"
-        android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <!--安装权限-->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!--震动提示-->
@@ -31,7 +27,7 @@
     <!-- 定位（额外-sdk需要） -->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
-<!--    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
+    <!--    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />-->
     <uses-permission android:name="android.permission.ACCESS_LOCATION_EXTRA_COMMANDS" />
     <!-- 相机（组） -->
     <uses-permission

@@ -69,19 +69,29 @@ object NetWorkUtil {
             val networkInfo = connectivityManager?.activeNetworkInfo
             if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
         } else {
+            /**
+             * Android 10+ 引入 NET_CAPABILITY_VALIDATED 后，系统会额外做一层 “互联网连通性校验”，但这个校验有很多 “隐藏门槛”，哪怕满足了 “连网 + 有 INTERNET 权限”，也可能返回 false
+             * 后台限制：App 不在前台（退后台、锁屏），系统直接让 isValidated = false（Android 10+ 强制限制）；
+             * 权限关联：targetSdk=31+ 时，ACCESS_WIFI_STATE/ACCESS_NETWORK_STATE 没加 neverForLocation，系统把它归为 “定位敏感权限”，间接限制 isValidated；
+             * 网络类型：部分特殊网络（如企业 Wi-Fi、VPN）会让系统校验失败；
+             * 系统缓存：偶尔系统连通性校验缓存过期，导致误判。
+             */
             val network = connectivityManager?.activeNetwork ?: return false
             val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
             // 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
             val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-//            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || // Wi-Fi
-//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || // 蜂窝网络
-//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || // 以太网
-//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) || // VPN
-//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) // 蓝牙共享
-            // 检查网络是否已通过系统验证（可联网）
-            val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            // 返回联网结果
-            return hasTransport && isValidated
+            // 不是手机常用网络，直接返回 false
+            if (!hasTransport) return false
+            // 有互联网权限
+            val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            // 非受限
+            val isNotRestricted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
+            // 可信网络
+            val isTrusted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
+//            // 前台网络（可选，根据需求加）
+//            val isForeground = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND)
+            // 手机网络 + 能上网 + 非受限 + 可信
+            return hasInternet && isNotRestricted && isTrusted
         }
         return false
     }
