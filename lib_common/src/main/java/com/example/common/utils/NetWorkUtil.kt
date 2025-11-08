@@ -73,6 +73,11 @@ object NetWorkUtil {
             val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
             // 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
             val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+//            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || // Wi-Fi
+//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || // 蜂窝网络
+//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) || // 以太网
+//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN) || // VPN
+//                    capabilities.hasTransport(NetworkCapabilities.TRANSPORT_BLUETOOTH) // 蓝牙共享
             // 检查网络是否已通过系统验证（可联网）
             val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
             // 返回联网结果
