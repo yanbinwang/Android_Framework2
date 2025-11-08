@@ -78,7 +78,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -104,7 +104,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        //设置软键盘不自动弹出
+        // 设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         if (isMainThread) {
             AutoSizeConfig.getInstance()
@@ -143,7 +143,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         if (activity?.isFinishing.orFalse) return
         if (manager.findFragmentByTag(tag) != null) return
         if (manager.isDestroyed) return
-        //防止因为意外情况连续call两次show，设置500毫秒的最低间隔
+        // 防止因为意外情况连续call两次show，设置500毫秒的最低间隔
         if (currentTimeNano - showTime < 500) return
         showTime = currentTimeNano
         try {

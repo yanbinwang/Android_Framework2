@@ -107,10 +107,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job//加上SupervisorJob，提升协程作用域
+    private val job = SupervisorJob() // https://blog.csdn.net/chuyouyinghe/article/details/123057776
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job // 加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
@@ -328,7 +328,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun getResources(): Resources {
-        //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
         if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
@@ -367,7 +367,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         dataManager.clear()
         mActivityResult.unregister()
         mBinding?.unbind()
-        job.cancel()//之后再起的job无法工作
+        job.cancel() // 之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
     }
     // </editor-fold>

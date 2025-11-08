@@ -88,9 +88,9 @@ import androidx.databinding.ViewDataBinding
  * }
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var hasLoad = false//页面是否被加载
-    private var canLoad = true//数据是否允许加载
-    private var loaded = false//数据是否被加载
+    private var hasLoad = false // 页面是否被加载
+    private var canLoad = true // 数据是否允许加载
+    private var loaded = false // 数据是否被加载
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
