@@ -157,7 +157,15 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
             }
             // 不为空的情况下，显示出来
             if (null != fragment) {
-                transaction.show(fragment)
+                // 预加载视图，避免空白闪烁
+                fragment.view?.let {
+                    transaction.show(fragment)
+                } ?: run {
+                    // 立即执行所有已经提交但还没执行的 Fragment 事务
+                    fragmentManager.executePendingTransactions()
+                    transaction.show(fragment)
+                }
+//                transaction.show(fragment)
                 transaction.commitAllowingStateLoss()
                 listener?.invoke(tab)
             }
