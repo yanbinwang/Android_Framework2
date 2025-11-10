@@ -107,7 +107,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 2.app启动时application中初始化，保证启动期间先获取一次授权，时间过长会重置（120分钟）
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
-    fun initialize() {
+    fun initialize(block: () -> Unit = {}) {
         synchronized(LOCK) {
             initJob?.cancel()
             initJob = launch {
@@ -116,6 +116,7 @@ class OssFactory private constructor() : CoroutineScope {
                 }.withHandling({
                     isAuthorize = false
                 }, {
+                    block()
                     initJob?.cancel()
                     initJob = null
                 }).onStart {
