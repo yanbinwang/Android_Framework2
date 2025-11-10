@@ -9,11 +9,14 @@ import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.databinding.ViewDataBinding
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.FragmentBuilder
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -24,6 +27,9 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.size
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -115,44 +121,45 @@ import java.util.concurrent.ConcurrentHashMap
  *     }
  */
 @SuppressLint("ClickableViewAccessibility")
-abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLayout?, private var tabList: List<T>? = null) {
-    private var bindMode = -1//绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
-    private var hasAction: Boolean = false//是否重写过点击
+abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: LifecycleOwner, private val tab: TabLayout?, private var tabList: List<T>? = null) {
+    private var bindMode = -1 // 绑定模式 -> -1：正常 / 0：FragmentManager / 1：ViewPager2
+    private var hasAction: Boolean = false // 是否重写过点击
     private var builder: FragmentBuilder? = null
     private var mediator: TabLayoutMediator? = null
     private var listener: OnTabChangeListener? = null
+    private var resetJob: Job? = null // 复位协程
+    private var allowedJob: Job? = null // 允许协程
     private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     private val tabViews by lazy { SparseArray<VDB>() }
-    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext//整体上下文
-    private val mCurrentItem get() = tab?.selectedTabPosition.orZero//当前选中下标
-    private val mTabCount get() = tab?.tabCount.orZero//当前需要管理的总长度
+    private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext // 整体上下文
+    private val mCurrentItem get() = tab?.selectedTabPosition.orZero // 当前选中下标
+    private val mTabCount get() = tab?.tabCount.orZero // 当前需要管理的总长度
     private val tabListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
-            //处理选中事件
-            //可以在这里更新页面内容或者改变选中标签的样式
+            // 处理选中事件
+            // 可以在这里更新页面内容或者改变选中标签的样式
             onTabBind(tab, true)
             listener?.onSelected(tab?.position.orZero)
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab?) {
-            //处理取消选中事件
+            // 处理取消选中事件
             onTabBind(tab, false)
             listener?.onUnselected(tab?.position.orZero)
         }
 
         override fun onTabReselected(tab: TabLayout.Tab?) {
-            //处理再次选中同一个标签的事件
-            //可以在这里执行相应的操作
+            // 处理再次选中同一个标签的事件
+            // 可以在这里执行相应的操作
             listener?.onReselected(tab?.position.orZero)
         }
 
         private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
             tab?.customView ?: return
             tab.position.orZero.apply {
-                //子tab状态回调
+                // 子tab状态回调
                 onBindView(tabViews[this], tabList.safeGet(this), selected, this)
-                //下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
+                // 下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
                 if (selected && 0 == bindMode) builder?.commit(this)
             }
         }
@@ -171,6 +178,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
         }
         if (0 == bindMode) builder?.commit(i)
+    }
+
+    init {
+        observer.doOnDestroy {
+            resetJob?.cancel()
+            allowedJob?.cancel()
+        }
     }
 
     /**
@@ -230,13 +244,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             }
         }
         tab?.addOnTabSelectedListener(tabListener)
-        //强制设置tab宽度
+        // 强制设置tab宽度
         val tabParent = tab?.getChildAt(0) as? ViewGroup
         for (i in 0 until tabParent?.childCount.orZero) {
             tabParent?.getChildAt(i)?.setPadding(0, 0, 0, 0)
             tabParent?.getChildAt(i).size(WRAP_CONTENT, MATCH_PARENT)
         }
-        //如果设置了默认选择下标则做一个指定
+        // 如果设置了默认选择下标则做一个指定
         setSelect(default)
     }
 
@@ -320,12 +334,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
             mTab?.customView.let {
                 it?.isClickable = true
                 it?.click {
-                    if (isMainThread) {
+                    allowedJob?.cancel()
+                    observer.lifecycleScope.launch(Main.immediate) {
                         clickAllowedAction(mTab, i)
-                    } else {
-                        weakHandler.post {
-                            clickAllowedAction(mTab, i)
-                        }
                     }
                 }
             }
@@ -345,12 +356,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
         if (action != null) {
             val mTab = tab?.getTabAt(index)
             mTab?.customView.click {
-                if (isMainThread) {
+                resetJob?.cancel()
+                resetJob = observer.lifecycleScope.launch(Main.immediate) {
                     allowedResetAction(mTab, index)
-                } else {
-                    weakHandler.post {
-                        allowedResetAction(mTab, index)
-                    }
                 }
             }
         }
@@ -414,7 +422,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val tab: TabLa
          * 如当前选中索引为3的tab,你切换了索引为4的tab,此时 onTabUnselected回调索引为3
          */
         fun onUnselected(position: Int)
-
     }
 
 }

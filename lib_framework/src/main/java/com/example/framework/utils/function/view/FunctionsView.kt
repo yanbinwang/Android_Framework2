@@ -395,6 +395,10 @@ inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit
  * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
  * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
  * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
+ * 1) View 已经「附加到窗口」（即 view.isAttachedToWindow == true）
+ * —— 如果 View 还没加载完成（比如在 onCreate 早期、ViewStub 未 inflation），findViewTreeLifecycleOwner() 会返回 null
+ * 2) View 所在的 View 树中，确实存在 LifecycleOwner（比如 Activity、Fragment 托管的 View）
+ * —— 纯 Dialog、Toast 中的 View 可能找不到（因为它们不是 LifecycleOwner 托管）。
  */
 fun View?.getLifecycleOwner(): LifecycleOwner? {
     return this?.findViewTreeLifecycleOwner()
