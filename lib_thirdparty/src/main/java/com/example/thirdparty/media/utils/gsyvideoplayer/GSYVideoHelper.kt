@@ -54,6 +54,7 @@ import com.shuyu.gsyvideoplayer.video.base.GSYVideoControlView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 
@@ -114,10 +115,12 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             controllerToggle(window, true)
             // 可能部分机型会有问题,不过基本是兼容的
             window.setStatusBarLightMode(false)
-            immersionBar?.apply {
-                reset()
-                statusBarDarkFont(false, 0.2f)
-                init()
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                immersionBar?.apply {
+                    reset()
+                    statusBarDarkFont(false, 0.2f)
+                    init()
+                }
             }
             // 拿取播放器的顶部菜单,空出状态栏的高度距离
             val topContainer = getTopContainer(gsy as? GSYVideoControlView) as? LinearLayout
@@ -289,10 +292,19 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     fun setUrl(url: String, thumbUrl: String? = null, setUpLazy: Boolean = false) {
         // 加载图片(非自动播放的情况下加载中不可点击)
         val onLoadStartAction = {
-            if (!setUpLazy) player?.startButton.disable()
+            if (!setUpLazy) {
+                player?.startButton.disable()
+                thumbJob?.cancel()
+                thumbJob = mActivity.lifecycleScope.launch {
+                    delay(3000)
+                    player?.startButton.enable()
+                }
+            }
         }
         val onLoadCompleteAction = {
-            if (!setUpLazy) player?.startButton.enable()
+            if (!setUpLazy) {
+                player?.startButton.enable()
+            }
         }
         if (thumbUrl.isNullOrEmpty()) {
             ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadStart = {
@@ -303,7 +315,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     mBinding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
                     thumbJob = mActivity.lifecycleScope.launch {
-                        val bitmap = suspendingThumbnail(url)
+                        val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(url) }
                         if (null != bitmap) {
                             mBinding.ivThumb.setBitmap(mActivity, bitmap)
                         } else {

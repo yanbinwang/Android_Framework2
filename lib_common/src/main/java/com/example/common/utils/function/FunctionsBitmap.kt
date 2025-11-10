@@ -92,7 +92,7 @@ fun String?.isValidImage(): Boolean {
     return this?.let { path ->
         try {
             // 检查文件是否存在
-            if (!path.isExists()) return@let false
+            if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
             val dimensions = path.decodeDimensions() ?: intArrayOf(0, 0)
             // 有效图片的宽高必须大于0

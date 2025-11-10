@@ -96,7 +96,7 @@ import kotlin.coroutines.CoroutineContext
  * }
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
@@ -107,10 +107,10 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job//加上SupervisorJob，提升协程作用域
+    private val job = SupervisorJob() // https://blog.csdn.net/chuyouyinghe/article/details/123057776
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job // 加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
@@ -288,12 +288,14 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 onWindowInsetsChanged?.invoke(it)
             }
         }
-        immersionBar?.apply {
-            reset()
-            statusBarDarkFont(statusBarDark, 0.2f)
-            // edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
-            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
-            init()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            immersionBar?.apply {
+                reset()
+                statusBarDarkFont(statusBarDark, 0.2f)
+                // edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
+                navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
+                init()
+            }
         }
     }
 
@@ -326,7 +328,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun getResources(): Resources {
-        //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
         if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
@@ -365,7 +367,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         dataManager.clear()
         mActivityResult.unregister()
         mBinding?.unbind()
-        job.cancel()//之后再起的job无法工作
+        job.cancel() // 之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
     }
     // </editor-fold>

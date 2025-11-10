@@ -5,12 +5,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.getSimpleName
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toBundle
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -62,18 +66,20 @@ import java.util.concurrent.ConcurrentHashMap
  *  这种时候就使用replace直接删除容器之前的fragment，直接替换（保证当前容器内只有一个fragment）
  */
 class FragmentBuilder(private val observer: LifecycleOwner, private val fragmentManager: FragmentManager, private val containerViewId: Int, private val isAdd: Boolean = true) {
-    private var isArguments = false//是否是添加参数的模式
-    private var isAnimation = false//是否执行动画
-    private var currentItem = -1//默认下标->不指定任何值
-    private var managerLength = 0//当前需要管理的总长度
-    private var anim: MutableList<Int>? = null//动画集合
-    private var clazz: MutableList<Pair<Class<*>, String>>? = null//普通模式class集合
-    private var clazzBundle: MutableList<Triple<Class<*>, String, Bundle>>? = null//参数模式class集合
-    private var listener: ((tab: Int) -> Unit)? = null//切换监听
-    private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
+    private var isArguments = false // 是否是添加参数的模式
+    private var isAnimation = false // 是否执行动画
+    private var currentItem = -1 // 默认下标 -> 不指定任何值
+    private var managerLength = 0 // 当前需要管理的总长度
+    private var commitJob: Job? = null // 切换协程
+    private var anim: MutableList<Int>? = null // 动画集合
+    private var clazz: MutableList<Pair<Class<*>, String>>? = null // 普通模式class集合
+    private var clazzBundle: MutableList<Triple<Class<*>, String, Bundle>>? = null // 参数模式class集合
+    private var listener: ((tab: Int) -> Unit)? = null // 切换监听
+    private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() } // 存储声明的fragment
 
     init {
         observer.doOnDestroy {
+            commitJob?.cancel()
             anim?.clear()
             buffer.clear()
             clazz?.clear()
@@ -134,46 +140,42 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
     }
 
     private fun commitNow(tab: Int) {
-        currentItem = tab
-        val transaction = fragmentManager.beginTransaction()
-        //设置动画（进入、退出、返回进入、返回退出）->只有add这种保留原fragment在栈内的情况才会设置动画
-        if (isAnimation && isAdd) {
-            //安全取值，没有为0的情况下就是默认不执行动画
-            val mEnterAnim = anim.safeGet(0).orZero
-            val mExitAnim = anim.safeGet(1).orZero
-            val mPopEnterAnim = anim.safeGet(2).orZero
-            val mPopExitAnim = anim.safeGet(3).orZero
-            //根据长度判断设定的动画
-            if (anim.safeSize == 2) {
-                transaction.setCustomAnimations(mEnterAnim, mExitAnim)
-            } else {
-                transaction.setCustomAnimations(mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim)
+        commitJob?.cancel()
+        commitJob = observer.lifecycleScope.launch(Main.immediate) {
+            currentItem = tab
+            val transaction = fragmentManager.beginTransaction()
+            setCustomAnimations(transaction)
+            // 使现有的fragment，全部隐藏
+            buffer.values.forEach {
+                transaction.hide(it)
             }
-        }
-        //使现有的fragment，全部隐藏
-        buffer.values.forEach {
-            transaction.hide(it)
-        }
-//        for ((_, value) in buffer) {
-//            transaction.hide(value)
-//        }
-        //获取到选中的fragment
-        val fragment = if (isArguments) {
-            newInstanceArguments()
-        } else {
-            newInstance()
-        }
-        //不为空的情况下，显示出来
-        if (null != fragment) {
-            transaction.show(fragment)
-            transaction.commitAllowingStateLoss()
-            listener?.invoke(tab)
+            // 获取到选中的fragment
+            val fragment = if (isArguments) {
+                newInstanceArguments()
+            } else {
+                newInstance()
+            }
+            // 不为空的情况下，显示出来
+            if (null != fragment) {
+                // 预加载视图，避免空白闪烁
+                fragment.view?.let {
+                    transaction.show(fragment)
+                } ?: run {
+                    // 立即执行所有已经提交但还没执行的 Fragment 事务
+                    fragmentManager.executePendingTransactions()
+                    transaction.show(fragment)
+                }
+//                transaction.show(fragment)
+                transaction.commitAllowingStateLoss()
+                listener?.invoke(tab)
+            }
         }
     }
 
     private fun newInstance(): Fragment? {
         clazz.safeGet(currentItem).let {
             val transaction = fragmentManager.beginTransaction()
+            setCustomAnimations(transaction)
             val tag = it?.second
             var fragment = fragmentManager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -188,6 +190,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
     private fun newInstanceArguments(): Fragment? {
         clazzBundle.safeGet(currentItem).let {
             val transaction = fragmentManager.beginTransaction()
+            setCustomAnimations(transaction)
             val tag = it?.second
             var fragment = fragmentManager.findFragmentByTag(tag)
             if (null == fragment) {
@@ -200,18 +203,39 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         }
     }
 
+    private fun setCustomAnimations(transaction: FragmentTransaction) {
+        // 只有 add 模式才设置动画（replace 模式禁用，避免闪退）
+        if (!isAdd) return
+        // 设置动画（进入、退出、返回进入、返回退出）- >只有add这种保留原fragment在栈内的情况才会设置动画
+        if (isAnimation) {
+            // 安全取值，没有为0的情况下就是默认不执行动画
+            val mEnterAnim = anim.safeGet(0).orZero
+            val mExitAnim = anim.safeGet(1).orZero
+            val mPopEnterAnim = anim.safeGet(2).orZero
+            val mPopExitAnim = anim.safeGet(3).orZero
+            // 根据长度判断设定的动画
+            if (anim.safeSize == 2) {
+                transaction.setCustomAnimations(mEnterAnim, mExitAnim)
+            } else {
+                transaction.setCustomAnimations(mEnterAnim, mExitAnim, mPopEnterAnim, mPopExitAnim)
+            }
+        } else {
+            transaction.setCustomAnimations(0, 0, 0, 0)
+        }
+    }
+
     /**
      * 初始化提交
      */
     private fun commit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
-        //add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
+        // add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
         if (isAdd) {
             transaction.add(containerViewId, fragment, tag)
         } else {
             transaction.replace(containerViewId, fragment, tag)
         }
         transaction.commitAllowingStateLoss()
-        //replace栈内只有一个，集合也只存一个
+        // replace栈内只有一个，集合也只存一个
         if (!isAdd) {
             buffer.clear()
         }

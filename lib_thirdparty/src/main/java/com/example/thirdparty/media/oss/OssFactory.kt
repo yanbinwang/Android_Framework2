@@ -107,7 +107,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 2.app启动时application中初始化，保证启动期间先获取一次授权，时间过长会重置（120分钟）
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
-    fun initialize() {
+    fun initialize(block: () -> Unit = {}) {
         synchronized(LOCK) {
             initJob?.cancel()
             initJob = launch {
@@ -116,6 +116,7 @@ class OssFactory private constructor() : CoroutineScope {
                 }.withHandling({
                     isAuthorize = false
                 }, {
+                    block()
                     initJob?.cancel()
                     initJob = null
                 }).onStart {
@@ -258,7 +259,7 @@ class OssFactory private constructor() : CoroutineScope {
                 // 最大间隔，避免长时间无回调
                 val maxInterval = 7
                 // 是否需要回调（目前只有100M+的文件需要进度条）
-//                val isCallBack = sourcePath.getLength() >= 100.mb
+//                val isCallBack = sourcePath.getFileLength() >= 100.mb
                 val isCallBack = true
                 var isUploadStarted = false
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->

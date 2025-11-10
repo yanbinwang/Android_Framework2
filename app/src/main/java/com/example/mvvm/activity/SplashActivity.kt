@@ -21,6 +21,7 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -79,40 +80,35 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 /**
                  * 用来控制启动屏何时退出、让应用主内容显示的 “条件开关”，核心作用是 “阻塞启动屏自动消失，直到你指定的业务准备完成”
                  */
-                mSplashScreen?.setKeepOnScreenCondition(object : SplashScreen.KeepOnScreenCondition {
-                    override fun shouldKeepOnScreen(): Boolean {
-                        return mKeepOn.get()
-                    }
-                })
+                mSplashScreen?.setKeepOnScreenCondition {
+                    mKeepOn.get()
+                }
                 /**
                  * 展示完毕的监听方法
                  */
-                mSplashScreen?.setOnExitAnimationListener(object : SplashScreen.OnExitAnimationListener {
-                    override fun onSplashScreenExit(splashScreenViewProvider: SplashScreenViewProvider) {
-                        // 整体启动view
-                        val splashScreenView = splashScreenViewProvider.view
-//                    // 启动屏中央的图标
-//                    val iconView = splashScreenViewProvider.iconView
-//                    PropertyAnimator(iconView, 500)
-//                        .animateWidth(iconView.measuredWidth, 300.pt)
-//                        .animateHeight(iconView.measuredHeight, 354.pt)
-//                        .start(onEnd = {
-//                            iconView.alpha(1f,0f,500){
-//                                // 移除监听
-//                                splashScreenViewProvider.remove()
-//                                //当前Activity是任务栈的根，执行相应逻辑
-//                                jump(true)
-//                            }
-//                        })
-                        // 结束时做个渐隐藏动画,然后开始执行跳转
-                        splashScreenView.alpha(1f, 0f, 500) {
-                            // 移除监听
-                            splashScreenViewProvider.remove()
-                            //当前Activity是任务栈的根，执行相应逻辑
-                            jump(true)
-                        }
+                mSplashScreen?.setOnExitAnimationListener { splashScreenViewProvider ->
+                    // 整体启动view
+                    val splashScreenView = splashScreenViewProvider.view
+                    //                    // 启动屏中央的图标
+                    //                    val iconView = splashScreenViewProvider.iconView
+                    //                    PropertyAnimator(iconView, 500)
+                    //                        .animateWidth(iconView.measuredWidth, 300.pt)
+                    //                        .animateHeight(iconView.measuredHeight, 354.pt)
+                    //                        .start(onEnd = {
+                    //                            iconView.alpha(1f,0f,500){
+                    //                                // 移除监听
+                    //                                splashScreenViewProvider.remove()
+                    //                                //当前Activity是任务栈的根，执行相应逻辑
+                    //                                jump(true)
+                    //                            }
+                    //                        })
+                    // 结束时做个渐隐藏动画,然后开始执行跳转
+                    splashScreenView.alpha(1f, 0f, 500) {
+                        // 移除监听 (小米等部分高版本定制系统一旦remove()下方的代码都不会执行)
+                        splashScreenViewProvider.remove()
                     }
-                })
+                }
+                // 高版本开启协程处理系统 Splash 动画
                 initSplash()
             } else {
                 // 定义一次性监听器（触发后立即移除）
@@ -125,7 +121,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                         // 跳转页面
                         schedule(this@SplashActivity, {
                             jump(true)
-                        },500)
+                        }, 500)
                         // 允许绘制
                         return true
                     }
@@ -148,11 +144,13 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     }
 
     private fun initSplash() {
-        launch {
-            // splash只存在半秒
+        launch(Main.immediate) {
+            // Splash 只存在半秒
             delay(500)
-            // Splash 展示完毕
+            // Splash 展示完毕,调取后会系统会立即回调mSplashScreen?.setOnExitAnimationListener,同时执行下方的jump(true)
             mKeepOn.set(false)
+            // 当前Activity是任务栈的根，执行相应逻辑
+            jump(true)
         }
     }
 
@@ -171,11 +169,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             navigation(ARouterPath.MainActivity, options = getFadePreview())
         }
         if (isDelay) {
-            launch {
+            launch(Main.immediate) {
                 val SPLASH_DELAY = 2000L
                 // 计算还需要等待的时间
                 val remainingTime = if (isHighVersion) {
-                    SPLASH_DELAY
+                    SPLASH_DELAY + 500
                 } else {
                     // 计算从进程创建（预览窗口开始显示）到当前的耗时（即预览窗口已显示的时间）
                     val previewElapsed = SystemClock.elapsedRealtime() - lastClickTime.get()

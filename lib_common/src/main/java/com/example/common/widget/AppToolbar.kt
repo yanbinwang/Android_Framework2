@@ -88,12 +88,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 默认二级页面标题配置
-     * title->标题
-     * titleColor->标题颜色
-     * bgColor->背景颜色
-     * hasShade->标题底部是否带阴影
+     * @title -> 标题
+     * @titleColor -> 标题字体颜色
+     * @bgColor ->背景颜色
+     * @hasShade -> 标题底部是否带阴影
+     * @onClick -> 默认左侧返回
      */
-    fun setTitle(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setTitle(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         rootView.setBackgroundColor(context.color(bgColor))
         if (title.isNotBlank()) {
             createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
@@ -111,14 +112,14 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
             })
         }
         if (hasShade) createShade()
-        setLeftButton()
+        setLeftButton(onClick = onClick)
         return this
     }
 
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setSecondaryTitle(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false): AppToolbar {
+    fun setSecondaryTitle(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         rootView.setBackgroundColor(context.color(bgColor))
         if (hasShade) createShade()
         setLeftButton(resId, tintColor, onClick = onClick)
@@ -145,12 +146,12 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 1.继承BaseActivity，在xml中include对应标题布局
      * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
      */
-    fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary): AppToolbar {
-        return setTitle(title, titleColor, R.color.bgTransparent)
+    fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
+        return setTitle(title, titleColor, R.color.bgTransparent, onClick = onClick)
     }
 
     fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        return setSecondaryTitle(resId, tintColor, onClick, R.color.bgTransparent)
+        return setSecondaryTitle(resId, tintColor, R.color.bgTransparent, onClick = onClick)
     }
 
     /**

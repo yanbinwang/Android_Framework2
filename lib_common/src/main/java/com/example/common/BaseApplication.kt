@@ -105,8 +105,6 @@ abstract class BaseApplication : Application() {
 //        initReceiver()
         // 防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
-//        //解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
-//        closeAndroidPDialog()
         // 阿里路由跳转初始化
         initARouter()
         // 部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
@@ -122,29 +120,6 @@ abstract class BaseApplication : Application() {
         // 初始化友盟/人脸识别->延后
         initPrivacyAgreed()
     }
-
-//    private fun closeAndroidPDialog() {
-//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-//            try {
-//                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
-//                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
-//                declaredConstructor.setAccessible(true)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//            try {
-//                val cls = Class.forName("android.app.ActivityThread")
-//                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
-//                declaredMethod.isAccessible = true
-//                val activityThread = declaredMethod.invoke(null)
-//                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
-//                mHiddenApiWarningShown.isAccessible = true
-//                mHiddenApiWarningShown.setBoolean(activityThread, true)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
 
     private fun initARouter() {
         // 开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)

@@ -86,7 +86,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
     private fun getClickListenerForView(view: View?) {
         try {
             val viewClazz = Class.forName("android.view.View")
-            //事件监听器都是这个实例保存的
+            // 事件监听器都是这个实例保存的
             val listenerInfoMethod = viewClazz.getDeclaredMethod("getListenerInfo")
             if (!listenerInfoMethod.isAccessible) listenerInfoMethod.isAccessible = true
             val listenerInfoObj = listenerInfoMethod.invoke(view)
@@ -95,7 +95,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             if (!onClickListenerField.isAccessible) onClickListenerField.isAccessible = true
             val mOnClickListener = onClickListenerField[listenerInfoObj] as? View.OnClickListener
             if (mOnClickListener !is ProxyOnclickListener) {
-                //自定义代理事件监听器
+                // 自定义代理事件监听器
                 onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
             } else {
                 e("OnClickListenerProxy", "setted proxy listener ")
@@ -109,7 +109,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         private var lastClickTime: Long = 0
 
         override fun onClick(v: View?) {
-            //点击时间控制
+            // 点击时间控制
             val currentTime = System.currentTimeMillis()
             val minClickDelayTime = 500
             if (currentTime - lastClickTime > minClickDelayTime) {
