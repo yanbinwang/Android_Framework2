@@ -3,7 +3,6 @@ package com.example.common.utils.builder
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
-import android.os.Looper
 import android.util.SparseArray
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -14,10 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.adapter
@@ -134,7 +131,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext // 整体上下文
     private val mCurrentItem get() = tab?.selectedTabPosition.orZero // 当前选中下标
     private val mTabCount get() = tab?.tabCount.orZero // 当前需要管理的总长度
-    private val tabListener = object : TabLayout.OnTabSelectedListener {
+    private val mTabListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
             // 处理选中事件
             // 可以在这里更新页面内容或者改变选中标签的样式
@@ -243,7 +240,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
                 onBindView(bindView, tabList.safeGet(i), i == 0, i)
             }
         }
-        tab?.addOnTabSelectedListener(tabListener)
+        tab?.addOnTabSelectedListener(mTabListener)
         // 强制设置tab宽度
         val tabParent = tab?.getChildAt(0) as? ViewGroup
         for (i in 0 until tabParent?.childCount.orZero) {
@@ -341,7 +338,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
                 }
             }
         }
-        tab?.removeOnTabSelectedListener(tabListener)
+        tab?.removeOnTabSelectedListener(mTabListener)
         // 移除之前的拦截器
         tab?.setOnTouchListener(null)
     }
@@ -382,11 +379,11 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
             }
         }
         if (isClickable) {
-            tab?.removeOnTabSelectedListener(tabListener)
+            tab?.removeOnTabSelectedListener(mTabListener)
             // 移除之前的拦截器
             tab?.setOnTouchListener(null)
         } else {
-            tab?.addOnTabSelectedListener(tabListener)
+            tab?.addOnTabSelectedListener(mTabListener)
             // 设置触摸拦截器
             tab?.setOnTouchListener { _, _ -> true }
         }
