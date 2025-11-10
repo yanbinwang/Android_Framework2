@@ -1,5 +1,6 @@
 package com.example.common.widget
 
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
@@ -33,7 +34,7 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingStart="0dp"
  *     app:tabPaddingTop="0dp" />
  */
-class NativeIndicator(tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<Int, ItemTabBinding>(tab, tabTitle) {
+class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<Int, ItemTabBinding>(observer, tab, tabTitle) {
     private var redraw: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
     override fun getBindView() = ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
