@@ -104,12 +104,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                     //                        })
                     // 结束时做个渐隐藏动画,然后开始执行跳转
                     splashScreenView.alpha(1f, 0f, 500) {
-                        // 移除监听
+                        // 移除监听 (小米等部分高版本定制系统一旦remove()下方的代码都不会执行)
                         splashScreenViewProvider.remove()
-                        //                            // 当前Activity是任务栈的根，执行相应逻辑
-                        //                            jump(true)
                     }
                 }
+                // 高版本开启协程处理系统 Splash 动画
                 initSplash()
             } else {
                 // 定义一次性监听器（触发后立即移除）
@@ -122,7 +121,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                         // 跳转页面
                         schedule(this@SplashActivity, {
                             jump(true)
-                        },500)
+                        }, 500)
                         // 允许绘制
                         return true
                     }
@@ -148,7 +147,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
         launch(Main.immediate) {
             // Splash 只存在半秒
             delay(500)
-            // Splash 展示完毕
+            // Splash 展示完毕,调取后会系统会立即回调mSplashScreen?.setOnExitAnimationListener,同时执行下方的jump(true)
             mKeepOn.set(false)
             // 当前Activity是任务栈的根，执行相应逻辑
             jump(true)
@@ -174,7 +173,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 val SPLASH_DELAY = 2000L
                 // 计算还需要等待的时间
                 val remainingTime = if (isHighVersion) {
-                    SPLASH_DELAY
+                    SPLASH_DELAY + 500
                 } else {
                     // 计算从进程创建（预览窗口开始显示）到当前的耗时（即预览窗口已显示的时间）
                     val previewElapsed = SystemClock.elapsedRealtime() - lastClickTime.get()
