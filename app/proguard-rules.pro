@@ -733,6 +733,9 @@
     public static void init(android.content.Context, java.lang.Class);
 }
 # ---------------------------- 项目库混淆 ----------------------------
+# 直接保留SplashActivity所有内容，不混淆、不删除任何方法/变量
+-keep class com.example.mvvm.activity.SplashActivity { *; }
+
 -keep class com.example.topsheet.** {*;}
 -keep class com.example.objectbox.dao.** {*;}
 -keep class com.example.thirdparty.media.oss.bean.** {*;}
