@@ -21,6 +21,7 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.concurrent.atomic.AtomicBoolean
@@ -108,8 +109,8 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                         splashScreenView.alpha(1f, 0f, 500) {
                             // 移除监听
                             splashScreenViewProvider.remove()
-                            //当前Activity是任务栈的根，执行相应逻辑
-                            jump(true)
+//                            // 当前Activity是任务栈的根，执行相应逻辑
+//                            jump(true)
                         }
                     }
                 })
@@ -148,11 +149,13 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     }
 
     private fun initSplash() {
-        launch {
+        launch(Main.immediate) {
             // splash只存在半秒
             delay(500)
             // Splash 展示完毕
             mKeepOn.set(false)
+            // 当前Activity是任务栈的根，执行相应逻辑
+            jump(true)
         }
     }
 
@@ -171,7 +174,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
             navigation(ARouterPath.MainActivity, options = getFadePreview())
         }
         if (isDelay) {
-            launch {
+            launch(Main.immediate) {
                 val SPLASH_DELAY = 2000L
                 // 计算还需要等待的时间
                 val remainingTime = if (isHighVersion) {
