@@ -172,11 +172,18 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
     }
     private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
-        mTab?.select()
-        for (j in 0 until mTabCount) {
-            onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+        if (mCurrentItem != i) {
+            // 仅当存在上一个选中的Tab时，才触发取消选中（避免传入-1）
+            if (mCurrentItem >= 0) {
+                listener?.onUnselected(mCurrentItem)
+            }
+            mTab?.select()
+            for (j in 0 until mTabCount) {
+                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+            }
+            if (0 == bindMode) builder?.commit(i)
+            listener?.onSelected(i)
         }
-        if (0 == bindMode) builder?.commit(i)
     }
 
     init {
@@ -204,7 +211,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         builder = fragmentBuilder
         initView(list)
         initEvent(default)
-        addClickReset()
     }
 
     /**
@@ -349,24 +355,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
 
     /**
-     * 添加延迟点击
-     */
-    fun addClickReset() {
-        hasAction = true
-        for (i in 0 until mTabCount) {
-            val mTab = tab?.getTabAt(i)
-            (mTab?.customView?.parent as? View)?.let {
-                it.isClickable = true
-                it.click {
-                    reset(mTab, i)
-                }
-            }
-        }
-        tab?.removeOnTabSelectedListener(mTabListener)
-        tab?.setOnTouchListener(null)
-    }
-
-    /**
      * 还原对应下标的点击
      * addClickAllowed后可还原
      */
@@ -376,15 +364,11 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         if (action != null) {
             val mTab = tab?.getTabAt(index)
             (mTab?.customView?.parent as? View)?.click {
-                reset(mTab, index)
+                resetJob?.cancel()
+                resetJob = observer.lifecycleScope.launch(Main.immediate) {
+                    allowedResetAction(mTab, index)
+                }
             }
-        }
-    }
-
-    private fun reset(mTab: TabLayout.Tab?, index: Int) {
-        resetJob?.cancel()
-        resetJob = observer.lifecycleScope.launch(Main.immediate) {
-            allowedResetAction(mTab, index)
         }
     }
 
