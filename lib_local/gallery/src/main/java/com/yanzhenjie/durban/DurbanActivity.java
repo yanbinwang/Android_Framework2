@@ -313,6 +313,8 @@ public class DurbanActivity extends BaseActivity {
                 okView.setBackground(doneIcon);
             }
         }
+        // 设置额外添加的按钮外层间距
+        setSupportMenuView(findViewById(R.id.toolbar));
         return true;
     }
 
