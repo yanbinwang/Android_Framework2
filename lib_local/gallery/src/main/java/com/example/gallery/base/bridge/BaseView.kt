@@ -260,7 +260,7 @@ abstract class BaseView<Presenter : BasePresenter> {
             val alertDialog = AlertDialog.Builder(it)
                 .setTitle(title)
                 .setMessage(message)
-                .setPositiveButton(R.string.album_ok) { dialog, which -> }
+                .setPositiveButton(R.string.album_ok) { _, _ -> }
                 .create()
             alertDialog.show()
         }
@@ -283,8 +283,8 @@ abstract class BaseView<Presenter : BasePresenter> {
             val alertDialog = AlertDialog.Builder(it)
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.album_cancel) { dialog, which -> }
-                .setPositiveButton(R.string.album_confirm) { dialog, which -> confirmClickListener.onClick(which) }
+                .setNegativeButton(R.string.album_cancel) { _, _ -> }
+                .setPositiveButton(R.string.album_confirm) { _, which -> confirmClickListener.onClick(which) }
                 .create()
             alertDialog.show()
         }
@@ -308,8 +308,8 @@ abstract class BaseView<Presenter : BasePresenter> {
             val alertDialog = AlertDialog.Builder(it)
                 .setTitle(title)
                 .setMessage(message)
-                .setNegativeButton(R.string.album_cancel) { dialog, which -> cancelClickListener.onClick(which) }
-                .setPositiveButton(R.string.album_confirm) { dialog, which -> confirmClickListener.onClick(which) }
+                .setNegativeButton(R.string.album_cancel) { _, which -> cancelClickListener.onClick(which) }
+                .setPositiveButton(R.string.album_confirm) { _, which -> confirmClickListener.onClick(which) }
                 .create()
             alertDialog.show()
         }

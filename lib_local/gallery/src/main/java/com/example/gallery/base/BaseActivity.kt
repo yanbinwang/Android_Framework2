@@ -85,19 +85,19 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 页面的onCreateOptionsMenu中调取,此时Toolbar已经加载完成
          */
         @JvmStatic
-        fun setSupportMenuView(toolbar: Toolbar, @ColorRes backgroundColor: Int) {
+        fun setSupportMenuView(toolbar: Toolbar, @ColorRes colorRes: Int) {
             for (i in 0 until toolbar.childCount) {
                 val child = toolbar.getChildAt(i)
                 if (child is ActionMenuView) {
                     // 设定的按钮被绘制为ActionMenuView,本身高度看似撑满屏幕并且绘制也是,但其内部的view还是带有一定的上下边距
                     child.doOnceAfterLayout {
-                        adjustActionMenuItemView(it, backgroundColor)
+                        adjustActionMenuView(it, colorRes)
                     }
                 }
             }
         }
 
-        private fun adjustActionMenuItemView(menuView: ActionMenuView, @ColorRes backgroundColor: Int) {
+        private fun adjustActionMenuView(menuView: ActionMenuView, @ColorRes colorRes: Int) {
             for (i in 0..<menuView.childCount) {
                 val itemView = menuView.getChildAt(i)
                 // 打破 ActionMenuItemView 的高度限制
@@ -115,7 +115,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     // 内容居中
                     itemView.gravity = Gravity.CENTER
                     // 颜色调整
-                    if (!shouldUseWhiteSystemBarsForRes(backgroundColor)) {
+                    if (!shouldUseWhiteSystemBarsForRes(colorRes)) {
                         itemView.textColor(R.color.textBlack)
                     } else {
                         itemView.textColor(R.color.textWhite)
