@@ -178,7 +178,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                     // 计算从进程创建（预览窗口开始显示）到当前的耗时（即预览窗口已显示的时间）
                     val previewElapsed = SystemClock.elapsedRealtime() - lastClickTime.get()
                     // 修正延迟时间：总2000ms - 预览已消耗时间，最小为0（避免负数）
-                    maxOf(0, SPLASH_DELAY - previewElapsed)
+                    maxOf(0, SPLASH_DELAY - (previewElapsed - 500))
                 }
                 delay(remainingTime)
                 jumpAction()

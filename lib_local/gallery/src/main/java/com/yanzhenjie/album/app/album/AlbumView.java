@@ -87,6 +87,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             mTitle.setTextColor(getColor(R.color.textBlack));
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
             Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
+            assert navigationIcon != null;
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
             Drawable completeIcon = mCompleteMenu.getIcon();
