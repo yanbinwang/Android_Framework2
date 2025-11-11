@@ -332,7 +332,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
                 it?.isClickable = true
                 it?.click {
                     allowedJob?.cancel()
-                    observer.lifecycleScope.launch(Main.immediate) {
+                    allowedJob = observer.lifecycleScope.launch(Main.immediate) {
                         clickAllowedAction(mTab, i)
                     }
                 }
