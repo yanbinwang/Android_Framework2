@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.util.SparseArray
+import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -126,6 +127,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     private var listener: OnTabChangeListener? = null
     private var resetJob: Job? = null // 复位协程
     private var allowedJob: Job? = null // 允许协程
+    private var selectJob: Job? = null // 选中协程
     private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
     private val tabViews by lazy { SparseArray<VDB>() }
     private val mContext get() = tab?.context ?: BaseApplication.instance.applicationContext // 整体上下文
@@ -170,17 +172,25 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
     }
     private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
-        mTab?.select()
-        for (j in 0 until mTabCount) {
-            onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+        if (mCurrentItem != i) {
+            // 仅当存在上一个选中的Tab时，才触发取消选中（避免传入-1）
+            if (mCurrentItem >= 0) {
+                listener?.onUnselected(mCurrentItem)
+            }
+            mTab?.select()
+            for (j in 0 until mTabCount) {
+                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+            }
+            if (0 == bindMode) builder?.commit(i)
+            listener?.onSelected(i)
         }
-        if (0 == bindMode) builder?.commit(i)
     }
 
     init {
         observer.doOnDestroy {
             resetJob?.cancel()
             allowedJob?.cancel()
+            selectJob?.cancel()
         }
     }
 
@@ -305,7 +315,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
     /**
      * view.post {} 的工作原理
-     * 当你调用 view.post(Runnable) 时：
+     * 当调用 view.post(Runnable) 时：
      * 如果当前线程是 UI 线程，Runnable 会立即执行
      * 如果当前线程不是 UI 线程，Runnable 会被发送到 UI 线程的消息队列中执行
      */
@@ -313,9 +323,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         if (hasAction) {
             allowedResetAction(tab?.getTabAt(index), index)
         } else {
-            tab?.post {
-                // 当代码执行到这里时，TabLayout 已经完成初始化
-                tab.getTabAt(index)?.select()
+            // 当代码执行到这里时，TabLayout 已经完成初始化
+            selectJob?.cancel()
+            selectJob = observer.lifecycleScope.launch(Main.immediate) {
+                tab?.getTabAt(index)?.select()
             }
         }
     }
@@ -328,9 +339,9 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         clickActions = ConcurrentHashMap(params.toMap())
         for (i in 0 until mTabCount) {
             val mTab = tab?.getTabAt(i)
-            mTab?.customView.let {
-                it?.isClickable = true
-                it?.click {
+            (mTab?.customView?.parent as? View)?.let {
+                it.isClickable = true
+                it.click {
                     allowedJob?.cancel()
                     allowedJob = observer.lifecycleScope.launch(Main.immediate) {
                         clickAllowedAction(mTab, i)
@@ -352,7 +363,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         val action = clickActions[index]
         if (action != null) {
             val mTab = tab?.getTabAt(index)
-            mTab?.customView.click {
+            (mTab?.customView?.parent as? View)?.click {
                 resetJob?.cancel()
                 resetJob = observer.lifecycleScope.launch(Main.immediate) {
                     allowedResetAction(mTab, index)
