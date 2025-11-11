@@ -332,6 +332,8 @@ private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegate
 fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit) = {}) {
     // 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
+    // 缓存目标颜色，避免重复获取
+    val targetColor = color(mNavigationBarColor)
     // 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
     val windowBackground = decorView.background?.let { background ->
         when (background) {
@@ -348,17 +350,24 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
             }
         }
     } ?: color(R.color.appWindowBackground).toDrawable()
-    // 创建底部色块 Drawable
-    val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(color(mNavigationBarColor))
-    bottomBarDrawable.paint.color = color(mNavigationBarColor) // 确保颜色正确
+    // 创建底部色块 Drawable / 没有则新建
+    val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(targetColor)
+    // 颜色变了才更新，避免无效重绘
+    if (bottomBarDrawable.paint.color != targetColor) {
+        bottomBarDrawable.paint.color = targetColor
+        // 局部重绘，比整体重绘高效
+        bottomBarDrawable.invalidateSelf()
+    }
     // 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
     // 设置为 decorView 背景（此时两者会叠加显示）
     val currentBackground = decorView.background
     if (currentBackground !is LayerDrawable ||
         currentBackground.numberOfLayers != 2 ||
-        currentBackground.getDrawable(0) != windowBackground ||
-        currentBackground.getDrawable(1) != bottomBarDrawable
+        // 底层背景：只要类型是支持的（颜色/图片），且内容没实质变化，就认为没改 （底层背景不是导航栏，导航栏只关心颜色）
+        currentBackground.getDrawable(0) !is ColorDrawable && currentBackground.getDrawable(0) !is BitmapDrawable && currentBackground.getDrawable(0) !is VectorDrawable ||
+        // 导航栏背景：只判断颜色
+        (currentBackground.getDrawable(1) as? NavigationBarDrawable)?.paint?.color != targetColor
     ) {
         decorView.background = combinedDrawable
     }
@@ -369,7 +378,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
      * 视图因父布局调整、屏幕旋转、动态修改尺寸等原因发生布局重绘时。
      * 调用 requestLayout() 强制重绘后
      */
-    layoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    layoutChangeListener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         updateNavBar(v, bottomBarDrawable, navBottom)
@@ -397,7 +406,6 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
  * 更新导航栏高度和 padding
  */
 private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int) {
-//    val actualNavBottom = if (!v.hasNavigationBar()) 0 else getNavigationBarHeight()
     if (v.paddingBottom != navBottom) {
         v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
     }
@@ -456,15 +464,10 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         val validHeight = max(0, height)
         if (navigationBarHeight != validHeight) {
             navigationBarHeight = validHeight
-            // 低版本兼容：通过 Callback 触发重绘
-            if (callback != null) {
-                callback?.invalidateDrawable(this)
-            } else {
-                // 若没有 Callback，尝试通过 decorView 强制重绘
-                (callback as? View)?.invalidate()
-            }
+            callback?.invalidateDrawable(this)
         }
     }
+
 }
 
 /**
@@ -480,8 +483,8 @@ fun Window.removeNavigationBarDrawable() {
     }
     // 移除WindowInsets监听器
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
-    // 重置decorView背景（避免自定义Drawable残留引用-->Dialog 的 Window 和 Activity 的 Window 是完全独立的两个实例，它们分别持有各自的decorView）
-    // 注意：若页面有自己的背景设置，可注释此行，避免覆盖业务背景
+    // 重置decorView背景（避免自定义Drawable残留引用）
+    // 若页面有自己的背景设置，可注释此行，避免覆盖业务背景
     if (decorView.background is LayerDrawable) {
         decorView.background = null
     }
@@ -490,8 +493,21 @@ fun Window.removeNavigationBarDrawable() {
 /**
  * 导航栏图标亮/暗
  */
-fun Window.setNavigationBarLightMode(isLight: Boolean) {
+fun Window.setNavigationBarLightMode(isLight: Boolean, force: Boolean = false) {
+    // 先判断当前模式是否已符合，符合则直接返回
+    val currentIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        insetsController?.systemBarsAppearance?.and(WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        (decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0
+    } else {
+        // 低版本不支持，直接返回
+        false
+    }
+    // 相同模式且不强制，直接跳过（避免重复触发重绘）
+    if (!force && currentIsLight == isLight) return
+    // 低版本固定白色
     val mIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) isLight else false
+    // 开始执行导航栏图标切换
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // Android 11+ 推荐接口
         insetsController?.apply {
@@ -516,9 +532,18 @@ fun Window.setNavigationBarLightMode(isLight: Boolean) {
 /**
  * 状态栏图标亮/暗
  */
-fun Window.setStatusBarLightMode(isLight: Boolean) {
+fun Window.setStatusBarLightMode(isLight: Boolean, force: Boolean = false) {
+    // 先判断当前模式是否已符合，符合则直接返回
+    val currentIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        insetsController?.systemBarsAppearance?.and(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0
+    } else {
+        (decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0
+    }
+    // 相同模式且不强制，直接跳过（避免重复触发重绘）
+    if (!force && currentIsLight == isLight) return
+    // 开始执行状态栏图标切换
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        // Android 11+（API 30+）推荐使用 InsetsController(appearance:1（常量值）= 启用黑色图标 / 0 = 禁用黑色图标（即启用白色图标）)
+        // Android 11+（API 30+）推荐使用 InsetsController
         insetsController?.apply {
             if (isLight) {
                 // 浅色模式（黑色图标）
