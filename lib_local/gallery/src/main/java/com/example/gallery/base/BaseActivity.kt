@@ -2,6 +2,7 @@ package com.example.gallery.base
 
 import android.os.Build
 import android.os.Bundle
+import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.ImageButton
@@ -9,11 +10,13 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
+import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import com.example.common.R
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
@@ -23,6 +26,8 @@ import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.textSize
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
@@ -80,19 +85,19 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 页面的onCreateOptionsMenu中调取,此时Toolbar已经加载完成
          */
         @JvmStatic
-        fun setSupportMenuView(toolbar: Toolbar) {
+        fun setSupportMenuView(toolbar: Toolbar, @ColorRes backgroundColor: Int) {
             for (i in 0 until toolbar.childCount) {
                 val child = toolbar.getChildAt(i)
                 if (child is ActionMenuView) {
                     // 设定的按钮被绘制为ActionMenuView,本身高度看似撑满屏幕并且绘制也是,但其内部的view还是带有一定的上下边距
                     child.doOnceAfterLayout {
-                        adjustActionMenuItemView(it)
+                        adjustActionMenuItemView(it, backgroundColor)
                     }
                 }
             }
         }
 
-        private fun adjustActionMenuItemView(menuView: ActionMenuView) {
+        private fun adjustActionMenuItemView(menuView: ActionMenuView, @ColorRes backgroundColor: Int) {
             for (i in 0..<menuView.childCount) {
                 val itemView = menuView.getChildAt(i)
                 // 打破 ActionMenuItemView 的高度限制
@@ -107,6 +112,16 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     itemView.setLayoutParams(lp)
                     // 清除 ActionMenuItemView 自身的 padding
                     itemView.setPadding(itemView.getPaddingLeft(), 0, itemView.getPaddingRight(), 0)
+                    // 内容居中
+                    itemView.gravity = Gravity.CENTER
+                    // 颜色调整
+                    if (!shouldUseWhiteSystemBarsForRes(backgroundColor)) {
+                        itemView.textColor(R.color.textBlack)
+                    } else {
+                        itemView.textColor(R.color.textWhite)
+                    }
+                    // 字体大小
+                    itemView.textSize(R.dimen.textSize14)
                 }
             }
         }

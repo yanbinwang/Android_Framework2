@@ -314,7 +314,7 @@ public class DurbanActivity extends BaseActivity {
             }
         }
         // 设置额外添加的按钮外层间距
-        setSupportMenuView(findViewById(R.id.toolbar));
+        setSupportMenuView(findViewById(R.id.toolbar), mStatusColor);
         return true;
     }
 
