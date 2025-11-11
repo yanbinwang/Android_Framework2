@@ -5,7 +5,6 @@ import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Looper;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.CompoundButton;
@@ -13,7 +12,7 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 
-import com.example.framework.utils.WeakHandler;
+import com.example.framework.utils.builder.TimerBuilder;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
@@ -143,7 +142,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     public void onScanCallback(ArrayList<AlbumFolder> albumFolders, ArrayList<AlbumFile> checkedFiles) {
         mMediaReadTask = null;
         // 遮罩延迟半秒,有个页面过渡时间
-        new WeakHandler(Looper.getMainLooper()).postDelayed(() -> {
+        TimerBuilder.schedule(this, () -> {
             switch (mChoiceMode) {
                 case Album.MODE_MULTIPLE: {
                     mView.setCompleteDisplay(true);
@@ -158,7 +157,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 }
             }
             mView.setLoadingDisplay(false);
-        }, 500);
+            return Unit.INSTANCE;
+        },500);
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
         if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
