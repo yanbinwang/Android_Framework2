@@ -3,15 +3,18 @@ package com.example.common.utils.manager
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
-import android.os.Looper
 import android.os.Process
+import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getNoneOptions
 import com.example.common.base.page.getPostcardClass
 import com.example.common.config.ARouterPath
-import com.example.framework.utils.WeakHandler
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
 /**
@@ -278,9 +281,10 @@ object AppManager {
      */
     fun exitApp() {
         finishAllActivities()
-        // 加临时强引用，确保任务执行前WeakHandler不被GC
-        val tempHandler = WeakHandler(Looper.getMainLooper())
-        tempHandler.postDelayed({
+        // 获取当前进程的唯一LifecycleOwner,
+        ProcessLifecycleOwner.get().lifecycleScope.launch(Main.immediate) {
+            // 预留300毫秒,避免因页面未完全销毁就杀进程，导致资源释放不彻底
+            delay(300)
             try {
                 Process.killProcess(Process.myPid())
                 // exitProcess(0)是Android隐藏API，替换为Java标准的System.exit(0)，兼容性更强
@@ -288,8 +292,7 @@ object AppManager {
             } catch (e: Exception) {
                 e.printStackTrace()
             }
-            // 任务执行后，无需再持有引用（让GC自动回收）
-        }, 300)
+        }
     }
 
     /**
