@@ -135,8 +135,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     private val mTabCount get() = tab?.tabCount.orZero // 当前需要管理的总长度
     private val mTabListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
-            // 处理选中事件
-            // 可以在这里更新页面内容或者改变选中标签的样式
+            // 处理选中事件 / 可以在这里更新页面内容或者改变选中标签的样式
             onTabBind(tab, true)
             listener?.onSelected(tab?.position.orZero)
         }
@@ -148,8 +147,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
 
         override fun onTabReselected(tab: TabLayout.Tab?) {
-            // 处理再次选中同一个标签的事件
-            // 可以在这里执行相应的操作
+            // 处理再次选中同一个标签的事件 / 可以在这里执行相应的操作
             listener?.onReselected(tab?.position.orZero)
         }
 
@@ -173,16 +171,15 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
     private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
         if (mCurrentItem != i) {
-            // 仅当存在上一个选中的Tab时，才触发取消选中（避免传入-1）
-            if (mCurrentItem >= 0) {
-                listener?.onUnselected(mCurrentItem)
-            }
+            listener?.onUnselected(mCurrentItem)
             mTab?.select()
             for (j in 0 until mTabCount) {
                 onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
             }
             if (0 == bindMode) builder?.commit(i)
             listener?.onSelected(i)
+        } else {
+            listener?.onReselected(i)
         }
     }
 

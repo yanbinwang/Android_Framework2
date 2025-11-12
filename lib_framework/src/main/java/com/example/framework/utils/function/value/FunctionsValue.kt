@@ -51,6 +51,7 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
     return try {
         this.toString().toBoolean()
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
