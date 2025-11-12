@@ -171,11 +171,21 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
     private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
         if (mCurrentItem != i) {
-            listener?.onUnselected(mCurrentItem)
+//            listener?.onUnselected(mCurrentItem)
+//            mTab?.select()
+//            for (j in 0 until mTabCount) {
+//                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
+//            }
+//            if (0 == bindMode) builder?.commit(i)
+//            listener?.onSelected(i)
+            // 取消上一个选中的 tab（更新未选中状态）
+            val lastSelectedIndex = mCurrentItem
+            onBindView(tabViews[lastSelectedIndex], tabList.safeGet(lastSelectedIndex), false, lastSelectedIndex)
+            listener?.onUnselected(lastSelectedIndex)
+            // 选中当前 tab（更新选中状态）
             mTab?.select()
-            for (j in 0 until mTabCount) {
-                onBindView(tabViews[j], tabList.safeGet(j), j == i, j)
-            }
+            onBindView(tabViews[i], tabList.safeGet(i), true, i)
+            // 选中当前页面
             if (0 == bindMode) builder?.commit(i)
             listener?.onSelected(i)
         } else {
