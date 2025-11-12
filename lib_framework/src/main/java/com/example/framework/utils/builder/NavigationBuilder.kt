@@ -6,9 +6,12 @@ import android.view.View
 import android.widget.ImageView
 import androidx.core.view.forEach
 import androidx.core.view.size
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
@@ -17,6 +20,9 @@ import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -126,11 +132,12 @@ import java.util.concurrent.ConcurrentHashMap
  * }.attach()
  */
 @SuppressLint("RestrictedApi")
-class NavigationBuilder(private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
-    private var bindMode = 0//绑定模式 -> 0：FragmentManager / 1：ViewPager2
-    private var hasAction: Boolean = false//是否重写过点击
+class NavigationBuilder(private val observer: LifecycleOwner, private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
+    private var bindMode = 0 // 绑定模式 -> 0：FragmentManager / 1：ViewPager2
+    private var hasAction: Boolean = false // 是否重写点击
     private var flipper: ViewPager2? = null
     private var builder: FragmentBuilder? = null
+    private var commitJob: Job? = null // 切换协程
     private var listener: ((index: Int) -> Unit)? = null
     private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
     private val menuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
@@ -139,13 +146,16 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 初始化
      */
     init {
-        //去除长按的toast提示
+        observer.doOnDestroy {
+            commitJob?.cancel()
+        }
+        // 去除长按的toast提示
         for (position in ids.indices) {
             menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).orZero)?.setOnLongClickListener { true }
         }
-        //最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
+        // 最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
         navigationView?.setOnItemSelectedListener { item ->
-            //返回此次点击的下标
+            // 返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
             if (hasAction && clickActions.safeSize > 0) {
                 val action = clickActions[index]
@@ -153,23 +163,23 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
                     action.invoke()
                     false
                 } else {
-                    onSelected(index)
+                    onItemSelected(index)
                     true
                 }
             } else {
-                onSelected(index)
+                onItemSelected(index)
                 true
             }
         }
-        //默认效果删除
+        // 默认效果删除
         navigationView?.itemIconTintList = null
         navigationView?.itemTextColor = null
     }
 
-    private fun onSelected(index: Int) {
-        //默认允许切换页面
+    private fun onItemSelected(index: Int) {
+        // 默认允许切换页面
         selectTab(index)
-        //回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
+        // 回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
         listener?.invoke(index)
     }
 
@@ -192,17 +202,17 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * 只有禁止自动选择的模式/特许模式，才能调取
      */
     fun setSelect(index: Int, recreate: Boolean = false) {
-        //此时系统回收了页面，不管结果如何，立即切换
+        // 此时系统回收了页面，不管结果如何，立即切换
         if (recreate) {
             selectTab(index, true)
         }
-        //获取当前选中的Item ID
+        // 获取当前选中的Item ID
         val currentItemId = navigationView?.selectedItemId
-        //要选中的Item ID
+        // 要选中的Item ID
         val toCurrentItemId = navigationView?.menu?.getItem(index)?.itemId.orZero
-        //开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
+        // 开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
         if (currentItemId == toCurrentItemId) return
-        //新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
+        // 新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
         selectItem(index)
     }
 
@@ -213,8 +223,9 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     private fun selectItem(index: Int) {
         val menu = navigationView?.menu
         if (index < menu?.size.orZero) {
-            navigationView?.post {
-                navigationView.selectedItemId = menu?.getItem(index)?.itemId.orZero
+            commitJob?.cancel()
+            commitJob = observer.lifecycleScope.launch(Main.immediate) {
+                navigationView?.selectedItemId = menu?.getItem(index)?.itemId.orZero
             }
         }
     }
@@ -232,7 +243,7 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
     }
 
     private fun selectTabNow(tab: Int, recreate: Boolean) {
-        //如果频繁点击相同的页面tab，不执行切换代码
+        // 如果频繁点击相同的页面tab，不执行切换代码
         if (bindMode == 1) {
             flipper?.setCurrentItem(tab, false)
         } else {
@@ -310,11 +321,11 @@ class NavigationBuilder(private val navigationView: BottomNavigationView?, priva
      * </LinearLayout>
      */
     fun addView(resource: Int, index: Int = 0): View {
-        //加载我们的角标View，新创建的一个布局
+        // 加载我们的角标View，新创建的一个布局
         val badge = LayoutInflater.from(navigationView?.context).inflate(resource, menuView, false)
-        //添加到Tab上
+        // 添加到Tab上
         getItemView(index)?.addView(badge)
-        //返回我们添加的view整体
+        // 返回我们添加的view整体
         return badge
     }
 
