@@ -35,7 +35,9 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         fun schedule(observer: LifecycleOwner?, run: (() -> Unit), delayMillis: Long = 1000) {
             observer?.lifecycleScope?.launch {
                 delay(delayMillis)
-                withContext(Main.immediate) { run() }
+                withContext(Main.immediate) {
+                    run()
+                }
             }
         }
     }
@@ -70,7 +72,7 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         // 先停止旧的任务
         stopTask(tag)
         if (timerMap[tag] == null) {
-            val job = observer.lifecycleScope.launch(Main.immediate) {
+            val job = observer.lifecycleScope.launch {
                 delay(delay)
                 flow {
                     while (true) {
