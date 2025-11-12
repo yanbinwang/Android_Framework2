@@ -20,12 +20,12 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class TimerBuilder(private val observer: LifecycleOwner) {
     private val timerMap by lazy { ConcurrentHashMap<String, Job>() }
-    private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer?>() }
+    private val countDownMap by lazy { ConcurrentHashMap<String, CountDownTimer>() }
 
     companion object {
-        //默认计时器tag
+        // 默认计时器tag
         private const val TASK_DEFAULT_TAG = "TASK_DEFAULT"
-        //默认倒计时tag
+        // 默认倒计时tag
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
 
         /**
@@ -41,10 +41,14 @@ class TimerBuilder(private val observer: LifecycleOwner) {
     }
 
     init {
-        //完全销毁所有定时器
+        // 销毁所有定时器
         observer.doOnDestroy {
-            timerMap.values.forEach { it.cancel() }
-            countDownMap.values.forEach { it?.cancel() }
+            timerMap.values.forEach {
+                it.cancel()
+            }
+            countDownMap.values.forEach {
+                it.cancel()
+            }
             timerMap.clear()
             countDownMap.clear()
         }
@@ -63,9 +67,10 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * timer.schedule(task, 2000, 3000);
      */
     fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
-        stopTask(tag)//先停止旧的任务
+        // 先停止旧的任务
+        stopTask(tag)
         if (timerMap[tag] == null) {
-            val job = observer.lifecycleScope.launch {
+            val job = observer.lifecycleScope.launch(Main.immediate) {
                 delay(delay)
                 flow {
                     while (true) {
@@ -73,7 +78,9 @@ class TimerBuilder(private val observer: LifecycleOwner) {
                         delay(period)
                     }
                 }.flowOn(IO).collect {
-                    withContext(Main) { run() }
+                    withContext(Main.immediate) {
+                        run()
+                    }
                 }
             }
             timerMap[tag] = job
