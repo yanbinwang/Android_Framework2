@@ -127,9 +127,9 @@ fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Cont
 
 fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    //判断剪切版时候有内容
+    // 判断剪切版时候有内容
     if (!clipboardManager?.hasPrimaryClip().orFalse) return ""
-    //获取 text
+    // 获取 text
     return clipboardManager?.primaryClip?.getItemAt(0)?.text.toString()
 }
 
@@ -178,6 +178,7 @@ fun Context.isAvailable(packageName: String): Boolean {
             packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }.orFalse
@@ -208,7 +209,7 @@ fun Context.stopService(cls: Class<out Service>) {
 /**
  * 检测服务是否正在运行
  */
-val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() }// 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() } // 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
@@ -314,13 +315,13 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
  */
 fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
 
-fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+//fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
 
 fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
 
-fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
-
 fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+
+fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
 
 fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
 
@@ -332,13 +333,13 @@ fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelab
 
 fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
 
-fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
+//fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
 
 fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
 
-fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
-
 fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
+
+fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
 
 fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
 

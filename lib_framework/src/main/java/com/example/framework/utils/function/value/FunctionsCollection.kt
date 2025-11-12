@@ -67,6 +67,7 @@ fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
     return try {
         if (to > size) subList(from, size) else subList(from, to)
     } catch (e: Exception) {
+        e.printStackTrace()
         emptyList()
     }
 }
@@ -79,6 +80,7 @@ fun <T> Collection<T>?.safeFirst(): T? {
     return try {
         first()
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
@@ -91,12 +93,80 @@ fun <T> List<T>?.safeLast(): T? {
     return try {
         get(size - 1)
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
 
 /**
+ * 寻找符合条件的第一个item的index
+ */
+fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
+    forEachIndexed { index, t ->
+        if (func(t)) return index
+    }
+    return -1
+}
+
+/**
+ * 寻找符合条件的第一个item的index和item自身的pair
+ */
+fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
+    forEachIndexed { index, t ->
+        if (func(t)) return index to t
+    }
+    return null
+}
+
+/**
+ * 移除符合条件的item
+ */
+fun <T> MutableCollection<T>.findAndRemove(func: ((T) -> Boolean)) {
+    try {
+        remove(find { func(it) })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 返回List中随机一个值
+ * 抽奖/取随机
+ */
+val <T> List<T>?.randomItem: T?
+    get() = if (isNullOrEmpty()) {
+        null
+    } else {
+        this[Random.nextInt(0, size)]
+    }
+
+/**
+ * 返回Array中随机一个值
+ */
+val <T> Array<T>?.randomItem: T?
+    get() = if (isNullOrEmpty()) {
+        null
+    } else {
+        this[Random.nextInt(0, size)]
+    }
+
+
+/**
+ * 返回CharArray中随机一个值
+ */
+val CharArray?.randomItem: Char?
+    get() = when {
+        this == null -> null
+        this.isEmpty() -> null
+        else -> this[Random.nextInt(0, size)]
+    }
+
+/**
  * 将旧list转换为新list
+ * List 示例（过滤 null 结果）
+ * val strList: List<String>? = listOf("1", "2", null, "3")
+ * val intList = strList.toNewList { it?.toIntOrNull() }
+ * 结果：[1, 2, 3]（过滤了 null 和无法转 Int 的元素）
  */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
@@ -129,37 +199,6 @@ fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
         list.add(func(it))
     }
     return list
-}
-
-/**
- * 将Collection转换为Map
- */
-fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
-    if (this == null) return hashMapOf()
-    val map = hashMapOf<String, K>()
-    forEach {
-        func(it)?.apply {
-            map[first] = second
-        }
-    }
-    return map
-}
-
-/**
- * 将Bundle转换为Map
- */
-fun Bundle?.toMap(): Map<String, String> {
-    this ?: return mapOf()
-    val map = HashMap<String, String>()
-    val ks = keySet()
-    val iterator: Iterator<String> = ks.iterator()
-    while (iterator.hasNext()) {
-        val key = iterator.next()
-        getString(key)?.let {
-            map[key] = it
-        }
-    }
-    return map
 }
 
 /**
@@ -218,6 +257,37 @@ inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): 
         }
     }
     return list.toTypedArray()
+}
+
+/**
+ * 将Collection转换为Map
+ */
+fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
+    if (this == null) return hashMapOf()
+    val map = hashMapOf<String, K>()
+    forEach {
+        func(it)?.apply {
+            map[first] = second
+        }
+    }
+    return map
+}
+
+/**
+ * 将Bundle转换为Map
+ */
+fun Bundle?.toMap(): Map<String, String> {
+    this ?: return mapOf()
+    val map = HashMap<String, String>()
+    val ks = keySet()
+    val iterator = ks.iterator()
+    while (iterator.hasNext()) {
+        val key = iterator.next()
+        getString(key)?.let {
+            map[key] = it
+        }
+    }
+    return map
 }
 
 /**
@@ -345,69 +415,6 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
 }
 
 /**
- * 寻找符合条件的第一个item的index
- */
-fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
-    forEachIndexed { index, t ->
-        if (func(t)) return index
-    }
-    return -1
-}
-
-/**
- * 寻找符合条件的第一个item的index和item自身的pair
- */
-fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
-    forEachIndexed { index, t ->
-        if (func(t)) return index to t
-    }
-    return null
-}
-
-/**
- * 移除符合条件的item
- */
-fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
-    try {
-        remove(find { func(it) })
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-}
-
-/**
- * 返回List中随机一个值
- * 抽奖/取随机
- */
-val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
-        null
-    } else {
-        this[Random.nextInt(0, size)]
-    }
-
-/**
- * 返回Array中随机一个值
- */
-val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
-        null
-    } else {
-        this[Random.nextInt(0, size)]
-    }
-
-
-/**
- * 返回CharArray中随机一个值
- */
-val CharArray?.randomItem: Char?
-    get() = when {
-        this == null -> null
-        this.isEmpty() -> null
-        else -> this[Random.nextInt(0, size)]
-    }
-
-/**
  * list1为服务器中数据
  * list2为本地存储数据
  * isRepeated:是否返回重复的或不重复的数据
@@ -426,7 +433,7 @@ val CharArray?.randomItem: Char?
  *     }
  * }
  */
-fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? {
+fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
     // 生成重复集合（在两个列表中都存在的用户）
     val repeated = toSet().intersect(list.toSet())
