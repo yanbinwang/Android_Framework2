@@ -362,7 +362,9 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
     // 设置为 decorView 背景（此时两者会叠加显示）
     val currentBackground = decorView.background
+    // 获取到的背景样式类型需是LayerDrawable
     if (currentBackground !is LayerDrawable ||
+        // 组合长度应是2个
         currentBackground.numberOfLayers != 2 ||
         // 底层背景：只要类型是支持的（颜色/图片），且内容没实质变化，就认为没改 （底层背景不是导航栏，导航栏只关心颜色）
         currentBackground.getDrawable(0) !is ColorDrawable && currentBackground.getDrawable(0) !is BitmapDrawable && currentBackground.getDrawable(0) !is VectorDrawable ||
@@ -371,7 +373,6 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
     ) {
         decorView.background = combinedDrawable
     }
-    // 处理导航栏高度变化
     /**
      * 监听视图自身布局边界的变化，当视图的位置（left/top/right/bottom）或尺寸（宽高）发生改变时触发
      * 视图首次布局完成时。
