@@ -340,7 +340,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
         // 启动前先取消已有任务（避免重复启动）
         stopRoll()
         // 绑定生命周期：用 lifecycleOwner 的协程作用域，页面销毁时自动取消
-        scrollJob = lifecycleOwner?.lifecycleScope?.launch(Main.immediate) {
+        scrollJob = lifecycleOwner?.lifecycleScope?.launch {
             try {
                 // 启动延迟
                 delay(scrollDelay)
