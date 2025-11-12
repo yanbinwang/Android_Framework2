@@ -5,9 +5,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
-import android.os.Looper
 import android.util.AttributeSet
 import android.view.Gravity
+import android.view.MotionEvent
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
@@ -16,6 +16,7 @@ import androidx.core.graphics.ColorUtils
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.MarginPageTransformer
 import androidx.viewpager2.widget.ViewPager2
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
@@ -25,7 +26,6 @@ import com.bumptech.glide.request.FutureTarget
 import com.example.common.utils.function.getCenterPixelColor
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.safeRecycle
-import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.createOvalDrawable
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
@@ -40,9 +40,14 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Timer
-import java.util.TimerTask
+import kotlin.coroutines.cancellation.CancellationException
 
 /**
  * Created by wangyanbin
@@ -91,8 +96,12 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var autoScroll = true
     // 3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
     private var triple = Triple(createOvalDrawable("#3d81f2"), createOvalDrawable("#6e7ce2"), 10)
-    // 自动滚动的定时器
-    private var timer: Timer? = null
+    // 协程 Job 控制滚动任务
+    private var scrollJob: Job? = null
+    // 滚动间隔（可自定义，默认3秒）
+    private val scrollPeriod = 3000L
+    // 启动延迟（默认3秒，避免刚初始化就滚动）
+    private val scrollDelay = 3000L
     // 广告容器
     private var banner: ViewPager2? = null
     // 圆点容器
@@ -101,8 +110,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private val halfPosition by lazy { Int.MAX_VALUE / 2 }
     // 图片适配器
     private val advAdapter by lazy { AdvertisingAdapter() }
-    // 切线程
-    private val weakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
     // 注册广告监听
     private val callback by lazy { object : OnPageChangeCallback() {
         // 当前选中的数组索引
@@ -206,14 +213,19 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             reduceSensitivity()
             adapter(advAdapter)
             registerOnPageChangeCallback(callback)
-//            setOnTouchListener { _, event ->
-//                when (event?.action) {
-//                    MotionEvent.ACTION_UP -> if (autoScroll) startRoll()
-//                    else -> if (autoScroll) stopRoll()
-//                }
-//                false
-//            }
-//            isNestedScrollingEnabled = false
+            setOnTouchListener { _, event ->
+                when (event?.action) {
+                    MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
+                        if (autoScroll) stopRoll()
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        if (autoScroll) startRoll()
+                    }
+                }
+                // 不拦截触摸事件，不影响用户滑动
+                false
+            }
+            isNestedScrollingEnabled = false
         }
     }
 
@@ -238,7 +250,6 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             Lifecycle.Event.ON_PAUSE -> stopRoll()
             Lifecycle.Event.ON_DESTROY -> {
                 stopRoll()
-                weakHandler.removeCallbacksAndMessages(null)
                 banner?.unregisterOnPageChangeCallback(callback)
                 source.lifecycle.removeObserver(this)
             }
@@ -250,15 +261,17 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // <editor-fold defaultstate="collapsed" desc="实现方法">
     override fun start(uriList: ArrayList<String>) {
         this.list = uriList
-        //设置数据
+        // 设置数据
         initData()
+        // 开始滚动
+        startRoll()
     }
 
     /**
      * 初始化圆点,图片数据
      */
     private fun initData() {
-        //如果只有一第图时不显示圆点容器
+        // 如果只有一第图时不显示圆点容器
         if (ovalLayout != null) {
             if (list.size < 2) {
                 ovalLayout?.gone()
@@ -267,11 +280,11 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 ovalLayout?.visible()
                 ovalLayout?.removeAllViews()
                 ovalLayout?.doOnceAfterLayout {
-                    //如果true代表垂直，否则水平
+                    // 如果true代表垂直，否则水平
                     val direction = it.layoutParams?.height.orZero > it.layoutParams?.width.orZero
-                    //左右边距
+                    // 左右边距
                     val ovalMargin = triple.third.pt
-                    //添加圆点
+                    // 添加圆点
                     for (i in list.indices) {
                         ImageView(context).apply {
                             if (direction) {
@@ -285,17 +298,17 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                             it.addView(this)
                         }
                     }
-                    //选中第一个
+                    // 选中第一个
                     it.getChildAt(0)?.background = triple.first
                 }
             }
         }
-        //设置图片数据
+        // 设置图片数据
         advAdapter.refresh(list)
         advAdapter.setOnItemClickListener {
             onPagerClick?.invoke(it)
         }
-        //设置默认选中的起始位置
+        // 设置默认选中的起始位置
         banner?.setCurrentItem(if (list.safeSize > 1) absolutePosition else 0, false)
     }
 
@@ -321,23 +334,42 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 开始自动滚动任务 图片大于1张才滚动
      */
-    private fun startRoll() {
-        if (autoScroll) {
-            if (list.size > 1) {
-                if (timer == null) {
-                    timer = Timer()
-                    timer?.schedule(object : TimerTask() {
-                        override fun run() {
-                            if (allowScroll) {
-                                weakHandler.post {
-                                    val current = banner?.currentItem.orZero
-                                    val position = if (current == 0 || current == Int.MAX_VALUE) absolutePosition else current + 1
-                                    banner?.currentItem = position
-                                }
-                            }
+    fun startRoll() {
+        // 不允许滚动 || 图片少于1张 → 直接返回
+        if (!autoScroll || list.size <= 1) return
+        // 启动前先取消已有任务（避免重复启动）
+        stopRoll()
+        // 绑定生命周期：用 lifecycleOwner 的协程作用域，页面销毁时自动取消
+        scrollJob = lifecycleOwner?.lifecycleScope?.launch {
+            try {
+                // 启动延迟
+                delay(scrollDelay)
+                // 循环滚动：flow 实现定时发射
+                flow {
+                    while (true) {
+                        emit(Unit)
+                        // 每次滚动间隔
+                        delay(scrollPeriod)
+                    }
+                }.flowOn(IO).collect {
+                    // 切换到主线程更新 UI（ViewPager2 必须在主线程操作）
+                    withContext(Main.immediate) {
+                        if (allowScroll) {
+                            val current = banner?.currentItem.orZero
+//                            val position = if (current == 0 || current == Int.MAX_VALUE) absolutePosition else current + 1
+//                            banner?.currentItem = position
+                            // 先计算下一个位置
+                            val nextPosition = current + 1
+                            // 如果下一个位置超过「中间值+10000」→ 重置到中间位置；否则用nextPosition
+                            val targetPosition = if (nextPosition > halfPosition + 10000) absolutePosition else nextPosition
+                            banner?.currentItem = targetPosition
                         }
-                    }, 0, 3000)
+                    }
                 }
+            } catch (_: CancellationException) {
+                // 协程被取消时，静默处理（正常流程，无需打印日志）
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -345,13 +377,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 停止自动滚动任务
      */
-    private fun stopRoll() {
-        if (autoScroll) {
-            if (timer != null) {
-                timer?.cancel()
-                timer = null
-            }
-        }
+    fun stopRoll() {
+        // 置空，避免内存泄漏
+        scrollJob?.cancel()
+        scrollJob = null
     }
 
 //    /**

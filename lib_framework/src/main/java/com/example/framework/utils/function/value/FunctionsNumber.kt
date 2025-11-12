@@ -32,6 +32,7 @@ fun CharSequence?.toSafeInt(default: Int = 0): Int {
             this.toString().toInt()
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
@@ -53,6 +54,7 @@ fun CharSequence?.toSafeLong(default: Long = 0L): Long {
             this.toString().toLong()
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
@@ -74,6 +76,7 @@ fun CharSequence?.toSafeFloat(default: Float = 0f): Float {
             this.toString().toFloat()
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
@@ -95,6 +98,7 @@ fun CharSequence?.toSafeDouble(default: Double = 0.0): Double {
             this.toString().toDouble()
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
@@ -116,6 +120,7 @@ fun CharSequence?.toSafeBigDecimal(default: Double = 0.0): BigDecimal {
             this.toString().toBigDecimal()
         }
     } catch (e: Exception) {
+        e.printStackTrace()
         BigDecimal.valueOf(default)
     }
 }
@@ -397,6 +402,7 @@ fun String?.removeEndZero(): String {
     return try {
         BigDecimal(this).stripTrailingZeros().toPlainString()
     } catch (e: Exception) {
+        e.printStackTrace()
         this
     }
 }
@@ -410,8 +416,8 @@ fun String?.numberDigits(): Int {
 //    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
     this ?: return 0
     val dotIndex = this.indexOf('.')
-    //如果没有找到小数点（dotIndex == -1），说明没有小数部分，返回 0
-    //否则，使用 drop 方法去掉小数点及其前面的部分，然后获取剩余字符串的长度，最后使用 orZero 确保结果不会为 null
+    // 如果没有找到小数点（dotIndex == -1），说明没有小数部分，返回 0
+    // 否则，使用 drop 方法去掉小数点及其前面的部分，然后获取剩余字符串的长度，最后使用 orZero 确保结果不会为 null
     return if (dotIndex == -1) 0 else this.drop(dotIndex + 1).length.orZero
 }
 
@@ -480,7 +486,7 @@ fun Number?.divide(number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DO
 
 private fun performDivision(current: BigDecimal, number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
     val divisor = number.convertToSafeBigDecimal()
-    //处理除数为 0 的情况
+    // 处理除数为 0 的情况
     if (divisor.toPlainString().removeEndZero() == "0") return "0"
     return current.divide(divisor, scale, mode).toPlainString().removeEndZero()
 }
