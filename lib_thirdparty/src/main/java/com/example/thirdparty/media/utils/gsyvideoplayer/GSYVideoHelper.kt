@@ -255,7 +255,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 绑定页面-设置基础配资
      */
-    fun bind(standardGSYVideoPlayer: StandardGSYVideoPlayer?, fullScreen: Boolean = false) {
+    fun <T : StandardGSYVideoPlayer> bind(standardGSYVideoPlayer: T?, fullScreen: Boolean = false) {
         player = standardGSYVideoPlayer
         // 屏幕展示效果 -> 采用基础配资
         GSYVideoType.setShowType(GSYVideoType.SCREEN_TYPE_DEFAULT)
