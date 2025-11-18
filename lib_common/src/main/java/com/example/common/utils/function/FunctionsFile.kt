@@ -64,6 +64,38 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
+ * 校验文件是否无独占写锁定、可删除（间接判断）
+ * @param this 文件路径
+ * @return true：无写锁定，可尝试删除；false：有写锁定/占用
+ */
+fun String?.isFileWritableAndDeletable(): Boolean {
+    this ?: return false
+    // 文件是否存在
+    if (!isPathExists()) return false
+    // 文件是否可写（间接判断无独占写锁定）
+    val file = File(this)
+    if (!file.canWrite()) return false
+    // 尝试创建临时文件（进一步确认目录无锁定）
+    val parentDir = file.parentFile ?: return false
+    val tempFile = File(parentDir, "temp_check_lock_${System.currentTimeMillis()}.tmp")
+    return try {
+        // 无论创建成功与否，最终都要删除临时文件（防残留）
+        val createSuccess = tempFile.createNewFile()
+        createSuccess
+    } catch (e: SecurityException) {
+        // 捕获“权限不足”异常（部分机型/目录可能限制创建临时文件）
+        e.printStackTrace()
+        false
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    } finally {
+        // 确保临时文件被删除，不残留
+        tempFile.safeDelete()
+    }
+}
+
+/**
  * 判断字符串路径对应的文件/目录是否存在
  * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
  */
@@ -118,11 +150,6 @@ fun String?.deleteFile() {
     File(this).safeDelete()
 }
 
-//fun File?.deleteFile() {
-//    this ?: return
-//    if (isFile && exists()) delete()
-//}
-
 /**
  * 删除目录下的所有文件,包含目录本身
  */
@@ -130,26 +157,6 @@ fun String?.deleteDir() {
     this ?: return
     File(this).deleteRecursively()
 }
-
-//fun File?.deleteDir() {
-//    this ?: return
-//    deleteDirWithFile(this)
-//}
-//
-//private fun deleteDirWithFile(dir: File?) {
-//    if (dir == null || !dir.exists() || !dir.isDirectory) return
-//    for (file in dir.listFiles().orEmpty()) {
-//        // 删除所有文件
-//        if (file.isFile) {
-//            file.delete()
-//        } else if (file.isDirectory) {
-//            // 递规的方式删除文件夹
-//            deleteDirWithFile(file)
-//        }
-//    }
-//    // 删除目录本身
-//    dir.delete()
-//}
 
 /**
  * 安全删除文件（处理文件占用等异常）
