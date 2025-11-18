@@ -3,7 +3,7 @@ package com.example.thirdparty.media.widget
 import android.content.Context
 import android.util.AttributeSet
 import android.view.OrientationEventListener
-import android.widget.RelativeLayout
+import android.widget.FrameLayout
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.doOnceAfterLayout
 
@@ -21,7 +21,7 @@ import com.example.framework.utils.function.view.doOnceAfterLayout
  *    rotateLayout.disable()
  * }
  */
-class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
+class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     // 原始布局宽度（未旋转时）
     private var mOriginalWidth = 0
     // 原始布局高度（未旋转时）
