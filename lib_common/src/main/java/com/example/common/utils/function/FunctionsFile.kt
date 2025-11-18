@@ -64,24 +64,16 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
- * 判断字符串路径对应的文件/目录是否存在
- * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
- */
-fun String?.isPathExists(): Boolean {
-    this ?: return false
-    return File(this.trim()).exists()
-}
-
-/**
  * 校验文件是否无独占写锁定、可删除（间接判断）
  * @param this 文件路径
  * @return true：无写锁定，可尝试删除；false：有写锁定/占用
  */
 fun String?.isFileWritableAndDeletable(): Boolean {
     this ?: return false
-    val file = File(this)
+    // 文件是否存在
     if (!isPathExists()) return false
     // 文件是否可写（间接判断无独占写锁定）
+    val file = File(this)
     if (!file.canWrite()) return false
     // 尝试创建临时文件（进一步确认目录无锁定）
     val parentDir = file.parentFile ?: return false
@@ -101,6 +93,15 @@ fun String?.isFileWritableAndDeletable(): Boolean {
         // 确保临时文件被删除，不残留
         tempFile.safeDelete()
     }
+}
+
+/**
+ * 判断字符串路径对应的文件/目录是否存在
+ * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
+ */
+fun String?.isPathExists(): Boolean {
+    this ?: return false
+    return File(this.trim()).exists()
 }
 
 /**
