@@ -82,7 +82,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var restartJob: Job? = null
     private var player: StandardGSYVideoPlayer? = null
     private var orientationUtils: OrientationUtils? = null
-    private var onQuitFullscreenListener: (() -> Unit)? = null
+    private var onGSYVideoPlayerListener: OnGSYVideoPlayerListener? = null
     private var onPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
     private val immersionBar by lazy { ImmersionBar.with(mActivity) }
     private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
@@ -90,6 +90,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         override fun onStartPrepared(url: String?, vararg objects: Any?) {
             super.onStartPrepared(url, *objects)
             player?.fullscreenButton?.disable()
+            onGSYVideoPlayerListener?.onStartPrepared(url, objects)
         }
 
         override fun onPrepared(url: String?, vararg objects: Any?) {
@@ -98,6 +99,52 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             isPrepared = true
             orientationUtils?.isEnable = true
             player?.fullscreenButton?.enable()
+            onGSYVideoPlayerListener?.onPrepared(url, objects)
+        }
+
+        override fun onClickStartIcon(url: String?, vararg objects: Any?) {
+            super.onClickStartIcon(url, *objects)
+            onGSYVideoPlayerListener?.onClickStartIcon(url, objects)
+        }
+
+        override fun onClickStartError(url: String?, vararg objects: Any?) {
+            super.onClickStartError(url, *objects)
+            onGSYVideoPlayerListener?.onClickStartError(url, objects)
+        }
+
+        override fun onClickStop(url: String?, vararg objects: Any?) {
+            super.onClickStop(url, *objects)
+            onGSYVideoPlayerListener?.onClickStop(url, objects)
+        }
+
+        override fun onClickStopFullscreen(url: String?, vararg objects: Any?) {
+            super.onClickStopFullscreen(url, *objects)
+            onGSYVideoPlayerListener?.onClickSeekbarFullscreen(url, objects)
+        }
+
+        override fun onClickResume(url: String?, vararg objects: Any?) {
+            super.onClickResume(url, *objects)
+            onGSYVideoPlayerListener?.onClickResume(url, objects)
+        }
+
+        override fun onClickResumeFullscreen(url: String?, vararg objects: Any?) {
+            super.onClickResumeFullscreen(url, *objects)
+            onGSYVideoPlayerListener?.onClickResumeFullscreen(url, objects)
+        }
+
+        override fun onClickSeekbar(url: String?, vararg objects: Any?) {
+            super.onClickSeekbar(url, *objects)
+            onGSYVideoPlayerListener?.onClickSeekbar(url, objects)
+        }
+
+        override fun onClickSeekbarFullscreen(url: String?, vararg objects: Any?) {
+            super.onClickSeekbarFullscreen(url, *objects)
+            onGSYVideoPlayerListener?.onClickSeekbarFullscreen(url, objects)
+        }
+
+        override fun onAutoComplete(url: String?, vararg objects: Any?) {
+            super.onAutoComplete(url, *objects)
+            onGSYVideoPlayerListener?.onAutoComplete(url, objects)
         }
 
         override fun onEnterFullscreen(url: String?, vararg objects: Any?) {
@@ -145,12 +192,38 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     }
                 })
             }
+            onGSYVideoPlayerListener?.onEnterFullscreen(url, objects)
         }
 
         override fun onQuitFullscreen(url: String, vararg objects: Any) {
             super.onQuitFullscreen(url, *objects)
             orientationUtils?.backToProtVideo()
-            onQuitFullscreenListener?.invoke()
+            onGSYVideoPlayerListener?.onQuitFullscreen(url, objects)
+        }
+
+        override fun onQuitSmallWidget(url: String?, vararg objects: Any?) {
+            super.onQuitSmallWidget(url, *objects)
+            onGSYVideoPlayerListener?.onQuitSmallWidget(url, objects)
+        }
+
+        override fun onEnterSmallWidget(url: String?, vararg objects: Any?) {
+            super.onEnterSmallWidget(url, *objects)
+            onGSYVideoPlayerListener?.onEnterSmallWidget(url, objects)
+        }
+
+        override fun onTouchScreenSeekVolume(url: String?, vararg objects: Any?) {
+            super.onTouchScreenSeekVolume(url, *objects)
+            onGSYVideoPlayerListener?.onTouchScreenSeekVolume(url, objects)
+        }
+
+        override fun onTouchScreenSeekPosition(url: String?, vararg objects: Any?) {
+            super.onTouchScreenSeekPosition(url, *objects)
+            onGSYVideoPlayerListener?.onTouchScreenSeekPosition(url, objects)
+        }
+
+        override fun onTouchScreenSeekLight(url: String?, vararg objects: Any?) {
+            super.onTouchScreenSeekLight(url, *objects)
+            onGSYVideoPlayerListener?.onTouchScreenSeekLight(url, objects)
         }
 
         override fun onPlayError(url: String?, vararg objects: Any?) {
@@ -170,6 +243,27 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     player?.startPlayLogic()
                 }
             }
+            onGSYVideoPlayerListener?.onPlayError(url, objects)
+        }
+
+        override fun onClickStartThumb(url: String?, vararg objects: Any?) {
+            super.onClickStartThumb(url, *objects)
+            onGSYVideoPlayerListener?.onClickStartThumb(url, objects)
+        }
+
+        override fun onClickBlank(url: String?, vararg objects: Any?) {
+            super.onClickBlank(url, *objects)
+            onGSYVideoPlayerListener?.onClickBlank(url, objects)
+        }
+
+        override fun onClickBlankFullscreen(url: String?, vararg objects: Any?) {
+            super.onClickBlankFullscreen(url, *objects)
+            onGSYVideoPlayerListener?.onClickBlankFullscreen(url, objects)
+        }
+
+        override fun onComplete(url: String?, vararg objects: Any?) {
+            super.onComplete(url, *objects)
+            onGSYVideoPlayerListener?.onComplete(url, objects)
         }
     }}
 
@@ -439,7 +533,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * 销毁
      */
     fun destroy() {
-        clearOnQuitFullscreenListener()
+        clearOnGSYVideoPlayerListener()
         orientationUtils?.releaseListener()
         player?.currentPlayer?.release()
         player?.release()
@@ -450,12 +544,83 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         mActivity.lifecycle.removeObserver(this)
     }
 
-    fun setOnQuitFullscreenListener(onQuitFullscreenListener: () -> Unit) {
-        this.onQuitFullscreenListener = onQuitFullscreenListener
+    fun setOnGSYVideoPlayerListener(onGSYVideoPlayerListener: OnGSYVideoPlayerListener) {
+        this.onGSYVideoPlayerListener = onGSYVideoPlayerListener
     }
 
-    fun clearOnQuitFullscreenListener() {
-        onQuitFullscreenListener = null
+    fun clearOnGSYVideoPlayerListener() {
+        onGSYVideoPlayerListener = null
+    }
+
+    interface OnGSYVideoPlayerListener {
+        //开始加载，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onStartPrepared(url: String?, vararg objects: Any?) {}
+
+        //加载成功，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onPrepared(url: String?, vararg objects: Any?) {}
+
+        //点击了开始按键播放，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickStartIcon(url: String?, vararg objects: Any?) {}
+
+        //点击了错误状态下的开始按键，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickStartError(url: String?, vararg objects: Any?) {}
+
+        //点击了播放状态下的开始按键--->停止，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickStop(url: String?, vararg objects: Any?) {}
+
+        //点击了全屏播放状态下的开始按键--->停止，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickStopFullscreen(url: String?, vararg objects: Any?) {}
+
+        //点击了暂停状态下的开始按键--->播放，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickResume(url: String?, vararg objects: Any?) {}
+
+        //点击了全屏暂停状态下的开始按键--->播放，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickResumeFullscreen(url: String?, vararg objects: Any?) {}
+
+        //点击了空白弹出seekbar，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickSeekbar(url: String?, vararg objects: Any?) {}
+
+        //点击了全屏的seekbar，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickSeekbarFullscreen(url: String?, vararg objects: Any?) {}
+
+        //播放完了，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onAutoComplete(url: String?, vararg objects: Any?) {}
+
+        //进去全屏，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onEnterFullscreen(url: String?, vararg objects: Any?) {}
+
+        //退出全屏，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onQuitFullscreen(url: String?, vararg objects: Any?) {}
+
+        //进入小窗口，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onQuitSmallWidget(url: String?, vararg objects: Any?) {}
+
+        //退出小窗口，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onEnterSmallWidget(url: String?, vararg objects: Any?) {}
+
+        //触摸调整声音，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onTouchScreenSeekVolume(url: String?, vararg objects: Any?) {}
+
+        //触摸调整进度，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onTouchScreenSeekPosition(url: String?, vararg objects: Any?) {}
+
+        //触摸调整亮度，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onTouchScreenSeekLight(url: String?, vararg objects: Any?) {}
+
+        //播放错误，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onPlayError(url: String?, vararg objects: Any?) {}
+
+        //点击了空白区域开始播放，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickStartThumb(url: String?, vararg objects: Any?) {}
+
+        //点击了播放中的空白区域，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickBlank(url: String?, vararg objects: Any?) {}
+
+        //点击了全屏播放中的空白区域，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onClickBlankFullscreen(url: String?, vararg objects: Any?) {}
+
+        //非正常播放完了,比如新的播放旧的释放，objects[0]是title，object[1]是当前所处播放器（全屏或非全屏）
+        fun onComplete(url: String?, vararg objects: Any?) {}
     }
 
 }
