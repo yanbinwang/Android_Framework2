@@ -4,9 +4,8 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.OrientationEventListener
 import android.widget.RelativeLayout
+import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.doOnceAfterLayout
-import kotlin.apply
-import kotlin.ranges.until
 
 /**
  * 记录对应的宽高，坐标轴
@@ -27,6 +26,10 @@ class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
     private var mOriginalWidth = 0
     // 原始布局高度（未旋转时）
     private var mOriginalHeight = 0
+    // 旋转中心X（原始左下角X=0）
+    private var mOriginalPivotX = 0f
+    // 旋转中心Y（原始左下角Y=原始高度）
+    private var mOriginalPivotY = 0f
     // 视图布局旋转角度（0/90/180/270）
     private var mRotate = 0
     // 设备物理方向（0/90/180/270）
@@ -61,9 +64,8 @@ class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
             isLaidOut = true
             mOriginalWidth = measuredWidth
             mOriginalHeight = measuredHeight
-            // 初始化旋转中心为视图中心（避免旋转偏移）
-            pivotX = measuredWidth / 2f
-            pivotY = measuredHeight / 2f
+            mOriginalPivotX = pivotX
+            mOriginalPivotY = pivotY
         }
     }
 
@@ -110,6 +112,10 @@ class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
             val targetWidth = if (isPortrait) mOriginalWidth else mOriginalHeight
             val targetHeight = if (isPortrait) mOriginalHeight else mOriginalWidth
             setMeasuredDimension(targetWidth, targetHeight)
+            val targetPivotX = if (mRotate == 90 || mRotate == 180) mOriginalPivotX else mOriginalPivotY
+            val targetPivotY = if (mRotate == 180 || mRotate == 270) mOriginalPivotY else mOriginalPivotX
+            pivotX = targetPivotX
+            pivotY = targetPivotY
         }
     }
 
@@ -119,7 +125,8 @@ class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
      * @param rotate
      */
     fun setRotateLayout(rotate: Int) {
-        // 交换布局宽高，适配旋转后的尺寸
+        mRotate = rotate
+        rotation = rotate.toSafeFloat()
         val isPortrait = rotate == 0 || rotate == 180
         val newWidth = if (isPortrait) mOriginalWidth else mOriginalHeight
         val newHeight = if (isPortrait) mOriginalHeight else mOriginalWidth
@@ -130,8 +137,7 @@ class RotateLayout @JvmOverloads constructor(context: Context, attrs: AttributeS
                 setLayoutParams(this)
             }
         }
-        // 强制重绘，避免旋转残留
-        invalidate()
+        requestLayout()
     }
 
     /**
