@@ -40,7 +40,7 @@ class ProgressInterceptor : Interceptor {
         val request = chain.request()
         val response = chain.proceed(request)
         val url = request.url.toString()
-        val body = response.body ?: "".toResponseBody()
+        val body = response.body
         return response.newBuilder().body(ProgressResponseBody(url, body)).build()
     }
 

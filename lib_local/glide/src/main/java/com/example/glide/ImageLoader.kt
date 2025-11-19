@@ -1,6 +1,5 @@
 package com.example.glide
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
@@ -41,7 +40,6 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 
 /**
@@ -50,7 +48,6 @@ import java.io.File
  * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
  */
 //class ImageLoader private constructor() : GlideModule(), GlideImpl {
-@SuppressLint("CheckResult")
 class ImageLoader private constructor() {
     private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 
@@ -180,39 +177,41 @@ class ImageLoader private constructor() {
      */
     fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
-        try {
-            // 使用RequestOptions构建器明确配置
-            val options = RequestOptions()
-                .frame(frameTimeMicros)
-                .fitCenter()
-                .placeholder(DEFAULT_RESOURCE)
-                .error(DEFAULT_MASK_RESOURCE)
-                // 禁用内存缓存
-                .skipMemoryCache(true)
-                // 仅缓存原始数据（减少缓存占用，保留基本容错）
-                .diskCacheStrategy(DiskCacheStrategy.DATA)
-                // 增加解码选项，提高准确性
-                .format(DecodeFormat.PREFER_ARGB_8888)
-                // 禁用硬件解码，提高兼容性
-                .disallowHardwareConfig()
-            // 开始尝试加载视频1s的图片
-            Glide.with(view.context)
-                .setDefaultRequestOptions(options)
-                .load(videoUrl)
-                .smartFade(view)
-                .listener(object : GlideRequestListener<Drawable>() {
-                    override fun onLoadStart() {
-                        onLoadStart()
-                    }
+        view.doOnceAfterLayout {
+            try {
+                // 使用RequestOptions构建器明确配置
+                val options = RequestOptions()
+                    .frame(frameTimeMicros)
+                    .fitCenter()
+                    .placeholder(DEFAULT_RESOURCE)
+                    .error(DEFAULT_MASK_RESOURCE)
+                    // 禁用内存缓存
+                    .skipMemoryCache(true)
+                    // 仅缓存原始数据（减少缓存占用，保留基本容错）
+                    .diskCacheStrategy(DiskCacheStrategy.DATA)
+                    // 增加解码选项，提高准确性
+                    .format(DecodeFormat.PREFER_ARGB_8888)
+                    // 禁用硬件解码，提高兼容性
+                    .disallowHardwareConfig()
+                // 开始尝试加载视频1s的图片
+                Glide.with(view.context)
+                    .setDefaultRequestOptions(options)
+                    .load(videoUrl)
+                    .smartFade(view)
+                    .listener(object : GlideRequestListener<Drawable>() {
+                        override fun onLoadStart() {
+                            onLoadStart()
+                        }
 
-                    override fun onLoadFinished(resource: Drawable?) {
-                        onLoadComplete(resource)
-                    }
-                })
-                .into(view)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            view.setBackgroundResource(DEFAULT_MASK_RESOURCE)
+                        override fun onLoadFinished(resource: Drawable?) {
+                            onLoadComplete(resource)
+                        }
+                    })
+                    .into(view)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                view.setBackgroundResource(DEFAULT_MASK_RESOURCE)
+            }
         }
     }
 
@@ -226,38 +225,40 @@ class ImageLoader private constructor() {
      */
     fun loadProgressFromUrl(view: ImageView?, imageUrl: String, onLoadStart: () -> Unit = {}, onLoadProgress: (progress: Int?) -> Unit = {}, onLoadComplete: (resource: Drawable?) -> Unit = {}) {
         view ?: return
-        /**
-         * 避免频繁创建协程
-         * callbackFlow 是 Kotlin 协程中专门用于将回调式 API 转换为流的构建器。它允许你在回调函数中向流中发射数据，并且可以处理流的关闭操作。
-         * callbackFlow 构建器内部会创建一个 SendChannel，你可以通过 trySend 方法向这个通道发送数据，这些数据会作为流中的元素被发射出去。
-         * 当流被收集时，callbackFlow 内部的代码会开始执行，通常会在这里注册回调函数。
-         * 当回调函数被触发时，调用 trySend 方法将数据发送到流中。
-         * 当流不再被收集或者需要关闭时，awaitClose 方法会被调用，你可以在 awaitClose 中进行资源清理操作，比如取消回调注册。
-         */
-        val progressFlow = createProgressFlow(imageUrl)
-        Glide.with(view.context)
-            .load(imageUrl)
-            .apply(RequestOptions()
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE))
-            .addListener(object : GlideRequestListener<Drawable>() {
-                override fun onLoadStart() {
-                    scope.launch {
-                        progressFlow.flowOn(Main.immediate).catch {
-                            it.printStackTrace()
-                        }.collect { progress ->
-                            onLoadProgress(progress)
+        view.doOnceAfterLayout {
+            /**
+             * 避免频繁创建协程
+             * callbackFlow 是 Kotlin 协程中专门用于将回调式 API 转换为流的构建器。它允许你在回调函数中向流中发射数据，并且可以处理流的关闭操作。
+             * callbackFlow 构建器内部会创建一个 SendChannel，你可以通过 trySend 方法向这个通道发送数据，这些数据会作为流中的元素被发射出去。
+             * 当流被收集时，callbackFlow 内部的代码会开始执行，通常会在这里注册回调函数。
+             * 当回调函数被触发时，调用 trySend 方法将数据发送到流中。
+             * 当流不再被收集或者需要关闭时，awaitClose 方法会被调用，你可以在 awaitClose 中进行资源清理操作，比如取消回调注册。
+             */
+            val progressFlow = createProgressFlow(imageUrl)
+            Glide.with(view.context)
+                .load(imageUrl)
+                .apply(RequestOptions()
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE))
+                .addListener(object : GlideRequestListener<Drawable>() {
+                    override fun onLoadStart() {
+                        scope.launch {
+                            progressFlow.flowOn(Main.immediate).catch {
+                                it.printStackTrace()
+                            }.collect { progress ->
+                                onLoadProgress(progress)
+                            }
                         }
+                        onLoadStart()
                     }
-                    onLoadStart()
-                }
 
-                override fun onLoadFinished(resource: Drawable?) {
-                    ProgressInterceptor.removeListener(imageUrl)
-                    onLoadComplete(resource)
-                }
-            })
-            .into(view)
+                    override fun onLoadFinished(resource: Drawable?) {
+                        ProgressInterceptor.removeListener(imageUrl)
+                        onLoadComplete(resource)
+                    }
+                })
+                .into(view)
+        }
     }
 
     private fun createProgressFlow(imageUrl: String) = callbackFlow {
@@ -462,41 +463,43 @@ class ImageLoader private constructor() {
 
     private fun loadImage(view: ImageView?, source: Any?, errorSource: Any?, requestOptions: BaseRequestOptions<*>? = null, imageType: ImageType = ImageType.NORMAL, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         view ?: return
-        // 图片资源
-        val validSource = when (source) {
-            is Int -> if (source != 0) source else null
-            is String -> source.ifBlank { null }
-            is Drawable -> source.takeIf { it.isVisible }
-            else -> null
-        } ?: return
-        // 图片加载错误资源 (@DrawableRes / Drawable)
-        val defaultResource = getDefaultResourceByType(imageType)
-        val validErrorSource = when (errorSource) {
-            is Int -> if (errorSource != 0) errorSource else null
-            is Drawable -> errorSource.takeIf { it.isVisible }
-            else -> null
-        } ?: defaultResource
-        // Glide 加载配置：占位图直接用工具方法返回的默认资源
-        Glide.with(view.context)
-            .load(validSource)
-            .also {
-                if (null != requestOptions) {
-                    it.apply(requestOptions)
+        view.doOnceAfterLayout {
+            // 图片资源
+            val validSource = when (source) {
+                is Int -> if (source != 0) source else null
+                is String -> source.ifBlank { null }
+                is Drawable -> source.takeIf { it.isVisible }
+                else -> null
+            } ?: return@doOnceAfterLayout
+            // 图片加载错误资源 (@DrawableRes / Drawable)
+            val defaultResource = getDefaultResourceByType(imageType)
+            val validErrorSource = when (errorSource) {
+                is Int -> if (errorSource != 0) errorSource else null
+                is Drawable -> errorSource.takeIf { it.isVisible }
+                else -> null
+            } ?: defaultResource
+            // Glide 加载配置：占位图直接用工具方法返回的默认资源
+            Glide.with(view.context)
+                .load(validSource)
+                .also {
+                    if (null != requestOptions) {
+                        it.apply(requestOptions)
+                    }
                 }
-            }
-            .placeholder( defaultResource)
-            .error(validErrorSource)
-            .smartFade(view)
-            .listener(object : GlideRequestListener<Drawable>() {
-                override fun onLoadStart() {
-                    onLoadStart()
-                }
+                .placeholder( defaultResource)
+                .error(validErrorSource)
+                .smartFade(view)
+                .listener(object : GlideRequestListener<Drawable>() {
+                    override fun onLoadStart() {
+                        onLoadStart()
+                    }
 
-                override fun onLoadFinished(resource: Drawable?) {
-                    onLoadComplete(resource)
-                }
-            })
-            .into(view)
+                    override fun onLoadFinished(resource: Drawable?) {
+                        onLoadComplete(resource)
+                    }
+                })
+                .into(view)
+        }
     }
 
     /**
@@ -522,8 +525,8 @@ class ImageLoader private constructor() {
             }
         }
         if (!isMainThread) {
-            owner.lifecycleScope.launch {
-                withContext(Main) { clearDiskCacheAction() }
+            owner.lifecycleScope.launch(Main) {
+                clearDiskCacheAction()
             }
         } else {
             clearDiskCacheAction()
@@ -544,8 +547,8 @@ class ImageLoader private constructor() {
             }
         }
         if (isMainThread) {
-            owner.lifecycleScope.launch {
-                withContext(IO) { clearDiskCacheAction() }
+            owner.lifecycleScope.launch(IO) {
+                clearDiskCacheAction()
             }
         } else {
             clearDiskCacheAction()
