@@ -1,23 +1,22 @@
 package com.example.thirdparty.media.service.observer
 
+import android.content.Context
 import android.view.OrientationEventListener
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import kotlin.ranges.until
 
 /**
  * 手机方向角监听器
  */
-class OrientationObserver(mActivity: FragmentActivity) : LifecycleEventObserver {
+class OrientationObserver(mContext: Context) : LifecycleEventObserver {
     // 当前方向，默认0度
     private var currentOrientation = 0
     private var isListening = false
     // 回调监听器
     private var orientationChangedListener: OnOrientationChangedListener? = null
     private var sensorUnavailableListener: OnSensorUnavailableListener? = null
-    private val orientationListener = object : OrientationEventListener(mActivity) {
+    private val orientationListener = object : OrientationEventListener(mContext) {
         override fun onOrientationChanged(orientation: Int) {
             // orientation的范围是0-359，-1表示未就绪
             if (orientation == ORIENTATION_UNKNOWN) {
@@ -33,24 +32,27 @@ class OrientationObserver(mActivity: FragmentActivity) : LifecycleEventObserver 
         }
     }
 
-    init {
-        mActivity.lifecycle.addObserver(this)
-    }
-
     /**
      * 将0-359的角度转换为固定的四个方向
      */
     private fun getFixedOrientation(orientation: Int): Int {
-        return when {
+        return when (orientation) {
             // 正常竖屏
-            orientation >= 315 || orientation < 45 -> 0
+            !in 45..<315 -> 0
             // 向左横屏
-            orientation in 45 until 135 -> 90
+            in 45 until 135 -> 90
             // 上下颠倒
-            orientation in 135 until 225 -> 180
+            in 135 until 225 -> 180
             // 向右横屏
             else -> 270
         }
+    }
+
+    /**
+     * 添加生命周期
+     */
+    fun addObserver(owner: LifecycleOwner) {
+        owner.lifecycle.addObserver(this)
     }
 
     /**
@@ -95,10 +97,9 @@ class OrientationObserver(mActivity: FragmentActivity) : LifecycleEventObserver 
     }
 
     /**
-     * 方向变化回调接口
+     * 方向变化回调接口 (0, 90, 180, 270)
      */
     fun interface OnOrientationChangedListener {
-        // 0, 90, 180, 270
         fun onOrientationChanged(orientation: Int)
     }
 
