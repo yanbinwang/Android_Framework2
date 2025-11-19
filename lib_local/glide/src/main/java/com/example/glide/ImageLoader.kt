@@ -342,7 +342,7 @@ class ImageLoader private constructor() {
         PropertyAnimator(target, 300)
             .animateHeight(originalHeight, targetHeight)
             .start({
-                target.appear()
+                target.appear(300)
             }, {
                 onLoadComplete(resource)
             })

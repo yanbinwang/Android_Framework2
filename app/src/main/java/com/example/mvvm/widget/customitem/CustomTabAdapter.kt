@@ -17,7 +17,7 @@ class CustomTabAdapter : BaseQuickAdapter<Triple<Boolean, String, String>, ItemC
             item ?: return@apply
             val (localAsset, url, label) = item
             if (localAsset) {
-                ImageLoader.instance.loadImageDrawableFromResource(ivTab, holder.itemView.context?.defTypeMipmap(url))
+                ImageLoader.instance.loadImageFromDrawable(ivTab, holder.itemView.context?.defTypeMipmap(url))
             } else {
                 ImageLoader.instance.loadImageFromUrl(ivTab, url)
             }
