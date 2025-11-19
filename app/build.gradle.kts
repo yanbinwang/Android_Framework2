@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import com.android.testing.utils.is16kPageSource
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -96,6 +97,13 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    // 对所有 jniLibs 下的 SO 库生效，16KB 对齐
+    packagingOptions {
+        jniLibs {
+            is16kPageSource(libs.versions.applicationId.get())
+        }
+    }
+
 //    // AAB 打包配置
 //    bundle {
 //        // 此配置用于控制是否按语言对资源进行拆分。当 enableSplit 设置为 true 时，Gradle 会根据应用中包含的不同语言资源，生成多个包含不同语言资源的 AAB 包。
@@ -148,10 +156,14 @@ android {
                 abortOnError = false
             }
 
-            isMinifyEnabled = true //最小化资源包
-            isShrinkResources = true //去掉无用资源
+            // 最小化资源包
+            isMinifyEnabled = true
+            // 去掉无用资源
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
+
+            // 签名打包
             android.applicationVariants.all {
                 val appName = "example"
                 val date = SimpleDateFormat("yyyyMMdd").format(Date())
