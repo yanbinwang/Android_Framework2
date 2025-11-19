@@ -44,5 +44,5 @@ dependencies {
     // 框架库
     implementation(project(":lib_framework"))
     // 高德地图
-    api(files("libs/AMap3DMap_10.1.300_AMapSearch_9.7.4_AMapLocation_6.4.9_20250509.jar"))
+    api(files("libs/AMap3DMap_10.1.600_AMapSearch_9.7.4_AMapLocation_6.5.1_20251020.jar"))
 }
