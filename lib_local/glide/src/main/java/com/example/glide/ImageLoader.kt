@@ -280,6 +280,8 @@ class ImageLoader private constructor() {
     fun loadScaledFromUrl(view: ImageView?, imageUrl: String?, error: Any? = null, onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
         view.doOnceAfterLayout {
+            // 完全铺平
+            view.scaleType = ImageView.ScaleType.FIT_XY
             // 图片加载错误资源 (@DrawableRes / Drawable)
             val defaultResource = getDefaultResourceByType(ImageType.NORMAL)
             val validErrorSource = when (error) {
@@ -299,8 +301,8 @@ class ImageLoader private constructor() {
 //                .smartFade(view)
                 .listener(object : GlideRequestListener<Bitmap>() {
                     override fun onLoadStart() {
-                        onLoadStart()
                         view.gone()
+                        onLoadStart()
                     }
 
                     override fun onLoadFinished(resource: Bitmap?) {
@@ -317,8 +319,8 @@ class ImageLoader private constructor() {
     }
 
     private fun transform(target: ImageView, resource: Bitmap, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
-        // 执行渐隐藏动画
-        target.appear()
+//        // 执行渐隐藏动画
+//        target.appear()
         // 获取原图宽高
         val originalWidth = resource.width
         val originalHeight = resource.height
@@ -339,7 +341,9 @@ class ImageLoader private constructor() {
         // 执行伸缩动画
         PropertyAnimator(target, 300)
             .animateHeight(originalHeight, targetHeight)
-            .start(onEnd = {
+            .start({
+                target.appear()
+            }, {
                 onLoadComplete(resource)
             })
     }
