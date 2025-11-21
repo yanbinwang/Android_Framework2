@@ -23,12 +23,15 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.deleteDir
 import com.example.common.utils.function.deleteFile
+import com.example.common.utils.function.getFileLength
+import com.example.common.utils.function.mb
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.greendao.bean.OssDB
@@ -65,8 +68,9 @@ class OssFactory private constructor() : CoroutineScope {
     private var oss: OSS? = null
     // 对象锁，缩小范围减少开销
     private val LOCK = Any()
-    // key->保全号（服务器唯一id）value->对应oss的传输类/协程
+    // key -> 保全号（服务器唯一id）value->对应oss的传输类/协程
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
+    private val ossProgressMap by lazy { ConcurrentHashMap<String, Int>() }
     private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
     // 传入页面的lifecycle以及页面实现的OssImpl
     private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
@@ -171,6 +175,13 @@ class OssFactory private constructor() : CoroutineScope {
     }
 
     /**
+     * 获取对应保全号文件的上传进度
+     */
+    fun getProgress(baoquan: String): Int {
+        return ossProgressMap[baoquan].orZero
+    }
+
+    /**
      * 绑定对应页面的生命周期-》对应回调重写对应方法
      * @param observer
      */
@@ -205,6 +216,7 @@ class OssFactory private constructor() : CoroutineScope {
             }
         }
         ossMap.clear()
+        ossProgressMap.clear()
         ossJobMap.clear()
         ossImpl.get().clear()
         // 取消页面协程
@@ -255,12 +267,10 @@ class OssFactory private constructor() : CoroutineScope {
                 // 设置上传过程回调(进度条)
                 var percentage = 0
                 var lastPercentage = 0
-                var randomMod = Random.nextInt(5, 11)
                 // 最大间隔，避免长时间无回调
                 val maxInterval = 7
                 // 是否需要回调（目前只有100M+的文件需要进度条）
-//                val isCallBack = sourcePath.getFileLength() >= 100.mb
-                val isCallBack = true
+                val isCallBack = sourcePath.getFileLength() >= 100.mb
                 var isUploadStarted = false
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
                     if (!isUploadStarted && currentSize > 0) {
@@ -269,20 +279,17 @@ class OssFactory private constructor() : CoroutineScope {
                         callback(0 , baoquan)
                     }
                     percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
+                    ossProgressMap[baoquan] = percentage
                     if (isCallBack) {
                         when (percentage) {
                             0, 100 -> {
                                 callback(1, baoquan, percentage)
                                 lastPercentage = percentage
-                                if (percentage < 100) {
-                                    randomMod = Random.nextInt(5, 11)
-                                }
                             }
                             in 1..99 -> {
-                                if (percentage % randomMod == 0 || percentage - lastPercentage >= maxInterval) {
+                                if (percentage % Random.nextInt(5, 11) == 0 || percentage - lastPercentage >= maxInterval) {
                                     callback(1, baoquan, percentage)
                                     lastPercentage = percentage
-                                    randomMod = Random.nextInt(5, 11)
                                 }
                             }
                         }
@@ -365,6 +372,7 @@ class OssFactory private constructor() : CoroutineScope {
             failure(baoquan, errorMessage)
         }
         ossMap.remove(baoquan)
+        ossProgressMap.remove(baoquan)
     }
 
     /**
