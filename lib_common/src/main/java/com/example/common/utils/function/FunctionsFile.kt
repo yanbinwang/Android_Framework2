@@ -64,6 +64,42 @@ fun Context.getApplicationIcon(): Bitmap? {
 }
 
 /**
+ * 获取当前手机缓存目录下的缓存文件大小,
+ * @return 返回格式化后的缓存大小字符串，如 "2.5M"
+ */
+fun Context?.getFormattedCacheSize(): String {
+    var formattedSize = "0M"
+    this ?: return formattedSize
+    // 安全获取缓存目录，计算总大小并格式化
+    cacheDir?.takeIf { it.exists() }?.apply {
+        val totalCacheBytes = totalSize()
+        formattedSize = if (totalCacheBytes > 0) {
+            storageSizeFormat()
+        } else {
+            formattedSize
+        }
+    }
+    return formattedSize
+}
+
+/**
+ * 获取字符串路径对应的文件/目录长度
+ * 1) 若为文件：返回文件大小（字节）
+ * 2) 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
+ * 3) 路径为空/文件不存在/异常：返回 0L
+ */
+fun String?.getFileLength(): Long {
+    this ?: return 0L
+    return try {
+        val file = File(this.trim())
+        if (file.exists()) file.length() else 0L
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0L
+    }
+}
+
+/**
  * 校验文件是否无独占写锁定、可删除（间接判断）
  * @param this 文件路径
  * @return true：无写锁定，可尝试删除；false：有写锁定/占用
@@ -231,7 +267,7 @@ fun File?.totalSize(): Long {
  * 获取对应大小的文字
  * 新api --> Formatter.formatFileSize()
  */
-private const val STORAGE_UNIT_BASE = 1024.0 // 用 Double 避免类型转换
+private const val STORAGE_UNIT_BASE = 1024.0
 
 fun String?.storageSizeFormat(): String {
     this ?: return ""
@@ -240,8 +276,13 @@ fun String?.storageSizeFormat(): String {
 
 fun File?.storageSizeFormat(): String {
     this ?: return ""
+    return length().storageSizeFormat()
+}
+
+fun Number?.storageSizeFormat(): String {
+    this ?: return ""
     // 字节数
-    val bytes = length().toSafeLong()
+    val bytes = toSafeLong()
     // 用 Double 简化计算，避免重复整除丢失精度
     val kb = bytes / STORAGE_UNIT_BASE
     return when {
@@ -258,7 +299,6 @@ fun File?.storageSizeFormat(): String {
  */
 private fun formatStorageValue(value: Double): String {
     return BigDecimal.valueOf(value)
-        // 显式指定 RoundingMode，避免歧义
         .setScale(2, RoundingMode.HALF_UP)
         .toPlainString()
 }
@@ -318,39 +358,12 @@ fun File?.renameFileTo(targetFile: File): Boolean {
 }
 
 /**
- * 扩展函数：获取字符串路径对应的文件/目录长度
- * - 若为文件：返回文件大小（字节）
- * - 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
- * - 路径为空/文件不存在/异常：返回 0L
+ * 获取目录下的所有文件的详细路径
  */
-fun String?.getFileLength(): Long {
-    this ?: return 0L
-    return try {
-        val file = File(this.trim())
-        if (file.exists()) file.length() else 0L
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0L
-    }
-}
-
-/**
- * 获取当前手机缓存目录下的缓存文件大小,
- * @return 返回格式化后的缓存大小字符串，如 "2.5M"
- */
-fun Context?.getFormattedCacheSize(): String {
-    var formattedSize = "0M"
-    this ?: return formattedSize
-    // 安全获取缓存目录，计算总大小并格式化
-    cacheDir?.takeIf { it.exists() }?.apply {
-        val totalCacheBytes = totalSize()
-        formattedSize = if (totalCacheBytes > 0) {
-            storageSizeFormat()
-        } else {
-            formattedSize
-        }
-    }
-    return formattedSize
+fun File.getAllFilePaths(): List<String> {
+    if (exists().not() || isDirectory.not()) return emptyList()
+    val files = listFiles() ?: return emptyList()
+    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePaths() }
 }
 
 /**
