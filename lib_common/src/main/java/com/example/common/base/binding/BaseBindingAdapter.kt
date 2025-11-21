@@ -9,6 +9,8 @@ import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.ToggleButton
+import androidx.annotation.ColorInt
+import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager.widget.PagerAdapter
@@ -180,7 +182,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, textColor: Int?, background: Int?, visibility: Int?) {
+    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         //处理文本设置
         text?.let { newText ->
             val textKey = R.id.theme_text_tag
