@@ -21,9 +21,9 @@ import com.example.framework.utils.function.view.click
 @SuppressLint("NotifyDataSetChanged")
 abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> {
     /**
-     * 适配器类型-后续可扩展
+     * 适配器类型 -> 默认是 LIST 类型,后续可扩展
      */
-    private var itemType: BaseItemType = LIST // 默认是 LIST 类型
+    private var itemType: BaseItemType = LIST
     /**
      * 数据类型为集合
      */
@@ -171,6 +171,75 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 刷新/添加数据
+     * list：此次需要修改的集合
+     * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
+     * onEmpty：当前适配器的集合为空时才会回调
+     */
+    fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
+        list ?: return
+        if (hasRefresh.orFalse) refresh(list) else insert(list)
+        if (size() == 0) onEmpty.invoke()
+    }
+
+    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        viewModel?.apply {
+            notify(list, hasRefresh()) { empty(resId, text, refreshText, width, height) }
+            setCurrentCount(size())
+        }
+    }
+
+    /**
+     * 刷新集合
+     */
+    fun refresh(list: List<T>?) {
+        if (null == list) return
+        data.clear()
+        data.addAll(list)
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 刷新对象
+     */
+    fun refresh(bean: T?) {
+        if (null == bean) return
+        t = bean
+        notifyDataSetChanged()
+    }
+
+    /**
+     * 更新固定集合
+     * 1) 假设两组集合长度相同，固定socket推送
+     * 2) 重写T的equals和hashCode
+     */
+    fun update(list: List<T>?) {
+        if (null == list || list.isEmpty()) return
+        // 添加长度检查，防止意外情况
+        if (list.safeSize != data.safeSize) {
+            data.clear()
+            data.addAll(list)
+            notifyDataSetChanged()
+            return
+        }
+        // 遍历新集合和旧集合，找出不相等元素的下标
+        val diffIndices = mutableListOf<Int>()
+        for (i in list.indices) {
+            if (i < data.safeSize && list.safeGet(i) != data.safeGet(i)) {
+                diffIndices.add(i)
+            }
+        }
+        // 更新数据
+        data.clear()
+        data.addAll(list)
+        // 刷新不同的项
+        for (index in diffIndices) {
+            // 这里直接使用 index 来更新对应位置的项
+            notifyItemChanged(index)
+        }
+    }
+
+    /**
      * 刷新符合条件的item（数据在item内部更改）
      */
     fun changed(func: ((T) -> Boolean)) {
@@ -190,7 +259,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 传入要改变的对象和对象下标，直接刷新对应item
      */
     fun changed(index: Int?, bean: T?) {
-        if (index == null || bean == null) return
+        if (null == index || null == bean) return
         if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index)
@@ -205,11 +274,56 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     fun changed(index: Int?, payloads: MutableList<Any>, bean: T?) {
-        if (index == null || bean == null) return
+        if (null == index || null == bean) return
         if (index in data.indices) {
             data.safeSet(index, bean)
             notifyItemChanged(index, payloads)
         }
+    }
+
+    /**
+     * 在列表末尾批量插入集合
+     */
+    fun insert(list: List<T>?) {
+        if (null == list || list.isEmpty()) return
+        val positionStart = size()
+        data.addAll(list)
+        notifyItemRangeInserted(positionStart, list.safeSize)
+    }
+
+    /**
+     * 在指定下标批量插入集合
+     */
+    fun insert(position: Int?, list: List<T>?) {
+        if (null == position || null == list || list.isEmpty()) return
+        if (position < 0 || position > data.safeSize) return
+        data.addAll(position, list)
+        notifyItemRangeInserted(position, list.safeSize)
+    }
+
+    /**
+     * 在指定下标插入单个对象
+     */
+    fun insert(position: Int?, item: T?) {
+        if (null == position || null == item) return
+        if (position < 0 || position > data.safeSize) return
+        data.add(position, item)
+        notifyItemInserted(position)
+        // 通知从插入位置的下一个位置开始，后面所有的 Item 都需要重新绑定，因为位置变了
+        val startPosition = position + 1
+        val itemCount = data.safeSize - startPosition
+        if (itemCount > 0) {
+            notifyItemRangeChanged(startPosition, itemCount)
+        }
+    }
+
+    /**
+     * 在列表末尾插入单个对象
+     */
+    fun insert(item: T?) {
+        if (null == item) return
+        data.add(item)
+        notifyItemInserted(data.safeSize - 1)
     }
 
     /**
@@ -223,10 +337,12 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 删除指定下标对象
      */
     fun removed(index: Int?) {
-        if (index == null) return
+        if (null == index) return
         if (index in data.indices) {
             data.removeAt(index)
             notifyItemRemoved(index)
+            // 通知从删除位置开始的所有Item，它们的位置可能发生了变化，需要重新绑定，这里的 itemCount 是 data.safeSize - index，因为删除后 data 的 size 已经减小了 1
+            notifyItemRangeChanged(index, data.safeSize - index)
         }
     }
 
@@ -287,105 +403,6 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun bean(): T? {
         return t
-    }
-
-    /**
-     * 刷新/添加数据
-     * list：此次需要修改的集合
-     * hasRefresh：指定此次的数据是否是刷新的数据（由外层刷新控件或手动指定）
-     * onEmpty：当前适配器的集合为空时才会回调
-     */
-    fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
-        list ?: return
-        if (hasRefresh.orFalse) refresh(list) else insert(list)
-        if (size() == 0) onEmpty.invoke()
-    }
-
-    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
-        viewModel?.apply {
-            notify(list, hasRefresh()) { empty(resId, resText, resRefreshText, width, height) }
-            setCurrentCount(size())
-        }
-    }
-
-    /**
-     * 刷新集合
-     */
-    fun refresh(list: List<T>?) {
-        if (null == list) return
-        data.clear()
-        data.addAll(list)
-        notifyDataSetChanged()
-    }
-
-    /**
-     * 刷新对象
-     */
-    fun refresh(bean: T?) {
-        if (null == bean) return
-        t = bean
-        notifyDataSetChanged()
-    }
-
-    /**
-     * 插入集合
-     */
-    fun insert(list: List<T>?) {
-        if (null == list) return
-        val positionStart = size()
-        data.addAll(list)
-        notifyItemRangeInserted(positionStart, list.safeSize)
-    }
-
-    /**
-     * 对应下标插入集合
-     */
-    fun insert(position: Int?, list: List<T>?) {
-        if (null == position || null == list) return
-        data.addAll(position, list)
-        notifyDataSetChanged()
-    }
-
-    /**
-     * 对应下标插入对象
-     */
-    fun insert(position: Int?, item: T?) {
-        if (null == position || null == item) return
-        if (position !in data.indices) return
-        data.add(position, item)
-        notifyItemInserted(position)
-    }
-
-    /**
-     * 集合末尾揣入对象
-     */
-    fun insert(item: T?) {
-        if (null == item) return
-        data.add(item)
-        notifyItemInserted(data.safeSize - 1)
-    }
-
-    /**
-     * 更新集合->假设两组集合长度相同，固定socket推送
-     * 重写T的equals和hashCode
-     */
-    fun update(list: List<T>?) {
-        if (null == list) return
-        val diffIndices = mutableListOf<Int>()
-        // 遍历新集合和旧集合，找出不相等元素的下标
-        for (i in list.indices) {
-            if (i < data.safeSize && list.safeGet(i) != data.safeGet(i)) {
-                diffIndices.add(i)
-            }
-        }
-        // 更新数据
-        data.clear()
-        data.addAll(list)
-        // 刷新不同的项
-        for (index in diffIndices) {
-            // 这里直接使用 index 来更新对应位置的项
-            notifyItemChanged(index)
-        }
     }
 
     /**
