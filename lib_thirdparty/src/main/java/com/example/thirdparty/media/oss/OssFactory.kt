@@ -273,23 +273,30 @@ class OssFactory private constructor() : CoroutineScope {
                 val isCallBack = sourcePath.getFileLength() >= 100.mb
                 var isUploadStarted = false
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
                     if (!isUploadStarted && currentSize > 0) {
                         isUploadStarted = true
+                        if (isCallBack) {
+                            // 开始时更新一次
+                            ossProgressMap[baoquan] = percentage
+                        }
                         // 在这里执行上传开始后的操作，比如更新UI显示上传已开始
                         callback(0 , baoquan)
                     }
-                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
-                    ossProgressMap[baoquan] = percentage
                     if (isCallBack) {
                         when (percentage) {
                             0, 100 -> {
-                                callback(1, baoquan, percentage)
+                                // 0% 或 100% 时更新
+                                ossProgressMap[baoquan] = percentage
                                 lastPercentage = percentage
+                                callback(1, baoquan, percentage)
                             }
                             in 1..99 -> {
                                 if (percentage % Random.nextInt(5, 11) == 0 || percentage - lastPercentage >= maxInterval) {
-                                    callback(1, baoquan, percentage)
+                                    // 满足间隔条件时更新
+                                    ossProgressMap[baoquan] = percentage
                                     lastPercentage = percentage
+                                    callback(1, baoquan, percentage)
                                 }
                             }
                         }
