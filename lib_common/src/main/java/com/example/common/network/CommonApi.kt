@@ -27,7 +27,8 @@ interface CommonApi {
 
     companion object {
         val instance by lazy { RetrofitFactory.instance.createByServer(CommonApi::class.java) }
-        val downloadInstance by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }//下载专用
+        // 下载专用
+        val downloadInstance by lazy { RetrofitFactory.instance.create(CommonApi::class.java) }
     }
 
     @Streaming

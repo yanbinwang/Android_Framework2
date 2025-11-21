@@ -278,22 +278,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 创建左右侧按钮方法
+     * 创建左右侧文本方法
      */
-    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
-        createOrUpdateView<ImageView>(key, {
-            ImageView(context).also {
-                it.setResource(resId)
-                if (tintColor != -1) it.tint(tintColor)
-                it.size(44.pt, 44.pt)
-                it.padding(10.pt, 10.pt, 10.pt, 10.pt)
-                it.click {
-                    onClick.invoke()
-                }
-            }
-        }, block)
-    }
-
     private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<TextView>(key, {
             TextView(context).also {
@@ -308,6 +294,23 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
+                it.click {
+                    onClick.invoke()
+                }
+            }
+        }, block)
+    }
+
+    /**
+     * 创建左右侧按钮方法
+     */
+    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+        createOrUpdateView<ImageView>(key, {
+            ImageView(context).also {
+                it.setResource(resId)
+                if (tintColor != -1) it.tint(tintColor)
+                it.size(44.pt, 44.pt)
+                it.padding(10.pt, 10.pt, 10.pt, 10.pt)
                 it.click {
                     onClick.invoke()
                 }

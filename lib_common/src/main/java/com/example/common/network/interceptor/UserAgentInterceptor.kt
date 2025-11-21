@@ -26,7 +26,7 @@ internal class UserAgentInterceptor : Interceptor {
         val builder = Headers.Builder()
         builder.add("system-name", "Android")
         builder.add("phone-model", Build.MODEL)
-        //取得本地token
+        // 取得本地token
         AccountHelper.getToken().apply { if (!isNullOrEmpty()) builder.add("Authorization-model", "basic $this") }
         return builder.build()
     }

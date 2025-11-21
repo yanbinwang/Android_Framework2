@@ -49,7 +49,7 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["res", "drawable", "visibility"], requireAll = false)
-    fun bindingImageViewTheme(view: ImageView, res: Int?, drawable: Drawable?, visibility: Int?) {
+    fun bindingImageViewTheme(view: ImageView, @DrawableRes res: Int?, drawable: Drawable?, visibility: Int?) {
         res?.let { newRes ->
             val resKey = R.id.glide_res_tag
             val oldSrcRes = view.getTag(resKey) as? Int
@@ -85,6 +85,12 @@ object GlideBindingAdapter {
         ImageLoader.instance.loadGifFromUrl(view, gifUrl)
     }
 
+    @JvmStatic
+    @BindingAdapter(value = ["gif_gifResource"])
+    fun bindingGifFromResource(view: ImageView, @RawRes @DrawableRes gifResource: Int?) {
+        ImageLoader.instance.loadGifFromResource(view, gifResource)
+    }
+
     /**
      * 加载图片（比例缩放）
      */
@@ -99,7 +105,7 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["imageUrl", "errorResource"], requireAll = false)
-    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
+    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, @DrawableRes errorResource: Int?) {
         val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
         ImageLoader.instance.loadImageFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
     }
@@ -112,7 +118,7 @@ object GlideBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource"], requireAll = false)
-    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, errorResource: Int?) {
+    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?) {
         val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
         ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
     }

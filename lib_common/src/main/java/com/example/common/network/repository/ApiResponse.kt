@@ -6,9 +6,9 @@ package com.example.common.network.repository
  * 接口外层地址（与服务器约定好对应格式）
  */
 data class ApiResponse<T>(
-    var code: Int? = null,//状态码
-    var msg: String? = null,//信息
-    var data: T? = null//数据
+    var code: Int? = null, // 状态码
+    var msg: String? = null, // 信息
+    var data: T? = null // 数据
 )
 
 /**

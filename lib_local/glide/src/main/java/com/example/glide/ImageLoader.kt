@@ -320,8 +320,6 @@ class ImageLoader private constructor() {
     }
 
     private fun transform(target: ImageView, resource: Bitmap, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
-//        // 执行渐隐藏动画
-//        target.appear()
         // 获取原图宽高
         val originalWidth = resource.width
         val originalHeight = resource.height
@@ -337,6 +335,8 @@ class ImageLoader private constructor() {
         val targetHeight = (originalHeight * scale).toInt()
 //        // 调整高度
 //        target.layoutParams?.height = targetHeight
+//        // 执行渐隐藏动画 -> glide去除了smartFade(view)此处手动触发
+//        target.appear()
 //        // 返回
 //        onLoadComplete(resource)
         // 执行伸缩动画
