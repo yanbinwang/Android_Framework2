@@ -127,24 +127,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 底部是否需要阴影
-     */
-    private fun createShade() {
-        createOrUpdateView<View>(KEY_TITLE_SHADOW, {
-            View(context).also {
-                it.background(R.color.bgLine)
-                it.size(MATCH_PARENT, 1.pt)
-            }
-        }, {
-            startToEndOf(it)
-            endToEndOf(it)
-            topToTopOf(it)
-        }).margin(top = 44.pt)
-    }
-
-    /**
-     * 1.继承BaseActivity，在xml中include对应标题布局
-     * 2.把布局bind传入工具类，实现绑定后，调取对应方法（private val titleBuilder by lazy { TitleBuilder(this, mBinding?.titleRoot) }）
+     * 1) xml中绘制AppToolbar
+     * 2) 页面调用bind()方法传入activity实现绑定后，调取该方法
      */
     fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         return setTitle(title, titleColor, R.color.bgTransparent, onClick = onClick)
@@ -156,9 +140,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 设置左/右侧按钮图片资源
-     * resId->图片
-     * tintColor->图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
-     * onClick->点击事件
+     * @resId -> 图片
+     * @tintColor -> 图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
+     * @onClick -> 点击事件
      */
     fun setLeftButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         createImageView(KEY_LEFT_ICON, resId, tintColor, onClick) {
@@ -170,13 +154,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 设置左/右侧文字
-     * label->文案
-     * labelColor->文案颜色
-     * drawable->是否包含图片（默认就是左侧的）
-     *  1.drawable(res, width, height)获取图片，设置宽高
-     *  3.view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
-     *  4.drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
-     * onClick->点击事件
+     * @label -> 文案
+     * @labelColor -> 文案颜色
+     * @drawable -> 是否包含图片（默认就是左侧的）
+     *  1) drawable(res, width, height)获取图片，设置宽高
+     *  2) view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
+     *  3) drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
+     * @onClick -> 点击事件
      */
     fun setLeftText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
         createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onClick) {
@@ -187,8 +171,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 1.创建视图的函数
-     * 2.配置视图的回调
+     * 1) 创建视图的函数
+     * 2) 配置视图的回调
      * setLeft({ ImageView(mActivity) }) { img ->
      *     img.setImageResource(R.drawable.ic_back)
      *     img.setOnClickListener { mActivity.finish() }
@@ -226,44 +210,6 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
             centerVertically(it)
         }.also(rsp)
         return this
-    }
-
-    /**
-     * 创建左右侧按钮方法
-     */
-    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
-        createOrUpdateView<ImageView>(key, {
-            ImageView(context).also {
-                it.setResource(resId)
-                if (tintColor != -1) it.tint(tintColor)
-                it.size(44.pt, 44.pt)
-                it.padding(10.pt, 10.pt, 10.pt, 10.pt)
-                it.click {
-                    onClick.invoke()
-                }
-            }
-        }, block)
-    }
-
-    private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
-        createOrUpdateView<TextView>(key, {
-            TextView(context).also {
-                it.setTheme(label, labelColor)
-                it.padding(start = 15.pt, end = 15.pt)
-                it.textSize(R.dimen.textSize14)
-                it.gravity = Gravity.CENTER
-                if (drawable != null) {
-                    it.clearBackground()
-                    it.clearHighlightColor()
-                    drawable.setTint(context.color(labelColor))
-                    it.setCompoundDrawables(drawable, null, null, null)
-                    it.compoundDrawablePadding = 2.pt
-                }
-                it.click {
-                    onClick.invoke()
-                }
-            }
-        }, block)
     }
 
     /**
@@ -313,6 +259,60 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     fun nonNull(vararg keys: String): Boolean {
         return keys.all { idsMap[it] != null }
+    }
+
+    /**
+     * 底部是否需要阴影
+     */
+    private fun createShade() {
+        createOrUpdateView<View>(KEY_TITLE_SHADOW, {
+            View(context).also {
+                it.background(R.color.bgLine)
+                it.size(MATCH_PARENT, 1.pt)
+            }
+        }, {
+            startToEndOf(it)
+            endToEndOf(it)
+            topToTopOf(it)
+        }).margin(top = 44.pt)
+    }
+
+    /**
+     * 创建左右侧按钮方法
+     */
+    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+        createOrUpdateView<ImageView>(key, {
+            ImageView(context).also {
+                it.setResource(resId)
+                if (tintColor != -1) it.tint(tintColor)
+                it.size(44.pt, 44.pt)
+                it.padding(10.pt, 10.pt, 10.pt, 10.pt)
+                it.click {
+                    onClick.invoke()
+                }
+            }
+        }, block)
+    }
+
+    private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+        createOrUpdateView<TextView>(key, {
+            TextView(context).also {
+                it.setTheme(label, labelColor)
+                it.padding(start = 15.pt, end = 15.pt)
+                it.textSize(R.dimen.textSize14)
+                it.gravity = Gravity.CENTER
+                if (drawable != null) {
+                    it.clearBackground()
+                    it.clearHighlightColor()
+                    drawable.setTint(context.color(labelColor))
+                    it.setCompoundDrawables(drawable, null, null, null)
+                    it.compoundDrawablePadding = 2.pt
+                }
+                it.click {
+                    onClick.invoke()
+                }
+            }
+        }, block)
     }
 
 }
