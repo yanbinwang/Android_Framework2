@@ -1,15 +1,19 @@
 package com.example.thirdparty.media.oss
 
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.deleteFile
+import com.example.common.utils.function.getAllFilePaths
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.value.toNewList
 import com.example.objectbox.dao.OssDB
 import com.example.objectbox.dao.OssDB_
 import io.objectbox.Box
 import io.objectbox.BoxStore
 import io.objectbox.query.Query
 import io.objectbox.query.QueryBuilder.StringOrder
+import java.io.File
 
 /**
  * OSS帮助类
@@ -121,14 +125,48 @@ object OssDBHelper2 {
      * 3.上述方法执行完毕后-》 val loseList = data.list.filter { !it.isExists() }//标记损坏的文件
      * 4.批量调取oss文件上传
      */
+//    @JvmStatic
+//    fun sort(serverList: MutableList<String>) {
+//        // 查询手机内存储的集合，如果服务器内不存在这条数据，手机内也不应该存在
+//        val localList = query()
+//        for (bean in localList?.filter { !serverList.contains(it.sourcePath) }.orEmpty()) {
+//            // 删除源文件和数据表值
+//            delete(bean)
+//            bean.sourcePath.deleteFile()
+//        }
+//    }
     @JvmStatic
-    fun sort(serverList: MutableList<String>) {
-        //查询手机内存储的集合，如果服务器内不存在这条数据，手机内也不应该存在
-        val localList = query()
-        for (bean in localList?.filter { !serverList.contains(it.sourcePath) }.orEmpty()) {
-            //删除源文件和数据表值
-            delete(bean)
+    fun sort(data: MutableList<Pair<String, String>>) {
+        // 取出服务器中包含的所有文件详细路径集合(本地会做拼接)
+        val serverAllSet = data.toNewList { it.second }.toSet()
+        // 查询手机本地数据库存储的所有文件数据
+        val localDbList = OssDBHelper.query()
+        // 清除本地数据库内不存在于服务器的脏数据
+        for (bean in localDbList?.filter { !serverAllSet.contains(it.sourcePath) }.orEmpty()) {
+            // 删除源文件和数据表值
+            OssDBHelper.delete(bean)
             bean.sourcePath.deleteFile()
+        }
+        // 本地源文件脏数据清理 1.拍照取证，2.录音取证，3.录像取证，4.录屏取证
+        listOf("1", "2", "3", "4").forEach { appType ->
+            // 获取对应证据目录下所有文件
+            val localList = File(getStoragePath("${
+                when (appType) {
+                    "1" -> "拍照"
+                    "2" -> "录音"
+                    "3" -> "录像"
+                    else -> "录屏"
+                }
+            }取证")).getAllFilePaths()
+            // 筛选服务器对应目录的证据路径集合
+            val serverTypeSet = data
+                .filter { it.first == appType }
+                .map { it.second }
+                .toSet()
+            // 删除本地存在但服务器不存在的文件
+            for (bean in localList.filter { !serverTypeSet.contains(it) }) {
+                bean.deleteFile()
+            }
         }
     }
 
