@@ -60,4 +60,11 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
         holder.unbind()
     }
 
+    /**
+     * 复用父类的绑定
+     */
+    protected fun setExecutePendingVariable(variableId: Int, value: Any?) {
+        setExecutePendingVariable(mBinding, variableId, value)
+    }
+
 }

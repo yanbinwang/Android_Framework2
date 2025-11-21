@@ -2,6 +2,7 @@ package com.example.common.base.binding.adapter
 
 import android.annotation.SuppressLint
 import android.view.View
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseItemType.LIST
@@ -141,6 +142,33 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 统一回调
      */
     protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?)
+
+    /**
+     * 适用于 “需要立即更新视图的场景（如 RecyclerView 复用）”，避免视图显示旧数据
+     * setVariable原理:
+     * 异步绑定：
+     * 当调用 binding.setVariable(BR.bean, item) 或 binding.bean = item 时，DataBinding 并不会立即执行所有的绑定表达式（比如 android:text="@{bean.amount}"）。为了优化性能，它会将这些绑定操作推迟到下一帧（Frame） 绘制之前执行。这个过程是异步的。
+     * RecyclerView 的复用：RecyclerView 在滚动或刷新时，会快速地复用 ViewHolder。在 onBindViewHolder 中，你为复用的 ViewHolder 设置了新的 bean，但由于绑定是异步的，ViewHolder 上的视图可能不会立即更新。
+     * 闪烁的根源：
+     * 在 onBindViewHolder 执行完毕后，RecyclerView 会立即将这个 ViewHolder 显示在屏幕上。如果此时 DataBinding 的异步绑定还未完成，那么用户看到的将是这个 ViewHolder 上一次复用时残留的旧数据。直到下一帧绘制时，新数据才会显示出来，这就造成了 “闪烁” 或 “数据跳变” 的现象。
+     * executePendingBindings() 的作用就是：强制 DataBinding 立即执行所有等待中的绑定表达式，而不是等到下一帧。
+     * 风险点:
+     * 1) 绑定表达式中包含 “耗时操作”（比如复杂计算、同步 IO）
+     * 风险：如果布局 xml 中绑定表达式写了耗时逻辑（比如 @{bean.calculateComplexData()}），executePendingBindings() 会在主线程同步执行这些逻辑，可能导致列表滑动卡顿（因为 onBindViewHolder 是主线程执行的）。
+     * 规避方式：
+     * 永远不要在绑定表达式中写复杂计算、IO 操作（这是 DataBinding 的基础规范，和 executePendingBindings() 无关）；
+     * 复杂逻辑提前在 ViewModel/Repository 中预处理（比如 bean 直接持有计算后的结果，而非绑定时分计算）。
+     * 2) 绑定表达式中包含 “异步回调依赖”（极罕见）
+     * 风险：如果绑定表达式依赖某个异步结果（比如 @{bean.asyncData}，而 asyncData 是在绑定后才通过回调赋值的），executePendingBindings() 会因为 “数据未就绪” 而绑定空值，但这种情况和 executePendingBindings() 无关 —— 即使不调用，下一帧绑定也会是空值，本质是 “数据准备时机错误”。
+     * 规避方式：确保设置 binding.bean = item 时，item 中的所有绑定字段都已就绪（异步数据提前加载完成）。
+     */
+    protected fun setExecutePendingVariable(mBinding: ViewDataBinding?, variableId: Int, value: Any?) {
+        value ?: return
+        mBinding?.let {
+            it.setVariable(variableId, value)
+            it.executePendingBindings()
+        }
+    }
 
     /**
      * 刷新符合条件的item（数据在item内部更改）
