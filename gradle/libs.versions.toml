@@ -2,6 +2,7 @@
 #--------------------------------------------- settings.gradle版本 ---------------------------------------------
 agp = "8.13.0"
 kotlin = "2.2.21"
+ksp = "2.3.3" # https://github.com/google/ksp/releases
 #--------------------------------------------- 模块测试库版本 ---------------------------------------------
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -90,8 +91,9 @@ stomp = { group = "cn.zhxu", name = "okhttps-stomp", version.ref = "stomp" } # s
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-kotlin-kapt = { id = "kotlin-kapt" }
 kotlin-parcelize = { id = "kotlin-parcelize" }
+kotlin-kapt = { id = "kotlin-kapt" }
+devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
 # 相关库打包
 [bundles]
