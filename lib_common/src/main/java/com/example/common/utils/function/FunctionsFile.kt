@@ -181,17 +181,23 @@ fun String?.ensureDirExists(): String {
 /**
  * 删除文件
  */
-fun String?.deleteFile() {
-    this ?: return
-    File(this).safeDelete()
+fun String?.deleteFile(): Boolean {
+    this ?: return false
+    return File(this).safeDelete()
 }
 
 /**
  * 删除目录下的所有文件,包含目录本身
  */
-fun String?.deleteDir() {
-    this ?: return
-    File(this).deleteRecursively()
+fun String?.deleteDir(): Boolean {
+    this ?: return false
+    return File(this).let {
+        if (it.isDirectory) {
+            it.deleteRecursively()
+        } else {
+            it.safeDelete()
+        }
+    }
 }
 
 /**
@@ -205,10 +211,7 @@ fun File?.safeDelete(): Boolean {
         when {
             // 文件不存在，视为删除成功
             !exists() -> true
-            /**
-             * 兼容目录（防止误传目录）
-             * Kotlin 标准库中 File 类的递归删除方法，核心作用是：删除文件或目录（包括目录下所有子文件、子目录），一步到位清理整个文件树
-             */
+            // 兼容目录（防止误传目录） -> 删除文件或目录（包括目录下所有子文件、子目录），一步到位清理整个文件树，Kotlin 标准库中 File 类的递归删除方法
             isDirectory -> deleteRecursively()
             // 余下的进入删除逻辑
             else -> {
