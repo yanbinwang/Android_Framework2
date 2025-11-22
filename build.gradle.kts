@@ -6,7 +6,8 @@ buildscript {
         // 使用列表管理依赖
         val pluginDependencies = listOf(
             "org.greenrobot:greendao-gradle-plugin:$greendao",
-            "io.objectbox:objectbox-gradle-plugin:$objectbox"
+            "io.objectbox:objectbox-gradle-plugin:$objectbox",
+            "com.google.devtools.ksp:symbol-processing-gradle-plugin:${libs.versions.ksp}"
         )
         // 遍历列表添加依赖
         pluginDependencies.forEach { classpath(it) }
