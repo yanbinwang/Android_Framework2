@@ -66,16 +66,23 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
     // 构建router跳转
     val navigator = TheRouter.build(path)
-    // 获取一下要跳转的页面及class
-    val clazz = navigator.getNavigatorClass() ?: return
-    val intent = Intent(this, clazz)
-    // 检查目标页面是否已经在任务栈中，在的话直接拉起来
-    if (AppManager.isActivityAlive(clazz)) {
-        // Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
-        // 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-    }
-    // 判断一下跳转参数
+//    // 获取一下要跳转的页面及class
+//    val clazz = navigator.getDestinationClass() ?: return
+//    val intent = Intent(this, clazz)
+//    // 检查目标页面是否已经在任务栈中，在的话直接拉起来
+//    if (AppManager.isActivityAlive(clazz)) {
+//        // Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
+//        // 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
+//        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+//    }
+    val intent = navigator.createIntent(AppManager.currentActivity())
+    /**
+     * 添加标记 : 检查目标页面是否已经在任务栈中，在的话直接拉起来
+     * Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
+     * 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
+     */
+    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+    // 判断跳转参数
     var hasResultCode = false
     if (params.isNotEmpty()) {
         // 过滤掉 null 值
@@ -106,10 +113,10 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
 }
 
 /**
- * 获取router构建的class文件
+ * 获取Router构建的class文件
  * Navigator 仅在 TheRouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
  */
-fun Navigator.getNavigatorClass(): Class<*>? {
+fun Navigator.getDestinationClass(): Class<*>? {
     return try {
         // 使用 TheRouter.matchRouteMap() 查找 RouteItem
         val routeItem = matchRouteMap(url)
@@ -125,8 +132,8 @@ fun Navigator.getNavigatorClass(): Class<*>? {
     }
 }
 
-fun String.getNavigatorClass(): Class<*>? {
-    return TheRouter.build(this).getNavigatorClass()
+fun String.getDestinationClass(): Class<*>? {
+    return TheRouter.build(this).getDestinationClass()
 }
 
 /**

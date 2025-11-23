@@ -8,7 +8,7 @@ import android.os.Bundle
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
-import com.example.common.base.page.getNavigatorClass
+import com.example.common.base.page.getDestinationClass
 import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -58,9 +58,9 @@ class LinkActivity : BaseActivity<Nothing>() {
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-//        //預留3s的關閉時間
+//        // 預留3s的關閉時間
 //        setTimeOut()
-        //處理推送透傳信息
+        // 處理推送透傳信息
         onLink()
     }
 
@@ -70,7 +70,7 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     private fun onLink() {
-//        //只要是推送，全局开启onFinish监听，拉起首页
+//        // 只要是推送，全局开启onFinish监听，拉起首页
 //        BaseApplication.needOpenHome = true
 //        when (source) {
 //            //推送消息
@@ -83,7 +83,7 @@ class LinkActivity : BaseActivity<Nothing>() {
 //            else -> finish()
 //        }
         when (source) {
-//            //推送消息
+//            // 推送消息
 //            "push" -> {
 //                //只要是推送，全局开启onFinish监听，拉起首页
 //                BaseApplication.needOpenHome = true
@@ -96,12 +96,12 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                    finish()
 //                }
 //            }
-            //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
+            // 高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
             "normal" -> {
                 // 获取跳转的路由地址
                 val path = intentString(Extra.ID, RouterPath.StartActivity)
                 // 获取跳转的class
-                val clazz = path.getNavigatorClass()
+                val clazz = path.getDestinationClass()
                 // 不管存在不存在,先关闭
                 AppManager.finishTargetActivity(clazz)
                 // 跳转对应页面

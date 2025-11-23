@@ -8,7 +8,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.common.BaseApplication
 import com.example.common.base.page.Extra
-import com.example.common.base.page.getNavigatorClass
+import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
 import com.therouter.TheRouter
@@ -350,7 +350,7 @@ object AppManager {
      * 2)确保任务栈内至少存在一个页面
      */
     fun ensureMainActivityAliveWithFallback(context: Context, resp: () -> Unit) {
-        val mainClazz = RouterPath.MainActivity.getNavigatorClass()
+        val mainClazz = RouterPath.MainActivity.getDestinationClass()
         if (!isActivityAlive(mainClazz)) {
             TheRouter.build(RouterPath.MainActivity)
                 .withOptionsCompat(context.getNoneOptions()?.toBundle())
