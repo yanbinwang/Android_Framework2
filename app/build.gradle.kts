@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.therouter.android)
-//    id("therouter")
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
