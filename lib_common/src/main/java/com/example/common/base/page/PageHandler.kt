@@ -12,7 +12,6 @@ import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
 import com.example.common.utils.function.getCustomOption
-import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -75,7 +74,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
 //        // 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
 //        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
 //    }
-    val intent = navigator.createIntent(AppManager.currentActivity())
+    val intent = navigator.createIntent(this)
     /**
      * 添加标记 : 检查目标页面是否已经在任务栈中，在的话直接拉起来
      * Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
