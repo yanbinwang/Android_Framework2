@@ -576,7 +576,7 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-        //视频时长（毫秒）/1000=x秒
+        // 视频时长（毫秒）/1000=x秒
         val duration = player.duration.orZero
         duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
 //        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
