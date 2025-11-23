@@ -3,7 +3,6 @@ package com.example.common.base.page
 import com.example.common.config.RouterPath
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.manager.AppManager
-import com.example.framework.utils.function.value.toMap
 import com.example.framework.utils.logE
 import com.therouter.TheRouter
 import com.therouter.router.RouteItem
@@ -28,7 +27,7 @@ class PageInterceptor : RouterInterceptor {
          */
         const val INTERCEPTOR_LOGIN = "interceptor_login"
 
-        const val VALUE_NEED_LOGIN = "true"
+//        const val VALUE_NEED_LOGIN = "true"
 
         /**
          * 判断是否需要拦截当前路由。
@@ -45,9 +44,21 @@ class PageInterceptor : RouterInterceptor {
             }
             "PageInterceptor ---> 开始执行登录检查".logE(TAG)
             return try {
-                val extrasMap = routeItem.getExtras().toMap()
-                val needLogin  = extrasMap[INTERCEPTOR_LOGIN]
-                if (needLogin == VALUE_NEED_LOGIN) {
+//                val extrasMap = routeItem.getExtras().toMap()
+//                val needLogin  = extrasMap[INTERCEPTOR_LOGIN]
+//                if (needLogin == VALUE_NEED_LOGIN) {
+//                    !AccountHelper.isLogin()
+//                } else {
+//                    false
+//                }
+                /**
+                 * 只校验登录的情况下,拿description比params更优雅
+                 * 页面直接@Route(path = RouterPath.MainActivity, description = INTERCEPTOR_LOGIN)
+                 * "needLogin;needVIP" <-- 也可以多字段特殊处理
+                 */
+                val flags = routeItem.description.split(";")
+                val needLogin = flags.contains(INTERCEPTOR_LOGIN)
+                if (needLogin) {
                     !AccountHelper.isLogin()
                 } else {
                     false
