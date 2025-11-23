@@ -5,17 +5,17 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
-import com.example.common.base.page.getPostcardClass
-import com.example.common.config.ARouterPath
+import com.example.common.base.page.getNavigatorClass
+import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
+import com.therouter.router.Route
 import kotlinx.coroutines.Job
 
 /**
@@ -27,7 +27,7 @@ import kotlinx.coroutines.Job
  * </style>
  * @author yan
  */
-@Route(path = ARouterPath.LinkActivity)
+@Route(path = RouterPath.LinkActivity)
 class LinkActivity : BaseActivity<Nothing>() {
     private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
@@ -99,9 +99,9 @@ class LinkActivity : BaseActivity<Nothing>() {
             //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
             "normal" -> {
                 // 获取跳转的路由地址
-                val path = intentString(Extra.ID, ARouterPath.StartActivity)
+                val path = intentString(Extra.ID, RouterPath.StartActivity)
                 // 获取跳转的class
-                val clazz = path.getPostcardClass()
+                val clazz = path.getNavigatorClass()
                 // 不管存在不存在,先关闭
                 AppManager.finishTargetActivity(clazz)
                 // 跳转对应页面

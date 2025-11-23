@@ -249,6 +249,13 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustResize" />
+        <!-- ******************************************************我的模块****************************************************** -->
+        <!-- 登录页 -->
+        <activity
+            android:name="com.example.account.activity.LoginActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
         <!-- ******************************************************微信 SDK****************************************************** -->
         <activity
             android:name="com.dataqin.baoquan.wxapi.WXEntryActivity"

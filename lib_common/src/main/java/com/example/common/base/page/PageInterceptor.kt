@@ -1,58 +1,75 @@
 package com.example.common.base.page
 
-import android.content.Context
-import com.alibaba.android.arouter.facade.Postcard
-import com.alibaba.android.arouter.facade.annotation.Interceptor
-import com.alibaba.android.arouter.facade.callback.InterceptorCallback
-import com.alibaba.android.arouter.facade.template.IInterceptor
-import com.alibaba.android.arouter.launcher.ARouter
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.helper.AccountHelper
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.logE
+import com.therouter.TheRouter
+import com.therouter.router.RouteItem
+import com.therouter.router.interceptor.InterceptorCallback
+import com.therouter.router.interceptor.RouterInterceptor
 
 /**
- * author:wyb
- * 阿里ARouter全局拦截器
- * (@Route(path = RouterPages.MUSIC_CLASS, extras = Constants.LOGIN_INTERCEPTOR_CODE))
- * 拦截器会在跳转之间执行，多个拦截器会按优先级顺序依次执行
- * priority: 优先级，越小，优先级越高
- * 两个拦截器的优先级一样，项目编译就会报错
+ * 全局路由AOP拦截器
+ * 全局唯一可拦截所有路由跳转，控制是否放行/中断
+ * https://therouter.cn/docs/2022/08/28/01
+ * 单纯的登录限制可以使用RouterReplaceInterceptor
  */
-@Interceptor(priority = 1, name = "全局拦截器")
-class PageInterceptor : IInterceptor {
-    private val TAG = "PageInterceptor"
+class PageInterceptor : RouterInterceptor {
 
     companion object {
-        // 阿里路由登录全局拦截器编号
-        const val INTERCEPTOR_LOGIN_CODE = 1
-    }
+        private const val TAG = "PageInterceptor"
 
-    override fun process(postcard: Postcard, callback: InterceptorCallback) {
-        "PageInterceptor---开始执行".logE(TAG)
-        // 给需要跳转的页面添加值为Constants.LOGIN_INTERCEPTOR_CODE的extra参数，用来标记是否需要用户先登录才可以访问该页面
-        // 先判断需不需要
-        if (postcard.extra == INTERCEPTOR_LOGIN_CODE) {
-            // 判断用户的登录情况，可以把值保存在sp中
-            if (AccountHelper.isLogin()) {
-                callback.onContinue(postcard)
-            } else {
-                // 没有登录,注意需要传入context
-                try {
-                    ARouter.getInstance().build(ARouterPath.LoginActivity).navigation(postcard.context)
-                    callback.onInterrupt(RuntimeException("用户未登录，请先登录"))
-                } catch (e: Exception) {
-                    "PageInterceptor---导航到登录页面时出错:\n${e.printStackTrace()}".logE(TAG)
-                    callback.onInterrupt(e)
-                }
+        /**
+         * 登录全局拦截器编号
+         * @Route(path = RouterPath.MainActivity, params = [INTERCEPTOR_LOGIN, "true"])
+         */
+        const val INTERCEPTOR_LOGIN = "interceptor_login"
+
+        /**
+         * 判断是否需要拦截当前路由。
+         * @param routeItem 路由信息
+         * @return true: 需要拦截, false: 不需要拦截
+         */
+        @JvmStatic
+        fun shouldIntercept(routeItem: RouteItem?, onInterrupt: (Throwable?) -> Unit = {}): Boolean {
+            routeItem ?: return false
+            // 跳过登录页本身的拦截（避免循环跳转）
+            if (routeItem.path == RouterPath.LoginActivity) {
+                "PageInterceptor ---> 跳过登录页本身的拦截".logE(TAG)
+                return false
             }
-        } else {
-            // 没有extra参数时则继续执行，不做拦截
-            callback.onContinue(postcard)
+            "PageInterceptor ---> 开始执行登录检查".logE(TAG)
+            val needLogin = try {
+                routeItem.getExtras().getBoolean(INTERCEPTOR_LOGIN, false)
+            } catch (e: Exception) {
+                onInterrupt(e)
+                false
+            }
+            // 返回结果 (是否需要登录 + 是否未登录)
+            return needLogin && !AccountHelper.isLogin()
         }
     }
 
-    override fun init(context: Context) {
-        "PageInterceptor---初始化".logE(TAG)
+    override fun process(routeItem: RouteItem, callback: InterceptorCallback) {
+        val isIntercepted = try {
+            shouldIntercept(routeItem) { throwable ->
+                "PageInterceptor ---> 路由配置异常: ${throwable?.message}".logE(TAG)
+                throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return
+        }
+        if (isIntercepted) {
+            // 需要拦截，执行拦截后的操作
+            "PageInterceptor ---> 用户未登录且需要登录，跳转到登录页并中断原路由".logE(TAG)
+            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+        } else {
+            // 不需要拦截，继续执行原路由
+            "PageInterceptor ---> 无需拦截，继续执行原路由".logE(TAG)
+            callback.onContinue(routeItem)
+        }
     }
 
 }

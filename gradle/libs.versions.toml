@@ -68,8 +68,8 @@ squareup-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", versi
 squareup-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "converterGson" }
 
 # 货拉拉路由框架
-therouter-apt = { group = "com.therouter", name = "apt", version.ref = "therouter" }
-therouter-router = { group = "com.therouter", name = "router", version.ref = "therouter" }
+therouter = { group = "cn.therouter", name = "router", version.ref = "therouter" }
+therouter-apt = { group = "cn.therouter", name = "apt", version.ref = "therouter" }
 
 # 调试库
 debugging-recovery = { group = "com.zxy.android", name = "recovery", version.ref = "recovery" } # 闪退抓捕
@@ -91,8 +91,8 @@ android-library = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-parcelize = { id = "kotlin-parcelize" }
 kotlin-kapt = { id = "kotlin-kapt" }
-cn-therouter = { id = "cn.therouter", version.ref = "therouter" }
-therouter = { id = "therouter" }
+therouter-gradle = { id = "cn.therouter", version.ref = "therouter" }
+therouter-android = { id = "therouter" }
 
 # 相关库打包
 [bundles]

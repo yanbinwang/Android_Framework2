@@ -1,17 +1,17 @@
 package com.example.common.utils.helper
 
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
-import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
+import com.example.common.config.RouterPath
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
 import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.CacheDataManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
+import com.therouter.TheRouter
 
 /**
  * Created by WangYanBin on 2020/8/11.
@@ -171,8 +171,7 @@ object AccountHelper {
          * 2)拉起透明页面,通过AppManager.reboot
          * 3)LoginActivity/StartActivity使用singleTask
          */
-        AppManager.rebootTaskStackAndLaunchTarget(ARouterPath.LoginActivity)
-
+        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.LoginActivity)
         /**
          * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
          * 1)isNavigation: Boolean = true保留,部分页面无需强制拉起首页
@@ -180,7 +179,7 @@ object AccountHelper {
          */
         EVENT_USER_LOGIN_OUT.post()
         if (isNavigation) {
-            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
+            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
         }
     }
     // </editor-fold>

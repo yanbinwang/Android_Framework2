@@ -21,13 +21,6 @@ android {
         dataBinding = true
     }
 
-    //arouter编译
-    kapt {
-        arguments {
-            arg("AROUTER_MODULE_NAME", project.getName())
-        }
-    }
-
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -52,5 +45,5 @@ dependencies {
     // 框架库
     api(project(":lib_thirdparty"))
     // 页面路由
-    kapt(libs.alibaba.arouter.compiler)
+    kapt(libs.therouter.apt)
 }
