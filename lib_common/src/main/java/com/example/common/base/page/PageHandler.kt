@@ -65,15 +65,6 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
     // 构建router跳转
     val navigator = TheRouter.build(path)
-//    // 获取一下要跳转的页面及class
-//    val clazz = navigator.getDestinationClass() ?: return
-//    val intent = Intent(this, clazz)
-//    // 检查目标页面是否已经在任务栈中，在的话直接拉起来
-//    if (AppManager.isActivityAlive(clazz)) {
-//        // Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
-//        // 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
-//        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-//    }
     val intent = navigator.createIntent(this)
     /**
      * 添加标记 : 检查目标页面是否已经在任务栈中，在的话直接拉起来

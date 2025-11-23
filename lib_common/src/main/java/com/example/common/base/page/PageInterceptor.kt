@@ -3,6 +3,7 @@ package com.example.common.base.page
 import com.example.common.config.RouterPath
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.manager.AppManager
+import com.example.framework.utils.function.value.toMap
 import com.example.framework.utils.logE
 import com.therouter.TheRouter
 import com.therouter.router.RouteItem
@@ -22,9 +23,12 @@ class PageInterceptor : RouterInterceptor {
 
         /**
          * 登录全局拦截器编号
-         * @Route(path = RouterPath.MainActivity, params = [INTERCEPTOR_LOGIN, "true"])
+         * @Route(path = RouterPath.MainActivity, params = [INTERCEPTOR_LOGIN, VALUE_NEED_LOGIN])
+         * 注意clean让路由表能生成
          */
         const val INTERCEPTOR_LOGIN = "interceptor_login"
+
+        const val VALUE_NEED_LOGIN = "true"
 
         /**
          * 判断是否需要拦截当前路由。
@@ -40,14 +44,18 @@ class PageInterceptor : RouterInterceptor {
                 return false
             }
             "PageInterceptor ---> 开始执行登录检查".logE(TAG)
-            val needLogin = try {
-                routeItem.getExtras().getBoolean(INTERCEPTOR_LOGIN, false)
+            return try {
+                val extrasMap = routeItem.getExtras().toMap()
+                val needLogin  = extrasMap[INTERCEPTOR_LOGIN]
+                if (needLogin == VALUE_NEED_LOGIN) {
+                    !AccountHelper.isLogin()
+                } else {
+                    false
+                }
             } catch (e: Exception) {
                 onInterrupt(e)
                 false
             }
-            // 返回结果 (是否需要登录 + 是否未登录)
-            return needLogin && !AccountHelper.isLogin()
         }
     }
 
