@@ -173,7 +173,6 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         if (mCurrentItem != i) {
             // 取消上一个选中的 tab（更新未选中状态）
             val lastSelectedIndex = mCurrentItem
-            onBindView(tabViews[lastSelectedIndex], tabList.safeGet(lastSelectedIndex), false, lastSelectedIndex)
             listener?.onUnselected(lastSelectedIndex)
             // 选中当前 tab（更新选中状态）
             mTab?.select()
