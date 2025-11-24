@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.devtools.ksp)
 }
 
 android {
@@ -72,5 +73,5 @@ dependencies {
     implementation(libs.mmkv)
     // 页面路由
     api(libs.therouter)
-    kapt(libs.therouter.apt)
+    ksp(libs.therouter.apt)
 }

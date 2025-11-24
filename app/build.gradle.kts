@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.therouter.android)
+    alias(libs.plugins.devtools.ksp)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -192,5 +193,5 @@ dependencies {
     implementation(project(":module_home"))
     implementation(project(":module_account"))
     // 页面路由
-    kapt(libs.therouter.apt)
+    ksp(libs.therouter.apt)
 }
