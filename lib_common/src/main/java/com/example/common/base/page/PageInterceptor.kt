@@ -71,7 +71,8 @@ class PageInterceptor : RouterInterceptor {
                     val isLogin = AccountHelper.isLogin()
                     if (!isLogin) {
                         log(routeItem, "具备登录校验，用户未登录且需要登录，拦截路由，跳转到登录页")
-                        TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+                        TheRouter.build(RouterPath.LoginActivity)
+                            .navigation(AppManager.currentActivity())
                     } else {
                         log(routeItem, "具备登录校验，用户已登录，无需拦截")
                     }
@@ -96,7 +97,10 @@ class PageInterceptor : RouterInterceptor {
         } else {
             val isIntercepted = try {
                 shouldIntercept(routeItem) { throwable ->
-                    throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
+                    throw IllegalArgumentException(
+                        "路由参数 '${INTERCEPTOR_LOGIN}' 配置错误",
+                        throwable
+                    )
                 }
             } catch (e: Exception) {
                 log(routeItem, "路由配置异常: ${e.message}")
