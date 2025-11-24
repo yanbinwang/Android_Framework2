@@ -21,6 +21,14 @@ class PageInterceptor : RouterInterceptor {
         private const val TAG = "PageInterceptor"
 
         /**
+         * 全局log日志
+         */
+        private fun log(routeItem: RouteItem?, txt: String) {
+            routeItem ?: return
+            "路由Path:\n${routeItem.path}\n拦截执行状态:\n${txt}".logE(TAG)
+        }
+
+        /**
          * 登录全局拦截器编号
          * @Route(path = RouterPath.MainActivity, params = [INTERCEPTOR_LOGIN, VALUE_NEED_LOGIN])
          * 注意clean让路由表能生成
@@ -39,7 +47,7 @@ class PageInterceptor : RouterInterceptor {
             routeItem ?: return false
             // 跳过登录页本身的拦截（避免循环跳转）
             if (routeItem.path == RouterPath.LoginActivity) {
-                "PageInterceptor ---> 跳过登录页本身的拦截".logE(TAG)
+                log(routeItem, "登录页不做拦截")
                 return false
             }
             return try {
@@ -59,19 +67,22 @@ class PageInterceptor : RouterInterceptor {
                 // 是否登录拦截
                 val needLogin = flags.contains(INTERCEPTOR_LOGIN)
                 if (needLogin) {
-                    "PageInterceptor ---> 开始执行登录检查".logE(TAG)
                     // 进入拦截校验,检测本地用户是否登录
                     val isLogin = AccountHelper.isLogin()
                     if (!isLogin) {
-                        "PageInterceptor ---> 用户未登录且需要登录，跳转到登录页".logE(TAG)
+                        log(routeItem, "具备登录校验，用户未登录且需要登录，拦截路由，跳转到登录页")
                         TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+                    } else {
+                        log(routeItem, "具备登录校验，用户已登录，无需拦截")
                     }
                     // 如果已经登录返回的则是false,正常走接下来的逻辑.true的话说明未登录,已经做了跳转处理
                     !isLogin
                 } else {
+                    log(routeItem, "无需拦截")
                     false
                 }
             } catch (e: Exception) {
+                log(routeItem, "拦截异常:${e.message}")
                 onInterrupt(e)
                 false
             }
@@ -80,20 +91,20 @@ class PageInterceptor : RouterInterceptor {
 
     override fun process(routeItem: RouteItem, callback: InterceptorCallback) {
         if (routeItem.getExtras().getBoolean(Extra.SKIP_INTERCEPT, false)) {
+            log(routeItem, "navigation扩展函数构建路由，跳过拦截器process检测")
             callback.onContinue(routeItem)
         } else {
             val isIntercepted = try {
                 shouldIntercept(routeItem) { throwable ->
-                    "PageInterceptor ---> 路由配置异常: ${throwable.message}".logE(TAG)
                     throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
                 }
             } catch (e: Exception) {
+                log(routeItem, "路由配置异常: ${e.message}")
                 e.printStackTrace()
                 return
             }
             if (!isIntercepted) {
-                // 不需要拦截，继续执行原路由
-                "PageInterceptor ---> 无需拦截，继续执行原路由".logE(TAG)
+                log(routeItem, "无需拦截")
                 callback.onContinue(routeItem)
             }
         }
