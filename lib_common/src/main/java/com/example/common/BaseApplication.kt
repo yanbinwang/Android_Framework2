@@ -12,14 +12,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
+import com.example.common.base.page.PageInterceptor
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
-import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
 import com.example.common.config.Constants.SOCKET_DEAL_URL
 import com.example.common.config.Constants.SOCKET_FUNDS_URL
+import com.example.common.config.RouterPath
 import com.example.common.config.ServerConfig
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
@@ -43,6 +43,9 @@ import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
+import com.therouter.TheRouter
+import com.therouter.router.setRouterInterceptor
+import com.therouter.theRouterInited
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
 import java.util.Locale
@@ -58,10 +61,10 @@ abstract class BaseApplication : Application() {
     private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
     private val excludedRouterPaths by lazy {
         listOf(
-            ARouterPath.MainActivity,
-            ARouterPath.SplashActivity,
-//            ARouterPath.LinkActivity,
-//            ARouterPath.LinkHandlerActivity
+            RouterPath.MainActivity,
+            RouterPath.SplashActivity,
+//            RouterPath.LinkActivity,
+//            RouterPath.LinkHandlerActivity
         ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
     }
 
@@ -105,8 +108,8 @@ abstract class BaseApplication : Application() {
 //        initReceiver()
         // 防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
-        // 阿里路由跳转初始化
-        initARouter()
+        // 路由跳转初始化
+        initRouter()
         // 部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
         // 全局刷新控件的样式
@@ -121,14 +124,15 @@ abstract class BaseApplication : Application() {
         initPrivacyAgreed()
     }
 
-    private fun initARouter() {
-        // 开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
-        if (isDebug) {
-            ARouter.openLog()//打印日志
-            ARouter.openDebug()
-            ARouter.printStackTrace()
+    private fun initRouter() {
+        // 手动初始化 TheRouter
+        if (!theRouterInited()) {
+            TheRouter.init(this)
         }
-        ARouter.init(this)
+        // 设置 debug 模式
+        TheRouter.isDebug = isDebug
+        // 设置全局AOP拦截器 将 PageInterceptor 设置为全局唯一的路由拦截器
+        setRouterInterceptor(PageInterceptor())
     }
 
 //    private fun initReceiver() {
@@ -153,7 +157,7 @@ abstract class BaseApplication : Application() {
                 if (AppManager.dequeCount <= 1) {
                     // 拉起首页(配置了singleTask,栈内不会重复)
                     needOpenHome.set(false)
-                    ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
+                    TheRouter.build(RouterPath.MainActivity).navigation()
                 }
             }
         }

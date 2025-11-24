@@ -4,13 +4,12 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.core.graphics.drawable.toBitmapOrNull
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.bean.UserBean
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
@@ -42,6 +41,7 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
+import com.therouter.router.Route
 import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -361,7 +361,7 @@ println(myClass.myProperty)
 }
 在这个例子中，MyDelegate 类实现了属性委托的 getValue 和 setValue 方法，MyClass 类的 myProperty 属性使用 MyDelegate 作为委托对象。当访问或修改 myProperty 属性时，会调用 MyDelegate 类的 getValue 或 setValue 方法。
  */
-@Route(path = ARouterPath.MainActivity)
+@Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     //    private val illustratePopup by lazy { IllustratePopup(this) }
 //    private val testDialog by lazy { TestTopDialog() }
@@ -469,17 +469,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                mBinding?.setVariable(BR.bean,bean)
 //                logText.logWTF("wyb")
 //            },2000)
-//            navigation(ARouterPath.AdActivity)
+            navigation(RouterPath.LoginActivity)
 //            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions {isGranted, permissions ->
-                if (isGranted) {
-                    gallery.imageSelection(hasDurban = true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions { isGranted, permissions ->
+//                if (isGranted) {
+//                    gallery.imageSelection(hasDurban = true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景

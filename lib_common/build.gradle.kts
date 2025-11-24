@@ -34,13 +34,6 @@ android {
         dataBinding = true
     }
 
-    // arouter 编译
-    kapt {
-        arguments {
-            arg("AROUTER_MODULE_NAME", project.name)
-        }
-    }
-
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -78,6 +71,6 @@ dependencies {
     implementation(libs.stomp)
     implementation(libs.mmkv)
     // 页面路由
-    api(libs.alibaba.arouter.api)
-    kapt(libs.alibaba.arouter.compiler)
+    api(libs.therouter)
+    kapt(libs.therouter.apt)
 }

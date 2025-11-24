@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.therouter.android)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -75,13 +76,6 @@ android {
 
     buildFeatures {
         dataBinding = true
-    }
-
-    // arouter 编译
-    kapt {
-        arguments {
-            arg("AROUTER_MODULE_NAME", project.name)
-        }
     }
 
     kotlinOptions {
@@ -192,11 +186,11 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //调试库
+    // 调试库
     debugImplementation(project(":lib_debugging"))
-    //基础库
+    // 基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
-    //页面路由
-    kapt(libs.alibaba.arouter.compiler)
+    // 页面路由
+    kapt(libs.therouter.apt)
 }

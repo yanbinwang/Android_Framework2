@@ -1,17 +1,17 @@
 package com.example.home.activity
 
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.interf.TransparentOwner
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
 import com.example.home.widget.scale.ScaleImageView
+import com.therouter.router.Route
 
 /**
  * @description 大图伸缩
@@ -24,7 +24,7 @@ import com.example.home.widget.scale.ScaleImageView
  *     navigation(ARouterPath.ScaleActivity, Extra.BUNDLE_LIST to arrayListOf(value))
  */
 @TransparentOwner
-@Route(path = ARouterPath.ScaleActivity)
+@Route(path = RouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 

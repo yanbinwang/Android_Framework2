@@ -12,10 +12,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.constraintlayout.widget.ConstraintLayout
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.R
 import com.example.common.base.BaseActivity
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.getStatusBarHeight
@@ -41,9 +40,10 @@ import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.databinding.ActivityTest2Binding
 import com.google.android.material.appbar.AppBarLayout
+import com.therouter.router.Route
 import kotlin.math.abs
 
-@Route(path = ARouterPath.TestActivity2)
+@Route(path = RouterPath.TestActivity2)
 class Test2Activity : BaseActivity<ActivityTest2Binding>() {
     private val rootView by lazy { ConstraintLayout(this) }
     private val ivAvatarId by lazy { View.generateViewId() }
