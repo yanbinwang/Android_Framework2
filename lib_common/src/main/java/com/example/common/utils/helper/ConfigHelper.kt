@@ -42,7 +42,7 @@ object ConfigHelper {
     }
 
     fun getDeviceToken(): String {
-        return deviceToken.get()
+        return deviceToken.get().orEmpty()
     }
 
     /**

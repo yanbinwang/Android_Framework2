@@ -5,6 +5,7 @@
     "sure":"確定",
     "cancel":"取消",
     "refresh":"刷新",
+    "copySuccess":"複製成功",
     "permissionGoSetting":"缺少\n%1$s請前往設置頁面開啟",
     "permissionCamera":"相機權限,該權限用於拍攝照片",
     "permissionStorage":"存儲權限,該權限用於上傳保存文件",

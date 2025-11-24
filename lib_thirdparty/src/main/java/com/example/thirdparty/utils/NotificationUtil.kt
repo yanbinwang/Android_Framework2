@@ -25,7 +25,7 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.common.utils.function.pullUpNotification
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy

@@ -39,7 +39,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
     // 框架库
-    implementation(project(":lib_common"))
+    api(project(":lib_common"))
     // 文件压缩
     implementation("id.zelory:compressor:3.0.1")
 //    //谷歌三方登錄->淘汰

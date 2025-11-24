@@ -5,7 +5,7 @@ import android.graphics.Bitmap
 import com.example.common.BaseApplication
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.thirdparty.R
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format

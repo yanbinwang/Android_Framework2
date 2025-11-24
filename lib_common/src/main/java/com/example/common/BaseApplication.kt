@@ -12,18 +12,15 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
+import com.example.common.base.page.PageInterceptor
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
-import com.example.common.base.proxy.NetworkReceiver
-import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
 import com.example.common.config.Constants.SOCKET_DEAL_URL
 import com.example.common.config.Constants.SOCKET_FUNDS_URL
+import com.example.common.config.RouterPath
 import com.example.common.config.ServerConfig
-import com.example.common.event.EventCode.EVENT_OFFLINE
-import com.example.common.event.EventCode.EVENT_ONLINE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_ADVERTISE
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
@@ -31,7 +28,6 @@ import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.helper.ConfigHelper
 import com.example.common.utils.i18n.I18nUtil.getPackVersion
 import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
 import com.example.common.utils.i18n.LanguageUtil.resetLanguage
@@ -39,7 +35,6 @@ import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
-import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
@@ -51,6 +46,9 @@ import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
+import com.therouter.TheRouter
+import com.therouter.router.setRouterInterceptor
+import com.therouter.theRouterInited
 import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.unit.Subunits
 import java.util.Locale
@@ -66,10 +64,10 @@ abstract class BaseApplication : Application() {
     private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
     private val excludedRouterPaths by lazy {
         listOf(
-            ARouterPath.MainActivity,
-            ARouterPath.SplashActivity,
-//            ARouterPath.LinkActivity,
-//            ARouterPath.LinkHandlerActivity
+            RouterPath.MainActivity,
+            RouterPath.SplashActivity,
+//            RouterPath.LinkActivity,
+//            RouterPath.LinkHandlerActivity
         ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
     }
 
@@ -116,8 +114,8 @@ abstract class BaseApplication : Application() {
         initLanguage()
 //        // 解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
 //        closeAndroidPDialog()
-        // 阿里路由跳转初始化
-        initARouter()
+        // 路由跳转初始化
+        initRouter()
         // 部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
         initListener()
         // 全局刷新控件的样式
@@ -132,36 +130,15 @@ abstract class BaseApplication : Application() {
 //        initPrivacyAgreed()
     }
 
-//    private fun closeAndroidPDialog() {
-//        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-//            try {
-//                val aClass = Class.forName("android.content.pm.PackageParser\$Package")
-//                val declaredConstructor = aClass.getDeclaredConstructor(String::class.java)
-//                declaredConstructor.setAccessible(true)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//            try {
-//                val cls = Class.forName("android.app.ActivityThread")
-//                val declaredMethod = cls.getDeclaredMethod("currentActivityThread")
-//                declaredMethod.isAccessible = true
-//                val activityThread = declaredMethod.invoke(null)
-//                val mHiddenApiWarningShown = cls.getDeclaredField("mHiddenApiWarningShown")
-//                mHiddenApiWarningShown.isAccessible = true
-//                mHiddenApiWarningShown.setBoolean(activityThread, true)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//        }
-//    }
-
-    private fun initARouter() {
-        //开启调试模式(如果在InstantRun模式下运行，必须开启调试模式！线上版本需要关闭,否则有安全风险)
-        if (isDebug) {
-            ARouter.openLog()//打印日志
-            ARouter.openDebug()
+    private fun initRouter() {
+        // 手动初始化 TheRouter
+        if (!theRouterInited()) {
+            TheRouter.init(this)
         }
-        ARouter.init(this)
+        // 设置 debug 模式
+        TheRouter.isDebug = isDebug
+        // 设置全局AOP拦截器 将 PageInterceptor 设置为全局唯一的路由拦截器
+        setRouterInterceptor(PageInterceptor())
     }
 
     /**
@@ -197,7 +174,7 @@ abstract class BaseApplication : Application() {
                 if (AppManager.dequeCount <= 1) {
                     // 拉起首页(配置了singleTask,栈内不会重复)
                     needOpenHome.set(false)
-                    ARouter.getInstance().build(ARouterPath.MainActivity).navigation()
+                    TheRouter.build(RouterPath.MainActivity).navigation()
                 }
             }
         }

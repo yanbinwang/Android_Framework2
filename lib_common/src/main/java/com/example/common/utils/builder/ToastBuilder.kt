@@ -9,7 +9,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.databinding.ViewToastImageStyleBinding
 import com.example.common.utils.function.setPrimaryClip
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.inflate
 import java.lang.ref.WeakReference
 

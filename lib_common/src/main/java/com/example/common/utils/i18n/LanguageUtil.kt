@@ -45,7 +45,7 @@ object LanguageUtil {
      */
     @Language
     fun getLanguage(): String {
-        return language.get()
+        return language.get().orEmpty()
     }
 
     /**

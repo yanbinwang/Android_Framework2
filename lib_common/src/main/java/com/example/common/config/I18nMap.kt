@@ -14,6 +14,7 @@ object I18nMap {
         R.string.sure to "sure",
         R.string.cancel to "cancel",
         R.string.refresh to "refresh",
+        R.string.copySuccess to "copySuccess",
         R.string.permissionGoSetting to "permissionGoSetting",
         R.string.permissionCamera to "permissionCamera",
         R.string.permissionStorage to "permissionStorage",

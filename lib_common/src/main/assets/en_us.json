@@ -5,6 +5,7 @@
     "sure":"Sure",
     "cancel":"Cancel",
     "refresh":"Refresh",
+    "copySuccess":"Copied",
     "permissionGoSetting":"Lack\n%1$s please go to the settings page to enable",
     "permissionCamera":"Camera permission, which is used to take photos",
     "permissionStorage":"Storage permission, which is used to upload and save files",

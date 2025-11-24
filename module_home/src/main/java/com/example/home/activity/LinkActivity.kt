@@ -5,21 +5,18 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.BaseApplication
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getFadeOptions
-import com.example.common.base.page.getFadePreview
-import com.example.common.base.page.getNoneOptions
-import com.example.common.base.page.getPostcardClass
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.framework.utils.function.value.second
 import com.example.home.R
+import com.therouter.router.Route
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -33,7 +30,7 @@ import kotlinx.coroutines.launch
  * </style>
  * @author yan
  */
-@Route(path = ARouterPath.LinkActivity)
+@Route(path = RouterPath.LinkActivity)
 class LinkActivity : BaseActivity<Nothing>() {
     private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
@@ -76,29 +73,28 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     private fun onLink() {
-        //只要是推送，全局开启onFinish监听，拉起首页
-        BaseApplication.needOpenHome = true
         when (source) {
-            //推送消息
-            "push" -> {
-                if (!handlePush(this)) {
-                    timeOutJob?.cancel()
-                    navigation(ARouterPath.MainActivity, options = getFadePreview())
-                } else {
-                    finish()
-                }
-            }
+//            // 只要是推送，全局开启onFinish监听，拉起首页
+//            needOpenHome.set(true)
+//            "push" -> {
+//                if (!handlePush(this)) {
+//                    timeOutJob?.cancel()
+//                    navigation(ARouterPath.MainActivity, options = getFadePreview())
+//                } else {
+//                    finish()
+//                }
+//            }
             //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
             "normal" -> {
                 // 获取跳转的路由地址
-                val path = intentString(Extra.ID, ARouterPath.MainActivity)
+                val path = intentString(Extra.ID, RouterPath.MainActivity)
                 // 获取跳转的class
-                val clazz = path.getPostcardClass()
+                val clazz = path.getDestinationClass()
                 // 排除的页面
                 val excludedList = arrayListOf(clazz)
                 // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
-                if (path != ARouterPath.MainActivity) {
-                    excludedList.add(ARouterPath.MainActivity.getPostcardClass())
+                if (path != RouterPath.MainActivity) {
+                    excludedList.add(RouterPath.MainActivity.getDestinationClass())
                 }
                 AppManager.ensureMainActivityAliveWithFallback(this) {
                     // 跳转对应页面

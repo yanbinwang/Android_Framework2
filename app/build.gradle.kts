@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.devtools.ksp)
     // 只需在 Application 模块中配置即可
     id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
@@ -201,5 +202,5 @@ dependencies {
     implementation(project(":module_home"))
     implementation(project(":module_account"))
     // 页面路由
-    kapt(libs.alibaba.arouter.compiler)
+    ksp(libs.therouter.apt)
 }

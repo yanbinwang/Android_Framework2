@@ -8,6 +8,7 @@
     <string name="sure">確定</string>
     <string name="cancel">取消</string>
     <string name="refresh">刷新</string>
+    <string name="copySuccess">複製成功</string>
     <!-- 权限库的的提示语句 -->
     <string name="permissionGoSetting">缺少\n%1$s請前往設置頁面開啟</string>
     <string name="permissionCamera">相機權限,該權限用於拍攝照片</string>
