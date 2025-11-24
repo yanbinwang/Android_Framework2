@@ -35,14 +35,13 @@ class PageInterceptor : RouterInterceptor {
          * @return true: 需要拦截, false: 不需要拦截
          */
         @JvmStatic
-        fun shouldIntercept(routeItem: RouteItem?, onInterrupt: (Throwable?) -> Unit = {}): Boolean {
+        fun shouldIntercept(routeItem: RouteItem?, onInterrupt: (Throwable) -> Unit = {}): Boolean {
             routeItem ?: return false
             // 跳过登录页本身的拦截（避免循环跳转）
             if (routeItem.path == RouterPath.LoginActivity) {
                 "PageInterceptor ---> 跳过登录页本身的拦截".logE(TAG)
                 return false
             }
-            "PageInterceptor ---> 开始执行登录检查".logE(TAG)
             return try {
 //                val extrasMap = routeItem.getExtras().toMap()
 //                val needLogin  = extrasMap[INTERCEPTOR_LOGIN]
@@ -54,12 +53,21 @@ class PageInterceptor : RouterInterceptor {
                 /**
                  * 只校验登录的情况下,拿description比params更优雅
                  * 页面直接@Route(path = RouterPath.MainActivity, description = INTERCEPTOR_LOGIN)
-                 * "needLogin;needVIP" <-- 也可以多字段特殊处理
+                 * "needLogin;;needVIP" <-- 也可以多字段特殊处理
                  */
-                val flags = routeItem.description.split(";")
+                val flags = routeItem.description.split(";;")
+                // 是否登录拦截
                 val needLogin = flags.contains(INTERCEPTOR_LOGIN)
                 if (needLogin) {
-                    !AccountHelper.isLogin()
+                    "PageInterceptor ---> 开始执行登录检查".logE(TAG)
+                    // 进入拦截校验,检测本地用户是否登录
+                    val isLogin = AccountHelper.isLogin()
+                    if (!isLogin) {
+                        "PageInterceptor ---> 用户未登录且需要登录，跳转到登录页".logE(TAG)
+                        TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+                    }
+                    // 如果已经登录返回的则是false,正常走接下来的逻辑.true的话说明未登录,已经做了跳转处理
+                    !isLogin
                 } else {
                     false
                 }
@@ -71,23 +79,23 @@ class PageInterceptor : RouterInterceptor {
     }
 
     override fun process(routeItem: RouteItem, callback: InterceptorCallback) {
-        val isIntercepted = try {
-            shouldIntercept(routeItem) { throwable ->
-                "PageInterceptor ---> 路由配置异常: ${throwable?.message}".logE(TAG)
-                throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            return
-        }
-        if (isIntercepted) {
-            // 需要拦截，执行拦截后的操作
-            "PageInterceptor ---> 用户未登录且需要登录，跳转到登录页并中断原路由".logE(TAG)
-            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
-        } else {
-            // 不需要拦截，继续执行原路由
-            "PageInterceptor ---> 无需拦截，继续执行原路由".logE(TAG)
+        if (routeItem.getExtras().getBoolean(Extra.SKIP_INTERCEPT, false)) {
             callback.onContinue(routeItem)
+        } else {
+            val isIntercepted = try {
+                shouldIntercept(routeItem) { throwable ->
+                    "PageInterceptor ---> 路由配置异常: ${throwable.message}".logE(TAG)
+                    throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                return
+            }
+            if (!isIntercepted) {
+                // 不需要拦截，继续执行原路由
+                "PageInterceptor ---> 无需拦截，继续执行原路由".logE(TAG)
+                callback.onContinue(routeItem)
+            }
         }
     }
 

@@ -65,6 +65,8 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
     // 构建router跳转
     val navigator = TheRouter.build(path)
+    // createIntent内部会触发 PageInterceptor 的 process 方法,故而之前先set一个值,process内部做处理
+    navigator.withBoolean(Extra.SKIP_INTERCEPT, true)
     val intent = navigator.createIntent(this)
     /**
      * 添加标记 : 检查目标页面是否已经在任务栈中，在的话直接拉起来
@@ -136,14 +138,10 @@ fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thr
         // 调用全局拦截器的 shouldIntercept，确保规则统一
         val isIntercepted = shouldIntercept(routeItem) { throwable ->
             // 异常回调（比如路由参数配置错误）
-            onInterrupt(throwable)
+            throw throwable
         }
         // 根据拦截结果触发对应回调
-        if (isIntercepted) {
-            // 被拦截（比如未登录），触发 onInterrupt（无异常）
-            onInterrupt(null)
-        } else {
-            // 未被拦截，触发 onContinue
+        if (!isIntercepted) {
             onContinue()
         }
     } catch (e: Exception) {
