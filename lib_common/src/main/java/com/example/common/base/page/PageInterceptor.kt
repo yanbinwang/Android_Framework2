@@ -97,10 +97,7 @@ class PageInterceptor : RouterInterceptor {
         } else {
             val isIntercepted = try {
                 shouldIntercept(routeItem) { throwable ->
-                    throw IllegalArgumentException(
-                        "路由参数 '${INTERCEPTOR_LOGIN}' 配置错误",
-                        throwable
-                    )
+                    throw IllegalArgumentException("路由参数 '${INTERCEPTOR_LOGIN}' 配置错误", throwable)
                 }
             } catch (e: Exception) {
                 log(routeItem, "路由配置异常: ${e.message}")
