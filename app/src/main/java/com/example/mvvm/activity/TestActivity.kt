@@ -3,9 +3,8 @@ package com.example.mvvm.activity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.insertImageResolver
 import com.example.common.utils.function.isPathExists
@@ -16,12 +15,13 @@ import com.example.framework.utils.function.view.enable
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityTestBinding
 import com.example.thirdparty.media.utils.CameraHelper
+import com.therouter.router.Route
 import java.io.File
 
 /**
  * https://blog.csdn.net/YllP_1230/article/details/130317459
  */
-@Route(path = ARouterPath.TestActivity)
+@Route(path = RouterPath.TestActivity)
 class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
     private val camera by lazy { CameraHelper(this) }
 

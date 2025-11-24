@@ -6,21 +6,18 @@ import android.os.Bundle
 import android.os.SystemClock
 import android.view.MotionEvent
 import android.view.ViewTreeObserver
-import androidx.core.splashscreen.SplashScreen
-import androidx.core.splashscreen.SplashScreenViewProvider
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.getFadePreview
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.applyFullScreen
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.margin
-import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
+import com.therouter.router.Route
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -46,7 +43,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *  它返回的是自系统启动开始到调用该方法时所经过的时间，包含了系统处于睡眠状态的时间。也就是说，从设备开机（包括关机充电等情况）起，
  *  不管设备是处于正常运行、休眠还是其他状态，这个时间都会持续累加。该方法返回的时间单位是毫秒（ms
  */
-@Route(path = ARouterPath.SplashActivity)
+@Route(path = RouterPath.SplashActivity)
 class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     // 是否引入高版本启动页
     private val isHighVersion get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
@@ -166,7 +163,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
 //            } else {
 //                ARouterPath.LaunchActivity
 //            }, options = getFadePreview())
-            navigation(ARouterPath.MainActivity, options = getFadePreview())
+            navigation(RouterPath.MainActivity, options = getFadePreview())
         }
         if (isDelay) {
             launch(Main.immediate) {

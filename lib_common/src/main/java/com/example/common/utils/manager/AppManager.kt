@@ -6,12 +6,12 @@ import android.content.Intent
 import android.os.Process
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.BaseApplication
 import com.example.common.base.page.Extra
+import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
-import com.example.common.base.page.getPostcardClass
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
+import com.therouter.TheRouter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -337,8 +337,8 @@ object AppManager {
      * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
      * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun rebootTaskStackAndLaunchTarget(className: String? = ARouterPath.StartActivity) {
-        ARouter.getInstance().build(ARouterPath.LinkActivity)
+    fun rebootTaskStackAndLaunchTarget(className: String? = RouterPath.StartActivity) {
+        TheRouter.build(RouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
             .withString(Extra.ID, className)
             .navigation()
@@ -350,10 +350,10 @@ object AppManager {
      * 2)确保任务栈内至少存在一个页面
      */
     fun ensureMainActivityAliveWithFallback(context: Context, resp: () -> Unit) {
-        val mainClazz = ARouterPath.MainActivity.getPostcardClass()
+        val mainClazz = RouterPath.MainActivity.getDestinationClass()
         if (!isActivityAlive(mainClazz)) {
-            ARouter.getInstance().build(ARouterPath.MainActivity)
-                .withOptionsCompat(context.getNoneOptions())
+            TheRouter.build(RouterPath.MainActivity)
+                .withOptionsCompat(context.getNoneOptions()?.toBundle())
                 .navigation()
         }
         resp.invoke()
