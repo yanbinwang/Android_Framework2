@@ -1,13 +1,18 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.view.animation.Interpolator;
+import android.view.animation.Interpolator
+import com.example.framework.utils.function.value.toSafeInt
+import kotlin.math.min
 
 /**
- * <p>FastOutSlowInInterpolator.</p>
- * Created by Yan Zhenjie on 2017/5/17.
+ * 插值器（Interpolator）实现，定义动画进度（从 0.0 到 1.0）如何映射到实际的属性值变化率
+ * Created by yan
  */
-public class FastOutSlowInInterpolator implements Interpolator {
-    private static final float[] VALUES = new float[]{
+class FastOutSlowInInterpolator : Interpolator {
+    private val mStepSize = 1f / (VALUES.size - 1)
+
+    companion object {
+        private val VALUES = floatArrayOf(
             0.0000f, 0.0001f, 0.0002f, 0.0005f, 0.0009f, 0.0014f, 0.0020f,
             0.0027f, 0.0036f, 0.0046f, 0.0058f, 0.0071f, 0.0085f, 0.0101f,
             0.0118f, 0.0137f, 0.0158f, 0.0180f, 0.0205f, 0.0231f, 0.0259f,
@@ -37,31 +42,21 @@ public class FastOutSlowInInterpolator implements Interpolator {
             0.9955f, 0.9960f, 0.9964f, 0.9969f, 0.9973f, 0.9977f, 0.9980f,
             0.9984f, 0.9986f, 0.9989f, 0.9991f, 0.9993f, 0.9995f, 0.9997f,
             0.9998f, 0.9999f, 0.9999f, 1.0000f, 1.0000f
-    };
-
-    private final float mStepSize;
-
-    public FastOutSlowInInterpolator() {
-        mStepSize = 1f / (VALUES.length - 1);
+        )
     }
 
-    @Override
-    public float getInterpolation(float input) {
+    override fun getInterpolation(input: Float): Float {
         if (input >= 1.0f) {
-            return 1.0f;
+            return 1.0f
         }
         if (input <= 0f) {
-            return 0f;
+            return 0f
         }
-        // Calculate index - We use min with length - 2 to avoid IndexOutOfBoundsException when
-        // we lerp (linearly interpolate) in the return statement
-        int position = Math.min((int) (input * (VALUES.length - 1)), VALUES.length - 2);
-        // Calculate values to account for small offsets as the lookup table has discrete values
-        float quantized = position * mStepSize;
-        float diff = input - quantized;
-        float weight = diff / mStepSize;
-        // Linearly interpolate between the table values
-        return VALUES[position] + weight * (VALUES[position + 1] - VALUES[position]);
+        val position = min((input * (VALUES.size - 1)).toSafeInt(), VALUES.size - 2)
+        val quantized = position * mStepSize
+        val diff = input - quantized
+        val weight = diff / mStepSize
+        return VALUES[position] + weight * (VALUES[position + 1] - VALUES[position])
     }
 
 }

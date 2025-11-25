@@ -1,22 +1,23 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.content.Context;
-import android.util.DisplayMetrics;
+import android.content.Context
 
 /**
- * <p>Core utils.</p>
- * Created by Yan Zhenjie on 2017/5/17.
+ * 设备独立像素 (dp/dip) 和 像素 (px) 之间进行单位转换
+ * Created by yan
  */
-public class Utils {
+object Utils {
 
-    public static float dip2px(Context context, float dp) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return (float) ((displayMetrics.density + 0.5) * dp);
+    @JvmStatic
+    fun dip2px(context: Context, dp: Float): Float {
+        val displayMetrics = context.resources.displayMetrics
+        return ((displayMetrics.density + 0.5) * dp).toFloat()
     }
 
-    public static float px2dip(Context context, int px) {
-        DisplayMetrics displayMetrics = context.getResources().getDisplayMetrics();
-        return (float) (px / (displayMetrics.density + 0.5));
+    @JvmStatic
+    fun px2dip(context: Context, px: Int): Float {
+        val displayMetrics = context.resources.displayMetrics
+        return (px / (displayMetrics.density + 0.5)).toFloat()
     }
 
 }

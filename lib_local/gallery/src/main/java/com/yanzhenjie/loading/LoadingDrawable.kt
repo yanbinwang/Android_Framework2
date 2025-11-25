@@ -1,91 +1,79 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.graphics.Canvas;
-import android.graphics.ColorFilter;
-import android.graphics.PixelFormat;
-import android.graphics.Rect;
-import android.graphics.drawable.Animatable;
-import android.graphics.drawable.Drawable;
+import android.graphics.Canvas
+import android.graphics.ColorFilter
+import android.graphics.PixelFormat
+import android.graphics.Rect
+import android.graphics.drawable.Animatable
+import android.graphics.drawable.Drawable
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.toSafeInt
 
 /**
- * <p>Animation Drawable.</p>
- * Created by yanzhenjie on 17-3-27.
+ * 自定义 Drawable，专门用于实现 加载动画
+ * Created by yan
  */
-public class LoadingDrawable extends Drawable implements Animatable {
-    private final LoadingRenderer mLoadingRender;
-    private final Callback mCallback = new Callback() {
-        @Override
-        public void invalidateDrawable(Drawable d) {
-            invalidateSelf();
-        }
+class LoadingDrawable(private val mLoadingRender: LoadingRenderer?) : Drawable(), Animatable {
 
-        @Override
-        public void scheduleDrawable(Drawable d, Runnable what, long when) {
-            scheduleSelf(what, when);
-        }
+    init {
+        mLoadingRender?.setDrawable(this)
+        mLoadingRender?.setCallback(object : Callback {
+            override fun invalidateDrawable(who: Drawable) {
+                invalidateSelf()
+            }
 
-        @Override
-        public void unscheduleDrawable(Drawable d, Runnable what) {
-            unscheduleSelf(what);
-        }
-    };
+            override fun scheduleDrawable(who: Drawable, what: Runnable, millisecond: Long) {
+                scheduleSelf(what, millisecond)
+            }
 
-    public LoadingDrawable(LoadingRenderer loadingRender) {
-        this.mLoadingRender = loadingRender;
-        this.mLoadingRender.setCallback(mCallback);
+            override fun unscheduleDrawable(who: Drawable, what: Runnable) {
+                unscheduleSelf(what)
+            }
+        })
     }
 
-    @Override
-    protected void onBoundsChange(Rect bounds) {
-        super.onBoundsChange(bounds);
-        this.mLoadingRender.setBounds(bounds);
+    override fun onBoundsChange(bounds: Rect) {
+        super.onBoundsChange(bounds)
+        mLoadingRender?.setBounds(bounds)
     }
 
-    @Override
-    public void draw(Canvas canvas) {
-        if (!getBounds().isEmpty()) {
-            this.mLoadingRender.draw(canvas);
+    override fun draw(canvas: Canvas) {
+        if (!getBounds().isEmpty) {
+            mLoadingRender?.draw(canvas)
         }
     }
 
-    @Override
-    public void setAlpha(int alpha) {
-        this.mLoadingRender.setAlpha(alpha);
+    @Deprecated("Deprecated in Java")
+    override fun getOpacity(): Int {
+        return PixelFormat.TRANSLUCENT
     }
 
-    @Override
-    public void setColorFilter(ColorFilter cf) {
-        this.mLoadingRender.setColorFilter(cf);
+    override fun setAlpha(alpha: Int) {
+        mLoadingRender?.setAlpha(alpha)
     }
 
-    @Override
-    public int getOpacity() {
-        return PixelFormat.TRANSLUCENT;
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        mLoadingRender?.setColorFilter(colorFilter)
     }
 
-    @Override
-    public void start() {
-        this.mLoadingRender.start();
+    override fun isRunning(): Boolean {
+        return mLoadingRender?.isRunning().orFalse
     }
 
-    @Override
-    public void stop() {
-        this.mLoadingRender.stop();
+    override fun start() {
+        mLoadingRender?.start()
     }
 
-    @Override
-    public boolean isRunning() {
-        return this.mLoadingRender.isRunning();
+    override fun stop() {
+        mLoadingRender?.stop()
     }
 
-    @Override
-    public int getIntrinsicHeight() {
-        return (int) this.mLoadingRender.mHeight;
+    override fun getIntrinsicHeight(): Int {
+        return mLoadingRender?.mHeight.toSafeInt()
     }
 
-    @Override
-    public int getIntrinsicWidth() {
-        return (int) this.mLoadingRender.mWidth;
+    override fun getIntrinsicWidth(): Int {
+        return mLoadingRender?.mWidth.toSafeInt()
     }
 
 }

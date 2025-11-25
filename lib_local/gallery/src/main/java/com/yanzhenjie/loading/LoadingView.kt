@@ -1,70 +1,53 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.loading
 
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.View;
-import android.widget.ImageView;
-
-import androidx.appcompat.widget.AppCompatImageView;
+import android.content.Context
+import android.util.AttributeSet
+import android.view.View
+import androidx.appcompat.widget.AppCompatImageView
 
 /**
- * <p>Animation ImageView.</p>
- * Created by yanzhenjie on 17-3-27.
+ * 提供一个开箱即用的、带有动画效果的 “加载中” 视图
+ * Created by yan
  */
-public class LoadingView extends AppCompatImageView {
-    private LoadingDrawable mLoadingDrawable;
-    private LevelLoadingRenderer mLoadingRenderer;
+class LoadingView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
+    private var mLoadingDrawable: LoadingDrawable? = null
+    private var mLoadingRenderer: LevelLoadingRenderer? = null
 
-    public LoadingView(Context context) {
-        super(context);
+    init {
+        mLoadingRenderer = LevelLoadingRenderer(context)
+        mLoadingDrawable = LoadingDrawable(mLoadingRenderer)
+        setImageDrawable(mLoadingDrawable)
     }
 
-    public LoadingView(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        mLoadingRenderer = new LevelLoadingRenderer(context);
-        mLoadingDrawable = new LoadingDrawable(mLoadingRenderer);
-        setImageDrawable(mLoadingDrawable);
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        startAnimation()
     }
 
-    /**
-     * Set several colors of the circle.
-     */
-    public void setCircleColors(int r1, int r2, int r3) {
-        mLoadingRenderer.setCircleColors(r1, r2, r3);
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        stopAnimation()
     }
 
-    @Override
-    protected void onAttachedToWindow() {
-        super.onAttachedToWindow();
-        startAnimation();
-    }
-
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        stopAnimation();
-    }
-
-    @Override
-    protected void onVisibilityChanged(View changedView, int visibility) {
-        super.onVisibilityChanged(changedView, visibility);
-        if (visibility == View.VISIBLE) {
-            startAnimation();
+    override fun onVisibilityChanged(changedView: View, visibility: Int) {
+        super.onVisibilityChanged(changedView, visibility)
+        if (visibility == VISIBLE) {
+            startAnimation()
         } else {
-            stopAnimation();
+            stopAnimation()
         }
     }
 
-    private void startAnimation() {
-        if (mLoadingDrawable != null) {
-            mLoadingDrawable.start();
-        }
+    private fun startAnimation() {
+        mLoadingDrawable?.start()
     }
 
-    private void stopAnimation() {
-        if (mLoadingDrawable != null) {
-            mLoadingDrawable.stop();
-        }
+    private fun stopAnimation() {
+        mLoadingDrawable?.stop()
+    }
+
+    fun setCircleColors(r1: Int, r2: Int, r3: Int) {
+        mLoadingRenderer?.setCircleColors(r1, r2, r3)
     }
 
 }
