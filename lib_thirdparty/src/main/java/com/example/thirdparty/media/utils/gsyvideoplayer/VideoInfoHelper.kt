@@ -1,7 +1,9 @@
 package com.example.thirdparty.media.utils.gsyvideoplayer
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.media.MediaMetadataRetriever
+import androidx.core.net.toUri
 import com.example.common.utils.ScreenUtil
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
@@ -162,12 +164,21 @@ object VideoInfoHelper {
      * @param timeUs 截取帧的时间点（微秒，如 1000000 表示 1秒处）
      * @return 缩略图 Bitmap，失败返回 null
      */
-    suspend fun suspendingThumbnail(videoUrl: String, timeUs: Long = 1000000L): Bitmap? {
+    suspend fun suspendingThumbnail(context: Context, videoUrl: String, timeUs: Long = 1000000L): Bitmap? {
         val retriever = MediaMetadataRetriever()
         return withContext(Dispatchers.IO) {
             try {
-                // 设置数据源
-                retriever.setDataSource(videoUrl)
+                // 根据 URL 类型设置不同的 DataSource
+                if (videoUrl.startsWith("http://") || videoUrl.startsWith("https://")) {
+                    // 网络 URL，使用带 headers 的重载方法，可以传入空的 headers 以提高兼容性
+                    retriever.setDataSource(videoUrl, HashMap())
+                } else if (videoUrl.startsWith("content://")) {
+                    // Content Provider URI (例如从系统相册选择的视频)
+                    retriever.setDataSource(context, videoUrl.toUri())
+                } else {
+                    // 本地文件路径
+                    retriever.setDataSource(videoUrl)
+                }
                 // 获取指定时间点的帧（返回 Bitmap）OPTION_CLOSEST 表示取最接近该时间的帧
                 retriever.getFrameAtTime(timeUs, MediaMetadataRetriever.OPTION_CLOSEST)
             } catch (e: Exception) {

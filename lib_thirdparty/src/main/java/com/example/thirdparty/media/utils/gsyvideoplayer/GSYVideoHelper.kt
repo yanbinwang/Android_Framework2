@@ -409,7 +409,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     mBinding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
                     thumbJob = mActivity.lifecycleScope.launch {
-                        val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(url) }
+                        val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(mActivity, url) }
                         if (null != bitmap) {
                             mBinding.ivThumb.setBitmap(mActivity, bitmap)
                         } else {
