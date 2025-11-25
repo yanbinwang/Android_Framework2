@@ -9,6 +9,7 @@ import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.cardview.widget.CardView
+import androidx.core.net.toUri
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -175,7 +176,7 @@ class ImageLoader private constructor() {
      * @param videoUrl 视频的 URL 地址
      * @param frameTimeMicros 要提取的帧的时间（微秒）
      */
-    fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String?, frameTimeMicros: Long = 1000000000, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadVideoFrameFromUrl(view: ImageView?, videoUrl: String, frameTimeMicros: Long = 1000000000, onLoadStart: () -> Unit = {}, onLoadComplete: (bitmap: Bitmap?) -> Unit = {}) {
         view ?: return
         view.doOnceAfterLayout {
             try {
@@ -193,17 +194,20 @@ class ImageLoader private constructor() {
                     .format(DecodeFormat.PREFER_ARGB_8888)
                     // 禁用硬件解码，提高兼容性
                     .disallowHardwareConfig()
+                    // 强制编码为 PNG（兼容所有设备）
+                    .encodeFormat(Bitmap.CompressFormat.PNG)
                 // 开始尝试加载视频1s的图片
                 Glide.with(view.context)
-                    .setDefaultRequestOptions(options)
-                    .load(videoUrl)
+                    .asBitmap()
+                    .load(videoUrl.toUri())
+                    .apply(options)
                     .smartFade(view)
-                    .listener(object : GlideRequestListener<Drawable>() {
+                    .listener(object : GlideRequestListener<Bitmap>() {
                         override fun onLoadStart() {
                             onLoadStart()
                         }
 
-                        override fun onLoadFinished(resource: Drawable?) {
+                        override fun onLoadFinished(resource: Bitmap?) {
                             onLoadComplete(resource)
                         }
                     })
