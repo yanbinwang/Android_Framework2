@@ -62,8 +62,6 @@ dependencies {
     // 高德三方扩展
     api(project(":lib_local:amap_sdk"))
     // 数据库
-    api(project(":lib_local:greendao"))
-    // 数据库2
     api(project(":lib_local:objectbox"))
     // 相册
     api(project(":lib_local:gallery"))

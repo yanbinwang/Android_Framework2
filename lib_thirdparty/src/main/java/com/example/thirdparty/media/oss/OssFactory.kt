@@ -34,7 +34,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import com.example.greendao.bean.OssDB
+import com.example.objectbox.dao.OssDB
 import com.example.thirdparty.media.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.media.oss.network.OssApi
@@ -364,7 +364,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 完成时候的回调
      */
     private fun response(isSuccess: Boolean, query: OssDB, fileType: String, recordDirectory: String?, percentage: Int = 0, errorMessage: String? = "") {
-        val baoquan = query.baoquan
+        val baoquan = query.baoquan.orEmpty()
         if (isSuccess) {
             // 全部传完停止服务器
             if (percentage == 100) {

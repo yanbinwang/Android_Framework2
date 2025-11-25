@@ -3,16 +3,13 @@ package com.example.mvvm
 import android.content.Context
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
-import com.example.common.config.Constants.VERSION_NAME
 import com.example.common.utils.builder.generateCrashLog
 import com.example.common.utils.builder.saveCrashLogToFile
 import com.example.framework.utils.function.value.isDebug
 import com.example.gallery.GlideLoader
-import com.example.greendao.dao.DaoMaster
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
 import com.example.thirdparty.media.oss.OssDBHelper
-import com.example.thirdparty.media.oss.OssDBHelper2
 import com.example.thirdparty.media.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
 import com.example.thirdparty.utils.wechat.WXManager
@@ -29,7 +26,6 @@ import kotlin.system.exitProcess
  */
 class MyApplication : BaseApplication() {
     // 数据库
-    private lateinit var daoMaster: DaoMaster
     private lateinit var boxStore: BoxStore
 
     companion object {
@@ -57,7 +53,6 @@ class MyApplication : BaseApplication() {
         initAlbum()
         // 数据库初始化
         initDao()
-        initOssDao()
         // 初始化oss
         initOss()
         // 初始化进程监听
@@ -127,15 +122,6 @@ class MyApplication : BaseApplication() {
 
     private fun initDao() {
         // 确保只初始化一次（Kotlin内部处理线程安全）
-        if (!::daoMaster.isInitialized) {
-            try {
-                val dbOpenHelper = DaoMaster.DevOpenHelper(applicationContext, "${VERSION_NAME}.db", null)
-                val readableDb = dbOpenHelper.readableDb
-                daoMaster = DaoMaster(readableDb)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
         if (!::boxStore.isInitialized) {
             boxStore = MyObjectBox.builder()
                 .androidContext(applicationContext)
@@ -143,12 +129,8 @@ class MyApplication : BaseApplication() {
         }
     }
 
-    private fun initOssDao() {
-        OssDBHelper.init(daoMaster.newSession().ossDBDao)
-        OssDBHelper2.init(boxStore)
-    }
-
     private fun initOss() {
+        OssDBHelper.init(boxStore)
         OssFactory.instance.initialize()
     }
 
