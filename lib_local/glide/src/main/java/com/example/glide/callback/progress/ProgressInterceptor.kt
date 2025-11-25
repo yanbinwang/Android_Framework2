@@ -33,21 +33,20 @@ class ProgressInterceptor : Interceptor {
                 listenerMap.remove(url)
             }
         }
-
     }
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
         val url = request.url.toString()
-        // 如果没有注册监听器，直接返回原始响应
-        listenerMap[url] ?: return chain.proceed(request)
+        // 获取 listener 实例 , 如果没有注册监听器，直接返回原始响应
+        val listener = listenerMap[url] ?: return chain.proceed(request)
         // 如果有监听器，则继续执行请求，并包装响应体
         val response = chain.proceed(request)
         val body = response.body
         // 将 listener 直接传递给 ProgressResponseBody，而不是让它再去 Map 里取
         return response.newBuilder()
-            .body(ProgressResponseBody(url, body))
+            .body(ProgressResponseBody(body, listener))
             .build()
     }
 

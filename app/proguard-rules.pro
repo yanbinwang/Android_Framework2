@@ -440,7 +440,7 @@
 -keep class com.alibaba.sdk.android.oss.** { *; }
 -dontwarn okio.**
 -dontwarn org.apache.commons.codec.binary.**
-# ---------------------------- 阿里ARouter混淆 ----------------------------
+# ---------------------------- 货拉拉TheRouter混淆 ----------------------------
 # need add for Fragment page route
 # -keep public class * extends android.app.Fragment
 # -keep public class * extends androidx.fragment.app.Fragment
