@@ -53,6 +53,57 @@ import kotlin.reflect.KProperty
  * 所有ViewModel的基类，将本该属于BaseActivity的部分逻辑和操作View的相关方法放入该类实现
  * 注入BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类Activity的基础控件和方法
  * LifecycleObserver-->观察宿主的生命周期
+ * public class VideoPlayer {
+ *     private final LifecycleOwner lifecycleOwner;
+ *     private String videoUrl;
+ *
+ *     // 构造函数接收一个 LifecycleOwner
+ *     public VideoPlayer(LifecycleOwner owner, String videoUrl) {
+ *         this.lifecycleOwner = owner;
+ *         this.videoUrl = videoUrl;
+ *         // 将自身作为观察者注册到 LifecycleOwner 的 Lifecycle 上
+ *         owner.getLifecycle().addObserver(new MyLifecycleObserver());
+ *     }
+ *
+ *     public void play() {
+ *         // 播放视频的逻辑
+ *         System.out.println("Playing video: " + videoUrl);
+ *     }
+ *
+ *     public void pause() {
+ *         // 暂停视频的逻辑
+ *         System.out.println("Paused video: " + videoUrl);
+ *     }
+ *
+ *     public void release() {
+ *         // 释放资源的逻辑
+ *         System.out.println("Released video resources for: " + videoUrl);
+ *     }
+ *
+ *     // 内部类，作为真正的观察者
+ *     private class MyLifecycleObserver implements LifecycleObserver {
+ *
+ *         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+ *         public void onResume() {
+ *             // 当 LifecycleOwner (如 Activity) 进入前台时，开始播放
+ *             play();
+ *         }
+ *
+ *         @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+ *         public void onPause() {
+ *             // 当 LifecycleOwner 进入后台时，暂停播放
+ *             pause();
+ *         }
+ *
+ *         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+ *         public void onDestroy() {
+ *             // 当 LifecycleOwner 销毁时，释放资源
+ *             release();
+ *             // 注意：在 ON_DESTROY 事件中，LifecycleOwner 已经即将销毁，
+ *             // 此时不应再调用 getLifecycle() 或其他可能访问其状态的方法。
+ *         }
+ *     }
+ * }
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
@@ -234,12 +285,6 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
 
     private fun finishRefreshing(hasNextPage: Boolean? = true) {
         mRefresh?.finishRefreshing(!hasNextPage.orTrue)
-//        val recycler = mRecycler
-//        if (recycler == null) {
-//            mRefresh?.finishRefreshing()
-//        } else {
-//            recycler.finishRefreshing(!hasNextPage.orTrue)
-//        }
     }
 
     /**
