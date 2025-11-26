@@ -107,29 +107,29 @@ import kotlin.reflect.KProperty
  */
 @SuppressLint("StaticFieldLeak")
 abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
-    //基础引用
-    private var weakActivity: WeakReference<FragmentActivity?>? = null//引用的activity
-    private var weakView: WeakReference<BaseView?>? = null//基础UI操作
-    //部分view的操作交予viewmodel去操作，不必让activity去操作
-    private var weakEmpty: WeakReference<EmptyLayout?>? = null//遮罩UI
-    private var weakRecycler: WeakReference<XRecyclerView?>? = null//列表UI
-    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null//刷新控件
-    private var weakLifecycleOwner: WeakReference<LifecycleOwner?>? = null//全局生命周期订阅
-    //分页
+    // 基础引用
+    private var weakActivity: WeakReference<FragmentActivity?>? = null // 引用的activity
+    private var weakView: WeakReference<BaseView?>? = null // 基础UI操作
+    // 部分view的操作交予viewmodel去操作，不必让activity去操作
+    private var weakEmpty: WeakReference<EmptyLayout?>? = null // 遮罩UI
+    private var weakRecycler: WeakReference<XRecyclerView?>? = null // 列表UI
+    private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null // 刷新控件
+    private var weakLifecycleOwner: WeakReference<LifecycleOwner?>? = null // 全局生命周期订阅
+    // 分页
     private val paging by lazy { Paging() }
-    //全局倒计时时间点
+    // 全局倒计时时间点
     protected var lastRefreshTime = 0L
-    //基础的注入参数
+    // 基础的注入参数
     protected val mActivity: FragmentActivity? get() = weakActivity?.get() ?: AppManager.currentActivity() as? FragmentActivity
     protected val mContext: Context? get() = mActivity
     protected val mView: BaseView? get() = weakView?.get()
-    //获取对应的控件/分页类/生命周期订阅者/类名
+    // 获取对应的控件/分页类/生命周期订阅者/类名
     protected val mEmpty get() = weakEmpty?.get()
     protected val mRecycler get() = weakRecycler?.get()
     protected val mRefresh get() = weakRefresh?.get()
     protected val mLifecycleOwner get() = weakLifecycleOwner?.get()
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    //弹框/获取权限/协程管理类/viewmodel命名
+    // 弹框/获取权限/协程管理类/viewmodel命名
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     protected val mJobManager by lazy { JobManager(mLifecycleOwner) }
@@ -147,27 +147,27 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      */
     fun setExtraView(view: View?, refresh: SmartRefreshLayout? = null) {
         view ?: return
-        //处理 view 的类型，设置 weakEmpty 和 weakRecycler
+        // 处理 view 的类型，设置 weakEmpty 和 weakRecycler
         when (view) {
-            //传入BaseTitleActivity中写好的容器viewGroup
+            // 传入BaseTitleActivity中写好的容器viewGroup
             is FrameLayout -> {
                 weakEmpty = WeakReference(view.getEmptyView(1))
                 mEmpty?.setWindows(true)
             }
-            //界面上绘制好empty
+            // 界面上绘制好empty
             is EmptyLayout -> weakEmpty = WeakReference(view)
-            //传入用于刷新的empty
+            // 传入用于刷新的empty
             is XRecyclerView -> {
                 weakRecycler = WeakReference(view)
                 weakEmpty = WeakReference(view.empty)
-                //如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
+                // 如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
                 if (view.isRefresh() && refresh == null) {
                     weakRefresh = WeakReference(view.refresh)
                 }
             }
-            //外层下拉刷新的控件
+            // 外层下拉刷新的控件
             is SmartRefreshLayout -> {
-                //仅在未显式传入 refresh 时从 view 中获取刷新控件
+                // 仅在未显式传入 refresh 时从 view 中获取刷新控件
                 if (refresh == null) {
                     weakRefresh = WeakReference(view)
                 }
@@ -314,7 +314,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
             weakRefresh?.clear()
             weakLifecycleOwner?.clear()
         }.onFailure { e ->
-            //处理清除 WeakReference 时的异常
+            // 处理清除 WeakReference 时的异常
             e.printStackTrace()
         }
     }
