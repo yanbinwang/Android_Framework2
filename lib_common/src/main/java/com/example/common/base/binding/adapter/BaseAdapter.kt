@@ -245,6 +245,18 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 仅刷新符合条件的item（无需修改Adapter数据）
+     * 适用场景：Holder 中部分值来自非 Data Class 数据源（如本地缓存、ViewModel 状态、临时变量），仅需触发重新绑定
+     */
+    fun changed(func: ((T) -> Boolean)) {
+        data.findIndexOf(func).apply {
+            if (this != -1) {
+                notifyItemChanged(this)
+            }
+        }
+    }
+
+    /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      * @param func 查找条件
      * @param bean 新数据（非空）
