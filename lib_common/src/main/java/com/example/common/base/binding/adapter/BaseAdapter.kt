@@ -178,7 +178,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * onEmpty：当前适配器的集合为空时才会回调
      */
     fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
-        list ?: return
+        if (null == list || list.isEmpty() || itemType != LIST) return
         if (hasRefresh.orFalse) {
             refresh(list)
         } else {
@@ -249,6 +249,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 适用场景：Holder 中部分值来自非 Data Class 数据源（如本地缓存、ViewModel 状态、临时变量），仅需触发重新绑定
      */
     fun changed(func: ((T) -> Boolean)) {
+        if (itemType != LIST) return
         data.findIndexOf(func).apply {
             if (this != -1) {
                 notifyItemChanged(this)
