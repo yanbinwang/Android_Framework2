@@ -13,6 +13,7 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import java.util.Collections
 
 /**
  * Created by WangYanBin on 2020/7/17.
@@ -178,14 +179,49 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
         list ?: return
-        if (hasRefresh.orFalse) refresh(list) else insert(list)
-        if (size() == 0) onEmpty.invoke()
+        if (hasRefresh.orFalse) {
+            refresh(list)
+        } else {
+            insert(list)
+        }
+        if (size() == 0) {
+            onEmpty.invoke()
+        }
     }
 
     fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        viewModel?.apply {
-            notify(list, hasRefresh()) { empty(resId, text, refreshText, width, height) }
-            setCurrentCount(size())
+        viewModel?.let {
+            notify(list, it.hasRefresh()) {
+                it.empty(resId, text, refreshText, width, height)
+            }
+            it.setCurrentCount(size())
+        }
+    }
+
+    /**
+     * 更新固定集合
+     * 1) 假设两组集合长度相同，固定socket推送
+     * 2) 重写T的equals和hashCode
+     */
+    fun update(list: List<T>?) {
+        if (null == list || list.isEmpty() || itemType != LIST) return
+        // 添加长度检查，防止意外情况
+        if (list.safeSize != size()) {
+            refresh(list)
+            return
+        }
+        // 遍历新集合和旧集合，找出不相等元素的下标
+        val diffPairs = list.zip(data)
+            // 查询出发生改变的下标和对象 --> List<Pair<Int, T>>
+            .mapIndexed { index, (newItem, oldItem) ->
+                // 如果if条件不满足,返回null
+                (index to newItem).takeIf { newItem != oldItem }
+            }
+            // 筛选掉null的值
+            .filterNotNull()
+        // 更新数据
+        diffPairs.forEach { (index, item) ->
+            changed(index, item)
         }
     }
 
@@ -193,7 +229,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 刷新集合
      */
     fun refresh(list: List<T>?) {
-        if (null == list) return
+        if (null == list || itemType != LIST) return
         data.clear()
         data.addAll(list)
         notifyDataSetChanged()
@@ -209,75 +245,28 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
-     * 更新固定集合
-     * 1) 假设两组集合长度相同，固定socket推送
-     * 2) 重写T的equals和hashCode
-     */
-    fun update(list: List<T>?) {
-        if (null == list || list.isEmpty()) return
-        // 添加长度检查，防止意外情况
-        if (list.safeSize != data.safeSize) {
-            data.clear()
-            data.addAll(list)
-            notifyDataSetChanged()
-            return
-        }
-        // 遍历新集合和旧集合，找出不相等元素的下标
-        val diffIndices = mutableListOf<Int>()
-        for (i in list.indices) {
-            if (i < data.safeSize && list.safeGet(i) != data.safeGet(i)) {
-                diffIndices.add(i)
-            }
-        }
-        // 更新数据
-        data.clear()
-        data.addAll(list)
-        // 刷新不同的项
-        for (index in diffIndices) {
-            // 这里直接使用 index 来更新对应位置的项
-            notifyItemChanged(index)
-        }
-    }
-
-    /**
-     * 刷新符合条件的item（数据在item内部更改）
-     */
-    fun changed(func: ((T) -> Boolean)) {
-        data.findIndexOf(func).apply {
-            if (this != -1) notifyItemChanged(this)
-        }
-    }
-
-    /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
+     * @param func 查找条件
+     * @param bean 新数据（非空）
+     * @param payloads 局部刷新参数（可选）
      */
-    fun changed(func: ((T) -> Boolean), bean: T?) {
-        changed(findIndex(func), bean)
+    fun changed(func: ((T) -> Boolean), bean: T?, payloads: MutableList<Any>? = null) {
+        changed(findIndex(func), bean, payloads)
     }
 
     /**
-     * 传入要改变的对象和对象下标，直接刷新对应item
+     * 传入下标+新数据，刷新对应item（支持局部刷新）
+     * @param index 目标下标
+     * @param bean 新数据（非空）
+     * @param payloads 局部刷新参数（可选）
      */
-    fun changed(index: Int?, bean: T?) {
-        if (null == index || null == bean) return
+    fun changed(index: Int?, bean: T?, payloads: MutableList<Any>? = null) {
+        if (null == index || null == bean || itemType != LIST) return
         if (index in data.indices) {
             data.safeSet(index, bean)
-            notifyItemChanged(index)
-        }
-    }
-
-    /**
-     * 传入符合条件的下标，给到需要刷新的payloads，以及对应的新data class
-     */
-    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>, bean: T?) {
-        changed(data.findIndexOf(func), payloads, bean)
-    }
-
-    fun changed(index: Int?, payloads: MutableList<Any>, bean: T?) {
-        if (null == index || null == bean) return
-        if (index in data.indices) {
-            data.safeSet(index, bean)
-            notifyItemChanged(index, payloads)
+            // payloads为空时传null，触发全量绑定（和无payload逻辑一致）
+            val finalPayloads = payloads.takeIf { it?.isNotEmpty() == true }
+            notifyItemChanged(index, finalPayloads)
         }
     }
 
@@ -285,7 +274,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 在列表末尾批量插入集合
      */
     fun insert(list: List<T>?) {
-        if (null == list || list.isEmpty()) return
+        if (null == list || list.isEmpty() || itemType != LIST) return
         val positionStart = size()
         data.addAll(list)
         notifyItemRangeInserted(positionStart, list.safeSize)
@@ -295,23 +284,35 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 在指定下标批量插入集合
      */
     fun insert(position: Int?, list: List<T>?) {
-        if (null == position || null == list || list.isEmpty()) return
-        if (position < 0 || position > data.safeSize) return
+        if (null == position || null == list || list.isEmpty() || itemType != LIST) return
+        // 记录插入前长度（避免数据变化后计算偏差）
+        val oldSize = data.safeSize
+        if (position < 0 || position > oldSize) return
         data.addAll(position, list)
         notifyItemRangeInserted(position, list.safeSize)
+        // 通知后续Item：下标变化，需要重新绑定
+        val startPosition = position + list.safeSize // 插入后的下一个位置
+        val itemCount = oldSize - position // 后续需要更新的Item数量
+        if (itemCount > 0) {
+            notifyItemRangeChanged(startPosition, itemCount)
+        }
     }
 
     /**
      * 在指定下标插入单个对象
+     * 只有 “插入位置不是末尾” 时，才需要加 notifyItemRangeChanged
      */
     fun insert(position: Int?, item: T?) {
-        if (null == position || null == item) return
-        if (position < 0 || position > data.safeSize) return
+        if (null == position || null == item || itemType != LIST) return
+        // 先记录插入前的长度
+        val oldSize = data.safeSize
+        if (position < 0 || position > oldSize) return
         data.add(position, item)
         notifyItemInserted(position)
         // 通知从插入位置的下一个位置开始，后面所有的 Item 都需要重新绑定，因为位置变了
         val startPosition = position + 1
-        val itemCount = data.safeSize - startPosition
+        // 用旧长度计算：后续需要更新的Item数量
+        val itemCount = oldSize - position
         if (itemCount > 0) {
             notifyItemRangeChanged(startPosition, itemCount)
         }
@@ -321,9 +322,9 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 在列表末尾插入单个对象
      */
     fun insert(item: T?) {
-        if (null == item) return
+        if (null == item || itemType != LIST) return
         data.add(item)
-        notifyItemInserted(data.safeSize - 1)
+        notifyItemInserted(size() - 1)
     }
 
     /**
@@ -337,12 +338,12 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 删除指定下标对象
      */
     fun removed(index: Int?) {
-        if (null == index) return
+        if (null == index || itemType != LIST) return
         if (index in data.indices) {
             data.removeAt(index)
             notifyItemRemoved(index)
             // 通知从删除位置开始的所有Item，它们的位置可能发生了变化，需要重新绑定，这里的 itemCount 是 data.safeSize - index，因为删除后 data 的 size 已经减小了 1
-            notifyItemRangeChanged(index, data.safeSize - index)
+            notifyItemRangeChanged(index, size() - index)
         }
     }
 
@@ -350,6 +351,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 查找并返回符合条件的对象
      */
     fun findItem(func: ((T) -> Boolean)): T? {
+        if (itemType != LIST) return null
         val index = data.findIndexOf(func)
         return data.safeGet(index)
     }
@@ -357,7 +359,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 查找到符合条件的对象，返回下标和对象本身，调用notifyItemChanged（position）修改改变的值
      */
-    fun findItemOf(func: ((T) -> Boolean)): Pair<Int, T?> {
+    fun findItemOf(func: ((T) -> Boolean)): Pair<Int, T?>? {
+        if (itemType != LIST) return null
         val index = data.findIndexOf(func)
         return index to data.safeGet(index)
     }
@@ -366,6 +369,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 查找符合条件的data数据总数
      */
     fun findCount(func: ((T) -> Boolean)): Int {
+        if (itemType != LIST) return -1
         return data.filter(func).safeSize
     }
 
@@ -373,6 +377,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 返回查找到的符合条件的下标
      */
     fun findIndex(func: ((T) -> Boolean)): Int {
+        if (itemType != LIST) return -1
         return data.findIndexOf(func)
     }
 
@@ -380,22 +385,18 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 根据下标获取对象
      */
     fun item(position: Int?): T? {
-        if (position == null) return null
+        if (position == null || itemType != LIST) return null
         return data.safeGet(position)
     }
 
     /**
      * 获取当前集合
+     * 直接返回 data 引用，外部可能会直接 adapter.list().clear() 或 add()，导致数据和 UI 不同步
      */
     fun list(): MutableList<T> {
-        return data
-    }
-
-    /**
-     * 获取当前集合长度
-     */
-    fun size(): Int {
-        return if (itemType == LIST) data.safeSize else 1
+//        return data
+        // 返回不可变视图
+        return Collections.unmodifiableList(data)
     }
 
     /**
@@ -403,6 +404,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun bean(): T? {
         return t
+    }
+
+    /**
+     * 获取当前集合长度
+     */
+    fun size(): Int {
+        return if (itemType == LIST) data.safeSize else 1
     }
 
     /**
