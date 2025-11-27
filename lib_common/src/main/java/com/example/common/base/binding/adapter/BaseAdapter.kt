@@ -189,10 +189,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         }
     }
 
-    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun <VM : BaseViewModel> notify(list: List<T>?, viewModel: VM?, resId: Int? = null, resText: Int? = null, refreshText: Int? = null, width: Int? = null, height: Int? = null) {
         viewModel?.let {
             notify(list, it.hasRefresh()) {
-                it.empty(resId, text, refreshText, width, height)
+                it.empty(resId, resText, refreshText, width, height)
             }
             it.setCurrentCount(size())
         }
