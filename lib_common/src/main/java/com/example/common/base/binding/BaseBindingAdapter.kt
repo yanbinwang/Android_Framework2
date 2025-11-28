@@ -19,6 +19,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.config.Constants.NO_DATA
+import com.example.common.utils.function.color
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.load
@@ -63,13 +64,17 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) view.margin(top = getStatusBarHeight())
+        if (statusBarMargin.orFalse) {
+            view.margin(top = getStatusBarHeight())
+        }
     }
 
     @JvmStatic
     @BindingAdapter(value = ["statusBar_padding"])
     fun bindingStatusBarPadding(view: View, statusBarPadding: Boolean?) {
-        if (statusBarPadding.orFalse) view.padding(top = getStatusBarHeight())
+        if (statusBarPadding.orFalse) {
+            view.padding(top = getStatusBarHeight())
+        }
     }
 
     /**
@@ -170,11 +175,11 @@ object BaseBindingAdapter {
      * }
      *
      * 特殊文本显示文本
-     * text:文本文案
-     * spannable:高亮文本文案
-     * textColor:文本颜色
-     * background:view背景
-     * visibility:view可见性
+     * @text:文本文案 -> "普通文本"
+     * @spannable:高亮文本文案 -> TextSpan().add("高亮文本", ColorSpan(color(R.color.bgMain))).build()
+     * @textColor:文本颜色 -> "文本颜色(@ColorInt):${R.color.bgBlack}"
+     * @background:view背景 -> "背景:${R.drawable.shape_r20_grey}"
+     * @visibility:view可见性 -> "可见性:${View.VISIBLE}"
      *
      * textview.setSpanAll(text, keyText, keyColor.toSafeInt(R.color.textOrange))
      * textview.setSpanFirst(text, keyText, keyColor.toSafeInt(R.color.textOrange))
@@ -183,7 +188,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
     fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
-        //处理文本设置
+        // 处理文本设置
         text?.let { newText ->
             val textKey = R.id.theme_text_tag
             val oldText = view.getTag(textKey) as? String
@@ -192,7 +197,7 @@ object BaseBindingAdapter {
                 view.setTag(textKey, newText)
             }
         }
-        //处理高亮文本
+        // 处理高亮文本
         spannable?.let { newSpannable ->
             val spanKey = R.id.theme_spannable_tag
             val oldSpan = view.getTag(spanKey) as? Spannable
@@ -201,20 +206,20 @@ object BaseBindingAdapter {
                 view.setTag(spanKey, newSpannable)
             }
         }
-        //文本是必须要加载出来的
+        // 文本是必须要加载出来的
         if (text == null && spannable == null) {
             view.text = NO_DATA
         }
-        //处理文本颜色设置
+        // 处理文本颜色设置
         textColor?.let { newTextColor ->
             val textColorKey = R.id.theme_text_color_tag
             val oldTextColor = view.getTag(textColorKey) as? Int
             if (oldTextColor != newTextColor) {
-                view.setTextColor(newTextColor)
+                view.setTextColor(color(newTextColor))
                 view.setTag(textColorKey, newTextColor)
             }
         }
-        //处理背景设置
+        // 处理背景设置
         background?.let { newBackground ->
             val backgroundKey = R.id.theme_background_tag
             val oldBackground = view.getTag(backgroundKey) as? Int
@@ -223,7 +228,7 @@ object BaseBindingAdapter {
                 view.setTag(backgroundKey, newBackground)
             }
         }
-        //处理可见性设置
+        // 处理可见性设置
         visibility?.let { newVisibility ->
             val visibilityKey = R.id.theme_visibility_tag
             val oldVisibility = view.getTag(visibilityKey) as? Int
@@ -400,7 +405,9 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["emoji_limit"])
     fun bindingEditTextEmojiLimit(editText: EditText, emojiLimit: Boolean?) {
-        if (emojiLimit.orFalse) editText.emojiLimit()
+        if (emojiLimit.orFalse) {
+            editText.emojiLimit()
+        }
     }
 
     /**
@@ -409,13 +416,17 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["space_limit"])
     fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
-        if (spaceLimit.orFalse) editText.spaceLimit()
+        if (spaceLimit.orFalse) {
+            editText.spaceLimit()
+        }
     }
 
     @JvmStatic
     @BindingAdapter(value = ["space_limit"])
     fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
-        if (spaceLimit.orFalse) editText.editText.spaceLimit()
+        if (spaceLimit.orFalse) {
+            editText.editText.spaceLimit()
+        }
     }
 
     /**
@@ -424,13 +435,17 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
     fun bindingEditTextNumberDecimal(editText: EditText, numberDecimal: Boolean?) {
-        if(numberDecimal.orFalse) editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        if(numberDecimal.orFalse) {
+            editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
     }
 
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
     fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
-        if(numberDecimal.orFalse) editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        if(numberDecimal.orFalse) {
+            editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        }
     }
 
     /**
