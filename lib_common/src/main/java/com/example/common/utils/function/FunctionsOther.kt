@@ -23,7 +23,6 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
-import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toDrawable
@@ -46,9 +45,9 @@ import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
-import com.example.framework.utils.function.font
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
@@ -196,19 +195,38 @@ inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: In
  * 获取resources中的color
  */
 @ColorInt
-fun color(@ColorRes res: Int) = BaseApplication.instance.applicationContext.color(res)
+fun color(@ColorRes res: Int): Int {
+    return BaseApplication.instance.applicationContext.color(res)
+}
 
 /**
  * 获取图片
  */
-fun drawable(@DrawableRes res: Int) = BaseApplication.instance.applicationContext.drawable(res)
+fun drawable(@DrawableRes res: Int): Drawable? {
+    return BaseApplication.instance.applicationContext.drawable(res)
+}
 
-fun drawable(@DrawableRes res: Int, width: Int, height: Int) = drawable(res)?.apply { setBounds(0, 0, width, height) }
+fun drawable(@DrawableRes res: Int, width: Int, height: Int): Drawable? {
+    return drawable(res)?.also { it.setBounds(0, 0, width, height) }
+}
+
+/**
+ * 获取图片路径R.drawable/mipmap.XX
+ */
+fun defTypeDrawable(name: String): Int {
+    return BaseApplication.instance.applicationContext.defTypeId(name, "drawable")
+}
+
+fun defTypeMipmap(name: String): Int {
+    return BaseApplication.instance.applicationContext.defTypeId(name, "mipmap")
+}
 
 /**
  * 获取字体大小
  */
-fun dimen(@DimenRes res: Int) = BaseApplication.instance.applicationContext.dimen(res)
+fun dimen(@DimenRes res: Int): Float {
+    return BaseApplication.instance.applicationContext.dimen(res)
+}
 
 /**
  *  <string name="dollar">\$%1$s</string>
