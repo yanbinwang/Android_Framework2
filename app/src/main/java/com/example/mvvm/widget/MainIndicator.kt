@@ -1,6 +1,8 @@
 package com.example.mvvm.widget
 
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.TabLayoutBuilder
+import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
@@ -16,9 +18,9 @@ import com.google.android.material.tabs.TabLayout
  * second->未选图片
  * third->文字res
  */
-class MainIndicator(tab: TabLayout?) : TabLayoutBuilder<Triple<Int, Int, Int>, ItemHomeTabBinding>(tab) {
+class MainIndicator(observer: LifecycleOwner, tab: TabLayout?) : TabLayoutBuilder<Triple<Int, Int, Int>, ItemHomeTabBinding>(observer, tab) {
 
-    override fun getBindView() = ItemHomeTabBinding.bind(mContext.inflate(R.layout.item_home_tab))
+    override fun getBindView() = ItemHomeTabBinding.bind(getContext().inflate(R.layout.item_home_tab))
 
     override fun onBindView(mBinding: ItemHomeTabBinding?, item: Triple<Int, Int, Int>?, selected: Boolean, index: Int) {
         mBinding?.apply {
@@ -29,7 +31,7 @@ class MainIndicator(tab: TabLayout?) : TabLayoutBuilder<Triple<Int, Int, Int>, I
     }
 
     fun init() {
-        bind(listOf(
+        build(listOf(
             Triple(R.mipmap.ic_main_home_on, R.mipmap.ic_main_home, R.string.mainHome),
             Triple(R.mipmap.ic_main_market_on, R.mipmap.ic_main_market, R.string.mainMarket),
             Triple(R.mipmap.ic_main_balance_on, R.mipmap.ic_main_balance, R.string.mainBalance),

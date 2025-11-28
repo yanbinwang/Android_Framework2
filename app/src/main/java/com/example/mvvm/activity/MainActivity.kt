@@ -3,13 +3,11 @@ package com.example.mvvm.activity
 import android.os.Bundle
 import android.view.View
 import android.view.View.OnClickListener
-import com.alibaba.android.arouter.facade.annotation.Route
-import com.example.common.BaseApplication
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.bean.ServerLanguage
-import com.example.common.config.ARouterPath
 import com.example.common.config.Constants.LANGUAGE_LIST
+import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -21,14 +19,15 @@ import com.example.framework.utils.function.view.margin
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.MainIndicator
+import com.therouter.router.Route
 import kotlinx.coroutines.launch
 
 /**
  * 首页
  */
-@Route(path = ARouterPath.MainActivity)
+@Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
-    private val indicator by lazy { MainIndicator(mBinding?.tbIndicator) }
+    private val indicator by lazy { MainIndicator(this, mBinding?.tbIndicator) }
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
