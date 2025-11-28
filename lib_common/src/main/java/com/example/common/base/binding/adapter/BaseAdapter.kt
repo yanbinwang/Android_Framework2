@@ -258,6 +258,21 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 仅触发符合条件item的局部刷新（不修改Adapter数据源）
+     * 适用场景：数据来自外部依赖（如ViewModel/全局缓存），仅需更新视图特定部分（需在onConvert中处理payloads）
+     * @param func 查找条件（匹配单个item，若匹配多个仅刷新第一个）
+     * @param payloads 局部刷新标识（建议使用枚举/常量，避免魔法值）
+     */
+    fun changed(func: ((T) -> Boolean), payloads: MutableList<Any>) {
+        // 空payloads无需触发局部刷新
+        if (itemType != LIST || payloads.isEmpty()) return
+        val index = findIndex(func)
+        if (index in data.indices) {
+            notifyItemChanged(index, payloads)
+        }
+    }
+
+    /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      * @param func 查找条件
      * @param bean 新数据（非空）
