@@ -1,5 +1,6 @@
 package com.example.common.utils.function
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.content.res.Resources
@@ -214,10 +215,12 @@ fun drawable(@DrawableRes res: Int, width: Int, height: Int): Drawable? {
 /**
  * 获取图片路径R.drawable/mipmap.XX
  */
+@SuppressLint("ResourceType")
 fun defTypeDrawable(name: String): Int {
     return BaseApplication.instance.applicationContext.defTypeId(name, "drawable")
 }
 
+@SuppressLint("ResourceType")
 fun defTypeMipmap(name: String): Int {
     return BaseApplication.instance.applicationContext.defTypeId(name, "mipmap")
 }

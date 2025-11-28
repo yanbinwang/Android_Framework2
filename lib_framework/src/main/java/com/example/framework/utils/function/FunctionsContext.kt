@@ -13,6 +13,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
@@ -49,18 +50,52 @@ import java.util.WeakHashMap
 /**
  * 获取resources中的color
  */
-fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
+fun Context.color(@ColorRes res: Int): Int {
+    return ContextCompat.getColor(this, res)
+}
 
 /**
  * 获取resources中的drawable
  */
-fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, res)
+fun Context.drawable(@DrawableRes res: Int): Drawable? {
+    return ContextCompat.getDrawable(this, res)
+}
+
+/**
+ * 获取资源文件id
+ */
+@SuppressLint("ResourceType")
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+}
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(defTypeId(name, "drawable"))
+}
+
+
+/**
+ * 通过字符串获取mipmap下的图片文件
+ */
+fun Context.defTypeMipmap(name: String): Drawable? {
+    return drawable(defTypeId(name, "mipmap"))
+}
 
 /**
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
-fun Context.font(@FontRes res: Int) = ResourcesCompat.getFont(this, res)
+fun Context.font(@FontRes res: Int): Typeface? {
+    return ResourcesCompat.getFont(this, res)
+}
 
 /**
  * 获取Resources中的Dimes
@@ -87,43 +122,22 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 获取资源文件id
- */
-fun Context.defTypeId(name: String, defType: String): Int {
-    return try {
-        resources.getIdentifier(name, defType, packageName)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
-}
-
-/**
- * 通过字符串获取drawable下的xml文件
- */
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(defTypeId(name, "drawable"))
-}
-
-
-/**
- * 通过字符串获取mipmap下的图片文件
- */
-fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(defTypeId(name, "mipmap"))
-}
-
-/**
  * 生成View
  */
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
+    return LayoutInflater.from(this).inflate(res, root)
+}
 
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View = LayoutInflater.from(this).inflate(res, root, attachToRoot)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View {
+    return LayoutInflater.from(this).inflate(res, root, attachToRoot)
+}
 
 /**
  * 粘贴板操作
  */
-fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.setPrimaryClip(label: String, text: String) {
+    (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText(label, text))
+}
 
 fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
@@ -167,7 +181,9 @@ fun Context.sampleMemory(): Long {
 /**
  * 判断手机是否开启开发者模式
  */
-fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
+fun Context.isAdbEnabled(): Boolean {
+    return Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0
+}
 
 /**
  * 是否安装了XXX应用
