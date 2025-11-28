@@ -203,7 +203,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 1) 假设两组集合长度相同，固定socket推送
      * 2) 重写T的equals和hashCode
      */
-    fun update(list: List<T>?) {
+    fun notify(list: List<T>?) {
         if (null == list || list.isEmpty() || itemType != LIST) return
         // 添加长度检查，防止意外情况
         if (list.safeSize != size()) {
@@ -272,6 +272,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         }
     }
 
+    fun changed(func: ((T) -> Boolean), payload: Any) {
+        changed(func, mutableListOf(payload))
+    }
+
     /**
      * 查找到符合条件的对象，改变为新的对象并刷新对应item
      * @param func 查找条件
@@ -280,6 +284,10 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     fun changed(func: ((T) -> Boolean), bean: T?, payloads: MutableList<Any>? = null) {
         changed(findIndex(func), bean, payloads)
+    }
+
+    fun changed(func: ((T) -> Boolean), bean: T?, payload: Any) {
+        changed(findIndex(func), bean, mutableListOf(payload))
     }
 
     /**
