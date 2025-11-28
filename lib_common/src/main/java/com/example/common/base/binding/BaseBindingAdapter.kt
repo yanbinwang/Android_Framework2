@@ -154,14 +154,15 @@ object BaseBindingAdapter {
 
     // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
     /**
-     * 几组xml里结合mvvm的写法
+     * 首先是几组xml里结合mvvm的写法
      *  android:text="@{bean.nickText??@string/unitNoData}"
-     *  *android:text="@{bean.pointsText??`0`,default=`0`}"
      *  android:textColor="@{bean!=null?bean.getAuthColorRes():@color/textPrimary}"
      *  android:background="@{bean.getAuthBgRes(context)??@drawable/shape_default}"
      *  *android:src="@{bean.getAvatarRes(context)??@drawable/shape_default}"
      *  android:visibility="@{bean!=null?bean.authVisible:View.GONE}"
-     * 系统默认的属性即可完成需求，但如果是一个频繁需要set数据的textview，仅仅提供绑定是不够的，我们需要给每个值set一个tag，尽可能的扩展一些系统自带的属性重复的set去return，减少内存的调度
+     * 由此可知，系统默认的属性即可完成需求，但如果是一个频繁需要set数据的textview，仅仅提供绑定是不够的，我们需要给每个值set一个tag，尽可能的扩展一些系统自带的属性
+     * 重复的set去return，减少内存的调度
+     *
      * 例子：
      * fun View?.backgroundTag(@DrawableRes bg: Int) {
      * if (this == null) return
@@ -172,32 +173,6 @@ object BaseBindingAdapter {
      * this.setBackgroundResource(bg)
      * setTag(id, bg)
      * }
-     *
-     * 绑定「基础数据类型属性」且上游对象可能为 null → 必报错 : 绑定「引用类型属性」→ 不报错（仅显示空白 / 默认效果）
-     * 一) 必报错（必须加非空判断！）
-     * android:visibility -> int -> 错误：@{bean.visible}/正确：@{bean?.visible ?? View.GONE}
-     * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{bean?.alpha ?? 1.0f}
-     * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{bean?.isEnabled ?? true}
-     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{bean?.layoutWidth ?? 100dp}（需转尺寸）
-     * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{bean?.maxLineCount ?? 2}
-     * android:progress -> int -> 错误：@{bean.progress}/正确：@{bean?.progress ?? 0}
-     * android:rating -> float -> 错误：@{bean.rating}/正确：@{bean?.rating ?? 3.5f}
-     * android:textSize -> float/dimen -> 错误：@{bean.textSize}/正确：@{bean?.textSize ?? @dimen/textSize14}
-     * 基础类型的「包装类」（如 Integer、Float）也适用：比如 bean.count 是 Integer 类型，绑定 android:progress="@{bean.count}"，bean 为 null 时依然抛 NPE（因为最终要转成基础类型 int）；
-     * 必须加非空保护（?. 或 bean != null ? ...），且兜底值要和类型匹配（如 int 用 View.GONE/0，float 用 1.0f）
-     *
-     * 二) 不报错（无需强制加非空判断，建议兜底优化体验）
-     * android:text -> String -> 基础：@{bean.name}/优化：@{bean?.name ?? @string/unitNoData}
-     * android:src/app:srcCompat -> Drawable -> 基础：@{bean.icon}/优化：@{bean?.icon ?? @drawable/default_icon}
-     * android:background -> Drawable/Color -> 基础：@{bean.bgDrawable}/优化：@{bean?.bgDrawable ?? @color/bgDefault}
-     * android:hint -> String -> 基础：@{bean.hintText}/优化：@{bean?.hintText ?? @string/hint_default}
-     * android:tag -> Object -> @{bean.tagObj}
-     * app:adapter（RecyclerView） -> Adapter -> @{bean.adapter}
-     * android:contentDescription -> String -> 基础：@{bean.desc}/优化：@{bean?.desc ?? @string/default_desc}
-     * 自定义属性（引用类型） -> 自定义 Bean -> @{bean.customObj}
-     * 引用类型可以接收 null，所以不会抛 NPE，但可能显示「空白 / 透明 / 无数据」，建议用 ?? 加兜底（默认文本 / 图片 / 颜色）优化用户体验；
-     * 若引用类型属性的「属性值本身是基础类型」（如 bean.iconResId 是 int 型资源 ID，绑定 app:srcCompat="@{@drawable/bean.iconResId}"），
-     * 需先判断 bean 非空（bean != null ? @drawable/bean.iconResId : @drawable/default），否则 bean 为 null 时依然抛 NPE（本质是访问 null 的 int 属性）。
      *
      * 特殊文本显示文本
      * @text:文本文案 -> "普通文本"
@@ -212,36 +187,38 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: TextView, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
-        // 处理文本设置
-        text?.let { newText ->
-            val textKey = R.id.theme_text_tag
-            val oldText = view.getTag(textKey) as? String
-            if (oldText != newText) {
-                view.text = newText
-                view.setTag(textKey, newText)
+    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+        if (view is TextView) {
+            // 处理文本设置
+            text?.let { newText ->
+                val textKey = R.id.theme_text_tag
+                val oldText = view.getTag(textKey) as? String
+                if (oldText != newText) {
+                    view.text = newText
+                    view.setTag(textKey, newText)
+                }
             }
-        }
-        // 处理高亮文本
-        spannable?.let { newSpannable ->
-            val spanKey = R.id.theme_spannable_tag
-            val oldSpan = view.getTag(spanKey) as? Spannable
-            if (oldSpan != newSpannable) {
-                view.text = newSpannable
-                view.setTag(spanKey, newSpannable)
+            // 处理高亮文本
+            spannable?.let { newSpannable ->
+                val spanKey = R.id.theme_spannable_tag
+                val oldSpan = view.getTag(spanKey) as? Spannable
+                if (oldSpan != newSpannable) {
+                    view.text = newSpannable
+                    view.setTag(spanKey, newSpannable)
+                }
             }
-        }
-        // 文本是必须要加载出来的
-        if (text == null && spannable == null) {
-            view.text = NO_DATA
-        }
-        // 处理文本颜色设置
-        textColor?.let { newTextColor ->
-            val textColorKey = R.id.theme_text_color_tag
-            val oldTextColor = view.getTag(textColorKey) as? Int
-            if (oldTextColor != newTextColor) {
-                view.setTextColor(color(newTextColor))
-                view.setTag(textColorKey, newTextColor)
+            // 文本是必须要加载出来的
+            if (text == null && spannable == null) {
+                view.text = NO_DATA
+            }
+            // 处理文本颜色设置
+            textColor?.let { newTextColor ->
+                val textColorKey = R.id.theme_text_color_tag
+                val oldTextColor = view.getTag(textColorKey) as? Int
+                if (oldTextColor != newTextColor) {
+                    view.setTextColor(color(newTextColor))
+                    view.setTag(textColorKey, newTextColor)
+                }
             }
         }
         // 处理背景设置
@@ -273,28 +250,6 @@ object BaseBindingAdapter {
     fun bindingTextViewGradient(textview: TextView, startColor: String?, endColor: String?) {
         textview.linearGradient(startColor, endColor)
     }
-
-//    /**
-//     * 设置textview加粗样式
-//     * ids加入
-//     *    <!-- 字体类型常量 -->
-//     *     <integer name="font_regular">0</integer>
-//     *     <integer name="font_semi_bold">1</integer>
-//     *     <integer name="font_bold">2</integer>
-//     *     <TextView
-//     *     android:layout_width="wrap_content"
-//     *     android:layout_height="wrap_content"
-//     *     textFontType="@{@integer/font_regular}" /> <!-- 常规字体 -->
-//     * <TextView
-//     *     textFontType="@{@integer/font_semi_bold}" /> <!-- 半粗字体 -->
-//     * <TextView
-//     *     textFontType="@{@integer/font_bold}" /> <!-- 加粗字体 -->
-//     */
-//    @JvmStatic
-//    @BindingAdapter(value = ["textFontType"])
-//    fun bindingTextViewFontType(textview: TextView, @FontTypes type: Int) {
-//        textview.setTextFontType(type)
-//    }
 
     /**
      * textview绘制图片
