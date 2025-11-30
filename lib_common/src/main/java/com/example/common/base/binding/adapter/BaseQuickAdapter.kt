@@ -30,7 +30,7 @@ abstract class BaseQuickAdapter<T, VDB : ViewDataBinding> : BaseAdapter<T> {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-        //避免在适配器中持有 Context 引用，通过 holder.itemView.context 获取上下文
+        // 避免在适配器中持有 Context 引用，通过 holder.itemView.context 获取上下文
         return onCreateViewBindingHolder(parent, vdbClass as? Class<VDB>)
     }
 

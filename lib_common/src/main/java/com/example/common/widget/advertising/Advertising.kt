@@ -27,7 +27,6 @@ import com.example.common.utils.function.getCenterPixelColor
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.safeRecycle
 import com.example.framework.utils.function.value.createOvalDrawable
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
@@ -138,10 +137,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             if (coverList.safeSize > 0) {
                 val mPosition = position % list.size
                 if (mPosition >= coverList.size - 1) return
-                val startColor = coverList.safeGet(mPosition)?.second.orZero
+                val (selected, startColor) = coverList.safeGet(mPosition) ?: (false to 0)
                 val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
                 val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
-                onPageScrolled?.invoke(coverList.safeGet(mPosition)?.first.orFalse to blendedColor.orZero)
+                onPageScrolled?.invoke(selected to blendedColor)
             }
         }
     }}
