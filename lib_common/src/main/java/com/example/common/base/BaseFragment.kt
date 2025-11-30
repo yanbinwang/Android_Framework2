@@ -85,12 +85,12 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
@@ -276,13 +276,13 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()
