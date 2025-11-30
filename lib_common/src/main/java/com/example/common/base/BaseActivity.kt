@@ -99,11 +99,11 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { AppDialog(this) }
     protected val mPermission by lazy { PermissionHelper(this) }
+    protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -556,7 +556,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             val leftTop = intArrayOf(0, 0)
             val width: Int
             val height: Int
-            //获取输入框当前的location位置
+            // 获取输入框当前的location位置
             val parent = v.findSpecialEditTextParent(5)
             if (parent != null) {
                 parent.getLocationInWindow(leftTop)
@@ -622,13 +622,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this) // 传入activity
+                .setLabel(label) // 设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay) // 此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()

@@ -67,19 +67,19 @@ import kotlin.coroutines.CoroutineContext
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var showTime = 0L
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
-    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
+    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
@@ -248,6 +248,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         onWindowInsetsChanged = null
     }
 
+
     open fun show(manager: FragmentManager) {
         val tag = javaClass.simpleName.lowercase(Locale.getDefault())
         show(manager, tag)
@@ -289,13 +290,13 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()
