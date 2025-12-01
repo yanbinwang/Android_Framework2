@@ -1,19 +1,5 @@
 [
   {
-    "path": "/app/TestActivity",
-    "className": "com.example.mvvm.activity.TestActivity",
-    "action": "",
-    "description": "",
-    "params": {}
-  },
-  {
-    "path": "/app/TestActivity2",
-    "className": "com.example.mvvm.activity.Test2Activity",
-    "action": "",
-    "description": "",
-    "params": {}
-  },
-  {
     "path": "/app/StartActivity",
     "className": "com.example.mvvm.activity.StartActivity",
     "action": "",
@@ -35,8 +21,8 @@
     "params": {}
   },
   {
-    "path": "/app/AdActivity",
-    "className": "com.example.mvvm.activity.AdActivity",
+    "path": "/app/KLineActivity",
+    "className": "com.example.mvvm.activity.KLineActivity",
     "action": "",
     "description": "",
     "params": {}

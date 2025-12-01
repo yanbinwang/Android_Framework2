@@ -192,6 +192,8 @@ dependencies {
     // 基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
+
+    implementation(project(":lib_local:klinechart"))
     // 页面路由
     ksp(libs.therouter.apt)
 }

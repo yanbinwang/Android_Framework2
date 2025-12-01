@@ -3,10 +3,9 @@ package com.example.mvvm.activity
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.bridge.viewModels
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
@@ -18,8 +17,9 @@ import com.example.klinechart.utils.DataHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
 import com.example.mvvm.viewmodel.KLineViewModel
+import com.therouter.router.Route
 
-@Route(path = ARouterPath.KLineActivity)
+@Route(path = RouterPath.KLineActivity)
 class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickListener {
     private var datas = ArrayList<KLineEntity>()
     private val adapter by lazy { KLineChartAdapter() }

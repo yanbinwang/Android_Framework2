@@ -10,9 +10,7 @@ object RouterPath {
     const val SplashActivity = "/app/SplashActivity"
     const val StartActivity = "/app/StartActivity"
     const val MainActivity = "/app/MainActivity"
-    const val TestActivity = "/app/TestActivity"
-    const val TestActivity2 = "/app/TestActivity2"
-    const val AdActivity = "/app/AdActivity"
+    const val KLineActivity = "/app/KLineActivity"
     // home模块
     const val LinkActivity = "/home/LinkActivity" // 推送跳转
     const val WebActivity = "/home/WebActivity" // 网页
