@@ -124,7 +124,7 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
      * 数据刷新
      * 将集合的0,1下标单独抠出，作为头部数据，余下的作为底部数据
      */
-    fun notify(mList: List<TestBean>?) {
+    fun notifyNow(mList: List<TestBean>?) {
         list.clear()
         list.addAll(mList.safeSubList(0, 2).toArrayList())
         refresh(mList.safeSubList(2, mList.safeSize).toArrayList())

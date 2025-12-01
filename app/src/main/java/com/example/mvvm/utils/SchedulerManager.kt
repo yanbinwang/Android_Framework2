@@ -5,6 +5,7 @@ import android.app.job.JobScheduler
 import android.content.ComponentName
 import android.content.Context
 import android.os.Build
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logD
 
 /**
@@ -107,7 +108,7 @@ class SchedulerManager(private val context: Context) {
             "Job $jobId already scheduled, skipping".logD(TAG)
             return false
         }
-        val result = jobScheduler.schedule(jobInfo)
+        val result = jobScheduler?.schedule(jobInfo)
         "Schedule job $jobId result: $result".logD(TAG)
         return result == JobScheduler.RESULT_SUCCESS
     }
@@ -116,7 +117,7 @@ class SchedulerManager(private val context: Context) {
      * 检测job是否已经开启
      */
     private fun isJobScheduled(jobId: Int): Boolean {
-        return jobScheduler.allPendingJobs.any { it.id == jobId }
+        return jobScheduler?.allPendingJobs?.any { it.id == jobId }.orFalse
     }
 
     /**
@@ -132,7 +133,7 @@ class SchedulerManager(private val context: Context) {
      */
     fun cancelJob(jobId: Int): SchedulerManager {
         "Canceling job $jobId".logD(TAG)
-        jobScheduler.cancel(jobId)
+        jobScheduler?.cancel(jobId)
         return this
     }
 
@@ -141,7 +142,7 @@ class SchedulerManager(private val context: Context) {
      */
     fun cancelAllJobs(): SchedulerManager {
         "Canceling all jobs".logD(TAG)
-        jobScheduler.cancelAll()
+        jobScheduler?.cancelAll()
         return this
     }
 
