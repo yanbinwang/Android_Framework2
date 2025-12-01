@@ -415,32 +415,52 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
 }
 
 /**
- * list1为服务器中数据
- * list2为本地存储数据
- * isRepeated:是否返回重复的或不重复的数据
- * 正向查为服务器新增数据
- * 反向查为本地删除数据
+ * list1为服务器中数据 , list2为本地存储数据
+ * isRepeated为是否返回重复的或不重复的数据 ,正向查为服务器新增数据 , 反向查为本地删除数据
  * 需重写equals和hasCode方法
  * data class User(val id: Int, val name: String) {
- *     override fun equals(other: Any?): Boolean {
- *         if (this === other) return true
- *         if (other is User) return id == other.id && name == other.name
- *         return false
- *     }
- *
- *     override fun hashCode(): Int {
- *         return Objects.hash(id, name)
- *     }
+ *    override fun equals(other: Any?): Boolean {
+ *        if (this === other) return true
+ *        if (other is User) return id == other.id && name == other.name
+ *        return false
+ *    }
+ *    override fun hashCode(): Int {
+ *        return Objects.hash(id, name)
+ *    }
  * }
+ * val setA = setOf(1, 2, 3, 4)
+ * val setB = setOf(3, 4, 5, 6)
+ * intersect	交集	只保留「两个集合都有的元素」	                    A ∩ B     输出：[3, 4]（只有 3、4 是两个集合都有的）
+ * union	    并集	保留「两个集合的所有元素，去重」	                A ∪ B     输出：[1, 2, 3, 4, 5, 6]（合并后去重，无重复元素）
+ * subtract	    差集（相对差）	保留「当前集合有，但目标集合没有的元素」	A - B     输出：[1, 2]（A 有 1、2，B 没有）
  */
 fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
-    // 生成重复集合（在两个列表中都存在的用户）
-    val repeated = toSet().intersect(list.toSet())
-    // 生成不重复集合（只存在于一个列表中的用户）
-    val allUsers = toSet().union(list.toSet())
-    val unique = allUsers.subtract(repeated)
-    return if (isRepeated) repeated.toList() else unique.toList()
+//    // 生成重复集合（在两个列表中都存在的用户）
+//    val repeated = toSet().intersect(list.toSet())
+//    // 生成不重复集合（只存在于一个列表中的用户）
+//    val allUsers = toSet().union(list.toSet())
+//    val unique = allUsers.subtract(repeated)
+//    return if (isRepeated) repeated.toList() else unique.toList()
+    return this.let { source ->
+        // 当前集合
+        val sourceSet = source.toSet()
+        // 目标集合
+        val targetSet = list.toSet()
+        // 执行筛选
+        if (isRepeated) {
+            // 重复元素（交集）
+            sourceSet intersect targetSet
+        } else {
+            /**
+             * 不重复元素（对称差集）
+             * sourceSet union targetSet → 并集 [1,2,3,4,5,6]（所有元素去重）；
+             * sourceSet intersect targetSet → 交集 [3,4]（两个集合都有的重复元素）；
+             * 并集减交集 → [1,2,3,4,5,6] - [3,4] = [1,2,5,6]。
+             */
+            (sourceSet union targetSet) subtract (sourceSet intersect targetSet)
+        }
+    }.toList()
 }
 
 /**
