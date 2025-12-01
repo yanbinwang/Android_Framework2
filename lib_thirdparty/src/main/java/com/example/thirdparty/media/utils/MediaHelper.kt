@@ -10,33 +10,38 @@ import java.io.IOException
 /**
  * @description 音频播放帮助类
  * @author yan
+ * @autoResume 是否允许生命周期自动恢复播放（默认开启，可关闭）
+ * @autoPause 是否允许生命周期自动暂停播放（默认开启，可关闭）
  */
-class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
+class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false, private val autoPause: Boolean = false) : LifecycleEventObserver {
     // 当前 MediaPlayer 状态（辅助判断，避免依赖 isPlaying() 单一状态）
     private var currentState = State.IDLE
     // 暴露外部回调
-    private var onPreparedListener: (() -> Unit)? = null
-    private var onErrorListener: ((what: Int, extra: Int) -> Unit)? = null
-    private var onCompletionListener: (() -> Unit)? = null
+    private var onPreparedListener: ((mp: MediaPlayer) -> Unit)? = null
+    private var onErrorListener: ((mp: MediaPlayer, what: Int, extra: Int) -> Unit)? = null
+    private var onCompletionListener: ((mp: MediaPlayer) -> Unit)? = null
     // 懒加载 MediaPlayer，初始化时设置基础监听器
     private val player by lazy {
         MediaPlayer().also {
             // 监听准备完成（异步准备后触发）
-            it.setOnPreparedListener {
-                "准备完成，当前状态：PREPARED".logWTF(TAG)
-                onPreparedListener?.invoke()
+            it.setOnPreparedListener { mp ->
+                currentState = State.PREPARED
+                "准备完成，当前状态：${currentState}".logWTF(TAG)
+                onPreparedListener?.invoke(mp)
             }
             // 监听播放错误（包括状态违规、数据源错误等）
-            it.setOnErrorListener { _, what, extra ->
-                "播放错误：what=$what, extra=$extra".logWTF(TAG)
-                onErrorListener?.invoke(what, extra)
+            it.setOnErrorListener { mp, what, extra ->
+                currentState = State.ERROR
+                "播放错误：what=$what, extra=$extra，当前状态：${currentState}".logWTF(TAG)
+                onErrorListener?.invoke(mp, what, extra)
                 // 返回 true 表示已处理错误，避免系统默认弹窗
                 true
             }
             // 监听播放完成（非循环播放时触发）
-            it.setOnCompletionListener {
-                "播放完成".logWTF(TAG)
-                onCompletionListener?.invoke()
+            it.setOnCompletionListener { mp ->
+                currentState = State.COMPLETED
+                "播放完成，当前状态：${currentState}".logWTF(TAG)
+                onCompletionListener?.invoke(mp)
             }
         }
     }
@@ -78,15 +83,15 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                 // 异步准备（适合网络流/大文件，避免阻塞主线程）
                 prepareAsync()
             }
-            "开始异步准备，数据源：$sourcePath".logWTF(TAG)
+            "开始异步准备，数据源：${sourcePath}，当前状态：${currentState}".logWTF(TAG)
         } catch (e: IOException) {
-            "设置数据源失败：${e.message}".logWTF(TAG)
+            "设置数据源失败（IO异常）：${e.message}".logWTF(TAG)
             currentState = State.ERROR
-            onErrorListener?.invoke(MediaPlayer.MEDIA_ERROR_IO, 0)
+            onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_IO, 0)
         } catch (e: Exception) {
-            "设置数据源异常：${e.message}".logWTF(TAG)
+            "设置数据源异常（未知错误）：${e.message}".logWTF(TAG)
             currentState = State.ERROR
-            onErrorListener?.invoke(MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
+            onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
     }
 
@@ -99,15 +104,15 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                 State.PREPARED, State.PAUSED, State.COMPLETED -> {
                     player.start()
                     currentState = State.STARTED
-                    "开始播放，当前进度：${player.currentPosition}ms".logWTF(TAG)
+                    "开始播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logWTF(TAG)
                 }
-                State.STARTED -> "已在播放中，无需重复调用".logWTF(TAG)
-                else -> "当前状态不允许播放：$currentState".logWTF(TAG)
+                State.STARTED -> "已在播放中，无需重复调用（状态：${currentState}）".logWTF(TAG)
+                else -> "当前状态不允许播放：${currentState}".logWTF(TAG)
             }
         } catch (e: Exception) {
             "播放失败：${e.message}".logWTF(TAG)
             currentState = State.ERROR
-            onErrorListener?.invoke(MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
+            onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
     }
 
@@ -119,9 +124,9 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
             if (currentState == State.STARTED) {
                 player.pause()
                 currentState = State.PAUSED
-                "暂停播放，当前进度：${player.currentPosition}ms".logWTF(TAG)
+                "暂停播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logWTF(TAG)
             } else {
-                "当前状态不允许暂停：$currentState".logWTF(TAG)
+                "当前状态不允许暂停：${currentState}".logWTF(TAG)
             }
         } catch (e: Exception) {
             "暂停失败：${e.message}".logWTF(TAG)
@@ -138,10 +143,10 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                 State.STARTED, State.PAUSED, State.COMPLETED -> {
                     player.stop()
                     currentState = State.STOPPED
-                    "停止播放，进度重置为 0ms".logWTF(TAG)
+                    "停止播放，进度重置为 0ms，状态：${currentState}".logWTF(TAG)
                 }
-                State.STOPPED -> "已停止播放，无需重复调用".logWTF(TAG)
-                else -> "当前状态不允许停止：$currentState".logWTF(TAG)
+                State.STOPPED -> "已停止播放，无需重复调用（状态：${currentState}）".logWTF(TAG)
+                else -> "当前状态不允许停止：${currentState}".logWTF(TAG)
             }
         } catch (e: Exception) {
             "停止失败：${e.message}".logWTF(TAG)
@@ -165,7 +170,7 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
             player.reset()
             player.release()
             currentState = State.IDLE
-            "资源已释放".logWTF(TAG)
+            "资源已释放，当前状态：${currentState}".logWTF(TAG)
         } catch (e: Exception) {
             "释放资源失败：${e.message}".logWTF(TAG)
         }
@@ -178,9 +183,10 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
     fun seekTo(position: Int) {
         try {
             if (currentState in listOf(State.PREPARED, State.STARTED, State.PAUSED, State.COMPLETED)) {
-                val validPosition = position.coerceIn(0, player.duration) // 限制在合法范围
+                // 限制在合法范围
+                val validPosition = position.coerceIn(0, player.duration)
                 player.seekTo(validPosition)
-                "跳转到 $validPosition ms（总时长：${player.duration}ms）".logWTF(TAG)
+                "跳转到 $validPosition ms（总时长：${player.duration}ms），状态：${currentState}".logWTF(TAG)
             } else {
                 "当前状态不允许跳转：$currentState".logWTF(TAG)
             }
@@ -198,9 +204,11 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
             stop()
             player.reset()
             currentState = State.IDLE
-            "播放器已重置".logWTF(TAG)
+            "播放器已重置，当前状态：${currentState}".logWTF(TAG)
         } catch (e: Exception) {
             "重置播放器失败：${e.message}".logWTF(TAG)
+            currentState = State.ERROR
+            onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
     }
 
@@ -234,30 +242,34 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
         }
     }
 
-    fun setOnPreparedListener(listener: (() -> Unit)?) {
+    fun setOnPreparedListener(listener: ((mp: MediaPlayer) -> Unit)) {
         this.onPreparedListener = listener
     }
 
-    fun setOnErrorListener(listener: ((what: Int, extra: Int) -> Unit)?) {
+    fun setOnErrorListener(listener: ((mp: MediaPlayer, what: Int, extra: Int) -> Unit)) {
         this.onErrorListener = listener
     }
 
-    fun setOnCompletionListener(listener: (() -> Unit)?) {
+    fun setOnCompletionListener(listener: ((mp: MediaPlayer) -> Unit)) {
         this.onCompletionListener = listener
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-//            // 初次加载页面/切回页面时自动恢复播放，开始播放
-//            Lifecycle.Event.ON_RESUME -> {
-//                start()
-//                "生命周期 ON_RESUME，开始播放".logWTF(TAG)
-//            }
-//            // 页面退到后台（如按Home键），暂停播放
-//            Lifecycle.Event.ON_PAUSE -> {
-//                pause()
-//                "生命周期 ON_PAUSE，暂停播放".logWTF(TAG)
-//            }
+            // 初次加载页面/切回页面时自动恢复播放，开始播放
+            Lifecycle.Event.ON_RESUME -> {
+                if (autoResume) {
+                    start()
+                }
+                "生命周期 ON_RESUME，自动恢复播放（autoResume：$autoResume）".logWTF(TAG)
+            }
+            // 页面退到后台（如按Home键），暂停播放
+            Lifecycle.Event.ON_PAUSE -> {
+                if (autoPause) {
+                    pause()
+                }
+                "生命周期 ON_PAUSE，自动暂停播放（autoPause：${autoPause}）".logWTF(TAG)
+            }
             // 页面销毁，释放所有资源
             Lifecycle.Event.ON_DESTROY -> {
                 release()
