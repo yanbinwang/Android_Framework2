@@ -103,9 +103,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
     protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val activityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -365,7 +365,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             key.removeObserver(value)
         }
         dataManager.clear()
-        activityResult.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel() // 之后再起的job无法工作
 //        coroutineContext.cancelChildren()//之后再起的可以工作
@@ -636,7 +636,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
-        navigation(path, params = params, activityResultValue = activityResult, options = options)
+        navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return this
     }
     // </editor-fold>

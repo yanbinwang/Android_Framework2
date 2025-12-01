@@ -90,8 +90,8 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mResultWrapper = registerResultWrapper()
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-    private val activityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -206,7 +206,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onDestroyView() {
         super.onDestroyView()
         clearOnActivityResultListener()
-        activityResult.unregister()
+        mActivityResult.unregister()
         mBinding?.unbind()
     }
 
@@ -290,7 +290,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
-        mActivity?.navigation(path, params = params, activityResultValue = activityResult, options = options)
+        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
         return mActivity
     }
     // </editor-fold>
