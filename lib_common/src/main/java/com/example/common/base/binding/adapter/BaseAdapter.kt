@@ -292,17 +292,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     /**
      * 传入下标+新数据，刷新对应item（支持局部刷新）
-     * @param index 目标下标
+     * @param position 目标下标
      * @param bean 新数据（非空）
      * @param payloads 局部刷新参数（可选）
      */
-    fun changed(index: Int?, bean: T?, payloads: MutableList<Any>? = null) {
-        if (null == index || null == bean || itemType != LIST) return
-        if (index in data.indices) {
-            data.safeSet(index, bean)
+    fun changed(position: Int?, bean: T?, payloads: MutableList<Any>? = null) {
+        if (null == position || null == bean || itemType != LIST) return
+        if (position in data.indices) {
+            data.safeSet(position, bean)
             // payloads为空时传null，触发全量绑定（和无payload逻辑一致）
             val finalPayloads = payloads.takeIf { it?.isNotEmpty() == true }
-            notifyItemChanged(index, finalPayloads)
+            notifyItemChanged(position, finalPayloads)
         }
     }
 
@@ -373,13 +373,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 删除指定下标对象
      */
-    fun removed(index: Int?) {
-        if (null == index || itemType != LIST) return
-        if (index in data.indices) {
-            data.removeAt(index)
-            notifyItemRemoved(index)
+    fun removed(position: Int?) {
+        if (null == position || itemType != LIST) return
+        if (position in data.indices) {
+            data.removeAt(position)
+            notifyItemRemoved(position)
             // 通知从删除位置开始的所有Item，它们的位置可能发生了变化，需要重新绑定，这里的 itemCount 是 data.safeSize - index，因为删除后 data 的 size 已经减小了 1
-            notifyItemRangeChanged(index, size() - index)
+            notifyItemRangeChanged(position, size() - position)
         }
     }
 
