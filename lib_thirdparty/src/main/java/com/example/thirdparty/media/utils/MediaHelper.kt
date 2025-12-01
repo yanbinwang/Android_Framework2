@@ -140,7 +140,6 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
                     currentState = State.STOPPED
                     "停止播放，进度重置为 0ms".logWTF(TAG)
                 }
-
                 State.STOPPED -> "已停止播放，无需重复调用".logWTF(TAG)
                 else -> "当前状态不允许停止：$currentState".logWTF(TAG)
             }
