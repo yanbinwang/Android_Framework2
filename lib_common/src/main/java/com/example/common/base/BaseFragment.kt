@@ -53,6 +53,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by WangYanBin on 2020/6/4.
  * 在 Fragment 中使用协程时，必须使用 viewLifecycleOwner.lifecycleScope 而非 lifecycleScope，以确保协程在视图销毁时自动取消，避免内存泄漏
+ * viewLifecycleOwner.lifecycleScope.(launch/async)
  *
  * onAttach()‌：当Fragment与Activity关联时调用。
  * onCreate()‌：在Fragment创建时调用。
@@ -296,15 +297,3 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     // </editor-fold>
 
 }
-
-//fun Fragment.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
-//
-//fun <T> Fragment.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = viewLifecycleOwner.lifecycleScope.async(context, start, block)
