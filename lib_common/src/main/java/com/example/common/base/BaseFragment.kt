@@ -82,16 +82,16 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    private val activityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -206,7 +206,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onDestroyView() {
         super.onDestroyView()
         clearOnActivityResultListener()
-        mActivityResult.unregister()
+        activityResult.unregister()
         mBinding?.unbind()
     }
 
@@ -290,7 +290,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
-        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
+        mActivity?.navigation(path, params = params, activityResultValue = activityResult, options = options)
         return mActivity
     }
     // </editor-fold>

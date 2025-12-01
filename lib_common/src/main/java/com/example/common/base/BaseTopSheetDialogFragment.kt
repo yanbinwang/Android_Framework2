@@ -65,17 +65,17 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     private var showTime = 0L
-    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    private val activityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -206,7 +206,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
-        mActivityResult.unregister()
+        activityResult.unregister()
         mBinding?.unbind()
     }
 
@@ -304,7 +304,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     }
 
     override fun navigation(path: String, vararg params: Pair<String, Any?>?, options: ActivityOptionsCompat?): Activity? {
-        mActivity?.navigation(path, params = params, activityResultValue = mActivityResult, options = options)
+        mActivity?.navigation(path, params = params, activityResultValue = activityResult, options = options)
         return mActivity
     }
     // </editor-fold>

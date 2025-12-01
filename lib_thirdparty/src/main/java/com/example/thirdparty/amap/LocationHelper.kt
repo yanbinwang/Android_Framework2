@@ -47,7 +47,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     private val mDialog by lazy { AppDialog(mActivity) }
 
     companion object {
-        //经纬度json->默认杭州
+        // 经纬度json->默认杭州
         private const val AMAP_JSON = "{latitude:30.2780010000,longitude:120.1680690000}"
         private const val AMAP_LATLNG = "amap_latlng"
         internal val aMapLatLng = DataStringCache(AMAP_LATLNG, AMAP_JSON)
@@ -55,35 +55,35 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
 
     init {
         mActivity.lifecycle.addObserver(this)
-        //初始化定位
+        // 初始化定位
         locationClient = AMapLocationClient(mActivity)
-        //设置定位监听
+        // 设置定位监听
         locationClient?.setLocationListener(this)
-        //初始化定位参数
+        // 初始化定位参数
         val aMapLocationClientOption = AMapLocationClientOption().apply {
-            //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+            // 设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
             locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
-            //设置是否gps优先，只在高精度模式下有效
+            // 设置是否gps优先，只在高精度模式下有效
             isGpsFirst = true
-            //设置定位场景为出行
+            // 设置定位场景为出行
             locationPurpose = AMapLocationClientOption.AMapLocationPurpose.SignIn
-            //设置定位间隔,单位毫秒,默认为2000ms
+            // 设置定位间隔,单位毫秒,默认为2000ms
             interval = 1000
-            //true表示允许外界在定位SDK通过GPS定位时模拟位置，false表示不允许模拟GPS位置
+            // true表示允许外界在定位SDK通过GPS定位时模拟位置，false表示不允许模拟GPS位置
             isMockEnable = true
-            //设置是否返回方向角(取值范围：【0，360】，其中0度表示正北方向，90度表示正东，180度表示正南，270度表示正西)
+            // 设置是否返回方向角(取值范围：【0，360】，其中0度表示正北方向，90度表示正东，180度表示正南，270度表示正西)
             isSensorEnable = true
-            //启动定位时SDK会返回最近3s内精度最高的一次定位结果（+）
-            //如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
+            // 启动定位时SDK会返回最近3s内精度最高的一次定位结果（+）
+            // 如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
             isOnceLocationLatest = true
-            //请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
+            // 请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
             httpTimeOut = retryTime
-            //开启地址解析
+            // 开启地址解析
             isNeedAddress = true
         }
-        //设置定位参数
+        // 设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
-        //启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
+        // 启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
 //        locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
         locationClient?.enableBackgroundLocation(notificationId, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
     }
@@ -116,7 +116,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
             aMapLatLng.set(LatLng(aMapLocation.latitude, aMapLocation.longitude).toJson().orEmpty())
-            //部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
+            // 部分地区可能地址取到为空，直接赋值一个未获取地址的默认显示文案
             if (aMapLocation.address.isNullOrEmpty()) aMapLocation.address = string(R.string.mapLocationEmpty)
             listener?.onLocationChanged(aMapLocation, true)
         } else {
@@ -153,11 +153,11 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
      * 停止定位，在页面OnDestroy调用
      */
     fun stop() {
-        //关闭后台定位，参数为true时会移除通知栏，为false时不会移除通知栏，但是可以手动移除
+        // 关闭后台定位，参数为true时会移除通知栏，为false时不会移除通知栏，但是可以手动移除
         locationClient?.disableBackgroundLocation(true)
-        //结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
+        // 结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
         locationClient?.stopLocation()
-        //清空消息
+        // 清空消息
         clear()
     }
 
@@ -189,7 +189,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
      * 跳转设置gps
      */
     fun settingGps(): Boolean {
-        //判断GPS模块是否开启，如果没有则开启
+        // 判断GPS模块是否开启，如果没有则开启
         return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
             mDialog
                 .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
