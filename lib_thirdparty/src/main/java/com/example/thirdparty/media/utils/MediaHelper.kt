@@ -249,11 +249,16 @@ class MediaHelper(owner: LifecycleOwner) : LifecycleEventObserver {
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            // 页面退到后台（如按Home键），暂停播放
-            Lifecycle.Event.ON_PAUSE -> {
-                pause()
-                "生命周期 ON_STOP，暂停播放".logWTF(TAG)
-            }
+//            // 初次加载页面/切回页面时自动恢复播放，开始播放
+//            Lifecycle.Event.ON_RESUME -> {
+//                start()
+//                "生命周期 ON_RESUME，开始播放".logWTF(TAG)
+//            }
+//            // 页面退到后台（如按Home键），暂停播放
+//            Lifecycle.Event.ON_PAUSE -> {
+//                pause()
+//                "生命周期 ON_PAUSE，暂停播放".logWTF(TAG)
+//            }
             // 页面销毁，释放所有资源
             Lifecycle.Event.ON_DESTROY -> {
                 release()
