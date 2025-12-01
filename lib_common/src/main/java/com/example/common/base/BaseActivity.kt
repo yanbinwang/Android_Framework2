@@ -24,13 +24,13 @@ import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -62,6 +62,7 @@ import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
+import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
@@ -75,37 +76,37 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
- * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
- * 無xml的界面，泛型括號裡傳ViewDataBinding
- * 如果希望打开的页面有自定义的动画效果，可以重写oncreate，或者调取基类的initview方法
- * // 在需要转换动画的 Activity 中
+ * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context,無xml的界面泛型括號裡傳Nothing
+ * 使用协程时,推荐使用lifecycleScope.(launch/async)
+ *
+ * 如果希望打开的页面有自定义的动画效果，可以重写onCreate，或者调取基类的initView方法，在需要转换动画的 Activity 中
  * @Override
  * protected void onCreate(Bundle savedInstanceState) {
  *     super.onCreate(savedInstanceState);
- * // 自定义滑入动画（从右侧进入）
- * Slide slide = new Slide(Gravity.END);
- * slide.setDuration(300);
- * getWindow().setEnterTransition(slide);
- * // 自定义滑出动画（向右侧退出）
- * Slide slideExit = new Slide(Gravity.START);
- * slideExit.setDuration(300);
- * 当 A 启动 B 时，A 被覆盖的过程	应用于 被启动的 Activity（B）
- * getWindow().setExitTransition(slideExit);
- * 当 B 返回 A 时，B 退出的过程	应用于 返回的 Activity（B）
- * getWindow().setReturnTransition(slideExit);
+ *     // 自定义滑入动画（从右侧进入）
+ *     Slide slide = new Slide(Gravity.END);
+ *     slide.setDuration(300);
+ *     getWindow().setEnterTransition(slide);
+ *     // 自定义滑出动画（向右侧退出）
+ *     Slide slideExit = new Slide(Gravity.START);
+ *     slideExit.setDuration(300);
+ *     当 A 启动 B 时，A 被覆盖的过程	应用于 被启动的 Activity（B）
+ *     getWindow().setExitTransition(slideExit);
+ *     当 B 返回 A 时，B 退出的过程	应用于 返回的 Activity（B）
+ *     getWindow().setReturnTransition(slideExit);
  * }
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+    val mDialog by lazy { AppDialog(this) }
+    val mPermission by lazy { PermissionHelper(this) }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { AppDialog(this) }
-    protected val mPermission by lazy { PermissionHelper(this) }
-    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
@@ -318,7 +319,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 }
             }
         }
-        ARouter.getInstance().inject(this)
+        TheRouter.inject(this)
     }
 
     override fun initEvent() {
@@ -535,7 +536,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     protected fun hideInputMethod(v: View?) {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val imm = ContextCompat.getSystemService(this, InputMethodManager::class.java)
         imm?.hideSoftInputFromWindow(v?.windowToken, 0)
     }
 
@@ -556,7 +558,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             val leftTop = intArrayOf(0, 0)
             val width: Int
             val height: Int
-            //获取输入框当前的location位置
+            // 获取输入框当前的location位置
             val parent = v.findSpecialEditTextParent(5)
             if (parent != null) {
                 parent.getLocationInWindow(leftTop)
@@ -622,13 +624,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this) // 传入activity
+                .setLabel(label) // 设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay) // 此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()
@@ -642,18 +644,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
 }
-
-//fun AppCompatActivity.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = lifecycleScope.launch(context, start, block)
-//
-//fun <T> AppCompatActivity.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = lifecycleScope.async(context, start, block)
 
 val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 

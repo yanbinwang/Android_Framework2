@@ -271,6 +271,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return !mIgnoreEvents
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, nestedScrollAxes: Int): Boolean {
         mLastNestedScrollDy = 0
         mNestedScrolled = false

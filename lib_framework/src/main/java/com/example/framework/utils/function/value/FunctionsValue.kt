@@ -128,19 +128,17 @@ fun createOvalDrawable(colorString: String): Drawable {
 
 /**
  * 比较两个 Drawable 是否来自同一资源或完全相同（仅支持 API 21+）
- * 1. 先检查实例引用是否相同
- * 2. 再检查 constantState
  */
 fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
-    // 处理 null 情况
+    // 处理 null 情况（两个都为 null 才相同）
     if (d1 == null && d2 == null) return true
     if (d1 == null || d2 == null) return false
-    // 快速比较实例引用
+    // 快速比较实例引用：同一个实例
     if (d1 === d2) return true
-    // 使用 constantState 比较
+    // 通过 constantState 对比（同一资源/同一类型的 Drawable 会相同）
     val cs1 = d1.constantState
     val cs2 = d2.constantState
-    // 防御性编程：处理 constantState 为 null 的罕见情况
+    // 防御性编程：避免 constantState 为 null 时误判
     return when {
         cs1 == null && cs2 == null -> false
         cs1 == null || cs2 == null -> false

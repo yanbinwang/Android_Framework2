@@ -16,6 +16,7 @@ import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
@@ -71,21 +72,21 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
-    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
-    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
+    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
@@ -141,8 +142,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             }
 
             protected fun hideSoftKeyboard() {
-                val inputMethodManager = BaseApplication.instance.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(mBinding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                val imm = BaseApplication.instance.applicationContext.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(mBinding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             }
 
             /**
@@ -164,12 +165,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                         }
                     }
                 }
-                //必不可少，否则所有的组件都不会有TouchEvent了
+                // 必不可少，否则所有的组件都不会有TouchEvent了
                 return if (window?.superDispatchTouchEvent(ev).orFalse) true else onTouchEvent(ev)
             }
 
             protected fun hideInputMethod(v: View?) {
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                val imm = ContextCompat.getSystemService(context, InputMethodManager::class.java)
                 imm?.hideSoftInputFromWindow(v?.windowToken, 0)
             }
 
@@ -199,7 +201,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                     val leftTop = intArrayOf(0, 0)
                     val width: Int
                     val height: Int
-                    //获取输入框当前的location位置
+                    // 获取输入框当前的location位置
                     val parent = v.findSpecialEditTextParent(5)
                     if (parent != null) {
                         parent.getLocationInWindow(leftTop)
@@ -214,7 +216,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
                     val top = leftTop[1]
                     val bottom = top + height
                     val right = left + width
-                    //点击的是输入框区域，保留点击EditText的事件
+                    // 点击的是输入框区域，保留点击EditText的事件
                     return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
                 }
                 return false
@@ -236,7 +238,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         if (activity?.isFinishing.orFalse) return
         if (manager.findFragmentByTag(tag) != null) return
         if (manager.isDestroyed) return
-        //防止因为意外情况连续call两次show，设置500毫秒的最低间隔
+        // 防止因为意外情况连续call两次show，设置500毫秒的最低间隔
         if (currentTimeNano - showTime < 500) return
         showTime = currentTimeNano
         try {
@@ -289,7 +291,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
 
     override fun onStart() {
         super.onStart()
-        //设置软键盘不自动弹出
+        // 设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 //        //本身完全弹出
 //        (view?.parent as? View)?.let {
@@ -387,13 +389,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()

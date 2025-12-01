@@ -1,4 +1,5 @@
 import com.android.build.gradle.internal.api.ApkVariantOutputImpl
+import com.android.testing.utils.is16kPageSource
 import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -9,6 +10,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
+    alias(libs.plugins.therouter.android)
+    alias(libs.plugins.devtools.ksp)
 }
 
 val keystorePropertiesFile = rootProject.file("keystore.properties")
@@ -76,13 +79,6 @@ android {
         dataBinding = true
     }
 
-    // arouter 编译
-    kapt {
-        arguments {
-            arg("AROUTER_MODULE_NAME", project.name)
-        }
-    }
-
     kotlinOptions {
         jvmTarget = "11"
     }
@@ -94,6 +90,13 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    // 对所有 jniLibs 下的 SO 库生效，16KB 对齐
+    packagingOptions {
+        jniLibs {
+            is16kPageSource(libs.versions.applicationId.get())
+        }
     }
 
 //    // AAB 打包配置
@@ -148,10 +151,14 @@ android {
                 abortOnError = false
             }
 
-            isMinifyEnabled = true //最小化资源包
-            isShrinkResources = true //去掉无用资源
+            // 最小化资源包
+            isMinifyEnabled = true
+            // 去掉无用资源
+            isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
+
+            // 签名打包
             android.applicationVariants.all {
                 val appName = "example"
                 val date = SimpleDateFormat("yyyyMMdd").format(Date())
@@ -180,13 +187,11 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //调试库
+    // 调试库
     debugImplementation(project(":lib_debugging"))
-    //基础库
+    // 基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
-    //页面路由
-    kapt(libs.alibaba.arouter.compiler)
-
-    implementation(project(":lib_local:klinechart"))
+    // 页面路由
+    ksp(libs.therouter.apt)
 }

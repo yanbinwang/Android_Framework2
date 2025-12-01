@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -54,6 +53,7 @@ import kotlin.coroutines.CoroutineContext
 /**
  * Created by WangYanBin on 2020/6/4.
  * 在 Fragment 中使用协程时，必须使用 viewLifecycleOwner.lifecycleScope 而非 lifecycleScope，以确保协程在视图销毁时自动取消，避免内存泄漏
+ * viewLifecycleOwner.lifecycleScope.(launch/async)
  *
  * onAttach()‌：当Fragment与Activity关联时调用。
  * onCreate()‌：在Fragment创建时调用。
@@ -83,15 +83,15 @@ import kotlin.coroutines.CoroutineContext
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
 abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
@@ -171,7 +171,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        ARouter.getInstance().inject(this)
     }
 
     override fun initEvent() {
@@ -278,13 +277,13 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()
@@ -298,15 +297,3 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     // </editor-fold>
 
 }
-
-//fun Fragment.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
-//
-//fun <T> Fragment.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = viewLifecycleOwner.lifecycleScope.async(context, start, block)

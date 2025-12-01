@@ -21,15 +21,21 @@ import java.util.concurrent.TimeUnit
  */
 @GlideModule
 open class GlideModule : AppGlideModule() {
-    //加载图片不能做拦截，重新声明请求类
+    // 加载图片不能做拦截，重新声明请求类
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
-                .connectTimeout(6, TimeUnit.SECONDS)//设置连接超时
-                .writeTimeout(2, TimeUnit.HOURS)//设置写超时
-                .readTimeout(2, TimeUnit.HOURS)//设置读超时
-                .retryOnConnectionFailure(true)
-                .addInterceptor(ProgressInterceptor())//拦截下请求，监听加载进度
-                .build()
+            // 设置连接超时
+            .connectTimeout(6, TimeUnit.SECONDS)
+            // 设置写超时
+            .writeTimeout(2, TimeUnit.HOURS)
+            // 设置读超时
+            .readTimeout(2, TimeUnit.HOURS)
+            // 交互失败重试
+            .retryOnConnectionFailure(true)
+            // 拦截下请求，监听加载进度
+            .addInterceptor(ProgressInterceptor())
+            // 开始构建
+            .build()
     }
 
     /**

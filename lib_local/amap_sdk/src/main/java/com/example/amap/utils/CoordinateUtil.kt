@@ -24,7 +24,7 @@ import kotlin.math.sqrt
 object CoordinateUtil {
     // 地球物理参数
     private const val EARTH_RADIUS_METERS = 6370693.5  // 地球平均半径，单位：米
-    private const val ECCENTRICITY = 0.00669342162296594323  // 地球椭球体第一偏心率平方
+    private const val ECCENTRICITY = 0.006693421622965943  // 地球椭球体第一偏心率平方
     // 坐标转换算法常量
     private const val X_PI = Math.PI * 3000.0 / 180.0  // 百度坐标系专用常量（π*3000/180）
     // 角度转换常量

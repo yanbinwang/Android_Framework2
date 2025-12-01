@@ -62,8 +62,6 @@ dependencies {
     // 高德三方扩展
     api(project(":lib_local:amap_sdk"))
     // 数据库
-    api(project(":lib_local:greendao"))
-    // 数据库2
     api(project(":lib_local:objectbox"))
     // 相册
     api(project(":lib_local:gallery"))
@@ -71,10 +69,11 @@ dependencies {
     api("com.github.bingoogolapple.BGAQRCode-Android:zxing:1.3.8")
     // 文件压缩
     implementation("id.zelory:compressor:3.0.1")
-    // 相机/播放器
-    api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:11.1.0")
+    // 相机
     api("com.otaliastudios:cameraview:2.7.2")
+    // 播放器
+    api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:v11.1.0")
     // 支付宝/微信
-    api("com.alipay.sdk:alipaysdk-android:15.8.38@aar")
+    api("com.alipay.sdk:alipaysdk-android:15.8.40@aar")
     api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
 }

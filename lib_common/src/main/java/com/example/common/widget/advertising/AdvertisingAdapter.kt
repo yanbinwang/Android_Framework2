@@ -34,9 +34,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
             val uri = list.safeGet(index) ?: return
             it.radius = radius.ptFloat
             if (localAsset) {
-                ImageLoader.instance.loadCardViewDrawableFromResource(it, it.context.defTypeMipmap(uri))
+                ImageLoader.instance.loadCardViewFromDrawable(it, it.context.defTypeMipmap(uri))
             } else {
-                ImageLoader.instance.loadCardViewDrawableFromUrl(it, uri)
+                ImageLoader.instance.loadCardViewFromUrl(it, uri)
             }
             it.click {
                 onItemClick?.invoke(index)
