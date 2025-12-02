@@ -31,11 +31,13 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toExtract
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -428,8 +430,33 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            mBinding?.flCard?.addView(card)
 //        }
         initImmersionBar(navigationBarDark = true, navigationBarColor = R.color.bgWhite)
-        ActivityMainBinding.inflate(layoutInflater)
+        data class User(val id: Int, val name: String, val amount: Double)
+        // 服务器数据（基准）
+        val serverUsers = listOf(
+            User(1, "张三", 100.0),
+            User(2, "李四", 200.0),
+            User(3, "王五", 350.0)
+        )
+        // 本地数据（原有）
+        val localUsers = listOf(
+            User(1, "张三", 100.0),
+            User(3, "王五", 300.0),
+            User(5, "赵六", 500.0),
+            User(7, "孙七", 700.0)
+        )
         mBinding?.ivArrow.click {
+            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+                localItem.id == serverItem.id
+            },{localItem, serverItem ->
+                localItem.name != serverItem.name || localItem.amount != serverItem.amount
+            },true)
+            "toExtract为true:${trueList.toJson()}".logWTF("wyb")
+            val falseList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+                localItem.id == serverItem.id
+            },{localItem, serverItem ->
+                localItem.name != serverItem.name || localItem.amount != serverItem.amount
+            })
+            "toExtract为false:${falseList.toJson()}".logWTF("wyb")
 //            // 2s一跳,测试刷新
 //            timerBuilder.startTask("10086",{
 //                var logText = "------ 测试数据 ------\n"
