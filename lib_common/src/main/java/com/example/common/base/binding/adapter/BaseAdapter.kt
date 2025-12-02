@@ -14,6 +14,7 @@ import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
 import java.util.Collections
+import kotlin.math.max
 
 /**
  * Created by WangYanBin on 2020/7/17.
@@ -202,6 +203,17 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 更新固定集合
      * 1) 假设两组集合长度相同，固定socket推送
      * 2) 重写T的equals和hashCode
+     * 3) kotlin的 zip 扩展函数,把两个集合「按索引一对一配对」，生成一个 “配对列表”，完全不关心元素内容是否相同，只看 “位置”
+     * 集合 A 长度 > 集合 B 长度：只配对到集合 B 的最后一个元素，A 多出来的元素丢弃；
+     * 集合 A 长度 < 集合 B 长度：只配对到集合 A 的最后一个元素，B 多出来的元素丢弃；
+     * 结果是 List<Pair<T, U>>（两个元素的配对），而非筛选后的单集合。
+     * val 姓名 = listOf("张三", "李四", "王五") // 长度3
+     * val 分数 = listOf(90, 85)              // 长度2
+     * // zip配对：按索引1对1，取短的长度（2）
+     * val 姓名分数配对 = 姓名.zip(分数)
+     * println(姓名分数配对)
+     * // 输出：[(张三, 90), (李四, 85)]
+     * // 解释：王五（索引2）没有分数配对，被丢弃；分数没有第三个元素，也不补
      */
     fun notify(list: List<T>?) {
         if (null == list || list.isEmpty() || itemType != LIST) return
@@ -222,6 +234,94 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         // 更新数据
         diffPairs.forEach { (index, item) ->
             changed(index, item)
+        }
+    }
+
+    /**
+     * 以服务器数据为基准，同步本地 RecyclerView 数据（更新+新增+删除）
+     * @param list 服务器数据（基准数据）
+     * @param idMatcher 唯一标识匹配规则：判断（本地元素，服务器元素）是否为同一元素（如按id匹配）
+     * @param needUpdate 判断是否需要更新：同一标识下，（本地元素，服务器元素）是否有差异（有差异才更新）
+     * // 数据类（无需重写 equals/hashCode）
+     * data class User(val id: Int, val name: String, val amount: Double)
+     * // 服务器数据（基准）
+     * val serverUsers = listOf(
+     *     User(1, "张三", 100.0),   // 本地无→新增
+     *     User(2, "李四", 200.0),   // 本地无→新增
+     *     User(3, "王五", 350.0)    // 本地有id=3，但amount变化→更新
+     * )
+     * // 本地数据（原有）
+     * val localUsers = listOf(
+     *     User(3, "王五", 300.0),   // id=3，amount和服务器不同→更新
+     *     User(5, "赵六", 500.0),   // 服务器无id=5→删除
+     *     User(7, "孙七", 700.0)    // 服务器无id=7→删除
+     * )
+     * // Adapter 同步调用（核心：传入两个自定义规则）
+     * adapter.notify(
+     *     serverList = serverUsers,
+     *     // 规则1：按id匹配（唯一标识）
+     *     idMatcher = { localItem, serverItem ->
+     *         localItem.id == serverItem.id
+     *     },
+     *     // 规则2：name或amount变化则需要更新
+     *     needUpdate = { localItem, serverItem ->
+     *         localItem.name != serverItem.name || localItem.amount != serverItem.amount
+     *     }
+     * )
+     */
+    @Synchronized
+    fun notify(list: List<T>?, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean)) {
+        if (null == list || list.isEmpty() || itemType != LIST) return
+        // 保存原始服务器列表（用于删除判断，不修改）
+        val originalServerList = list
+        // 可修改的服务器列表（用于筛选新增元素）
+        val mutableServerList = list.toMutableList()
+        // 本地原有数据（副本，避免修改原始数据）
+        val localList = data.toMutableList()
+        // 处理「更新+保留」的元素（服务器和本地都有同一标识）
+        val updatePairs = mutableListOf<Pair<Int, T>>() // <本地元素下标，服务器新元素>
+        // 用迭代器安全遍历，避免遍历中删除导致漏元素
+        val serverIterator = mutableServerList.iterator()
+        while (serverIterator.hasNext()) {
+            val serverItem = serverIterator.next()
+            // 查找本地是否有同一标识的元素
+            val localIndex = localList.findIndexOf { localItem ->
+                idMatcher(localItem, serverItem)
+            }
+            if (localIndex != -1) {
+                val localItem = localList[localIndex]
+                // 判断是否需要更新（有差异才更新，避免无效刷新）
+                if (needUpdate(localItem, serverItem)) {
+                    updatePairs.add(localIndex to serverItem)
+                }
+                // 安全删除：用迭代器移除，避免遍历漏元素
+                serverIterator.remove()
+            }
+        }
+        // 处理「新增」的元素（服务器有、本地无）→ mutableServerList 中剩余的元素
+        val insertItems = mutableServerList
+        // 处理「删除」的元素（本地有、服务器无）→ 用原始服务器列表判断（关键修复）
+        val deleteIndices = mutableListOf<Int>()
+        localList.forEachIndexed { localIndex, localItem ->
+            // 查找原始服务器列表是否有同一标识的元素（没有则需要删除）
+            val hasMatch = originalServerList.any { serverItem ->
+                idMatcher(localItem, serverItem)
+            }
+            if (!hasMatch) {
+                deleteIndices.add(localIndex)
+            }
+        }
+        // 批量删除（倒序删除，防止下标错乱）→ 你的removed方法是正确的，无需修改
+        deleteIndices.sortedDescending().forEach { index ->
+            removed(index)
+        }
+        // 批量更新（按本地原有下标更新）→ 你的changed方法是正确的，无需修改
+        updatePairs.forEach { (localIndex, serverItem) ->
+            changed(localIndex, serverItem)
+        }
+        // 批量新增（插入到列表末尾）→ 你的insert方法是正确的，无需修改
+        if (insertItems.isNotEmpty()) {
+            insert(size(), insertItems)
         }
     }
 

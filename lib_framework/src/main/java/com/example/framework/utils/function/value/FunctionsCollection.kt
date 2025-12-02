@@ -436,12 +436,6 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
  */
 fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
-//    // 生成重复集合（在两个列表中都存在的用户）
-//    val repeated = toSet().intersect(list.toSet())
-//    // 生成不重复集合（只存在于一个列表中的用户）
-//    val allUsers = toSet().union(list.toSet())
-//    val unique = allUsers.subtract(repeated)
-//    return if (isRepeated) repeated.toList() else unique.toList()
     return this.let { source ->
         // 当前集合
         val sourceSet = source.toSet()
