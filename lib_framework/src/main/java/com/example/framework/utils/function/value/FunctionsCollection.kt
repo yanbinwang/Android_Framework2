@@ -477,6 +477,73 @@ fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>
  * 另一种false保留全部(本地独有 + 服务器独有 + 共同元素（更新后）):
  * [{"amount":100.0,"id":1,"name":"张三"},{"amount":200.0,"id":2,"name":"李四"},{"amount":350.0,"id":3,"name":"王五"},{"amount":500.0,"id":5,"name":"赵六"},{"amount":700.0,"id":7,"name":"孙七"}]
  */
+//fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean), isRepeated : Boolean = false): List<T>? {
+//    this ?: return null
+//    // 原有数据（副本，避免修改原始数据）
+//    val localList = toMutableList()
+//    // 可修改的服务器列表（用于筛选新增元素）
+//    val mutableServerList = list.toMutableList()
+//    return if (isRepeated) {
+//        // 只保留「共同元素且更新后的数据」，排除所有独有元素
+//        val commonUpdatedList = mutableListOf<T>()
+//        val serverIterator = mutableServerList.iterator()
+//        while (serverIterator.hasNext()) {
+//            val serverItem = serverIterator.next()
+//            // 查找本地相同标识的共同元素
+//            val localIndex = localList.findIndexOf { localItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//            if (localIndex != -1) {
+//                val localItem = localList[localIndex]
+//                // 判断是否需要更新，更新后添加到结果列表
+//                val finalItem = if (needUpdate(localItem, serverItem)) serverItem else localItem
+//                commonUpdatedList.add(finalItem)
+//                // 移除已匹配的元素（避免重复处理）
+//                serverIterator.remove()
+//                localList.removeAt(localIndex)
+//            }
+//        }
+//        // 只返回更新后的共同元素
+//        commonUpdatedList
+//    } else {
+////        // 保留「本地独有 + 服务器独有 + 共同元素（更新后）」，无重复id
+////        val localIterator = localList.iterator() // 遍历本地列表，匹配服务器元素
+////        while (localIterator.hasNext()) {
+////            val localItem = localIterator.next()
+////            // 查找服务器列表中相同id的元素（要更新服务器列表的这个元素）
+////            val serverIndex = mutableServerList.findIndexOf { serverItem ->
+////                idMatcher(localItem, serverItem)
+////            }
+////            if (serverIndex != -1) {
+////                val serverItem = mutableServerList[serverIndex]
+////                // 需要更新则修改「服务器列表」的共同元素（用服务器数据覆盖）
+////                if (needUpdate(localItem, serverItem)) {
+////                    // 直接替换（如果逻辑是用本地更新服务器，就换成localItem）
+////                    mutableServerList[serverIndex] = serverItem
+////                }
+////                // 移除本地列表的共同元素（避免合并重复）
+////                localIterator.remove()
+////            }
+////        }
+////        // 合并：服务器列表（含更新后的共同元素） + 本地独有元素
+////        mutableServerList + localList
+//        // 只保留「服务器独有 + 本地独有」，排除所有共同元素
+//        // 筛选本地独有元素（本地有、服务器无匹配id）
+//        val localUnique = localList.filter { localItem ->
+//            mutableServerList.none { serverItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//        }
+//        // 筛选服务器独有元素（服务器有、本地无匹配id）
+//        val serverUnique = mutableServerList.filter { serverItem ->
+//            localList.none { localItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//        }
+//        // 合并：服务器独有 + 本地独有
+//        serverUnique + localUnique
+//    }
+//}
 fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean), isRepeated : Boolean = false): List<T>? {
     this ?: return null
     // 原有数据（副本，避免修改原始数据）
@@ -506,42 +573,15 @@ fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem:
         // 只返回更新后的共同元素
         commonUpdatedList
     } else {
-//        // 保留「本地独有 + 服务器独有 + 共同元素（更新后）」，无重复id
-//        val localIterator = localList.iterator() // 遍历本地列表，匹配服务器元素
-//        while (localIterator.hasNext()) {
-//            val localItem = localIterator.next()
-//            // 查找服务器列表中相同id的元素（要更新服务器列表的这个元素）
-//            val serverIndex = mutableServerList.findIndexOf { serverItem ->
-//                idMatcher(localItem, serverItem)
-//            }
-//            if (serverIndex != -1) {
-//                val serverItem = mutableServerList[serverIndex]
-//                // 需要更新则修改「服务器列表」的共同元素（用服务器数据覆盖）
-//                if (needUpdate(localItem, serverItem)) {
-//                    // 直接替换（如果逻辑是用本地更新服务器，就换成localItem）
-//                    mutableServerList[serverIndex] = serverItem
-//                }
-//                // 移除本地列表的共同元素（避免合并重复）
-//                localIterator.remove()
-//            }
-//        }
-//        // 合并：服务器列表（含更新后的共同元素） + 本地独有元素
-//        mutableServerList + localList
-        // 只保留「服务器独有 + 本地独有」，排除所有共同元素
-        // 筛选本地独有元素（本地有、服务器无匹配id）
-        val localUnique = localList.filter { localItem ->
-            mutableServerList.none { serverItem ->
-                idMatcher(localItem, serverItem)
-            }
-        }
+        // 只保留「服务器独有」，排除所有共同元素
         // 筛选服务器独有元素（服务器有、本地无匹配id）
         val serverUnique = mutableServerList.filter { serverItem ->
             localList.none { localItem ->
                 idMatcher(localItem, serverItem)
             }
         }
-        // 合并：服务器独有 + 本地独有
-        serverUnique + localUnique
+        // 服务器独有
+        serverUnique
     }
 }
 
