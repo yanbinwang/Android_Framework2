@@ -319,9 +319,26 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         updatePairs.forEach { (localIndex, serverItem) ->
             changed(localIndex, serverItem)
         }
-        // 批量新增（插入到列表末尾）→ 你的insert方法是正确的，无需修改
+//        // 批量新增（插入到列表末尾）→ 你的insert方法是正确的，无需修改
+//        if (insertItems.isNotEmpty()) {
+//            insert(size(), insertItems)
+//        }
+        // 按服务器原始下标插入新增元素
         if (insertItems.isNotEmpty()) {
-            insert(size(), insertItems)
+            insertItems.forEach { insertItem ->
+                // 用 idMatcher 查找 insertItem 在服务器列表中的原始下标（按唯一标识匹配）
+                val targetPosition = originalServerList.findIndexOf { serverItemInList ->
+                    idMatcher(insertItem, serverItemInList) // 按唯一标识判断是否是同一个元素
+                }
+                // 避免下标越界（-1 或超过当前本地列表长度）
+                val safePosition = when {
+                    targetPosition >= 0 && targetPosition <= size() -> targetPosition
+                    targetPosition > size() -> size() // 服务器下标超出本地长度，插入到末尾
+                    else -> size() // 找不到下标（理论上不会发生，兜底插入末尾）
+                }
+                // 插入到目标位置（和服务器下标对齐）
+                insert(safePosition, insertItem)
+            }
         }
     }
 
