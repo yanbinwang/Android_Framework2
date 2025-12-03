@@ -159,32 +159,41 @@ private fun wrapper(exception: Throwable): ResponseWrapper {
 }
 
 /**
- * 请求转换
- * map扩展，如果只需传入map则使用
- * hashMapOf("" to "")不需要写此扩展
+ * 抽离公共 MediaType 常量（避免重复创建）
  */
-fun <K, V> HashMap<K, V>?.requestBody() =
-    this?.toJson().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
 
-fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
-//    val map = hashMapOf<String, Any>()
-//    pairs.forEach {
-//        it.second?.let { v ->
-//            map[it.first] = v
-//        }
-//    }
-//    return map.requestBody()
-    return reqMapOf(*pairs).requestBody()
+/**
+ * HashMap 扩展：转为 OkHttp RequestBody（仅支持 <String, String> 类型，null 安全）
+ * 空 Map/Null → 序列化后为 "{}"（符合 JSON 规范）
+ */
+fun <K, V> HashMap<K, V>?.requestBody(): RequestBody {
+    val json = this?.takeIf { it.isNotEmpty() }?.toJson() ?: "{}"
+    return json.toRequestBody(JSON_MEDIA_TYPE)
 }
 
-fun reqMapOf(vararg pairs: Pair<String, Any?>): HashMap<String, Any> {
-    val map = hashMapOf<String, Any>()
-    pairs.forEach {
-        it.second?.let { v ->
-            map[it.first] = v
+/**
+ * 快速构建 RequestBody（value 仅支持 String，自动过滤 null 值，后入 key 覆盖前一个）
+ * 示例：reqBodyOf("name" to "张三", "age" to "20", "addr" to null) → {"name":"张三","age":"20"}
+ */
+fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
+    return hashMapOf<String, Any>().apply {
+        pairs.forEach { (key, value) ->
+            value?.let { put(key, it) }
+        }
+    }.requestBody()
+}
+
+/**
+ * 快速构建 String 类型 value 的 HashMap（自动过滤 null 值，后入 key 覆盖前一个）
+ * 支持单独获取 Map 用于日志打印、参数拼接等场景
+ */
+fun reqMapOf(vararg pairs: Pair<String, String?>): HashMap<String, String> {
+    return hashMapOf<String, String>().apply {
+        pairs.forEach { (key, value) ->
+            value?.let { put(key, it) }
         }
     }
-    return map
 }
 
 /**
@@ -205,10 +214,17 @@ inline fun <reified T> Any?.safeAs(): T? {
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() =
-    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
-        if (isNullOrEmpty()) resString(R.string.responseError) else this
+fun String?.responseToast() {
+    (if (!NetWorkUtil.isNetworkAvailable()) {
+        resString(R.string.responseNetError)
+    } else {
+        if (isNullOrEmpty()) {
+            resString(R.string.responseError)
+        } else {
+            this
+        }
     }).shortToast()
+}
 
 /**
  * 判断此次请求是否成功

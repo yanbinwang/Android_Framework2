@@ -14,7 +14,6 @@ import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
 import java.util.Collections
-import kotlin.math.max
 
 /**
  * Created by WangYanBin on 2020/7/17.
