@@ -168,6 +168,16 @@ fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
     return map.requestBody()
 }
 
+fun reqMapOf(vararg pairs: Pair<String, String?>): Map<String, String> {
+    val map = hashMapOf<String, String>()
+    pairs.forEach {
+        it.second?.let { v ->
+            map[it.first] = v
+        }
+    }
+    return map
+}
+
 /**
  * 取得async异步协程集合后，拿取对应的值强转
  * reified:保留类型参数 T 的具体类型信息
