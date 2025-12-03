@@ -167,17 +167,18 @@ fun <K, V> HashMap<K, V>?.requestBody() =
     this?.toJson().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
 
 fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
-    val map = hashMapOf<String, Any>()
-    pairs.forEach {
-        it.second?.let { v ->
-            map[it.first] = v
-        }
-    }
-    return map.requestBody()
+//    val map = hashMapOf<String, Any>()
+//    pairs.forEach {
+//        it.second?.let { v ->
+//            map[it.first] = v
+//        }
+//    }
+//    return map.requestBody()
+    return reqMapOf(*pairs).requestBody()
 }
 
-fun reqMapOf(vararg pairs: Pair<String, String?>): Map<String, String> {
-    val map = hashMapOf<String, String>()
+fun reqMapOf(vararg pairs: Pair<String, Any?>): HashMap<String, Any> {
+    val map = hashMapOf<String, Any>()
     pairs.forEach {
         it.second?.let { v ->
             map[it.first] = v
