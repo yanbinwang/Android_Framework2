@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
+import androidx.annotation.ColorInt
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.cardview.widget.CardView
@@ -120,7 +121,7 @@ class ImageLoader private constructor() {
         /**
          * 获取弧度变化配置
          */
-        private fun getCornerTransform(view: ImageView?, cornerRadius: Int, overrideCorners: BooleanArray, overrideColor: Int): RequestOptions? {
+        private fun getCornerTransform(view: ImageView?, cornerRadius: Int, overrideCorners: BooleanArray, @ColorInt overrideColor: Int): RequestOptions? {
             view ?: return null
             return if (cornerRadius > 0) {
                 val transformation = CornerTransform(view.context, overrideCorners, cornerRadius.toSafeFloat(), overrideColor)
@@ -422,15 +423,15 @@ class ImageLoader private constructor() {
      * @param cornerRadius 圆角半径
      * @param overrideCorners 用于指定是否覆盖某些角的圆角设置，长度为 4 的布尔数组，顺序为左上、右上、右下、左下
      */
-    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadRoundedImageFromUrl(view: ImageView?, imageUrl: String?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, @ColorInt overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImage(view, imageUrl, error, getCornerTransform(view, cornerRadius, overrideCorners, overrideColor), ImageType.ROUNDED, onLoadStart, onLoadComplete)
     }
 
-    fun loadRoundedImageFromResource(view: ImageView?, @RawRes @DrawableRes imageResource: Int?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadRoundedImageFromResource(view: ImageView?, @RawRes @DrawableRes imageResource: Int?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, @ColorInt overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImage(view, imageResource, error, getCornerTransform(view, cornerRadius, overrideCorners, overrideColor), ImageType.ROUNDED, onLoadStart, onLoadComplete)
     }
 
-    fun loadRoundedImageFromDrawable(view: ImageView?, imageDrawable: Drawable?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+    fun loadRoundedImageFromDrawable(view: ImageView?, imageDrawable: Drawable?, error: Any? = null, cornerRadius: Int = DEFAULT_CORNER_RADIUS, overrideCorners: BooleanArray = DEFAULT_OVERRIDE_CORNERS, @ColorInt overrideColor: Int = DEFAULT_CORNER_COLOR, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
         loadImage(view, imageDrawable, error, getCornerTransform(view, cornerRadius, overrideCorners, overrideColor), ImageType.ROUNDED, onLoadStart, onLoadComplete)
     }
 

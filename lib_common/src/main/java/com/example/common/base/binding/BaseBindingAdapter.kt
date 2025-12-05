@@ -10,6 +10,7 @@ import android.widget.EditText
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -205,7 +206,7 @@ object BaseBindingAdapter {
      * 特殊文本显示文本
      * @text:文本文案 -> "普通文本"
      * @spannable:高亮文本文案 -> TextSpan().add("高亮文本", ColorSpan(color(R.color.bgMain))).build()
-     * @textColor:文本颜色 -> "文本颜色(@ColorInt):${R.color.bgBlack}"
+     * @textColor:文本颜色 -> "文本颜色(@ColorRes):${R.color.bgBlack}"
      * @background:view背景 -> "背景:${R.drawable.shape_r20_grey}"
      * @visibility:view可见性 -> "可见性:${View.VISIBLE}"
      *
@@ -215,7 +216,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         if (view is TextView) {
             // 处理文本设置
             text?.let { newText ->

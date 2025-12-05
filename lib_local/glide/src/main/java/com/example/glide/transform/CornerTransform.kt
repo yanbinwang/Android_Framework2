@@ -11,6 +11,7 @@ import android.graphics.Path
 import android.graphics.PorterDuff
 import android.graphics.RectF
 import android.graphics.Shader
+import androidx.annotation.ColorInt
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.Transformation
 import com.bumptech.glide.load.engine.Resource
@@ -24,7 +25,7 @@ import java.security.MessageDigest
  * @overRide leftTop/rightTop/leftBottom/rightBottom
  * @radius 弧度
  */
-class CornerTransform(context: Context, private var overRide: BooleanArray, private var targetRadius: Float, private val bgColor: Int = Color.WHITE) : Transformation<Bitmap> {
+class CornerTransform(context: Context, private var overRide: BooleanArray, private var targetRadius: Float, @ColorInt private val bgColor: Int = Color.WHITE) : Transformation<Bitmap> {
     // 当前Glide线程池
     private val mBitmapPool = Glide.get(context).bitmapPool
 
