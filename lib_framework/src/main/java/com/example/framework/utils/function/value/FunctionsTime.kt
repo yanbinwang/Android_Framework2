@@ -263,18 +263,18 @@ fun String?.getWeekOfMonth(): Int {
 }
 
 /**
- * 获取日期是第几周
- * @param source 日期（yyyy-MM-dd）
- * @return       周数（记得+1）
+ * 获取日期是「星期几」
+ * @param this 日期（yyyy-MM-dd）
+ * @return 1(周一)~7(周日)
  */
 fun String?.getWeekOfDate(): Int {
     this ?: return 0
     return try {
-        Calendar.getInstance().let {
-            it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
-            var weekIndex = it.get(Calendar.DAY_OF_WEEK) - 1
-            if (weekIndex < 0) weekIndex = 0
-            weekIndex
+        Calendar.getInstance(Locale.CHINA).apply {
+            time = EN_YMD.getDateFormat().parse(this@getWeekOfDate).toSafeDate()
+        }.get(Calendar.DAY_OF_WEEK).let {
+            // Calendar中：周日=1，周一=2...周六=7 → 转换为：周一=1，周日=7
+            if (it == Calendar.SUNDAY) 7 else it - 1
         }
     } catch (e: ParseException) {
         e.printStackTrace()
