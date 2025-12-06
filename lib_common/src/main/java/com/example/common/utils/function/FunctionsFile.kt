@@ -27,6 +27,7 @@ import java.math.BigDecimal
 import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.math.RoundingMode
+import java.nio.file.Files.isSymbolicLink
 import java.security.MessageDigest
 
 /**
@@ -358,6 +359,54 @@ fun File?.renameFileTo(targetFile: File): Boolean {
         return false
     }
     return renameTo(targetFile)
+}
+
+/**
+ * 判断目录下是否存在文件（递归遍历所有子目录，找到第一个文件就返回true）
+ * Android 6.0+ 需动态申请 READ_EXTERNAL_STORAGE/WRITE_EXTERNAL_STORAGE（针对外部存储）；
+ * Android 10+ 需在 AndroidManifest.xml 中添加 android:requestLegacyExternalStorage="true"（兼容旧存储访问）；
+ * Android 11+ 推荐使用 MediaStore 或 Scoped Storage，避免直接访问外部存储根目录。
+ */
+fun File.hasFiles(recursive: Boolean = true): Boolean {
+    // 基础校验：不存在/非目录 → 无文件
+    if (!exists() || !isDirectory) return false
+    try {
+        val dirQueue = ArrayDeque<File>()
+        dirQueue.add(this)
+        while (dirQueue.isNotEmpty()) {
+            val currentDir = dirQueue.removeFirst()
+            val files = currentDir.listFiles() ?: continue
+            for (file in files) {
+                // 跳过符号链接（避免循环/无效遍历）
+                if (isSymbolicLinkCompat(file)) continue
+                // 找到文件 → 直接返回true（无需继续遍历）
+                if (file.isFile) return true
+                // 需要递归 → 将子目录加入队列
+                if (recursive && file.isDirectory) {
+                    dirQueue.add(file)
+                }
+            }
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 权限不足/IO异常等 → 视为无文件
+        return false
+    }
+    // 遍历完所有目录都没找到文件 → 返回false
+    return false
+}
+
+/**
+ * 纯File实现的符号链接判断（API 1+ 兼容）
+ */
+private fun isSymbolicLinkCompat(file: File): Boolean {
+    if (!file.exists()) return false
+    return try {
+        file.absolutePath != file.canonicalPath
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }
 
 /**
