@@ -100,16 +100,19 @@ class LinkActivity : BaseActivity<Nothing>() {
             "normal" -> {
                 // 获取跳转的路由地址
                 val path = intentString(Extra.ID, RouterPath.StartActivity)
-                // 获取跳转的class
-                val clazz = path.getDestinationClass()
-                // 不管存在不存在,先关闭
-                AppManager.finishTargetActivity(clazz)
-                // 跳转对应页面
-                navigation(path, options = getFadeOptions())
-                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-                schedule(this,{
-                    AppManager.finishAllExcept(clazz)
-                },500)
+//                // 获取跳转的class
+//                val clazz = path.getDestinationClass()
+//                // 不管存在不存在,先关闭
+//                AppManager.finishTargetActivity(clazz)
+//                // 跳转对应页面
+//                navigation(path, options = getFadeOptions())
+//                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+//                schedule(this,{
+//                    AppManager.finishAllExcept(clazz)
+//                },500)
+                AppManager.ensureActivityAliveWithFallback(path) {
+                    navigation(path, options = getFadeOptions())
+                }
             }
             //其他情况统一关闭
             else -> finish()
