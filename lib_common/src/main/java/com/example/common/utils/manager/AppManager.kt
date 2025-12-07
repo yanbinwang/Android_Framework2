@@ -11,7 +11,6 @@ import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
-import com.example.framework.utils.function.value.toNewList
 import com.therouter.TheRouter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -379,16 +378,17 @@ object AppManager {
     }
 
     /**
-     * 保证首页（MainActivity）始终存活的前提下，批量关闭「非指定排除列表」的页面
+     * 保证首页（MainActivity）始终存活的前提下，关闭「非指定排除列表」的页面
      */
-    fun ensureMainActivityAliveWithFallback(vararg classNames: String, block: () -> Unit) {
-        // 构建排除列表：确保首页始终被排除
-        val clsNamesList = classNames.toMutableList()
-        if (!clsNamesList.any { it == RouterPath.MainActivity }) {
-            clsNamesList.add(RouterPath.MainActivity)
+    fun ensureMainActivityAliveWithFallback(className: String, block: () -> Unit) {
+        // 获取跳转的class
+        val clazz = className.getDestinationClass()
+        // 排除的页面
+        val excludedList = arrayListOf(clazz)
+        // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
+        if (className != RouterPath.MainActivity) {
+            excludedList.add(RouterPath.MainActivity.getDestinationClass())
         }
-        // 将「页面路径字符串」转换为对应的Activity Class
-        val excludedList = clsNamesList.toNewList { it.getDestinationClass() }
         // 保证首页存活
         ensureMainActivityAliveWithFallback {
             // 执行跳转对应页面
