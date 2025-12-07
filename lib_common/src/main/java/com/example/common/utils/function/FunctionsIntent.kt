@@ -142,6 +142,59 @@ private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
 }
 
 /**
+ * 跳转当前应用的 MANAGE_EXTERNAL_STORAGE 专属设置页（最优路径）
+ */
+fun Context?.pullUpManageStorageSetting() {
+    this ?: return
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+            // 通过Uri定向到当前应用的设置项
+            data = "package:${packageName}".toUri()
+            // 避免创建新任务栈，返回时能回到应用
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 部分厂商（如小米、华为）可能修改了Action，走兜底方案
+        jumpToManageStorageFallbackSetting()
+    }
+}
+
+/**
+ * 跳转系统“所有文件访问权限”总设置页
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun Context?.jumpToManageStorageFallbackSetting() {
+    this ?: return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 极端情况：跳应用信息页，让用户手动找存储权限
+        jumpToAppInfoSetting()
+    }
+}
+
+/**
+ * 跳应用信息页（所有权限的总入口）
+ */
+private fun Context?.jumpToAppInfoSetting() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = "package:${packageName}".toUri()
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    startActivity(intent)
+}
+
+/**
  * 高版本后台服务有浮层需要允许当前设置
  * Settings.canDrawOverlays(this)
  */
