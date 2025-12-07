@@ -1,13 +1,5 @@
 package com.example.thirdparty.firebase.utils
 
-import androidx.activity.ComponentActivity
-import com.example.common.utils.manager.ARouterManager
-import com.example.framework.utils.function.intentString
-import com.example.framework.utils.function.value.execute
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.value.unicodeDecode
-
 /**
  * 处理推送通知
  */

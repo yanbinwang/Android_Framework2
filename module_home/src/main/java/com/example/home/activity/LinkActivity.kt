@@ -5,10 +5,12 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getFadeOptions
+import com.example.common.base.page.getFadePreview
 import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -74,12 +76,15 @@ class LinkActivity : BaseActivity<Nothing>() {
 
     private fun onLink() {
         when (source) {
-//            // 只要是推送，全局开启onFinish监听，拉起首页
-//            needOpenHome.set(true)
+//            // 推送消息
 //            "push" -> {
+//                // 只要是推送，全局开启onFinish监听，拉起首页
+//                needOpenHome.set(true)
+//                //預留3s的關閉時間
+//                setTimeOut()
 //                if (!handlePush(this)) {
 //                    timeOutJob?.cancel()
-//                    navigation(ARouterPath.MainActivity, options = getFadePreview())
+//                    navigation(RouterPath.MainActivity, options = getFadePreview())
 //                } else {
 //                    finish()
 //                }
@@ -88,21 +93,27 @@ class LinkActivity : BaseActivity<Nothing>() {
             "normal" -> {
                 // 获取跳转的路由地址
                 val path = intentString(Extra.ID, RouterPath.MainActivity)
-                // 获取跳转的class
-                val clazz = path.getDestinationClass()
-                // 排除的页面
-                val excludedList = arrayListOf(clazz)
-                // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
-                if (path != RouterPath.MainActivity) {
-                    excludedList.add(RouterPath.MainActivity.getDestinationClass())
-                }
-                AppManager.ensureMainActivityAliveWithFallback(this) {
+//                // 获取跳转的class
+//                val clazz = path.getDestinationClass()
+//                // 排除的页面
+//                val excludedList = arrayListOf(clazz)
+//                // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
+//                if (path != RouterPath.MainActivity) {
+//                    excludedList.add(RouterPath.MainActivity.getDestinationClass())
+//                }
+//                AppManager.ensureMainActivityAliveWithFallback(this) {
+//                    // 跳转对应页面
+//                    navigation(path, options = getFadeOptions())
+//                    // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+//                    schedule(this,{
+//                        AppManager.finishNotTargetActivity(*excludedList.toTypedArray())
+//                    },500)
+//                }
+                AppManager.ensureMainActivityAliveWithFallback(path) {
                     // 跳转对应页面
-                    navigation(path, options = getFadeOptions())
-                    // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-                    schedule(this,{
-                        AppManager.finishNotTargetActivity(*excludedList.toTypedArray())
-                    },500)
+                    if (path != RouterPath.MainActivity) {
+                        navigation(path, options = getFadeOptions())
+                    }
                 }
             }
             //其他情况统一走firebase处理

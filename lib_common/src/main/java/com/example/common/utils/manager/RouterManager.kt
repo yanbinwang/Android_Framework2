@@ -7,7 +7,7 @@ import com.example.common.base.bridge.BaseView
  * view如果不需要点击有转圈动画可不传
  * 部分跳转需要网络请求，有需要动画拦截的可以传
  */
-class ARouterManager(private val view: BaseView? = null) {
+class RouterManager(private val view: BaseView? = null) {
 //    /**
 //     * 充币chargecoin
 //     * 提币withdrawcoin
