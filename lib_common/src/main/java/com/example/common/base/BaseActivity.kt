@@ -135,6 +135,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
     }
 
+    /**
+     * 复用页面时强制统一动画（右侧划入）
+     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         /**
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：

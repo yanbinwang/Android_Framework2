@@ -11,6 +11,8 @@ import com.example.common.base.page.Extra
 import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.value.toNewList
 import com.therouter.TheRouter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -334,10 +336,10 @@ object AppManager {
 
     /**
      * 重启app任务栈
-     * 1.安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
-     * 2.通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
+     * 1) 安卓12+如果当前任务栈为空的情况下,通过application拉起一个页面,写了动画也是无响应的
+     * 2) 通过和推送通知一样的处理,先拉起一个全屏透明的页面,然后跳转到对应配置的页面(其余页面全部关闭)
      */
-    fun rebootTaskStackAndLaunchTarget(className: String? = RouterPath.StartActivity) {
+    fun rebootTaskStackAndLaunchTarget(className: String) {
         TheRouter.build(RouterPath.LinkActivity)
             .withString(Extra.SOURCE, "normal")
             .withString(Extra.ID, className)
@@ -349,14 +351,53 @@ object AppManager {
      * 1)确保任务栈内存在首页
      * 2)确保任务栈内至少存在一个页面
      */
-    fun ensureMainActivityAliveWithFallback(context: Context, resp: () -> Unit) {
+    fun ensureMainActivityAliveWithFallback(block: () -> Unit) {
         val mainClazz = RouterPath.MainActivity.getDestinationClass()
         if (!isActivityAlive(mainClazz)) {
+            val context = currentActivity() ?: BaseApplication.instance.applicationContext
             TheRouter.build(RouterPath.MainActivity)
                 .withOptionsCompat(context.getNoneOptions()?.toBundle())
                 .navigation()
         }
-        resp.invoke()
+        block.invoke()
+    }
+
+    /**
+     * 保证首页（MainActivity）始终存活的前提下，批量关闭「非指定排除列表」的页面
+     */
+    fun ensureMainActivityAliveWithFallback(vararg clsNames: String, block: () -> Unit) {
+        // 构建排除列表：确保首页始终被排除
+        val clsNamesList = clsNames.toMutableList()
+        if (!clsNamesList.any { it == RouterPath.MainActivity }) {
+            clsNamesList.add(RouterPath.MainActivity)
+        }
+        // 将「页面路径字符串」转换为对应的Activity Class
+        val excludedList = clsNamesList.toNewList { it.getDestinationClass() }
+        // 保证首页存活
+        ensureMainActivityAliveWithFallback {
+            // 执行跳转对应页面
+            block.invoke()
+            // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+            schedule(ProcessLifecycleOwner.get(),{
+                finishNotTargetActivity(*excludedList.toTypedArray())
+            },500)
+        }
+    }
+
+    /**
+     * 保证指定页面在任务栈中「唯一存活」
+     */
+    fun ensureActivityAliveWithFallback(clsName: String, block: () -> Unit) {
+        // 获取跳转的class
+        val clazz = clsName.getDestinationClass()
+        // 不管存在不存在,先关闭
+        finishTargetActivity(clazz)
+        // 跳转对应页面
+        block.invoke()
+        // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+        schedule(ProcessLifecycleOwner.get(),{
+            finishAllExcept(clazz)
+        },500)
     }
 
 }
