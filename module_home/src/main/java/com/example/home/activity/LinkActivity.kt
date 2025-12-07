@@ -70,18 +70,6 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     private fun onLink() {
-//        // 只要是推送，全局开启onFinish监听，拉起首页
-//        BaseApplication.needOpenHome = true
-//        when (source) {
-//            //推送消息
-//            "push" -> {
-//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
-//                finish()
-//            }
-//            //其他情况统一走firebase处理
-////            else -> handleDeepLink(this) { finish() }
-//            else -> finish()
-//        }
         when (source) {
 //            // 推送消息
 //            "push" -> {
@@ -110,7 +98,7 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                schedule(this,{
 //                    AppManager.finishAllExcept(clazz)
 //                },500)
-                AppManager.ensureActivityAliveWithFallback(path) {
+                AppManager.rebootTaskStackAndLaunchTarget(path) {
                     navigation(path, options = getFadeOptions())
                 }
             }
