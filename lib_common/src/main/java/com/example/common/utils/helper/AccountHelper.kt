@@ -7,6 +7,7 @@ import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.RouterPath
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
 import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
+import com.example.common.network.socket.topic.WebSocketConnect
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.manager.CacheDataManager
 import com.example.framework.utils.function.value.add
@@ -157,30 +158,61 @@ object AccountHelper {
      * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
      */
     @JvmStatic
-    fun signOut(isNavigation: Boolean = true) {
+    fun signOut() {
         // 清除mmkv和默认配置的数据库等缓存数据
+        signError()
+        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.StartActivity)
+    }
+
+    @JvmStatic
+    fun signOut(isNavigation: Boolean = true) {
         userBean.del()
         userInfoBean.del()
-        CacheDataManager.clearCacheBySignOut()
-        // 断开/终止三方库的连接(其内部应包含数据的删除)
+//        CacheDataManager.clearCacheBySignOut()
+//        ZendeskUtil.logout(true)
+//        // 断开/终止三方库的连接(其内部应包含数据的删除)
 //        WebSocketConnect.disconnect()
-        // 根据app的实际情况分为一下两种处理
-        /**
-         * App需要强制登录后才能进入首页
-         * 1)isNavigation: Boolean = true删除
-         * 2)拉起透明页面,通过AppManager.reboot
-         * 3)LoginActivity/StartActivity使用singleTask
-         */
-        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.LoginActivity)
-        /**
-         * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
-         * 1)isNavigation: Boolean = true保留,部分页面无需强制拉起首页
-         * 2)LoginActivity使用singleTop
-         */
         EVENT_USER_LOGIN_OUT.post()
         if (isNavigation) {
             TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
         }
+    }
+
+//    @JvmStatic
+//    fun signOut(isNavigation: Boolean = true) {
+//        // 清除mmkv和默认配置的数据库等缓存数据
+//        userBean.del()
+//        userInfoBean.del()
+//        CacheDataManager.clearCacheBySignOut()
+//        // 断开/终止三方库的连接(其内部应包含数据的删除)
+////        WebSocketConnect.disconnect()
+//        // 根据app的实际情况分为一下两种处理
+//        /**
+//         * App需要强制登录后才能进入首页
+//         * 1)isNavigation: Boolean = true删除
+//         * 2)拉起透明页面,通过AppManager.reboot
+//         * 3)LoginActivity/StartActivity使用singleTask
+//         */
+//        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.LoginActivity)
+//        /**
+//         * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
+//         * 1)isNavigation: Boolean = true保留,部分页面无需强制拉起首页
+//         * 2)LoginActivity使用singleTop
+//         */
+//        EVENT_USER_LOGIN_OUT.post()
+//        if (isNavigation) {
+//            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+//        }
+//    }
+
+    /**
+     * 登录时，有2个值是需要保证的，用户登录信息，基本信息
+     * 只要有一个接口报错，全部清空，反之依次存储
+     */
+    @JvmStatic
+    fun signError() {
+        userBean.del()
+        userInfoBean.del()
     }
     // </editor-fold>
 
