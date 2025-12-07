@@ -392,7 +392,9 @@ object AppManager {
         // 保证首页存活
         ensureMainActivityAliveWithFallback {
             // 执行跳转对应页面
-            block.invoke()
+            if (className != RouterPath.MainActivity) {
+                block.invoke()
+            }
             // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
             schedule(ProcessLifecycleOwner.get(), {
                 finishNotTargetActivity(*excludedList.toTypedArray())
