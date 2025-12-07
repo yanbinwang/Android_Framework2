@@ -111,9 +111,7 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                }
                 AppManager.ensureMainActivityAliveWithFallback(path) {
                     // 跳转对应页面
-                    if (path != RouterPath.MainActivity) {
-                        navigation(path, options = getFadeOptions())
-                    }
+                    navigation(path, options = getFadeOptions())
                 }
             }
             //其他情况统一走firebase处理
