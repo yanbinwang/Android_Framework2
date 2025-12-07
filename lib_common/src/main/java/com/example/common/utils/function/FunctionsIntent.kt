@@ -77,6 +77,26 @@ fun ActivityResultLauncher<Intent>?.pullUpScreen(mContext: Context?) {
 }
 
 /**
+ * 拉起系统默认文件选择
+ * 处理选择结果（替代原onActivityResult逻辑）
+ * if (result.resultCode == RESULT_OK) {
+ *     val uri = result.data?.data
+ *     uri?.let {
+ *         // 拷贝到私有目录（子线程执行）
+ *         lifecycleScope.launch(Dispatchers.IO) {
+ *         copyUriToPrivateDir(it, this@YourActivity)
+ *     }
+ * }
+ */
+fun ActivityResultLauncher<Intent>?.pullUpFilePicker() {
+    this ?: return
+    launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "*/*" // 支持所有文件类型，可按需限定（如"application/pdf"）
+    })
+}
+
+/**
  * 拉起系统默认相机
  */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
@@ -108,7 +128,7 @@ fun Activity?.pullUpImage() {
     this ?: return
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    forResult(file, intent, RESULT_IMAGE)
+    startActivityForResult(file, intent, RESULT_IMAGE)
 }
 
 /**
@@ -121,10 +141,10 @@ fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    forResult(file, intent, RESULT_VIDEO)
+    startActivityForResult(file, intent, RESULT_VIDEO)
 }
 
-private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
+private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int) {
     if (null == file || null == this) return
     try {
         val uri: Uri?
