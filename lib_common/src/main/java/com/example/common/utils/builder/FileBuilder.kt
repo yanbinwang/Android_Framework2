@@ -32,7 +32,7 @@ import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.copy
-import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
@@ -41,10 +41,12 @@ import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.read
+import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
-import com.example.common.utils.i18n.string
+import com.example.common.utils.function.string
+import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
@@ -76,14 +78,14 @@ import kotlin.coroutines.resumeWithException
  * format->图片类型
  * quality->压缩率
  */
-suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     return withContext(IO) {
         if (null != bitmap) {
             // 存储目录文件
             val storeDir = File(root)
             // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) root.deleteDir()
-            // 创建目录
+            if (deleteDir) root.deleteDirectory()
+            // 确保目录创建
             root.ensureDirExists()
             // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
             val suffix = when (format) {
@@ -226,11 +228,6 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
  * 修整部分图片方向不正常
  * 取得一个新的图片文件
  */
-/**
- * 旋转图片
- * 修整部分图片方向不正常
- * 取得一个新的图片文件
- */
 suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100, originalDegree: Int = -1): File? {
     return try {
         withContext(IO) {
@@ -267,7 +264,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
             }
             // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
             val rotatedFileName = file.name.replace(Regex("\\.${suffix}$"), "_rotated.${suffix}")
-            val rotatedFile = File(file.parent ?: getStoragePath("Save Image"), rotatedFileName)
+            val rotatedFile = File(file.parent ?: getStoragePath("保存图片"), rotatedFileName)
             // 保存旋转后的图片
             rotatedFile.outputStream().use { outputStream ->
                 // 如果是PNG，无论quality为何值，压缩后图片文件大小都不会变化
@@ -454,13 +451,13 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
         throw RuntimeException(string(R.string.linkError))
     }
     // 清除目录下的所有文件
-    filePath.deleteDir()
+    filePath.deleteDirectory()
     // 创建一个安装的文件，开启io协程写入
     val file = File(filePath.ensureDirExists(), fileName)
     return withContext(IO) {
         try {
-            // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
-            val body = CommonApi.instance.getDownloadApi(downloadUrl)
+            // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
+            val body = CommonApi.downloadInstance.getDownloadApi(downloadUrl)
             val buf = ByteArray(2048)
             val total = body.contentLength()
             body.byteStream().use { inputStream ->
@@ -471,7 +468,9 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
                         outputStream.write(buf, 0, len)
                         sum += len.toLong()
                         val progress = (sum * 1.0f / total * 100).toSafeInt()
-                        withContext(Main) { listener.invoke(progress) }
+                        withContext(Main) {
+                            listener.invoke(progress)
+                        }
                     }
                     outputStream.flush()
                     file.path
@@ -486,33 +485,34 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         // 存储目录文件
         val storeDir = File(root)
         // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-        if (deleteDir) root.deleteDir()
-        // 创建目录
+        if (deleteDir) root.deleteDirectory()
+        // 确保目录创建
         root.ensureDirExists()
         suspendingGlideDownload(mContext, string, storeDir)
     }
 }
 
-private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
-    ImageLoader.instance.downloadImage(mContext, string) { file ->
-        // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-        if (null == file || !file.exists()) {
-            it.resumeWithException(RuntimeException("下载失败"))
-        } else {
-            file.copy(storeDir)
-            file.delete()
-            it.resume("${storeDir.absolutePath}/${file.name}")
+private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) =
+    suspendCancellableCoroutine {
+        ImageLoader.instance.downloadImage(mContext, string) { file ->
+            // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+            if (null == file || !file.exists()) {
+                it.resumeWithException(RuntimeException("下载失败"))
+            } else {
+                file.copy(storeDir)
+                file.delete()
+                it.resume("${storeDir.absolutePath}/${file.name}")
+            }
         }
     }
-}
 
 /**
- * 文件分割
+ * 文件分片
  */
 suspend fun suspendingFileSplit(sourcePath: String?, cutSize: Long): MutableList<String> {
     sourcePath ?: return arrayListOf()
@@ -606,12 +606,12 @@ fun generateCrashLog(throwable: Throwable, thread: Pair<String, Long> = Thread.c
 fun saveCrashLogToFile(logContent: String) {
     try {
         // 获取存储路径（优先使用应用内部存储，避免权限问题）
-        val logDir = File(getStoragePath("Crash Log", false))
+        val logDir = File(getStoragePath("崩溃日志", false))
         if (!logDir.exists()) {
             logDir.mkdirs()
         }
         // 日志文件名（以时间命名）
-        val fileName = "crash_${EN_YMDHMS.convert(currentTimeStamp)}.txt"
+        val fileName = "crash_${CN_YMDHMS.convert(currentTimeStamp)}.txt"
         val logFile = File(logDir, fileName)
         // 写入日志
         FileWriter(logFile, true).use { writer ->
@@ -620,5 +620,65 @@ fun saveCrashLogToFile(logContent: String) {
         }
     } catch (e: Exception) {
         e.printStackTrace()
+    }
+}
+
+/**
+ * 获取到所有存储崩溃日志的文件集合
+ */
+fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false)): List<File> {
+    // 路径为空直接返回空列表
+    logDirPath ?: return emptyList()
+    // 验证目录是否存在
+    val logDir = File(logDirPath)
+    // 目录不存在/不是目录：尝试创建目录（后续可能需要写入日志），返回空列表
+    if (!logDir.exists()) {
+        logDir.mkdirs()
+        return emptyList()
+    }
+    if (!logDir.isDirectory) {
+        return emptyList()
+    }
+    // 筛选逻辑优化：
+    // 1.仅保留txt文件
+    // 2.过滤空文件/全空白文件（自动删除）
+    // 3.按修改时间升序排序（优先上传旧日志）
+    return logDir.listFiles { file ->
+        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && file.isNonEmptyLogFile()
+    }?.sortedBy { it.lastModified() } ?: emptyList()
+}
+
+/**
+ * 检测文件是否为有效日志文件（非空+有实际内容）
+ * @return true：文件非空且有有效内容；false：空文件（直接删除）
+ */
+private fun File.isNonEmptyLogFile(): Boolean {
+    // 快速校验文件大小（0字节直接删除）
+    if (length() == 0L) {
+        safeDelete()
+        return false
+    }
+    // 校验是否有非空白内容（避免全是空格/换行的无效文件）
+    return try {
+        // 流式读取，仅判断是否存在非空白行，不加载全部内容（优化内存）
+        bufferedReader().use { reader ->
+            // 最多读取前10行，避免超大空白文件耗时读取
+            val hasValidContent = reader.lineSequence()
+                .take(10)
+                .any { line -> line.isNotBlank() }
+            if (!hasValidContent) {
+                safeDelete()
+            }
+            hasValidContent
+        }
+    } catch (e: IOException) {
+        // 文件读取异常（如损坏、权限不足），视为无效文件
+        e.printStackTrace()
+        safeDelete()
+        false
+    } catch (e: SecurityException) {
+        // 捕获权限异常（Android 13+ 分区存储场景）
+        e.printStackTrace()
+        false
     }
 }

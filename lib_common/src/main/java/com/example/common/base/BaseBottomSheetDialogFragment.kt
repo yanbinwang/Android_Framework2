@@ -69,6 +69,9 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 底部弹框使用的dialog
+ * // 不可滑动关闭
+ * dialog?.setCanceledOnTouchOutside(false)
+ * dialog?.setCancelable(false)
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {

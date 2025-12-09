@@ -1,5 +1,6 @@
 package com.example.common.utils.function
 
+import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -7,9 +8,12 @@ import android.graphics.Canvas
 import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.net.Uri
+import android.os.Build
+import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Base64
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
@@ -21,13 +25,14 @@ import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import java.io.File
+import java.io.FileOutputStream
 import java.io.RandomAccessFile
 import java.math.BigDecimal
 import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.math.RoundingMode
-import java.nio.file.Files.isSymbolicLink
 import java.security.MessageDigest
 
 /**
@@ -39,11 +44,55 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
 
 /**
  * 发送广播通知更新数据库
+ * MediaStore.Images.Media.insertImage 在Android 10+已废弃，且返回值不可靠
+ * ACTION_MEDIA_SCANNER_SCAN_FILE 广播在Android 10+对外部存储部分路径失效
  */
 fun Context.insertImageResolver(file: File?) {
     file ?: return
-    MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
-    sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, "file://${file.path}".toUri()))
+    if (!file.exists() || !file.canRead()) {
+        "文件不存在或不可读：${file.absolutePath}".logWTF
+        return
+    }
+    // 适配 Android 10+（Scoped Storage）
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        insertImageToMediaStoreQPlus(file)
+    } else {
+        // 低版本保留原有逻辑
+        MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
+        sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, "file://${file.path}".toUri()))
+    }
+}
+
+/**
+ * Android 10+ 插入图片到媒体库（触发扫描）
+ */
+@RequiresApi(Build.VERSION_CODES.Q)
+private fun Context.insertImageToMediaStoreQPlus(file: File) {
+    val contentValues = ContentValues().apply {
+        put(MediaStore.Images.Media.DISPLAY_NAME, file.name)
+        put(MediaStore.Images.Media.MIME_TYPE, "image/*")
+        put(MediaStore.Images.Media.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + File.separator + packageName)
+        put(MediaStore.Images.Media.IS_PENDING, 1) // 标记为待处理，避免扫描中断
+    }
+    // 插入到媒体库
+    val uri = contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+    uri ?: return
+    // 写入文件内容到媒体库 Uri
+    try {
+        contentResolver.openOutputStream(uri)?.use { outputStream ->
+            file.inputStream().use { inputStream ->
+                inputStream.copyTo(outputStream)
+            }
+        }
+        // 取消待处理标记，触发媒体库扫描
+        contentValues.clear()
+        contentValues.put(MediaStore.Images.Media.IS_PENDING, 0)
+        contentResolver.update(uri, contentValues, null, null)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 插入失败，删除临时记录
+        contentResolver.delete(uri, null, null)
+    }
 }
 
 /**
@@ -84,6 +133,17 @@ fun Context?.getFormattedCacheSize(): String {
 }
 
 /**
+ * 判断字符串路径对应的文件/目录是否存在
+ * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
+ */
+fun String?.isPathExists(): Boolean {
+    this ?: return false
+    val trimmedPath = trim()
+    if (trimmedPath.isEmpty()) return false
+    return File(trimmedPath).exists()
+}
+
+/**
  * 获取字符串路径对应的文件/目录长度
  * 1) 若为文件：返回文件大小（字节）
  * 2) 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
@@ -92,8 +152,9 @@ fun Context?.getFormattedCacheSize(): String {
 fun String?.getFileLength(): Long {
     this ?: return 0L
     return try {
-        val file = File(this.trim())
-        if (file.exists()) file.length() else 0L
+        if (!isPathExists()) return 0L
+        val file = File(this)
+        if (file.exists() && file.canRead()) file.length() else 0L
     } catch (e: Exception) {
         e.printStackTrace()
         0L
@@ -101,158 +162,21 @@ fun String?.getFileLength(): Long {
 }
 
 /**
- * 校验文件是否无独占写锁定、可删除（间接判断）
- * @param this 文件路径
- * @return true：无写锁定，可尝试删除；false：有写锁定/占用
- */
-fun String?.isFileWritableAndDeletable(): Boolean {
-    this ?: return false
-    // 文件是否存在
-    if (!isPathExists()) return false
-    // 文件是否可写（间接判断无独占写锁定）
-    val file = File(this)
-    if (!file.canWrite()) return false
-    // 尝试创建临时文件（进一步确认目录无锁定）
-    val parentDir = file.parentFile ?: return false
-    val tempFile = File(parentDir, "temp_check_lock_${System.currentTimeMillis()}.tmp")
-    return try {
-        // 无论创建成功与否，最终都要删除临时文件（防残留）
-        val createSuccess = tempFile.createNewFile()
-        createSuccess
-    } catch (e: SecurityException) {
-        // 捕获“权限不足”异常（部分机型/目录可能限制创建临时文件）
-        e.printStackTrace()
-        false
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
-    } finally {
-        // 确保临时文件被删除，不残留
-        tempFile.safeDelete()
-    }
-}
-
-/**
- * 判断字符串路径对应的文件/目录是否存在
- * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
- */
-fun String?.isPathExists(): Boolean {
-    this ?: return false
-    return File(this.trim()).exists()
-}
-
-/**
- * 确保目录存在（不存在则创建），返回目录绝对路径
- * mkdirs():创建目录（文件夹）
- * createNewFile():创建文件
- */
-fun String?.ensureDirExists(): String {
-    // 空路径直接返回空
-    this ?: return ""
-    // 去除首尾空格（避免路径含无效空格导致创建失败）
-    val dirPath = trim()
-    if (dirPath.isEmpty()) return ""
-    // 取得文件类
-    val dir = File(dirPath)
-    return try {
-        // 目录已存在 → 直接返回绝对路径
-        if (dir.exists()) {
-            // 路径存在但不是目录 → 返回空
-            if (dir.isDirectory) {
-                dir.absolutePath
-            } else {
-                ""
-            }
-        } else {
-            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）
-            if (dir.mkdirs()) {
-                dir.absolutePath
-            } else {
-                // 创建成功返回路径，失败返回空
-                ""
-            }
-        }
-    } catch (e: Exception) {
-        // 捕获异常（权限不足、路径无效等）
-        e.printStackTrace()
-        ""
-    }
-}
-
-/**
- * 删除文件
- */
-fun String?.deleteFile(): Boolean {
-    this ?: return false
-    return File(this).safeDelete()
-}
-
-/**
- * 删除目录下的所有文件,包含目录本身
- */
-fun String?.deleteDir(): Boolean {
-    this ?: return false
-    return File(this).let {
-        if (it.isDirectory) {
-            it.deleteRecursively()
-        } else {
-            it.safeDelete()
-        }
-    }
-}
-
-/**
- * 安全删除文件（处理文件占用等异常）
- */
-fun File?.safeDelete(): Boolean {
-    // 避免空路径文件
-    this ?: return false
-    if (this == File("")) return false
-    return try {
-        when {
-            // 文件不存在，视为删除成功
-            !exists() -> true
-            // 兼容目录（防止误传目录） -> 删除文件或目录（包括目录下所有子文件、子目录），一步到位清理整个文件树，Kotlin 标准库中 File 类的递归删除方法
-            isDirectory -> deleteRecursively()
-            // 余下的进入删除逻辑
-            else -> {
-                // 直接删除
-                if (delete()) return true
-                // 文件被占用，先重命名再删除
-                val tempFile = File(parent, "${name}.tmp.${System.currentTimeMillis()}")
-                if (renameTo(tempFile)) {
-                    tempFile.delete()
-                } else {
-                    /**
-                     * 最后尝试强制删除（部分场景有效）
-                     * 当调用 file.deleteOnExit() 时，JVM 会将该文件的路径添加到一个内部注册表中（本质是一个线程安全的集合）
-                     * 当 JVM 正常终止（比如 App 正常退出、进程被系统正常回收）时，会遍历这个注册表，尝试删除所有注册的文件
-                     * 删除顺序与注册顺序相反（先注册的后删除）
-                     * 仅对「文件」有效，对「目录」无效（目录需手动删除或用 deleteRecursively()）
-                     */
-                    deleteOnExit()
-                    false
-                }
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        false
-    }
-}
-
-/**
  * 文件本身的整体大小
  */
 fun String?.totalSize(): Long {
-    this ?: return 0
+    this ?: return 0L
+    if (!isPathExists()) return 0L
     return File(this).totalSize()
 }
 
 fun File?.totalSize(): Long {
-    this ?: return 0
+    this ?: return 0L
+    if (this == File("")) return 0L
     // 文件/目录不存在直接返回 0，避免无效遍历
-    if (!exists()) return 0
+    if (!exists() || !canRead()) return 0L
+    // 如果是文件，直接返回大小（无需遍历）
+    if (isFile) return length()
     var size = 0L
     // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
     for (mFile in listFiles().orEmpty()) {
@@ -263,8 +187,8 @@ fun File?.totalSize(): Long {
             mFile.length()
         }
     }
-    // 如果是单个文件，直接返回自身大小
-    return if (isFile) length() else size
+    // 返回自身大小
+    return size
 }
 
 /**
@@ -305,6 +229,139 @@ private fun formatStorageValue(value: Double): String {
     return BigDecimal.valueOf(value)
         .setScale(2, RoundingMode.HALF_UP)
         .toPlainString()
+}
+
+/**
+ * 确保目录存在（不存在则创建），返回目录绝对路径
+ * mkdirs():创建目录（文件夹）
+ * createNewFile():创建文件
+ */
+fun String?.ensureDirExists(): String {
+    // 空路径直接返回空
+    this ?: return ""
+    // 去除首尾空格（避免路径含无效空格导致创建失败）
+    val dirPath = trim()
+    if (dirPath.isEmpty()) return ""
+    // 取得文件类
+    val dir = File(dirPath)
+    return try {
+        // 目录已存在 → 直接返回绝对路径
+        if (dir.exists()) {
+            if (dir.isDirectory) {
+                dir.absolutePath
+            } else {
+                // 路径存在但不是目录 → 返回空
+                ""
+            }
+        } else {
+            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）
+            if (dir.mkdirs()) {
+                dir.absolutePath
+            } else {
+                // 创建成功返回路径，失败返回空
+                ""
+            }
+        }
+    } catch (e: Exception) {
+        // 捕获异常（权限不足、路径无效等）
+        e.printStackTrace()
+        ""
+    }
+}
+
+/**
+ * 校验文件是否无独占写锁定、可删除（间接判断）
+ * @param this 文件路径
+ * @return true：无写锁定，可尝试删除；false：有写锁定/占用
+ */
+fun String?.isFileWritableAndDeletable(): Boolean {
+    this ?: return false
+    // 文件是否存在
+    if (!isPathExists()) return false
+    // 文件是否可写（间接判断无独占写锁定）
+    val file = File(this)
+    if (!file.canWrite()) return false
+    // 尝试创建临时文件（进一步确认目录无锁定）
+    val parentDir = file.parentFile ?: return false
+    val tempFile = File(parentDir, "temp_check_lock_${System.currentTimeMillis()}.tmp")
+    return try {
+        // 无论创建成功与否，最终都要删除临时文件（防残留）
+        val createSuccess = tempFile.createNewFile()
+        createSuccess
+    } catch (e: SecurityException) {
+        // 捕获“权限不足”异常（部分机型/目录可能限制创建临时文件）
+        e.printStackTrace()
+        false
+    } catch (e: Exception) {
+        // 捕获未知异常
+        e.printStackTrace()
+        false
+    } finally {
+        // 确保临时文件被删除，不残留
+        tempFile.safeDelete()
+    }
+}
+
+/**
+ * 删除文件
+ */
+fun String?.deleteFile(): Boolean {
+    this ?: return false
+    if (!isPathExists()) return false
+    return File(this).safeDelete()
+}
+
+/**
+ * 删除目录下的所有文件,包含目录本身
+ */
+fun String?.deleteDirectory(): Boolean {
+    this ?: return false
+    if (!isPathExists()) return false
+    return File(this).let {
+        if (it.isDirectory) {
+            it.deleteRecursively()
+        } else {
+            it.safeDelete()
+        }
+    }
+}
+
+/**
+ * 安全删除文件（处理文件占用等异常）
+ */
+fun File?.safeDelete(): Boolean {
+    // 避免空路径文件
+    this ?: return false
+    if (this == File("")) return false
+    return try {
+        /**
+         * deleteRecursively() 核心能力（Kotlin 标准库）：
+         * 1) 自底向上遍历文件树（先删子文件，再删父目录）；
+         * 2) 兼容文件/目录：文件直接删，目录递归删；
+         * 3) 兜底判断：删除失败时检查文件是否不存在，不存在则视为成功；
+         * 4) 整体结果：所有文件删成功返回 true，否则返回 false。
+         */
+        // 提前判断，文件不存在视为删除成功，减少遍历开销
+        if (!exists()) return true
+        // 删失败则走兜底
+        val deleteSuccess = deleteRecursively()
+        if (deleteSuccess) {
+            true
+        } else {
+            /**
+             * 极端场景兜底，尝试强制删除（文件被系统/其他App占用）
+             * 当调用 file.deleteOnExit() 时，JVM 会将该文件的路径添加到一个内部注册表中（本质是一个线程安全的集合）
+             * 当 JVM 正常终止（比如 App 正常退出、进程被系统正常回收）时，会遍历这个注册表，尝试删除所有注册的文件
+             * 删除顺序与注册顺序相反（先注册的后删除）
+             * 仅对「文件」有效，对「目录」无效（目录需手动删除或用 deleteRecursively()）
+             */
+            deleteOnExit()
+            false
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        false
+    }
 }
 
 /**
@@ -410,6 +467,48 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
 }
 
 /**
+ * 获取文件的纯名称（去掉后缀，无后缀则返回完整文件名）
+ * @return 纯文件名（小写可选，建议和后缀保持一致）
+ */
+fun File?.getRealFileName(): String {
+    // 文件为空返回空
+    this ?: return ""
+    // 文件名本身为空返回空
+    val fileName = name ?: return ""
+    // 截取最后一个小数点前的内容（无小数点则返回完整文件名）
+    return fileName.substringBeforeLast(".", fileName).trim()
+}
+
+/**
+ * 解析文件的真实后缀（不含小数点，如 "jpg/png/tmp"）
+ * @return 后缀字符串，无后缀返回空字符串
+ */
+fun File?.getRealFileSuffix(): String {
+    this ?: return ""
+    val fileName = name ?: return ""
+    return fileName.substringAfterLast(".", "").lowercase().trim()
+}
+
+/**
+ * 从 Uri 解析源文件的真实后缀（绕过临时文件，直接读 Uri 元数据）
+ */
+fun Uri?.getRealSourceSuffix(context: Context?): String {
+    this ?: return ""
+    val mContext = context ?: BaseApplication.instance.applicationContext
+    // 优先从 MediaStore 解析（适配 content:// 协议）
+    val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
+    mContext.contentResolver.query(this, projection, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val fileName = cursor.getString(0) ?: return ""
+            return fileName.substringAfterLast(".", "").lowercase()
+        }
+    }
+    // 从 Uri 路径解析（适配 file:// 等协议）
+    val uriPath = this.path ?: return ""
+    return uriPath.substringAfterLast(".", "").lowercase()
+}
+
+/**
  * 获取目录下的所有文件的详细路径
  */
 fun File.getAllFilePaths(): List<String> {
@@ -421,52 +520,199 @@ fun File.getAllFilePaths(): List<String> {
 /**
  * 通过uri获取到一个文件
  */
-fun Uri?.getFileFromUri(): File? {
+fun Uri?.getFileFromUri(context: Context?): File? {
     this ?: return null
-    return this.toString().getFileFromUri()
+    return this.toString().getFileFromUri(context)
 }
 
-fun String?.getFileFromUri(): File? {
+fun String?.getFileFromUri(context: Context?): File? {
     this ?: return null
     val uri = toUri()
-    if (uri.path == null) return null
-    if (uri.scheme == "file") return File(this)
-    if (uri.scheme.isNullOrEmpty()) return File(this)
-    var realPath = String()
-    val databaseUri: Uri
-    val selection: String?
-    val selectionArgs: Array<String>?
-    if (uri.path?.contains("/document/image:").orFalse) {
-        databaseUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        selection = "_id=?"
-        selectionArgs = arrayOf(DocumentsContract.getDocumentId(uri).split(":")[1])
-    } else {
-        databaseUri = uri
-        selection = null
-        selectionArgs = null
-    }
-    try {
-        val column = "_data"
-        val projection = arrayOf(column)
-        val cursor = BaseApplication.instance.contentResolver.query(databaseUri, projection, selection, selectionArgs, null)
-        cursor?.let {
-            if (it.moveToFirst()) {
-                val columnIndex = cursor.getColumnIndexOrThrow(column)
-                realPath = cursor.getString(columnIndex)
+    if (uri.path.isNullOrEmpty()) return null
+    val mContext = context ?: BaseApplication.instance.applicationContext
+    return when {
+        // file:// 协议：本地文件（私有/低版本公共目录）
+        uri.scheme == "file" -> {
+            File(this).takeIf { it.exists() && it.canRead() }
+        }
+        // http/https 协议：网络文件（直接返回null，提示需下载）
+        uri.scheme == "http" || uri.scheme == "https" -> {
+            "网络文件需先下载到本地再上传".logWTF
+            null
+        }
+        // content:// 协议：基础媒体/共享文件 + 各类子类型
+        uri.scheme == "content" -> {
+            when (uri.authority) {
+                // 外接存储文件：content://com.android.externalstorage.documents
+                "com.android.externalstorage.documents" -> getFileFromExternalStorageDoc(uri)
+                // 系统下载目录文件：content://com.android.providers.downloads.documents
+                "com.android.providers.downloads.documents" -> getFileFromDownloadDoc(mContext, uri)
+                // 谷歌相册文件：content://com.google.android.apps.photos.content
+                "com.google.android.apps.photos.content" -> getFileFromCloudAlbum(mContext, uri, "google_album_")
+                // 微信文件：content://com.tencent.mm.opensdk.fileprovider
+                "com.tencent.mm.opensdk.fileprovider" -> getFileFromCloudAlbum(mContext, uri, "wechat_file_")
+                // 邮件附件等其他content子类型：通过流转临时文件
+                else -> getFileFromCommonContent(mContext, uri)
             }
-            cursor.close()
+        }
+        // document:// 协议：文件管理器选择的文件（SAF框架）
+        DocumentsContract.isDocumentUri(context, uri) -> {
+            getFileFromDocumentUri(mContext, uri)
+        }
+        // 其他协议（如android.resource://）：无法转File，返回null
+        else -> null
+    }
+}
+
+/**
+ * 外接存储文件（U盘/SD卡）
+ */
+private fun getFileFromExternalStorageDoc(uri: Uri): File? {
+    val docId = DocumentsContract.getDocumentId(uri)
+    val split = docId.split(":")
+    if (split.size < 2) return null
+    val filePath = if ("primary".equals(split[0], ignoreCase = true)) {
+        "/storage/emulated/0/${split[1]}"
+    } else {
+        "/storage/${split[0]}/${split[1]}"
+    }
+    return File(filePath).takeIf { it.exists() }
+}
+
+/**
+ * 系统下载目录文件
+ */
+private fun getFileFromDownloadDoc(context: Context, uri: Uri): File? {
+    val docId = DocumentsContract.getDocumentId(uri)
+    return if (docId.startsWith("raw:")) {
+        // 直接路径
+        File(docId.replace("raw:", "")).takeIf { it.exists() }
+    } else {
+        // 媒体类型文件，复用MediaStore逻辑
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getFileFromContentUriQPlus(context, uri)
+        } else {
+            getFileFromContentUriLegacy(context, uri)
+        }
+    }
+}
+
+/**
+ * 云相册/第三方App文件（谷歌相册、微信等，通过流转临时文件）
+ * 1) Android 10+ 开启 Scoped Storage 后，App 无法直接访问「其他 App 私有目录」「媒体库非应用私有目录」的文件（比如微信保存的图片、谷歌相册的图片）
+ * 2) 只能通过 ContentResolver.openInputStream(uri) 读取文件内容，无法直接获取源文件的真实路径。
+ * 3) 把源文件内容拷贝到 App 缓存目录（生成 .tmp 文件），拿到一个可直接操作的 File 对象（上传、解析等）。
+ */
+private fun getFileFromCloudAlbum(context: Context, uri: Uri, prefix: String): File? {
+    return try {
+        /**
+         * prefix="google_album_", suffix=".tmp" → 文件名是 "google_album_123456789.tmp"
+         * 1) 服务端通常只关心文件的「MIME 类型」「二进制内容」，不会因为文件名是 .tmp 拒绝接收
+         * 2) 若服务端对文件名 / 后缀有要求（比如需要 .jpg/.png），可以在上传时手动指定文件名
+         * val tempUri = it.data?.data
+         * val tempFile = tempUri.getFileFromUri(this)
+         * if (tempFile != null) {
+         *     // 获取源文件的真实后缀（比如从Uri/文件名解析）
+         *     val realSuffix = tempUri.getRealSourceSuffix(this)
+         * }
+         */
+        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+            val suffix = uri.lastPathSegment?.let {
+                if (it.contains(".")) {
+                    it.substring(it.lastIndexOf("."))
+                } else {
+                    ".tmp"
+                }
+            } ?: ".tmp"
+            // 生成临时文件
+            val tempFile = File.createTempFile(prefix, suffix, context.cacheDir)
+            // JVM退出时自动删除 (上传完成前不要手动删除)
+            tempFile.deleteOnExit()
+            FileOutputStream(tempFile).use { outputStream ->
+                inputStream.copyTo(outputStream)
+            }
+            tempFile
         }
     } catch (e: Exception) {
-        e.logE
+        e.logWTF
+        null
     }
-    val path = realPath.ifEmpty {
-        when {
-            uri.path?.contains("/document/raw:").orFalse -> uri.path?.replace("/document/raw:", "")
-            uri.path?.contains("/document/primary:").orFalse -> uri.path?.replace("/document/primary:", "/storage/emulated/0/")
-            else -> return null
+}
+
+///**
+// * 清理Uri转File生成的临时文件（按前缀匹配）
+// * context?.clearUriTempFiles("google_album_", "wechat_file_", "media_")
+// */
+//private fun Context.clearUriTempFiles(vararg prefixes: String) {
+//    cacheDir.listFiles()?.forEach { file ->
+//        if (prefixes.any { file.name.startsWith(it) }) {
+//            file.delete() // 同步删除，也可用deleteOnExit()延迟删除
+//        }
+//    }
+//}
+
+/**
+ * 普通content://文件（媒体/共享文件）
+ */
+private fun getFileFromCommonContent(context: Context, uri: Uri): File? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        getFileFromContentUriQPlus(context, uri) ?: getFileFromCloudAlbum(context, uri, "media_")
+    } else {
+        getFileFromContentUriLegacy(context, uri)
+    }
+}
+
+/**
+ * 适配：document:// 协议文件
+ */
+private fun getFileFromDocumentUri(context: Context, uri: Uri): File? {
+    val docId = DocumentsContract.getDocumentId(uri)
+    return when (uri.authority) {
+        "com.android.providers.media.documents" -> {
+            val split = docId.split(":")
+            if (split.size < 2) return null
+            val mediaUri = when (split[0]) {
+                "image" -> MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                "video" -> MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+                "audio" -> MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+                else -> return null
+            }
+            val queryUri = mediaUri.buildUpon().appendQueryParameter("_id", split[1]).build()
+            getFileFromCommonContent(context, queryUri)
         }
-    } ?: return null
-    return File(path)
+        else -> null
+    }
+}
+
+/**
+ * Android 10+ 从ContentUri获取文件（无_data依赖）
+ */
+private fun getFileFromContentUriQPlus(context: Context, uri: Uri): File? {
+    val projection = arrayOf(MediaStore.MediaColumns.RELATIVE_PATH, MediaStore.MediaColumns.DISPLAY_NAME)
+    context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val relativePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]))
+            val displayName = cursor.getString(cursor.getColumnIndexOrThrow(projection[1]))
+            val publicDir = context.externalMediaDirs.firstOrNull()?.parent?.replace("/Android/media/${context.packageName}", "") ?: "/storage/emulated/0"
+            val filePath = "$publicDir/$relativePath/$displayName"
+            return File(filePath).takeIf { it.exists() }
+        }
+    }
+    return null
+}
+
+/**
+ * 低版本（Android < 10）从ContentUri获取文件
+ */
+private fun getFileFromContentUriLegacy(context: Context, uri: Uri): File? {
+    val projection = arrayOf(MediaStore.MediaColumns.DATA)
+    context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
+        if (cursor.moveToFirst()) {
+            val filePath = cursor.getString(cursor.getColumnIndexOrThrow(projection[0]))
+            return File(filePath).takeIf { it.exists() }
+        }
+    }
+    return null
 }
 
 /**
@@ -628,7 +874,6 @@ internal fun File?.getDuration(): Int {
         // 视频时长（毫秒）/1000=x秒
         val duration = player.duration.orZero
         duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
-//        Math.round(duration / 1000.0).toSafeInt().apply { "文件时长：${this}秒".logE() }
     } catch (e: Exception) {
         e.printStackTrace()
         0
