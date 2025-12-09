@@ -467,6 +467,34 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
 }
 
 /**
+ * 获取指定目录下的第一个文件路径（仅文件，排除文件夹）
+ * @param this 目标目录
+ * @return 第一个文件的绝对路径，无文件则返回 null
+ */
+fun File?.getFirstFileInDirectory(): String? {
+    // 检查目录是否合法
+    if (this == null || !this.exists() || !this.isDirectory()) {
+        "目录不存在或不是文件夹".logWTF
+        return null
+    }
+    // 获取目录下所有文件/文件夹（过滤隐藏文件）
+    val files = this.listFiles { file ->
+        // 仅保留「非隐藏」且「是文件」的项（排除文件夹）
+        !file.isHidden() && file.isFile()
+    }
+    // 判断是否有文件，返回第一个文件的路径
+    if (files != null && files.size > 0) {
+        // 按修改时间排序
+        // Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()));
+        // 返回第一个文件的绝对路径
+        return files[0]?.absolutePath
+    } else {
+        "目录下无文件".logWTF
+        return null
+    }
+}
+
+/**
  * 获取文件的纯名称（去掉后缀，无后缀则返回完整文件名）
  * @return 纯文件名（小写可选，建议和后缀保持一致）
  */
