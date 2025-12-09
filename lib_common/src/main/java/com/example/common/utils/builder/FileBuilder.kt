@@ -45,8 +45,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
-import com.example.common.utils.function.string
-import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
@@ -78,7 +77,7 @@ import kotlin.coroutines.resumeWithException
  * format->图片类型
  * quality->压缩率
  */
-suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("Save Image"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     return withContext(IO) {
         if (null != bitmap) {
             // 存储目录文件
@@ -264,7 +263,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
             }
             // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
             val rotatedFileName = file.name.replace(Regex("\\.${suffix}$"), "_rotated.${suffix}")
-            val rotatedFile = File(file.parent ?: getStoragePath("保存图片"), rotatedFileName)
+            val rotatedFile = File(file.parent ?: getStoragePath("Save Image"), rotatedFileName)
             // 保存旋转后的图片
             rotatedFile.outputStream().use { outputStream ->
                 // 如果是PNG，无论quality为何值，压缩后图片文件大小都不会变化
@@ -485,7 +484,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("Save Image"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         // 存储目录文件
         val storeDir = File(root)
@@ -606,12 +605,12 @@ fun generateCrashLog(throwable: Throwable, thread: Pair<String, Long> = Thread.c
 fun saveCrashLogToFile(logContent: String) {
     try {
         // 获取存储路径（优先使用应用内部存储，避免权限问题）
-        val logDir = File(getStoragePath("崩溃日志", false))
+        val logDir = File(getStoragePath("Crash Log", false))
         if (!logDir.exists()) {
             logDir.mkdirs()
         }
         // 日志文件名（以时间命名）
-        val fileName = "crash_${CN_YMDHMS.convert(currentTimeStamp)}.txt"
+        val fileName = "crash_${EN_YMDHMS.convert(currentTimeStamp)}.txt"
         val logFile = File(logDir, fileName)
         // 写入日志
         FileWriter(logFile, true).use { writer ->
@@ -626,7 +625,7 @@ fun saveCrashLogToFile(logContent: String) {
 /**
  * 获取到所有存储崩溃日志的文件集合
  */
-fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false)): List<File> {
+fun batchUploadLogs(logDirPath: String? = getStoragePath("Crash Log", false)): List<File> {
     // 路径为空直接返回空列表
     logDirPath ?: return emptyList()
     // 验证目录是否存在
