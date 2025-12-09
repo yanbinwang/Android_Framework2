@@ -34,7 +34,7 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
         if (it.resultCode == RESULT_OK) {
             it?.data ?: return@registerForActivityResult
             val uri = it.data?.data
-            uri.getFileFromUri()?.absolutePath.shortToast()
+            uri.getFileFromUri(activity)?.absolutePath.shortToast()
         }
     }
     private var value = ""

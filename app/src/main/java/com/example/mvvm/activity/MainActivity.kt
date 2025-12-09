@@ -12,8 +12,11 @@ import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
+import com.example.common.utils.function.getFileFromUri
+import com.example.common.utils.function.getRealSourceSuffix
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -31,13 +34,11 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toExtract
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
-import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -444,19 +445,30 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             User(5, "赵六", 500.0),
             User(7, "孙七", 700.0)
         )
+        setOnActivityResultListener {
+            if (it.resultCode == RESULT_OK) {
+                val tempUri = it.data?.data
+                val tempFile = tempUri.getFileFromUri(this)
+                if (tempFile != null) {
+                    // 获取源文件的真实后缀（比如从Uri/文件名解析）
+                    tempUri.getRealSourceSuffix(this).shortToast()
+                }
+            }
+        }
         mBinding?.ivArrow.click {
-            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
-                localItem.id == serverItem.id
-            },{localItem, serverItem ->
-                localItem.name != serverItem.name || localItem.amount != serverItem.amount
-            },true)
-            "toExtract为true:${trueList.toJson()}".logWTF("wyb")
-            val falseList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
-                localItem.id == serverItem.id
-            },{localItem, serverItem ->
-                localItem.name != serverItem.name || localItem.amount != serverItem.amount
-            })
-            "toExtract为false:${falseList.toJson()}".logWTF("wyb")
+            mActivityResult.pullUpAlbum()
+//            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+//                localItem.id == serverItem.id
+//            },{localItem, serverItem ->
+//                localItem.name != serverItem.name || localItem.amount != serverItem.amount
+//            },true)
+//            "toExtract为true:${trueList.toJson()}".logWTF("wyb")
+//            val falseList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+//                localItem.id == serverItem.id
+//            },{localItem, serverItem ->
+//                localItem.name != serverItem.name || localItem.amount != serverItem.amount
+//            })
+//            "toExtract为false:${falseList.toJson()}".logWTF("wyb")
 //            // 2s一跳,测试刷新
 //            timerBuilder.startTask("10086",{
 //                var logText = "------ 测试数据 ------\n"
@@ -496,7 +508,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                mBinding?.setVariable(BR.bean,bean)
 //                logText.logWTF("wyb")
 //            },2000)
-            navigation(RouterPath.LoginActivity)
+//            navigation(RouterPath.LoginActivity)
 //            viewModel.getShare()
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()

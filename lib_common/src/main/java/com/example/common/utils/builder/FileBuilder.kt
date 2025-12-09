@@ -32,7 +32,7 @@ import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.copy
-import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
@@ -84,7 +84,7 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("�
             // 存储目录文件
             val storeDir = File(root)
             // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) root.deleteDir()
+            if (deleteDir) root.deleteDirectory()
             // 确保目录创建
             root.ensureDirExists()
             // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
@@ -451,7 +451,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
         throw RuntimeException(string(R.string.linkError))
     }
     // 清除目录下的所有文件
-    filePath.deleteDir()
+    filePath.deleteDirectory()
     // 创建一个安装的文件，开启io协程写入
     val file = File(filePath.ensureDirExists(), fileName)
     return withContext(IO) {
@@ -490,7 +490,7 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
         // 存储目录文件
         val storeDir = File(root)
         // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-        if (deleteDir) root.deleteDir()
+        if (deleteDir) root.deleteDirectory()
         // 确保目录创建
         root.ensureDirExists()
         suspendingGlideDownload(mContext, string, storeDir)

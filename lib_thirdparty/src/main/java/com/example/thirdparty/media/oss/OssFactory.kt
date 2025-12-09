@@ -21,7 +21,7 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getFileLength
 import com.example.common.utils.function.mb
@@ -319,7 +319,7 @@ class OssFactory private constructor() : CoroutineScope {
                         if (clientExcepion != null) {
                             result += "\n本地异常：\n${clientExcepion.message}"
                             // 本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
-                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDirectory()
                         }
                         if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
                         log(sourcePath, result)
@@ -492,7 +492,7 @@ class OssFactory private constructor() : CoroutineScope {
                 val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
                     override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
                         if (progress == 100) {
-                            recordDirectory.deleteDir()
+                            recordDirectory.deleteDirectory()
                             onComplete(true, result?.objectKey)
                         }
                     }
@@ -501,7 +501,7 @@ class OssFactory private constructor() : CoroutineScope {
                         var result = "上传失败"
                         if (clientExcepion != null) {
                             result += "\n本地异常：\n${clientExcepion.message}"
-                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDirectory()
                         }
                         if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
                         onComplete(false, result)
