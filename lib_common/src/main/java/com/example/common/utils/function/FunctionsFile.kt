@@ -537,12 +537,29 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
 }
 
 /**
- * 获取目录下的所有文件的详细路径
+ * 获取目录下【一级】所有可见项（文件+文件夹）的路径与类型
+ * @return Pair列表：First=绝对路径，Second=是否是文件夹（true=文件夹，false=文件）
+ * @note 仅遍历当前目录一级，不递归子目录；过滤隐藏文件
  */
-fun File.getAllFilePaths(): List<String> {
+fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
+    if (this == null || !this.exists() || !this.isDirectory) {
+        "目录不存在或不是文件夹".logWTF
+        return emptyList()
+    }
+
+    val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
+    return allItems.map { it.absolutePath to it.isDirectory }
+}
+
+/**
+ * 递归获取目录下【所有层级】的所有文件绝对路径（仅文件，不含文件夹）
+ * @return 所有子目录文件的绝对路径列表，无数据返回空列表
+ * @note 遍历当前目录+所有子目录；包含非隐藏文件（listFiles未过滤隐藏，保持原逻辑）
+ */
+fun File.getAllFilePathsRecursively(): List<String> {
     if (exists().not() || isDirectory.not()) return emptyList()
     val files = listFiles() ?: return emptyList()
-    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePaths() }
+    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePathsRecursively() }
 }
 
 /**

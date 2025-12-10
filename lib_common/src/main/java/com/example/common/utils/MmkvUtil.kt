@@ -38,7 +38,11 @@ object MmkvUtil {
     fun decodeBytes(key: String, value: ByteArray = byteArrayOf()) = mmkv.decodeBytes(key, value)
     fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>, value: T? = null) = mmkv.decodeParcelable(label, tClass, value)
 
+    fun containsKey(key: String) = mmkv.containsKey(key)
+    fun allKeys() = mmkv.allKeys()
     fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
+    fun removeValuesForKeys(vararg labels: String) = mmkv.removeValuesForKeys(labels)
+    fun clearAll() = mmkv.clearAll()
 }
 
 abstract class BaseDataCache(private val key: String) {
