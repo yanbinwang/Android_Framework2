@@ -179,7 +179,13 @@ object BaseBindingAdapter {
      * android:visibility -> int -> 错误：@{bean.visible}/正确：@{null!=bean?bean.visible : View.GONE}
      * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{null!=bean?bean.alpha : 1.0f}
      * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{null!=bean?bean.isEnabled : true}
-     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{null!=bean?bean.layoutWidth : 100dp}（需转尺寸）
+     *
+     * <data>
+     *     <import type="androidx.databinding.Dimension" />
+     * </data>
+     * android:layout_width="@{bean != null ? bean.layoutWidth : Dimension.dpToPx(100)}"
+     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{null!=bean?bean.layoutWidth : @dimen/width_100dp}（需转尺寸）
+     *
      * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{null!=bean?bean.maxLineCount : 2}
      * android:progress -> int -> 错误：@{bean.progress}/正确：@{null!=bean?bean.progress : 0}
      * android:rating -> float -> 错误：@{bean.rating}/正确：@{null!=bean?bean.rating : 3.5f}
