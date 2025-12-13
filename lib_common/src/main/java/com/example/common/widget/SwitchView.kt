@@ -23,38 +23,37 @@ import com.example.framework.utils.function.view.visible
 
 /**
  * 仿ios开关
- * wangyanbin
+ * yan
  */
-class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0, ) : FrameLayout(context, attrs, defStyleAttr) {
+class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
     private val viewBg: View
     private val viewBgSelected: View
     private val viewCircle: View
     private var animTime = 200L
-    private var onCheckChangeListener = { _: Boolean, _: Boolean, _: Long -> }
-    private var beforeCheckChangeListener: ((nowChecked: Boolean, willChecked: Boolean) -> Boolean)? =
-        null
+    private var onCheckChangeListener: ((isChecked: Boolean, needAnim: Boolean, animTime: Long) -> Unit)? = null
+    private var onBeforeCheckChangeListener: ((nowChecked: Boolean, willChecked: Boolean) -> Boolean)? = null
     var isChecked = false
         private set
 
     init {
         val layout = FrameLayout(context)
         addView(layout)
-        //插入后设置位置
+        // 插入后设置位置
         layout.layoutGravity = Gravity.CENTER
-        //按钮背景
+        // 按钮背景
         viewBg = View(context)
         layout.addView(viewBg)
         viewBg.background = createCornerDrawable("#E5E4E4", 11.ptFloat)
-        //选中背景
+        // 选中背景
         viewBgSelected = View(context)
         layout.addView(viewBgSelected)
         viewBgSelected.background = createCornerDrawable("#5ebe77", 11.ptFloat)
         viewBgSelected.gone()
-        //圆球
+        // 圆球
         viewCircle = View(context)
         layout.addView(viewCircle)
         viewCircle.background = createCornerDrawable("#ffffff", 9.ptFloat)
-        //布局属性绘制
+        // 布局属性绘制
         if (isInEditMode) {
             val ratio = dimen(R.dimen.textSize20) / 20
             size(layout, ratio)
@@ -67,12 +66,12 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         //            viewBgSelected = findViewById(R.id.viewBgSelected)
         //        }
         viewCircle.layoutGravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
-        //点击设置
+        // 点击设置
         click(animTime) {
-            if (beforeCheckChangeListener?.invoke(isChecked, !isChecked) == true) return@click
+            if (onBeforeCheckChangeListener?.invoke(isChecked, !isChecked) == true) return@click
             checkChange(!isChecked, needAnim = true, callListener = true)
         }
-        //加速渲染
+        // 加速渲染
         byHardwareAccelerate()
         viewCircle.byHardwareAccelerate()
         viewBgSelected.byHardwareAccelerate()
@@ -92,7 +91,7 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 设置是否选中
      */
-    fun setChecked(isChecked: Boolean, needAnim: Boolean, callListener: Boolean = true) {
+    fun setChecked(isChecked: Boolean, needAnim: Boolean = false, callListener: Boolean = true) {
         checkChange(isChecked, needAnim, callListener)
     }
 
@@ -108,7 +107,9 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         when (checked) {
             true -> {
                 viewCircle.layoutGravity = Gravity.RIGHT or Gravity.CENTER_VERTICAL
-                if (callListener) onCheckChangeListener(checked, needAnim, animTime)
+                if (callListener) {
+                    onCheckChangeListener?.invoke(true, needAnim, animTime)
+                }
                 if (needAnim) {
                     viewCircle.move(-1f, 0f, 0f, 0f, animTime, false)
                     viewBgSelected.alpha(0f, 1f, animTime)
@@ -118,9 +119,12 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     viewBg.gone()
                 }
             }
+
             false -> {
                 viewCircle.layoutGravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
-                if (callListener) onCheckChangeListener(checked, needAnim, animTime)
+                if (callListener) {
+                    onCheckChangeListener?.invoke(false, needAnim, animTime)
+                }
                 if (needAnim) {
                     viewBg.visible()
                     viewCircle.move(1f, 0f, 0f, 0f, animTime, false)
@@ -155,9 +159,9 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * @param nowChecked 目前的选中状态
      * @param willChecked 将要改变的选中状态
      * @return 是否拦截这次变化
-     * */
-    fun setBeforeCheckChangeListener(listener: ((nowChecked: Boolean, willChecked: Boolean) -> Boolean)?) {
-        this.beforeCheckChangeListener = listener
+     */
+    fun setOnBeforeCheckChangeListener(listener: (nowChecked: Boolean, willChecked: Boolean) -> Boolean) {
+        this.onBeforeCheckChangeListener = listener
     }
 
 }
