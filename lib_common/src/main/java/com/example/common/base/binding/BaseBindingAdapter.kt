@@ -176,25 +176,31 @@ object BaseBindingAdapter {
      *
      * 绑定「基础数据类型属性」且上游对象可能为 null → 必报错 : 绑定「引用类型属性」→ 不报错（仅显示空白 / 默认效果）
      * 一) 必报错（必须加非空判断！）
-     * android:visibility -> int -> 错误：@{bean.visible}/正确：@{bean?.visible ?? View.GONE}
-     * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{bean?.alpha ?? 1.0f}
-     * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{bean?.isEnabled ?? true}
-     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{bean?.layoutWidth ?? 100dp}（需转尺寸）
-     * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{bean?.maxLineCount ?? 2}
-     * android:progress -> int -> 错误：@{bean.progress}/正确：@{bean?.progress ?? 0}
-     * android:rating -> float -> 错误：@{bean.rating}/正确：@{bean?.rating ?? 3.5f}
-     * android:textSize -> float/dimen -> 错误：@{bean.textSize}/正确：@{bean?.textSize ?? @dimen/textSize14}
+     * android:visibility -> int -> 错误：@{bean.visible}/正确：@{null!=bean?bean.visible : View.GONE}
+     * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{null!=bean?bean.alpha : 1.0f}
+     * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{null!=bean?bean.isEnabled : true}
+     *
+     * <data>
+     *     <import type="androidx.databinding.Dimension" />
+     * </data>
+     * android:layout_width="@{bean != null ? bean.layoutWidth : Dimension.dpToPx(100)}"
+     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{null!=bean?bean.layoutWidth : @dimen/width_100dp}（需转尺寸）
+     *
+     * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{null!=bean?bean.maxLineCount : 2}
+     * android:progress -> int -> 错误：@{bean.progress}/正确：@{null!=bean?bean.progress : 0}
+     * android:rating -> float -> 错误：@{bean.rating}/正确：@{null!=bean?bean.rating : 3.5f}
+     * android:textSize -> float/dimen -> 错误：@{bean.textSize}/正确：@{null!=bean?bean.textSize : @dimen/textSize14}
      * 基础类型的「包装类」（如 Integer、Float）也适用：比如 bean.count 是 Integer 类型，绑定 android:progress="@{bean.count}"，bean 为 null 时依然抛 NPE（因为最终要转成基础类型 int）；
      * 必须加非空保护（?. 或 bean != null ? ...），且兜底值要和类型匹配（如 int 用 View.GONE/0，float 用 1.0f）
      *
      * 二) 不报错（无需强制加非空判断，建议兜底优化体验）
-     * android:text -> String -> 基础：@{bean.name}/优化：@{bean?.name ?? @string/unitNoData}
-     * android:src/app:srcCompat -> Drawable -> 基础：@{bean.icon}/优化：@{bean?.icon ?? @drawable/default_icon}
-     * android:background -> Drawable/Color -> 基础：@{bean.bgDrawable}/优化：@{bean?.bgDrawable ?? @color/bgDefault}
-     * android:hint -> String -> 基础：@{bean.hintText}/优化：@{bean?.hintText ?? @string/hint_default}
+     * android:text -> String -> 基础：@{bean.name}/优化：@{bean.name ,default= @string/unitNoData}
+     * android:src/app:srcCompat -> Drawable -> 基础：@{bean.icon}/优化：@{bean.icon ,default= @drawable/default_icon}
+     * android:background -> Drawable/Color -> 基础：@{bean.bgDrawable}/优化：@{bean.bgDrawable ,default= @color/bgDefault}
+     * android:hint -> String -> 基础：@{bean.hintText}/优化：@{bean.hintText ,default= @string/hint_default}
      * android:tag -> Object -> @{bean.tagObj}
      * app:adapter（RecyclerView） -> Adapter -> @{bean.adapter}
-     * android:contentDescription -> String -> 基础：@{bean.desc}/优化：@{bean?.desc ?? @string/default_desc}
+     * android:contentDescription -> String -> 基础：@{bean.desc}/优化：@{bean.desc ,default= @string/default_desc}
      * 自定义属性（引用类型） -> 自定义 Bean -> @{bean.customObj}
      * 引用类型可以接收 null，所以不会抛 NPE，但可能显示「空白 / 透明 / 无数据」，建议用 ?? 加兜底（默认文本 / 图片 / 颜色）优化用户体验；
      * 若引用类型属性的「属性值本身是基础类型」（如 bean.iconResId 是 int 型资源 ID，绑定 app:srcCompat="@{@drawable/bean.iconResId}"），
