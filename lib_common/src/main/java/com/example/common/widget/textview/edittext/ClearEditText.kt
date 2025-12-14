@@ -51,7 +51,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             emojiLimit()
             addTextChangedListener {
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
-                mBinding.ivClear.visibility = if (it.toString().isEmpty()) View.GONE else View.VISIBLE
+                mBinding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
             }
         }

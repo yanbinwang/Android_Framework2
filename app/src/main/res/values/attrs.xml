@@ -19,9 +19,42 @@
 
     <!-- 侧滑控件 -->
     <declare-styleable name="SwipeMenu">
-        <attr name="swipe_enable" format="boolean"/>
-        <attr name="swipe_ios" format="boolean"/>
-        <attr name="swipe_left" format="boolean"/>
+        <attr name="swipe_enable" format="boolean" />
+        <attr name="swipe_ios" format="boolean" />
+        <attr name="swipe_left" format="boolean" />
+    </declare-styleable>
+
+    <!-- 输入框 -->
+    <declare-styleable name="CodeInput">
+        <!-- 文字颜色 -->
+        <attr name="textColor" />
+        <!-- 文字大小 -->
+        <attr name="textSize" />
+        <!-- 输入类型 -->
+        <attr name="inputType" format="enum">
+            <enum name="text" value="0" />
+            <enum name="textPassword" value="1" />
+            <enum name="phone" value="2" />
+            <enum name="number" value="3" />
+            <enum name="numberDecimal" value="4" />
+            <enum name="email" value="5" />
+            <enum name="textVisiblePassword" value="6" />
+            <enum name="money" value="7" />
+            <enum name="idcard" value="8" />
+            <enum name="rate" value="9" />
+        </attr>
+        <!-- 输入框间距（横竖通用） -->
+        <attr name="itemSpacing" format="dimension" />
+        <!-- 输入框内边距 -->
+        <attr name="itemPadding" format="dimension" />
+        <!-- 验证码位数 -->
+        <attr name="boxCount" format="integer" />
+        <!-- 输入框宽/高 -->
+        <attr name="boxWidth" format="dimension" />
+        <attr name="boxHeight" format="dimension" />
+        <!-- 背景 -->
+        <attr name="boxBgNormal" format="reference" />
+        <attr name="boxBgFocus" format="reference" />
     </declare-styleable>
 
 </resources>

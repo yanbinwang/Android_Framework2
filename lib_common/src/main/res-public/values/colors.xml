@@ -37,4 +37,7 @@
     <!--全局选项-->
     <color name="tabSelected">#FFAF0E</color>
     <color name="tabUnselected">#999EA4</color>
+    <!-- 验证界面密码背景 -->
+    <color name="bgVerify">#F9FAFB</color>
+    <color name="strokeVerify">#FFAF0E</color>
 </resources>
