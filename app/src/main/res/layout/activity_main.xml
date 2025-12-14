@@ -217,6 +217,50 @@
             android:gravity="center"
             android:textSize="@dimen/textSize18" />
 
+        <com.example.mvvm.widget.SwipeMenu
+            android:id="@+id/swipeMenu"
+            android:layout_width="match_parent"
+            android:layout_height="200pt"
+            app:swipe_ios="true"
+            app:swipe_left="true"
+            app:swipe_enable="true">
+            <!-- 内容视图（必选，第一个子 View） -->
+            <LinearLayout
+                android:id="@+id/contentView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/bgWhite"
+                android:padding="16pt">
+
+                <TextView
+                    android:id="@+id/itemTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Item Content"
+                    android:textSize="@dimen/textSize16" />
+
+            </LinearLayout>
+            <!-- 右侧菜单视图（可选，可添加多个子 View 作为菜单按钮） -->
+            <TextView
+                android:id="@+id/deleteBtn"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:background="@color/bgGrey"
+                android:gravity="center"
+                android:text="删除"
+                android:textColor="@color/textWhite" />
+
+            <TextView
+                android:id="@+id/starBtn"
+                android:layout_width="80dp"
+                android:layout_height="match_parent"
+                android:background="@color/bgBlue"
+                android:gravity="center"
+                android:text="置顶"
+                android:textColor="@color/textWhite" />
+
+        </com.example.mvvm.widget.SwipeMenu>
+
         <!--        <ImageView-->
         <!--            android:id="@+id/iv_thumb"-->
         <!--            android:layout_width="match_parent"-->
@@ -230,54 +274,54 @@
         <!--            android:layout_width="match_parent"-->
         <!--            android:layout_height="600pt"/>-->
 
-<!--        <FrameLayout-->
-<!--            android:id="@+id/fl_card"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="600pt"-->
-<!--            android:layout_gravity="center"-->
-<!--            android:layout_marginHorizontal="5pt"-->
-<!--            android:background="@color/bgTransparent">-->
+        <!--        <FrameLayout-->
+        <!--            android:id="@+id/fl_card"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="600pt"-->
+        <!--            android:layout_gravity="center"-->
+        <!--            android:layout_marginHorizontal="5pt"-->
+        <!--            android:background="@color/bgTransparent">-->
 
-<!--            <androidx.cardview.widget.CardView-->
-<!--                style="@style/CardViewStyle"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="match_parent"-->
-<!--                app:cardBackgroundColor="@color/bgBlue"-->
-<!--                app:cardCornerRadius="5pt">-->
+        <!--            <androidx.cardview.widget.CardView-->
+        <!--                style="@style/CardViewStyle"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="match_parent"-->
+        <!--                app:cardBackgroundColor="@color/bgBlue"-->
+        <!--                app:cardCornerRadius="5pt">-->
 
-<!--                <TextView-->
-<!--                    android:layout_width="match_parent"-->
-<!--                    android:layout_height="match_parent"-->
-<!--                    android:gravity="center"-->
-<!--                    android:text="4143423"-->
-<!--                    android:textColor="@color/textWhite"-->
-<!--                    android:textSize="@dimen/textSize34" />-->
+        <!--                <TextView-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:gravity="center"-->
+        <!--                    android:text="4143423"-->
+        <!--                    android:textColor="@color/textWhite"-->
+        <!--                    android:textSize="@dimen/textSize34" />-->
 
-<!--            </androidx.cardview.widget.CardView>-->
+        <!--            </androidx.cardview.widget.CardView>-->
 
-<!--        </FrameLayout>-->
+        <!--        </FrameLayout>-->
 
-<!--        <LinearLayout-->
-<!--            statusBar_padding="@{true}"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:background="@color/bgWhite"-->
-<!--            android:orientation="vertical">-->
+        <!--        <LinearLayout-->
+        <!--            statusBar_padding="@{true}"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:background="@color/bgWhite"-->
+        <!--            android:orientation="vertical">-->
 
-<!--            <TextView-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="48pt"-->
-<!--                android:gravity="center"-->
-<!--                android:text="标题"-->
-<!--                android:textColor="@color/textPrimary"-->
-<!--                android:textSize="@dimen/textSize18" />-->
+        <!--            <TextView-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="48pt"-->
+        <!--                android:gravity="center"-->
+        <!--                android:text="标题"-->
+        <!--                android:textColor="@color/textPrimary"-->
+        <!--                android:textSize="@dimen/textSize18" />-->
 
-<!--            <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
-<!--                android:id="@+id/gsy_player"-->
-<!--                android:layout_width="match_parent"-->
-<!--                android:layout_height="280pt" />-->
+        <!--            <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer-->
+        <!--                android:id="@+id/gsy_player"-->
+        <!--                android:layout_width="match_parent"-->
+        <!--                android:layout_height="280pt" />-->
 
-<!--        </LinearLayout>-->
+        <!--        </LinearLayout>-->
 
     </FrameLayout>
 
