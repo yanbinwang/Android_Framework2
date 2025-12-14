@@ -1,6 +1,7 @@
 package com.example.common.widget
 
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
@@ -33,7 +34,7 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingStart="0dp"
  *     app:tabPaddingTop="0dp" />
  */
-class NativeIndicator(tab: TabLayout?, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(tab, tabTitle) {
+class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(observer, tab, tabTitle) {
     private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
 
     override fun getBindView() = ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
@@ -59,9 +60,9 @@ class NativeIndicator(tab: TabLayout?, tabTitle: List<String>? = null) : TabLayo
 /**
  * 全局默认样式
  */
-fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6.pt to 6.pt) {
+fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
     setTheme(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero, if (selected) bgRes.first.orZero else bgRes.second.orZero)
     textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
-    padding(start = padding.first, end = padding.second)
+    padding(start = padding.first.pt, end = padding.second.pt)
     bold(selected)
 }

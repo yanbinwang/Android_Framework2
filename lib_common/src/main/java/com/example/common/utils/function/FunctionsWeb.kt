@@ -7,6 +7,7 @@ import android.net.Uri
 import android.os.Build
 import android.view.View
 import android.webkit.ConsoleMessage
+import android.webkit.CookieManager
 import android.webkit.JsResult
 import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
@@ -71,10 +72,26 @@ fun WebView?.refresh() {
  */
 fun WebView?.clear() {
     if (this == null) return
-    WebStorage.getInstance().deleteAllData() //清空WebView的localStorage
+    // 清除 WebView 的 浏览历史记录（不涉及缓存文件）
     clearHistory()
+    // WebView 会将网络请求的资源（如图片、JS、CSS 等）缓存到磁盘,参数 true 表示同时清除磁盘缓存，false 仅清除内存缓存
+    clearCache(true)
+    // 清除 WebView 的 LocalStorage 和 SessionStorage（属于 DOM 存储数据，非传统缓存）
+    WebStorage.getInstance().deleteAllData()
+    // 删除 WebView 存储表单数据、会话信息、应用缓存数据库等的 数据库文件（部分缓存相关数据）
     context.deleteDatabase("webview.db")
     context.deleteDatabase("webviewCache.db")
+    context.deleteDatabase("webviewAppCache.db")
+    // 清除 Cookie
+    val cookieManager = CookieManager.getInstance()
+    cookieManager.removeAllCookies { success ->
+        // 清除完成的回调（可选）
+        if (success) {
+            cookieManager.flush() // 强制同步到磁盘
+        }
+    }
+    // 清除表单自动填充数据
+    clearFormData()
 }
 
 /**
@@ -114,6 +131,7 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
         return shouldOverrideUrlLoading(view, url.toUri(), url)
     }
@@ -173,14 +191,17 @@ private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: 
 
 }
 
-private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val webChangedListener: OnWebChangedListener?, ) : WebChromeClient() {
+private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val listener: OnWebChangedListener?) : WebChromeClient() {
     private val runnable = Runnable {
         loading.get()?.fade(200)
         loading.get()?.progress = 0
     }
 
+    /**
+     * 监听网页加载进度的变化（0-100），常用于更新进度条。
+     */
     override fun onProgressChanged(view: WebView, newProgress: Int) {
-        webChangedListener?.onProgressChanged(newProgress)
+        listener?.onProgressChanged(newProgress)
         if (!view.loadFinished) {
             loading.get().visible()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -197,21 +218,36 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
         super.onProgressChanged(view, newProgress)
     }
 
+    /**
+     * 监听网页中的 JavaScript 控制台输出（如 console.log()）
+     * 返回 true 表示 “已处理，无需父类默认行为”
+     */
     override fun onConsoleMessage(consoleMessage: ConsoleMessage?): Boolean {
         return super.onConsoleMessage(consoleMessage)
     }
 
+    /**
+     * 拦截网页中的 JavaScript 弹窗（alert()）
+     * 调用 result?.cancel() 取消弹窗（阻止系统默认弹窗显示）。
+     * 若需要自定义弹窗（如用原生 Dialog 替代），可在这里实现，最后调用 result?.confirm() 通知 JS 弹窗已处理。
+     */
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
         result?.cancel()
         return super.onJsAlert(view, url, message, result)
     }
 
+    /**
+     * 处理网页中的 “自定义视图” 请求（通常用于全屏显示，如视频播放全屏）。
+     */
     override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
-        webChangedListener?.onShowCustomView(view, callback)
+        listener?.onShowCustomView(view, callback)
     }
 
+    /**
+     * 与 onShowCustomView 对应，通知退出自定义视图（如视频退出全屏）
+     */
     override fun onHideCustomView() {
-        webChangedListener?.onHideCustomView()
+        listener?.onHideCustomView()
     }
 }
 

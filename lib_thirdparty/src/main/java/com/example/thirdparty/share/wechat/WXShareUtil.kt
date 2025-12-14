@@ -17,6 +17,7 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
+import androidx.core.graphics.scale
 
 /**
  * 微信工具类
@@ -126,9 +127,7 @@ object WXShareUtil {
         if (mLen == -1) {
             mLen = file.length().toSafeInt()
         }
-        "readFromFile : offset = $offset len = $mLen offset + len = ${(offset.orZero + mLen)}".logD(
-            TAG
-        )
+        "readFromFile : offset = $offset len = $mLen offset + len = ${(offset.orZero + mLen)}".logD(TAG)
         if (offset < 0) {
             "readFromFile invalid offset:$offset".logE(TAG)
             return null
@@ -203,7 +202,7 @@ object WXShareUtil {
                     return null
                 }
                 "bitmap decoded size=${bm.width}x${bm.height}".logI(TAG)
-                val scale = Bitmap.createScaledBitmap(bm, newWidth, newHeight, true)
+                val scale = bm.scale(newWidth, newHeight)
                 bm.recycle()
                 bm = scale
                 if (crop) {

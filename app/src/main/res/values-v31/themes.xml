@@ -1,0 +1,44 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
+
+    <!-- 启动页:使用splashscreen对应样式 -->
+    <style name="SplashTheme" parent="Theme.SplashScreen">
+        <!-- 作用：设置启动屏的背景颜色
+             值类型：颜色资源（@color/xxx）或直接写色值（#FFFFFF）
+             注意：必须是不透明颜色（alpha=100%），否则可能导致显示异常 -->
+        <item name="windowSplashScreenBackground">@color/bgDefault</item>
+        <!-- 作用：设置启动屏中央的图标（可静态可动画）
+             支持类型：
+               静态图标：VectorDrawable（推荐）或BitmapDrawable
+               动画图标：AnimatedVectorDrawable（推荐）或帧动画（AnimationDrawable）
+             大小限制：
+               图标实际显示区域为160×160dp（系统会自动缩放）
+               建议原始资源尺寸不小于 200×200dp，避免缩放模糊
+               动画时长最长1000 毫秒（超过会被系统截断）
+             最佳实践：使用矢量图（VectorDrawable）确保不同分辨率设备上的清晰度 -->
+        <item name="windowSplashScreenAnimatedIcon">@null</item>
+        <!-- 作用：设置图标的背景色（可选）
+             适用场景：当图标与启动屏背景对比度较低时，可添加此背景提高辨识度
+             显示效果：会在图标背后显示一个圆形或方形背景（根据图标形状自适应）-->
+        <item name="windowSplashScreenIconBackgroundColor">@color/bgDefault</item>
+        <!-- 作用：指定图标动画的显示时长
+             取值范围：0-1000 毫秒（超过 1000 会被系统强制限制为 1000）
+             注意：这个属性仅控制图标动画的播放时长，启动屏实际显示时间还受应用初始化速度影响
+             （如果你的图标是带动画的AnimatedVectorDrawable），它定义的是动画本身的持续时间，而不是启动屏的总显示时间 -->
+        <item name="windowSplashScreenAnimationDuration">500</item>
+        <!-- 作用：设置启动屏底部的品牌图片（如公司 Logo）
+             位置：位于中央图标的下方
+             大小限制：最大宽度为屏幕宽度的 1/3 高度建议不超过 32dp（避免占用过多空间）
+             注意：此属性需要添加android:前缀，属于系统级属性 -->
+        <item name="android:windowSplashScreenBrandingImage">@null</item>
+        <!-- 作用：指定启动屏消失后，应用要使用的主题
+             值类型：应用中已定义的主题（如@style/Theme.MyApp）
+             必须设置：如果不指定，启动屏消失后可能导致界面样式异常 -->
+        <item name="postSplashScreenTheme">@style/DefaultTheme</item>
+        <!-- 全屏设置 -->
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+</resources>

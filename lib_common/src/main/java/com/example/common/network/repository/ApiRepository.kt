@@ -22,6 +22,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import kotlin.coroutines.cancellation.CancellationException
 
 //------------------------------------针对协程返回的参数(协程只有成功和失败,确保方法在flow内使用，并且实现withHandling扩展)------------------------------------
 /**
@@ -57,21 +58,35 @@ suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     err: (ResponseWrapper) -> Unit = {}
 ): ApiResponse<T> {
-    try {
-        //请求+响应数据
-        val response = withContext(IO) { coroutineScope() }
-        if (!response.tokenExpired() && response.successful()) {
-            return response
-        } else {
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
+        // 忽略 CancellationException，直接重新抛出
+        if (e is CancellationException) {
+            throw e
+        }
+        val wrapper = wrapper(e)
+        err(wrapper)
+        throw wrapper
+    }.also { response ->
+        if (!response.successful() || response.tokenExpired()) {
             val wrapper = ResponseWrapper(response.code, response.msg)
-            err.invoke(wrapper)
+            err(wrapper)
             throw wrapper
         }
-    } catch (e: Exception) {
-        throw e
     }
 }
 
+/**
+ * 如果外层嵌套了flow，且flow也写了catch，会导致内部的catch不自信，外层抢先一步获取
+ * 直接在flow的emit这catch，抓取到此次异常
+ * try {
+ *     emit(requestLayer(coroutineScope, err))
+ *  } catch (e: Throwable) {
+ *    // 可以在这里做额外处理
+ *     throw e
+ * }
+ */
 suspend fun <T> requestLayer(
     coroutineScope: suspend CoroutineScope.() -> ApiResponse<T>,
     resp: (ApiResponse<T>) -> Unit,
@@ -84,10 +99,9 @@ suspend fun <T> requestLayer(
 suspend fun <T> requestAffair(
     coroutineScope: suspend CoroutineScope.() -> T
 ): T {
-    try {
-        val response = withContext(IO) { coroutineScope() }
-        return response
-    } catch (e: Exception) {
+    return try {
+        withContext(IO) { coroutineScope() }
+    } catch (e: Throwable) {
         throw e
     }
 }
@@ -106,7 +120,7 @@ fun <T> Flow<T>.withHandling(
     err: (ResponseWrapper) -> Unit = {},
     end: () -> Unit = {},
     isShowToast: Boolean = false,
-    isShowDialog: Boolean = false
+    isShowDialog: Boolean = true
 ): Flow<T> {
     return withHandling(err, {
         if (isShowDialog) view?.hideDialog()
@@ -121,43 +135,96 @@ fun <T> Flow<T>.withHandling(
     end: () -> Unit = {},
     isShowToast: Boolean = false,
 ): Flow<T> {
-    return flowOn(Main).catch { exception ->
-        val wrapper: ResponseWrapper = when (exception) {
-            is ResponseWrapper -> exception
-            else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    return flowOn(Main.immediate).catch { exception ->
+        // 忽略 CancellationException，不做处理
+        if (exception is CancellationException) {
+            throw exception
         }
+        val wrapper = wrapper(exception)
         if (isShowToast) wrapper.errMessage?.responseToast()
         err(wrapper)
-    }.onCompletion {
-        end()
+    }.onCompletion { cause ->
+        if (cause !is CancellationException) {
+            end()
+        }
+    }
+}
+
+private fun wrapper(exception: Throwable): ResponseWrapper {
+    val wrapper: ResponseWrapper = when (exception) {
+        is ResponseWrapper -> exception
+        else -> ResponseWrapper(FAILURE, "", RuntimeException("Unhandled error: ${exception::class.java.simpleName} - ${exception.message}", exception))
+    }
+    return wrapper
+}
+
+/**
+ * 抽离公共 MediaType 常量（避免重复创建）
+ */
+private val JSON_MEDIA_TYPE = "application/json; charset=utf-8".toMediaType()
+
+/**
+ * HashMap 扩展：转为 OkHttp RequestBody（仅支持 <String, String> 类型，null 安全）
+ * 空 Map/Null → 序列化后为 "{}"（符合 JSON 规范）
+ */
+fun <K, V> HashMap<K, V>?.requestBody(): RequestBody {
+    val json = this?.takeIf { it.isNotEmpty() }?.toJson() ?: "{}"
+    return json.toRequestBody(JSON_MEDIA_TYPE)
+}
+
+/**
+ * 快速构建 RequestBody（value 仅支持 String，自动过滤 null 值，后入 key 覆盖前一个）
+ * 示例：reqBodyOf("name" to "张三", "age" to "20", "addr" to null) → {"name":"张三","age":"20"}
+ */
+fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
+    return hashMapOf<String, Any>().apply {
+        pairs.forEach { (key, value) ->
+            value?.let { put(key, it) }
+        }
+    }.requestBody()
+}
+
+/**
+ * 快速构建 String 类型 value 的 HashMap（自动过滤 null 值，后入 key 覆盖前一个）
+ * 支持单独获取 Map 用于日志打印、参数拼接等场景
+ */
+fun reqMapOf(vararg pairs: Pair<String, String?>): HashMap<String, String> {
+    return hashMapOf<String, String>().apply {
+        pairs.forEach { (key, value) ->
+            value?.let { put(key, it) }
+        }
     }
 }
 
 /**
- * 请求转换
- * map扩展，如果只需传入map则使用
- * hashMapOf("" to "")不需要写此扩展
+ * 取得async异步协程集合后，拿取对应的值强转
+ * reified:保留类型参数 T 的具体类型信息
  */
-fun <K, V> HashMap<K, V>?.requestBody() =
-    this?.toJson().orEmpty().toRequestBody("application/json; charset=utf-8".toMediaType())
+inline fun <reified T> List<Any?>?.safeAs(position: Int): T? {
+    if (this == null || position < 0 || position >= size) return null
+    val value = get(position)
+    return if (value is T) value else null
+}
 
-fun reqBodyOf(vararg pairs: Pair<String, Any?>): RequestBody {
-    val map = hashMapOf<String, Any>()
-    pairs.forEach {
-        it.second?.let { v ->
-            map[it.first] = v
-        }
-    }
-    return map.requestBody()
+inline fun <reified T> Any?.safeAs(): T? {
+    if (this == null) return null
+    return if (this is T) this else null
 }
 
 /**
  * 提示方法，根据接口返回的msg提示
  */
-fun String?.responseToast() =
-    (if (!NetWorkUtil.isNetworkAvailable()) resString(R.string.responseNetError) else {
-        if (isNullOrEmpty()) resString(R.string.responseError) else this
+fun String?.responseToast() {
+    (if (!NetWorkUtil.isNetworkAvailable()) {
+        resString(R.string.responseNetError)
+    } else {
+        if (isNullOrEmpty()) {
+            resString(R.string.responseError)
+        } else {
+            this
+        }
     }).shortToast()
+}
 
 /**
  * 判断此次请求是否成功

@@ -28,8 +28,8 @@ class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
     private val wxApi by lazy { WXManager.instance.regToWx(this) }// IWXAPI 是第三方app和微信通信的openapi接口
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        wxApi?.handleIntent(intent, this)
         super.onCreate(savedInstanceState)
+        wxApi?.handleIntent(intent, this)
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED

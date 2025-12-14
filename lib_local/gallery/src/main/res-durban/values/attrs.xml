@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="durban_CropView">
+        <attr name="durban_aspect_ratio_x" format="float" />
+        <attr name="durban_aspect_ratio_y" format="float" />
+        <attr name="durban_show_oval_crop_frame" format="boolean" />
+        <attr name="durban_circle_dimmed_layer" format="boolean" />
+        <attr name="durban_dimmed_color" format="color" />
+        <attr name="durban_grid_stroke_size" format="dimension" />
+        <attr name="durban_grid_color" format="color" />
+        <attr name="durban_grid_row_count" format="integer" />
+        <attr name="durban_grid_column_count" format="integer" />
+        <attr name="durban_show_grid" format="boolean" />
+        <attr name="durban_frame_stroke_size" format="dimension" />
+        <attr name="durban_frame_color" format="color" />
+        <attr name="durban_show_frame" format="boolean" />
+    </declare-styleable>
+
+</resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- app内的一些颜色-->
+    <!-- 计时框-->
     <color name="bgTimeTick">#ef111111</color>
 </resources>

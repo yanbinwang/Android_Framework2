@@ -51,10 +51,14 @@ import android.os.StatFs
 /**
  * 判断sd卡是否存在
  */
-fun hasSdcard() = Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+fun hasSdcard(): Boolean {
+    return Environment.MEDIA_MOUNTED == Environment.getExternalStorageState()
+}
 
 /**
  * 获取sd卡目录-绝对路径
+ * 在Android Q及以上版本，返回应用专属外部存储目录
+ * 在Android Q以下版本，返回外部存储根目录
  */
 fun Context.getSdcardAbsolutePath(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -66,6 +70,8 @@ fun Context.getSdcardAbsolutePath(): String {
 
 /**
  * 获取sd卡目录-相对路径
+ * 在Android Q及以上版本，返回应用专属外部存储目录
+ * 在Android Q以下版本，返回外部存储根目录
  */
 fun Context.getSdcardPath(): String {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -78,10 +84,12 @@ fun Context.getSdcardPath(): String {
 /**
  * 获取sd卡存储空间类
  */
-fun Context.getSdcardStatFs() = StatFs(getSdcardPath())
+fun Context.getSdcardStatFs(): StatFs {
+    return StatFs(getSdcardPath())
+}
 
 /**
- * 获得内置sd卡总容量，单位M
+ * 获得内置sd卡总容量，单位MB
  */
 fun Context.getSdcardTotalCapacity(): Long {
     //获得sdcard上 block的总数
@@ -92,7 +100,7 @@ fun Context.getSdcardTotalCapacity(): Long {
 }
 
 /**
- * 获得内置sd卡可用容量，即可用大小，单位M
+ * 获得内置sd卡可用容量，即可用大小，单位MB
  */
 fun Context.getSdcardAvailableCapacity(): Long {
     //获得sdcard上 block的总数
@@ -103,13 +111,16 @@ fun Context.getSdcardAvailableCapacity(): Long {
 }
 
 /**
- * 获得内置sd卡不可用容量，即已用大小，单位M
+ * 获得内置sd卡不可用容量，即已用大小，单位MB
  */
-fun Context.getSdcardUnavailableCapacity() = getSdcardTotalCapacity() - getSdcardAvailableCapacity()
+fun Context.getSdcardUsedCapacity(): Long {
+    return getSdcardTotalCapacity() - getSdcardAvailableCapacity()
+}
 
 /**
  * 传入指定大小的文件长度，扫描sd卡空间是否足够
- * 需有1G的默认大小的空间
+ * @param requiredSpace 需要的空间大小，单位MB，默认1024MB(1GB)
  */
-fun Context.scanDisk(space: Long = 1024) = getSdcardAvailableCapacity() > space
-
+fun Context.isSdcardSpaceEnough(requiredSpace: Long = 1024): Boolean {
+    return getSdcardAvailableCapacity() >= requiredSpace
+}

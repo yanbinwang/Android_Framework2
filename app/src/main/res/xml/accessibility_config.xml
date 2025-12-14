@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- accessibilityEventTypes:监听的事件类型（多个用|分隔）
+        typeViewClicked：按钮等视图被点击的事件
+        typeWindowStateChanged：窗口状态变化（如打开新页面、弹窗）
+        其他常用类型：typeViewScrolled（滚动事件）、typeViewTextChanged（文本变化）等 -->
+<!-- accessibilityFeedbackType:反馈类型：服务提供的反馈方式
+        feedbackGeneric：通用反馈（如震动）
+        feedbackSpoken：语音反馈（屏幕阅读器常用）
+        feedbackHaptic：触觉反馈（震动）
+        feedbackVisual：视觉反馈（如闪烁） -->
+<!-- accessibilityFlags:服务标志：额外功能开关
+        flagDefault：默认配置
+        flagIncludeNotImportantViews：包含"不重要"的视图（如装饰性元素）
+        flagRequestTouchExplorationMode：启用触摸探索模式（视障用户常用） -->
+<!-- canRetrieveWindowContent:是否允许服务获取窗口内容（关键属性）
+        true：可以获取界面元素的文本、类型等详细信息
+        false：只能获取基本事件，无法读取具体内容 -->
+<!-- description:服务描述：显示在系统设置中的说明文字
+        用于告诉用户该服务的功能（建议本地化，使用@string资源） -->
+<!-- notificationTimeout:事件通知的超时时间（毫秒）
+        避免短时间内重复发送相同事件，超过此时长才会再次通知 -->
+<!-- packageNames:要监听的目标应用包名（多个用逗号分隔）
+       不设置则监听所有应用（不推荐，会影响性能）
+       示例："com.tencent.mm,com.taobao.taobao" 表示监听微信和淘宝 -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewClicked|typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="true"
+    android:description="@string/album_all_images"
+    android:notificationTimeout="100"
+    android:packageNames="com.example.mvvm" />

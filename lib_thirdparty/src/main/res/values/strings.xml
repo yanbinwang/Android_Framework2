@@ -2,8 +2,11 @@
     <!-- 推送 -->
     <string name="notificationChannelId">dataqin</string>
     <string name="notificationChannelName">数秦科技</string>
+    <string name="permissionNotification">通知权限,该权限用于应用推送相关信息</string>
     <!-- 三方应用 -->
     <string name="wechatUnInstalled">您尚未安装微信</string>
     <string name="wechatSupportError">当前微信版本不支持</string>
     <string name="alipayUnInstalled">您尚未安装支付宝</string>
+    <!-- 图片压缩提示 -->
+    <string name="compressError">請上傳10M以內的圖片</string>
 </resources>

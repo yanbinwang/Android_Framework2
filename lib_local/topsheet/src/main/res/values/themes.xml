@@ -1,30 +1,53 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
+    <!-- 弹窗进入和退出动画样式 -->
     <style name="Animation.Design.TopSheetDialog" parent="Animation.AppCompat.Dialog">
+        <!-- 弹窗进入动画：从顶部滑入 -->
         <item name="android:windowEnterAnimation">@anim/top_sheet_slide_in</item>
+        <!-- 弹窗退出动画：向顶部滑出 -->
         <item name="android:windowExitAnimation">@anim/top_sheet_slide_out</item>
     </style>
 
+    <!-- 顶部弹窗的基础样式 -->
     <style name="Widget.Design.TopSheet.Modal" parent="android:Widget">
+        <!-- 弹窗背景色：使用系统默认背景色 -->
         <item name="android:background">?android:attr/colorBackground</item>
+        <!-- 弹窗阴影高度：控制弹窗边缘的阴影深度 -->
         <item name="android:elevation">@dimen/top_sheet_modal_elevation</item>
+        <!-- 弹窗折叠时的高度：部分显示时的高度（从顶部露出的高度） -->
         <item name="behavior_peekHeight">@dimen/top_sheet_modal_peek_height</item>
+        <!-- 是否允许弹窗隐藏：设置为true时可通过滑动完全隐藏弹窗 -->
         <item name="behavior_hideable">true</item>
     </style>
 
+    <!-- 顶部弹窗的主题样式（深色） -->
     <style name="Theme.Design.TopSheetDialog" parent="Theme.AppCompat.Dialog">
+        <!-- 窗口背景色：设置为透明，避免弹窗周围出现默认黑色边框 -->
         <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 窗口动画样式：引用上面定义的顶部滑入滑出动画 -->
         <item name="android:windowAnimationStyle">@style/Animation.Design.TopSheetDialog</item>
+        <!-- 底部弹窗样式：指定弹窗使用自定义的MyTopSheetModal样式 -->
         <item name="bottomSheetStyle">@style/MyTopSheetModal</item>
+
+        <!-- 关闭悬浮窗口特性：默认Dialog是悬浮的，设置为false允许弹窗占满屏幕并延伸到系统栏 -->
+        <item name="android:windowIsFloating">false</item>
+        <!-- 允许绘制系统栏背景：开启后才能通过window.setStatusBarColor等方法修改系统栏颜色（包括透明） -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
+    <!-- 顶部弹窗的主题样式（浅色） -->
     <style name="Theme.Design.Light.TopSheetDialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:windowAnimationStyle">@style/Animation.Design.TopSheetDialog</item>
         <item name="bottomSheetStyle">@style/MyTopSheetModal</item>
+
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
+    <!-- 自定义顶部弹窗样式（继承自基础样式） -->
     <style name="MyTopSheetModal" parent="Widget.Design.TopSheet.Modal">
+        <!-- 弹窗背景色：设置为透明，让弹窗内容背景直接显示 -->
         <item name="android:background">@android:color/transparent</item>
     </style>
 

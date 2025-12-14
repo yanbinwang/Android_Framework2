@@ -3,12 +3,21 @@ package com.example.common.utils
 import android.annotation.SuppressLint
 import android.content.Context
 import android.net.ConnectivityManager
+import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkInfo
+import android.net.NetworkRequest
+import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.telephony.TelephonyManager
+import android.text.TextUtils
+import androidx.annotation.RequiresApi
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.BaseApplication
-import com.example.framework.utils.logE
+import com.example.common.event.EventCode.EVENT_OFFLINE
+import com.example.common.event.EventCode.EVENT_ONLINE
+import com.example.framework.utils.function.doOnDestroy
 
 /**
  * author: wyb
@@ -17,36 +26,73 @@ import com.example.framework.utils.logE
  * isAvailable->是否可以进行网络连接。当持续或半持续状态阻止连接到该网络时，网络不可用
  * isConnected->是否存在网络连接以及是否可以建立连接和传递数据
  */
-@SuppressLint("MissingPermission")
+@SuppressLint("MissingPermission", "ObsoleteSdkInt")
 object NetWorkUtil {
-    private val mContext by lazy { BaseApplication.instance.applicationContext }
-    private val manager by lazy { mContext.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
+    private val context by lazy { BaseApplication.instance.applicationContext }
+    private val connectivityManager by lazy { context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager }
+    private val wifiManager by lazy { context.getSystemService(Context.WIFI_SERVICE) as? WifiManager }
 
     /**
-     * 验证是否联网,保证连接正常建立
+     * 网络变化监听(相比广播更精确)
      */
-    fun isNetworkAvailable(): Boolean {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            val networkInfo = manager?.activeNetworkInfo
-            if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
-        } else {
-            val network = manager?.activeNetwork ?: return false
-            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
-            if (capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) return true
+    @JvmStatic
+    fun init(owner: LifecycleOwner) {
+        val networkCallback = object : ConnectivityManager.NetworkCallback() {
+            var listener: (isOnline: Boolean) -> Unit = {}
+            override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
+                super.onCapabilitiesChanged(network, networkCapabilities)
+                val isOnline = networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) && networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                listener.invoke(isOnline)
+            }
+        }.apply {
+            listener = {
+                if (it) {
+                    EVENT_ONLINE.post()
+                } else {
+                    EVENT_OFFLINE.post()
+                }
+            }
         }
-        return false
+        connectivityManager?.registerNetworkCallback(NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET).build(), networkCallback)
+        owner.doOnDestroy {
+            connectivityManager?.unregisterNetworkCallback(networkCallback)
+        }
     }
 
     /**
-     * 判断当前网络环境是否为wifi，只需校验是否是wifi
+     * 验证是否联网,保证连接正常建立
+     * 在 Android 14 及更高版本中，NetworkCapabilities.NET_CAPABILITY_VALIDATED 表示网络已经通过运营商验证并且可以访问互联网。
+     * 但实际使用中，这个条件比较严格，很多时候即使网络正常也可能不满足
      */
-    fun isWifiConnected(): Boolean {
+    @JvmStatic
+    fun isNetworkAvailable(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+            val networkInfo = connectivityManager?.activeNetworkInfo
+            if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
         } else {
-            val network = manager?.activeNetwork ?: return false
-            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
-            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
+            /**
+             * Android 10+ 引入 NET_CAPABILITY_VALIDATED 后，系统会额外做一层 “互联网连通性校验”，但这个校验有很多 “隐藏门槛”，哪怕满足了 “连网 + 有 INTERNET 权限”，也可能返回 false
+             * 后台限制：App 不在前台（退后台、锁屏），系统直接让 isValidated = false（Android 10+ 强制限制）；
+             * 权限关联：targetSdk=31+ 时，ACCESS_WIFI_STATE/ACCESS_NETWORK_STATE 没加 neverForLocation，系统把它归为 “定位敏感权限”，间接限制 isValidated；
+             * 网络类型：部分特殊网络（如企业 Wi-Fi、VPN）会让系统校验失败；
+             * 系统缓存：偶尔系统连通性校验缓存过期，导致误判。
+             */
+            val network = connectivityManager?.activeNetwork ?: return false
+            val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
+            // 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
+            val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
+            // 不是手机常用网络，直接返回 false
+            if (!hasTransport) return false
+            // 有互联网权限
+            val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            // 非受限
+            val isNotRestricted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
+            // 可信网络
+            val isTrusted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
+//            // 前台网络（可选，根据需求加）
+//            val isForeground = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND)
+            // 手机网络 + 能上网 + 非受限 + 可信
+            return hasInternet && isNotRestricted && isTrusted
         }
         return false
     }
@@ -54,13 +100,29 @@ object NetWorkUtil {
     /**
      * 判断当前网络环境是否为手机流量，只需校验是否是流量
      */
+    @JvmStatic
     fun isMobileConnected(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
+            return connectivityManager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_MOBILE
         } else {
-            val network = manager?.activeNetwork ?: return false
-            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
+            val network = connectivityManager?.activeNetwork ?: return false
+            val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) return true
+        }
+        return false
+    }
+
+    /**
+     * 判断当前网络环境是否为wifi，只需校验是否是wifi
+     */
+    @JvmStatic
+    fun isWifiConnected(): Boolean {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            return connectivityManager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_WIFI
+        } else {
+            val network = connectivityManager?.activeNetwork ?: return false
+            val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
+            if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) return true
         }
         return false
     }
@@ -68,17 +130,23 @@ object NetWorkUtil {
     /**
      * 是否挂载了网络代理（wifi模式下）
      */
-    fun isMountAgent() = (!System.getProperty("http.proxyHost").isNullOrEmpty()) && ((System.getProperty("http.proxyPort") ?: "-1").toInt() != -1)
+    @JvmStatic
+    fun isMountAgent(): Boolean {
+        val httpProxy = !System.getProperty("http.proxyHost").isNullOrEmpty() && (System.getProperty("http.proxyPort")?.toIntOrNull() ?: -1) != -1
+        val httpsProxy = !System.getProperty("https.proxyHost").isNullOrEmpty() && (System.getProperty("https.proxyPort")?.toIntOrNull() ?: -1) != -1
+        return httpProxy || httpsProxy
+    }
 
     /**
      * 是否挂载了VPN，只需校验是否是Vpn
      */
+    @JvmStatic
     fun isMountVpn(): Boolean {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
-            return manager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
+            return connectivityManager?.activeNetworkInfo?.type == ConnectivityManager.TYPE_VPN
         } else {
-            val network = manager?.activeNetwork ?: return false
-            val capabilities = manager?.getNetworkCapabilities(network) ?: return false
+            val network = connectivityManager?.activeNetwork ?: return false
+            val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
             if (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return true
         }
         return false
@@ -86,33 +154,146 @@ object NetWorkUtil {
 
     /**
      * 获取当前wifi密码的加密策略(需要定位权限)
+     * <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+     */
+    @JvmStatic
+    fun getWifiSecurity(): String {
+        // 检查是否连接WiFi
+        if (!isWifiConnected()) {
+            return "NONE"
+        }
+        // Android 10+ 推荐使用 ConnectivityManager 方式
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            getWifiSecurityModern()
+        } else {
+            // 低版本沿用旧方式，但添加兼容性处理
+            getWifiSecurityLegacy()
+        }
+    }
+
+    /**
+     * 现代方式（Android 10+）获取WiFi加密方式
+     */
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun getWifiSecurityModern(): String {
+        val network = connectivityManager?.activeNetwork ?: return "NONE"
+        val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return "NONE"
+        // 确认是WiFi网络
+        if (!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)) {
+            return "NONE"
+        }
+        // 获取WiFi信息（需要ACCESS_FINE_LOCATION权限）
+        val wifiInfo = capabilities.transportInfo as? WifiInfo ?: return "NONE"
+        val bssid = wifiInfo.bssid ?: return "NONE"
+        // 获取扫描结果（需要ACCESS_FINE_LOCATION和CHANGE_WIFI_STATE权限）
+        val scanResults = wifiManager?.scanResults ?: return "NONE"
+        // 匹配当前连接的WiFi
+        for (scanResult in scanResults) {
+            if (TextUtils.equals(scanResult.BSSID, bssid)) {
+                return parseSecurityType(scanResult.capabilities)
+            }
+        }
+        return "NONE"
+    }
+
+    /**
+     * 旧方式（Android 10以下）获取WiFi加密方式
+     */
+    private fun getWifiSecurityLegacy(): String {
+        val connectionInfo = wifiManager?.connectionInfo ?: return "NONE"
+        val bssid = connectionInfo.bssid ?: return "NONE"
+        val scanResults = wifiManager?.scanResults ?: return "NONE"
+        for (scanResult in scanResults) {
+            // 模糊匹配BSSID（旧版本可能存在格式差异）
+            if (scanResult.BSSID.contains(bssid)) {
+                return parseSecurityType(scanResult.capabilities)
+            }
+        }
+        return "NONE"
+    }
+
+    /**
+     * 解析WiFi加密类型
      * 无线路由器里带有的加密模式主要有：WEP，WPA-PSK（TKIP），WPA2-PSK（AES）和WPA-PSK（TKIP）+WPA2-PSK（AES）。
      * WPA2-PSK的加密方式基本无法破解，无线网络加密一般需要用此种加密方式才可以有效防止不被蹭网，考虑到设备兼容性，有WPA-PSK（TKIP）+WPA2-PSK（AES）混合加密选项的话一般选择此项，加密性能好，兼容性也广。
      * WEP是Wired Equivalent Privacy（有线等效保密）的英文缩写，目前常见的是64位WEP加密和128位WEP加密。它是一种最老也是最不安全的加密方式，不建议大家选用。
      * WPA是WEP加密的改进版，包含两种方式：预共享密钥和Radius密钥（远程用户拨号认证系统）。其中预共享密钥（pre-share key缩写为PSK）有两种密码方式：TKIP和AES，而RADIUS密钥利用RADIUS服务器认证并可以动态选择TKIP、AES、WEP方式。相比TKIP，AES具有更好的安全系数，建议用户使用。
      * WPA2即WPA加密的升级版。WPA2同样也分为TKIP和AES两种方式，因此也建议选AES加密不要选TKIP。
      */
-    fun getWifiSecurity(): String {
-        var result = "NONE"
+    private fun parseSecurityType(capabilities: String): String {
+        return when {
+            capabilities.contains("WPA3") -> "WPA3"  // 新增对WPA3的支持
+            capabilities.contains("WPA2-PSK") -> "WPA2-PSK"
+            capabilities.contains("WPA2-EAP") -> "WPA2-EAP"
+            capabilities.contains("WPA2") -> "WPA2"
+            capabilities.contains("WPA-PSK") -> "WPA-PSK"
+            capabilities.contains("WPA-EAP") -> "WPA-EAP"
+            capabilities.contains("WPA") -> "WPA"
+            capabilities.contains("WEP") -> "WEP"
+            else -> "NONE"
+        }
+    }
+
+    /**
+     * 网络apn类型
+     */
+    @JvmStatic
+    fun getAPNType(): String {
+        // 先判断是否是 WiFi（优先用 NetworkCapabilities，适配高版本）
         if (isWifiConnected()) {
-            val wifiManager = mContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager ?: return result
-            val connectionInfo = wifiManager.connectionInfo
-            for (scanResult in wifiManager.scanResults) {
-                val capabilities = scanResult.capabilities
-                " \nconnectionInfo的ssid:${connectionInfo.bssid}\nscanResult的ssid:${scanResult.BSSID}\ncapabilities:$capabilities".logE
-                if (scanResult.BSSID.contains(connectionInfo.bssid)) {
-                    result = when {
-                        capabilities.contains("WPA2-PSK") -> "WPA2-PSK"
-                        capabilities.contains("WPA2") -> "WPA2"
-                        capabilities.contains("WEP") -> "WEP"
-                        capabilities.contains("WPA") -> "WPA"
-                        else -> "NONE"
-                    }
-                    break
+            return "wifi"
+        }
+        // 判断是否是蜂窝网络（移动数据）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager?.activeNetwork ?: return "NULL"
+            val capabilities = connectivityManager?.getNetworkCapabilities(activeNetwork) ?: return "NULL"
+            // 确认是蜂窝网络
+            if (!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return "NULL"
+            }
+            // 判断网络代际（2G/3G/4G/5G），使用 TelephonyManager 新 API + 兼容处理
+            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return "mobile"
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+ 支持 5G 判断（需要 ACCESS_FINE_LOCATION 权限）
+                when (telephonyManager.dataNetworkType) {
+                    TelephonyManager.NETWORK_TYPE_NR -> "5G"
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0,
+                    TelephonyManager.NETWORK_TYPE_EVDO_A, TelephonyManager.NETWORK_TYPE_EVDO_B -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // Android 9-10，无 5G 支持
+                when (telephonyManager.dataNetworkType) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            } else {
+                // Android 8 及以下，沿用旧逻辑但优化
+                when (telephonyManager.networkType) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
                 }
             }
+        } else {
+            // Android 6-9，兼容旧 API
+            val networkInfo = connectivityManager?.activeNetworkInfo ?: return "NULL"
+            if (networkInfo.type == ConnectivityManager.TYPE_MOBILE) {
+                val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return "mobile"
+                return when (networkInfo.subtype) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            }
+            return "NULL"
         }
-        return result
     }
 
 }

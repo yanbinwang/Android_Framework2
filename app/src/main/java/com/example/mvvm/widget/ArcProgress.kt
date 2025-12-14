@@ -15,6 +15,7 @@ import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.mvvm.R
 import kotlin.math.cos
+import androidx.core.content.withStyledAttributes
 
 class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
     private var textColor = 0
@@ -74,21 +75,21 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
         default_bottom_text_size = 10.ptFloat
         default_stroke_width = 4.ptFloat
         //初始化配置属性
-        val attributes = context.obtainStyledAttributes(attrs, R.styleable.ArcProgress)
-        finishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_finished_color, default_finished_color)
-        unfinishedStrokeColor = attributes.getColor(R.styleable.ArcProgress_arc_unfinished_color, default_unfinished_color)
-        textColor = attributes.getColor(R.styleable.ArcProgress_arc_text_color, default_text_color)
-        textSize = attributes.getDimension(R.styleable.ArcProgress_arc_text_size, default_text_size)
-        arcAngle = attributes.getFloat(R.styleable.ArcProgress_arc_angle, default_arc_angle)
-        setMax(attributes.getInt(R.styleable.ArcProgress_arc_max, default_max))
-        setProgress(attributes.getInt(R.styleable.ArcProgress_arc_progress, 0))
-        strokeWidth = attributes.getDimension(R.styleable.ArcProgress_arc_stroke_width, default_stroke_width)
-        suffixTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_size, default_suffix_text_size)
-        suffixText = attributes.getString(R.styleable.ArcProgress_arc_suffix_text).let { if (it.isNullOrEmpty()) default_suffix_text else it }
-        suffixTextPadding = attributes.getDimension(R.styleable.ArcProgress_arc_suffix_text_padding, default_suffix_padding)
-        bottomTextSize = attributes.getDimension(R.styleable.ArcProgress_arc_bottom_text_size, default_bottom_text_size)
-        bottomText = attributes.getString(R.styleable.ArcProgress_arc_bottom_text).orEmpty()
-        attributes.recycle()
+        context.withStyledAttributes(attrs, R.styleable.ArcProgress) {
+            finishedStrokeColor = getColor(R.styleable.ArcProgress_arc_finished_color, default_finished_color)
+            unfinishedStrokeColor = getColor(R.styleable.ArcProgress_arc_unfinished_color, default_unfinished_color)
+            textColor = getColor(R.styleable.ArcProgress_arc_text_color, default_text_color)
+            textSize = getDimension(R.styleable.ArcProgress_arc_text_size, default_text_size)
+            arcAngle = getFloat(R.styleable.ArcProgress_arc_angle, default_arc_angle)
+            setMax(getInt(R.styleable.ArcProgress_arc_max, default_max))
+            setProgress(getInt(R.styleable.ArcProgress_arc_progress, 0))
+            strokeWidth = getDimension(R.styleable.ArcProgress_arc_stroke_width, default_stroke_width)
+            suffixTextSize = getDimension(R.styleable.ArcProgress_arc_suffix_text_size, default_suffix_text_size)
+            suffixText = getString(R.styleable.ArcProgress_arc_suffix_text).let { if (it.isNullOrEmpty()) default_suffix_text else it }
+            suffixTextPadding = getDimension(R.styleable.ArcProgress_arc_suffix_text_padding, default_suffix_padding)
+            bottomTextSize = getDimension(R.styleable.ArcProgress_arc_bottom_text_size, default_bottom_text_size)
+            bottomText = getString(R.styleable.ArcProgress_arc_bottom_text).orEmpty()
+        }
         //初始化外侧及文字画笔
         initPainters()
     }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
+
+    <style name="durban_MatchParent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <style name="durban_MatchParent.ItemRoot">
+        <item name="android:layout_height">@dimen/durban_dp_70</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="durban_MatchParent.WidthWeight">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="durban_MatchParent.WidthWeight.ControllerItem">
+        <item name="android:background">?selectableItemBackgroundBorderless</item>
+        <item name="android:clickable">true</item>
+    </style>
+
+    <style name="durban_PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="durban_Toolbar" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?actionBarSize</item>
+        <item name="titleTextColor">@color/durban_White</item>
+        <item name="subtitleTextColor">@color/durban_White</item>
+        <item name="theme">@style/durban_ToolbarTheme</item>
+    </style>
+
+    <style name="durban_Toolbar.PopupTheme">
+        <item name="popupTheme">@style/durban_PopupOverlay</item>
+        <item name="selectableItemBackground">@null</item>
+        <item name="selectableItemBackgroundBorderless">@null</item>
+    </style>
+
+    <style name="durban_ToolbarTheme">
+        <item name="actionMenuTextColor">@color/durban_White</item>
+    </style>
+
+    <style name="durban_WrapContent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="durban_WrapContent.ControllerButton">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:scaleType">fitCenter</item>
+    </style>
+
+    <style name="durban_WrapContent.WidthMatchParent">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <style name="durban_WrapContent.WidthWeight">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="durban_WrapContent.WidthWeight.ControllerTitle">
+        <item name="android:gravity">center</item>
+        <item name="android:textColor">@color/durban_White</item>
+    </style>
+
+</resources>

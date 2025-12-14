@@ -8,15 +8,18 @@ import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ClipData
 import android.content.ClipboardManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.Settings
+import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,33 +38,76 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
+import java.util.WeakHashMap
 
 
 //------------------------------------context扩展函数类------------------------------------
 /**
  * 获取resources中的color
  */
-fun Context.color(@ColorRes res: Int) = ContextCompat.getColor(this, res)
+fun Context.color(@ColorRes res: Int): Int {
+    return ContextCompat.getColor(this, res)
+}
 
 /**
  * 获取resources中的drawable
  */
-fun Context.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(this, res)
+fun Context.drawable(@DrawableRes res: Int): Drawable? {
+    return ContextCompat.getDrawable(this, res)
+}
+
+/**
+ * 获取资源文件id
+ */
+@SuppressLint("ResourceType")
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+}
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(defTypeId(name, "drawable"))
+}
+
+
+/**
+ * 通过字符串获取mipmap下的图片文件
+ */
+fun Context.defTypeMipmap(name: String): Drawable? {
+    return drawable(defTypeId(name, "mipmap"))
+}
 
 /**
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
-fun Context.font(@FontRes res: Int) = ResourcesCompat.getFont(this, res)
+fun Context.font(@FontRes res: Int): Typeface? {
+    return ResourcesCompat.getFont(this, res)
+}
 
 /**
  * 获取Resources中的Dimes
  */
-fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
+fun Context.dimen(@DimenRes res: Int): Float {
+    return try {
+        resources.getDimension(res)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0f
+    }
+}
 
 /**
  * 获取Resources中的String
@@ -69,66 +115,35 @@ fun Context.dimen(@DimenRes res: Int) = resources.getDimension(res)
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
 
 /**
- * 通过字符串获取drawable下的xml文件
- */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeDrawable(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "drawable", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "drawable", packageName)
-    } catch (_: Exception) {
-        0
-    })
-}
-
-/**
- * 通过字符串获取mipmap下的图片文件
- */
-@SuppressLint("DiscouragedApi")
-//fun Context.defTypeMipmap(name: String): Int {
-//    return try {
-//        resources.getIdentifier(name, "mipmap", packageName)
-//    } catch (_: Exception) {
-//        0
-//    }
-//}
-fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(try {
-        resources.getIdentifier(name, "mipmap", packageName)
-    } catch (_: Exception) {
-        0
-    })
-}
-
-/**
  * 生成View
  */
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View = LayoutInflater.from(this).inflate(res, root)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
+    return LayoutInflater.from(this).inflate(res, root)
+}
 
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View = LayoutInflater.from(this).inflate(res, root, attachToRoot)
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View {
+    return LayoutInflater.from(this).inflate(res, root, attachToRoot)
+}
 
 /**
  * 粘贴板操作
  */
-fun Context.setPrimaryClip(label: String, text: String) = (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText(label, text))
+fun Context.setPrimaryClip(label: String, text: String) {
+    (getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager)?.setPrimaryClip(ClipData.newPlainText(label, text))
+}
 
 fun Context.getPrimaryClip(): String {
     val clipboardManager = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
-    //判断剪切版时候有内容
+    // 判断剪切版时候有内容
     if (!clipboardManager?.hasPrimaryClip().orFalse) return ""
-    //获取 text
+    // 获取 text
     return clipboardManager?.primaryClip?.getItemAt(0)?.text.toString()
 }
 
@@ -157,7 +172,8 @@ fun Context.sampleMemory(): Long {
                 memory = totalPss.toSafeLong()
             }
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return memory * 1024
 }
@@ -165,7 +181,9 @@ fun Context.sampleMemory(): Long {
 /**
  * 判断手机是否开启开发者模式
  */
-fun Context.isAdbEnabled() = (Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0)
+fun Context.isAdbEnabled(): Boolean {
+    return Settings.Secure.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) > 0
+}
 
 /**
  * 是否安装了XXX应用
@@ -176,6 +194,7 @@ fun Context.isAvailable(packageName: String): Boolean {
             packageManager.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES)
             true
         } catch (e: Exception) {
+            e.printStackTrace()
             false
         }
     }.orFalse
@@ -206,28 +225,56 @@ fun Context.stopService(cls: Class<out Service>) {
 /**
  * 检测服务是否正在运行
  */
-fun Context.isServiceRunning(cls: Class<*>): Boolean {
+val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() } // 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+
+fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    val appProcesses = activityManager?.runningAppProcesses
-    if (appProcesses != null) {
-        for (appProcess in appProcesses) {
-            if (appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND ||
-                appProcess.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
-            ) {
-                val packageManager = packageManager
-                try {
-                    val serviceInfos = packageManager.getPackageInfo(packageName, PackageManager.GET_SERVICES).services
-                    if (serviceInfos != null) {
-                        for (serviceInfo in serviceInfos) {
-                            if (serviceInfo.name == cls.name) {
-                                return true
-                            }
-                        }
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
-            }
+    // 检查自维护的服务状态
+    val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
+    // 检查应用进程是否存活（避免进程被杀后状态未更新）
+    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
+        processInfo.uid == applicationInfo.uid &&
+                processInfo.processName == packageName &&
+                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    } ?: false
+    return isServiceMarkedRunning && isProcessAlive
+}
+
+/**
+ * 扩展 LifecycleService 自动管理状态,让服务继承 TrackableLifecycleService
+ */
+abstract class TrackableLifecycleService : LifecycleService() {
+    override fun onCreate() {
+        super.onCreate()
+        serviceStateMap[this::class.java] = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+//        serviceStateMap[this::class.java] = false
+        serviceStateMap.remove(this::class.java)
+    }
+}
+
+/**
+ * 辅助服务是否开启
+ * // 检查权限是否开启
+ * if (!isAccessibilityServiceEnabled(MyAccessibilityService::class.java)) {
+ *     // 跳转到无障碍设置页面(pullUpAccessibility())
+ *     val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+ *     startActivity(intent)
+ * }
+ */
+fun Context?.isAccessibilityServiceEnabled(service: Class<*>): Boolean {
+    this ?: return false
+    val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES) ?: return false
+    val splitter = TextUtils.SimpleStringSplitter(':')
+    splitter.setString(enabledServices)
+    while (splitter.hasNext()) {
+        val componentName = splitter.next()
+        val serviceComponent = ComponentName(this, service)
+        if (componentName == serviceComponent.flattenToString()) {
+            return true
         }
     }
     return false
@@ -284,13 +331,13 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
  */
 fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
 
-fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+//fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
 
 fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
 
-fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
-
 fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+
+fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
 
 fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
 
@@ -302,13 +349,13 @@ fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelab
 
 fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
 
-fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
+//fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
 
 fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
 
-fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
-
 fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
+
+fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
 
 fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
 
@@ -327,7 +374,7 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter) {
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) {
     this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
@@ -337,12 +384,15 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
     owner.doOnDestroy {
         try {
             unregisterReceiver(receiver)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            end()
         }
     }
 }
 
-fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter) = doOnReceiver(this, receiver, intentFilter)
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) = doOnReceiver(this, receiver, intentFilter, end)
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job

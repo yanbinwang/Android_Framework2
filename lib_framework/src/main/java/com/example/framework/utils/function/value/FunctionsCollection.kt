@@ -6,7 +6,6 @@ import android.util.SparseArray
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
-import kotlin.collections.set
 import kotlin.random.Random
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
@@ -41,7 +40,20 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
     this ?: return
     if (position in indices) try {
         set(position, value)
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+/**
+ * 设置最后一个item的值，报错不处理
+ */
+fun <T> MutableList<T>?.safeSetLast(t: T) {
+    if (isNullOrEmpty()) return
+    try {
+        this[lastIndex] = t
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -55,6 +67,7 @@ fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
     return try {
         if (to > size) subList(from, size) else subList(from, to)
     } catch (e: Exception) {
+        e.printStackTrace()
         emptyList()
     }
 }
@@ -67,6 +80,7 @@ fun <T> Collection<T>?.safeFirst(): T? {
     return try {
         first()
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
@@ -79,24 +93,80 @@ fun <T> List<T>?.safeLast(): T? {
     return try {
         get(size - 1)
     } catch (e: Exception) {
+        e.printStackTrace()
         null
     }
 }
 
 /**
- * 设置最后一个item的值，报错不处理
+ * 寻找符合条件的第一个item的index
  */
-fun <T> MutableList<T>?.setSafeLast(t: T) {
-    if (isNullOrEmpty()) return
+fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
+    forEachIndexed { index, t ->
+        if (func(t)) return index
+    }
+    return -1
+}
+
+/**
+ * 寻找符合条件的第一个item的index和item自身的pair
+ */
+fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
+    forEachIndexed { index, t ->
+        if (func(t)) return index to t
+    }
+    return null
+}
+
+/**
+ * 移除符合条件的item
+ */
+fun <T> MutableCollection<T>.findAndRemove(func: ((T) -> Boolean)) {
     try {
-        this[lastIndex] = t
+        remove(find { func(it) })
     } catch (e: Exception) {
-        null
+        e.printStackTrace()
     }
 }
+
+/**
+ * 返回List中随机一个值
+ * 抽奖/取随机
+ */
+val <T> List<T>?.randomItem: T?
+    get() = if (isNullOrEmpty()) {
+        null
+    } else {
+        this[Random.nextInt(0, size)]
+    }
+
+/**
+ * 返回Array中随机一个值
+ */
+val <T> Array<T>?.randomItem: T?
+    get() = if (isNullOrEmpty()) {
+        null
+    } else {
+        this[Random.nextInt(0, size)]
+    }
+
+
+/**
+ * 返回CharArray中随机一个值
+ */
+val CharArray?.randomItem: Char?
+    get() = when {
+        this == null -> null
+        this.isEmpty() -> null
+        else -> this[Random.nextInt(0, size)]
+    }
 
 /**
  * 将旧list转换为新list
+ * List 示例（过滤 null 结果）
+ * val strList: List<String>? = listOf("1", "2", null, "3")
+ * val intList = strList.toNewList { it?.toIntOrNull() }
+ * 结果：[1, 2, 3]（过滤了 null 和无法转 Int 的元素）
  */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
@@ -109,16 +179,10 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return (this as? List<T>).toNewList(func)
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -128,9 +192,6 @@ fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     return list
 }
 
-/**
- * 将旧list转换为新list
- */
 fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -141,40 +202,28 @@ fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
 }
 
 /**
- * 将Collection转换为Map
+ * 将List转换为ArrayList
  */
-fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
-    if (this == null) return hashMapOf()
-    val map = hashMapOf<String, K>()
-    forEach {
-        func(it)?.apply {
-            map[first] = second
-        }
-    }
-    return map
-}
-
-/**
- * 将Bundle转换为Map
- */
-fun Bundle?.toMap(): Map<String, String> {
-    this ?: return mapOf()
-    val map = HashMap<String, String>()
-    val ks = keySet()
-    val iterator: Iterator<String> = ks.iterator()
-    while (iterator.hasNext()) {
-        val key = iterator.next()
-        getString(key)?.let {
-            map[key] = it
-        }
-    }
-    return map
+fun <T> List<T>.toArrayList(): ArrayList<T> {
+    return ArrayList(this)
 }
 
 /**
  * 将Map转换为ArrayList
+ * val map = mapOf(
+ *     "key1" to 1,
+ *     "key2" to 2,
+ *     "key3" to 3
+ * )
+ * ----------------------------------------
+ * val resultList = map.toList { entry ->
+ *     entry.value * 2
+ * }
+ * ----------------------------------------
+ * 转换逻辑：将每个 Map.Entry 的值（value）乘以 2。
+ * 结果：将 [1, 2, 3] 转换为 [2, 4, 6]。
  */
-fun <T, K, P> Map<P, T>?.toList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
+fun <T, K, P> Map<P, T>?.toArrayList(func: (Map.Entry<P, T>) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
     forEach {
@@ -211,10 +260,34 @@ inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): 
 }
 
 /**
- * 将List转换为ArrayList
+ * 将Collection转换为Map
  */
-fun <T> List<T>.toArrayList(): ArrayList<T> {
-    return ArrayList(this)
+fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
+    if (this == null) return hashMapOf()
+    val map = hashMapOf<String, K>()
+    forEach {
+        func(it)?.apply {
+            map[first] = second
+        }
+    }
+    return map
+}
+
+/**
+ * 将Bundle转换为Map
+ */
+fun Bundle?.toMap(): Map<String, String> {
+    this ?: return mapOf()
+    val map = HashMap<String, String>()
+    val ks = keySet()
+    val iterator = ks.iterator()
+    while (iterator.hasNext()) {
+        val key = iterator.next()
+        getString(key)?.let {
+            map[key] = it
+        }
+    }
+    return map
 }
 
 /**
@@ -276,125 +349,240 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 }
 
 /**
- * 寻找符合条件的第一个item的index
+ * 集合转JSONArray
  */
-fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
-    forEachIndexed { index, t ->
-        if (func(t)) return index
-    }
-    return -1
-}
-
-/**
- * 寻找符合条件的第一个item的index和item自身的pair
- */
-fun <T> Collection<T>.findIndexed(func: ((T) -> Boolean)): Pair<Int, T>? {
-    forEachIndexed { index, t ->
-        if (func(t)) return index to t
-    }
-    return null
-}
-
-/**
- * 移除符合条件的item
- */
-fun <T> MutableList<T>.findAndRemove(func: ((T) -> Boolean)) {
-    try {
-        remove(find { func(it) })
-    } catch (_: Exception) {
-    }
-}
-
-/**
- * 返回List中随机一个值
- * 抽奖/取随机
- */
-val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
-        null
-    } else {
-        this[Random.nextInt(0, size)]
-    }
-
-/**
- * 返回Array中随机一个值
- */
-val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
-        null
-    } else {
-        this[Random.nextInt(0, size)]
-    }
-
-
-/**
- * 返回CharArray中随机一个值
- */
-val CharArray?.randomItem: Char?
-    get() = when {
-        this == null -> null
-        this.isEmpty() -> null
-        else -> this[Random.nextInt(0, size)]
-    }
-
-/**
- * 取得async异步协程集合后，拿取对应的值强转
- * reified:保留类型参数 T 的具体类型信息
- */
-inline fun <reified T> List<Any?>?.safeAs(position: Int): T? {
-    if (this == null || position < 0 || position >= size) return null
-    val value = get(position)
-    return if (value is T) value else null
-}
-
-inline fun <reified T> Any?.safeAs(): T? {
+fun <T> Collection<T>?.toJsonArray(): JSONArray? {
     if (this == null) return null
-    return if (this is T) this else null
-}
-
-/**
- * list1为服务器中数据
- * list2为本地存储数据
- * isRepeated:是否返回重复的或不重复的数据
- * 正向查为服务器新增数据
- * 反向查为本地删除数据
- * 需重写equals和hasCode方法
- * data class User(val id: Int, val name: String) {
- *     override fun equals(other: Any?): Boolean {
- *         if (this === other) return true
- *         if (other is User) return id == other.id && name == other.name
- *         return false
- *     }
- *
- *     override fun hashCode(): Int {
- *         return Objects.hash(id, name)
- *     }
- * }
- */
-fun <T> List<T>?.extract(list: List<T>, isRepeated : Boolean = false): List<T>? {
-    this ?: return null
-    // 1. 生成重复集合（在两个列表中都存在的用户）
-    val repeated = toSet().intersect(list.toSet())
-    // 2. 生成不重复集合（只存在于一个列表中的用户）
-    val allUsers = toSet().union(list.toSet())
-    val unique = allUsers.subtract(repeated)
-    return if (isRepeated) repeated.toList() else unique.toList()
-}
-
-/**
- * 获取一串拼接的json
- */
-fun <T> ArrayList<T>?.requestParams(): String {
-    if (this == null) return ""
-    var result = "["
-    for (index in indices) {
-        result = if (index + 1 == size) {
-            result + safeGet(index) + "]"
-        } else {
-            result + safeGet(index) + "],["
+    val jsonArray = JSONArray()
+    for (item in this) {
+        try {
+            val jsonValue = convertToJsonValue(item)
+            jsonArray.put(jsonValue)
+        } catch (e: Exception) {
+            // 可以根据实际需求记录日志或进行其他处理
+            e.printStackTrace()
         }
     }
-    return result
+    return jsonArray
+}
+
+private fun convertToJsonValue(item: Any?): Any? {
+    return when (item) {
+        null -> null
+        is JSONObject -> item
+        is JSONArray -> item
+        is Number -> item
+        is Boolean -> item
+        is String -> item
+        is Collection<*> -> item.toJsonArray()
+        is Map<*, *> -> convertMapToJsonObject(item)
+        else -> convertObjectToJsonObject(item)
+    }
+}
+
+private fun convertMapToJsonObject(map: Map<*, *>): JSONObject {
+    val jsonObject = JSONObject()
+    for ((key, value) in map) {
+        val jsonKey = key?.toString() ?: continue
+        val jsonValue = convertToJsonValue(value)
+        jsonObject.put(jsonKey, jsonValue)
+    }
+    return jsonObject
+}
+
+private fun convertObjectToJsonObject(obj: Any): JSONObject {
+    val jsonObject = JSONObject()
+    val fields = obj.javaClass.declaredFields
+    for (field in fields) {
+        field.isAccessible = true
+        val fieldName = field.name
+        val fieldValue = field.get(obj)
+        val jsonValue = convertToJsonValue(fieldValue)
+        jsonObject.put(fieldName, jsonValue)
+    }
+    return jsonObject
+}
+
+/**
+ * 集合转JSONObject
+ */
+fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
+    if (this == null) return null
+    val jsonObject = JSONObject()
+    val jsonArray = this.toJsonArray()
+    jsonObject.put(key, jsonArray)
+    return jsonObject
+}
+
+/**
+ * list1为服务器中数据 , list2为本地存储数据
+ * isRepeated为是否返回重复的或不重复的数据 ,正向查为服务器新增数据 , 反向查为本地删除数据
+ * 需重写equals和hasCode方法
+ * data class User(val id: Int, val name: String) {
+ *    override fun equals(other: Any?): Boolean {
+ *        if (this === other) return true
+ *        if (other is User) return id == other.id && name == other.name
+ *        return false
+ *    }
+ *    override fun hashCode(): Int {
+ *        return Objects.hash(id, name)
+ *    }
+ * }
+ * val setA = setOf(1, 2, 3, 4)
+ * val setB = setOf(3, 4, 5, 6)
+ * intersect	交集	只保留「两个集合都有的元素」	                    A ∩ B     输出：[3, 4]（只有 3、4 是两个集合都有的）
+ * union	    并集	保留「两个集合的所有元素，去重」	                A ∪ B     输出：[1, 2, 3, 4, 5, 6]（合并后去重，无重复元素）
+ * subtract	    差集（相对差）	保留「当前集合有，但目标集合没有的元素」	A - B     输出：[1, 2]（A 有 1、2，B 没有）
+ */
+fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
+    this ?: return null
+    return this.let { source ->
+        // 当前集合
+        val sourceSet = source.toSet()
+        // 目标集合
+        val targetSet = list.toSet()
+        // 执行筛选
+        if (isRepeated) {
+            // 重复元素（交集）
+            sourceSet intersect targetSet
+        } else {
+            /**
+             * 不重复元素（对称差集）
+             * sourceSet union targetSet → 并集 [1,2,3,4,5,6]（所有元素去重）；
+             * sourceSet intersect targetSet → 交集 [3,4]（两个集合都有的重复元素）；
+             * 并集减交集 → [1,2,3,4,5,6] - [3,4] = [1,2,5,6]。
+             */
+            (sourceSet union targetSet) subtract (sourceSet intersect targetSet)
+        }
+    }.toList()
+}
+
+/**
+ * // 本地数据（原有）
+ * val localUsers = listOf(
+ *     User(3, "王五", 300.0),
+ *     User(5, "赵六", 500.0),
+ *     User(7, "孙七", 700.0)
+ * )
+ * // 服务器数据（基准）
+ * val serverUsers = listOf(
+ *     User(1, "张三", 100.0),
+ *     User(2, "李四", 200.0),
+ *     User(3, "王五", 350.0)
+ * )
+ * true的执行(共同元素且更新后的数据):
+ * [{"amount":350.0,"id":3,"name":"王五"}]
+ * false的执行(服务器独有 + 本地独有):
+ * [{"amount":500.0,"id":5,"name":"赵六"},{"amount":700.0,"id":7,"name":"孙七"},{"amount":100.0,"id":1,"name":"张三"},{"amount":200.0,"id":2,"name":"李四"}]
+ * 另一种false保留全部(本地独有 + 服务器独有 + 共同元素（更新后）):
+ * [{"amount":100.0,"id":1,"name":"张三"},{"amount":200.0,"id":2,"name":"李四"},{"amount":350.0,"id":3,"name":"王五"},{"amount":500.0,"id":5,"name":"赵六"},{"amount":700.0,"id":7,"name":"孙七"}]
+ */
+//fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean), isRepeated : Boolean = false): List<T>? {
+//    this ?: return null
+//    // 原有数据（副本，避免修改原始数据）
+//    val localList = toMutableList()
+//    // 可修改的服务器列表（用于筛选新增元素）
+//    val mutableServerList = list.toMutableList()
+//    return if (isRepeated) {
+//        // 只保留「共同元素且更新后的数据」，排除所有独有元素
+//        val commonUpdatedList = mutableListOf<T>()
+//        val serverIterator = mutableServerList.iterator()
+//        while (serverIterator.hasNext()) {
+//            val serverItem = serverIterator.next()
+//            // 查找本地相同标识的共同元素
+//            val localIndex = localList.findIndexOf { localItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//            if (localIndex != -1) {
+//                val localItem = localList[localIndex]
+//                // 判断是否需要更新，更新后添加到结果列表
+//                val finalItem = if (needUpdate(localItem, serverItem)) serverItem else localItem
+//                commonUpdatedList.add(finalItem)
+//                // 移除已匹配的元素（避免重复处理）
+//                serverIterator.remove()
+//                localList.removeAt(localIndex)
+//            }
+//        }
+//        // 只返回更新后的共同元素
+//        commonUpdatedList
+//    } else {
+////        // 保留「本地独有 + 服务器独有 + 共同元素（更新后）」，无重复id
+////        val localIterator = localList.iterator() // 遍历本地列表，匹配服务器元素
+////        while (localIterator.hasNext()) {
+////            val localItem = localIterator.next()
+////            // 查找服务器列表中相同id的元素（要更新服务器列表的这个元素）
+////            val serverIndex = mutableServerList.findIndexOf { serverItem ->
+////                idMatcher(localItem, serverItem)
+////            }
+////            if (serverIndex != -1) {
+////                val serverItem = mutableServerList[serverIndex]
+////                // 需要更新则修改「服务器列表」的共同元素（用服务器数据覆盖）
+////                if (needUpdate(localItem, serverItem)) {
+////                    // 直接替换（如果逻辑是用本地更新服务器，就换成localItem）
+////                    mutableServerList[serverIndex] = serverItem
+////                }
+////                // 移除本地列表的共同元素（避免合并重复）
+////                localIterator.remove()
+////            }
+////        }
+////        // 合并：服务器列表（含更新后的共同元素） + 本地独有元素
+////        mutableServerList + localList
+//        // 只保留「服务器独有 + 本地独有」，排除所有共同元素
+//        // 筛选本地独有元素（本地有、服务器无匹配id）
+//        val localUnique = localList.filter { localItem ->
+//            mutableServerList.none { serverItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//        }
+//        // 筛选服务器独有元素（服务器有、本地无匹配id）
+//        val serverUnique = mutableServerList.filter { serverItem ->
+//            localList.none { localItem ->
+//                idMatcher(localItem, serverItem)
+//            }
+//        }
+//        // 合并：服务器独有 + 本地独有
+//        serverUnique + localUnique
+//    }
+//}
+fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean), isRepeated : Boolean = false): List<T>? {
+    this ?: return null
+    // 原有数据（副本，避免修改原始数据）
+    val localList = toMutableList()
+    // 可修改的服务器列表（用于筛选新增元素）
+    val mutableServerList = list.toMutableList()
+    return if (isRepeated) {
+        // 只保留「共同元素且更新后的数据」，排除所有独有元素
+        val commonUpdatedList = mutableListOf<T>()
+        val serverIterator = mutableServerList.iterator()
+        while (serverIterator.hasNext()) {
+            val serverItem = serverIterator.next()
+            // 查找本地相同标识的共同元素
+            val localIndex = localList.findIndexOf { localItem ->
+                idMatcher(localItem, serverItem)
+            }
+            if (localIndex != -1) {
+                val localItem = localList[localIndex]
+                // 判断是否需要更新，更新后添加到结果列表
+                val finalItem = if (needUpdate(localItem, serverItem)) serverItem else localItem
+                commonUpdatedList.add(finalItem)
+                // 移除已匹配的元素（避免重复处理）
+                serverIterator.remove()
+                localList.removeAt(localIndex)
+            }
+        }
+        // 只返回更新后的共同元素
+        commonUpdatedList
+    } else {
+        // 只保留「服务器独有」，排除所有共同元素
+        // 筛选服务器独有元素（服务器有、本地无匹配id）
+        val serverUnique = mutableServerList.filter { serverItem ->
+            localList.none { localItem ->
+                idMatcher(localItem, serverItem)
+            }
+        }
+        // 服务器独有
+        serverUnique
+    }
 }
 
 /**
@@ -414,24 +602,29 @@ fun <T> ArrayList<T>?.requestParams(): String {
  *     }
  * }
  * }.join(",")
+ * return reduce { acc, string -> "${acc}${separator}${string}" }
+ * val list = listOf("a", "b", "c")
+ * val result = list.joinToString(separator = ",")
+ * // 结果："a,b,c"
  */
-fun List<String>?.join(separator: String): String {
-    if (isNullOrEmpty()) return ""
-    val sb = StringBuilder()
-    forEachIndexed { index, s ->
-        if (index > 0) sb.append(separator)
-        sb.append(s)
-    }
-    return sb.toString()
-}
-
+//fun List<String>?.join(separator: String): String {
+//    if (isNullOrEmpty()) return ""
+//    val sb = StringBuilder()
+//    forEachIndexed { index, s ->
+//        if (index > 0) sb.append(separator)
+//        sb.append(s)
+//    }
+//    return sb.toString()
+//}
+//
 /**
  *  val list = listOf("1" to true, "2" to true, "3" to true)
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
-fun List<Pair<String, Boolean>>?.joinFilter(separator: String): String {
+fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
     if (isNullOrEmpty()) return ""
-    return filter { it.second }.toNewList { it.first }.join(separator)
+//    return filter { it.second }.toNewList { it.first }.join(separator)
+    return filter { it.second }.toNewList { it.first }.joinToString(separator)
 }
 
 /**
@@ -453,13 +646,23 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
     return json
 }
 
-/**
- * 集合转jsonarray
- */
-fun List<*>?.toJsonArray(): JSONArray? {
-    this ?: return null
-    return JSONArray(this)
-}
+///**
+// * 获取一串拼接的json
+// */
+//fun <T> ArrayList<T>?.requestParams(): String {
+//    if (isNullOrEmpty()) return ""
+//    val builder = StringBuilder("[")
+//    for (i in indices) {
+//        builder.append(safeGet(i))
+//        if (i < lastIndex) {
+//            builder.append("],[")
+//        }
+//    }
+//    builder.append("]")
+//    return builder.toString()
+//    return joinToString(separator = "],[").let { "[$it]" }
+//    return fold("[") { acc, t -> "${acc}],[${t}"}.run { "${this}]" }
+//}
 
 /**
  * pair处理（如果都不为空，则返回true）

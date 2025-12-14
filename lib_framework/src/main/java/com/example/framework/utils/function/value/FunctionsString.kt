@@ -1,6 +1,7 @@
 package com.example.framework.utils.function.value
 
 import android.net.Uri
+import android.os.Build
 import android.text.Html
 import android.text.Spanned
 import android.util.Base64
@@ -26,7 +27,7 @@ fun String?.base64Decode(): ByteArray {
 }
 
 /**
- * Url编码
+ * Uri编码
  */
 fun String?.uriEncode(): String? {
     this ?: return null
@@ -34,7 +35,7 @@ fun String?.uriEncode(): String? {
 }
 
 /**
- * Url解码
+ * Uri解码
  */
 fun String?.uriDecode(): String? {
     this ?: return null
@@ -58,7 +59,7 @@ fun String?.unicodeDecode(): String? {
     var ascii: Int
     var n: Int
     if (strings[0].isNotEmpty()) {
-        //处理开头的普通字符串
+        // 处理开头的普通字符串
         value.append(strings[0])
     }
     try {
@@ -67,34 +68,36 @@ fun String?.unicodeDecode(): String? {
             if (hex.length > 3) {
                 mix = ""
                 if (hex.length > 4) {
-                    //处理 Unicode 编码符号后面的普通字符串
+                    // 处理 Unicode 编码符号后面的普通字符串
                     mix = hex.substring(4, hex.length)
                 }
-                hex = hex.substring(0, 4)
+                hex = hex.take(4)
                 try {
                     hex.toInt(16)
                 } catch (e: Exception) {
-                    //不能将当前 16 进制字符串正常转换为 10 进制数字，拼接原内容后跳出
+                    e.printStackTrace()
+                    // 不能将当前 16 进制字符串正常转换为 10 进制数字，拼接原内容后跳出
                     value.append(prefix).append(strings[i])
                     continue
                 }
                 ascii = 0
                 for (j in hex.indices) {
                     hexChar = hex[j]
-                    //将 Unicode 编码中的 16 进制数字逐个转为 10 进制
+                    // 将 Unicode 编码中的 16 进制数字逐个转为 10 进制
                     n = hexChar.toString().toInt(16)
-                    //转换为 ASCII 码
+                    // 转换为 ASCII 码
                     ascii += n * 16.0.pow(hex.length - j - 1).toInt()
                 }
-                //拼接解码内容
+                // 拼接解码内容
                 value.append(ascii.toChar()).append(mix)
             } else {
-                //不转换特殊长度的 Unicode 编码
+                // 不转换特殊长度的 Unicode 编码
                 value.append(prefix).append(hex)
             }
         }
     } catch (e: Exception) {
-        //Unicode 编码格式有误，解码失败
+        e.printStackTrace()
+        // Unicode 编码格式有误，解码失败
         return null
     }
     return value.toString()
@@ -103,11 +106,12 @@ fun String?.unicodeDecode(): String? {
 /**
  * 检测正则
  */
-fun String?.regCheck(reg: String): Boolean {
+fun String?.matches(regex: String): Boolean {
     this ?: return false
-    val pattern = Pattern.compile(reg)
-    val matcher = pattern.matcher(this)
-    return matcher.matches()
+    return this.matches(Regex(regex))
+//    val pattern = Pattern.compile(regex)
+//    val matcher = pattern.matcher(this)
+//    return matcher.matches()
 }
 
 /**
@@ -115,7 +119,12 @@ fun String?.regCheck(reg: String): Boolean {
  */
 fun String?.toSpanned(): Spanned? {
     this ?: return null
-    return Html.fromHtml(this)
+//    return Html.fromHtml(this)
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
+    } else {
+        Html.fromHtml(this)
+    }
 }
 
 /**
@@ -154,15 +163,21 @@ fun String?.getValueByName(name: String): String {
 
 /**
  * 添加网页链接中的Param
+ * isNullOrEmpty()：该方法用于判断字符串是否为 null 或者长度为 0。也就是说，只要字符串为 null 或者是一个空字符串（""），此方法就会返回 true。
+ * isNullOrBlank()：此方法不仅会检查字符串是否为 null 或者长度为 0，还会检查字符串是否只包含空白字符（如空格、制表符、换行符等）。若字符串为 null、空字符串或者只包含空白字符，isNullOrBlank() 都会返回 true。
  */
 fun String?.addUrlParam(key: String?, value: String?): String? {
-    key ?: return this
-    value ?: return this
-    this ?: return this
+    // 若原字符串、键或值为空，直接返回原字符串
+    if (this.isNullOrEmpty() || key.isNullOrBlank() || value.isNullOrBlank()) {
+        return this
+    }
+    // 编码值以避免特殊字符问题
+    val encodedValue = Uri.encode(value)
+    // 判断原字符串是否已包含查询参数
     return if (this.contains("?")) {
-        "$this&$key=${Uri.encode(value)}"
+        "$this&$key=${encodedValue}"
     } else {
-        "$this?$key=${Uri.encode(value)}"
+        "$this?$key=${encodedValue}"
     }
 }
 
@@ -172,7 +187,7 @@ fun String?.addUrlParam(key: String?, value: String?): String? {
 fun String?.hidePhoneNumber(): String {
     this ?: return ""
     var value = ""
-    if (regCheck(MOBILE)) {
+    if (matches(MOBILE)) {
         val ch = toCharArray()
         for (index in ch.indices) {
             if (index in 3..6) {
@@ -194,6 +209,17 @@ fun String?.fixLength(size: Int): String {
     if (this == null) return ""
     return if (length.orZero > size) {
         substring(0, size)
+    } else {
+        this
+    }
+}
+
+/**
+ * 长度限制
+ */
+fun String.limitLength(maxLength: Int = 3500): String {
+    return if (this.length > maxLength) {
+        this.substring(0, maxLength) + "..."
     } else {
         this
     }
