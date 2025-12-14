@@ -42,7 +42,6 @@ import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
-import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -186,7 +185,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             }
         }
         AppManager.addActivity(this)
-        WebSocketObserver.addObserver(this)
         isAnyActivityStarting = false
         if (isEventBusEnabled()) {
             EventBus.instance.subscribe(this) {

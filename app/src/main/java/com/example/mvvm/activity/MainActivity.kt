@@ -1,17 +1,17 @@
 package com.example.mvvm.activity
 
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.framework.utils.function.view.click
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.widget.dialog.InputDialog
+import com.therouter.router.Route
 
 /**
  * 首页
  * https://blog.csdn.net/jaikydota163/article/details/52098869
  */
-@Route(path = ARouterPath.MainActivity)
+@Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val input by lazy { InputDialog(this) }
 
@@ -21,7 +21,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             input.showInput()
         }
         mBinding?.tvCountry.click {
-            navigation(ARouterPath.CountryActivity)
+            navigation(RouterPath.CountryActivity)
         }
     }
 }

@@ -1,8 +1,8 @@
 package com.example.mvvm.widget.dialog
 
-import android.content.Context
 import android.view.Gravity.BOTTOM
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.fragment.app.FragmentActivity
 import com.example.common.base.BaseDialog
 import com.example.framework.utils.function.view.clear
 import com.example.framework.utils.function.view.click
@@ -14,7 +14,7 @@ import com.example.mvvm.databinding.ViewDialogInputBinding
 /**
  * 底部输入框
  */
-class InputDialog(mContext: Context) : BaseDialog<ViewDialogInputBinding>(mContext, MATCH_PARENT, 60, BOTTOM, R.style.InputDialogStyle, false, false) {
+class InputDialog(private val activity: FragmentActivity) : BaseDialog<ViewDialogInputBinding>(activity, MATCH_PARENT, 60, BOTTOM, R.style.InputDialogStyle, false) {
     private var listener: ((text: String) -> Unit)? = null
 
     init {
@@ -27,7 +27,7 @@ class InputDialog(mContext: Context) : BaseDialog<ViewDialogInputBinding>(mConte
 
     fun showInput() {
         show()
-        mBinding?.etContent.showInput()
+        mBinding?.etContent.showInput(activity)
     }
 
     fun setOnInputListener(listener: ((text: String) -> Unit)) {

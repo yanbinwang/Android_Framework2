@@ -180,17 +180,6 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-        <!-- ******************************************************服务****************************************************** -->
-        <!-- 高德地图 -->
-        <service
-            android:name="com.amap.api.location.APSService"
-            android:foregroundServiceType="location" />
-        <!-- 屏幕录制 -->
-        <service
-            android:name="com.example.thirdparty.media.service.DisplayService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"

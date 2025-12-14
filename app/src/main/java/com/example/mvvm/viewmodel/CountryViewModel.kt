@@ -51,7 +51,7 @@ class CountryViewModel : BaseViewModel() {
 //                filledData(countryList)
                 val stringBuilder = StringBuilder()
                 try {
-                    val bufferedReader = BufferedReader(InputStreamReader(mContext.assets.open("pcas-code.json")))
+                    val bufferedReader = BufferedReader(InputStreamReader(mContext?.assets?.open("pcas-code.json")))
                     var nextStr: String?
                     while (null != (bufferedReader.readLine().also { nextStr = it })) {
                         stringBuilder.append(nextStr)
