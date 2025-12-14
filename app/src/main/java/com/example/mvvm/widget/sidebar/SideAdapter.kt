@@ -22,7 +22,7 @@ class SideAdapter : BaseQuickAdapter<SortBean, ItemSideBinding>() {
         mBinding?.apply {
             val position = holder.absoluteAdapterPosition
             val section = getSectionForPosition(item).orZero
-            //如果当前下标和选中下标的第一个相等，则显示标签
+            // 如果当前下标和选中下标的第一个相等，则显示标签
             if (position == getPositionForSection(section)) {
                 tvLetter.visible()
                 tvLetter.text = item?.sortLetters.orNoData()

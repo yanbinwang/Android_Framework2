@@ -17,6 +17,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     override fun initEvent() {
         super.initEvent()
+        setOnWindowInsetsChanged {
+            input.setOnWindowInsetsChanged(it)
+        }
         mBinding?.flInput.click {
             input.showInput()
         }

@@ -17,7 +17,7 @@ import com.therouter.router.Route
  */
 @Route(path = RouterPath.CountryActivity)
 class CountryActivity : BaseTitleActivity<ActivityCountryBinding>() {
-    private val viewModel :CountryViewModel by viewModels()
+    private val viewModel: CountryViewModel by viewModels()
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
@@ -29,7 +29,7 @@ class CountryActivity : BaseTitleActivity<ActivityCountryBinding>() {
 
     override fun initEvent() {
         super.initEvent()
-        //手势移动的时候listview跟着走动
+        // 手势移动的时候listview跟着走动
         mBinding?.sideBar?.setOnTouchingLetterChangedListener(object : SideBar.OnTouchingLetterChangedListener {
             override fun onTouchingLetterChanged(s: String?) {
                 val position = mBinding?.adapter?.getPositionForSection(s?.get(0)?.code.orZero).orZero

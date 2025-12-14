@@ -17,6 +17,8 @@ import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.R
+import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.toColorInt
 
 /**
  * SideBar类就是ListView右侧的字母索引View，我们需要使用setTextView(TextView mTextDialog)
@@ -38,7 +40,7 @@ class SideBar @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        //获取焦点改变背景颜色.
+        // 获取焦点改变背景颜色.
         val height = height//获取对应高度
         val width = width//获取对应宽度
         val singleHeight = height / b.size//获取每一个字母的高度
@@ -51,27 +53,30 @@ class SideBar @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
             paint.textSize = 15.ptFloat
             // 选中的状态
             if (i == choose) {
-                paint.color = Color.parseColor("#3399ff")
+                paint.color = "#3399ff".toColorInt()
                 paint.isFakeBoldText = true
             }
             // x坐标等于中间-字符串宽度的一半.
             val xPos = width / 2 - paint.measureText(b[i]) / 2
             val yPos: Float = (singleHeight * i + singleHeight).toFloat()
             canvas.drawText(b[i], xPos, yPos, paint)
-            paint.reset()//重置画笔
+            // 重置画笔
+            paint.reset()
         }
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         val action = event?.action
-        val y = event?.y.toSafeFloat()//点击y坐标
+        // 点击y坐标
+        val y = event?.y.toSafeFloat()
         val oldChoose = choose
         val listener = onTouchingLetterChangedListener
-        val c = (y / height * b.size).toSafeInt() // 点击y坐标所占总高度的比例*b数组的长度就等于点击b中的个数.
+        // 点击y坐标所占总高度的比例*b数组的长度就等于点击b中的个数
+        val c = (y / height * b.size).toSafeInt()
         when (action) {
             MotionEvent.ACTION_UP -> {
-                setBackgroundDrawable(ColorDrawable(0x00000000))
-                choose = -1 //
+                setBackgroundDrawable(0x00000000.toDrawable())
+                choose = -1
                 invalidate()
                 mTextDialog.invisible()
             }
