@@ -1218,7 +1218,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
         private boolean mShouldReactToLongPress = true;
 
-        ItemTouchHelperGestureListener() {
+        public ItemTouchHelperGestureListener() {
         }
 
         public void doNotReactToLongPress() {
@@ -1278,7 +1278,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         public boolean mEnded = false;
         private float mFraction;
 
-        RecoverAnimation(RecyclerView.ViewHolder viewHolder, int animationType, int actionState, float startDx, float startDy, float targetX, float targetY) {
+        public RecoverAnimation(RecyclerView.ViewHolder viewHolder, int animationType, int actionState, float startDx, float startDy, float targetX, float targetY) {
             mActionState = actionState;
             mAnimationType = animationType;
             mViewHolder = viewHolder;
