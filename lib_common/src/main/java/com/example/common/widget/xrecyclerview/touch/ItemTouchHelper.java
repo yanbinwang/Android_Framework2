@@ -562,7 +562,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         return mSwapTargets;
     }
 
-    void moveIfNecessary(RecyclerView.ViewHolder viewHolder) {
+    public void moveIfNecessary(RecyclerView.ViewHolder viewHolder) {
         if (mRecyclerView.isLayoutRequested()) {
             return;
         }
@@ -877,7 +877,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         return 0;
     }
 
-    void removeChildDrawingOrderCallbackIfNecessary(View view) {
+    public void removeChildDrawingOrderCallbackIfNecessary(View view) {
         if (view == mOverdrawChild) {
             mOverdrawChild = null;
             if (mChildDrawingOrderCallback != null) {
