@@ -22,6 +22,7 @@ import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.common.R;
+import com.example.framework.utils.function.value.FunctionsValueKt;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +31,12 @@ import java.util.List;
  * 自定义 ItemTouchHelper（整合拖拽/滑动删除逻辑）
  * // 1. 创建 Callback（指定允许上下拖拽、左滑删除）
  * SimpleItemTouchCallBack callback = new SimpleItemTouchCallBack(new OnItemTouchListener() {
- * @Override public void onItemMove(int fromPos, int toPos) {
+ * public void onItemMove(int fromPos, int toPos) {
  * // 拖拽换位：更新 Adapter 数据
  * Collections.swap(mDataList, fromPos, toPos);
  * mAdapter.notifyItemMoved(fromPos, toPos);
  * }
- * @Override public void onItemDelete(int position) {
+ * public void onItemDelete(int position) {
  * // 左滑删除：删除 Adapter 数据
  * mDataList.remove(position);
  * mAdapter.notifyItemRemoved(position);
@@ -54,6 +55,7 @@ import java.util.List;
  */
 public class ItemTouchHelper extends RecyclerView.ItemDecoration implements RecyclerView.OnChildAttachStateChangeListener {
     private static final String TAG = "ItemTouchHelper";
+    private static final boolean DEBUG = FunctionsValueKt.isDebug();
     public static final int UP = 1;
     public static final int DOWN = 1 << 1;
     public static final int LEFT = 1 << 2;
@@ -66,7 +68,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     public static final int ANIMATION_TYPE_SWIPE_SUCCESS = 1 << 1;
     public static final int ANIMATION_TYPE_SWIPE_CANCEL = 1 << 2;
     public static final int ANIMATION_TYPE_DRAG = 1 << 3;
-    private static final boolean DEBUG = false;
     private static final int ACTIVE_POINTER_ID_NONE = -1;
     public static final int DIRECTION_FLAG_COUNT = 8;
     private static final int ACTION_MODE_IDLE_MASK = (1 << DIRECTION_FLAG_COUNT) - 1;
@@ -110,7 +111,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     public VelocityTracker mVelocityTracker;
     private List<RecyclerView.ViewHolder> mSwapTargets;
     private List<Integer> mDistances;
-    private RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
+    private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
     public View mOverdrawChild = null;
     public int mOverdrawChildPosition = -1;
     public GestureDetectorCompat mGestureDetector;
@@ -379,7 +380,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
                 final float currentTranslateY = mTmpPosition[1];
                 final RecoverAnimation rv = new ItemTouchHelper.RecoverAnimation(prevSelected, animationType, prevActionState, currentTranslateX, currentTranslateY, targetTranslateX, targetTranslateY) {
                     @Override
-                    public void onAnimationEnd(Animator animation) {
+                    public void onAnimationEnd(@NonNull Animator animation) {
                         super.onAnimationEnd(animation);
                         if (this.mOverridden) {
                             return;
@@ -1226,12 +1227,12 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         }
 
         @Override
-        public boolean onDown(MotionEvent e) {
+        public boolean onDown(@NonNull MotionEvent e) {
             return true;
         }
 
         @Override
-        public void onLongPress(MotionEvent e) {
+        public void onLongPress(@NonNull MotionEvent e) {
             if (!mShouldReactToLongPress) {
                 return;
             }
@@ -1262,7 +1263,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         }
     }
 
-    private static class RecoverAnimation implements Animator.AnimatorListener {
+    public static class RecoverAnimation implements Animator.AnimatorListener {
         public final float mStartDx;
         public final float mStartDy;
         public final float mTargetX;
