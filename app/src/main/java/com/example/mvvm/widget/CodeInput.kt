@@ -10,15 +10,18 @@ import android.widget.LinearLayout
 import androidx.core.content.withStyledAttributes
 import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.inputType
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.showInput
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logWTF
 import com.example.mvvm.R
@@ -48,13 +51,11 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             val itemPadding = getDimension(R.styleable.CodeInput_itemPadding, 0f)
             // 间距
             val itemSpacing = getDimension(R.styleable.CodeInput_itemSpacing, 5.ptFloat)
-            // 当前是水平/垂直 -> orientation == LinearLayout.HORIZONTAL
-            val orientation = getOrientation()
-            // 验证码位数
+            // 输入框数量
             boxCount = getInt(R.styleable.CodeInput_boxCount, 4)
             // 选中/未选中图片资源
-            boxBgNormal = getResourceId(R.styleable.CodeInput_boxBgNormal, R.drawable.shape_verify)
-            boxBgFocus = getResourceId(R.styleable.CodeInput_boxBgFocus, R.drawable.shape_verify_pressed)
+            boxBgNormal = getResourceId(R.styleable.CodeInput_boxBgNormal, R.drawable.shape_code)
+            boxBgFocus = getResourceId(R.styleable.CodeInput_boxBgFocus, R.drawable.shape_code_pressed)
             // 初始化view
             val onKeyListener = OnKeyListener { _, keyCode, _ ->
                 if (keyCode == KeyEvent.KEYCODE_DEL) {
@@ -73,6 +74,9 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     editText.padding(padding, padding, padding, padding)
                     editText.setEms(1)
                     editText.setOnKeyListener(onKeyListener)
+                    editText.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+                        setBoxBackground(v as? EditText, hasFocus)
+                    }
                     editText.doAfterTextChanged { s ->
                         s?.takeIf { it.isNotEmpty() }?.let {
                             focus()
@@ -90,17 +94,45 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 }
             }
         }
+        // 撑满父容器
+        setPadding(0, 0, 0, 0)
+        // 默认居中
+        gravity = Gravity.CENTER
     }
 
     /**
      * 获取焦点
      */
-    fun focus() {
+    private fun focus() {
         for (i in 0..<size) {
             (getChildAt(i) as? EditText)?.takeIf { it.text.isEmpty() }?.let {
                 it.requestFocus()
                 return
             }
+        }
+    }
+
+    /**
+     * 提交
+     */
+    private fun commit() {
+        val stringBuilder = StringBuilder()
+        var isFull = true
+        for (i in 0..<boxCount) {
+            (getChildAt(i) as? EditText)?.let {
+                val content = it.getText().toString()
+                if (content.isEmpty()) {
+                    isFull = false
+                    break
+                } else {
+                    stringBuilder.append(content)
+                }
+            }
+        }
+        "checkAndCommit:$stringBuilder".logWTF
+        if (isFull) {
+            listener?.onComplete(stringBuilder.toString())
+//            setEnabled(false)
         }
     }
 
@@ -118,32 +150,9 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     /**
-     * 提交
-     */
-    private fun commit() {
-        val stringBuilder = StringBuilder()
-        var isFull = true
-        for (i in 0..<boxCount) {
-            val editText = getChildAt(i) as EditText
-            val content = editText.getText().toString()
-            if (content.isEmpty()) {
-                isFull = false
-                break
-            } else {
-                stringBuilder.append(content)
-            }
-        }
-        "checkAndCommit:$stringBuilder".logWTF
-        if (isFull) {
-            listener?.onComplete(stringBuilder.toString())
-//            setEnabled(false)
-        }
-    }
-
-    /**
      * 清空
      */
-    fun clear() {
+    private fun clear() {
         for (i in size - 1 downTo 0) {
             (getChildAt(i) as? EditText)?.let {
                 it.requestFocus()
@@ -170,6 +179,41 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             // 其他情况：不修改背景（保留原有样式）
             else -> {}
         }
+    }
+
+    /**
+     * 页面初次加载,弹出输入框并获取焦点 (需延迟)
+     */
+    fun focusNow(observer: LifecycleOwner) {
+        doOnceAfterLayout {
+            (getChildAt(0) as? EditText)?.let {
+                it.showInput(observer)
+                it.requestFocus()
+            }
+        }
+    }
+
+    /**
+     * 获取去提交参数
+     */
+    fun commitNow(): String {
+        val stringBuilder = StringBuilder()
+        for (i in 0..<boxCount) {
+            (getChildAt(i) as? EditText)?.let {
+                val content = it.getText().toString()
+                if (content.isNotEmpty()) {
+                    stringBuilder.append(content)
+                }
+            }
+        }
+        return stringBuilder.toString()
+    }
+
+    /**
+     * 清空
+     */
+    fun clearNow() {
+        clear()
     }
 
     /**

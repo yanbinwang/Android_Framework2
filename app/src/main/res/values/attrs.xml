@@ -31,18 +31,7 @@
         <!-- 文字大小 -->
         <attr name="textSize" />
         <!-- 输入类型 -->
-        <attr name="inputType" format="enum">
-            <enum name="text" value="0" />
-            <enum name="textPassword" value="1" />
-            <enum name="phone" value="2" />
-            <enum name="number" value="3" />
-            <enum name="numberDecimal" value="4" />
-            <enum name="email" value="5" />
-            <enum name="textVisiblePassword" value="6" />
-            <enum name="money" value="7" />
-            <enum name="idcard" value="8" />
-            <enum name="rate" value="9" />
-        </attr>
+        <attr name="inputType" />
         <!-- 输入框间距（横竖通用） -->
         <attr name="itemSpacing" format="dimension" />
         <!-- 输入框内边距 -->

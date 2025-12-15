@@ -266,6 +266,14 @@
 
         </com.example.mvvm.widget.SwipeMenu>
 
+
+        <com.example.mvvm.widget.CodeInput
+            android:id="@+id/code_input"
+            statusBar_margin="@{true}"
+            android:background="@color/bgBlue"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
         <!--        <ImageView-->
         <!--            android:id="@+id/iv_thumb"-->
         <!--            android:layout_width="match_parent"-->

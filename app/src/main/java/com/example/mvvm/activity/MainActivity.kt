@@ -36,6 +36,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.focus
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
@@ -455,6 +456,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 }
             }
         }
+        mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
             mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
