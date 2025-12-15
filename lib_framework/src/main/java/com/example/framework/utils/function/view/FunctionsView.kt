@@ -769,8 +769,17 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
  * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
  */
 fun ViewGroup?.actionCancel() {
+//    if (this == null) return
+//    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
     if (this == null) return
-    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+    // 构造 ACTION_CANCEL 事件（必须回收，避免内存泄漏）
+    val cancelEvent = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    // 分发 CANCEL 事件，ItemTouchHelper 会收到并执行 select(null, ACTION_STATE_IDLE)
+    dispatchTouchEvent(cancelEvent)
+    // 回收事件
+    cancelEvent.recycle()
+//    // 清空 ItemTouchHelper 的选中状态（兜底）
+//    (itemTouchHelper as? YourItemTouchHelper)?.select(null, YourItemTouchHelper.ACTION_STATE_IDLE)
 }
 
 /**
