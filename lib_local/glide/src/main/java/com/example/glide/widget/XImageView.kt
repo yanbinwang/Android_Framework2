@@ -9,7 +9,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import com.dinuscxj.progressbar.CircleProgressBar
 import com.dinuscxj.progressbar.CircleProgressBar.SOLID_LINE
-import com.example.framework.utils.function.value.createCornerDrawable
+import com.example.framework.utils.function.value.createRectangleDrawable
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.appear
@@ -35,7 +35,7 @@ class XImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     init {
         // 背景为灰色
-        background = createCornerDrawable("#cf111111")
+        background = createRectangleDrawable("#cf111111")
         // 加载的图片
         addView(iv)
         // 加载的进度条
