@@ -282,7 +282,6 @@ object BaseBindingAdapter {
         val oldAttrs = view.getTag(compoundDrawableKey) as? CompoundDrawableAttrs
         // 属性未变化，直接返回，避免无效刷新
         if (oldAttrs == newAttrs) return
-        // 属性变化，执行更新逻辑
         view.setTag(compoundDrawableKey, newAttrs)
         // 处理ToggleButton文本
         if (view is ToggleButton) {
@@ -294,20 +293,38 @@ object BaseBindingAdapter {
                 view.textOff = newText
             }
         }
-        // 加载各方向Drawable
-        val startDrawable = newAttrs.drawableStart?.let { drawable(it) }
-        val topDrawable = newAttrs.drawableTop?.let { drawable(it) }
-        val endDrawable = newAttrs.drawableEnd?.let { drawable(it) }
-        val bottomDrawable = newAttrs.drawableBottom?.let { drawable(it) }
-        // 存储 Drawable 的数组
-        val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
-        // 设置 Drawable 大小
-        setDrawableBounds(drawables, drawableWidth, drawableHeight)
-        // 设置 TextView 的 CompoundDrawables
-        view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
+        // 仅Drawable相关属性变化时，才执行Drawable加载/设置
+        if (!setDrawableCompare(oldAttrs, newAttrs)) {
+            val startDrawable = newAttrs.drawableStart?.let { drawable(it) }
+            val topDrawable = newAttrs.drawableTop?.let { drawable(it) }
+            val endDrawable = newAttrs.drawableEnd?.let { drawable(it) }
+            val bottomDrawable = newAttrs.drawableBottom?.let { drawable(it) }
+            // 存储 Drawable 的数组
+            val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
+            // 设置 Drawable 大小
+            setDrawableBounds(drawables, drawableWidth, drawableHeight)
+            // 设置 TextView 的 CompoundDrawables
+            view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
 //        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
-        // 间距
-        drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+            // 间距
+            drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+        }
+    }
+
+    /**
+     * 判断仅文本变化（Drawable相关属性无变化）
+     * @return true = 仅文本变化，false = Drawable相关属性变化
+     */
+    private fun setDrawableCompare(oldBean: CompoundDrawableAttrs?, newBean: CompoundDrawableAttrs): Boolean {
+        // 旧属性为空 → Drawable必变化
+        if (oldBean == null) return false
+        return oldBean.drawableStart == newBean.drawableStart &&
+                oldBean.drawableTop == newBean.drawableTop &&
+                oldBean.drawableEnd == newBean.drawableEnd &&
+                oldBean.drawableBottom == newBean.drawableBottom &&
+                oldBean.drawableWidth == newBean.drawableWidth &&
+                oldBean.drawableHeight == newBean.drawableHeight &&
+                oldBean.drawablePadding == newBean.drawablePadding
     }
 
     /**
