@@ -6,7 +6,6 @@ import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Bundle
 import android.os.Looper
-import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
@@ -108,17 +107,28 @@ fun Class<*>.getSimpleName(name: String? = null): String {
 }
 
 /**
- * 减少本地背景文件的绘制，直接代码绘制
- * colorString 颜色字符 -> "#cf111111"
- * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+ * 创建带描边的圆角矩形 Drawable（适配服务器返回的颜色字符串,减少本地背景文件的绘制）
+ * @param colorString 背景色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @param radius 圆角半径（px，默认 0）
+ * @param strokeWidth 描边宽度（px，默认 -1 表示不绘制描边）
+ * @param strokeColor 描边颜色（ColorInt，默认透明，仅 strokeWidth > 0 时生效）
+ * @return 圆角矩形 Drawable
  */
-fun createCornerDrawable(colorString: String, radius: Float = 0f): Drawable {
+fun createRectangleDrawable(colorString: String, radius: Float = 0f, strokeWidth: Int = -1, @ColorInt strokeColor: Int = Color.TRANSPARENT): Drawable {
     return GradientDrawable().apply {
         setColor(colorString.parseColor())
         cornerRadius = radius
+        if (-1 != strokeWidth) {
+            setStroke(strokeWidth, strokeColor)
+        }
     }
 }
 
+/**
+ * 创建圆形 Drawable（适配服务器返回的颜色字符串）
+ * @param colorString 颜色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @return 圆形 Drawable
+ */
 fun createOvalDrawable(colorString: String): Drawable {
     return GradientDrawable().apply {
         shape = OVAL
