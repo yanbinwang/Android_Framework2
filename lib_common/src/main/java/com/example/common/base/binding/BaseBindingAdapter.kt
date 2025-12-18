@@ -267,16 +267,26 @@ object BaseBindingAdapter {
      *     }
      *  }
      */
-    data class CompoundDrawableAttrs(val drawableText: String? = null, @DrawableRes val drawableStart: Int? = null, @DrawableRes val drawableTop: Int? = null, @DrawableRes val drawableEnd: Int? = null, @DrawableRes val drawableBottom: Int? = null, val drawableWidth: Int? = null, val drawableHeight: Int? = null, val drawablePadding: Int? = null)
+    data class CompoundDrawableAttrs(
+        val drawableText: String? = null,
+        @param:DrawableRes val drawableStart: Int? = null,
+        @param:DrawableRes val drawableTop: Int? = null,
+        @param:DrawableRes val drawableEnd: Int? = null,
+        @param:DrawableRes val drawableBottom: Int? = null,
+        @param:ColorRes val drawableTintColor: Int? = null,
+        val drawableWidth: Int? = null,
+        val drawableHeight: Int? = null,
+        val drawablePadding: Int? = null
+    )
 
     @JvmStatic
-    @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
-    fun bindingCompoundDrawable(view: TextView, drawableText: String?, @DrawableRes drawableStart: Int?, @DrawableRes drawableTop: Int?, @DrawableRes drawableEnd: Int?, @DrawableRes drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+    @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableTintColor", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
+    fun bindingCompoundDrawable(view: TextView, drawableText: String?, @DrawableRes drawableStart: Int?, @DrawableRes drawableTop: Int?, @DrawableRes drawableEnd: Int?, @DrawableRes drawableBottom: Int?, @ColorRes drawableTintColor: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
         // 清除背景
         view.clearBackground()
         view.clearHighlightColor()
         // 构建新的属性对象
-        val newAttrs = CompoundDrawableAttrs(drawableText, drawableStart, drawableTop, drawableEnd, drawableBottom, drawableWidth, drawableHeight, drawablePadding)
+        val newAttrs = CompoundDrawableAttrs(drawableText, drawableStart, drawableTop, drawableEnd, drawableBottom, drawableTintColor, drawableWidth, drawableHeight, drawablePadding)
         val compoundDrawableKey = R.id.theme_compound_drawable_tag
         // 获取旧属性对象，判断是否需要更新（利用数据类equals）
         val oldAttrs = view.getTag(compoundDrawableKey) as? CompoundDrawableAttrs
@@ -302,7 +312,7 @@ object BaseBindingAdapter {
             // 存储 Drawable 的数组
             val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 设置 Drawable 大小
-            setDrawableBounds(drawables, drawableWidth, drawableHeight)
+            setDrawableBounds(drawables, drawableTintColor, drawableWidth, drawableHeight)
             // 设置 TextView 的 CompoundDrawables
             view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
 //        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
@@ -322,6 +332,7 @@ object BaseBindingAdapter {
                 oldBean.drawableTop == newBean.drawableTop &&
                 oldBean.drawableEnd == newBean.drawableEnd &&
                 oldBean.drawableBottom == newBean.drawableBottom &&
+                oldBean.drawableTintColor == newBean.drawableTintColor &&
                 oldBean.drawableWidth == newBean.drawableWidth &&
                 oldBean.drawableHeight == newBean.drawableHeight &&
                 oldBean.drawablePadding == newBean.drawablePadding
@@ -330,10 +341,13 @@ object BaseBindingAdapter {
     /**
      * 设置 Drawable 的边界
      */
-    private fun setDrawableBounds(drawables: Array<Drawable?>, width: Int?, height: Int?) {
+    private fun setDrawableBounds(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
         if (width != null && height != null) {
             for (drawable in drawables) {
-                drawable?.setBounds(0, 0, width.pt, height.pt)
+                drawable?.let {
+                    it.setBounds(0, 0, width.pt, height.pt)
+                    if (null != tintColor) it.setTint(tintColor)
+                }
             }
         }
     }

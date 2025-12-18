@@ -48,28 +48,28 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    //是否具有刷新
+    // 是否具有刷新
     private var refreshEnable = false
-    //是否具有空布局
+    // 是否具有空布局
     private var emptyEnable = false
-    //空布局是否传递事件
+    // 空布局是否传递事件
     private var emptyClickableEnable = false
-    //固定高度，-1表示为全屏
+    // 固定高度，-1表示为全屏
     private var rootFixedHeight = -1
     //----------------以下懒加载会在调取时候创建----------------
-    //整体容器->高度随着子child来拉伸
+    // 整体容器->高度随着子child来拉伸
     val root by lazy { FrameLayout(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
     }}
-    //刷新控件 类型1才有
+    // 刷新控件 类型1才有
     val refresh by lazy { SmartRefreshLayout(context).apply {
         layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }}
-    //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
+    // 自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
     }}
-    //数据列表，并且配置默认属性
+    // 数据列表，并且配置默认属性
     val recycler by lazy { RecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
@@ -98,7 +98,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
             }
             addView(root)
-            //插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
+            // 插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
             if (-1 != rootFixedHeight) {
                 setSize(height = rootFixedHeight)
             }
