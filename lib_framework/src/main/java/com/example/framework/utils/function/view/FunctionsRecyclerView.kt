@@ -260,6 +260,25 @@ fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>) {
 }
 
 /**
+ * RecyclerView 安全更新扩展函数
+ * 解决 "Cannot call this method while RecyclerView is computing a layout or scrolling" 异常
+ * @param action 要执行的更新逻辑（如 adapter.notifyXXX()/数据修改）
+ */
+fun RecyclerView?.safeUpdate(action: () -> Unit) {
+    // 空指针防护：RecyclerView 实例为空时直接返回
+    this ?: return
+    // 生命周期防护：View未挂载到窗口时不执行（避免页面销毁后仍更新）
+    if (!isAttachedToWindow) return
+    // 延迟执行：将更新任务放入主线程消息队列，避开布局计算/滚动周期
+    post {
+        // 双重校验：执行前再次确认状态（防止post期间View状态变化）
+        if (isAttachedToWindow && !isComputingLayout) {
+            action()
+        }
+    }
+}
+
+/**
  * 获取holder
  * 1. 只能获取「活跃状态」的 ViewHolder
  * 原生方法仅返回以下两种状态的 ViewHolder，其他情况返回 null：
