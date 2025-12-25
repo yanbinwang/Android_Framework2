@@ -2,7 +2,10 @@
 <resources>
 
     <declare-styleable name="GifImageView">
-        <attr name="android:src" />
+        <!-- 对齐系统 src 格式：支持本地资源引用 + 颜色值 -->
+        <attr name="gifSrc" format="reference|color"/>
+        <!-- 网络 GIF 地址，保持字符串类型 -->
+        <attr name="gifUrl" format="string"/>
     </declare-styleable>
 
 </resources>
