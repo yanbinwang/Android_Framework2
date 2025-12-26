@@ -262,14 +262,14 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/TranslucentTheme"
+            android:theme="@style/TransparentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <activity
             android:name="com.dataqin.baoquan.wxapi.WXPayEntryActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:exported="true"
             android:launchMode="singleTask"
-            android:theme="@style/TranslucentTheme"
+            android:theme="@style/TransparentTheme"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************服务****************************************************** -->
         <!-- 高德地图 -->
