@@ -2,12 +2,13 @@ package com.example.thirdparty.share.wechat
 
 import android.graphics.Bitmap
 import androidx.core.graphics.scale
-import androidx.lifecycle.LifecycleOwner
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.common.BaseApplication
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.helper.AccountHelper
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
@@ -23,6 +24,7 @@ import com.tencent.mm.opensdk.modelmsg.WXTextObject
 import com.tencent.mm.opensdk.modelmsg.WXVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -42,13 +44,23 @@ import java.util.UUID
  *     shareWebPage("https://example.com")
  * }
  */
-class WXShare(private val owner: LifecycleOwner) {
-    //分享缩略图byte
+class WXShare(private val mActivity: FragmentActivity) {
+    // 事务协程
+    private var configJob: Job? = null
+    private var shareJob: Job? = null
+    // 分享缩略图byte
     private var mThumbByte: ByteArray? = null
-    //分享信息
+    // 分享信息
     private var mShareMessage: WXShareMessage? = null
-    //通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXManager.instance.regToWx(owner) }
+    // 通过WXAPIFactory工厂，获取IWXAPI的实例
+    private val wxApi by lazy { WXManager.instance.regToWx(mActivity) }
+
+    init {
+        mActivity.doOnDestroy {
+            configJob?.cancel()
+            shareJob?.cancel()
+        }
+    }
 
     /**
      * 设置分享基础信息
@@ -62,7 +74,8 @@ class WXShare(private val owner: LifecycleOwner) {
             null
         }
         if (bmp != null) {
-            owner.lifecycleScope.launch {
+            configJob?.cancel()
+            configJob = mActivity.lifecycleScope.launch {
                 mThumbByte = buildThumb(bmp)
                 block.invoke(this@WXShare)
             }
@@ -203,19 +216,23 @@ class WXShare(private val owner: LifecycleOwner) {
      * SendMessageToWX.Req.WXSceneTimeline->朋友圈
      */
     private fun <T : WXMediaMessage.IMediaObject> share(mediaObject: T, transaction: String, scene: Int) {
-        //未安装
+        // 未安装
         if (!wxApi?.isWXAppInstalled.orFalse) {
             R.string.wechatUnInstalled.shortToast()
             return
         }
-        //版本不支持
-        if (!(try {
-                wxApi?.wxAppSupportAPI != 0
-            } catch (e: Exception) {
-                false
-            })) {
-            R.string.wechatSupportError.shortToast()
+        // 版本不支持
+        val isWxSupport = try {
+            wxApi?.wxAppSupportAPI != 0
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
         }
+        if (!isWxSupport) {
+            R.string.wechatSupportError.shortToast()
+            return
+        }
+        // 发起分享
         val message = WXMediaMessage(mediaObject).apply {
             mShareMessage?.let {
                 title = it.title
@@ -224,15 +241,14 @@ class WXShare(private val owner: LifecycleOwner) {
                 messageExt = it.messageExt
             }
         }
-        owner.lifecycleScope.launch {
+        shareJob?.cancel()
+        shareJob = mActivity.lifecycleScope.launch {
             try {
-                wxApi?.sendReq(
-                    SendMessageToWX.Req().apply {
-                        this.transaction = buildTransaction(transaction)
-                        this.message = message
-                        this.scene = scene
-                    }
-                )
+                wxApi?.sendReq(SendMessageToWX.Req().apply {
+                    this.transaction = buildTransaction(transaction)
+                    this.message = message
+                    this.scene = scene
+                })
             } catch (e: Exception) {
                 e.printStackTrace()
             }

@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicReference
  * 写的fragment中，如果是viewpager2没太大问题，如果是FragmentManager的话，不建议写
  */
 object WebSocketObserver : LifecycleEventObserver {
-    //用于存储页面生命周期的集合
+    // 用于存储页面生命周期的集合
     private val atomicRefList by lazy { AtomicReference(ArrayList<WeakReference<LifecycleOwner>>()) }
 
     /**
