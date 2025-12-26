@@ -75,5 +75,5 @@ dependencies {
     api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:v11.1.0")
     // 支付宝/微信
     api("com.alipay.sdk:alipaysdk-android:15.8.40@aar")
-    api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
+    api("com.tencent.mm.opensdk:wechat-sdk-android:+")
 }
