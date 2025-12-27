@@ -29,10 +29,10 @@ import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.inputType
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.Arrays
 
 /**
  * @description 带删除按钮的输入框
@@ -112,7 +112,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
             if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
             // 撑满父容器
-            setPadding(0, 0, 0, 0)
+            paddingAll(0)
             // 子容器添加padding
             mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
