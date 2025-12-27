@@ -26,6 +26,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
+import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.padding
@@ -223,6 +224,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
         recycler.initGridVertical(adapter, spanCount)
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    }
+
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, orientation: Int = RecyclerView.VERTICAL) {
+        if (orientation == RecyclerView.VERTICAL) {
+            recycler.initGridVertical(adapter, spanCount)
+        } else {
+            recycler.initGridHorizontal(adapter, spanCount)
+        }
     }
 
     /**
