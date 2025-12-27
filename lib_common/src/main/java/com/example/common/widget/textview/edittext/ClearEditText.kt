@@ -22,7 +22,6 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
-import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.emojiLimit
@@ -31,6 +30,7 @@ import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.inputType
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
+import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
@@ -108,13 +108,12 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val imeOptions = getInt(R.styleable.ClearEditText_imeOptions, 0)
             mBinding.etClear.imeOptions(imeOptions)
             // 内部容器修正
-            val resolvedStart = if (paddingStart != 0) paddingStart else paddingLeft
-            val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
-            if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
+            val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
+            if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return@withStyledAttributes
             // 撑满父容器
             paddingAll(0)
             // 子容器添加padding
-            mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
+            mBinding.root.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
     }
 
@@ -248,7 +247,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
-        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
+        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            onFocusChange.invoke(v, hasFocus)
+        }
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
