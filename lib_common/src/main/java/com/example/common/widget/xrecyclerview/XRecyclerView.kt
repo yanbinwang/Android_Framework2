@@ -28,6 +28,8 @@ import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -102,6 +104,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             if (-1 != rootFixedHeight) {
                 setSize(height = rootFixedHeight)
             }
+            // 取一次内部padding,针对RecyclerView做padding
+            val ltrbList = paddingLtrb()
+            val resolvedStart = ltrbList[0]
+            val resolvedTop = ltrbList[1]
+            val resolvedEnd = ltrbList[2]
+            val resolvedBottom = ltrbList[3]
+            if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
+            recycler.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
     }
 
