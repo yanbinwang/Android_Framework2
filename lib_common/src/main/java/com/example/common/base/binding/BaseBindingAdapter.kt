@@ -485,11 +485,21 @@ object BaseBindingAdapter {
     /**
      * 适配器
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
+     * <com.xxx.XRecyclerView
+     *     android:layout_width="match_parent"
+     *     android:layout_height="match_parent"
+     *     app:quick_adapter="@{viewModel.quickAdapter}"
+     *     app:span_count="@{3}"
+     *     app:horizontal_space="@{8}"
+     *     app:vertical_space="@{8}"
+     *     app:layout_orientation="@{androidx.recyclerview.widget.RecyclerView.HORIZONTAL}" />
      */
     @JvmStatic
-    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
-        rec.setAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
+    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation"], requireAll = false)
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
+        // 处理默认值：若 orientation 为 null，兜底为 RecyclerView.VERTICAL
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        rec.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
     }
     // </editor-fold>
 

@@ -29,6 +29,7 @@ import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.size
@@ -106,11 +107,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 setSize(height = rootFixedHeight)
             }
             // 取一次内部padding,针对RecyclerView做padding
-            val ltrbList = paddingLtrb()
-            val resolvedStart = ltrbList[0]
-            val resolvedTop = ltrbList[1]
-            val resolvedEnd = ltrbList[2]
-            val resolvedBottom = ltrbList[3]
+            val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
             recycler.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
@@ -221,25 +218,44 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler.initGridVertical(adapter, spanCount)
-        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
-    }
-
-    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, orientation: Int = RecyclerView.VERTICAL) {
-        if (orientation == RecyclerView.VERTICAL) {
-            recycler.initGridVertical(adapter, spanCount)
-        } else {
-            recycler.initGridHorizontal(adapter, spanCount)
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+        when {
+            // 单列 + 垂直 → 垂直线性布局
+            spanCount <= 1 && orientation == RecyclerView.VERTICAL -> {
+                recycler.initLinearVertical(adapter)
+            }
+            // 单列 + 水平 → 水平线性布局
+            spanCount <= 1 && orientation == RecyclerView.HORIZONTAL -> {
+                recycler.initLinearHorizontal(adapter)
+            }
+            // 多列 + 垂直 → 垂直网格布局
+            spanCount > 1 && orientation == RecyclerView.VERTICAL -> {
+                recycler.initGridVertical(adapter, spanCount)
+            }
+            // 多列 + 水平 → 水平网格布局
+            spanCount > 1 && orientation == RecyclerView.HORIZONTAL -> {
+                recycler.initGridHorizontal(adapter, spanCount)
+            }
         }
     }
 
     /**
-     * 设置横向左右滑动的adapter
+     * 设置自定义快速适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
-        recycler.initLinearHorizontal(adapter)
+    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+        setAdapter(adapter, spanCount, orientation)
+        val hasHorizontalEdge = horizontalSpace > 0
+        val hasVerticalEdge = verticalSpace > 0
+        if (horizontalSpace <= 0 && verticalSpace <= 0) return
+        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
+
+//    /**
+//     * 设置横向左右滑动的adapter
+//     */
+//    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
+//        recycler.initLinearHorizontal(adapter)
+//    }
 
     /**
      * 设置复杂的多个adapter直接拼接成一个

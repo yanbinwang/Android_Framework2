@@ -25,11 +25,11 @@ import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.passwordDevelopment
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.Arrays
 
 /**
  * @description 密码显影输入框
@@ -89,7 +89,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val resolvedEnd = if (paddingEnd != 0) paddingEnd else paddingRight
             if (resolvedStart == 0  && paddingTop == 0 && resolvedEnd == 0 &&  paddingBottom == 0) return@withStyledAttributes
             // 撑满父容器
-            setPadding(0, 0, 0, 0)
+            paddingAll(0)
             // 子容器添加padding
             mBinding.root.padding(resolvedStart.toSafeInt(), paddingTop.toSafeInt(), resolvedEnd.toSafeInt(), paddingBottom.toSafeInt())
         }
