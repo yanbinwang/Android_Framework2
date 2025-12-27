@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
 import androidx.databinding.ViewDataBinding
@@ -31,6 +32,7 @@ import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
@@ -109,6 +111,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             // 取一次内部padding,针对RecyclerView做padding
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
+            paddingAll(0)
+            root.paddingAll(0)
             recycler.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
     }
@@ -201,7 +205,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 修改空布局背景颜色
      */
-    fun setEmptyBackgroundColor(color: Int) {
+    fun setEmptyBackgroundColor(@ColorInt color: Int) {
         empty.setBackgroundColor(color)
     }
 

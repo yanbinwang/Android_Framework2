@@ -33,19 +33,16 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val rootView by lazy { FrameLayout(this).apply {
         size(MATCH_PARENT, MATCH_PARENT)
     }}
+    protected var contentRoot: FrameLayout? = null // 标题页面的父容器，用于添加empty，如果不需要标题头的BaseActivity，则在外层绘制一个FrameLayout
     protected val titleRoot get() = titleBar // 标题栏
-    protected val contentRoot get() = rootView // 标题页面的父容器，用于添加empty，如果不需要标题头的BaseActivity，则在外层绘制一个FrameLayout
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         titleBar.bind(this)
-//        root.addView(titleBar)
-//        root.addView(rootView)
     }
 
     override fun setContentView(view: View?) {
-//        rootView.addView(mBinding?.root)
         // 重置布局 + 固定添加顺序
         root.removeAllViews()
         root.addView(titleBar)
@@ -55,9 +52,11 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
         if (isOnlyWrapXRecyclerView(bindingRoot)) {
             // 使用局部变量，避免重复 mBinding?.root 调用
             root.addView(bindingRoot)
+            contentRoot = (bindingRoot as? XRecyclerView)?.root
         } else {
             root.addView(rootView)
             rootView.addView(bindingRoot)
+            contentRoot = rootView
         }
         super.setContentView(root)
     }
