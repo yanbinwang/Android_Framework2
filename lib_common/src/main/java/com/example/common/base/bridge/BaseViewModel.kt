@@ -161,7 +161,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
                 weakRecycler = WeakReference(view)
                 weakEmpty = WeakReference(view.empty)
                 // 如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
-                if (view.isRefresh() && refresh == null) {
+                if (view.isRefreshEnabled() && refresh == null) {
                     weakRefresh = WeakReference(view.refresh)
                 }
             }

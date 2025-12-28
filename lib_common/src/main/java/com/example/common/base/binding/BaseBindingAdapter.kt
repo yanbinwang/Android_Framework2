@@ -42,6 +42,10 @@ import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
+import com.example.framework.utils.function.view.initGridHorizontal
+import com.example.framework.utils.function.view.initGridVertical
+import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
@@ -474,7 +478,7 @@ object BaseBindingAdapter {
     }
 
     /**
-     * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
+     * 不和TabLayout或者其他View关联的数据加载可以直接在xml中绑定
      */
     @JvmStatic
     @BindingAdapter(value = ["pager2_adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
@@ -483,8 +487,41 @@ object BaseBindingAdapter {
     }
 
     /**
-     * 适配器
+     * 传统适配器
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+        val validSpanCount = spanCount ?: 1
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        when {
+            validSpanCount <= 1 && validOrientation == RecyclerView.VERTICAL -> {
+                rec.initLinearVertical(adapter)
+            }
+            validSpanCount <= 1 && validOrientation == RecyclerView.HORIZONTAL -> {
+                rec.initLinearHorizontal(adapter)
+            }
+            validSpanCount > 1 && validOrientation == RecyclerView.VERTICAL -> {
+                rec.initGridVertical(adapter, validSpanCount)
+            }
+            validSpanCount > 1 && validOrientation == RecyclerView.HORIZONTAL -> {
+                rec.initGridHorizontal(adapter, validSpanCount)
+            }
+        }
+    }
+
+    /**
+     * 自定义列表适配器
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        rec.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation)
+    }
+
+    /**
      * <com.xxx.XRecyclerView
      *     android:layout_width="match_parent"
      *     android:layout_height="match_parent"
@@ -496,8 +533,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
-        // 处理默认值：若 orientation 为 null，兜底为 RecyclerView.VERTICAL
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
         val validOrientation = orientation ?: RecyclerView.VERTICAL
         rec.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
     }
