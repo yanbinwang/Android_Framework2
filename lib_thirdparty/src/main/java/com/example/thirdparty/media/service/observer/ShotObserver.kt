@@ -172,7 +172,8 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
         }
         // 查询最新1条图片记录（按时间倒序）
         val cursor = try {
-            mActivity.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, "${MediaStore.Images.Media.DATE_ADDED} DESC LIMIT 1")
+            val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
+            mActivity.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder)
         } catch (e: Exception) {
             e.printStackTrace()
             null

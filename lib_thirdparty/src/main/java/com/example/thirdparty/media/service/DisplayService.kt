@@ -137,7 +137,7 @@ class DisplayService : TrackableLifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        //获取到页面OnActivityResult取得的值
+        // 获取到页面OnActivityResult取得的值
         val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
         val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
         startRecording(resultCode, resultData)
@@ -193,11 +193,12 @@ class DisplayService : TrackableLifecycleService() {
             projection = (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
             display = projection?.createVirtualDisplay("mediaProjection", currentWidth, currentHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
             recorder?.start()
-            //仅在 start 成功后触发
+            // 仅在 start 成功后触发
             listener?.onStart(folderPath)
         } catch (e: Exception) {
             isDestroy = true
-            releaseDisplay()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            // 确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            releaseDisplay()
             listener?.onError(e)
             stopSelf()
         }
@@ -209,7 +210,8 @@ class DisplayService : TrackableLifecycleService() {
     private fun stopRecording() {
         listener?.onShutter()
         recorder?.runCatching {
-            stop()//阻塞直到文件写入完成
+            // 阻塞直到文件写入完成
+            stop()
             releaseDisplay()
         }?.onSuccess {
             listener?.onStop()
@@ -219,9 +221,12 @@ class DisplayService : TrackableLifecycleService() {
     }
 
     private fun releaseDisplay() {
-        recorder?.reset()//重置状态（可选）
-        recorder?.release()//释放底层资源
-        recorder = null//置空引用
+        // 重置状态
+        recorder?.reset()
+        // 释放底层资源
+        recorder?.release()
+        // 置空引用
+        recorder = null
         display?.release()
         display = null
         projection?.stop()
