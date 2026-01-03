@@ -31,6 +31,7 @@ import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
+import com.example.framework.utils.function.view.safeUpdate
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -314,6 +315,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun scrollToPosition(position: Int) {
         if (position < 0 || position > recycler.adapter?.itemCount.orZero - 1) return
         recycler.scrollToPosition(position)
+    }
+
+    /**
+     * 安全更新
+     */
+    fun safeUpdate(action: () -> Unit) {
+        recycler.safeUpdate(action)
     }
 
     /**
