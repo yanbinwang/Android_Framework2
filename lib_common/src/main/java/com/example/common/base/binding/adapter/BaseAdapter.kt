@@ -178,7 +178,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * onEmpty：当前适配器的集合为空时才会回调
      */
     fun notify(list: List<T>?, hasRefresh: Boolean? = true, onEmpty: () -> Unit = {}) {
-        if (null == list || list.isEmpty() || itemType != LIST) return
+        if (null == list || itemType != LIST) return
         if (hasRefresh.orFalse) {
             refresh(list)
         } else {
@@ -215,7 +215,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * // 解释：王五（索引2）没有分数配对，被丢弃；分数没有第三个元素，也不补
      */
     fun notify(list: List<T>?) {
-        if (null == list || list.isEmpty() || itemType != LIST) return
+        if (null == list || itemType != LIST) return
         // 添加长度检查，防止意外情况
         if (list.safeSize != size()) {
             refresh(list)
@@ -270,7 +270,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      */
     @Synchronized
     fun notify(list: List<T>?, idMatcher: ((localItem: T, serverItem: T) -> Boolean), needUpdate: ((localItem: T, serverItem: T) -> Boolean)) {
-        if (null == list || list.isEmpty() || itemType != LIST) return
+        if (null == list || itemType != LIST) return
         // 保存原始服务器列表（用于删除判断，不修改）
         val originalServerList = list
         // 可修改的服务器列表（用于筛选新增元素）
@@ -327,13 +327,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
             insertItems.forEach { insertItem ->
                 // 用 idMatcher 查找 insertItem 在服务器列表中的原始下标（按唯一标识匹配）
                 val targetPosition = originalServerList.findIndexOf { serverItemInList ->
-                    idMatcher(insertItem, serverItemInList) // 按唯一标识判断是否是同一个元素
+                    // 按唯一标识判断是否是同一个元素
+                    idMatcher(insertItem, serverItemInList)
                 }
                 // 避免下标越界（-1 或超过当前本地列表长度）
                 val safePosition = when {
                     targetPosition >= 0 && targetPosition <= size() -> targetPosition
-                    targetPosition > size() -> size() // 服务器下标超出本地长度，插入到末尾
-                    else -> size() // 找不到下标（理论上不会发生，兜底插入末尾）
+                    // 服务器下标超出本地长度，插入到末尾
+                    targetPosition > size() -> size()
+                    // 找不到下标（理论上不会发生，兜底插入末尾）
+                    else -> size()
                 }
                 // 插入到目标位置（和服务器下标对齐）
                 insert(safePosition, insertItem)
@@ -439,7 +442,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         if (null == position || null == list || list.isEmpty() || itemType != LIST) return
         // 记录插入前长度（避免数据变化后计算偏差）
         val oldSize = data.safeSize
-        if (position < 0 || position > oldSize) return
+        if (position !in 0..oldSize) return
         data.addAll(position, list)
         notifyItemRangeInserted(position, list.safeSize)
         // 通知后续Item：下标变化，需要重新绑定
@@ -458,7 +461,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         if (null == position || null == item || itemType != LIST) return
         // 先记录插入前的长度
         val oldSize = data.safeSize
-        if (position < 0 || position > oldSize) return
+        if (position !in 0..oldSize) return
         data.add(position, item)
         notifyItemInserted(position)
         // 通知从插入位置的下一个位置开始，后面所有的 Item 都需要重新绑定，因为位置变了
