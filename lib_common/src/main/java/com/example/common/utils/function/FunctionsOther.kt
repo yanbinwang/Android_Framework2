@@ -25,7 +25,6 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -51,6 +50,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
@@ -156,7 +156,8 @@ fun getNavigationBarHeight(): Int {
  * </layer-list>
  * // 1. 目标 item 下标（这里假设是第二个 item，索引为1）
  *  val targetItemIndex = 1
- *  val drawableInfo = context.layerDrawable(R.drawable.layout_list_splash, targetItemIndex)
+ *  // ImageView?.adjustLayerDrawable扩展
+ *  val drawableInfo = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash, targetItemIndex)
  *  // 2. 解析 layer-list 资源
  *  val layerDrawable = drawableInfo?.first
  *  // 3. 获取目标 item
@@ -183,14 +184,7 @@ fun getNavigationBarHeight(): Int {
  */
 inline fun <reified T : Drawable> getTypedDrawable(@DrawableRes res: Int): T? {
     val mContext = BaseApplication.instance.applicationContext
-    val drawable = ResourcesCompat.getDrawable(mContext.resources, res, mContext.theme)
-    return drawable as? T
-}
-
-inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
-    this ?: return null
-    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
-    return drawable as? T
+    return mContext.getTypedDrawable(res)
 }
 
 /**

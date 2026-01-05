@@ -11,6 +11,7 @@ import android.graphics.PixelFormat
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.LayerDrawable
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
@@ -20,6 +21,7 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -81,6 +83,24 @@ fun BitmapDrawable?.decodeDimensions(): IntArray {
     } catch (e: Exception) {
         e.printStackTrace()
         intArrayOf(0, 0)
+    }
+}
+
+/**
+ * 获取xml绘制的layer的其中一个图片的边距
+ */
+fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
+    this ?: return intArrayOf(0, 0, 0, 0)
+    return try {
+        intArrayOf(
+            getLayerInsetStart(targetItemIndex).orZero,
+            getLayerInsetTop(targetItemIndex).orZero,
+            getLayerInsetEnd(targetItemIndex).orZero,
+            getLayerInsetBottom(targetItemIndex).orZero
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+        intArrayOf(0, 0, 0, 0)
     }
 }
 
