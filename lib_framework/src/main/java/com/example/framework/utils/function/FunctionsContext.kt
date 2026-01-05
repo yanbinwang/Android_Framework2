@@ -62,34 +62,6 @@ fun Context.drawable(@DrawableRes res: Int): Drawable? {
 }
 
 /**
- * 获取资源文件id
- */
-@SuppressLint("ResourceType")
-fun Context.defTypeId(name: String, defType: String): Int {
-    return try {
-        resources.getIdentifier(name, defType, packageName)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
-}
-
-/**
- * 通过字符串获取drawable下的xml文件
- */
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(defTypeId(name, "drawable"))
-}
-
-
-/**
- * 通过字符串获取mipmap下的图片文件
- */
-fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(defTypeId(name, "mipmap"))
-}
-
-/**
  * 獲取Typeface字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
@@ -133,6 +105,42 @@ fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean
 }
 
 /**
+ * 获取资源文件id
+ */
+@SuppressLint("ResourceType")
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+}
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(defTypeId(name, "drawable"))
+}
+
+/**
+ * 通过字符串获取mipmap下的图片文件
+ */
+fun Context.defTypeMipmap(name: String): Drawable? {
+    return drawable(defTypeId(name, "mipmap"))
+}
+
+/**
+ * 获取drawable下指定类型的xml文件 (LayerDrawable,BitmapDrawable,ColorDrawable,VectorDrawable等)
+ */
+inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
+    this ?: return null
+    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
+    return drawable as? T
+}
+
+/**
  * 粘贴板操作
  */
 fun Context.setPrimaryClip(label: String, text: String) {
@@ -160,7 +168,7 @@ fun Context.getAvailMemory(): Long {
 /**
  * 获取当前应用使用的内存大小(byte)
  */
-fun Context.sampleMemory(): Long {
+fun Context.getSampleMemory(): Long {
     val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     var memory = 0L
     try {
@@ -366,7 +374,13 @@ fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.get
 fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
 
 /**
- * 页面广播-》（Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)）
+ * 页面广播
+ * 1) RECEIVER_EXPORTED 和 RECEIVER_NOT_EXPORTED 是 Android 13+ 注册广播时唯一需要选择的两个参数，没有其他常用替代值，否则报错 IllegalArgumentException
+ * 2) Context.RECEIVER_EXPORTED -> 表示可以接收应用外部广播
+ *    Context.RECEIVER_NOT_EXPORTED -> 应用内部广播
+ * 3) Android 13+ 要求显式设置 android:exported="true/false"，无默认；
+ *    Android 13- 默认 android:exported="true"（等价于 RECEIVER_EXPORTED）
+ * 4) 使用
  * mActivity.doOnReceiver(receiver, IntentFilter().apply {
  * addAction(RECEIVER_USB)
  * addAction(RECEIVER_USB_ATTACHED)
@@ -374,11 +388,14 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) {
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, isExported: Boolean = true, end: () -> Unit = {}) {
     this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
+        // 13+ 必须显式指定，二选一
+        val flag = if (isExported) Context.RECEIVER_EXPORTED else Context.RECEIVER_NOT_EXPORTED
+        registerReceiver(receiver, intentFilter, flag)
     } else {
+        // 13- 默认导出，如需不导出需在清单文件配置 android:exported="false"
         registerReceiver(receiver, intentFilter)
     }
     owner.doOnDestroy {
@@ -392,7 +409,9 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
     }
 }
 
-fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) = doOnReceiver(this, receiver, intentFilter, end)
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, isExported: Boolean = true, end: () -> Unit = {}) {
+    doOnReceiver(this, receiver, intentFilter, isExported, end)
+}
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job
