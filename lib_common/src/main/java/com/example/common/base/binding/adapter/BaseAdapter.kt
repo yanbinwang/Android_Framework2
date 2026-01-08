@@ -377,6 +377,19 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 仅刷新符合条件的item
+     * 适用场景：
+     * it.item(lastPosition)?.select = 0 // 直接修改适配器内部数据源中该对象的属性值，数据源被改变
+     * it.changed(lastPosition) // 通知对应下标的holder刷新
+     */
+    fun changed(position: Int?) {
+        if (null == position || itemType != LIST) return
+        if (position in data.indices) {
+            notifyItemChanged(position)
+        }
+    }
+
+    /**
      * 仅触发符合条件item的局部刷新（不修改Adapter数据源）
      * 适用场景：数据来自外部依赖（如ViewModel/全局缓存），仅需更新视图特定部分（需在onConvert中处理payloads）
      * @param func 查找条件（匹配单个item，若匹配多个仅刷新第一个）
