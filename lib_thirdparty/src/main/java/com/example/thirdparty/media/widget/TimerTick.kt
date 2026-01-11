@@ -64,14 +64,20 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
             window?.decorView?.padding(0, 0, 0, 0)
             window?.decorView?.background(R.color.bgTransparent)
             setCancelable(false)
+            setOnShowListener {
+                mBinding.root.gone()
+                schedule(observer, {
+                    // 半秒后做动画
+                    mBinding.root.appear()
+                }, 500)
+            }
+            setOnDismissListener {
+                mBinding.root.gone()
+            }
             mBinding.cardIcon.init(5.ptFloat)
             mBinding.root.doOnceAfterLayout { root ->
                 // 父View和子外层View就算配置了动画退到后台时照样会触发闪屏 , 故而在加载完成的瞬间直接隐藏
                 root.gone()
-                schedule(observer, {
-                    // 半秒后做动画
-                    root.appear()
-                }, 500)
                 // 配置移动，只支持上下
                 val params = window?.attributes
                 params?.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
