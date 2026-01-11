@@ -450,10 +450,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (it.resultCode == RESULT_OK) {
                 val tempUri = it.data?.data
                 val tempFile = tempUri.getFileFromUri(this)
-                if (tempFile != null) {
-                    // 获取源文件的真实后缀（比如从Uri/文件名解析）
-                    tempUri.getRealSourceSuffix(this).shortToast()
-                }
+                tempFile?.absolutePath.shortToast()
+//                if (tempFile != null) {
+//                    // 获取源文件的真实后缀（比如从Uri/文件名解析）
+//                    tempUri.getRealSourceSuffix(this).shortToast()
+//                }
             }
         }
         mBinding?.codeInput?.focusNow(this)
