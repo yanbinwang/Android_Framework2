@@ -11,14 +11,23 @@ import android.view.View
 import android.view.WindowManager
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.LifecycleOwner
+import com.example.common.utils.function.ptFloat
 import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.formatAsCountdown
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.second
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.background
+import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.init
+import com.example.framework.utils.function.view.padding
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
 
@@ -51,41 +60,44 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
         //设置自定义的弹框
         tickDialog?.apply {
             window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
-            window?.decorView?.setPadding(0, 0, 0, 0)
-            window?.decorView?.background = Color.TRANSPARENT.toDrawable()
+            window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
+            window?.decorView?.padding(0, 0, 0, 0)
+            window?.decorView?.background(R.color.bgTransparent)
             setCancelable(false)
-            mBinding.root.post {
+            mBinding.cardIcon.init(5.ptFloat)
+            mBinding.root.doOnceAfterLayout { root ->
+                // 父View和子外层View就算配置了动画退到后台时照样会触发闪屏 , 故而在加载完成的瞬间直接隐藏
+                root.gone()
+                schedule(observer, {
+                    // 半秒后做动画
+                    root.appear()
+                }, 500)
+                // 配置移动，只支持上下
                 val params = window?.attributes
+                params?.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
                 params?.gravity = Gravity.TOP or Gravity.END
                 params?.verticalMargin = 0f
-                params?.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
-                params?.height = mBinding.root.measuredHeight
+                params?.height = root.measuredHeight
                 window?.attributes = params
-                // 透明
-                window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-                // 配置移动，只支持上下
                 if (move) {
-                    params ?: return@post
                     mBinding.root.setOnTouchListener(object : View.OnTouchListener {
                         private var lastX = 0
                         private var lastY = 0
                         private var paramX = 0
                         private var paramY = 0
-
                         override fun onTouch(v: View?, event: MotionEvent?): Boolean {
                             when (event?.action) {
                                 MotionEvent.ACTION_DOWN -> {
                                     lastX = event.rawX.toSafeInt()
                                     lastY = event.rawY.toSafeInt()
-                                    paramX = params.x
-                                    paramY = params.y
+                                    paramX = params?.x.orZero
+                                    paramY = params?.y.orZero
                                 }
-
                                 MotionEvent.ACTION_MOVE -> {
                                     val dx = event.rawX.toSafeInt() - lastX
                                     val dy = event.rawY.toSafeInt() - lastY
-                                    params.x = paramX - dx
-                                    params.y = paramY + dy
+                                    params?.x = paramX - dx
+                                    params?.y = paramY + dy
                                     window?.attributes = params
                                 }
                             }
