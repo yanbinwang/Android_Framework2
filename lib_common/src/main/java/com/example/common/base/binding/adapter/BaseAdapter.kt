@@ -277,8 +277,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
         val mutableServerList = list.toMutableList()
         // 本地原有数据（副本，避免修改原始数据）
         val localList = data.toMutableList()
-        // 处理「更新+保留」的元素（服务器和本地都有同一标识）
-        val updatePairs = mutableListOf<Pair<Int, T>>() // <本地元素下标，服务器新元素>
+        // 处理「更新+保留」的元素（<本地元素下标，服务器新元素>）
+        val updatePairs = mutableListOf<Pair<Int, T>>()
         // 用迭代器安全遍历，避免遍历中删除导致漏元素
         val serverIterator = mutableServerList.iterator()
         while (serverIterator.hasNext()) {
@@ -293,13 +293,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
                 if (needUpdate(localItem, serverItem)) {
                     updatePairs.add(localIndex to serverItem)
                 }
-                // 安全删除：用迭代器移除，避免遍历漏元素
+                // 用迭代器移除，避免遍历漏元素
                 serverIterator.remove()
             }
         }
         // 处理「新增」的元素（服务器有、本地无）→ mutableServerList 中剩余的元素
         val insertItems = mutableServerList
-        // 处理「删除」的元素（本地有、服务器无）→ 用原始服务器列表判断（关键修复）
+        // 处理「删除」的元素（本地有、服务器无）→ 用原始服务器列表判断
         val deleteIndices = mutableListOf<Int>()
         localList.forEachIndexed { localIndex, localItem ->
             // 查找原始服务器列表是否有同一标识的元素（没有则需要删除）
@@ -310,15 +310,15 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
                 deleteIndices.add(localIndex)
             }
         }
-        // 批量删除（倒序删除，防止下标错乱）→ 你的removed方法是正确的，无需修改
+        // 批量删除（倒序删除，防止下标错乱）
         deleteIndices.sortedDescending().forEach { index ->
             removed(index)
         }
-        // 批量更新（按本地原有下标更新）→ 你的changed方法是正确的，无需修改
+        // 批量更新（按本地原有下标更新）
         updatePairs.forEach { (localIndex, serverItem) ->
             changed(localIndex, serverItem)
         }
-//        // 批量新增（插入到列表末尾）→ 你的insert方法是正确的，无需修改
+//        // 批量新增（插入到列表末尾）
 //        if (insertItems.isNotEmpty()) {
 //            insert(size(), insertItems)
 //        }
