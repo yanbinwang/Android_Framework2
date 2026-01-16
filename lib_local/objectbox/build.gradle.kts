@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
+//    alias(libs.plugins.kotlin.android)
     id("io.objectbox")
 }
 
@@ -23,9 +23,9 @@ android {
         }
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+//    kotlinOptions {
+//        jvmTarget = "11"
+//    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

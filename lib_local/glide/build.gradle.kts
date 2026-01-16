@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.kapt)
+//    alias(libs.plugins.kotlin.android)
+//    alias(libs.plugins.kotlin.kapt)
 }
 
 android {
@@ -21,9 +21,9 @@ android {
         dataBinding = true
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
-    }
+//    kotlinOptions {
+//        jvmTarget = "11"
+//    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
