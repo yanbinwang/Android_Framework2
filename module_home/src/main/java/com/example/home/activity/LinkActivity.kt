@@ -55,8 +55,9 @@ class LinkActivity : BaseActivity<Nothing>() {
 
     override fun isBindingEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
+        // 需写在setContentView之前,故而关闭isBindingEnabled,避免造成闪屏
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
