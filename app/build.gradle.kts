@@ -4,6 +4,7 @@ import java.io.FileInputStream
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Properties
+import java.util.TimeZone
 
 plugins {
     alias(libs.plugins.android.application)
@@ -158,26 +159,78 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("release")
 
-            // 签名打包
-            android.applicationVariants.all {
-                val appName = "example"
-                val date = SimpleDateFormat("yyyyMMdd").format(Date())
-                outputs.all {
-                    if (this is ApkVariantOutputImpl) {
-                        outputFileName = "${appName}_v${versionName}_${date}.apk"
-                    } else {
-                        // 打包命令 ./gradlew bundleRelease -->执行后产生的aab包的路径：项目/app/build/outputs/bundle/release/XXX.aab
-                        // AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
-                        val provider = layout.projectDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
-                        // AndroidStudio手动打包，直接给出绝对路径，打包输出至桌面
-//                        val file = file("${System.getProperty("user.home")}/Desktop/${appName}_v${versionName}_${date}.aab")
-                        val fileProperty = outputFile
-                        if (fileProperty is RegularFileProperty) {
-                            fileProperty.set(provider)
-//                            fileProperty.set(file)
-                        }
-                    }
-                }
+//            // 签名打包
+//            android.applicationVariants.all {
+//                val appName = "example"
+//                val date = SimpleDateFormat("yyyyMMdd").format(Date())
+//                outputs.all {
+//                    if (this is ApkVariantOutputImpl) {
+//                        outputFileName = "${appName}_v${versionName}_${date}.apk"
+//                    } else {
+//                        // 打包命令 ./gradlew bundleRelease -->执行后产生的aab包的路径：项目/app/build/outputs/bundle/release/XXX.aab
+//                        // AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
+//                        val provider = layout.projectDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
+//                        // AndroidStudio手动打包，直接给出绝对路径，打包输出至桌面
+////                        val file = file("${System.getProperty("user.home")}/Desktop/${appName}_v${versionName}_${date}.aab")
+//                        val fileProperty = outputFile
+//                        if (fileProperty is RegularFileProperty) {
+//                            fileProperty.set(provider)
+////                            fileProperty.set(file)
+//                        }
+//                    }
+//                }
+//            }
+        }
+    }
+}
+
+// 签名打包
+androidComponents {
+    onVariants { variant ->
+        // 区分 debug/release 构建类型
+        val isRelease = variant.name == "release"
+        val buildTypeSuffix = if (isRelease) "" else "_debug"
+        // 日期格式化指定时区（解决问题 4）
+        val sdf = SimpleDateFormat("yyyyMMdd")
+        // 指定东八区，避免时区偏差
+        sdf.timeZone = TimeZone.getTimeZone("GMT+8")
+        val date = sdf.format(Date())
+        // 包名/版本命
+        val appName = "example"
+        val versionName = android.defaultConfig.versionName ?: "1.0.0"
+        // 生成安装包
+        variant.outputs.forEach { output ->
+            if (output is ApkVariantOutputImpl) {
+                // 添加 buildTypeSuffix，区分 debug/release APK 文件名
+                output.outputFileName = "${appName}_v${versionName}_${date}${buildTypeSuffix}.apk"
+            }
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.named("bundleRelease") {
+        // 构建完成后自动执行
+        doLast {
+            val date = SimpleDateFormat("yyyyMMdd").apply { timeZone = TimeZone.getTimeZone("GMT+8") }.format(Date())
+            val appName = "example"
+            val versionName = android.defaultConfig.versionName ?: "1.0.0"
+            val aabFileName = "${appName}_v${versionName}_${date}.aab"
+            // 源文件（AGP 默认生成的 AAB 路径，固定不变）
+            val sourceAab = File("${project.layout.buildDirectory}/outputs/bundle/release/app-release.aab")
+            // 目标文件（默认目录自定义命名）
+            val targetAab = File("${project.layout.buildDirectory}/outputs/bundle/release/$aabFileName")
+            // 桌面目标文件
+            val desktopAab = File("${System.getProperty("user.home")}/Desktop/$aabFileName")
+            // 重命名 + 复制到桌面
+            if (sourceAab.exists()) {
+                // 先删除旧文件，避免冲突
+                targetAab.delete()
+                // 重命名（实现自定义文件名）
+                sourceAab.renameTo(targetAab)
+                desktopAab.delete()
+                // 复制到桌面
+                targetAab.copyTo(desktopAab, overwrite = true)
             }
         }
     }
