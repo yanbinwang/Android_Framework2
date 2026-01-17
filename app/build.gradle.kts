@@ -39,17 +39,6 @@ android {
         }
     }
 
-//    sourceSets {
-//        getByName("main") {
-//            res {
-//                // 添加资源目录
-//                srcDirs("src/main/res", "src/main/res-bg", "src/main/res-race")
-//                // 过滤资源
-//                exclude("**/mipmap-mdpi/**", "**/mipmap-xxxhdpi/**")
-//            }
-//        }
-//    }
-
     namespace = "com.example.mvvm"
 
     compileSdk {
@@ -130,27 +119,6 @@ android {
         }
 
         release {
-            // 架构支持
-            ndk {
-                abiFilters.add("arm64-v8a")
-//                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
-            }
-
-            // 剔除冗余资源/定义了资源拆分的配置块，用于对 APK 进行不同维度的拆分，比如按屏幕密度、ABI 架构、语言等（为兼容21，更高版本就可注释掉）
-            splits {
-                // 专门针对屏幕密度进行资源拆分的配置块
-                density {
-                    // 启用按屏幕密度进行资源拆分的功能。当设置为 true 时，Gradle 会根据不同的屏幕密度生成多个 APK 文件，每个 APK 只包含对应屏幕密度的资源，这样可以减小 APK 包的大小。
-                    isEnable = true
-                    // 重置之前可能存在的屏幕密度配置，确保后续的配置是全新的，不会受到之前配置的影响。
-                    reset()
-                    // 指定需要包含在拆分中的屏幕密度资源。这里指定了 `mipmap-hdpi`、`mipmap-xhdpi` 和 `mipmap-xxhdpi` 这三种屏幕密度的资源会被包含在拆分后的 APK 中，其他屏幕密度的资源则不会被包含。
-                    include("mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi")
-                    // 定义应用所兼容的屏幕尺寸。这里指定了应用兼容 `small`（小屏幕）、`normal`（正常屏幕）、`large`（大屏幕）和 `xlarge`（超大屏幕）这四种尺寸的设备。在生成的 APK 的 `AndroidManifest.xml` 文件中会添加相应的 `<compatible-screens>` 标签来声明这些兼容性。
-                    compatibleScreens("small", "normal", "large", "xlarge")
-                }
-            }
-
             // 去除gradle升级版本后映射文件的警告
             lint {
                 // 不检查发布版本的构建
@@ -158,6 +126,27 @@ android {
                 // 出现错误时不终止构建
                 abortOnError = false
             }
+
+            // 架构支持
+            ndk {
+                abiFilters.add("arm64-v8a")
+//                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
+            }
+
+//            // 剔除冗余资源/定义了资源拆分的配置块，用于对 APK 进行不同维度的拆分，比如按屏幕密度、ABI 架构、语言等（为兼容21，更高版本就可注释掉）
+//            splits {
+//                // 专门针对屏幕密度进行资源拆分的配置块
+//                density {
+//                    // 启用按屏幕密度进行资源拆分的功能。当设置为 true 时，Gradle 会根据不同的屏幕密度生成多个 APK 文件，每个 APK 只包含对应屏幕密度的资源，这样可以减小 APK 包的大小。
+//                    isEnable = true
+//                    // 重置之前可能存在的屏幕密度配置，确保后续的配置是全新的，不会受到之前配置的影响。
+//                    reset()
+//                    // 指定需要包含在拆分中的屏幕密度资源。这里指定了 `mipmap-hdpi`、`mipmap-xhdpi` 和 `mipmap-xxhdpi` 这三种屏幕密度的资源会被包含在拆分后的 APK 中，其他屏幕密度的资源则不会被包含。
+//                    include("mipmap-hdpi", "mipmap-xhdpi", "mipmap-xxhdpi")
+//                    // 定义应用所兼容的屏幕尺寸。这里指定了应用兼容 `small`（小屏幕）、`normal`（正常屏幕）、`large`（大屏幕）和 `xlarge`（超大屏幕）这四种尺寸的设备。在生成的 APK 的 `AndroidManifest.xml` 文件中会添加相应的 `<compatible-screens>` 标签来声明这些兼容性。
+//                    compatibleScreens("small", "normal", "large", "xlarge")
+//                }
+//            }
 
             // 最小化资源包
             isMinifyEnabled = true
