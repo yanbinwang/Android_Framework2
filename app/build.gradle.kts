@@ -123,6 +123,7 @@ android {
             // 架构支持
             ndk {
                 abiFilters.add("arm64-v8a")
+//                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
             }
 
             // 剔除冗余资源/定义了资源拆分的配置块，用于对 APK 进行不同维度的拆分，比如按屏幕密度、ABI 架构、语言等（为兼容21，更高版本就可注释掉）
