@@ -83,10 +83,6 @@ android {
         jvmTarget = "11"
     }
 
-//    kotlin {
-//        jvmToolchain(11)
-//    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -118,6 +114,7 @@ android {
     buildTypes {
         debug {
             isMinifyEnabled = false
+            isShrinkResources = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             signingConfig = signingConfigs.getByName("customDebug")
         }
