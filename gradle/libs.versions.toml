@@ -39,6 +39,7 @@ minSdkVersion = "23" # 最低安装版本
 targetSdkVersion = "36" # 最高安装版本/应用在运行时将遵循哪个版本的行为和特性
 versionCode = "1" # 版本号
 versionName = "1.0.0" # 版本名
+testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" # 测试运行器
 #---------------------------------------------基础参数配置---------------------------------------------
 applicationId = "com.example.mvvm" # 主appId（包名）
 designWidth = "375"
