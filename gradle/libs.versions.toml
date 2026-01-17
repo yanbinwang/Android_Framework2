@@ -95,7 +95,7 @@ kotlin-parcelize = { id = "kotlin-parcelize" }
 kotlin-kapt = { id = "kotlin-kapt" }
 devtools-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 therouter-gradle = { id = "cn.therouter", version.ref = "therouter" }
-therouter-android = { id = "therouter" }
+#therouter-android = { id = "therouter" }
 
 # 相关库打包
 [bundles]
