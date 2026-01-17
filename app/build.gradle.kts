@@ -89,7 +89,7 @@ android {
     }
 
     // 对所有 jniLibs 下的 SO 库生效，16KB 对齐
-    packagingOptions {
+    packaging {
         jniLibs {
             is16kPageSource(libs.versions.applicationId.get())
         }
