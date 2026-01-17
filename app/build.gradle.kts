@@ -59,7 +59,7 @@ android {
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         versionCode = libs.versions.versionCode.get().toInt()
         versionName = libs.versions.versionName.get()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
         // 减少语言支持
         resourceConfigurations.add("zh")
         // dex 突破 65535 的限制
