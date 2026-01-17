@@ -62,6 +62,20 @@
         <package android:name="com.autonavi.minimap" />
     </queries>
 
+    <!-- 添加宽松的屏幕兼容声明，不限制设备下载，适配折叠屏
+        android:resizeable：负责「屏幕尺寸动态调整适配」（针对屏幕大小 / 形态的变化）
+        允许应用跟随屏幕尺寸动态调整，支持分屏、折叠屏、多窗口等模式
+        android:anyDensity：负责「屏幕密度资源缩放」（针对屏幕清晰程度 / 像素密度）
+        系统会识别设备的实际屏幕密度，自动将应用中的资源进行缩放，以适配其他密度设备（如 hdpi 一倍半、xhdpi 二倍）
+     -->
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
     <!--
         android:allowBackup="false" 是在 AndroidManifest.xml 的 <application> 标签中设置的一个重要属性，用于控制应用是否允许被备份和恢复
         禁用备份（allowBackup="false"）通常是出于数据安全考虑
