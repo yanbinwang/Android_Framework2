@@ -6,7 +6,8 @@ buildscript {
         // 使用列表管理依赖
         val pluginDependencies = listOf(
             "com.google.firebase:firebase-crashlytics-gradle:$firebase",
-            "com.google.gms:google-services:$gms"
+            "com.google.gms:google-services:$gms",
+            "com.google.devtools.ksp:symbol-processing-gradle-plugin:${libs.versions.ksp}"
         )
         // 遍历列表添加依赖
         pluginDependencies.forEach { classpath(it) }
