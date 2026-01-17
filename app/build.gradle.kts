@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.devtools.ksp)
+    alias(libs.plugins.therouter.android)
     // 只需在 Application 模块中配置即可
     id("com.google.firebase.crashlytics")
     id("com.google.gms.google-services")
@@ -132,6 +133,7 @@ android {
             // 架构支持
             ndk {
                 abiFilters.add("arm64-v8a")
+//                abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a"))
             }
 
             // 剔除冗余资源/定义了资源拆分的配置块，用于对 APK 进行不同维度的拆分，比如按屏幕密度、ABI 架构、语言等（为兼容21，更高版本就可注释掉）
