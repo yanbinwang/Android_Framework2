@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -15,16 +17,27 @@ android {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
-    }
-
-    kapt {
-        arguments {
-            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["objectbox.modelPath"] = "$projectDir/src/main/assets/dao/evidence.json"
+            }
         }
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+//    kapt {
+//        arguments {
+//            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+//        }
+//    }
+
+//    kotlinOptions {
+//        jvmTarget = "11"
+//    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {
