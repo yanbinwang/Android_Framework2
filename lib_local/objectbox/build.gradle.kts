@@ -17,13 +17,18 @@ android {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
-    }
-
-    kapt {
-        arguments {
-            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["objectbox.modelPath"] = "$projectDir/src/main/assets/dao/evidence.json"
+            }
         }
     }
+
+//    kapt {
+//        arguments {
+//            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+//        }
+//    }
 
 //    kotlinOptions {
 //        jvmTarget = "11"
