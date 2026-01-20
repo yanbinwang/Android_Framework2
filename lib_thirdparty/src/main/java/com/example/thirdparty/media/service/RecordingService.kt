@@ -87,7 +87,8 @@ class RecordingService : TrackableLifecycleService() {
         recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
             recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
+                // 设置麦克风
+                setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
                 // 若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
