@@ -1,13 +1,11 @@
 package com.example.thirdparty.utils.wechat
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.IntentFilter
-import android.os.Build
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.Constants
-import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.doOnReceiver
 import com.example.thirdparty.utils.wechat.service.WXReceiver
 import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.openapi.IWXAPI
@@ -44,21 +42,26 @@ class WXManager private constructor() {
         // 创建注册广播
         val wxReceiver = WXReceiver(api)
         // 动态监听微信启动广播进行注册到微信
-        val intentFilter = IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            mActivity.registerReceiver(wxReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
-        } else {
-            mActivity.registerReceiver(wxReceiver, intentFilter)
-        }
-        // 注销广播接收器
-        mActivity.doOnDestroy {
-            try {
-                mActivity.unregisterReceiver(wxReceiver)
-            } catch (e: Exception) {
-                e.printStackTrace()
+        mActivity.apply {
+            doOnReceiver(this, wxReceiver, IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP), false) {
+                unRegToWx(this)
             }
-            unRegToWx(mActivity)
         }
+//        val intentFilter = IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            mActivity.registerReceiver(wxReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
+//        } else {
+//            mActivity.registerReceiver(wxReceiver, intentFilter)
+//        }
+//        // 注销广播接收器
+//        mActivity.doOnDestroy {
+//            try {
+//                mActivity.unregisterReceiver(wxReceiver)
+//            } catch (e: Exception) {
+//                e.printStackTrace()
+//            }
+//            unRegToWx(mActivity)
+//        }
         // 存储该api
         wxApiMap[WeakReference(mActivity)] = api
         // 返回该实例
