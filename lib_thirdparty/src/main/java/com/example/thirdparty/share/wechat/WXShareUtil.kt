@@ -3,6 +3,7 @@ package com.example.thirdparty.share.wechat
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
+import androidx.core.graphics.scale
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -17,7 +18,6 @@ import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.MalformedURLException
 import java.net.URL
-import androidx.core.graphics.scale
 
 /**
  * 微信工具类
@@ -87,15 +87,15 @@ object WXShareUtil {
 
     @JvmStatic
     fun inputStreamToByte(stream: InputStream?): ByteArray? {
-        var imgdata: ByteArray? = null
-        var bytestream: ByteArrayOutputStream? = null
+        var imgData: ByteArray? = null
+        var byteStream: ByteArrayOutputStream? = null
         try {
-            bytestream = ByteArrayOutputStream()
+            byteStream = ByteArrayOutputStream()
             var ch: Int
             while ((stream?.read().also { ch = it.orZero }) != -1) {
-                bytestream.write(ch)
+                byteStream.write(ch)
             }
-            imgdata = bytestream.toByteArray()
+            imgData = byteStream.toByteArray()
         } catch (e: Exception) {
             e.printStackTrace()
         } finally {
@@ -105,12 +105,12 @@ object WXShareUtil {
                 e.printStackTrace()
             }
             try {
-                bytestream?.close()
+                byteStream?.close()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-        return imgdata
+        return imgData
     }
 
     @JvmStatic

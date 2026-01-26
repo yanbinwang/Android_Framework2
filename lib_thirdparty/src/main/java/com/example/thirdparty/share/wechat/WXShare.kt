@@ -5,6 +5,8 @@ import androidx.core.graphics.scale
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.common.BaseApplication
+import com.example.common.network.repository.requestAffair
+import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.helper.AccountHelper
@@ -25,6 +27,7 @@ import com.tencent.mm.opensdk.modelmsg.WXVideoObject
 import com.tencent.mm.opensdk.modelmsg.WXWebpageObject
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -76,8 +79,13 @@ class WXShare(private val mActivity: FragmentActivity) {
         if (bmp != null) {
             configJob?.cancel()
             configJob = mActivity.lifecycleScope.launch {
-                mThumbByte = buildThumb(bmp)
-                block.invoke(this@WXShare)
+                flow {
+                    emit(requestAffair { buildThumb(bmp) })
+                }.withHandling(end = {
+                    block.invoke(this@WXShare)
+                }).collect {
+                    mThumbByte = it
+                }
             }
         } else {
             block.invoke(this)
