@@ -145,29 +145,6 @@ fun String?.isPathExists(): Boolean {
 }
 
 /**
- * 从文件名中剥离最后一个后缀
- * // 假设文件路径是：/sdcard/wallets/my-wallet.json
- * val file = File("/sdcard/wallets/my-wallet.json")
- * println(file.name)        // 输出：my-wallet.json（带.json后缀）
- * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
- * println(file.parent)      // 输出：/sdcard/wallets（父目录）
- */
-fun String?.getFileNameWithoutSuffix(): String {
-    this ?: return ""
-    // 找到最后一个 "." 的位置
-    val lastDotIndex = lastIndexOf('.')
-    // 边界校验：
-    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
-    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
-    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
-        this.substring(0, lastDotIndex)
-    } else {
-        // 无有效后缀，直接返回原字符串
-        this
-    }
-}
-
-/**
  * 获取字符串路径对应的文件/目录长度
  * 1) 若为文件：返回文件大小（字节）
  * 2) 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
@@ -182,6 +159,44 @@ fun String?.getFileLength(): Long {
     } catch (e: Exception) {
         e.printStackTrace()
         0L
+    }
+}
+
+/**
+ * 获取不包含后缀名的文件名
+ */
+fun String?.suffixName(): String {
+    this ?: return ""
+    if (!isPathExists()) return ""
+    return File(this).suffixName()
+}
+
+fun File?.suffixName(): String {
+    this ?: return ""
+    if (this == File("")) return ""
+    if (!exists() || !canRead()) return ""
+    return name.getFileNameWithoutSuffix()
+}
+
+/**
+ * 从文件名中剥离最后一个后缀
+ * // 假设文件路径是：/sdcard/wallets/my-wallet.json
+ * val file = File("/sdcard/wallets/my-wallet.json")
+ * println(file.name)        // 输出：my-wallet.json（带.json后缀）
+ * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
+ * println(file.parent)      // 输出：/sdcard/wallets（父目录）
+ */
+private fun String?.getFileNameWithoutSuffix(): String {
+    this ?: return ""
+    // 找到最后一个 "." 的位置
+    val lastDotIndex = lastIndexOf('.')
+    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
+    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
+    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
+        this.substring(0, lastDotIndex)
+    } else {
+        // 无有效后缀，直接返回原字符串
+        this
     }
 }
 
