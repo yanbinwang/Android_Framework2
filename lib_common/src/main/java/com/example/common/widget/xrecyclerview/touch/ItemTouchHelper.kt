@@ -2,10 +2,8 @@ package com.example.common.widget.xrecyclerview.touch
 
 import android.animation.Animator
 import android.animation.ValueAnimator
-import android.animation.ValueAnimator.AnimatorUpdateListener
 import android.graphics.Canvas
 import android.graphics.Rect
-import android.util.Log
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
@@ -13,6 +11,7 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.Interpolator
+import androidx.core.graphics.withSave
 import androidx.core.view.GestureDetectorCompat
 import androidx.core.view.ViewCompat
 import androidx.recyclerview.widget.RecyclerView
@@ -21,20 +20,19 @@ import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener
 import com.example.common.R
-import com.example.framework.utils.function.value.isDebug
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logWTF
-import kotlin.math.abs
-import kotlin.math.max
-import kotlin.math.min
-import kotlin.math.sign
-import androidx.core.graphics.withSave
+import com.example.common.widget.xrecyclerview.touch.ItemTouchHelper.Companion.Callback.Companion.convertToRelativeDirection
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.framework.utils.logWTF
+import kotlin.math.abs
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.roundToInt
+import kotlin.math.sign
 
 /**
  * 自定义 ItemTouchHelper（整合拖拽/滑动删除逻辑）
@@ -62,8 +60,7 @@ import kotlin.math.roundToInt
  * mRecyclerView.setEnabled(!isMoving);
  * });
  */
-class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
-    OnChildAttachStateChangeListener {
+class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChildAttachStateChangeListener {
     private var mSlop = 0
     private var mSelectedFlags = 0
     private var mSwipeEscapeVelocity = 0f
@@ -77,13 +74,14 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
     private var mDragScrollStartTimeInMs = 0L
     private var mActivePointerId = ACTIVE_POINTER_ID_NONE
     private var mActionState = ACTION_STATE_IDLE
-    private var mRecoverAnimations = ArrayList<ItemTouchHelper.RecoverAnimation>()
+    private var mRecoverAnimations = ArrayList<RecoverAnimation>()
     private var mDistances: MutableList<Int>? = null
     private var mRecyclerView: RecyclerView? = null
     private var mTmpRect: Rect? = null
     private var mSelected: RecyclerView.ViewHolder? = null
     private var mSwapTargets: MutableList<RecyclerView.ViewHolder?>? = null
     private var mItemTouchHelperGestureListener: ItemTouchHelperGestureListener? = null
+    private var onMoveListener: OnMoveListener? = null
     private val mTmpPosition = FloatArray(2)
     private val mPendingCleanup = ArrayList<View>()
     private val mChildDrawingOrderCallback: ChildDrawingOrderCallback? = null
@@ -91,7 +89,6 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
     var mOverdrawChild: View? = null
     var mVelocityTracker: VelocityTracker? = null
     var mGestureDetector: GestureDetectorCompat? = null
-
     private val mScrollRunnable: Runnable = object : Runnable {
         override fun run() {
             if (mSelected != null && scrollIfNecessary()) {
@@ -101,14 +98,10 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
             }
         }
     }
-
     private val mOnItemTouchListener = object : OnItemTouchListener {
-        override fun onInterceptTouchEvent(
-            recyclerView: RecyclerView,
-            event: MotionEvent
-        ): Boolean {
+        override fun onInterceptTouchEvent(recyclerView: RecyclerView, event: MotionEvent): Boolean {
             mGestureDetector?.onTouchEvent(event)
-                "intercept: x:${event.x},y:${event.y}, ${event}".logWTF(TAG)
+            "intercept: x:${event.x},y:${event.y}, $event".logWTF(TAG)
             val action = event.actionMasked
             if (action == MotionEvent.ACTION_DOWN) {
                 mActivePointerId = event.getPointerId(0)
@@ -133,7 +126,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 select(null, ACTION_STATE_IDLE)
             } else if (mActivePointerId != ACTIVE_POINTER_ID_NONE) {
                 val index = event.findPointerIndex(mActivePointerId)
-                "pointer index ${index}".logWTF(TAG)
+                "pointer index $index".logWTF(TAG)
                 if (index >= 0) {
                     checkSelectForSwipe(action, event, index)
                 }
@@ -145,7 +138,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         override fun onTouchEvent(recyclerView: RecyclerView, event: MotionEvent) {
             mGestureDetector?.onTouchEvent(event)
             "on touch: x:${mInitialTouchX},y:${mInitialTouchY}, :${event}".logWTF(TAG)
-                mVelocityTracker?.addMovement(event)
+            mVelocityTracker?.addMovement(event)
             if (mActivePointerId == ACTIVE_POINTER_ID_NONE) {
                 return
             }
@@ -166,20 +159,17 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                         mRecyclerView?.invalidate()
                     }
                 }
-
                 MotionEvent.ACTION_CANCEL -> {
-                        mVelocityTracker?.clear()
+                    mVelocityTracker?.clear()
                     onMoveListener?.isMove(false)
                     select(null, ACTION_STATE_IDLE)
                     mActivePointerId = ACTIVE_POINTER_ID_NONE
                 }
-
                 MotionEvent.ACTION_UP -> {
                     onMoveListener?.isMove(false)
                     select(null, ACTION_STATE_IDLE)
                     mActivePointerId = ACTIVE_POINTER_ID_NONE
                 }
-
                 MotionEvent.ACTION_POINTER_UP -> {
                     val pointerIndex = event.actionIndex
                     val pointerId = event.getPointerId(pointerIndex)
@@ -225,88 +215,12 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
             return x >= left && x <= left + child?.width.orZero && y >= top && y <= top + child?.height.orZero
         }
 
-        class RecoverAnimation(
-            val mViewHolder: RecyclerView.ViewHolder,
-            val mAnimationType: Int,
-            val mActionState: Int,
-            val mStartDx: Float,
-            val mStartDy: Float,
-            val mTargetX: Float,
-            val mTargetY: Float
-        ) : Animator.AnimatorListener {
-            var mX = 0f
-            var mY = 0f
-            var mEnded= false
-            var mOverridden= false
-            var mIsPendingCleanup= false
-            private var mFraction = 0f
-            private val mValueAnimator = ValueAnimator.ofFloat(0f, 1f)
-
-            init {
-                mValueAnimator.addUpdateListener {
-                    setFraction(it.animatedFraction.orZero)
-                }
-                mValueAnimator.setTarget(mViewHolder.itemView)
-                mValueAnimator.addListener(this)
-                setFraction(0f)
-            }
-
-            fun setDuration(duration: Long) {
-                mValueAnimator.setDuration(duration)
-            }
-
-            fun start() {
-                mViewHolder.setIsRecyclable(false)
-                mValueAnimator.start()
-            }
-
-            fun cancel() {
-                mValueAnimator.cancel()
-            }
-
-            fun setFraction(fraction: Float) {
-                mFraction = fraction
-            }
-
-            fun update() {
-                mX = if (mStartDx == mTargetX) {
-                    mViewHolder.itemView.translationX
-                } else {
-                    mStartDx + mFraction * (mTargetX - mStartDx)
-                }
-                mY = if (mStartDy == mTargetY) {
-                    mViewHolder.itemView.translationY
-                } else {
-                    mStartDy + mFraction * (mTargetY - mStartDy)
-                }
-            }
-
-            override fun onAnimationStart(animation: Animator) {
-            }
-
-            override fun onAnimationEnd(animation: Animator) {
-                if (!mEnded) {
-                    mViewHolder.setIsRecyclable(true)
-                }
-                mEnded = true
-            }
-
-            override fun onAnimationCancel(animation: Animator) {
-                setFraction(1f)
-            }
-
-            override fun onAnimationRepeat(animation: Animator) {
-            }
-        }
-
         abstract class Callback {
             companion object {
                 const val DEFAULT_DRAG_ANIMATION_DURATION = 200
                 const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
-                const val RELATIVE_DIR_FLAGS =
-                    START or END or ((START or END) shl DIRECTION_FLAG_COUNT) or ((START or END) shl (2 * DIRECTION_FLAG_COUNT))
-                private const val ABS_HORIZONTAL_DIR_FLAGS =
-                    LEFT or RIGHT or ((LEFT or RIGHT) shl DIRECTION_FLAG_COUNT) or ((LEFT or RIGHT) shl (2 * DIRECTION_FLAG_COUNT))
+                const val RELATIVE_DIR_FLAGS = START or END or ((START or END) shl DIRECTION_FLAG_COUNT) or ((START or END) shl (2 * DIRECTION_FLAG_COUNT))
+                private const val ABS_HORIZONTAL_DIR_FLAGS = LEFT or RIGHT or ((LEFT or RIGHT) shl DIRECTION_FLAG_COUNT) or ((LEFT or RIGHT) shl (2 * DIRECTION_FLAG_COUNT))
                 private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
                 private val sDragScrollInterpolator = Interpolator {
                     var t = it
@@ -318,36 +232,31 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                     t * t * t * t * t + 1.0f
                 }
                 private var mCachedMaxScrollSpeed = -1
+
+                fun convertToRelativeDirection(flags: Int, layoutDirection: Int): Int {
+                    var mFlags = flags
+                    val masked = mFlags and ABS_HORIZONTAL_DIR_FLAGS
+                    if (masked == 0) {
+                        return mFlags
+                    }
+                    mFlags = mFlags and masked.inv()
+                    if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                        mFlags = mFlags or (masked shl 2)
+                        return mFlags
+                    } else {
+                        mFlags = mFlags or ((masked shl 1) and ABS_HORIZONTAL_DIR_FLAGS.inv())
+                        mFlags = mFlags or (((masked shl 1) and ABS_HORIZONTAL_DIR_FLAGS) shl 2)
+                    }
+                    return mFlags
+                }
             }
 
             fun getDefaultUIUtil(): ItemTouchUIImpl {
                 return ItemTouchUIImpl.INSTANCE
             }
 
-            fun convertToRelativeDirection(flags: Int, layoutDirection: Int): Int {
-                var mFlags = flags
-                val masked = mFlags and ABS_HORIZONTAL_DIR_FLAGS
-                if (masked == 0) {
-                    return mFlags
-                }
-                mFlags = mFlags and masked.inv()
-                if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
-                    mFlags = mFlags or (masked shl 2)
-                    return mFlags
-                } else {
-                    mFlags =
-                        mFlags or ((masked shl 1) and ABS_HORIZONTAL_DIR_FLAGS.inv())
-                    mFlags =
-                        mFlags or (((masked shl 1) and ABS_HORIZONTAL_DIR_FLAGS) shl 2)
-                }
-                return mFlags
-            }
-
             fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
-                return makeFlag(ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(
-                    ACTION_STATE_SWIPE,
-                    swipeFlags
-                ) or makeFlag(ACTION_STATE_DRAG, dragFlags)
+                return makeFlag(ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ACTION_STATE_DRAG, dragFlags)
             }
 
             fun makeFlag(actionState: Int, directions: Int): Int {
@@ -365,46 +274,28 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                     flags = flags or (masked shr 2)
                     return flags
                 } else {
-                    flags =
-                        flags or ((masked shr 1) and RELATIVE_DIR_FLAGS.inv())
-                    flags =
-                        flags or (((masked shr 1) and RELATIVE_DIR_FLAGS) shr 2)
+                    flags = flags or ((masked shr 1) and RELATIVE_DIR_FLAGS.inv())
+                    flags = flags or (((masked shr 1) and RELATIVE_DIR_FLAGS) shr 2)
                 }
                 return flags
             }
 
-            fun getAbsoluteMovementFlags(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
+            fun getAbsoluteMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder): Int {
                 val flags = getMovementFlags(recyclerView, viewHolder)
-                return convertToAbsoluteDirection(
-                    flags,
-                    recyclerView?.let { ViewCompat.getLayoutDirection(it) }.orZero
-                )
+                return convertToAbsoluteDirection(flags, recyclerView?.layoutDirection.orZero)
             }
 
-            fun hasDragFlag(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder
-            ): Boolean {
+            fun hasDragFlag(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder): Boolean {
                 val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
                 return (flags and ACTION_MODE_DRAG_MASK) != 0
             }
 
-            fun hasSwipeFlag(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder
-            ): Boolean {
+            fun hasSwipeFlag(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder): Boolean {
                 val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
                 return (flags and ACTION_MODE_SWIPE_MASK) != 0
             }
 
-            fun canDropOver(
-                recyclerView: RecyclerView?,
-                current: RecyclerView.ViewHolder?,
-                target: RecyclerView.ViewHolder?
-            ): Boolean {
+            fun canDropOver(recyclerView: RecyclerView?, current: RecyclerView.ViewHolder?, target: RecyclerView.ViewHolder?): Boolean {
                 return true
             }
 
@@ -436,12 +327,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 return defaultValue
             }
 
-            fun chooseDropTarget(
-                selected: RecyclerView.ViewHolder?,
-                dropTargets: MutableList<RecyclerView.ViewHolder?>?,
-                curX: Int,
-                curY: Int
-            ): RecyclerView.ViewHolder? {
+            fun chooseDropTarget(selected: RecyclerView.ViewHolder?, dropTargets: MutableList<RecyclerView.ViewHolder?>?, curX: Int, curY: Int): RecyclerView.ViewHolder? {
                 val right = curX + selected?.itemView?.width.orZero
                 val bottom = curY + selected?.itemView?.height.orZero
                 var winner: RecyclerView.ViewHolder? = null
@@ -503,29 +389,15 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
 
             private fun getMaxDragScroll(recyclerView: RecyclerView): Int {
                 if (mCachedMaxScrollSpeed == -1) {
-                    mCachedMaxScrollSpeed = recyclerView.resources
-                        .getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
+                    mCachedMaxScrollSpeed = recyclerView.resources.getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
                 }
                 return mCachedMaxScrollSpeed
             }
 
-            fun onMoved(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder?,
-                fromPos: Int?,
-                target: RecyclerView.ViewHolder,
-                toPos: Int,
-                x: Int,
-                y: Int
-            ) {
+            fun onMoved(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, fromPos: Int?, target: RecyclerView.ViewHolder, toPos: Int, x: Int, y: Int) {
                 val layoutManager: RecyclerView.LayoutManager? = recyclerView?.layoutManager
                 if (layoutManager is ViewDropHandler) {
-                    (layoutManager as? ViewDropHandler)?.prepareForDrop(
-                        viewHolder?.itemView,
-                        target.itemView,
-                        x,
-                        y
-                    )
+                    (layoutManager as? ViewDropHandler)?.prepareForDrop(viewHolder?.itemView, target.itemView, x, y)
                     return
                 }
                 if (null != layoutManager) {
@@ -552,29 +424,13 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 }
             }
 
-            fun onDraw(
-                c: Canvas,
-                parent: RecyclerView,
-                selected: RecyclerView.ViewHolder?,
-                recoverAnimationList: MutableList<ItemTouchHelper.RecoverAnimation>,
-                actionState: Int,
-                dX: Float,
-                dY: Float
-            ) {
+            fun onDraw(c: Canvas, parent: RecyclerView, selected: RecyclerView.ViewHolder?, recoverAnimationList: MutableList<RecoverAnimation>, actionState: Int, dX: Float, dY: Float) {
                 val recoverAnimSize = recoverAnimationList.size
                 for (i in 0..<recoverAnimSize) {
                     val anim = recoverAnimationList[i]
                     anim.update()
                     c.withSave {
-                        onChildDraw(
-                            c,
-                            parent,
-                            anim.mViewHolder,
-                            anim.mX,
-                            anim.mY,
-                            anim.mActionState,
-                            false
-                        )
+                        onChildDraw(c, parent, anim.mViewHolder, anim.mX, anim.mY, anim.mActionState, false)
                     }
                 }
                 if (selected != null) {
@@ -584,28 +440,12 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 }
             }
 
-            fun onDrawOver(
-                c: Canvas,
-                parent: RecyclerView,
-                selected: RecyclerView.ViewHolder?,
-                recoverAnimationList: MutableList<ItemTouchHelper.RecoverAnimation>,
-                actionState: Int,
-                dX: Float,
-                dY: Float
-            ) {
+            fun onDrawOver(c: Canvas, parent: RecyclerView, selected: RecyclerView.ViewHolder?, recoverAnimationList: MutableList<RecoverAnimation>, actionState: Int, dX: Float, dY: Float) {
                 val recoverAnimSize = recoverAnimationList.size
                 for (i in 0..<recoverAnimSize) {
                     val anim = recoverAnimationList.get(i)
                     c.withSave {
-                        onChildDrawOver(
-                            c,
-                            parent,
-                            anim.mViewHolder,
-                            anim.mX,
-                            anim.mY,
-                            anim.mActionState,
-                            false
-                        )
+                        onChildDrawOver(c, parent, anim.mViewHolder, anim.mX, anim.mY, anim.mActionState, false)
                     }
                 }
                 if (selected != null) {
@@ -631,52 +471,15 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 viewHolder?.itemView?.let { ItemTouchUIImpl.INSTANCE.clearView(it) }
             }
 
-            fun onChildDraw(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                ItemTouchUIImpl.INSTANCE.onDraw(
-                    c,
-                    recyclerView,
-                    viewHolder.itemView,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
+            fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                ItemTouchUIImpl.INSTANCE.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
             }
 
-            fun onChildDrawOver(
-                c: Canvas,
-                recyclerView: RecyclerView,
-                viewHolder: RecyclerView.ViewHolder,
-                dX: Float,
-                dY: Float,
-                actionState: Int,
-                isCurrentlyActive: Boolean
-            ) {
-                ItemTouchUIImpl.INSTANCE.onDrawOver(
-                    c,
-                    recyclerView,
-                    viewHolder.itemView,
-                    dX,
-                    dY,
-                    actionState,
-                    isCurrentlyActive
-                )
+            fun onChildDrawOver(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+                ItemTouchUIImpl.INSTANCE.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
             }
 
-            fun getAnimationDuration(
-                recyclerView: RecyclerView?,
-                animationType: Int,
-                animateDx: Float,
-                animateDy: Float
-            ): Long {
+            fun getAnimationDuration(recyclerView: RecyclerView?, animationType: Int, animateDx: Float, animateDy: Float): Long {
                 val itemAnimator = recyclerView?.itemAnimator
                 return if (itemAnimator == null) {
                     (if (animationType == ANIMATION_TYPE_DRAG) DEFAULT_DRAG_ANIMATION_DURATION else DEFAULT_SWIPE_ANIMATION_DURATION).toSafeLong()
@@ -685,57 +488,33 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 }
             }
 
-            fun interpolateOutOfBoundsScroll(
-                recyclerView: RecyclerView,
-                viewSize: Int,
-                viewSizeOutOfBounds: Int,
-                totalSize: Int,
-                msSinceStartScroll: Long
-            ): Int {
+            fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView, viewSize: Int, viewSizeOutOfBounds: Int, totalSize: Int, msSinceStartScroll: Long): Int {
                 val maxScroll = getMaxDragScroll(recyclerView)
                 val absOutOfBounds = abs(viewSizeOutOfBounds)
                 val direction = sign(viewSizeOutOfBounds.toSafeFloat()).toSafeInt()
                 val outOfBoundsRatio = min(1f, 1f * absOutOfBounds / viewSize)
-                val cappedScroll =
-                    (direction * maxScroll * sDragViewScrollCapInterpolator.getInterpolation(
-                        outOfBoundsRatio
-                    )).toSafeInt()
-                val timeRatio: Float
-                if (msSinceStartScroll > DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS) {
-                    timeRatio = 1f
+                val cappedScroll = (direction * maxScroll * sDragViewScrollCapInterpolator.getInterpolation(outOfBoundsRatio)).toSafeInt()
+                val timeRatio = if (msSinceStartScroll > DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS) {
+                    1f
                 } else {
-                    timeRatio =
-                        msSinceStartScroll.toSafeFloat() / DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS
+                    msSinceStartScroll.toSafeFloat() / DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS
                 }
-                val value =
-                    (cappedScroll * sDragScrollInterpolator.getInterpolation(
-                        timeRatio
-                    )).toSafeInt()
+                val value = (cappedScroll * sDragScrollInterpolator.getInterpolation(timeRatio)).toSafeInt()
                 if (value == 0) {
                     return if (viewSizeOutOfBounds > 0) 1 else -1
                 }
                 return value
             }
 
-            abstract fun getMovementFlags(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int
+            abstract fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder): Int
 
-            abstract fun onMove(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder?,
-                target: RecyclerView.ViewHolder?
-            ): Boolean
+            abstract fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, target: RecyclerView.ViewHolder?): Boolean
 
             abstract fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int)
 
         }
 
-        abstract class SimpleCallback(
-            private var mDefaultDragDirs: Int,
-            private var mDefaultSwipeDirs: Int
-        ) : Callback() {
+        abstract class SimpleCallback(private var mDefaultDragDirs: Int, private var mDefaultSwipeDirs: Int) : Callback() {
             fun setDefaultSwipeDirs(defaultSwipeDirs: Int) {
                 mDefaultSwipeDirs = defaultSwipeDirs
             }
@@ -752,16 +531,74 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 return mDefaultDragDirs
             }
 
-            override fun getMovementFlags(
-                recyclerView: RecyclerView?,
-                viewHolder: RecyclerView.ViewHolder
-            ): Int {
-                return makeMovementFlags(
-                    getDragDirs(
-                        recyclerView,
-                        viewHolder
-                    ), getSwipeDirs(recyclerView, viewHolder)
-                )
+            override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder): Int {
+                return makeMovementFlags(getDragDirs(recyclerView, viewHolder), getSwipeDirs(recyclerView, viewHolder))
+            }
+        }
+
+        open class RecoverAnimation(val mViewHolder: RecyclerView.ViewHolder, val mAnimationType: Int, val mActionState: Int, val mStartDx: Float, val mStartDy: Float, val mTargetX: Float, val mTargetY: Float) : Animator.AnimatorListener {
+            var mX = 0f
+            var mY = 0f
+            var mEnded = false
+            var mOverridden = false
+            var mIsPendingCleanup = false
+            private var mFraction = 0f
+            private val mValueAnimator = ValueAnimator.ofFloat(0f, 1f)
+
+            init {
+                mValueAnimator.addUpdateListener {
+                    setFraction(it.animatedFraction.orZero)
+                }
+                mValueAnimator.setTarget(mViewHolder.itemView)
+                mValueAnimator.addListener(this)
+                setFraction(0f)
+            }
+
+            fun setDuration(duration: Long) {
+                mValueAnimator.setDuration(duration)
+            }
+
+            fun start() {
+                mViewHolder.setIsRecyclable(false)
+                mValueAnimator.start()
+            }
+
+            fun cancel() {
+                mValueAnimator.cancel()
+            }
+
+            fun setFraction(fraction: Float) {
+                mFraction = fraction
+            }
+
+            fun update() {
+                mX = if (mStartDx == mTargetX) {
+                    mViewHolder.itemView.translationX
+                } else {
+                    mStartDx + mFraction * (mTargetX - mStartDx)
+                }
+                mY = if (mStartDy == mTargetY) {
+                    mViewHolder.itemView.translationY
+                } else {
+                    mStartDy + mFraction * (mTargetY - mStartDy)
+                }
+            }
+
+            override fun onAnimationStart(animation: Animator) {
+            }
+
+            override fun onAnimationEnd(animation: Animator) {
+                if (!mEnded) {
+                    mViewHolder.setIsRecyclable(true)
+                }
+                mEnded = true
+            }
+
+            override fun onAnimationCancel(animation: Animator) {
+                setFraction(1f)
+            }
+
+            override fun onAnimationRepeat(animation: Animator) {
             }
         }
     }
@@ -776,10 +613,8 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         mRecyclerView = recyclerView
         if (recyclerView != null) {
             val resources = recyclerView.resources
-            mSwipeEscapeVelocity =
-                resources.getDimension(R.dimen.item_touch_helper_swipe_escape_velocity)
-            mMaxSwipeVelocity =
-                resources.getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity)
+            mSwipeEscapeVelocity = resources.getDimension(R.dimen.item_touch_helper_swipe_escape_velocity)
+            mMaxSwipeVelocity = resources.getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity)
             setupCallbacks()
         }
     }
@@ -813,7 +648,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         mItemTouchHelperGestureListener = ItemTouchHelperGestureListener()
         mRecyclerView?.context?.let { context ->
             mItemTouchHelperGestureListener?.let {
-                mGestureDetector = GestureDetectorCompat(context,it)
+                mGestureDetector = GestureDetectorCompat(context, it)
             }
         }
     }
@@ -837,7 +672,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         if ((mSelectedFlags and (UP or DOWN)) != 0) {
             outPosition[1] = mSelectedStartY + mDy - mSelected?.itemView?.top.orZero
         } else {
-            outPosition[1] = mSelected?.itemView?.getTranslationY().orZero
+            outPosition[1] = mSelected?.itemView?.translationY.orZero
         }
     }
 
@@ -875,14 +710,12 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         if (actionState == ACTION_STATE_DRAG) {
             mOverdrawChild = selected?.itemView
         }
-        val actionStateMask =
-            (1 shl (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState)) - 1
+        val actionStateMask = (1 shl (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState)) - 1
         var preventLayout = false
         if (mSelected != null) {
             val prevSelected = mSelected
             if (prevSelected?.itemView?.parent != null) {
-                val swipeDir =
-                    if (prevActionState == ACTION_STATE_DRAG) 0 else swipeIfNecessary(prevSelected)
+                val swipeDir = if (prevActionState == ACTION_STATE_DRAG) 0 else swipeIfNecessary(prevSelected)
                 releaseVelocityTracker()
                 val targetTranslateX: Float
                 val targetTranslateY: Float
@@ -892,37 +725,26 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                         targetTranslateY = 0f
                         targetTranslateX = sign(mDx) * mRecyclerView?.width.orZero
                     }
-
                     UP, DOWN -> {
                         targetTranslateX = 0f
                         targetTranslateY = sign(mDy) * mRecyclerView?.height.orZero
                     }
-
                     else -> {
                         targetTranslateX = 0f
                         targetTranslateY = 0f
                     }
                 }
-                if (prevActionState == ACTION_STATE_DRAG) {
-                    animationType = ANIMATION_TYPE_DRAG
+                animationType = if (prevActionState == ACTION_STATE_DRAG) {
+                    ANIMATION_TYPE_DRAG
                 } else if (swipeDir > 0) {
-                    animationType = ANIMATION_TYPE_SWIPE_SUCCESS
+                    ANIMATION_TYPE_SWIPE_SUCCESS
                 } else {
-                    animationType = ANIMATION_TYPE_SWIPE_CANCEL
+                    ANIMATION_TYPE_SWIPE_CANCEL
                 }
                 getSelectedDxDy(mTmpPosition)
                 val currentTranslateX = mTmpPosition[0]
                 val currentTranslateY = mTmpPosition[1]
-                val rv = object :
-                    ItemTouchHelper.RecoverAnimation(
-                        prevSelected,
-                        animationType,
-                        prevActionState,
-                        currentTranslateX,
-                        currentTranslateY,
-                        targetTranslateX,
-                        targetTranslateY
-                    ) {
+                val rv = object : RecoverAnimation(prevSelected, animationType, prevActionState, currentTranslateX, currentTranslateY, targetTranslateX, targetTranslateY) {
                     override fun onAnimationEnd(animation: Animator) {
                         super.onAnimationEnd(animation)
                         if (this.mOverridden) {
@@ -940,12 +762,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                         }
                     }
                 }
-                val duration = mCallback.getAnimationDuration(
-                    mRecyclerView,
-                    animationType,
-                    targetTranslateX - currentTranslateX,
-                    targetTranslateY - currentTranslateY
-                )
+                val duration = mCallback.getAnimationDuration(mRecyclerView, animationType, targetTranslateX - currentTranslateX, targetTranslateY - currentTranslateY)
                 rv.setDuration(duration)
                 mRecoverAnimations.add(rv)
                 rv.start()
@@ -978,7 +795,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         mRecyclerView?.invalidate()
     }
 
-    private fun postDispatchSwipe(anim: ItemTouchHelper.RecoverAnimation, swipeDir: Int) {
+    private fun postDispatchSwipe(anim: RecoverAnimation, swipeDir: Int) {
         mRecyclerView?.post(object : Runnable {
             override fun run() {
                 if (mRecyclerView != null && mRecyclerView?.isAttachedToWindow.orFalse && !anim.mOverridden && anim.mViewHolder.adapterPosition != RecyclerView.NO_POSITION) {
@@ -1009,8 +826,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
             return false
         }
         val now = System.currentTimeMillis()
-        val scrollDuration =
-            if (mDragScrollStartTimeInMs == Long.MIN_VALUE) 0 else now - mDragScrollStartTimeInMs
+        val scrollDuration = if (mDragScrollStartTimeInMs == Long.MIN_VALUE) 0 else now - mDragScrollStartTimeInMs
         val lm = mRecyclerView?.layoutManager
         if (mTmpRect == null) {
             mTmpRect = Rect()
@@ -1018,7 +834,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         var scrollX = 0
         var scrollY = 0
         if (null != lm) {
-            mSelected?.itemView?.let {child->
+            mSelected?.itemView?.let { child ->
                 mTmpRect?.let {
                     lm.calculateItemDecorationsForChild(child, it)
                 }
@@ -1029,8 +845,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 if (mDx < 0 && leftDiff < 0) {
                     scrollX = leftDiff
                 } else if (mDx > 0) {
-                    val rightDiff =
-                        curX + mSelected?.itemView?.width.orZero + mTmpRect?.right.orZero - (mRecyclerView?.width.orZero - mRecyclerView?.getPaddingRight().orZero)
+                    val rightDiff = curX + mSelected?.itemView?.width.orZero + mTmpRect?.right.orZero - (mRecyclerView?.width.orZero - mRecyclerView?.getPaddingRight().orZero)
                     if (rightDiff > 0) {
                         scrollX = rightDiff
                     }
@@ -1042,8 +857,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
                 if (mDy < 0 && topDiff < 0) {
                     scrollY = topDiff
                 } else if (mDy > 0) {
-                    val bottomDiff =
-                        curY + mSelected?.itemView?.getHeight().orZero + mTmpRect?.bottom.orZero - (mRecyclerView?.height.orZero - mRecyclerView?.getPaddingBottom().orZero)
+                    val bottomDiff = curY + mSelected?.itemView?.getHeight().orZero + mTmpRect?.bottom.orZero - (mRecyclerView?.height.orZero - mRecyclerView?.getPaddingBottom().orZero)
                     if (bottomDiff > 0) {
                         scrollY = bottomDiff
                     }
@@ -1052,24 +866,12 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         }
         if (scrollX != 0) {
             mRecyclerView?.let {
-                scrollX = mCallback.interpolateOutOfBoundsScroll(
-                    it,
-                    mSelected?.itemView?.width.orZero,
-                    scrollX,
-                    mRecyclerView?.width.orZero,
-                    scrollDuration
-                )
+                scrollX = mCallback.interpolateOutOfBoundsScroll(it, mSelected?.itemView?.width.orZero, scrollX, mRecyclerView?.width.orZero, scrollDuration)
             }
         }
         if (scrollY != 0) {
             mRecyclerView?.let {
-                scrollY = mCallback.interpolateOutOfBoundsScroll(
-                    it,
-                    mSelected?.itemView?.height.orZero,
-                    scrollY,
-                    mRecyclerView?.height.orZero,
-                    scrollDuration
-                )
+                scrollY = mCallback.interpolateOutOfBoundsScroll(it, mSelected?.itemView?.height.orZero, scrollY, mRecyclerView?.height.orZero, scrollDuration)
             }
         }
         if (scrollX != 0 || scrollY != 0) {
@@ -1085,8 +887,8 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
 
     private fun findSwapTargets(viewHolder: RecyclerView.ViewHolder?): MutableList<RecyclerView.ViewHolder?>? {
         if (mSwapTargets == null) {
-            mSwapTargets = ArrayList<RecyclerView.ViewHolder?>()
-            mDistances = ArrayList<Int>()
+            mSwapTargets = ArrayList()
+            mDistances = ArrayList()
         } else {
             mSwapTargets?.clear()
             mDistances?.clear()
@@ -1143,10 +945,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         val threshold = mCallback.getMoveThreshold(viewHolder)
         val x = (mSelectedStartX + mDx).toSafeInt()
         val y = (mSelectedStartY + mDy).toSafeInt()
-        if (abs(y - viewHolder?.itemView?.top.orZero) < viewHolder?.itemView?.height.orZero * threshold && abs(
-                x - viewHolder?.itemView?.left.orZero
-            ) < viewHolder?.itemView?.width.orZero * threshold
-        ) {
+        if (abs(y - viewHolder?.itemView?.top.orZero) < viewHolder?.itemView?.height.orZero * threshold && abs(x - viewHolder?.itemView?.left.orZero) < viewHolder?.itemView?.width.orZero * threshold) {
             return
         }
         val swapTargets = findSwapTargets(viewHolder)
@@ -1197,19 +996,12 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         }
     }
 
-    override fun getItemOffsets(
-        outRect: Rect,
-        view: View,
-        parent: RecyclerView,
-        state: RecyclerView.State
-    ) {
+    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
         outRect.setEmpty()
     }
 
     fun obtainVelocityTracker() {
-        if (mVelocityTracker != null) {
-            mVelocityTracker?.recycle()
-        }
+        mVelocityTracker?.recycle()
         mVelocityTracker = VelocityTracker.obtain()
     }
 
@@ -1253,8 +1045,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         }
         val vh = findSwipedView(motionEvent) ?: return
         val movementFlags = mCallback.getAbsoluteMovementFlags(mRecyclerView, vh)
-        val swipeFlags =
-            (movementFlags and ACTION_MODE_SWIPE_MASK) shr (DIRECTION_FLAG_COUNT * ACTION_STATE_SWIPE)
+        val swipeFlags = (movementFlags and ACTION_MODE_SWIPE_MASK) shr (DIRECTION_FLAG_COUNT * ACTION_STATE_SWIPE)
         if (swipeFlags == 0) {
             return
         }
@@ -1289,8 +1080,8 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
     }
 
     fun findChildView(event: MotionEvent): View? {
-        val x = event.getX()
-        val y = event.getY()
+        val x = event.x
+        val y = event.y
         if (mSelected != null) {
             val selectedView = mSelected?.itemView
             if (hitTest(selectedView, x, y, mSelectedStartX + mDx, mSelectedStartY + mDy)) {
@@ -1337,7 +1128,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         select(viewHolder, ACTION_STATE_SWIPE)
     }
 
-    private fun findAnimation(event: MotionEvent): ItemTouchHelper.RecoverAnimation? {
+    private fun findAnimation(event: MotionEvent): RecoverAnimation? {
         if (mRecoverAnimations.isEmpty()) {
             return null
         }
@@ -1375,22 +1166,19 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
             return 0
         }
         val originalMovementFlags = mCallback.getMovementFlags(mRecyclerView, viewHolder)
-        val absoluteMovementFlags = mCallback.convertToAbsoluteDirection(
-            originalMovementFlags, mRecyclerView?.let { ViewCompat.getLayoutDirection(it) }.orZero)
-        val flags =
-            (absoluteMovementFlags and ACTION_MODE_SWIPE_MASK) shr (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT)
+        val absoluteMovementFlags = mCallback.convertToAbsoluteDirection(originalMovementFlags, mRecyclerView?.layoutDirection.orZero)
+        val flags = (absoluteMovementFlags and ACTION_MODE_SWIPE_MASK) shr (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT)
         if (flags == 0) {
             return 0
         }
-        val originalFlags =
-            (originalMovementFlags and ACTION_MODE_SWIPE_MASK) shr (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT)
+        val originalFlags = (originalMovementFlags and ACTION_MODE_SWIPE_MASK) shr (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT)
         var swipeDir: Int
         if (abs(mDx) > abs(mDy)) {
             if ((checkHorizontalSwipe(viewHolder, flags).also { swipeDir = it }) > 0) {
                 if ((originalFlags and swipeDir) == 0) {
                     return convertToRelativeDirection(
                         swipeDir,
-                        mRecyclerView?.let { ViewCompat.getLayoutDirection(it) }.orZero
+                        mRecyclerView?.layoutDirection.orZero
                     )
                 }
                 return swipeDir
@@ -1404,11 +1192,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
             }
             if ((checkHorizontalSwipe(viewHolder, flags).also { swipeDir = it }) > 0) {
                 if ((originalFlags and swipeDir) == 0) {
-                    return convertToRelativeDirection(
-                        swipeDir,
-                        ViewCompat.getLayoutDirection(mRecyclerView?
-                    )
-                    )
+                    return convertToRelativeDirection(swipeDir, mRecyclerView?.layoutDirection.orZero)
                 }
                 return swipeDir
             }
@@ -1420,22 +1204,16 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         if ((flags and (LEFT or RIGHT)) != 0) {
             val dirFlag = if (mDx > 0) RIGHT else LEFT
             if (mVelocityTracker != null && mActivePointerId > -1) {
-                mVelocityTracker?.computeCurrentVelocity(
-                    PIXELS_PER_SECOND,
-                    mCallback.getSwipeVelocityThreshold(mMaxSwipeVelocity)
-                )
-                val xVelocity = mVelocityTracker?.getXVelocity(mActivePointerId)
-                val yVelocity = mVelocityTracker?.getYVelocity(mActivePointerId)
+                mVelocityTracker?.computeCurrentVelocity(PIXELS_PER_SECOND, mCallback.getSwipeVelocityThreshold(mMaxSwipeVelocity))
+                val xVelocity = mVelocityTracker?.getXVelocity(mActivePointerId).orZero
+                val yVelocity = mVelocityTracker?.getYVelocity(mActivePointerId).orZero
                 val velDirFlag = if (xVelocity > 0f) RIGHT else LEFT
                 val absXVelocity = abs(xVelocity)
-                if ((velDirFlag and flags) != 0 && dirFlag == velDirFlag && absXVelocity >= mCallback.getSwipeEscapeVelocity(
-                        mSwipeEscapeVelocity
-                    ) && absXVelocity > abs(yVelocity)
-                ) {
+                if ((velDirFlag and flags) != 0 && dirFlag == velDirFlag && absXVelocity >= mCallback.getSwipeEscapeVelocity(mSwipeEscapeVelocity) && absXVelocity > abs(yVelocity)) {
                     return velDirFlag
                 }
             }
-            val threshold = mRecyclerView?.getWidth() * mCallback.getSwipeThreshold(viewHolder)
+            val threshold = mRecyclerView?.width.orZero * mCallback.getSwipeThreshold(viewHolder)
             if ((flags and dirFlag) != 0 && abs(mDx) > threshold) {
                 return dirFlag
             }
@@ -1447,22 +1225,16 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
         if ((flags and (UP or DOWN)) != 0) {
             val dirFlag = if (mDy > 0) DOWN else UP
             if (mVelocityTracker != null && mActivePointerId > -1) {
-                mVelocityTracker?.computeCurrentVelocity(
-                    PIXELS_PER_SECOND,
-                    mCallback.getSwipeVelocityThreshold(mMaxSwipeVelocity)
-                )
-                val xVelocity = mVelocityTracker?.getXVelocity(mActivePointerId)
-                val yVelocity = mVelocityTracker?.getYVelocity(mActivePointerId)
+                mVelocityTracker?.computeCurrentVelocity(PIXELS_PER_SECOND, mCallback.getSwipeVelocityThreshold(mMaxSwipeVelocity))
+                val xVelocity = mVelocityTracker?.getXVelocity(mActivePointerId).orZero
+                val yVelocity = mVelocityTracker?.getYVelocity(mActivePointerId).orZero
                 val velDirFlag = if (yVelocity > 0f) DOWN else UP
                 val absYVelocity = abs(yVelocity)
-                if ((velDirFlag and flags) != 0 && velDirFlag == dirFlag && absYVelocity >= mCallback.getSwipeEscapeVelocity(
-                        mSwipeEscapeVelocity
-                    ) && absYVelocity > abs(xVelocity)
-                ) {
+                if ((velDirFlag and flags) != 0 && velDirFlag == dirFlag && absYVelocity >= mCallback.getSwipeEscapeVelocity(mSwipeEscapeVelocity) && absYVelocity > abs(xVelocity)) {
                     return velDirFlag
                 }
             }
-            val threshold = mRecyclerView?.getHeight() * mCallback.getSwipeThreshold(viewHolder)
+            val threshold = mRecyclerView?.height.orZero * mCallback.getSwipeThreshold(viewHolder)
             if ((flags and dirFlag) != 0 && abs(mDy) > threshold) {
                 return dirFlag
             }
@@ -1471,12 +1243,16 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
     }
 
     fun removeChildDrawingOrderCallbackIfNecessary(view: View?) {
-        if (view === mOverdrawChild) {
+        if (view == mOverdrawChild) {
             mOverdrawChild = null
             if (mChildDrawingOrderCallback != null) {
                 mRecyclerView?.setChildDrawingOrderCallback(null)
             }
         }
+    }
+
+    fun setOnMoveListener(onMoveListener: OnMoveListener) {
+        this.onMoveListener = onMoveListener
     }
 
     interface ViewDropHandler {
@@ -1485,12 +1261,6 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(),
 
     interface OnMoveListener {
         fun isMove(move: Boolean)
-    }
-
-    private var onMoveListener: OnMoveListener? = null
-
-    fun setOnMoveListener(onMoveListener: OnMoveListener) {
-        this.onMoveListener = onMoveListener
     }
 
     private inner class ItemTouchHelperGestureListener() : SimpleOnGestureListener() {
