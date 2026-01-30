@@ -634,9 +634,13 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChi
         mRecyclerView?.removeOnChildAttachStateChangeListener(this)
         val recoverAnimSize = mRecoverAnimations.size
         for (i in recoverAnimSize - 1 downTo 0) {
-            val recoverAnimation = mRecoverAnimations.get(0)
+            val recoverAnimation = mRecoverAnimations[0]
             mCallback.clearView(mRecyclerView, recoverAnimation.mViewHolder)
         }
+//        // 健壮性优化写法（后续有状态残留时用）
+//        mRecoverAnimations.forEach {
+//            mCallback.clearView(mRecyclerView, it.mViewHolder)
+//        }
         mRecoverAnimations.clear()
         mOverdrawChild = null
         mOverdrawChildPosition = -1
@@ -1073,8 +1077,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChi
                 return
             }
         }
-        mDy = 0f
-        mDx = mDy
+        mDx = 0f.also { mDy = it }
         mActivePointerId = motionEvent.getPointerId(0)
         select(vh, ACTION_STATE_SWIPE)
     }
@@ -1108,8 +1111,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChi
             return
         }
         obtainVelocityTracker()
-        mDy = 0f
-        mDx = mDy
+        mDx = 0f.also { mDy = it }
         select(viewHolder, ACTION_STATE_DRAG)
     }
 
@@ -1123,8 +1125,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChi
             return
         }
         obtainVelocityTracker()
-        mDy = 0f
-        mDx = mDy
+        mDx = 0f.also { mDy = it }
         select(viewHolder, ACTION_STATE_SWIPE)
     }
 
@@ -1292,8 +1293,7 @@ class ItemTouchHelper(private val mCallback: Callback) : ItemDecoration(), OnChi
                         val y = e.getY(index)
                         mInitialTouchX = x
                         mInitialTouchY = y
-                        mDy = 0f
-                        mDx = mDy
+                        mDx = 0f.also { mDy = it }
                         "onlong press: x:${mInitialTouchX},y:${mInitialTouchY}".logWTF(TAG)
                         if (mCallback.isLongPressDragEnabled()) {
                             select(vh, ACTION_STATE_DRAG)
