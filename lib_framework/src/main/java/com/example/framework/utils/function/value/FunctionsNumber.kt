@@ -411,14 +411,15 @@ fun String?.removeEndZero(): String {
  * 获取小数位
  */
 fun String?.numberDigits(): Int {
-//    this ?: return 0
-//    val list = this.split(".")
-//    return if(list.size > 1) list.safeGet(1)?.length.orZero else 0
     this ?: return 0
     val dotIndex = this.indexOf('.')
-    // 如果没有找到小数点（dotIndex == -1），说明没有小数部分，返回 0
-    // 否则，使用 drop 方法去掉小数点及其前面的部分，然后获取剩余字符串的长度，最后使用 orZero 确保结果不会为 null
-    return if (dotIndex == -1) 0 else this.drop(dotIndex + 1).length.orZero
+    // 判断小数点是否存在，且是否在字符串末尾
+    if (dotIndex != -1 && dotIndex == this.length - 1) {
+        // 返回非 0 即可，触发后续清空逻辑（无需纠结具体数字，核心是标记为非法）
+        return 1
+    }
+    // 如果没有找到小数点（dotIndex == -1），说明没有小数部分返回 0 ，否则使用 drop 方法去掉小数点及其前面的部分，然后获取剩余字符串的长度
+    return if (dotIndex == -1) 0 else this.drop(dotIndex + 1).length
 }
 
 /**

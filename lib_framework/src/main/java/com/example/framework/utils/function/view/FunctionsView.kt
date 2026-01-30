@@ -205,21 +205,49 @@ fun View?.clearBackground() {
 
 /**
  * 设置margin，单位px
+ * marginStart/marginEnd 是系统提供的「相对布局属性」，在 LTR/RTL 布局下，系统会自动映射到 leftMargin/rightMargin，无需手动赋值同步
  */
 fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
     if (this == null) return
     val lp = layoutParams as? ViewGroup.MarginLayoutParams ?: return
     start?.let {
         lp.marginStart = it
-        lp.leftMargin = it
+//        lp.leftMargin = it
     }
-    top?.let { lp.topMargin = it }
+    top?.let {
+        lp.topMargin = it
+    }
     end?.let {
         lp.marginEnd = it
-        lp.rightMargin = it
+//        lp.rightMargin = it
     }
-    bottom?.let { lp.bottomMargin = it }
+    bottom?.let {
+        lp.bottomMargin = it
+    }
     layoutParams = lp
+}
+
+fun View?.marginAll(margin: Int) {
+    if (this == null) return
+    margin(margin, margin, margin, margin)
+}
+
+/**
+ * 获取View的Margin，以默认左上右下（LTRB）的形式返回 IntArray，单位px
+ * 1) 优先返回 marginStart/marginEnd（兼容 XML 设置的横向Margin）
+ * 2) 纵向返回 marginTop/marginBottom，不受布局方向影响
+ */
+fun View?.marginLtrb(): IntArray {
+    if (this == null) return intArrayOf(0, 0, 0, 0)
+    // 获取MarginLayoutParams，获取失败则返回全0
+    val layoutParams = this.layoutParams as? ViewGroup.MarginLayoutParams ?: return intArrayOf(0, 0, 0, 0)
+    // 优先使用 marginStart/marginEnd，兜底 marginLeft/marginRight
+    val resolvedStart = layoutParams.marginStart
+    val resolvedEnd = layoutParams.marginEnd
+    val resolvedTop = layoutParams.topMargin
+    val resolvedBottom = layoutParams.bottomMargin
+    // 严格对齐「左上右下」顺序返回
+    return intArrayOf(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
 }
 
 /**
@@ -230,12 +258,26 @@ fun View?.padding(start: Int? = null, top: Int? = null, end: Int? = null, bottom
     setPaddingRelative(start ?: paddingStart, top ?: paddingTop, end ?: paddingEnd, bottom ?: paddingBottom)
 }
 
-/**
- * 设置padding，单位px
- */
 fun View?.paddingAll(padding: Int) {
     if (this == null) return
     setPaddingRelative(padding, padding, padding, padding)
+}
+
+/**
+ * 获取view的padding,以默认左上右下的形式返回
+ * 1) XML中设置paddingHorizontal -> 代码中能取到值 paddingStart 和 paddingEnd
+ * 2) XML中设置paddingVertical -> 代码中取到值 paddingTop 和 paddingBottom
+ */
+fun View?.paddingLtrb(): IntArray {
+    if (this == null) return intArrayOf(0, 0, 0, 0)
+    // 先判断是否启用相对内边距，再决定取值优先级
+    val resolvedStart = if (isPaddingRelative) paddingStart else paddingLeft
+    val resolvedEnd = if (isPaddingRelative) paddingEnd else paddingRight
+    // 纵向取值保持不变，不受布局方向和相对内边距影响
+    val resolvedTop = paddingTop
+    val resolvedBottom = paddingBottom
+    // 严格对齐「左上右下」
+    return intArrayOf(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
 }
 
 /**
@@ -769,8 +811,17 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
  * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
  */
 fun ViewGroup?.actionCancel() {
+//    if (this == null) return
+//    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
     if (this == null) return
-    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+    // 构造 ACTION_CANCEL 事件（必须回收，避免内存泄漏）
+    val cancelEvent = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    // 分发 CANCEL 事件，ItemTouchHelper 会收到并执行 select(null, ACTION_STATE_IDLE)
+    dispatchTouchEvent(cancelEvent)
+    // 回收事件
+    cancelEvent.recycle()
+//    // 清空 ItemTouchHelper 的选中状态（兜底）
+//    (itemTouchHelper as? YourItemTouchHelper)?.select(null, YourItemTouchHelper.ACTION_STATE_IDLE)
 }
 
 /**

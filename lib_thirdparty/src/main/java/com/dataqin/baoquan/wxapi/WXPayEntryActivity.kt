@@ -24,24 +24,24 @@ import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
  * <activity
  * android:name=".wxapi.WXPayEntryActivity"
  * android:exported="true"
- * android:launchMode="singleInstance"
+ * android:launchMode="singleTask"
  * android:screenOrientation="portrait"
  * android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
  * android:theme="@style/TransparentTheme"
  * android:windowSoftInputMode="stateHidden|adjustPan" />
  */
 class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
-    private val wxApi by lazy { WXManager.instance.regToWx(this) }// IWXAPI 是第三方app和微信通信的openapi接口
+    private val wxApi by lazy { WXManager.instance.regToWx(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        wxApi?.handleIntent(intent, this)
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+        wxApi?.handleIntent(intent, this)
     }
 
     override fun finish() {
@@ -59,15 +59,15 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
     }
 
     /**
-     * 微信发起后回调
+     * 微信支付发起后回调
      */
     override fun onResp(resp: BaseResp?) {
         when (resp?.errCode) {
-            //支付成功
+            // 支付成功
             BaseResp.ErrCode.ERR_OK -> results(R.string.paySuccess, 0)
-            //支付取消
+            // 支付取消
             BaseResp.ErrCode.ERR_USER_CANCEL -> results(R.string.payCancel, 1)
-            //支付失败
+            // 支付失败
             else -> results(R.string.payFailure, 2)
         }
         finish()

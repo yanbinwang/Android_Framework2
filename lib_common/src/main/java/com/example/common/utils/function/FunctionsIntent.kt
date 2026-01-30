@@ -77,6 +77,26 @@ fun ActivityResultLauncher<Intent>?.pullUpScreen(mContext: Context?) {
 }
 
 /**
+ * 拉起系统默认文件选择
+ * 处理选择结果（替代原onActivityResult逻辑）
+ * if (result.resultCode == RESULT_OK) {
+ *     val uri = result.data?.data
+ *     uri?.let {
+ *         // 拷贝到私有目录（子线程执行）
+ *         lifecycleScope.launch(Dispatchers.IO) {
+ *         copyUriToPrivateDir(it, this@YourActivity)
+ *     }
+ * }
+ */
+fun ActivityResultLauncher<Intent>?.pullUpFilePicker() {
+    this ?: return
+    launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "*/*" // 支持所有文件类型，可按需限定（如"application/pdf"）
+    })
+}
+
+/**
  * 拉起系统默认相机
  */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
@@ -108,7 +128,7 @@ fun Activity?.pullUpImage() {
     this ?: return
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    forResult(file, intent, RESULT_IMAGE)
+    startActivityForResult(file, intent, RESULT_IMAGE)
 }
 
 /**
@@ -121,10 +141,10 @@ fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
     intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    forResult(file, intent, RESULT_VIDEO)
+    startActivityForResult(file, intent, RESULT_VIDEO)
 }
 
-private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
+private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int) {
     if (null == file || null == this) return
     try {
         val uri: Uri?
@@ -139,6 +159,59 @@ private fun Activity?.forResult(file: File?, intent: Intent, requestCode: Int) {
     } catch (e: Exception) {
         e.printStackTrace()
     }
+}
+
+/**
+ * 跳转当前应用的 MANAGE_EXTERNAL_STORAGE 专属设置页（最优路径）
+ */
+fun Context?.pullUpManageStorageSetting() {
+    this ?: return
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+            // 通过Uri定向到当前应用的设置项
+            data = "package:${packageName}".toUri()
+            // 避免创建新任务栈，返回时能回到应用
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
+            addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 部分厂商（如小米、华为）可能修改了Action，走兜底方案
+        jumpToManageStorageFallbackSetting()
+    }
+}
+
+/**
+ * 跳转系统“所有文件访问权限”总设置页
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun Context?.jumpToManageStorageFallbackSetting() {
+    this ?: return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 极端情况：跳应用信息页，让用户手动找存储权限
+        jumpToAppInfoSetting()
+    }
+}
+
+/**
+ * 跳应用信息页（所有权限的总入口）
+ */
+private fun Context?.jumpToAppInfoSetting() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = "package:${packageName}".toUri()
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    startActivity(intent)
 }
 
 /**

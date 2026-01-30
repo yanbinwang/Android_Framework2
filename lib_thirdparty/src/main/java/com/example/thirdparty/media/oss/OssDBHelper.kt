@@ -3,7 +3,7 @@ package com.example.thirdparty.media.oss
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getAllFilePaths
+import com.example.common.utils.function.getAllFilePathsRecursively
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.value.toNewList
@@ -157,7 +157,7 @@ object OssDBHelper {
                     "3" -> "录像"
                     else -> "录屏"
                 }
-            }取证")).getAllFilePaths()
+            }取证")).getAllFilePathsRecursively()
             // 筛选服务器对应目录的证据路径集合
             val serverTypeSet = data
                 .filter { it.first == appType }

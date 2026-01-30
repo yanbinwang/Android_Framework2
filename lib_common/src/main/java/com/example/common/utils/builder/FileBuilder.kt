@@ -16,6 +16,7 @@ import android.os.ParcelFileDescriptor
 import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
 import androidx.exifinterface.media.ExifInterface
@@ -32,7 +33,7 @@ import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.copy
-import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.getBase64
 import com.example.common.utils.function.getDuration
@@ -84,7 +85,7 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("�
             // 存储目录文件
             val storeDir = File(root)
             // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) root.deleteDir()
+            if (deleteDir) root.deleteDirectory()
             // 确保目录创建
             root.ensureDirExists()
             // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
@@ -164,7 +165,7 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
  * View 操作被 post 到下一个消息队列，等弹窗渲染完成后再执行，即使耗时久，也不会让弹窗 “卡着不显示”；
  * 协程通过 deferred.await() 挂起等待结果，不会阻塞主线程其他操作。
  */
-suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targetHeight: Int = WRAP_CONTENT, isScale: Boolean = false): Bitmap? {
+suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targetHeight: Int = WRAP_CONTENT, isScale: Boolean = false, @ColorInt color: Int = Color.TRANSPARENT): Bitmap? {
     // 切换到主线程执行所有View操作（避免线程问题）
     return withContext(Main.immediate) {
         withTimeoutOrNull(5000) {
@@ -188,7 +189,7 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
                     // 根据原view大小绘制出bitmap
                     val screenBit = createBitmap(measuredWidth, finalHeight)
                     val canvas = Canvas(screenBit)
-                    canvas.drawColor(Color.TRANSPARENT)
+                    canvas.drawColor(color)
                     // View.draw()方法是必须在主线程执行
                     view.draw(canvas)
                     // 根据实际宽高缩放
@@ -214,7 +215,7 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
                         throw IllegalStateException("View布局尺寸与目标尺寸不匹配：实际(${view.measuredWidth}x${view.measuredHeight})，目标(${targetWidth}x${finalHeight})")
                     }
                     // 生成 Bitmap（直接用 View 布局后的尺寸，避免尺寸不匹配）
-                    view.loadBitmap(targetWidth, finalHeight)
+                    view.loadBitmap(targetWidth, finalHeight, color)
                 }
             } catch (e: Exception) {
                 throw e
@@ -451,7 +452,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
         throw RuntimeException(string(R.string.linkError))
     }
     // 清除目录下的所有文件
-    filePath.deleteDir()
+    filePath.deleteDirectory()
     // 创建一个安装的文件，开启io协程写入
     val file = File(filePath.ensureDirExists(), fileName)
     return withContext(IO) {
@@ -490,7 +491,7 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
         // 存储目录文件
         val storeDir = File(root)
         // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-        if (deleteDir) root.deleteDir()
+        if (deleteDir) root.deleteDirectory()
         // 确保目录创建
         root.ensureDirExists()
         suspendingGlideDownload(mContext, string, storeDir)

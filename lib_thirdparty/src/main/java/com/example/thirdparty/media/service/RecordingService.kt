@@ -65,11 +65,11 @@ class RecordingService : TrackableLifecycleService() {
             .build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         startForeground(notificationId, notification)
-        //获取 PowerManager 实例
+        // 获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
-        //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
+        // 创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
         wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
-        //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
+        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
         wakeLock?.acquire()
     }
 
@@ -87,10 +87,11 @@ class RecordingService : TrackableLifecycleService() {
         recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(this) else MediaRecorder()
         try {
             recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)//设置麦克风
+                // 设置麦克风
+                setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                //若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
+                // 若api低于O，调用setOutputFile(String path),高于使用setOutputFile(File path)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     setOutputFile(folderPath)
                 } else {
@@ -98,12 +99,13 @@ class RecordingService : TrackableLifecycleService() {
                 }
                 prepare()
                 start()
-                //仅在 start 成功后触发
+                // 仅在 start 成功后触发
                 listener?.onStart(folderPath)
             }
         } catch (e: Exception) {
             isDestroy = true
-            releaseRecorder()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            // 确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            releaseRecorder()
             listener?.onError(e)
             stopSelf()
         }
@@ -115,7 +117,8 @@ class RecordingService : TrackableLifecycleService() {
     private fun stopRecording() {
         listener?.onShutter()
         recorder?.runCatching {
-            stop()//阻塞直到文件写入完成
+            // 阻塞直到文件写入完成
+            stop()
             releaseRecorder()
         }?.onSuccess {
             listener?.onStop()
@@ -128,9 +131,12 @@ class RecordingService : TrackableLifecycleService() {
      * 释放资源
      */
     private fun releaseRecorder() {
-        recorder?.reset()//重置状态（可选）
-        recorder?.release()//释放底层资源
-        recorder = null//置空引用
+        //重置状态
+        recorder?.reset()
+        // 释放底层资源
+        recorder?.release()
+        // 置空引用
+        recorder = null
     }
 
     /**

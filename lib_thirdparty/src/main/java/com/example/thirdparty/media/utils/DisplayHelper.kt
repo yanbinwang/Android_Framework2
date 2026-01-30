@@ -35,7 +35,7 @@ import com.example.thirdparty.media.service.observer.ShotObserver
  * @author yan
  */
 class DisplayHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
-    private var lastRefreshTime = 0L //上一次的录制时间
+    private var lastRefreshTime = 0L // 上一次的录制时间
     private var isRecording = false // 是否正在进行录制，便于区分截图捕获到的图片路径
     private var isZip = false // 当前录屏模式是否需要捕获图片打压缩包
     private var filePath: String? = null // 录制源文件路径

@@ -5,13 +5,12 @@ import android.util.AttributeSet
 import android.util.SparseArray
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
-import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
-import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
@@ -23,11 +22,16 @@ import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.view.getHolder
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
+import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.initLinearVertical
+import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingAll
+import com.example.framework.utils.function.view.paddingLtrb
+import com.example.framework.utils.function.view.safeUpdate
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -48,28 +52,30 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    //是否具有刷新
+    // 默认开启嵌套滚动
+    private var nestedScrollEnabled = false
+    // 是否具有刷新
     private var refreshEnable = false
-    //是否具有空布局
+    // 是否具有空布局
     private var emptyEnable = false
-    //空布局是否传递事件
+    // 空布局是否传递事件
     private var emptyClickableEnable = false
-    //固定高度，-1表示为全屏
+    // 固定高度，-1表示为全屏
     private var rootFixedHeight = -1
     //----------------以下懒加载会在调取时候创建----------------
-    //整体容器->高度随着子child来拉伸
+    // 整体容器->高度随着子child来拉伸
     val root by lazy { FrameLayout(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
     }}
-    //刷新控件 类型1才有
+    // 刷新控件 类型1才有
     val refresh by lazy { SmartRefreshLayout(context).apply {
         layoutParams = SmartRefreshLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
     }}
-    //自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
+    // 自定义封装的空布局->大小会在添加时设置，xml中是MATCH_PARENT
     val empty by lazy { EmptyLayout(context).apply {
         onInflate()
     }}
-    //数据列表，并且配置默认属性
+    // 数据列表，并且配置默认属性
     val recycler by lazy { RecyclerView(context).apply {
         size(MATCH_PARENT, MATCH_PARENT)
         init()
@@ -77,6 +83,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
+            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, false)
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
             emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
@@ -89,26 +96,34 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             when (refreshEnable) {
                 false -> {
                     root.addView(recycler)
-                    emptyConfigure()
+                    configureEmptyLayout()
                 }
                 true -> {
                     root.addView(refresh)
                     refresh.addView(recycler)
-                    emptyConfigure()
+                    configureEmptyLayout()
                 }
             }
             addView(root)
-            //插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
+            // 插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
             if (-1 != rootFixedHeight) {
-                setSize(height = rootFixedHeight)
+                setRootSize(height = rootFixedHeight)
             }
+            // 嵌套滚动设置
+            recycler.isNestedScrollingEnabled = nestedScrollEnabled
+            // 取一次内部padding,针对RecyclerView做padding
+            val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
+            if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
+            paddingAll(0)
+            root.paddingAll(0)
+            recycler.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
     }
 
     /**
      * 部分empty是有初始大小要求的，不必撑满整个屏幕
      */
-    private fun emptyConfigure() {
+    private fun configureEmptyLayout() {
         if (emptyEnable) {
             root.addView(empty)
             empty.size(MATCH_PARENT, MATCH_PARENT)
@@ -119,7 +134,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置整体布局大小
      */
-    fun setSize(width: Int? = null, height: Int? = null) {
+    fun setRootSize(width: Int? = null, height: Int? = null) {
         root.size(width.pt, height.pt)
     }
 
@@ -193,7 +208,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 修改空布局背景颜色
      */
-    fun setEmptyBackgroundColor(color: Int) {
+    fun setEmptyBackgroundColor(@ColorInt color: Int) {
         empty.setBackgroundColor(color)
     }
 
@@ -210,17 +225,44 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    fun <T : BaseQuickAdapter<*, *>> setAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, hasHorizontalEdge: Boolean = false, hasVerticalEdge: Boolean = false) {
-        recycler.initGridVertical(adapter, spanCount)
-        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+        when {
+            // 单列 + 垂直 → 垂直线性布局
+            spanCount <= 1 && orientation == RecyclerView.VERTICAL -> {
+                recycler.initLinearVertical(adapter)
+            }
+            // 单列 + 水平 → 水平线性布局
+            spanCount <= 1 && orientation == RecyclerView.HORIZONTAL -> {
+                recycler.initLinearHorizontal(adapter)
+            }
+            // 多列 + 垂直 → 垂直网格布局
+            spanCount > 1 && orientation == RecyclerView.VERTICAL -> {
+                recycler.initGridVertical(adapter, spanCount)
+            }
+            // 多列 + 水平 → 水平网格布局
+            spanCount > 1 && orientation == RecyclerView.HORIZONTAL -> {
+                recycler.initGridHorizontal(adapter, spanCount)
+            }
+        }
     }
 
     /**
-     * 设置横向左右滑动的adapter
+     * 设置自定义快速适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
-        recycler.initLinearHorizontal(adapter)
+    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+        setAdapter(adapter, spanCount, orientation)
+        val hasHorizontalEdge = horizontalSpace > 0
+        val hasVerticalEdge = verticalSpace > 0
+        if (horizontalSpace <= 0 && verticalSpace <= 0) return
+        addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
+
+//    /**
+//     * 设置横向左右滑动的adapter
+//     */
+//    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
+//        recycler.initLinearHorizontal(adapter)
+//    }
 
     /**
      * 设置复杂的多个adapter直接拼接成一个
@@ -253,20 +295,24 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 获取适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> getAdapter(): T? {
+    fun getAdapter(): RecyclerView.Adapter<*>? {
+        return recycler.adapter
+    }
+
+    fun <T : BaseQuickAdapter<*, *>> getQuickAdapter(): T? {
         return recycler.adapter as? T
     }
 
-    /**
-     * 获取一个列表中固定下标的holder
-     */
-    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
-        return recycler.getHolder(position)
-    }
-
-    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
-        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
-    }
+//    /**
+//     * 获取一个列表中固定下标的holder
+//     */
+//    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
+//        return recycler.getHolder(position)
+//    }
+//
+//    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
+//        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
+//    }
 
     /**
      * 让列表滚动到对应下标点
@@ -277,13 +323,27 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 安全更新
+     */
+    fun safeUpdate(action: () -> Unit) {
+        recycler.safeUpdate(action)
+    }
+
+    /**
+     * 修改RecyclerView背景颜色
+     */
+    fun setRecyclerBackgroundColor(@ColorInt color: Int) {
+        recycler.setBackgroundColor(color)
+    }
+
+    /**
      * 判断当前模式
      */
-    fun isRefresh(): Boolean {
+    fun isRefreshEnabled(): Boolean {
         return refreshEnable
     }
 
-    fun isEmpty(): Boolean {
+    fun isEmptyEnabled(): Boolean {
         return emptyEnable
     }
 

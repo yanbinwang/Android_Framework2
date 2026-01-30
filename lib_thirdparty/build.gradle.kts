@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -27,15 +29,21 @@ android {
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
     buildFeatures {
         dataBinding = true
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+//    kotlinOptions {
+//        jvmTarget = "11"
+//    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {
@@ -75,5 +83,5 @@ dependencies {
     api("com.github.CarGuo.GSYVideoPlayer:gsyvideoplayer:v11.1.0")
     // 支付宝/微信
     api("com.alipay.sdk:alipaysdk-android:15.8.40@aar")
-    api("com.tencent.mm.opensdk:wechat-sdk-android-without-mta:6.8.0")
+    api("com.tencent.mm.opensdk:wechat-sdk-android:+")
 }

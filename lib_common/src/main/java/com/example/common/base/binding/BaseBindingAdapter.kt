@@ -9,7 +9,7 @@ import android.webkit.WebView
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.ToggleButton
-import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -29,8 +29,8 @@ import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
-import com.example.framework.utils.function.value.createCornerDrawable
 import com.example.framework.utils.function.value.createOvalDrawable
+import com.example.framework.utils.function.value.createRectangleDrawable
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
@@ -42,6 +42,10 @@ import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalFilter
 import com.example.framework.utils.function.view.emojiLimit
+import com.example.framework.utils.function.view.initGridHorizontal
+import com.example.framework.utils.function.view.initGridVertical
+import com.example.framework.utils.function.view.initLinearHorizontal
+import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
@@ -57,7 +61,7 @@ import com.example.framework.utils.function.view.spaceLimit
  */
 object BaseBindingAdapter {
 
-    // <editor-fold defaultstate="collapsed" desc="基础绑定方法">
+    // <editor-fold defaultstate="collapsed" desc="View/Textview绑定方法">
     /**
      * 约束布局等高线设置
      */
@@ -84,7 +88,7 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["corner_color", "corner_radius"], requireAll = false)
     fun bindingBackgroundCorner(view: View, cornerColor: String?, cornerRadius: Int?) {
-        view.background = createCornerDrawable(cornerColor.orEmpty(), cornerRadius.toSafeFloat(5f).ptFloat)
+        view.background = createRectangleDrawable(cornerColor.orEmpty(), cornerRadius.toSafeFloat(5f).ptFloat)
     }
 
     /**
@@ -95,64 +99,7 @@ object BaseBindingAdapter {
     fun bindingBackgroundOval(view: View, ovalColor: String?) {
         view.background = createOvalDrawable(ovalColor.orEmpty())
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="viewpager+recyclerview绑定方法">
-    /**
-     * 尽量替换为viewpager2，viewpager也支持绑定
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["pager_adapter"])
-    fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, pagerAdapter: T) {
-        pager.adapter = pagerAdapter
-        pager.offscreenPageLimit = pagerAdapter.count - 1
-        pager.currentItem = 0
-        pager.startAnimation(pager.context.elasticityEnter())
-    }
-
-    /**
-     * 不和tablayout或者其他view关联的数据加载可以直接在xml中绑定
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["pager2_adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, pager2Adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
-        flipper.adapter(pager2Adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
-    }
-
-    /**
-     * 适配器
-     * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "has_horizontal_edge", "has_vertical_edge"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, hasHorizontalEdge: Boolean?, hasVerticalEdge: Boolean?) {
-        rec.setAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), hasHorizontalEdge.orFalse, hasVerticalEdge.orFalse)
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="webview绑定方法">
-    /**
-     * 加载网页
-     */
-    @JvmStatic
-    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String?, needHeader: Boolean?) {
-        webView.load(networkUrl.orEmpty(), needHeader.orFalse)
-    }
-
-    /**
-     * 加载本地网页
-     */
-    @JvmStatic
-    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
-    @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String?, needHeader: Boolean?) {
-        webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="textview绑定方法">
     /**
      * 几组xml里结合mvvm的写法
      *  android:text="@{bean.nickText??@string/unitNoData}"
@@ -175,25 +122,31 @@ object BaseBindingAdapter {
      *
      * 绑定「基础数据类型属性」且上游对象可能为 null → 必报错 : 绑定「引用类型属性」→ 不报错（仅显示空白 / 默认效果）
      * 一) 必报错（必须加非空判断！）
-     * android:visibility -> int -> 错误：@{bean.visible}/正确：@{bean?.visible ?? View.GONE}
-     * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{bean?.alpha ?? 1.0f}
-     * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{bean?.isEnabled ?? true}
-     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{bean?.layoutWidth ?? 100dp}（需转尺寸）
-     * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{bean?.maxLineCount ?? 2}
-     * android:progress -> int -> 错误：@{bean.progress}/正确：@{bean?.progress ?? 0}
-     * android:rating -> float -> 错误：@{bean.rating}/正确：@{bean?.rating ?? 3.5f}
-     * android:textSize -> float/dimen -> 错误：@{bean.textSize}/正确：@{bean?.textSize ?? @dimen/textSize14}
+     * android:visibility -> int -> 错误：@{bean.visible}/正确：@{null!=bean?bean.visible : View.GONE}
+     * android:alpha -> float -> 错误：@{bean.alpha}/正确：@{null!=bean?bean.alpha : 1.0f}
+     * android:enabled -> boolean -> 错误：@{bean.isEnabled}/正确：@{null!=bean?bean.isEnabled : true}
+     *
+     * <data>
+     *     <import type="androidx.databinding.Dimension" />
+     * </data>
+     * android:layout_width="@{bean != null ? bean.layoutWidth : Dimension.dpToPx(100)}"
+     * android:layout_width -> int -> 错误：@{bean.layoutWidth}/正确：@{null!=bean?bean.layoutWidth : @dimen/width_100dp}（需转尺寸）
+     *
+     * android:maxLines -> int -> 错误：@{bean.maxLineCount}/正确：@{null!=bean?bean.maxLineCount : 2}
+     * android:progress -> int -> 错误：@{bean.progress}/正确：@{null!=bean?bean.progress : 0}
+     * android:rating -> float -> 错误：@{bean.rating}/正确：@{null!=bean?bean.rating : 3.5f}
+     * android:textSize -> float/dimen -> 错误：@{bean.textSize}/正确：@{null!=bean?bean.textSize : @dimen/textSize14}
      * 基础类型的「包装类」（如 Integer、Float）也适用：比如 bean.count 是 Integer 类型，绑定 android:progress="@{bean.count}"，bean 为 null 时依然抛 NPE（因为最终要转成基础类型 int）；
      * 必须加非空保护（?. 或 bean != null ? ...），且兜底值要和类型匹配（如 int 用 View.GONE/0，float 用 1.0f）
      *
      * 二) 不报错（无需强制加非空判断，建议兜底优化体验）
-     * android:text -> String -> 基础：@{bean.name}/优化：@{bean?.name ?? @string/unitNoData}
-     * android:src/app:srcCompat -> Drawable -> 基础：@{bean.icon}/优化：@{bean?.icon ?? @drawable/default_icon}
-     * android:background -> Drawable/Color -> 基础：@{bean.bgDrawable}/优化：@{bean?.bgDrawable ?? @color/bgDefault}
-     * android:hint -> String -> 基础：@{bean.hintText}/优化：@{bean?.hintText ?? @string/hint_default}
+     * android:text -> String -> 基础：@{bean.name}/优化：@{bean.name ,default= @string/unitNoData}
+     * android:src/app:srcCompat -> Drawable -> 基础：@{bean.icon}/优化：@{bean.icon ,default= @drawable/default_icon}
+     * android:background -> Drawable/Color -> 基础：@{bean.bgDrawable}/优化：@{bean.bgDrawable ,default= @color/bgDefault}
+     * android:hint -> String -> 基础：@{bean.hintText}/优化：@{bean.hintText ,default= @string/hint_default}
      * android:tag -> Object -> @{bean.tagObj}
      * app:adapter（RecyclerView） -> Adapter -> @{bean.adapter}
-     * android:contentDescription -> String -> 基础：@{bean.desc}/优化：@{bean?.desc ?? @string/default_desc}
+     * android:contentDescription -> String -> 基础：@{bean.desc}/优化：@{bean.desc ,default= @string/default_desc}
      * 自定义属性（引用类型） -> 自定义 Bean -> @{bean.customObj}
      * 引用类型可以接收 null，所以不会抛 NPE，但可能显示「空白 / 透明 / 无数据」，建议用 ?? 加兜底（默认文本 / 图片 / 颜色）优化用户体验；
      * 若引用类型属性的「属性值本身是基础类型」（如 bean.iconResId 是 int 型资源 ID，绑定 app:srcCompat="@{@drawable/bean.iconResId}"），
@@ -205,7 +158,7 @@ object BaseBindingAdapter {
      * 特殊文本显示文本
      * @text:文本文案 -> "普通文本"
      * @spannable:高亮文本文案 -> TextSpan().add("高亮文本", ColorSpan(color(R.color.bgMain))).build()
-     * @textColor:文本颜色 -> "文本颜色(@ColorInt):${R.color.bgBlack}"
+     * @textColor:文本颜色 -> "文本颜色(@ColorRes):${R.color.bgBlack}"
      * @background:view背景 -> "背景:${R.drawable.shape_r20_grey}"
      * @visibility:view可见性 -> "可见性:${View.VISIBLE}"
      *
@@ -215,7 +168,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingTextViewTheme(view: View, text: String?, spannable: Spannable?, @ColorInt textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+    fun bindingViewTheme(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         if (view is TextView) {
             // 处理文本设置
             text?.let { newText ->
@@ -318,42 +271,87 @@ object BaseBindingAdapter {
      *     }
      *  }
      */
+    data class CompoundDrawableAttrs(
+        val drawableText: String? = null,
+        @param:DrawableRes val drawableStart: Int? = null,
+        @param:DrawableRes val drawableTop: Int? = null,
+        @param:DrawableRes val drawableEnd: Int? = null,
+        @param:DrawableRes val drawableBottom: Int? = null,
+        @param:ColorRes val drawableTintColor: Int? = null,
+        val drawableWidth: Int? = null,
+        val drawableHeight: Int? = null,
+        val drawablePadding: Int? = null
+    )
+
     @JvmStatic
-    @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
-    fun bindingCompoundDrawable(view: TextView, drawableText: String?, drawableStart: Int?, drawableTop: Int?, drawableEnd: Int?, drawableBottom: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
-        // 设置文本内容
-        if (view is ToggleButton) {
-            drawableText?.let {
-                view.text = it
-                view.textOn = it
-                view.textOff = it
-            }
-        }
+    @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableTintColor", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
+    fun bindingCompoundDrawable(view: TextView, drawableText: String?, @DrawableRes drawableStart: Int?, @DrawableRes drawableTop: Int?, @DrawableRes drawableEnd: Int?, @DrawableRes drawableBottom: Int?, @ColorRes drawableTintColor: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
         // 清除背景
         view.clearBackground()
         view.clearHighlightColor()
-        // 获取 Drawable
-        val startDrawable = drawableStart?.let { drawable(it) }
-        val topDrawable = drawableTop?.let { drawable(it) }
-        val endDrawable = drawableEnd?.let { drawable(it) }
-        val bottomDrawable = drawableBottom?.let { drawable(it) }
-        // 存储 Drawable 的数组
-        val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
-        // 设置 Drawable 大小
-        setDrawableBounds(drawables, drawableWidth, drawableHeight)
-        // 设置 TextView 的 CompoundDrawables
-        view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
-        // 间距
-        drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+        // 构建新的属性对象
+        val newAttrs = CompoundDrawableAttrs(drawableText, drawableStart, drawableTop, drawableEnd, drawableBottom, drawableTintColor, drawableWidth, drawableHeight, drawablePadding)
+        val compoundDrawableKey = R.id.theme_compound_drawable_tag
+        // 获取旧属性对象，判断是否需要更新（利用数据类equals）
+        val oldAttrs = view.getTag(compoundDrawableKey) as? CompoundDrawableAttrs
+        // 属性未变化，直接返回，避免无效刷新
+        if (oldAttrs == newAttrs) return
+        view.setTag(compoundDrawableKey, newAttrs)
+        // 处理ToggleButton文本
+        if (view is ToggleButton) {
+            val newText = newAttrs.drawableText.orEmpty()
+            // 避免空文本重复赋值，同时兼容null转空字符串
+            if (view.text?.toString().orEmpty() != newText) {
+                view.text = newText
+                view.textOn = newText
+                view.textOff = newText
+            }
+        }
+        // 仅Drawable相关属性变化时，才执行Drawable加载/设置
+        if (!setDrawableCompare(oldAttrs, newAttrs)) {
+            val startDrawable = newAttrs.drawableStart?.let { drawable(it) }
+            val topDrawable = newAttrs.drawableTop?.let { drawable(it) }
+            val endDrawable = newAttrs.drawableEnd?.let { drawable(it) }
+            val bottomDrawable = newAttrs.drawableBottom?.let { drawable(it) }
+            // 存储 Drawable 的数组
+            val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
+            // 设置 Drawable 大小
+            setDrawableBounds(drawables, drawableTintColor, drawableWidth, drawableHeight)
+            // 设置 TextView 的 CompoundDrawables
+            view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
+//        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
+            // 间距
+            drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+        }
+    }
+
+    /**
+     * 判断仅文本变化（Drawable相关属性无变化）
+     * @return true = 仅文本变化，false = Drawable相关属性变化
+     */
+    private fun setDrawableCompare(oldBean: CompoundDrawableAttrs?, newBean: CompoundDrawableAttrs): Boolean {
+        // 旧属性为空 → Drawable必变化
+        if (oldBean == null) return false
+        return oldBean.drawableStart == newBean.drawableStart &&
+                oldBean.drawableTop == newBean.drawableTop &&
+                oldBean.drawableEnd == newBean.drawableEnd &&
+                oldBean.drawableBottom == newBean.drawableBottom &&
+                oldBean.drawableTintColor == newBean.drawableTintColor &&
+                oldBean.drawableWidth == newBean.drawableWidth &&
+                oldBean.drawableHeight == newBean.drawableHeight &&
+                oldBean.drawablePadding == newBean.drawablePadding
     }
 
     /**
      * 设置 Drawable 的边界
      */
-    private fun setDrawableBounds(drawables: Array<Drawable?>, width: Int?, height: Int?) {
+    private fun setDrawableBounds(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
         if (width != null && height != null) {
             for (drawable in drawables) {
-                drawable?.setBounds(0, 0, width.pt, height.pt)
+                drawable?.let {
+                    it.setBounds(0, 0, width.pt, height.pt)
+                    if (null != tintColor) it.setTint(tintColor)
+                }
             }
         }
     }
@@ -462,7 +460,104 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["corner_radius", "corner_color"], requireAll = false)
     fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Int?, cornerColor: String?) {
-        view.background = createCornerDrawable(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
+        view.background = createRectangleDrawable(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="ViewPager/ViewPager2/XRecyclerView绑定方法">
+    /**
+     * 尽量替换为viewpager2，viewpager也支持绑定
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["pager_adapter"])
+    fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, pagerAdapter: T) {
+        pager.adapter = pagerAdapter
+        pager.offscreenPageLimit = pagerAdapter.count - 1
+        pager.currentItem = 0
+        pager.startAnimation(pager.context.elasticityEnter())
+    }
+
+    /**
+     * 不和TabLayout或者其他View关联的数据加载可以直接在xml中绑定
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["pager2_adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, pager2Adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
+        flipper.adapter(pager2Adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
+    }
+
+    /**
+     * 传统适配器
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+        val validSpanCount = spanCount ?: 1
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        when {
+            validSpanCount <= 1 && validOrientation == RecyclerView.VERTICAL -> {
+                rec.initLinearVertical(adapter)
+            }
+            validSpanCount <= 1 && validOrientation == RecyclerView.HORIZONTAL -> {
+                rec.initLinearHorizontal(adapter)
+            }
+            validSpanCount > 1 && validOrientation == RecyclerView.VERTICAL -> {
+                rec.initGridVertical(adapter, validSpanCount)
+            }
+            validSpanCount > 1 && validOrientation == RecyclerView.HORIZONTAL -> {
+                rec.initGridHorizontal(adapter, validSpanCount)
+            }
+        }
+    }
+
+    /**
+     * 自定义列表适配器
+     * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        rec.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation)
+    }
+
+    /**
+     * <com.xxx.XRecyclerView
+     *     android:layout_width="match_parent"
+     *     android:layout_height="match_parent"
+     *     app:quick_adapter="@{viewModel.quickAdapter}"
+     *     app:span_count="@{3}"
+     *     app:horizontal_space="@{8}"
+     *     app:vertical_space="@{8}"
+     *     app:layout_orientation="@{androidx.recyclerview.widget.RecyclerView.HORIZONTAL}" />
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation"], requireAll = false)
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
+        val validOrientation = orientation ?: RecyclerView.VERTICAL
+        rec.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="WebView绑定方法">
+    /**
+     * 加载网页
+     */
+    @JvmStatic
+    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
+    @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
+    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String?, needHeader: Boolean?) {
+        webView.load(networkUrl.orEmpty(), needHeader.orFalse)
+    }
+
+    /**
+     * 加载本地网页
+     */
+    @JvmStatic
+    @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
+    @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
+    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String?, needHeader: Boolean?) {
+        webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }
     // </editor-fold>
 
