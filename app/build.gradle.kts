@@ -1,9 +1,9 @@
-import com.android.build.gradle.internal.api.ApkVariantOutputImpl
 import com.android.testing.utils.is16kPageSource
+import com.android.utils.FileUtils.copyFile
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import java.io.FileInputStream
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Properties
 
 plugins {
@@ -66,10 +66,6 @@ android {
     buildFeatures {
         dataBinding = true
     }
-
-//    kotlinOptions {
-//        jvmTarget = "11"
-//    }
 
     kotlin {
         compilerOptions {
@@ -152,27 +148,27 @@ android {
         }
     }
 
-    // 打包重命名
-    android.applicationVariants.all {
-        val appName = "example"
-        val date = SimpleDateFormat("yyyyMMdd").format(Date())
-        outputs.all {
-            if (this is ApkVariantOutputImpl) {
-                outputFileName = "${appName}_v${versionName}_${date}.apk"
-            } else {
-                // 打包命令 ./gradlew bundleRelease -->执行后产生的aab包的路径：项目/app/build/outputs/bundle/release/XXX.aab
-                // AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
-                val provider = layout.projectDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
-                // AndroidStudio手动打包，直接给出绝对路径，打包输出至桌面
-//                val file = file("${System.getProperty("user.home")}/Desktop/${appName}_v${versionName}_${date}.aab")
-                val fileProperty = outputFile
-                if (fileProperty is RegularFileProperty) {
-                    fileProperty.set(provider)
-//                    fileProperty.set(file)
-                }
-            }
-        }
-    }
+//    // 打包重命名
+//    android.applicationVariants.all {
+//        val appName = "example"
+//        val date = SimpleDateFormat("yyyyMMdd").format(Date())
+//        outputs.all {
+//            if (this is ApkVariantOutputImpl) {
+//                outputFileName = "${appName}_v${versionName}_${date}.apk"
+//            } else {
+//                // 打包命令 ./gradlew bundleRelease -->执行后产生的aab包的路径：项目/app/build/outputs/bundle/release/XXX.aab
+//                // AndroidStudio手动打包，先在项目目录下创建outputs/bundle/release对应的文件夹，然后打包路径选择这个，就会输出到目录下
+//                val provider = layout.projectDirectory.file("outputs/bundle/release/${appName}_v${versionName}_${date}.aab")
+//                // AndroidStudio手动打包，直接给出绝对路径，打包输出至桌面
+////                val file = file("${System.getProperty("user.home")}/Desktop/${appName}_v${versionName}_${date}.aab")
+//                val fileProperty = outputFile
+//                if (fileProperty is RegularFileProperty) {
+//                    fileProperty.set(provider)
+////                    fileProperty.set(file)
+//                }
+//            }
+//        }
+//    }
 }
 
 dependencies {
@@ -186,4 +182,119 @@ dependencies {
     implementation(project(":module_account"))
     // 页面路由
     ksp(libs.therouter.apt)
+}
+
+androidComponents {
+    onVariants(selector().all()) { variant ->
+        // 提取变体的核心信息（buildType、name），后续用于命名和路径拼接
+        val variantName = variant.name // 如 "debug"、"release"
+        val variantBuildType = variant.buildType ?: "unknown"
+        // 正式包重命名
+        if (variantBuildType.equals("release", ignoreCase = true)) {
+            // 等待 android {} 所有配置完全生效（确保能获取到正确的 versionName 等）
+            project.afterEvaluate {
+                // 双重校验，防止偶发漏判（比如variantBuildType为空）
+                if (!variantBuildType.equals("release", ignoreCase = true)) return@afterEvaluate
+                // 定义命名规则
+                val appName = "example"
+                val versionName = android.defaultConfig.versionName ?: "1.0.0"
+                val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
+                val baseFileName = "${appName}_v${versionName}_${variantBuildType}_${currentDate}"
+                val variantNameUppercase = variantName.replaceFirstChar { it.uppercase() }
+                // 处理APK：任务名前缀package，产物后缀.apk
+                handleBuildArtifact("package", ".apk", variantNameUppercase, baseFileName)
+                // 处理AAB：任务名前缀bundle，产物后缀.aab
+                handleBuildArtifact("bundle", ".aab", variantNameUppercase, baseFileName)
+            }
+        }
+    }
+}
+
+/**
+ * 通用产物处理方法
+ * @taskPrefix 任务名前缀：package(APK)/bundle(AAB)
+ * @artifactSuffix 产物后缀：.apk/.aab
+ * @variantNameUppercase 大写变体名：Release/Debug
+ * @baseFileName 基础自定义文件名（无后缀）
+ */
+private fun handleBuildArtifact(taskPrefix: String, artifactSuffix: String, variantNameUppercase: String, baseFileName: String) {
+    // 拼接任务名：APK是packageRelease/packageReleaseApk，AAB是bundleRelease
+    val taskNames = if (taskPrefix == "package") {
+        // APK保留原有的两个候选任务名，兼容AGP9.0的任务名差异
+        listOf("${taskPrefix}${variantNameUppercase}Apk", "${taskPrefix}${variantNameUppercase}")
+    } else {
+        // AAB只有一个固定任务名，直接单元素列表
+        listOf("${taskPrefix}${variantNameUppercase}")
+    }
+    // 遍历任务名，执行原有后置重命名逻辑
+    taskNames.forEach { taskName ->
+        project.tasks.findByName(taskName)?.doLast {
+            // 查找产物文件，复制重命名
+            val originalArtifact = findArtifactFromTask(this, artifactSuffix)
+            originalArtifact?.let { originalFile ->
+                copyAndCleanArtifact(originalFile, "${baseFileName}${artifactSuffix}")
+            }
+        }
+    }
+}
+
+/**
+ * 从Gradle任务中查找目标产物（APK/AAB），消除重复的任务输出获取逻辑
+ * @param task Gradle打包任务（APK/AAB打包任务）
+ * @param artifactSuffix 产物后缀（.apk / .aab）
+ * @return 找到的有效产物文件，未找到返回null
+ */
+private fun findArtifactFromTask(task: Task, artifactSuffix: String): File? {
+    // 统一获取任务输出文件集合，再调用通用产物查找方法
+    val taskOutputFiles = task.outputs.files.files
+    return extractOriginalArtifactFromTaskOutput(taskOutputFiles, artifactSuffix)
+}
+
+/**
+ * 产物复制 + 仅Release版本删除原始文件（消除重复的runCatching样板代码）
+ * @param originalFile 原始产物文件（APK/AAB）
+ * @param customFileName 自定义产物文件名（含后缀）
+ */
+private fun copyAndCleanArtifact(originalFile: File, customFileName: String) {
+    // 构建自定义文件对象
+    val customFile = File(originalFile.parentFile, customFileName)
+    // 统一的复制+条件删除逻辑
+    runCatching {
+        copyFile(originalFile, customFile)
+    }.onSuccess {
+        // 仅Release版本删除原始文件，Debug版本保留
+        if (originalFile.exists()) {
+            val deleteSuccess = originalFile.delete()
+            // 添加日志，便于排查问题
+            val artifactType = if (customFileName.endsWith(".apk")) "APK" else "AAB"
+            if (deleteSuccess) {
+                println("【原始${artifactType}删除成功】已删除：${originalFile.name}")
+            }
+        }
+    }.onFailure {
+        // 统一异常处理
+        val artifactType = if (customFileName.endsWith(".apk")) "APK" else "AAB"
+        println("【${artifactType}处理失败】异常：${it.message}")
+    }
+}
+
+/**
+ * 通用化产物查找（支持APK/AAB，直接复用flatMapRecursive扩展函数）
+ * @artifactSuffix: 传入 ".apk" 或 ".aab"
+ */
+private fun extractOriginalArtifactFromTaskOutput(taskOutputFiles: Set<File>, artifactSuffix: String): File? {
+    // 标记是否为APK格式
+    val isApkFile = artifactSuffix == ".apk"
+    // 提取APK专属的额外筛选条件
+    val apkExtraFilterRules = { file: File ->
+        !file.name.contains("unaligned") && !file.name.contains("temp") && !file.name.contains("info")
+    }
+    return taskOutputFiles.flatMapRecursive { it.listFiles().orEmpty().toList() }.firstOrNull { file ->
+        // 区分APK/AAB的筛选规则
+        file.isFile && file.name.endsWith(artifactSuffix) && (if (isApkFile) apkExtraFilterRules(file) else true)
+    }
+}
+
+private fun <T> Collection<T>.flatMapRecursive(transform: (T) -> Collection<T>): List<T> {
+    return this + this.flatMap { transform(it).flatMapRecursive(transform) }
 }
