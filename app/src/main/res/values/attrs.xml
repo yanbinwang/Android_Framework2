@@ -17,13 +17,6 @@
         <attr name="arc_bottom_text_size" format="dimension" />
     </declare-styleable>
 
-    <!-- 侧滑控件 -->
-    <declare-styleable name="SwipeMenu">
-        <attr name="swipe_enable" format="boolean" />
-        <attr name="swipe_ios" format="boolean" />
-        <attr name="swipe_left" format="boolean" />
-    </declare-styleable>
-
     <!-- 输入框 -->
     <declare-styleable name="CodeInput">
         <!-- 文字颜色 -->

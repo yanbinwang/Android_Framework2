@@ -1,4 +1,4 @@
-package com.example.mvvm.widget
+package com.example.common.widget.xrecyclerview
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -14,11 +14,11 @@ import android.view.ViewGroup
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.OvershootInterpolator
 import androidx.core.content.withStyledAttributes
+import com.example.common.R
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeDouble
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.mvvm.R
 import kotlin.math.abs
 import kotlin.math.max
 
@@ -29,8 +29,8 @@ import kotlin.math.max
  *     android:layout_width="match_parent"
  *     android:layout_height="wrap_content"
  *     app:swipeEnable="true"
- *     app:ios="true"
- *     app:leftSwipe="true">
+ *     app:swipeIos="true"
+ *     app:swipeLeft="true">
  *     <!-- 内容视图（必选，第一个子 View） -->
  *     <LinearLayout
  *         android:id="@+id/contentView"
@@ -121,14 +121,9 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         mScaleTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
         mMaxVelocity = ViewConfiguration.get(context).scaledMaximumFlingVelocity
         context.withStyledAttributes(attrs, R.styleable.SwipeMenu) {
-            for (i in 0..<indexCount) {
-                // 如果引用成AndroidLib 资源都不是常量，无法使用switch case
-                when (val attr = getIndex(i)) {
-                    R.styleable.SwipeMenu_swipe_enable -> isSwipeEnable = getBoolean(attr, true)
-                    R.styleable.SwipeMenu_swipe_ios -> isIos = getBoolean(attr, true)
-                    R.styleable.SwipeMenu_swipe_left -> isLeftSwipe = getBoolean(attr, true)
-                }
-            }
+            isSwipeEnable = getBoolean(R.styleable.SwipeMenu_swipeEnable, true)
+            isIos = getBoolean(R.styleable.SwipeMenu_swipeIos, true)
+            isLeftSwipe = getBoolean(R.styleable.SwipeMenu_swipeLeft, true)
         }
     }
 
@@ -440,7 +435,9 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         super.onDetachedFromWindow()
     }
 
-    // 展开时，禁止长按
+    /**
+     * 展开时，禁止长按
+     */
     override fun performLongClick(): Boolean {
         if (abs(scrollX.toDouble()) > mScaleTouchSlop) {
             return false
