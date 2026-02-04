@@ -4,13 +4,13 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * author:wyb
+ * 用于RecyclerView的适配器
  */
-public class ItemTouchHelperCallBack extends ItemTouchHelper.Callback {
-    private boolean mSwipeEnable = true; // 左滑删除的
-    private OnItemTouchListener mCallBack;
+public class ItemTouchCallBack extends ItemTouchHelper.Callback {
+    private boolean mSwipeEnable = true; // 是否允许左滑删除
+    private final OnItemTouchListener mCallBack;
 
-    public ItemTouchHelperCallBack(OnItemTouchListener mCallBack) {
+    public ItemTouchCallBack(OnItemTouchListener mCallBack) {
         this.mCallBack = mCallBack;
     }
 

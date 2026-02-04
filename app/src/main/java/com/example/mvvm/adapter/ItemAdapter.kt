@@ -2,13 +2,12 @@ package com.example.mvvm.adapter
 
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
-import com.example.common.widget.xrecyclerview.gesture.touch.ItemTouchHelperCallBack
+import com.example.common.widget.xrecyclerview.gesture.touch.ItemTouchCallBack
 import com.example.mvvm.BR
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ItemTestBinding
-import java.util.Collections
 
-class ItemAdapter : BaseQuickAdapter<TestBean, ItemTestBinding>() , ItemTouchHelperCallBack.OnItemTouchListener {
+class ItemAdapter : BaseQuickAdapter<TestBean, ItemTestBinding>() , ItemTouchCallBack.OnItemTouchListener {
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: TestBean?, payloads: MutableList<Any>?) {
         super.onConvert(holder, item, payloads)

@@ -30,20 +30,20 @@ import java.util.List;
 /**
  * 为了兼容下拉刷新，上拉加载已经拖拽手势，进行自定义ItemTouchHelper类
  * 1) 使用方法
- *  // 拖拽移动和左滑删除
- *         val simpleItemTouch = ItemTouchHelperCallBack(mBinding?.adapter)
- *         // 要实现侧滑删除条目，把 false 改成 true 就可以了
- *         simpleItemTouch.setmSwipeEnable(false)
- *         val helper = ItemTouchHelper(simpleItemTouch)
- *         // 设置是否关闭刷新
- *         helper.setOnMoveListener { move ->
- *             if (move) {
- *                 mBinding?.xrvList?.refresh.disable()
- *             } else {
- *                 mBinding?.xrvList?.refresh.enable()
- *             }
- *         }
- *         helper.attachToRecyclerView(mBinding?.xrvList?.recycler)
+ * // 拖拽移动和左滑删除
+ * val callBack = ItemTouchCallBack(mBinding?.adapter)
+ * // 要实现侧滑删除条目，把 false 改成 true 就可以了
+ * callBack.setmSwipeEnable(false)
+ * val helper = ItemTouchHelper(callBack)
+ *  // 设置是否关闭刷新
+ * helper.setOnMoveListener { move ->
+ * if (move) {
+ * mBinding?.xrvList?.refresh.disable()
+ *  } else {
+ * mBinding?.xrvList?.refresh.enable()
+ * }
+ * }
+ * helper.attachToRecyclerView(mBinding?.xrvList?.recycler)
  * 2) 适配器需要继承ItemTouchHelperCallBack.OnItemTouchListener并重写
  * 3) 更改完数据后可不请求服务器,而是setResult丢回列表集合后请求
  */
@@ -900,11 +900,6 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         private static final long DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000;
         private int mCachedMaxScrollSpeed = -1;
 
-        @NonNull
-        public static OnItemSwipeUIListener getDefaultUIUtil() {
-            return ItemSwipeUI.getInstance();
-        }
-
         public static int convertToRelativeDirection(int flags, int layoutDirection) {
             int masked = flags & ABS_HORIZONTAL_DIR_FLAGS;
             if (masked == 0) {
@@ -1054,7 +1049,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
 
         public void onSelectedChanged(@Nullable ViewHolder viewHolder, int actionState) {
             if (viewHolder != null) {
-                ItemSwipeUI.getInstance().onSelected(viewHolder.itemView);
+                ItemTouchUtil.onSelected(viewHolder.itemView);
             }
         }
 
@@ -1138,15 +1133,15 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         }
 
         public void clearView(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
-            ItemSwipeUI.getInstance().clearView(viewHolder.itemView);
+            ItemTouchUtil.clearView(viewHolder.itemView);
         }
 
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            ItemSwipeUI.getInstance().onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
+            ItemTouchUtil.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
         }
 
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            ItemSwipeUI.getInstance().onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
+            ItemTouchUtil.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
         }
 
         public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
