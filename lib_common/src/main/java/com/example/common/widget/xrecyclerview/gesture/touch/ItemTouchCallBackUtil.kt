@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * RecyclerView 侧滑（拖拽 / 滑动）过程中的 UI 绘制 / 状态回调
  */
-internal object ItemTouchUtil  {
+internal object ItemTouchCallBackUtil  {
 
     @JvmStatic
     fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
