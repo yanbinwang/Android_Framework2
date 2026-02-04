@@ -1049,7 +1049,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
 
         public void onSelectedChanged(@Nullable ViewHolder viewHolder, int actionState) {
             if (viewHolder != null) {
-                ItemTouchCallBackUtil.onSelected(viewHolder.itemView);
+                CallBackUtil.onSelected(viewHolder.itemView);
             }
         }
 
@@ -1133,15 +1133,15 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         }
 
         public void clearView(@NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder) {
-            ItemTouchCallBackUtil.clearView(viewHolder.itemView);
+            CallBackUtil.clearView(viewHolder.itemView);
         }
 
         public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            ItemTouchCallBackUtil.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
+            CallBackUtil.onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
         }
 
         public void onChildDrawOver(@NonNull Canvas c, @NonNull RecyclerView recyclerView, ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-            ItemTouchCallBackUtil.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
+            CallBackUtil.onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive);
         }
 
         public long getAnimationDuration(@NonNull RecyclerView recyclerView, int animationType, float animateDx, float animateDy) {
