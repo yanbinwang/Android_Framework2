@@ -1,10 +1,14 @@
 package com.example.mvvm.bean
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class TestBean(
     var userId: String? = null,
     var name: String? = null,
     var phone: String? = null
-) {
+) : Parcelable{
     override fun equals(other: Any?): Boolean {
         if (other == null || other !is TestBean) {
             return false

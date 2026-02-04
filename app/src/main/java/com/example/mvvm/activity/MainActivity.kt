@@ -7,11 +7,15 @@ import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.bridge.viewModels
+import com.example.common.base.page.Extra
+import com.example.common.base.page.ResultCode
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
+import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
+import com.example.common.utils.function.getExtra
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
@@ -37,8 +41,10 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
+import com.example.framework.utils.logWTF
 import com.example.gallery.utils.GalleryHelper
 import com.example.mvvm.R
+import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
@@ -453,10 +459,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                    tempUri.getRealSourceSuffix(this).shortToast()
 //                }
             }
+            if (it.resultCode == RESULT_FINISH) {
+                val list = it.data?.getExtra(Extra.BUNDLE_LIST,ArrayList::class.java) as? ArrayList<TestBean>
+                "回退的集合:${list.toJson()}".logWTF("wyb")
+            }
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-            navigation(RouterPath.TouchActivity)
+            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
 //                localItem.id == serverItem.id
