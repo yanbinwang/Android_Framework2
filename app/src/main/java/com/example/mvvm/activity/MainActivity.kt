@@ -13,10 +13,8 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
-import com.example.common.utils.function.getRealSourceSuffix
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -36,7 +34,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.focus
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
@@ -459,7 +456,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-            mActivityResult.pullUpAlbum()
+            navigation(RouterPath.TouchActivity)
+//            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
 //                localItem.id == serverItem.id
 //            },{localItem, serverItem ->

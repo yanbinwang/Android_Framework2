@@ -4,7 +4,24 @@ data class TestBean(
     var userId: String? = null,
     var name: String? = null,
     var phone: String? = null
-)
+) {
+    override fun equals(other: Any?): Boolean {
+        if (other == null || other !is TestBean) {
+            return false
+        }
+        return userId == other.userId &&
+                name == other.name &&
+                phone == other.phone
+    }
+
+    override fun hashCode(): Int {
+        var result = 17
+        result = 31 * result + userId.hashCode()
+        result = 31 * result + name.hashCode()
+        result = 31 * result + phone.hashCode()
+        return result
+    }
+}
 
 ///**
 // * @Parcelize 和 Parcelable 的作用

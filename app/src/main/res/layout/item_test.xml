@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingConstraints">
+
+    <data>
+
+        <variable
+            name="bean"
+            type="com.example.mvvm.bean.TestBean" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bgWhite"
+        android:padding="10pt">
+
+        <ImageView
+            android:id="@+id/iv_avatar"
+            android:layout_width="80pt"
+            android:layout_height="80pt"
+            android:src="@mipmap/ic_launcher" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5pt"
+            android:text="@{bean.name}"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+            tools:text="用户名" />
+
+        <TextView
+            android:id="@+id/tv_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5pt"
+            android:text="@{bean.userId}"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_avatar"
+            app:layout_constraintStart_toEndOf="@+id/iv_avatar"
+            tools:text="用户id" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

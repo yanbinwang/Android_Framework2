@@ -222,13 +222,13 @@
             android:gravity="center"
             android:textSize="@dimen/textSize18" />
 
-        <com.example.mvvm.widget.SwipeMenu
+        <com.example.common.widget.xrecyclerview.gesture.SwipeMenu
             android:id="@+id/swipeMenu"
             android:layout_width="match_parent"
             android:layout_height="200pt"
-            app:swipe_ios="true"
-            app:swipe_left="true"
-            app:swipe_enable="true">
+            app:swipeIos="true"
+            app:swipeLeft="true"
+            app:swipeEnable="true">
             <!-- 内容视图（必选，第一个子 View） -->
             <LinearLayout
                 android:id="@+id/contentView"
@@ -264,7 +264,7 @@
                 android:text="置顶"
                 android:textColor="@color/textWhite" />
 
-        </com.example.mvvm.widget.SwipeMenu>
+        </com.example.common.widget.xrecyclerview.gesture.SwipeMenu>
 
 
         <com.example.mvvm.widget.CodeInput

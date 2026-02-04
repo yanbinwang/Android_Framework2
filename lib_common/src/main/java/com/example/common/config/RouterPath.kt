@@ -13,6 +13,7 @@ object RouterPath {
     const val TestActivity = "/app/TestActivity"
     const val TestActivity2 = "/app/TestActivity2"
     const val AdActivity = "/app/AdActivity"
+    const val TouchActivity = "/app/TouchActivity"
     // home模块
     const val LinkActivity = "/home/LinkActivity" // 推送跳转
     const val WebActivity = "/home/WebActivity" // 网页

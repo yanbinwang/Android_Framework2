@@ -516,6 +516,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 列表如果支持拖拽,使用该方法 (参照gesture的touch的OnItemTouchListener)
+     */
+    fun move(fromPosition: Int, toPosition: Int) {
+        // 交换位置
+        Collections.swap(data, fromPosition, toPosition)
+        // 局部刷新(移动)
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
+    /**
      * 查找并返回符合条件的对象
      */
     fun findItem(func: ((T) -> Boolean)): T? {

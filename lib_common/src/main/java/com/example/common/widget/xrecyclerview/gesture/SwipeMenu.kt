@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview
+package com.example.common.widget.xrecyclerview.gesture
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
@@ -147,7 +147,10 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 // 后续计划加入上滑、下滑，则将不再支持Item的margin
                 measureChild(childView, widthMeasureSpec, heightMeasureSpec)
                 val lp = childView.layoutParams as MarginLayoutParams
-                mHeight = max(mHeight.toSafeDouble(), childView.measuredHeight.toSafeDouble()).toSafeInt()
+                mHeight = max(
+                    mHeight.toSafeDouble(),
+                    childView.measuredHeight.toSafeDouble()
+                ).toSafeInt()
                 if (measureMatchParentChildren && lp.height == LayoutParams.MATCH_PARENT) {
                     isNeedMeasureChildHeight = true
                 }
