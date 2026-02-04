@@ -29,6 +29,23 @@ import java.util.List;
 
 /**
  * 为了兼容下拉刷新，上拉加载已经拖拽手势，进行自定义ItemTouchHelper类
+ * 1) 使用方法
+ *  // 拖拽移动和左滑删除
+ *         val simpleItemTouch = ItemTouchHelperCallBack(mBinding?.adapter)
+ *         // 要实现侧滑删除条目，把 false 改成 true 就可以了
+ *         simpleItemTouch.setmSwipeEnable(false)
+ *         val helper = ItemTouchHelper(simpleItemTouch)
+ *         // 设置是否关闭刷新
+ *         helper.setOnMoveListener { move ->
+ *             if (move) {
+ *                 mBinding?.xrvList?.refresh.disable()
+ *             } else {
+ *                 mBinding?.xrvList?.refresh.enable()
+ *             }
+ *         }
+ *         helper.attachToRecyclerView(mBinding?.xrvList?.recycler)
+ * 2) 适配器需要继承ItemTouchHelperCallBack.OnItemTouchListener并重写
+ * 3) 更改完数据后可不请求服务器,而是setResult丢回列表集合后请求
  */
 public class ItemTouchHelper extends RecyclerView.ItemDecoration implements RecyclerView.OnChildAttachStateChangeListener {
     public static final int UP = 1;
