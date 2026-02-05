@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview.gesture.callback
+package com.example.common.widget.xrecyclerview.gesture
 
 import android.graphics.Canvas
 import android.view.View
@@ -8,15 +8,13 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.size
 import androidx.recyclerview.R
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.widget.xrecyclerview.gesture.ItemTouchHelper
-import com.example.common.widget.xrecyclerview.gesture.RecoverAnimation
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
 
-abstract class BaseTouchCallback {
+abstract class BaseGestureCallback {
 
     companion object {
         const val DEFAULT_DRAG_ANIMATION_DURATION = 200
@@ -51,8 +49,7 @@ abstract class BaseTouchCallback {
 
         @JvmStatic
         fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
-            return makeFlag(ItemTouchHelper.ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(
-                ItemTouchHelper.ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, dragFlags)
+            return makeFlag(ItemTouchHelper.ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, dragFlags)
         }
 
         @JvmStatic
@@ -60,7 +57,6 @@ abstract class BaseTouchCallback {
             return directions shl (actionState * ItemTouchHelper.DIRECTION_FLAG_COUNT)
         }
 
-        @JvmStatic
         private fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
             if (isCurrentlyActive) {
                 var originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation)
@@ -91,11 +87,9 @@ abstract class BaseTouchCallback {
             return max
         }
 
-        @JvmStatic
         private fun onDrawOver(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         }
 
-        @JvmStatic
         private fun clearView(view: View) {
             val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
             if (tag is Float) {
@@ -106,7 +100,6 @@ abstract class BaseTouchCallback {
             view.translationY = 0f
         }
 
-        @JvmStatic
         private fun onSelected(view: View) {
         }
     }

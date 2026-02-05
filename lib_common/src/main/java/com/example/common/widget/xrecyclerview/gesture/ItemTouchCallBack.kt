@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview.gesture.callback
+package com.example.common.widget.xrecyclerview.gesture
 
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 /**
  * 用于RecyclerView的适配器
  */
-class ItemTouchCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseTouchCallback() {
+class ItemTouchCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCallback() {
     private var mSwipeEnable = true // 是否允许左滑删除
     private val mCallBack = mAdapter as? OnItemTouchListener // 适配器需继承OnItemTouchListener重写方法
 

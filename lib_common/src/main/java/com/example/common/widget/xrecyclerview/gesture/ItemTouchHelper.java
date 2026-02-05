@@ -22,8 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
-import com.example.common.widget.xrecyclerview.gesture.callback.BaseTouchCallback;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -79,7 +77,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     private float mSelectedStartY;
     int mActivePointerId = ACTIVE_POINTER_ID_NONE;
     @NonNull
-    BaseTouchCallback mCallback;
+    BaseGestureCallback mCallback;
     private int mActionState = ACTION_STATE_IDLE;
     int mSelectedFlags;
     List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
@@ -206,7 +204,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     private Rect mTmpRect;
     private long mDragScrollStartTimeInMs;
 
-    public ItemTouchHelper(@NonNull BaseTouchCallback callback) {
+    public ItemTouchHelper(@NonNull BaseGestureCallback callback) {
         mCallback = callback;
     }
 
@@ -788,7 +786,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         if (Math.abs(mDx) > Math.abs(mDy)) {
             if ((swipeDir = checkHorizontalSwipe(viewHolder, flags)) > 0) {
                 if ((originalFlags & swipeDir) == 0) {
-                    return BaseTouchCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
+                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
                 }
                 return swipeDir;
             }
@@ -801,7 +799,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
             }
             if ((swipeDir = checkHorizontalSwipe(viewHolder, flags)) > 0) {
                 if ((originalFlags & swipeDir) == 0) {
-                    return BaseTouchCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
+                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
                 }
                 return swipeDir;
             }

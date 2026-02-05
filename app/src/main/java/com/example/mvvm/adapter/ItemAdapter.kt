@@ -2,7 +2,7 @@ package com.example.mvvm.adapter
 
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
-import com.example.common.widget.xrecyclerview.gesture.callback.ItemTouchCallBack
+import com.example.common.widget.xrecyclerview.gesture.ItemTouchCallBack
 import com.example.mvvm.BR
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ItemTestBinding

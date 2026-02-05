@@ -1,8 +1,8 @@
-package com.example.common.widget.xrecyclerview.gesture.callback
+package com.example.common.widget.xrecyclerview.gesture
 
 import androidx.recyclerview.widget.RecyclerView
 
-abstract class BaseSimpleTouchCallback(private var mDefaultSwipeDirs: Int, private var mDefaultDragDirs: Int) : BaseTouchCallback() {
+abstract class BaseSimpleGestureCallback(private var mDefaultSwipeDirs: Int, private var mDefaultDragDirs: Int) : BaseGestureCallback() {
 
     fun setDefaultSwipeDirs(defaultSwipeDirs: Int) {
         mDefaultSwipeDirs = defaultSwipeDirs
