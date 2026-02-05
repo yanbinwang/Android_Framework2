@@ -6,8 +6,8 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.ResultCode
 import com.example.common.config.RouterPath
-import com.example.common.widget.xrecyclerview.gesture.touch.ItemTouchHelper
-import com.example.common.widget.xrecyclerview.gesture.touch.ItemTouchCallBack
+import com.example.common.widget.xrecyclerview.gesture.ItemTouchHelper
+import com.example.common.widget.xrecyclerview.gesture.callback.ItemTouchCallBack
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.disable

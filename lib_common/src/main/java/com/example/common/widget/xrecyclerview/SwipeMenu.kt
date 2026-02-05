@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview.gesture
+package com.example.common.widget.xrecyclerview
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
