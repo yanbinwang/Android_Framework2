@@ -7,7 +7,7 @@ import com.example.mvvm.BR
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ItemTestBinding
 
-class ItemAdapter : BaseQuickAdapter<TestBean, ItemTestBinding>() , ItemDecorationCallBack.OnItemTouchListener {
+class ItemAdapter : BaseQuickAdapter<TestBean, ItemTestBinding>() , ItemDecorationCallBack.OnItemDecorationListener {
 
     override fun onConvert(holder: BaseViewDataBindingHolder, item: TestBean?, payloads: MutableList<Any>?) {
         super.onConvert(holder, item, payloads)

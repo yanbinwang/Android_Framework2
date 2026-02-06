@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
  */
 class ItemDecorationCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCallback() {
     private var mSwipeEnable = true // 是否允许左滑删除
-    private val mCallBack = mAdapter as? OnItemTouchListener // 适配器需继承OnItemTouchListener重写方法
+    private val mCallBack = mAdapter as? OnItemDecorationListener // 适配器需继承OnItemTouchListener重写方法
 
     /**
      * 返回可以滑动的方向,一般使用makeMovementFlags(int,int)
@@ -65,7 +65,7 @@ class ItemDecorationCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCa
     /**
      * RecyclerView的Adapter适配器使用,继承并重写
      */
-    interface OnItemTouchListener {
+    interface OnItemDecorationListener {
         /**
          * 数据交换 -> move(fromPosition, toPosition)
          */
