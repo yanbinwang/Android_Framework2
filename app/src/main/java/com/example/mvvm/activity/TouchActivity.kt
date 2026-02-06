@@ -6,8 +6,8 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.ResultCode
 import com.example.common.config.RouterPath
-import com.example.common.widget.xrecyclerview.gesture.ItemTouchHelper
-import com.example.common.widget.xrecyclerview.gesture.ItemTouchCallBack
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationCallBack
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.disable
@@ -39,10 +39,10 @@ class TouchActivity : BaseTitleActivity<ActivityTouchBinding>(), OnRefreshLoadMo
         }
         mBinding?.xrvList?.setOnRefreshListener(this)
         // 拖拽移动和左滑删除
-        val callBack = ItemTouchCallBack(mBinding?.adapter)
+        val callBack = ItemDecorationCallBack(mBinding?.adapter)
         // 要实现侧滑删除条目，把 false 改成 true 就可以了
         callBack.setSwipeEnable(false)
-        val helper = ItemTouchHelper(callBack)
+        val helper = ItemDecorationHelper(callBack)
         // 设置是否关闭刷新
         helper.setOnMoveListener { move ->
             if (move) {

@@ -25,8 +25,8 @@ abstract class BaseGestureCallback {
             t - 1.0f
             t * t * t * t * t + 1.0f
         }
-        private const val RELATIVE_DIR_FLAGS = ItemTouchHelper.START or ItemTouchHelper.END or ((ItemTouchHelper.START or ItemTouchHelper.END) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.START or ItemTouchHelper.END) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
-        private const val ABS_HORIZONTAL_DIR_FLAGS = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
+        private const val RELATIVE_DIR_FLAGS = ItemDecorationHelper.START or ItemDecorationHelper.END or ((ItemDecorationHelper.START or ItemDecorationHelper.END) shl ItemDecorationHelper.DIRECTION_FLAG_COUNT) or ((ItemDecorationHelper.START or ItemDecorationHelper.END) shl (2 * ItemDecorationHelper.DIRECTION_FLAG_COUNT))
+        private const val ABS_HORIZONTAL_DIR_FLAGS = ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT or ((ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT) shl ItemDecorationHelper.DIRECTION_FLAG_COUNT) or ((ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT) shl (2 * ItemDecorationHelper.DIRECTION_FLAG_COUNT))
         private const val DEFAULT_DRAG_ANIMATION_DURATION = 200
         private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
         private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
@@ -51,12 +51,12 @@ abstract class BaseGestureCallback {
 
         @JvmStatic
         fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
-            return makeFlag(ItemTouchHelper.ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ItemTouchHelper.ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ItemTouchHelper.ACTION_STATE_DRAG, dragFlags)
+            return makeFlag(ItemDecorationHelper.ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ItemDecorationHelper.ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ItemDecorationHelper.ACTION_STATE_DRAG, dragFlags)
         }
 
         @JvmStatic
         fun makeFlag(actionState: Int, directions: Int): Int {
-            return directions shl (actionState * ItemTouchHelper.DIRECTION_FLAG_COUNT)
+            return directions shl (actionState * ItemDecorationHelper.DIRECTION_FLAG_COUNT)
         }
 
         // <editor-fold defaultstate="collapsed" desc="监听参数处理">
@@ -154,12 +154,12 @@ abstract class BaseGestureCallback {
 
     fun hasDragFlag(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Boolean {
         val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
-        return (flags and ItemTouchHelper.ACTION_MODE_DRAG_MASK) != 0
+        return (flags and ItemDecorationHelper.ACTION_MODE_DRAG_MASK) != 0
     }
 
     fun hasSwipeFlag(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Boolean {
         val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
-        return (flags and ItemTouchHelper.ACTION_MODE_SWIPE_MASK) != 0
+        return (flags and ItemDecorationHelper.ACTION_MODE_SWIPE_MASK) != 0
     }
 
     fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -248,8 +248,8 @@ abstract class BaseGestureCallback {
 
     fun onMoved(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, fromPos: Int, target: RecyclerView.ViewHolder, toPos: Int, x: Int, y: Int) {
         val layoutManager = recyclerView.layoutManager
-        if (layoutManager is ItemTouchHelper.ViewDropHandler) {
-            (layoutManager as? ItemTouchHelper.ViewDropHandler)?.prepareForDrop(viewHolder.itemView, target.itemView, x, y)
+        if (layoutManager is ItemDecorationHelper.ViewDropHandler) {
+            (layoutManager as? ItemDecorationHelper.ViewDropHandler)?.prepareForDrop(viewHolder.itemView, target.itemView, x, y)
             return
         }
         if (layoutManager?.canScrollHorizontally().orFalse) {
@@ -332,9 +332,9 @@ abstract class BaseGestureCallback {
     fun getAnimationDuration(recyclerView: RecyclerView, animationType: Int, animateDx: Float, animateDy: Float): Long {
         val itemAnimator = recyclerView.itemAnimator
         return if (itemAnimator == null) {
-            (if (animationType == ItemTouchHelper.ANIMATION_TYPE_DRAG) DEFAULT_DRAG_ANIMATION_DURATION else DEFAULT_SWIPE_ANIMATION_DURATION).toLong()
+            (if (animationType == ItemDecorationHelper.ANIMATION_TYPE_DRAG) DEFAULT_DRAG_ANIMATION_DURATION else DEFAULT_SWIPE_ANIMATION_DURATION).toLong()
         } else {
-            if (animationType == ItemTouchHelper.ANIMATION_TYPE_DRAG) itemAnimator.moveDuration else itemAnimator.removeDuration
+            if (animationType == ItemDecorationHelper.ANIMATION_TYPE_DRAG) itemAnimator.moveDuration else itemAnimator.removeDuration
         }
     }
 

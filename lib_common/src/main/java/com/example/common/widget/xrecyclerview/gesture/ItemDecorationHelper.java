@@ -25,13 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 为了兼容下拉刷新，上拉加载已经拖拽手势，进行自定义ItemTouchHelper类
+ * 为了兼容下拉刷新，上拉加载已经拖拽手势，进行自定义ItemDecorationHelper类
  * 1) 使用方法
  * // 拖拽移动和左滑删除
  * val callBack = ItemTouchCallBack(mBinding?.adapter)
  * // 要实现侧滑删除条目，把 false 改成 true 就可以了
  * callBack.setSwipeEnable(false)
- * val helper = ItemTouchHelper(callBack)
+ * val helper = ItemDecorationHelper(callBack)
  *  // 设置是否关闭刷新
  * helper.setOnMoveListener { move ->
  * if (move) {
@@ -44,7 +44,7 @@ import java.util.List;
  * 2) 适配器需要继承ItemTouchHelperCallBack.OnItemTouchListener并重写
  * 3) 更改完数据后可不请求服务器,而是setResult丢回列表集合后请求
  */
-public class ItemTouchHelper extends RecyclerView.ItemDecoration implements RecyclerView.OnChildAttachStateChangeListener {
+public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements RecyclerView.OnChildAttachStateChangeListener {
     public static final int UP = 1;
     public static final int DOWN = 1 << 1;
     public static final int LEFT = 1 << 2;
@@ -84,13 +84,13 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
     private List<ViewHolder> mSwapTargets;
     private List<Integer> mDistances;
     private GestureDetectorCompat mGestureDetector;
+    private BaseGestureCallback mCallback;
     private OnMoveListener mOnMoveListener;
     private ItemTouchHelperGestureListener mItemTouchHelperGestureListener;
     private View mOverdrawChild = null;
     private ViewHolder mSelected = null;
 
     private final float[] mTmpPosition = new float[2];
-    private final BaseGestureCallback mCallback;
     private final List<View> mPendingCleanup = new ArrayList<>();
     private final List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
     private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
@@ -205,7 +205,7 @@ public class ItemTouchHelper extends RecyclerView.ItemDecoration implements Recy
         }
     };
 
-    public ItemTouchHelper(@NonNull BaseGestureCallback callback) {
+    public ItemDecorationHelper(@NonNull BaseGestureCallback callback) {
         mCallback = callback;
     }
 
