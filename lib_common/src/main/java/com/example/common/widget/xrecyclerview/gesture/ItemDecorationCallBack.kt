@@ -1,7 +1,9 @@
 package com.example.common.widget.xrecyclerview.gesture
 
-import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.DOWN
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.LEFT
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.UP
 
 /**
  * 用于RecyclerView的适配器
@@ -16,9 +18,9 @@ class ItemDecorationCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCa
      */
     override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
         // 允许上下拖拽
-        val drag = ItemTouchHelper.UP or ItemTouchHelper.DOWN
+        val drag = UP or DOWN
         // 允许向左滑动
-        val swipe = ItemTouchHelper.LEFT
+        val swipe = LEFT
         // 设置
         return makeMovementFlags(drag, swipe)
     }
