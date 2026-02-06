@@ -5,7 +5,20 @@ import android.animation.ValueAnimator
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.value.orZero
 
-open class RecoverAnimation(val mViewHolder: RecyclerView.ViewHolder, private val mAnimationType: Int, val mActionState: Int, private val mStartDx: Float, private val mStartDy: Float, private val mTargetX: Float, private val mTargetY: Float) : Animator.AnimatorListener {
+/**
+ * 动画类 (处理手势结束后 Item 的「恢复 / 滑出」动画)
+ * @mViewHolder (手势结束前，正在被操作的ViewHolder)
+ * @mAnimationType (动画类型标识)
+ * ANIMATION_TYPE_SWIPE_SUCCESS -> 滑动（Swipe）手势成功触发后的结束动画
+ * ANIMATION_TYPE_SWIPE_CANCEL -> 滑动（Swipe）手势取消后的复位动画
+ * ANIMATION_TYPE_DRAG -> 拖拽（Drag）手势结束后的复位动画
+ * @mActionState (手势结束前，当前的手势状态（拖拽/滑动/闲置）)
+ * prevActionState=ACTION_STATE_DRAG（拖拽手势）→ 无论结果如何，animationType=ANIMATION_TYPE_DRAG（拖拽复位动画）；
+ * prevActionState=ACTION_STATE_SWIPE（滑动手势）+ 手势结果 = 成功 → animationType=ANIMATION_TYPE_SWIPE_SUCCESS；
+ * prevActionState=ACTION_STATE_SWIPE（滑动手势）+ 手势结果 = 取消 → animationType=ANIMATION_TYPE_SWIPE_CANCEL。
+ * @mStartDx/mStartDy/mTargetX/mTargetY (动画从哪开始，到哪结束 单位像素（px）)
+ */
+open class RecoverAnimation(val mViewHolder: RecyclerView.ViewHolder, val mAnimationType: Int, val mActionState: Int, private val mStartDx: Float, private val mStartDy: Float, private val mTargetX: Float, private val mTargetY: Float) : Animator.AnimatorListener {
     var mX = 0f
     var mY = 0f
     var mFraction = 0f

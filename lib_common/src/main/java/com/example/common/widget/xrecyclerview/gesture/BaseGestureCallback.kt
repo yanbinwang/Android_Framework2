@@ -17,16 +17,18 @@ import kotlin.math.sign
 abstract class BaseGestureCallback {
 
     companion object {
-        const val DEFAULT_DRAG_ANIMATION_DURATION = 200
-        const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
         private var mCachedMaxScrollSpeed = -1
-        private val RELATIVE_DIR_FLAGS = ItemTouchHelper.START or ItemTouchHelper.END or ((ItemTouchHelper.START or ItemTouchHelper.END) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.START or ItemTouchHelper.END) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
-        private val ABS_HORIZONTAL_DIR_FLAGS = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
-        private val sDragScrollInterpolator = Interpolator { t: Float -> t * t * t * t * t }
+        private val sDragScrollInterpolator = Interpolator { t ->
+            t * t * t * t * t
+        }
         private val sDragViewScrollCapInterpolator = Interpolator { t ->
             t - 1.0f
             t * t * t * t * t + 1.0f
         }
+        private const val RELATIVE_DIR_FLAGS = ItemTouchHelper.START or ItemTouchHelper.END or ((ItemTouchHelper.START or ItemTouchHelper.END) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.START or ItemTouchHelper.END) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
+        private const val ABS_HORIZONTAL_DIR_FLAGS = ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl ItemTouchHelper.DIRECTION_FLAG_COUNT) or ((ItemTouchHelper.LEFT or ItemTouchHelper.RIGHT) shl (2 * ItemTouchHelper.DIRECTION_FLAG_COUNT))
+        private const val DEFAULT_DRAG_ANIMATION_DURATION = 200
+        private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
         private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
 
         @JvmStatic
@@ -37,7 +39,7 @@ abstract class BaseGestureCallback {
                 return flags
             }
             flags = flags and masked.inv()
-            if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+            if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
                 flags = flags or (masked shl 2)
                 return flags
             } else {
@@ -57,6 +59,10 @@ abstract class BaseGestureCallback {
             return directions shl (actionState * ItemTouchHelper.DIRECTION_FLAG_COUNT)
         }
 
+        // <editor-fold defaultstate="collapsed" desc="监听参数处理">
+        /**
+         * onChildDraw 调取
+         */
         private fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
             if (isCurrentlyActive) {
                 var originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation)
@@ -87,9 +93,15 @@ abstract class BaseGestureCallback {
             return max
         }
 
+        /**
+         * onChildDrawOver 调取
+         */
         private fun onDrawOver(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         }
 
+        /**
+         * clearView 调取
+         */
         private fun clearView(view: View) {
             val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
             if (tag is Float) {
@@ -100,8 +112,22 @@ abstract class BaseGestureCallback {
             view.translationY = 0f
         }
 
+        /**
+         * onSelectedChanged 调取
+         */
         private fun onSelected(view: View) {
         }
+
+        /**
+         * interpolateOutOfBoundsScroll 调取
+         */
+        private fun getMaxDragScroll(recyclerView: RecyclerView): Int {
+            if (mCachedMaxScrollSpeed == -1) {
+                mCachedMaxScrollSpeed = recyclerView.resources.getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
+            }
+            return mCachedMaxScrollSpeed
+        }
+        // </editor-fold>
     }
 
     fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
@@ -144,20 +170,20 @@ abstract class BaseGestureCallback {
         return 0
     }
 
-    fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-        return .5f
-    }
-
-    fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-        return .5f
-    }
-
     fun getSwipeEscapeVelocity(defaultValue: Float): Float {
         return defaultValue
     }
 
     fun getSwipeVelocityThreshold(defaultValue: Float): Float {
         return defaultValue
+    }
+
+    fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+        return .5f
+    }
+
+    fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+        return .5f
     }
 
     fun chooseDropTarget(selected: RecyclerView.ViewHolder, dropTargets: MutableList<RecyclerView.ViewHolder>, curX: Int, curY: Int): RecyclerView.ViewHolder? {
@@ -267,7 +293,7 @@ abstract class BaseGestureCallback {
     fun onDrawOver(c: Canvas, parent: RecyclerView, selected: RecyclerView.ViewHolder?, recoverAnimationList: MutableList<RecoverAnimation>, actionState: Int, dX: Float, dY: Float) {
         val recoverAnimSize = recoverAnimationList.size
         for (i in 0..<recoverAnimSize) {
-            val anim = recoverAnimationList.get(i)
+            val anim = recoverAnimationList[i]
             c.withSave {
                 onChildDrawOver(c, parent, anim.mViewHolder, anim.mX, anim.mY, anim.mActionState, false)
             }
@@ -328,13 +354,6 @@ abstract class BaseGestureCallback {
             return if (viewSizeOutOfBounds > 0) 1 else -1
         }
         return value
-    }
-
-    private fun getMaxDragScroll(recyclerView: RecyclerView): Int {
-        if (mCachedMaxScrollSpeed == -1) {
-            mCachedMaxScrollSpeed = recyclerView.resources.getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
-        }
-        return mCachedMaxScrollSpeed
     }
 
     open fun isLongPressDragEnabled(): Boolean {

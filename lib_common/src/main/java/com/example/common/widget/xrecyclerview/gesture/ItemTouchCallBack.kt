@@ -30,7 +30,7 @@ class ItemTouchCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCallbac
      */
     override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
         // 通知适配器,两个子条目位置发生改变
-        mCallBack?.onItemMove(viewHolder.getBindingAdapterPosition(), target.getBindingAdapterPosition())
+        mCallBack?.onItemMove(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
         return true
     }
 
@@ -38,7 +38,7 @@ class ItemTouchCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCallbac
      * 当用户左右滑动item时达到删除条件就会调用,一般为一半,条目继续滑动删除,否则弹回
      */
     override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        mCallBack?.onItemDelete(viewHolder.getBindingAdapterPosition())
+        mCallBack?.onItemDelete(viewHolder.bindingAdapterPosition)
     }
 
     /**
@@ -58,7 +58,7 @@ class ItemTouchCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCallbac
     /**
      * 设置是否支持左滑删除
      */
-    fun setmSwipeEnable(enable: Boolean) {
+    fun setSwipeEnable(enable: Boolean) {
         this.mSwipeEnable = enable
     }
 

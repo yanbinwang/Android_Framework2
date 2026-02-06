@@ -41,7 +41,7 @@ class TouchActivity : BaseTitleActivity<ActivityTouchBinding>(), OnRefreshLoadMo
         // 拖拽移动和左滑删除
         val callBack = ItemTouchCallBack(mBinding?.adapter)
         // 要实现侧滑删除条目，把 false 改成 true 就可以了
-        callBack.setmSwipeEnable(false)
+        callBack.setSwipeEnable(false)
         val helper = ItemTouchHelper(callBack)
         // 设置是否关闭刷新
         helper.setOnMoveListener { move ->
