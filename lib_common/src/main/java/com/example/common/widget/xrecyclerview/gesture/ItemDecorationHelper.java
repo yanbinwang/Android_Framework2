@@ -83,16 +83,16 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     private Rect mTmpRect;
     private List<ViewHolder> mSwapTargets;
     private List<Integer> mDistances;
-    private GestureDetectorCompat mGestureDetector;
-    private BaseGestureCallback mCallback;
     private OnMoveListener mOnMoveListener;
-    private ItemTouchHelperGestureListener mItemTouchHelperGestureListener;
+    private GestureDetectorCompat mGestureDetector;
+    private ItemGestureListener mGestureCallback;
     private View mOverdrawChild = null;
     private ViewHolder mSelected = null;
 
     private final float[] mTmpPosition = new float[2];
     private final List<View> mPendingCleanup = new ArrayList<>();
     private final List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
+    private final BaseGestureCallback mCallback;
     private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
     private final Runnable mScrollRunnable = new Runnable() {
         @Override
@@ -210,6 +210,18 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     }
 
     @Override
+    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+        mOverdrawChildPosition = -1;
+        float dx = 0, dy = 0;
+        if (mSelected != null) {
+            getSelectedDxDy(mTmpPosition);
+            dx = mTmpPosition[0];
+            dy = mTmpPosition[1];
+        }
+        mCallback.onDraw(c, parent, mSelected, mRecoverAnimations, mActionState, dx, dy);
+    }
+
+    @Override
     public void onDrawOver(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         float dx = 0, dy = 0;
         if (mSelected != null) {
@@ -221,15 +233,8 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     }
 
     @Override
-    public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        mOverdrawChildPosition = -1;
-        float dx = 0, dy = 0;
-        if (mSelected != null) {
-            getSelectedDxDy(mTmpPosition);
-            dx = mTmpPosition[0];
-            dy = mTmpPosition[1];
-        }
-        mCallback.onDraw(c, parent, mSelected, mRecoverAnimations, mActionState, dx, dy);
+    public void getItemOffsets(Rect outRect, @NonNull View view, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
+        outRect.setEmpty();
     }
 
     @Override
@@ -251,11 +256,6 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
                 mCallback.clearView(mRecyclerView, holder);
             }
         }
-    }
-
-    @Override
-    public void getItemOffsets(Rect outRect, @NonNull View view, @NonNull RecyclerView parent, RecyclerView.State state) {
-        outRect.setEmpty();
     }
 
     /**
@@ -878,14 +878,14 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     }
 
     private void startGestureDetection() {
-        mItemTouchHelperGestureListener = new ItemTouchHelperGestureListener();
-        mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(), mItemTouchHelperGestureListener);
+        mGestureCallback = new ItemGestureListener();
+        mGestureDetector = new GestureDetectorCompat(mRecyclerView.getContext(), mGestureCallback);
     }
 
     private void stopGestureDetection() {
-        if (mItemTouchHelperGestureListener != null) {
-            mItemTouchHelperGestureListener.doNotReactToLongPress();
-            mItemTouchHelperGestureListener = null;
+        if (mGestureCallback != null) {
+            mGestureCallback.doNotReactToLongPress();
+            mGestureCallback = null;
         }
         if (mGestureDetector != null) {
             mGestureDetector = null;
@@ -908,10 +908,10 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
         stopGestureDetection();
     }
 
-    private class ItemTouchHelperGestureListener extends GestureDetector.SimpleOnGestureListener {
+    private class ItemGestureListener extends GestureDetector.SimpleOnGestureListener {
         private boolean mShouldReactToLongPress = true;
 
-        ItemTouchHelperGestureListener() {
+        ItemGestureListener() {
         }
 
         void doNotReactToLongPress() {

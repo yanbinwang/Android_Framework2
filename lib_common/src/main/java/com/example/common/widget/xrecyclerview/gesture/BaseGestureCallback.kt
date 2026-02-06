@@ -8,8 +8,22 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.size
 import androidx.recyclerview.R
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ACTION_MODE_DRAG_MASK
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ACTION_MODE_SWIPE_MASK
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ACTION_STATE_DRAG
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ACTION_STATE_IDLE
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ACTION_STATE_SWIPE
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.ANIMATION_TYPE_DRAG
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.DIRECTION_FLAG_COUNT
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.END
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.LEFT
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.RIGHT
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.START
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.value.toSafeLong
 import kotlin.math.abs
 import kotlin.math.min
 import kotlin.math.sign
@@ -17,6 +31,11 @@ import kotlin.math.sign
 abstract class BaseGestureCallback {
 
     companion object {
+        private const val RELATIVE_DIR_FLAGS = START or END or ((START or END) shl DIRECTION_FLAG_COUNT) or ((START or END) shl (2 * DIRECTION_FLAG_COUNT))
+        private const val ABS_HORIZONTAL_DIR_FLAGS = LEFT or RIGHT or ((LEFT or RIGHT) shl DIRECTION_FLAG_COUNT) or ((LEFT or RIGHT) shl (2 * DIRECTION_FLAG_COUNT))
+        private const val DEFAULT_DRAG_ANIMATION_DURATION = 200
+        private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
+        private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
         private var mCachedMaxScrollSpeed = -1
         private val sDragScrollInterpolator = Interpolator { t ->
             t * t * t * t * t
@@ -25,11 +44,6 @@ abstract class BaseGestureCallback {
             t - 1.0f
             t * t * t * t * t + 1.0f
         }
-        private const val RELATIVE_DIR_FLAGS = ItemDecorationHelper.START or ItemDecorationHelper.END or ((ItemDecorationHelper.START or ItemDecorationHelper.END) shl ItemDecorationHelper.DIRECTION_FLAG_COUNT) or ((ItemDecorationHelper.START or ItemDecorationHelper.END) shl (2 * ItemDecorationHelper.DIRECTION_FLAG_COUNT))
-        private const val ABS_HORIZONTAL_DIR_FLAGS = ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT or ((ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT) shl ItemDecorationHelper.DIRECTION_FLAG_COUNT) or ((ItemDecorationHelper.LEFT or ItemDecorationHelper.RIGHT) shl (2 * ItemDecorationHelper.DIRECTION_FLAG_COUNT))
-        private const val DEFAULT_DRAG_ANIMATION_DURATION = 200
-        private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
-        private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
 
         @JvmStatic
         fun convertToRelativeDirection(flags: Int, layoutDirection: Int): Int {
@@ -51,83 +65,13 @@ abstract class BaseGestureCallback {
 
         @JvmStatic
         fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
-            return makeFlag(ItemDecorationHelper.ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ItemDecorationHelper.ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ItemDecorationHelper.ACTION_STATE_DRAG, dragFlags)
+            return makeFlag(ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ACTION_STATE_DRAG, dragFlags)
         }
 
         @JvmStatic
         fun makeFlag(actionState: Int, directions: Int): Int {
-            return directions shl (actionState * ItemDecorationHelper.DIRECTION_FLAG_COUNT)
+            return directions shl (actionState * DIRECTION_FLAG_COUNT)
         }
-
-        // <editor-fold defaultstate="collapsed" desc="监听参数处理">
-        /**
-         * onChildDraw 调取
-         */
-        private fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-            if (isCurrentlyActive) {
-                var originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation)
-                if (originalElevation == null) {
-                    originalElevation = ViewCompat.getElevation(view)
-                    val newElevation = 1f + findMaxElevation(recyclerView, view)
-                    ViewCompat.setElevation(view, newElevation)
-                    view.setTag(R.id.item_touch_helper_previous_elevation, originalElevation)
-                }
-            }
-            view.translationX = dX
-            view.translationY = dY
-        }
-
-        private fun findMaxElevation(recyclerView: RecyclerView, itemView: View): Float {
-            val childCount = recyclerView.size
-            var max = 0f
-            for (i in 0..<childCount) {
-                val child = recyclerView.getChildAt(i)
-                if (child === itemView) {
-                    continue
-                }
-                val elevation = ViewCompat.getElevation(child)
-                if (elevation > max) {
-                    max = elevation
-                }
-            }
-            return max
-        }
-
-        /**
-         * onChildDrawOver 调取
-         */
-        private fun onDrawOver(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-        }
-
-        /**
-         * clearView 调取
-         */
-        private fun clearView(view: View) {
-            val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
-            if (tag is Float) {
-                ViewCompat.setElevation(view, tag)
-            }
-            view.setTag(R.id.item_touch_helper_previous_elevation, null)
-            view.translationX = 0f
-            view.translationY = 0f
-        }
-
-        /**
-         * onSelectedChanged 调取
-         */
-        private fun onSelected(view: View) {
-        }
-
-        /**
-         * interpolateOutOfBoundsScroll 调取
-         */
-        private fun getMaxDragScroll(recyclerView: RecyclerView): Int {
-            if (mCachedMaxScrollSpeed == -1) {
-                mCachedMaxScrollSpeed = recyclerView.resources.getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
-            }
-            return mCachedMaxScrollSpeed
-        }
-        // </editor-fold>
     }
 
     fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
@@ -154,12 +98,12 @@ abstract class BaseGestureCallback {
 
     fun hasDragFlag(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Boolean {
         val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
-        return (flags and ItemDecorationHelper.ACTION_MODE_DRAG_MASK) != 0
+        return (flags and ACTION_MODE_DRAG_MASK) != 0
     }
 
     fun hasSwipeFlag(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Boolean {
         val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
-        return (flags and ItemDecorationHelper.ACTION_MODE_SWIPE_MASK) != 0
+        return (flags and ACTION_MODE_SWIPE_MASK) != 0
     }
 
     fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
@@ -246,6 +190,9 @@ abstract class BaseGestureCallback {
         }
     }
 
+    private fun onSelected(view: View) {
+    }
+
     fun onMoved(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, fromPos: Int, target: RecyclerView.ViewHolder, toPos: Int, x: Int, y: Int) {
         val layoutManager = recyclerView.layoutManager
         if (layoutManager is ItemDecorationHelper.ViewDropHandler) {
@@ -321,39 +268,89 @@ abstract class BaseGestureCallback {
         clearView(viewHolder.itemView)
     }
 
+    private fun clearView(view: View) {
+        val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
+        if (tag is Float) {
+            ViewCompat.setElevation(view, tag)
+        }
+        view.setTag(R.id.item_touch_helper_previous_elevation, null)
+        view.translationX = 0f
+        view.translationY = 0f
+    }
+
     fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
+    }
+
+    private fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+        if (isCurrentlyActive) {
+            var originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation)
+            if (originalElevation == null) {
+                originalElevation = ViewCompat.getElevation(view)
+                val newElevation = 1f + findMaxElevation(recyclerView, view)
+                ViewCompat.setElevation(view, newElevation)
+                view.setTag(R.id.item_touch_helper_previous_elevation, originalElevation)
+            }
+        }
+        view.translationX = dX
+        view.translationY = dY
+    }
+
+    private fun findMaxElevation(recyclerView: RecyclerView, itemView: View): Float {
+        val childCount = recyclerView.size
+        var max = 0f
+        for (i in 0..<childCount) {
+            val child = recyclerView.getChildAt(i)
+            if (child === itemView) {
+                continue
+            }
+            val elevation = ViewCompat.getElevation(child)
+            if (elevation > max) {
+                max = elevation
+            }
+        }
+        return max
     }
 
     fun onChildDrawOver(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
         onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
     }
 
+    private fun onDrawOver(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+    }
+
     fun getAnimationDuration(recyclerView: RecyclerView, animationType: Int, animateDx: Float, animateDy: Float): Long {
         val itemAnimator = recyclerView.itemAnimator
         return if (itemAnimator == null) {
-            (if (animationType == ItemDecorationHelper.ANIMATION_TYPE_DRAG) DEFAULT_DRAG_ANIMATION_DURATION else DEFAULT_SWIPE_ANIMATION_DURATION).toLong()
+            (if (animationType == ANIMATION_TYPE_DRAG) DEFAULT_DRAG_ANIMATION_DURATION else DEFAULT_SWIPE_ANIMATION_DURATION).toSafeLong()
         } else {
-            if (animationType == ItemDecorationHelper.ANIMATION_TYPE_DRAG) itemAnimator.moveDuration else itemAnimator.removeDuration
+            if (animationType == ANIMATION_TYPE_DRAG) itemAnimator.moveDuration else itemAnimator.removeDuration
         }
     }
 
     fun interpolateOutOfBoundsScroll(recyclerView: RecyclerView, viewSize: Int, viewSizeOutOfBounds: Int, totalSize: Int, msSinceStartScroll: Long): Int {
         val maxScroll = getMaxDragScroll(recyclerView)
         val absOutOfBounds = abs(viewSizeOutOfBounds)
-        val direction = sign(viewSizeOutOfBounds.toFloat()).toInt()
+        val direction = sign(viewSizeOutOfBounds.toSafeFloat()).toSafeInt()
         val outOfBoundsRatio = min(1f, 1f * absOutOfBounds / viewSize)
-        val cappedScroll = (direction * maxScroll * sDragViewScrollCapInterpolator.getInterpolation(outOfBoundsRatio)).toInt()
+        val cappedScroll = (direction * maxScroll * sDragViewScrollCapInterpolator.getInterpolation(outOfBoundsRatio)).toSafeInt()
         val timeRatio = if (msSinceStartScroll > DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS) {
             1f
         } else {
-            msSinceStartScroll.toFloat() / DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS
+            msSinceStartScroll.toSafeFloat() / DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS
         }
-        val value = (cappedScroll * sDragScrollInterpolator.getInterpolation(timeRatio)).toInt()
+        val value = (cappedScroll * sDragScrollInterpolator.getInterpolation(timeRatio)).toSafeInt()
         if (value == 0) {
             return if (viewSizeOutOfBounds > 0) 1 else -1
         }
         return value
+    }
+
+    private fun getMaxDragScroll(recyclerView: RecyclerView): Int {
+        if (mCachedMaxScrollSpeed == -1) {
+            mCachedMaxScrollSpeed = recyclerView.resources.getDimensionPixelSize(R.dimen.item_touch_helper_max_drag_scroll_per_frame)
+        }
+        return mCachedMaxScrollSpeed
     }
 
     open fun isLongPressDragEnabled(): Boolean {
