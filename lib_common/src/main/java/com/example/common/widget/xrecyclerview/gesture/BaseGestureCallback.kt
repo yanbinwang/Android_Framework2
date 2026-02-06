@@ -31,20 +31,48 @@ import kotlin.math.sign
 abstract class BaseGestureCallback {
 
     companion object {
+        // 相对 / 绝对方向的标记位掩码，用于位运算筛选方向
         private const val RELATIVE_DIR_FLAGS = START or END or ((START or END) shl DIRECTION_FLAG_COUNT) or ((START or END) shl (2 * DIRECTION_FLAG_COUNT))
         private const val ABS_HORIZONTAL_DIR_FLAGS = LEFT or RIGHT or ((LEFT or RIGHT) shl DIRECTION_FLAG_COUNT) or ((LEFT or RIGHT) shl (2 * DIRECTION_FLAG_COUNT))
+        // 拖拽 / 侧滑的默认动画时长（200ms/250ms）
         private const val DEFAULT_DRAG_ANIMATION_DURATION = 200
         private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
+        // 拖拽越界滚动的加速上限时间（2000ms）
         private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
+        // 缓存的拖拽越界最大滚动速度，避免重复获取资源
         private var mCachedMaxScrollSpeed = -1
+        // 拖拽滚动的插值器（五次方插值），实现先慢后快的滚动加速度
         private val sDragScrollInterpolator = Interpolator { t ->
             t * t * t * t * t
         }
+        // 拖拽越界时的视图偏移插值器，实现越界越慢的阻尼效果
         private val sDragViewScrollCapInterpolator = Interpolator { t ->
             t - 1.0f
             t * t * t * t * t + 1.0f
         }
 
+        /**
+         * 构建手势方向标记位
+         * 用于定义「哪个动作状态（拖拽 / 侧滑）支持哪些方向」，最终返回一个封装了所有规则的 int 型标记位
+         */
+        @JvmStatic
+        fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
+            return makeFlag(ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ACTION_STATE_DRAG, dragFlags)
+        }
+
+        /**
+         * 为单个动作状态绑定方向
+         * 基础的标记位构建方法，将「动作状态 + 方向」通过左移位运算封装成 int 型（不同动作状态占不同的位段，避免冲突）
+         */
+        @JvmStatic
+        fun makeFlag(actionState: Int, directions: Int): Int {
+            return directions shl (actionState * DIRECTION_FLAG_COUNT)
+        }
+
+        /**
+         * 绝对方向转相对方向
+         * 将LEFT/RIGHT这类固定绝对方向，转换成START/END这类随布局方向（LTR/RTL）变化的相对方向，适配多语言布局（比如阿拉伯语 RTL，左滑实际是 END 方向）
+         */
         @JvmStatic
         fun convertToRelativeDirection(flags: Int, layoutDirection: Int): Int {
             var flags = flags
@@ -63,39 +91,33 @@ abstract class BaseGestureCallback {
             return flags
         }
 
+        /**
+         * 相对方向转绝对方向
+         * 将START/END转换成当前布局下的LEFT/RIGHT，方便在业务中判断实际的滑动方向（比如 RTL 下 START 是右，转换后可直接用 LEFT/RIGHT 判断）
+         */
         @JvmStatic
-        fun makeMovementFlags(dragFlags: Int, swipeFlags: Int): Int {
-            return makeFlag(ACTION_STATE_IDLE, swipeFlags or dragFlags) or makeFlag(ACTION_STATE_SWIPE, swipeFlags) or makeFlag(ACTION_STATE_DRAG, dragFlags)
-        }
-
-        @JvmStatic
-        fun makeFlag(actionState: Int, directions: Int): Int {
-            return directions shl (actionState * DIRECTION_FLAG_COUNT)
-        }
-    }
-
-    fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
-        var flags = flags
-        val masked = flags and RELATIVE_DIR_FLAGS
-        if (masked == 0) {
+        fun convertToAbsoluteDirection(flags: Int, layoutDirection: Int): Int {
+            var flags = flags
+            val masked = flags and RELATIVE_DIR_FLAGS
+            if (masked == 0) {
+                return flags
+            }
+            flags = flags and masked.inv()
+            if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+                flags = flags or (masked shr 2)
+                return flags
+            } else {
+                flags = flags or ((masked shr 1) and RELATIVE_DIR_FLAGS.inv())
+                flags = flags or (((masked shr 1) and RELATIVE_DIR_FLAGS) shr 2)
+            }
             return flags
         }
-        flags = flags and masked.inv()
-        if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
-            flags = flags or (masked shr 2)
-            return flags
-        } else {
-            flags = flags or ((masked shr 1) and RELATIVE_DIR_FLAGS.inv())
-            flags = flags or (((masked shr 1) and RELATIVE_DIR_FLAGS) shr 2)
-        }
-        return flags
     }
 
-    fun getAbsoluteMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
-        val flags = getMovementFlags(recyclerView, viewHolder)
-        return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView))
-    }
-
+    // <editor-fold defaultstate="collapsed" desc="标记位判断">
+    /**
+     * 判断 Item 是否支持拖拽 / 侧滑
+     */
     fun hasDragFlag(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Boolean {
         val flags = getAbsoluteMovementFlags(recyclerView, viewHolder)
         return (flags and ACTION_MODE_DRAG_MASK) != 0
@@ -106,14 +128,35 @@ abstract class BaseGestureCallback {
         return (flags and ACTION_MODE_SWIPE_MASK) != 0
     }
 
+    /**
+     * 获取适配布局的绝对方向标记位
+     * 先调用getMovementFlags获取子类定义的规则，再通过convertToAbsoluteDirection转换成绝对方向标记位，是后续所有手势判断的最终规则来源
+     */
+    fun getAbsoluteMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+        val flags = getMovementFlags(recyclerView, viewHolder)
+        return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView))
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="辅助判断方法">
+    /**
+     * 判断是否允许将 Item 拖拽到目标 Item 的位置
+     */
     fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
         return true
     }
 
+    /**
+     * 设置 Item 的碰撞检测边距
+     * 默认返回 0，即 Item 的原始边界为碰撞检测区域
+     */
     fun getBoundingBoxMargin(): Int {
         return 0
     }
 
+    /**
+     * 侧滑的速度阈值 (侧滑的逃逸速度/侧滑的速度阈值)
+     */
     fun getSwipeEscapeVelocity(defaultValue: Float): Float {
         return defaultValue
     }
@@ -122,6 +165,9 @@ abstract class BaseGestureCallback {
         return defaultValue
     }
 
+    /**
+     * 手势的距离阈值 (侧滑的距离阈值/拖拽的距离阈值)
+     */
     fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
         return .5f
     }
@@ -130,6 +176,10 @@ abstract class BaseGestureCallback {
         return .5f
     }
 
+    /**
+     * 选择拖拽的目标 Item
+     * 拖拽过程中，从候选的 DropTarget 中选择最优的目标 Item，默认实现基于位置距离
+     */
     fun chooseDropTarget(selected: RecyclerView.ViewHolder, dropTargets: MutableList<RecyclerView.ViewHolder>, curX: Int, curY: Int): RecyclerView.ViewHolder? {
         val right = curX + selected.itemView.width
         val bottom = curY + selected.itemView.height
@@ -183,16 +233,21 @@ abstract class BaseGestureCallback {
         }
         return winner
     }
+    // </editor-fold>
 
+    // <editor-fold defaultstate="collapsed" desc="手势状态回调">
+    /**
+     * Item 被选中（开始手势）的回调
+     */
     fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-        if (viewHolder != null) {
-            onSelected(viewHolder.itemView)
-        }
+//        if (viewHolder != null) {
+//            onSelected(viewHolder.itemView)
+//        }
     }
 
-    private fun onSelected(view: View) {
-    }
-
+    /**
+     * 拖拽过程中 Item 位置变化的回调
+     */
     fun onMoved(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, fromPos: Int, target: RecyclerView.ViewHolder, toPos: Int, x: Int, y: Int) {
         val layoutManager = recyclerView.layoutManager
         if (layoutManager is ItemDecorationHelper.ViewDropHandler) {
@@ -221,6 +276,25 @@ abstract class BaseGestureCallback {
         }
     }
 
+    /**
+     * 手势结束（释放 Item）的回调
+     */
+    fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+        val view = viewHolder.itemView
+        val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
+        if (tag is Float) {
+            ViewCompat.setElevation(view, tag)
+        }
+        view.setTag(R.id.item_touch_helper_previous_elevation, null)
+        view.translationX = 0f
+        view.translationY = 0f
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="绘制 / 装饰方法">
+    /**
+     * 遍历所有恢复动画的 Item，调用update()更新动画进度，然后分别调用onChildDraw/onChildDrawOver绘制每个 Item；同时绘制当前正在被操作的选中 Item
+     */
     fun onDraw(c: Canvas, parent: RecyclerView, selected: RecyclerView.ViewHolder?, recoverAnimationList: MutableList<RecoverAnimation>, actionState: Int, dX: Float, dY: Float) {
         val recoverAnimSize = recoverAnimationList.size
         for (i in 0..<recoverAnimSize) {
@@ -264,25 +338,11 @@ abstract class BaseGestureCallback {
         }
     }
 
-    fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-        clearView(viewHolder.itemView)
-    }
-
-    private fun clearView(view: View) {
-        val tag = view.getTag(R.id.item_touch_helper_previous_elevation)
-        if (tag is Float) {
-            ViewCompat.setElevation(view, tag)
-        }
-        view.setTag(R.id.item_touch_helper_previous_elevation, null)
-        view.translationX = 0f
-        view.translationY = 0f
-    }
-
+    /**
+     * 默认空实现，子类可重写做上层装饰绘制
+     */
     fun onChildDraw(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-        onDraw(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
-    }
-
-    private fun onDraw(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
+        val view = viewHolder.itemView
         if (isCurrentlyActive) {
             var originalElevation = view.getTag(R.id.item_touch_helper_previous_elevation)
             if (originalElevation == null) {
@@ -313,12 +373,10 @@ abstract class BaseGestureCallback {
     }
 
     fun onChildDrawOver(c: Canvas, recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-        onDrawOver(c, recyclerView, viewHolder.itemView, dX, dY, actionState, isCurrentlyActive)
     }
+    // </editor-fold>
 
-    private fun onDrawOver(c: Canvas, recyclerView: RecyclerView, view: View, dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean) {
-    }
-
+    // <editor-fold defaultstate="collapsed" desc="动画 / 插值 / 滚动：手势的动画时长、越界插值、自动滚动">
     fun getAnimationDuration(recyclerView: RecyclerView, animationType: Int, animateDx: Float, animateDy: Float): Long {
         val itemAnimator = recyclerView.itemAnimator
         return if (itemAnimator == null) {
@@ -352,19 +410,35 @@ abstract class BaseGestureCallback {
         }
         return mCachedMaxScrollSpeed
     }
+    // </editor-fold>
 
+    /**
+     * 关闭长按拖拽，手动触发
+     */
     open fun isLongPressDragEnabled(): Boolean {
         return true
     }
 
+    /**
+     * 全局禁止侧滑
+     */
     open fun isItemViewSwipeEnabled(): Boolean {
         return true
     }
 
+    /**
+     * 定义方向规则
+     */
     abstract fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int
 
+    /**
+     * 拖拽交换数据
+     */
     abstract fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean
 
+    /**
+     * 侧滑业务逻辑
+     */
     abstract fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int)
 
 }
