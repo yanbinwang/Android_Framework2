@@ -52,6 +52,8 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小。
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
+    // 默认开启嵌套滚动
+    private var nestedScrollEnabled = false
     // 是否具有刷新
     private var refreshEnable = false
     // 是否具有空布局
@@ -81,6 +83,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
+            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, false)
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
             emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
@@ -106,6 +109,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             if (-1 != rootFixedHeight) {
                 setRootSize(height = rootFixedHeight)
             }
+            // 嵌套滚动设置
+            recycler.isNestedScrollingEnabled = nestedScrollEnabled
             // 取一次内部padding,针对RecyclerView做padding
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return

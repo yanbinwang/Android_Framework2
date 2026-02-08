@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 自定义EmptyLayout -->
+    <declare-styleable name="EmptyLayout">
+        <attr name="elEnableFullScreen" format="boolean" />
+        <attr name="elEnableWindow" format="boolean" />
+        <attr name="elEnableClickable" format="boolean" />
+    </declare-styleable>
+
     <!-- 自定义XRecyclerView -->
     <declare-styleable name="XRecyclerView">
         <attr name="xrvEnableRefresh" format="boolean" />
         <attr name="xrvEnableEmpty" format="boolean" />
         <attr name="xrvEnableEmptyClickable" format="boolean" />
         <attr name="xrvFixedHeight" format="integer" />
+        <attr name="android:nestedScrollingEnabled" />
     </declare-styleable>
 
-    <!-- 自定义EmptyLayout -->
-    <declare-styleable name="EmptyLayout">
-        <attr name="elEnableFullScreen" format="boolean" />
-        <attr name="elEnableWindow" format="boolean" />
-        <attr name="elEnableClickable" format="boolean" />
+    <!-- 侧滑控件 -->
+    <declare-styleable name="SwipeMenu">
+        <attr name="swipeEnable" format="boolean" />
+        <attr name="swipeIos" format="boolean" />
+        <attr name="swipeLeft" format="boolean" />
     </declare-styleable>
 
     <!-- 删除按钮edittext -->
