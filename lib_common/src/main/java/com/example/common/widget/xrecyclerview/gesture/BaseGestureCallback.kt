@@ -29,6 +29,8 @@ import kotlin.math.min
 import kotlin.math.sign
 
 abstract class BaseGestureCallback {
+    // 拖拽越界最大滚动速度，避免重复获取资源 (缓存)
+    private var mCachedMaxScrollSpeed = -1
 
     companion object {
         // 相对 / 绝对方向的标记位掩码，用于位运算筛选方向
@@ -39,8 +41,6 @@ abstract class BaseGestureCallback {
         private const val DEFAULT_SWIPE_ANIMATION_DURATION = 250
         // 拖拽越界滚动的加速上限时间（2000ms）
         private const val DRAG_SCROLL_ACCELERATION_LIMIT_TIME_MS = 2000L
-        // 缓存的拖拽越界最大滚动速度，避免重复获取资源
-        private var mCachedMaxScrollSpeed = -1
         // 拖拽滚动的插值器（五次方插值），实现先慢后快的滚动加速度
         private val sDragScrollInterpolator = Interpolator { t ->
             t * t * t * t * t
@@ -49,6 +49,23 @@ abstract class BaseGestureCallback {
         private val sDragViewScrollCapInterpolator = Interpolator { t ->
             t - 1.0f
             t * t * t * t * t + 1.0f
+        }
+
+        /**
+         * 碰撞检测工具方法
+         * 判断「一个触摸坐标 (x,y) 是否落在某个 View 的可视范围内」
+         * @child -> 要检测的目标 View（比如 RecyclerView 的某个 ItemView）
+         * @x -> 触摸事件的横坐标（MotionEvent.getX () 获取的原始坐标）
+         * @y -> 触摸事件的纵坐标（MotionEvent.getY () 获取的原始坐标）
+         * @left -> 目标 View 左上角的基准横坐标（不是 View.getLeft ()，而是动态计算的位置）
+         * @top -> 目标 View 左上角的基准纵坐标（同理，不是 View.getTop ()）
+         */
+        @JvmStatic
+        fun hitTest(child: View, x: Float, y: Float, left: Float, top: Float): Boolean {
+            return x >= left // 触摸点x坐标 ≥ View左上角x坐标（不超出左边界）
+                    && x <= left + child.width // 触摸点x坐标 ≤ View右下角x坐标（不超出右边界）
+                    && y >= top // 触摸点y坐标 ≥ View左上角y坐标（不超出上边界）
+                    && y <= top + child.height // 触摸点y坐标 ≤ View右下角y坐标（不超出下边界）
         }
 
         /**
@@ -136,45 +153,6 @@ abstract class BaseGestureCallback {
         val flags = getMovementFlags(recyclerView, viewHolder)
         return convertToAbsoluteDirection(flags, ViewCompat.getLayoutDirection(recyclerView))
     }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="辅助判断方法">
-    /**
-     * 判断是否允许将 Item 拖拽到目标 Item 的位置
-     */
-    fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
-        return true
-    }
-
-    /**
-     * 设置 Item 的碰撞检测边距
-     * 默认返回 0，即 Item 的原始边界为碰撞检测区域
-     */
-    fun getBoundingBoxMargin(): Int {
-        return 0
-    }
-
-    /**
-     * 侧滑的速度阈值 (侧滑的逃逸速度/侧滑的速度阈值)
-     */
-    fun getSwipeEscapeVelocity(defaultValue: Float): Float {
-        return defaultValue
-    }
-
-    fun getSwipeVelocityThreshold(defaultValue: Float): Float {
-        return defaultValue
-    }
-
-    /**
-     * 手势的距离阈值 (侧滑的距离阈值/拖拽的距离阈值)
-     */
-    fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-        return .5f
-    }
-
-    fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-        return .5f
-    }
 
     /**
      * 选择拖拽的目标 Item
@@ -235,14 +213,11 @@ abstract class BaseGestureCallback {
     }
     // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="手势状态回调">
+    // <editor-fold defaultstate="collapsed" desc="手势状态回调 / 绘制 / 装饰方法">
     /**
      * Item 被选中（开始手势）的回调
      */
     fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-//        if (viewHolder != null) {
-//            onSelected(viewHolder.itemView)
-//        }
     }
 
     /**
@@ -289,9 +264,7 @@ abstract class BaseGestureCallback {
         view.translationX = 0f
         view.translationY = 0f
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="绘制 / 装饰方法">
     /**
      * 遍历所有恢复动画的 Item，调用update()更新动画进度，然后分别调用onChildDraw/onChildDrawOver绘制每个 Item；同时绘制当前正在被操作的选中 Item
      */
@@ -411,6 +384,43 @@ abstract class BaseGestureCallback {
         return mCachedMaxScrollSpeed
     }
     // </editor-fold>
+
+    /**
+     * 设置 Item 的碰撞检测边距
+     * 默认返回 0，即 Item 的原始边界为碰撞检测区域
+     */
+    open fun getBoundingBoxMargin(): Int {
+        return 0
+    }
+
+    /**
+     * 侧滑的速度阈值 (侧滑的逃逸速度/侧滑的速度阈值)
+     */
+    open fun getSwipeEscapeVelocity(defaultValue: Float): Float {
+        return defaultValue
+    }
+
+    open fun getSwipeVelocityThreshold(defaultValue: Float): Float {
+        return defaultValue
+    }
+
+    /**
+     * 手势的距离阈值 (侧滑的距离阈值/拖拽的距离阈值)
+     */
+    open fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+        return .5f
+    }
+
+    open fun getMoveThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+        return .5f
+    }
+
+    /**
+     * 判断是否允许将 Item 拖拽到目标 Item 的位置
+     */
+    open fun canDropOver(recyclerView: RecyclerView, current: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+        return true
+    }
 
     /**
      * 关闭长按拖拽，手动触发

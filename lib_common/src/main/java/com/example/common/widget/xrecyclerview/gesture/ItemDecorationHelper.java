@@ -1,5 +1,8 @@
 package com.example.common.widget.xrecyclerview.gesture;
 
+import static com.example.common.widget.xrecyclerview.gesture.BaseGestureCallback.convertToAbsoluteDirection;
+import static com.example.common.widget.xrecyclerview.gesture.BaseGestureCallback.hitTest;
+
 import android.animation.Animator;
 import android.content.res.Resources;
 import android.graphics.Canvas;
@@ -15,7 +18,6 @@ import android.view.ViewParent;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.GestureDetectorCompat;
-import androidx.core.view.ViewCompat;
 import androidx.recyclerview.R;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
@@ -66,7 +68,6 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
 
     private int mSlop;
     private int mSelectedFlags;
-    private int mOverdrawChildPosition = -1;
     private int mActivePointerId = ACTIVE_POINTER_ID_NONE;
     private int mActionState = ACTION_STATE_IDLE;
     private float mDx;
@@ -93,7 +94,28 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     private final List<View> mPendingCleanup = new ArrayList<>();
     private final List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
     private final BaseGestureCallback mCallback;
-    private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = null;
+    private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = new RecyclerView.ChildDrawingOrderCallback() {
+        @Override
+        public int onGetChildDrawingOrder(int childCount, int i) {
+            if (mSelected == null) {
+                // 无拖拽时，按默认顺序绘制
+                return i;
+            }
+            // 获取被拖拽 Item 的索引
+            int selectedIndex = mRecyclerView.indexOfChild(mSelected.itemView);
+            if (selectedIndex == -1) {
+                return i;
+            }
+            // 让被拖拽的 Item 最后绘制（显示在最上层）
+            if (i == childCount - 1) {
+                return selectedIndex;
+            }
+            if (i >= selectedIndex) {
+                return i + 1;
+            }
+            return i;
+        }
+    };
     private final Runnable mScrollRunnable = new Runnable() {
         @Override
         public void run() {
@@ -102,7 +124,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
                     moveIfNecessary(mSelected);
                 }
                 mRecyclerView.removeCallbacks(mScrollRunnable);
-                ViewCompat.postOnAnimation(mRecyclerView, this);
+                mRecyclerView.postOnAnimation(this);
             }
         }
     };
@@ -211,7 +233,6 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
 
     @Override
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
-        mOverdrawChildPosition = -1;
         float dx = 0, dy = 0;
         if (mSelected != null) {
             getSelectedDxDy(mTmpPosition);
@@ -259,6 +280,27 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     }
 
     /**
+     * 绑定RecyclerView
+     */
+    public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
+        if (mRecyclerView == recyclerView) {
+            return;
+        }
+        if (mRecyclerView != null) {
+            destroyCallbacks();
+        }
+        mRecyclerView = recyclerView;
+        if (recyclerView != null) {
+            final Resources resources = recyclerView.getResources();
+            mSwipeEscapeVelocity = resources
+                    .getDimension(R.dimen.item_touch_helper_swipe_escape_velocity);
+            mMaxSwipeVelocity = resources
+                    .getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity);
+            setupCallbacks();
+        }
+    }
+
+    /**
      * 手动触发拖拽排序手势
      * 主动让传入的 viewHolder 对应的 Item 进入拖拽状态，效果等同于用户长按该 Item 后触发的拖拽，后续可以拖动该 Item 进行上下 / 左右排序
      */
@@ -296,28 +338,10 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     }
 
     /**
-     * 绑定RecyclerView
+     * 设置是否正在拖拽移动的监听
      */
-    public void attachToRecyclerView(@Nullable RecyclerView recyclerView) {
-        if (mRecyclerView == recyclerView) {
-            return;
-        }
-        if (mRecyclerView != null) {
-            destroyCallbacks();
-        }
-        mRecyclerView = recyclerView;
-        if (recyclerView != null) {
-            final Resources resources = recyclerView.getResources();
-            mSwipeEscapeVelocity = resources
-                    .getDimension(R.dimen.item_touch_helper_swipe_escape_velocity);
-            mMaxSwipeVelocity = resources
-                    .getDimension(R.dimen.item_touch_helper_swipe_escape_max_velocity);
-            setupCallbacks();
-        }
-    }
-
-    public void setOnMoveListener(OnMoveListener onMoveListener) {
-        this.mOnMoveListener = onMoveListener;
+    public void setOnMoveListener(OnMoveListener listener) {
+        this.mOnMoveListener = listener;
     }
 
     public interface OnMoveListener {
@@ -330,9 +354,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
      *     public CustomLinearLayoutManager(Context context) {
      *         super(context);
      *     }
-     *
      *     // 实现布局预处理方法
-     *     @Override
      *     public void prepareForDrop(@NonNull View view, @NonNull View target, int x, int y) {
      *         // 1. view → 被拖拽的ItemView（可通过view.getTag()获取对应的ViewHolder）
      *         // 2. target → 目标ItemView（同理可获取目标ViewHolder）
@@ -350,13 +372,6 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
      */
     public interface ViewDropHandler {
         void prepareForDrop(@NonNull View view, @NonNull View target, int x, int y);
-    }
-
-    private static boolean hitTest(View child, float x, float y, float left, float top) {
-        return x >= left
-                && x <= left + child.getWidth()
-                && y >= top
-                && y <= top + child.getHeight();
     }
 
     private boolean scrollIfNecessary() {
@@ -440,6 +455,8 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
                 throw new IllegalArgumentException("Must pass a ViewHolder when dragging");
             }
             mOverdrawChild = selected.itemView;
+            // 设置绘制顺序回调，让拖拽 Item 显示在最上层
+            mRecyclerView.setChildDrawingOrderCallback(mChildDrawingOrderCallback);
         }
         int actionStateMask = (1 << (DIRECTION_FLAG_COUNT + DIRECTION_FLAG_COUNT * actionState)) - 1;
         boolean preventLayout = false;
@@ -532,7 +549,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
         mRecyclerView.post(new Runnable() {
             @Override
             public void run() {
-                if (mRecyclerView != null && mRecyclerView.isAttachedToWindow() && !anim.getMOverridden() && anim.getMViewHolder().getAdapterPosition() != RecyclerView.NO_POSITION) {
+                if (mRecyclerView != null && mRecyclerView.isAttachedToWindow() && !anim.getMOverridden() && anim.getMViewHolder().getBindingAdapterPosition() != RecyclerView.NO_POSITION) {
                     final RecyclerView.ItemAnimator animator = mRecyclerView.getItemAnimator();
                     if ((animator == null || !animator.isRunning(null)) && !hasRunningRecoverAnim()) {
                         mCallback.onSwiped(anim.getMViewHolder(), swipeDir);
@@ -577,8 +594,8 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
             mDistances.clear();
             return;
         }
-        final int toPosition = target.getAdapterPosition();
-        final int fromPosition = viewHolder.getAdapterPosition();
+        final int toPosition = target.getBindingAdapterPosition();
+        final int fromPosition = viewHolder.getBindingAdapterPosition();
         if (mCallback.onMove(mRecyclerView, viewHolder, target)) {
             mCallback.onMoved(mRecyclerView, viewHolder, fromPosition, target, toPosition, x, y);
         }
@@ -786,7 +803,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
             return 0;
         }
         final int originalMovementFlags = mCallback.getMovementFlags(mRecyclerView, viewHolder);
-        final int absoluteMovementFlags = mCallback.convertToAbsoluteDirection(originalMovementFlags, ViewCompat.getLayoutDirection(mRecyclerView));
+        final int absoluteMovementFlags = convertToAbsoluteDirection(originalMovementFlags, mRecyclerView.getLayoutDirection());
         final int flags = (absoluteMovementFlags & ACTION_MODE_SWIPE_MASK) >> (ACTION_STATE_SWIPE * DIRECTION_FLAG_COUNT);
         if (flags == 0) {
             return 0;
@@ -796,7 +813,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
         if (Math.abs(mDx) > Math.abs(mDy)) {
             if ((swipeDir = checkHorizontalSwipe(viewHolder, flags)) > 0) {
                 if ((originalFlags & swipeDir) == 0) {
-                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
+                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, mRecyclerView.getLayoutDirection());
                 }
                 return swipeDir;
             }
@@ -809,7 +826,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
             }
             if ((swipeDir = checkHorizontalSwipe(viewHolder, flags)) > 0) {
                 if ((originalFlags & swipeDir) == 0) {
-                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, ViewCompat.getLayoutDirection(mRecyclerView));
+                    return BaseGestureCallback.convertToRelativeDirection(swipeDir, mRecyclerView.getLayoutDirection());
                 }
                 return swipeDir;
             }
@@ -862,9 +879,7 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     private void removeChildDrawingOrderCallbackIfNecessary(View view) {
         if (view == mOverdrawChild) {
             mOverdrawChild = null;
-            if (mChildDrawingOrderCallback != null) {
-                mRecyclerView.setChildDrawingOrderCallback(null);
-            }
+            mRecyclerView.setChildDrawingOrderCallback(null);
         }
     }
 
@@ -903,7 +918,6 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
         }
         mRecoverAnimations.clear();
         mOverdrawChild = null;
-        mOverdrawChildPosition = -1;
         releaseVelocityTracker();
         stopGestureDetection();
     }
@@ -911,10 +925,10 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     private class ItemGestureListener extends GestureDetector.SimpleOnGestureListener {
         private boolean mShouldReactToLongPress = true;
 
-        ItemGestureListener() {
+        public ItemGestureListener() {
         }
 
-        void doNotReactToLongPress() {
+        public void doNotReactToLongPress() {
             mShouldReactToLongPress = false;
         }
 
