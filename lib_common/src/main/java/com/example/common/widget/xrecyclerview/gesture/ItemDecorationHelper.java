@@ -79,42 +79,39 @@ public class ItemDecorationHelper extends RecyclerView.ItemDecoration implements
     private float mSwipeEscapeVelocity;
     private float mMaxSwipeVelocity;
     private long mDragScrollStartTimeInMs;
-    private RecyclerView mRecyclerView;
-    private VelocityTracker mVelocityTracker;
-    private Rect mTmpRect;
-    private List<ViewHolder> mSwapTargets;
-    private List<Integer> mDistances;
-    private OnMoveListener mOnMoveListener;
-    private GestureDetectorCompat mGestureDetector;
-    private ItemGestureListener mGestureCallback;
     private View mOverdrawChild = null;
     private ViewHolder mSelected = null;
+    private RecyclerView mRecyclerView = null;
+    private VelocityTracker mVelocityTracker = null;
+    private Rect mTmpRect = null;
+    private List<ViewHolder> mSwapTargets = null;
+    private List<Integer> mDistances = null;
+    private OnMoveListener mOnMoveListener = null;
+    private GestureDetectorCompat mGestureDetector = null;
+    private ItemGestureListener mGestureCallback = null;
 
     private final float[] mTmpPosition = new float[2];
     private final List<View> mPendingCleanup = new ArrayList<>();
     private final List<RecoverAnimation> mRecoverAnimations = new ArrayList<>();
     private final BaseGestureCallback mCallback;
-    private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = new RecyclerView.ChildDrawingOrderCallback() {
-        @Override
-        public int onGetChildDrawingOrder(int childCount, int i) {
-            if (mSelected == null) {
-                // 无拖拽时，按默认顺序绘制
-                return i;
-            }
-            // 获取被拖拽 Item 的索引
-            int selectedIndex = mRecyclerView.indexOfChild(mSelected.itemView);
-            if (selectedIndex == -1) {
-                return i;
-            }
-            // 让被拖拽的 Item 最后绘制（显示在最上层）
-            if (i == childCount - 1) {
-                return selectedIndex;
-            }
-            if (i >= selectedIndex) {
-                return i + 1;
-            }
+    private final RecyclerView.ChildDrawingOrderCallback mChildDrawingOrderCallback = (childCount, i) -> {
+        if (mSelected == null) {
+            // 无拖拽时，按默认顺序绘制
             return i;
         }
+        // 获取被拖拽 Item 的索引
+        int selectedIndex = mRecyclerView.indexOfChild(mSelected.itemView);
+        if (selectedIndex == -1) {
+            return i;
+        }
+        // 让被拖拽的 Item 最后绘制（显示在最上层）
+        if (i == childCount - 1) {
+            return selectedIndex;
+        }
+        if (i >= selectedIndex) {
+            return i + 1;
+        }
+        return i;
     };
     private final Runnable mScrollRunnable = new Runnable() {
         @Override
