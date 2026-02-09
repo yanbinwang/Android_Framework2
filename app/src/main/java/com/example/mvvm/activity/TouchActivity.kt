@@ -44,13 +44,15 @@ class TouchActivity : BaseTitleActivity<ActivityTouchBinding>(), OnRefreshLoadMo
         callBack.setSwipeEnable(false)
         val helper = ItemDecorationHelper(callBack)
         // 设置是否关闭刷新
-        helper.setOnMoveListener { move ->
-            if (move) {
-                mBinding?.xrvList?.refresh.disable()
-            } else {
-                mBinding?.xrvList?.refresh.enable()
+        helper.setOnMoveListener(object : ItemDecorationHelper.OnMoveListener{
+            override fun isMove(move: Boolean) {
+                if (move) {
+                    mBinding?.xrvList?.refresh.disable()
+                } else {
+                    mBinding?.xrvList?.refresh.enable()
+                }
             }
-        }
+        })
         helper.attachToRecyclerView(mBinding?.xrvList?.recycler)
     }
 

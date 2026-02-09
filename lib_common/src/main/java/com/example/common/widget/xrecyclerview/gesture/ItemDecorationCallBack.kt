@@ -1,9 +1,10 @@
 package com.example.common.widget.xrecyclerview.gesture
 
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.DOWN
-import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.LEFT
-import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.UP
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.Companion.DOWN
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.Companion.LEFT
+import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper.Companion.UP
+import com.example.framework.utils.function.value.orZero
 
 /**
  * 用于RecyclerView的适配器
@@ -16,7 +17,7 @@ class ItemDecorationCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCa
      * 返回可以滑动的方向,一般使用makeMovementFlags(int,int)
      * 或makeFlag(int, int)来构造我们的返回值
      */
-    override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+    override fun getMovementFlags(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?): Int {
         // 允许上下拖拽
         val drag = UP or DOWN
         // 允许向左滑动
@@ -30,17 +31,17 @@ class ItemDecorationCallBack(mAdapter: RecyclerView.Adapter<*>?) : BaseGestureCa
      * 最后返回true，
      * 表示被拖动的ViewHolder已经移动到了目的位置
      */
-    override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+    override fun onMove(recyclerView: RecyclerView?, viewHolder: RecyclerView.ViewHolder?, target: RecyclerView.ViewHolder?): Boolean {
         // 通知适配器,两个子条目位置发生改变
-        mCallBack?.onItemMove(viewHolder.bindingAdapterPosition, target.bindingAdapterPosition)
+        mCallBack?.onItemMove(viewHolder?.bindingAdapterPosition.orZero, target?.bindingAdapterPosition.orZero)
         return true
     }
 
     /**
      * 当用户左右滑动item时达到删除条件就会调用,一般为一半,条目继续滑动删除,否则弹回
      */
-    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-        mCallBack?.onItemDelete(viewHolder.bindingAdapterPosition)
+    override fun onSwiped(viewHolder: RecyclerView.ViewHolder?, direction: Int) {
+        mCallBack?.onItemDelete(viewHolder?.bindingAdapterPosition.orZero)
     }
 
     /**
