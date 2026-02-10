@@ -11,8 +11,8 @@ import com.example.common.utils.helper.AccountHelper.isLogin
  * 如果页面是需要订阅多个地址的，实现当前页面
  */
 class WebSocketTopic(private val socketUrl: String) {
-    private val proxy by lazy { WebSocketProxy(socketUrl) }//代理类
-    private val list by lazy { ArrayList<String>() }//页面所订阅的所有长连接集合
+    private val proxy by lazy { WebSocketProxy(socketUrl) } // 代理类
+    private val list by lazy { ArrayList<String>() } // 页面所订阅的所有长连接集合
 
     companion object {
         internal var listener: (url: String?, data: Message?) -> Unit = { _, _ -> }
@@ -28,7 +28,7 @@ class WebSocketTopic(private val socketUrl: String) {
     }
 
     init {
-        //代理类的回调监听，一旦地址连接成功，自信订阅
+        // 代理类的回调监听，一旦地址连接成功，自信订阅
         proxy.setOnWebSocketProxyListener(object : WebSocketProxy.OnWebSocketProxyListener {
             override fun onConnected(onConnected: Stomp) {
                 topicNow()
@@ -49,16 +49,16 @@ class WebSocketTopic(private val socketUrl: String) {
      *  建立websocket连接，批量订阅务提供的wss地址
      */
     fun topic(owner: LifecycleOwner, vararg destinations: String) {
-        //未登录不订阅
+        // 未登录不订阅
         if (!isLogin()) return
-        //未连接先不订阅，先做地址连接（proxy.connect()），连接成功后会在onConnected（）回调监听中订阅
+        // 未连接先不订阅，先做地址连接（proxy.connect()），连接成功后会在onConnected（）回调监听中订阅
         list.clear()
         list.addAll(destinations.toList())
         if (!proxy.isConnected()) {
             proxy.connect(owner)
             return
         }
-        //开始批量订阅wss地址
+        // 开始批量订阅wss地址
         topicNow()
     }
 
@@ -80,6 +80,15 @@ class WebSocketTopic(private val socketUrl: String) {
         destinations.forEach {
             proxy.untopic(it)
         }
+    }
+
+    /**
+     * 发送消息
+     */
+    fun sendTo(destination: String, data: String) {
+        // 未登录/不包含地址不发送
+        if (!isLogin() || !list.contains(destination) || !proxy.isConnected()) return
+        proxy.sendTo(destination, data)
     }
 
     /**

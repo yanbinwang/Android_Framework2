@@ -8,21 +8,24 @@ import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.framework.utils.logWTF
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * 非订阅长连接类->websocket代理类
+ * 非订阅长连接类 -> websocket代理类
  * https://ok.zhxu.cn/v4/getstart.html#maven
  * https://blog.51cto.com/u_12682526/10303358
  */
 class WebSocketProxy(private val socketUrl: String) {
-    //回调监听
+    // 重连job
+    private var connectJob: Job? = null
+    // 回调监听
     private var listener: OnWebSocketProxyListener? = null
-    //socket服务器，客户端每隔5秒向服务器发送一次PING消息，并期望服务器回复PONG消息的间隔5秒一次，
-    //如果服务器或网络由于某些未知原因导致客户端未能正确收到PONG消息，客户端会容忍两次失败，当第三个5秒后还未收到服务器的任何消息时，则会触发SocketTimeoutException异常
+    // socket服务器，客户端每隔5秒向服务器发送一次PING消息，并期望服务器回复PONG消息的间隔5秒一次，5秒只是起到校验是否处于正常连接状态,和接受服务器数据无关
+    // 如果服务器或网络由于某些未知原因导致客户端未能正确收到PONG消息，客户端会容忍两次失败，当第三个5秒后还未收到服务器的任何消息时，则会触发SocketTimeoutException异常
     private val stomp by lazy { Stomp.over(OkHttps.webSocket(socketUrl).heatbeat(5, 5)) }
-    //默认头部内容配置
+    // 默认头部内容配置
     private val headers by lazy { mutableListOf(Header("Client-Type", "mobile"), Header("timeZone", "GMT+8")) }
 
     /**
@@ -31,7 +34,8 @@ class WebSocketProxy(private val socketUrl: String) {
     fun connect(owner: LifecycleOwner, list: List<Header>? = headers) {
         if (isConnected()) {
             disconnect()
-            owner.lifecycleScope.launch {
+            connectJob?.cancel()
+            connectJob = owner.lifecycleScope.launch {
                 delay(1000)
                 connectNow(list)
             }
@@ -96,7 +100,6 @@ class WebSocketProxy(private val socketUrl: String) {
      *  订阅服务提供的topic
      */
     fun topic(destination: String, listener: (url: String?, data: Message?) -> Unit) {
-        //開始訂閱
         stomp.subscribe(destination, null) {
             //得到消息负载
             val payload = it.payload
@@ -110,6 +113,13 @@ class WebSocketProxy(private val socketUrl: String) {
      */
     fun untopic(destination: String) {
         stomp.untopic(destination)
+    }
+
+    /**
+     * 发送消息
+     */
+    fun sendTo(destination: String, data: String) {
+        stomp.sendTo(destination, data)
     }
 
     /**
