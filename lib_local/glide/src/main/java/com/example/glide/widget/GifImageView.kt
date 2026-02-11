@@ -87,7 +87,16 @@ class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeS
      * 开始 GIF 动画
      */
     fun startGifAnimation() {
-        gifDrawable?.start()
+        gifDrawable?.apply {
+            // 如果当前正在播放，先停止再从第一帧启动
+            if (isRunning) {
+                stop()
+                startFromFirstFrame()
+            } else {
+                // 如果未播放，直接从第一帧启动
+                startFromFirstFrame()
+            }
+        }
     }
 
     /**
