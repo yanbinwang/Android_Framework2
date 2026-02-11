@@ -26,7 +26,7 @@ object WebSocketConnect {
     @JvmStatic
     fun sendTo(owner: LifecycleOwner, data: String, position: Int = 0) {
         val socketAnnotation = owner::class.java.getAnnotation(SocketObserver::class.java) ?: return
-        val destination = socketAnnotation.value.toList().safeGet(position) ?: return
+        val destination = socketAnnotation.value.toList().safeGet(position) ?: ServerConfig.socketUrl()
         proxy.sendTo(destination, data)
     }
 
