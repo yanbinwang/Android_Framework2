@@ -6,43 +6,57 @@ import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.common.network.socket.WebSocketProxy
 import com.example.common.utils.helper.AccountHelper.isLogin
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 如果页面是需要订阅多个地址的，实现当前页面
  */
 class WebSocketTopic(private val socketUrl: String) {
     private val proxy by lazy { WebSocketProxy(socketUrl) } // 代理类
-    private val wssList by lazy { ArrayList<String>() } // 页面所订阅的所有长连接集合
+    private val wssList by lazy { CopyOnWriteArrayList<String>() } // 页面所订阅的所有长连接集合
 
     companion object {
-        internal var listener: (url: String?, data: Message?) -> Unit = { _, _ -> }
+        internal var proxyListener: (url: String?, data: Message?) -> Unit = { _, _ -> }
+        internal var messageListener: (data: String) -> Unit = { _ -> }
 
         /**
-         * 再baseapplication中实现回调，通过evenbus分发对应接受的消息
-         * 具备唯一性，只有多个wss地址订阅的时候，需要在application实现此监听，然后全局发布广播（EvenBus）
+         * 再BaseApplication中实现回调，通过EvenBus分发对应接受的消息
+         * 具备唯一性，只有多个wss地址订阅的时候，需要在Application实现此监听，然后全局发布广播（EvenBus）
          */
         @JvmStatic
-        fun setOnMessageListener(listener: (url: String?, data: Message?) -> Unit) {
-            Companion.listener = listener
+        fun setOnProxyListener(listener: (url: String?, data: Message?) -> Unit) {
+            proxyListener = listener
+        }
+
+        /**
+         * 单一无需订阅时调取
+         */
+        fun setOnMessageListener(listener: (String) -> Unit) {
+            messageListener = listener
         }
     }
 
     init {
-        // 代理类的回调监听，一旦地址连接成功，自信订阅
+        // 代理类的回调监听，一旦地址连接成功，自动订阅
         proxy.setOnWebSocketProxyListener(object : WebSocketProxy.OnWebSocketProxyListener {
             override fun onConnected(onConnected: Stomp) {
                 topicNow()
             }
 
-            override fun onDisconnected(onConnected: WebSocket.Close) {
+            override fun onDisconnected(onDisconnected: WebSocket.Close) {
             }
 
-            override fun onError(onConnected: Message) {
+            override fun onError(onError: Message) {
             }
 
-            override fun onException(onConnected: Throwable) {
+            override fun onException(onException: Throwable) {
             }
         })
+        // 全局消息监听
+        proxy.setOnWebSocketMessageListener { rawMsg ->
+            if (!isLogin() || !proxy.isConnected() || rawMsg.isNullOrEmpty()) return@setOnWebSocketMessageListener
+            messageListener(rawMsg)
+        }
     }
 
     /**
@@ -53,7 +67,9 @@ class WebSocketTopic(private val socketUrl: String) {
         if (!isLogin()) return
         // 未连接先不订阅，先做地址连接（proxy.connect()），连接成功后会在onConnected（）回调监听中订阅
         wssList.clear()
-        wssList.addAll(destinations.toList())
+        // 去重，避免相同主题重复订阅
+        wssList.addAll(destinations.toList().distinct())
+        // 校验是否连接
         if (!proxy.isConnected()) {
             proxy.connect(owner)
             return
@@ -68,7 +84,7 @@ class WebSocketTopic(private val socketUrl: String) {
     private fun topicNow() {
         wssList.forEach {
             proxy.topic(it) { _: String?, data: Message? ->
-                listener(it, data)
+                proxyListener(it, data)
             }
         }
     }
