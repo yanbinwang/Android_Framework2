@@ -230,13 +230,16 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initSocket() {
-        WebSocketTopic.setOnMessageListener { url, data ->
+        WebSocketTopic.setOnProxyListener { url, data ->
             val payload = data?.payload.orEmpty()
             when (url) {
                 SOCKET_DEAL_URL -> EVENT_SOCKET_DEAL.post(payload)
                 SOCKET_ADVERTISE_URL -> EVENT_SOCKET_ADVERTISE.post(payload)
                 SOCKET_FUNDS_URL -> EVENT_SOCKET_FUNDS.post(payload)
             }
+        }
+        WebSocketTopic.setOnMessageListener {
+
         }
     }
 
