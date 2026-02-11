@@ -69,9 +69,9 @@ class OssFactory private constructor() : CoroutineScope {
     // 对象锁，缩小范围减少开销
     private val LOCK = Any()
     // key -> 保全号（服务器唯一id）value->对应oss的传输类/协程
-    private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
+    private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult>?>() }
     private val ossProgressMap by lazy { ConcurrentHashMap<String, Int>() }
-    private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
+    private val ossJobMap by lazy { ConcurrentHashMap<String, Job>() }
     // 传入页面的lifecycle以及页面实现的OssImpl
     private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
     // 协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）

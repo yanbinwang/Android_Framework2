@@ -12,7 +12,7 @@ import com.example.common.utils.helper.AccountHelper.isLogin
  */
 class WebSocketTopic(private val socketUrl: String) {
     private val proxy by lazy { WebSocketProxy(socketUrl) } // 代理类
-    private val list by lazy { ArrayList<String>() } // 页面所订阅的所有长连接集合
+    private val wssList by lazy { ArrayList<String>() } // 页面所订阅的所有长连接集合
 
     companion object {
         internal var listener: (url: String?, data: Message?) -> Unit = { _, _ -> }
@@ -52,8 +52,8 @@ class WebSocketTopic(private val socketUrl: String) {
         // 未登录不订阅
         if (!isLogin()) return
         // 未连接先不订阅，先做地址连接（proxy.connect()），连接成功后会在onConnected（）回调监听中订阅
-        list.clear()
-        list.addAll(destinations.toList())
+        wssList.clear()
+        wssList.addAll(destinations.toList())
         if (!proxy.isConnected()) {
             proxy.connect(owner)
             return
@@ -66,7 +66,7 @@ class WebSocketTopic(private val socketUrl: String) {
      *  订阅服务提供的wss地址
      */
     private fun topicNow() {
-        list.forEach {
+        wssList.forEach {
             proxy.topic(it) { _: String?, data: Message? ->
                 listener(it, data)
             }
@@ -87,7 +87,7 @@ class WebSocketTopic(private val socketUrl: String) {
      */
     fun sendTo(destination: String, data: String) {
         // 未登录/不包含地址不发送
-        if (!isLogin() || !list.contains(destination) || !proxy.isConnected()) return
+        if (!isLogin() || !wssList.contains(destination) || !proxy.isConnected()) return
         proxy.sendTo(destination, data)
     }
 
