@@ -31,6 +31,11 @@ object WebSocketConnect {
     }
 
     @JvmStatic
+    fun sendTo(destination: String = ServerConfig.socketUrl(), data: String) {
+        proxy.sendTo(destination, data)
+    }
+
+    @JvmStatic
     fun disconnect() {
         proxy.disconnect()
     }
