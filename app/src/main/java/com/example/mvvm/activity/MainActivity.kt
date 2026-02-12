@@ -8,7 +8,6 @@ import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.Extra
-import com.example.common.base.page.ResultCode
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.bean.UserBean

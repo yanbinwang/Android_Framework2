@@ -30,6 +30,7 @@ import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.TRANSLATE
 import com.example.common.base.bridge.BaseImpl
+import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
@@ -238,12 +239,24 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun setNavigationBar(insets: WindowInsetsCompat) {
         val navBarBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        navigationBarView.size(height = navBarBottom)
-        height = if (popupHeight < 0) popupHeight else popupHeight.pt + navBarBottom
+        if (navigationBarView.height != navBarBottom) {
+            navigationBarView.size(height = navBarBottom)
+        }
+        if (popupHeight == MATCH_PARENT) {
+            val nowHeight = screenHeight - navBarBottom
+            if (mBinding?.root?.height != nowHeight) {
+                mBinding?.root.size(height = nowHeight)
+            }
+        } else {
+            val nowHeight = if (popupHeight < 0) popupHeight else popupHeight.pt + navBarBottom
+            if (height != nowHeight) {
+                height = nowHeight
+            }
+        }
     }
 
     /**
-     * 设置导航栏颜色,初始化随页面,调用一次即可
+     * 设置导航栏颜色,初始化随页面,调用一次即可 (需要注意电池黑白无法改变)
      */
     open fun setNavigationBarColor(@ColorRes navigationBarColor: Int = R.color.appNavigationBar) {
         navigationBarView.background(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack)
