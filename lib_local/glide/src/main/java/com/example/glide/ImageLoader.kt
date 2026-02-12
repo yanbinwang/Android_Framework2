@@ -49,13 +49,18 @@ import java.io.File
  * 1.如果图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
  * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
  */
-//class ImageLoader private constructor() : GlideModule(), GlideImpl {
 class ImageLoader private constructor() {
     private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
 
     companion object {
         @JvmStatic
         val instance by lazy { ImageLoader() }
+
+        /**
+         * 默认图片方向
+         */
+        @JvmStatic
+        val DEFAULT_SCALE_TYPE = ImageView.ScaleType.FIT_XY
 
         /**
          * 默认遮罩
@@ -134,13 +139,19 @@ class ImageLoader private constructor() {
         /**
          * 外层嵌套CardView内部保证获取对应的唯一ImageView
          */
-        private fun getCardViewImage(view: CardView?): ImageView? {
+        private fun getCardViewImage(view: CardView?, scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY): ImageView? {
             view ?: return null
-            view.removeAllViews()
-            val imageView = ImageView(view.context)
-            imageView.scaleType = ImageView.ScaleType.FIT_XY
-            view.addView(imageView)
-            imageView.size(MATCH_PARENT, MATCH_PARENT)
+            var imageView: ImageView?
+            val child = view.getChildAt(0)
+            if (child is ImageView && view.childCount == 1) {
+                imageView = child
+            } else {
+                view.removeAllViews()
+                imageView = ImageView(view.context)
+                imageView.scaleType = scaleType
+                view.addView(imageView)
+                imageView.size(MATCH_PARENT, MATCH_PARENT)
+            }
             return imageView
         }
 
@@ -439,16 +450,16 @@ class ImageLoader private constructor() {
      * 加载圆形图片
      * 高版本安卓对于圆角绘制会带有阴影,故而做特殊处理,CardView绘制完成后,内部加载图片使用该方法
      */
-    fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, error: Any? = null, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
-        loadImage(getCardViewImage(view), imageUrl, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
+    fun loadCardViewFromUrl(view: CardView?, imageUrl: String?, error: Any? = null, scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        loadImage(getCardViewImage(view, scaleType), imageUrl, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
     }
 
-    fun loadCardViewFromResource(view: CardView?, @RawRes @DrawableRes imageResource: Int?, error: Any? = null, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
-        loadImage(getCardViewImage(view), imageResource, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
+    fun loadCardViewFromResource(view: CardView?, @RawRes @DrawableRes imageResource: Int?, error: Any? = null, scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        loadImage(getCardViewImage(view, scaleType), imageResource, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
     }
 
-    fun loadCardViewFromDrawable(view: CardView?, imageDrawable: Drawable?, error: Any? = null, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
-        loadImage(getCardViewImage(view), imageDrawable, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
+    fun loadCardViewFromDrawable(view: CardView?, imageDrawable: Drawable?, error: Any? = null, scaleType: ImageView.ScaleType = ImageView.ScaleType.FIT_XY, onLoadStart: () -> Unit = {}, onLoadComplete: (drawable: Drawable?) -> Unit = {}) {
+        loadImage(getCardViewImage(view, scaleType), imageDrawable, error, onLoadStart = onLoadStart, onLoadComplete = onLoadComplete)
     }
 
     /**
