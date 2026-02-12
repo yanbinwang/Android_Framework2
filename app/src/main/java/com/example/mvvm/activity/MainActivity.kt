@@ -465,7 +465,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
+//            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
 //                localItem.id == serverItem.id
@@ -529,7 +529,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 ////                    navigation(ARouterPath.TestActivity)
 //                }
 //            }
-//            testDialog.show()
+            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)

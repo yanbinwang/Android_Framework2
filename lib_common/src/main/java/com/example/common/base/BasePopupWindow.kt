@@ -52,7 +52,7 @@ import java.lang.reflect.ParameterizedType
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整Windows透明度的方法
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     // 项目框架采用enableEdgeToEdge,属于全屏展示,如果是底部弹出的弹框,我们给页面适配一个底部导航栏
@@ -115,7 +115,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         height = if (popupHeight < 0) popupHeight else popupHeight.pt
         isFocusable = true
         isOutsideTouchable = true
-        isClippingEnabled = false // 完全撑满整个屏幕
+        // 完全撑满整个屏幕
+        isClippingEnabled = false
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         if (popupAnimStyle == TRANSLATE) {
             setNavigationBarColor()
@@ -152,8 +153,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     Fade().apply { duration = 300; mode = Visibility.MODE_OUT }
                 )
                 TRANSLATE -> Pair(
-                    Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = BOTTOM },
-                    Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = BOTTOM }
+                    Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = popupSlide },
+                    Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = popupSlide }
                 )
                 NONE -> null to null
             }

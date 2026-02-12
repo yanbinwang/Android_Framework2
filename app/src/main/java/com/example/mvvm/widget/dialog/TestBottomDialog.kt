@@ -12,17 +12,7 @@ import com.example.mvvm.databinding.ViewDialogTestBottomBinding
  * @description
  * @author
  */
-//class TestBottomDialog(activity: FragmentActivity) : BasePopupWindow<ViewDialogTestBottomBinding>(activity, popupHeight = MATCH_PARENT, popupAnimStyle = Companion.PopupAnimType.TRANSLATE) {
-class TestBottomDialog(activity: FragmentActivity) : BasePopupWindow<ViewDialogTestBottomBinding>(activity, popupAnimStyle = Companion.PopupAnimType.TRANSLATE) {
-//    override fun initEvent() {
-//        super.initEvent()
-//        // 右侧进入
-//        val (enter, exit) = Pair(
-//            Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = Gravity.RIGHT },
-//            Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = Gravity.RIGHT }
-//        )
-//        enterTransition = enter
-//        exitTransition = exit
-//    }
+class TestBottomDialog(activity: FragmentActivity) : BasePopupWindow<ViewDialogTestBottomBinding>(activity, popupHeight = MATCH_PARENT, popupAnimStyle = Companion.PopupAnimType.TRANSLATE, popupSlide = Gravity.RIGHT) {
+//class TestBottomDialog(activity: FragmentActivity) : BasePopupWindow<ViewDialogTestBottomBinding>(activity, popupAnimStyle = Companion.PopupAnimType.TRANSLATE) {
 
 }
