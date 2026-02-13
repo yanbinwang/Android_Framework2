@@ -84,6 +84,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     protected val lifecycleOwner get() = ownerActivity as? LifecycleOwner
 
     companion object {
+        private const val ANIM_DURATION = 300L // 动画时长
+        private const val NAV_BAR_DELAY = 350L // 导航栏延迟设置时长
+
         /**
          * 内置常量集
          */
@@ -169,12 +172,12 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val (enter, exit) = when (popupAnimStyle) {
                 ALPHA -> Pair(
-                    Fade().apply { duration = 300; mode = Visibility.MODE_IN },
-                    Fade().apply { duration = 300; mode = Visibility.MODE_OUT }
+                    Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN },
+                    Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT }
                 )
                 TRANSLATE -> Pair(
-                    Slide().apply { duration = 300; mode = Visibility.MODE_IN; slideEdge = popupSlide },
-                    Slide().apply { duration = 300; mode = Visibility.MODE_OUT; slideEdge = popupSlide }
+                    Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN; slideEdge = popupSlide },
+                    Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT; slideEdge = popupSlide }
                 )
                 NONE -> null to null
             }
@@ -199,6 +202,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
+    /**
+     * 基于锚点 View 显示 (强依赖 View 的上下文)
+     */
     override fun showAsDropDown(anchor: View?) {
         showPopup({ super.showAsDropDown(anchor) }, ::checkShowAsDropDownConditions)
     }
@@ -211,30 +217,61 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         showPopup({ super.showAsDropDown(anchor, xoff, yoff, gravity) }, ::checkShowAsDropDownConditions)
     }
 
+    /**
+     * 基于父容器 + 坐标显示 (不直接依赖某个锚点 View)
+     */
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
         showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkShowAtLocationConditions)
     }
 
-    private fun checkShowAsDropDownConditions() = Looper.myLooper() != null &&
-            Looper.myLooper() == Looper.getMainLooper() &&
-            rootView?.context != null &&
-            (rootView?.context as? Activity)?.isFinishing == false &&
-            (rootView?.context as? Activity)?.isDestroyed == false
+//    private fun checkShowAsDropDownConditions() = Looper.myLooper() != null &&
+//            Looper.myLooper() == Looper.getMainLooper() &&
+//            rootView?.context != null &&
+//            (rootView?.context as? Activity)?.isFinishing == false &&
+//            (rootView?.context as? Activity)?.isDestroyed == false
+//
+//    private fun checkShowAtLocationConditions() = Looper.myLooper() != null &&
+//            Looper.myLooper() == Looper.getMainLooper() &&
+//            (context as? Activity)?.isFinishing == false &&
+//            (context as? Activity)?.isDestroyed == false
 
-    private fun checkShowAtLocationConditions() = Looper.myLooper() != null &&
-            Looper.myLooper() == Looper.getMainLooper() &&
-            (context as? Activity)?.isFinishing == false &&
-            (context as? Activity)?.isDestroyed == false
+    private fun checkShowAsDropDownConditions(): Boolean {
+        return checkPopupShowConditions(rootView?.context)
+    }
+
+    private fun checkShowAtLocationConditions(): Boolean {
+        return checkPopupShowConditions()
+    }
+
+    /**
+     * 通用的弹窗显示前置校验方法
+     * @param targetContext 可选的上下文（优先用传入的，没有则用成员变量context）
+     * @return 是否满足显示条件
+     */
+    private fun checkPopupShowConditions(targetContext: Context? = null): Boolean {
+        // 校验是否在主线程（PopupWindow必须在主线程操作）
+        val mainLooper = Looper.getMainLooper()
+        if (Looper.myLooper() != mainLooper) {
+            return false
+        }
+        // 确定要校验的Context（优先用传入的，兜底用成员变量）
+        val checkContext = targetContext ?: context
+        // 校验Context是Activity且状态正常
+        val activity = checkContext as? Activity
+        return activity?.let {
+            !it.isFinishing && !it.isDestroyed
+        } ?: false
+    }
 
     private fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
         if (checkCondition()) {
             try {
                 setAttributes()
-                showFunction()
+                showFunction.invoke()
                 if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
                     showJob?.cancel()
                     showJob = lifecycleOwner?.lifecycleScope?.launch {
-                        delay(350)
+                        delay(NAV_BAR_DELAY)
                         setNavigationBarColor()
                     }
                 }
@@ -286,8 +323,16 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     /**
      * 设置导航栏颜色,初始化随页面,调用一次即可 (需要注意电池黑白无法改变)
      */
-    open fun setNavigationBarColor(@ColorRes navigationBarColor: Int = R.color.appNavigationBar) {
+    open fun setNavigationBarColor(@ColorRes navigationBarColor: Int = getNavigationBarColor()) {
         navigationBarView.background(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack)
+    }
+
+    /**
+     * 获取导航栏颜色,可在基类重写
+     */
+    @ColorRes
+    open fun getNavigationBarColor(): Int {
+        return R.color.appNavigationBar
     }
 
     /**
