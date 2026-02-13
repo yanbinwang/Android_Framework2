@@ -11,6 +11,9 @@ import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
 import android.view.Gravity.BOTTOM
+import android.view.Gravity.LEFT
+import android.view.Gravity.RIGHT
+import android.view.Gravity.TOP
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -25,6 +28,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import com.example.common.R
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.ALPHA
 import com.example.common.base.BasePopupWindow.Companion.PopupAnimType.NONE
@@ -39,6 +43,9 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.size
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.lang.reflect.ParameterizedType
 
 /**
@@ -52,10 +59,12 @@ import java.lang.reflect.ParameterizedType
  * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整Windows透明度的方法
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private val popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
+    private var showJob: Job? = null
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
-    // 项目框架采用enableEdgeToEdge,属于全屏展示,如果是底部弹出的弹框,我们给页面适配一个底部导航栏
+    private val isTranslate get() = popupAnimStyle == TRANSLATE
+    // 项目框架采用enableEdgeToEdge,属于全屏展示,如果是底部弹出的弹框,给页面适配底部导航栏
     private val navigationBarView by lazy {
         View(context).apply {
             size(MATCH_PARENT, WRAP_CONTENT)
@@ -91,6 +100,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
+        // 强制规定传入的动画如果是方向类型的,参数必须在规定范围内
+        if (isTranslate) {
+            val slideList = listOf(TOP, BOTTOM, LEFT, RIGHT)
+            if (!slideList.contains(popupSlide)) {
+                popupAnimStyle = NONE
+            }
+        }
         // 设置内部view
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
@@ -99,7 +115,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
                 mBinding?.lifecycleOwner = lifecycleOwner
-                if (popupAnimStyle == TRANSLATE) {
+                if (isTranslate && popupSlide != TOP) {
                     parentView.addView(mBinding?.root)
                     parentView.addView(navigationBarView)
                     setContentView(parentView)
@@ -118,8 +134,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         // 完全撑满整个屏幕
         isClippingEnabled = false
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
-        if (popupAnimStyle == TRANSLATE) {
-            setNavigationBarColor()
+        // 如果是方向类型此时非左右弹出的情况下,需要即刻加载一下底层导航栏.避免动画遮罩
+        if (isTranslate && popupSlide != TOP) {
+            if (popupSlide == BOTTOM) setNavigationBarColor()
             ViewCompat.getRootWindowInsets(window.decorView)?.let {
                 setNavigationBar(it)
             }
@@ -139,6 +156,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 layoutParams?.alpha = 1f
                 window.attributes = layoutParams
             }
+            if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
+                setNavigationBarColor(R.color.bgTransparent)
+            }
         }
     }
 
@@ -146,7 +166,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 默认底部弹出
      */
     private fun setAnimation() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val (enter, exit) = when (popupAnimStyle) {
                 ALPHA -> Pair(
                     Fade().apply { duration = 300; mode = Visibility.MODE_IN },
@@ -165,13 +185,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 NONE -> -1
                 else -> 0 // 使用 0 表示使用系统默认或不应用旧版动画
             }
-        } else {
-            animationStyle = when (popupAnimStyle) {
-                ALPHA -> R.style.PopupAlphaAnimStyle
-                TRANSLATE -> R.style.PopupTranslateAnimStyle
-                NONE -> -1
-            }
-        }
+//        } else {
+//            animationStyle = when (popupAnimStyle) {
+//                ALPHA -> R.style.PopupAlphaAnimStyle
+//                TRANSLATE -> R.style.PopupTranslateAnimStyle
+//                NONE -> -1
+//            }
+//        }
     }
 
     override fun initData() {
@@ -211,6 +231,13 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             try {
                 setAttributes()
                 showFunction()
+                if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
+                    showJob?.cancel()
+                    showJob = lifecycleOwner?.lifecycleScope?.launch {
+                        delay(350)
+                        setNavigationBarColor()
+                    }
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
