@@ -50,13 +50,29 @@ import java.lang.reflect.ParameterizedType
 
 /**
  * Created by WangYanBin on 2020/7/13.
- * 所有弹框的基类
- * 用于实现上下左右弹出的效果，如有特殊动画需求，重写animation
- * 默认底部弹出,不需要传view，并带有顶栏间距
- * 也可使用渐隐显示，默认view下方弹出
- * PopupWindow在设置isClippingEnabled=false后会撑满整个屏幕变成全屏
- * 但这会使底部有虚拟栏的手机重叠，哪怕使用的margin底部高度的代码，部分手机兼容性上也会存在问题
- * 可以使用BaseBottomSheetDialogFragment替代，也可以使用调整Windows透明度的方法
+ * 所有弹框的基类 (用于实现上下左右弹出的效果，如有特殊动画需求，重写setAnimation方法/默认底部弹出样式配置需要页面重写监听setOnWindowInsetsChanged,每次改变时候调用setNavigationBar,且不支持电池颜色修改)
+ * 1) 由于PopupWindow设置了isClippingEnabled=false,故而会撑满整个手机屏幕变成全屏
+ * 2) 可使用BaseBottomSheetDialogFragment替代底部弹出样式,不用重写setOnWindowInsetsChanged
+ * 3) 左右弹出类似于原生DrawerLayout控件,做了于系统一致的底部导航栏高亮效果
+ * <androidx.drawerlayout.widget.DrawerLayout
+ *         android:id="@+id/drawer"
+ *         android:layout_width="match_parent"
+ *         android:layout_height="match_parent">
+ *
+ *         <FrameLayout
+ *             android:layout_width="match_parent"
+ *             android:layout_height="match_parent">
+ *              .....
+ *         </FrameLayout>
+ *
+ *         <include
+ *             android:id="@+id/view_drawer"
+ *             layout="@layout/view_deal_drawer"
+ *             android:layout_width="340pt"
+ *             android:layout_height="match_parent"
+ *             android:layout_gravity="end" />
+ *
+ *     </androidx.drawerlayout.widget.DrawerLayout>
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
