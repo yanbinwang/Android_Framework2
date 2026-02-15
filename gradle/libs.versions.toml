@@ -1,8 +1,8 @@
 [versions]
 #--------------------------------------------- settings.gradle版本 ---------------------------------------------
 agp = "9.0.0"
-kotlin = "2.3.0"
-ksp = "2.3.4" # https://github.com/google/ksp/releases
+kotlin = "2.3.10"
+ksp = "2.3.5" # https://github.com/google/ksp/releases
 #--------------------------------------------- 模块测试库版本 ---------------------------------------------
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -32,7 +32,7 @@ newbieGuide = "v2.4.4"
 refreshLayoutKernel = "3.0.0-alpha"
 xxpermissions = "25.2"
 immersionbar = "3.2.2"
-stomp = "4.1.0"
+stomp = "5.0.0"
 #---------------------------------------------全局版本配置---------------------------------------------
 compileSdkVersion = "36" # 构建版本号
 minSdkVersion = "23" # 最低安装版本
