@@ -20,7 +20,9 @@ pluginManagement {
     }
 }
 
+// 所有普通依赖
 dependencyResolutionManagement {
+    // 依赖仓库规则：优先用本文件的仓库配置，忽略模块级 build.gradle 中的仓库配置
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
         // 优先使用国内镜像（加速下载）
