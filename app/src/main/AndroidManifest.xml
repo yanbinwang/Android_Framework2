@@ -295,6 +295,9 @@
         <!-- 高德地图 -->
         <service
             android:name="com.amap.api.location.APSService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:enabled="true"
+            android:exported="false"
             android:foregroundServiceType="location" />
         <!-- 屏幕录制 -->
         <service
