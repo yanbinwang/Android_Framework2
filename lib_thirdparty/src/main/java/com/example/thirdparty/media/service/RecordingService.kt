@@ -3,6 +3,8 @@ package com.example.thirdparty.media.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
 import android.media.MediaRecorder
 import android.os.Build
 import android.os.PowerManager
@@ -55,16 +57,20 @@ class RecordingService : TrackableLifecycleService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-        // 构建完整的通知（必须包含图标、标题）
+        // 构建完整的通知
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("正在录音") // 强制要求：标题
-            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
+            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true) // 标记为持续通知，用户无法手动清除
             .setSilent(true) // 静音通知
             .build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
-        startForeground(notificationId, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(notificationId, notification)
+        }
         // 获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         // 创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
