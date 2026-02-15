@@ -1,20 +1,29 @@
+// 管理「Gradle 插件」的下载来源
 pluginManagement {
     repositories {
+        // 优先从 Google 仓库下载插件
         google {
+            // 只允许从 Google 仓库下载这些前缀的插件（精准管控，避免下载到恶意插件）
             content {
+                // 安卓官方插件（如 com.android.application）
                 includeGroupByRegex("com\\.android.*")
+                // Google 插件（如 com.google.gms.google-services）
                 includeGroupByRegex("com\\.google.*")
+                // AndroidX 相关插件
                 includeGroupByRegex("androidx.*")
             }
         }
+        // 其他插件从 Maven 中央仓库下载
         mavenCentral()
+        // Gradle 官方插件仓库（比如 foojay-resolver-convention 这类 Gradle 官方插件）
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.PREFER_SETTINGS)
     repositories {
-        // 1. 优先使用国内镜像（加速下载）
+        // 优先使用国内镜像（加速下载）
         /**
          * 第三方开源项目的 “便捷分发仓库”
          * 不在 Maven Central/Google 仓库里的开源项目（比如 GitHub 上的个人库、小众库）。
@@ -43,7 +52,7 @@ dependencyResolutionManagement {
          * - 同步了 Gradle 插件仓库的大部分内容
          */
         maven("https://maven.aliyun.com/repository/public")
-        // 2. 官方仓库放最后（作为镜像的 fallback）
+        // 官方仓库放最后（作为镜像的 fallback）
         google()
         mavenCentral()
     }
