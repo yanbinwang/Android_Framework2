@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.thirdparty"
 

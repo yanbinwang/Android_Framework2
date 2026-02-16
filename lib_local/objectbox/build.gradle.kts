@@ -6,6 +6,7 @@ plugins {
     id("io.objectbox")
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.objectbox"
 
