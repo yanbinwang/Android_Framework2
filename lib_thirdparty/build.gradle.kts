@@ -16,7 +16,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
