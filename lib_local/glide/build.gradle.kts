@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.kapt)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.glide"
 

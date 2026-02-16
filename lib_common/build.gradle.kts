@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.devtools.ksp)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.common"
 

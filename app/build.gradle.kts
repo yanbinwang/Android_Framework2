@@ -19,6 +19,7 @@ val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
+@Suppress("DEPRECATION")
 android {
     signingConfigs {
         create("release") {

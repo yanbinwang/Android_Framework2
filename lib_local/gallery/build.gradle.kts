@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.gallery"
 
