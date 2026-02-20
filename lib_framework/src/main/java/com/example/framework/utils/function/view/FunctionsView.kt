@@ -1020,42 +1020,102 @@ fun CardView?.init(cornerRadius: Float = 0f) {
 }
 
 /**
- * appbar监听
+ * AppBarLayout监听
+ * @Volatile
+ * private var appBarState = AppBarStateChangeListener.State.EXPANDED
+ * mBinding?.alHeader.stateChanged {
+ *    appBarState = it
+ * }
+ * // 获取一下当前列表处于什么状态
+ * when (appBarState) {
+ *     // 折叠状态 -> 根据底部列表值做特殊处理
+ *     AppBarStateChangeListener.State.COLLAPSED -> {
+ *         // 当列表为空（adapter.size ≤ 0）时，开启嵌套滚动（让用户滑动空白区域也能触发 AppBar 折叠 / 展开）
+ *         val childCount = mBinding?.adapter?.size().orZero
+ *         if (childCount <= 0) {
+ *             mBinding?.xrvList?.isNestedScrollingEnabled = true
+ *             mBinding?.xrvList?.refresh.disable()
+ *             mBinding?.refresh.enable()
+ *         } else {
+ *             mBinding?.xrvList?.isNestedScrollingEnabled = false
+ *             mBinding?.xrvList?.refresh.enable()
+ *             mBinding?.refresh.disable()
+ *         }
+ *     }
  */
-fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
+fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State) -> Unit = {}) {
     this ?: return
     addOnOffsetChangedListener(object : AppBarStateChangeListener() {
-        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
+        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State) {
             func.invoke(state)
         }
     })
 }
 
 /**
- * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
- * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
+ * AppBarLayout是否显示折叠的监听,捕获其状态(系统并未提供)
  */
 abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
     enum class State {
-        EXPANDED, COLLAPSED, IDLE//展开，折叠，中间
+        // 展开，折叠，中间
+        EXPANDED, COLLAPSED, IDLE
     }
+    // 默认状态取展开
+    private var mCurrentState = State.EXPANDED
 
-    private var mCurrentState = State.IDLE
+    companion object {
+        // 基础像素容差（兜底最小值）
+        private const val BASE_TOLERANCE_PX = 5
+        // 动态容差比例（总滚动范围的5%，适配不同高度的AppBar）
+        private const val DYNAMIC_TOLERANCE_RATIO = 0.05f
+        // 状态锁定阈值：折叠/展开状态下，偏移变化小于该值不切换状态（防止抖动）
+        private const val STATE_LOCK_THRESHOLD = 0.02f
+    }
 
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
-        mCurrentState = if (verticalOffset == 0) {
-            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
-            State.EXPANDED
-        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
-            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
-            State.COLLAPSED
-        } else {
-            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
-            State.IDLE
+        // 布局未完成直接返回
+        val totalScrollRange = appBarLayout?.totalScrollRange ?: 0
+        // 判空避免后续计算出错
+        if (totalScrollRange == 0) return
+        // 动态容差：总滚动范围的5%（比如总高度1000px，容差50px）
+        val dynamicTolerance = (totalScrollRange * DYNAMIC_TOLERANCE_RATIO).toInt()
+        // 最终容差：取动态容差和基础像素容差的最大值（保底）
+        val finalTolerance = maxOf(BASE_TOLERANCE_PX, dynamicTolerance)
+        // 计算当前偏移占总范围的比例（0=展开，1=折叠）
+        val offsetRatio = abs(verticalOffset).toFloat() / totalScrollRange
+        // 折叠/展开状态下，偏移比例变化小于2% → 不切换状态（锁定）
+        val isStateLocked = when (mCurrentState) {
+            State.EXPANDED -> offsetRatio < STATE_LOCK_THRESHOLD
+            State.COLLAPSED -> (1 - offsetRatio) < STATE_LOCK_THRESHOLD
+            State.IDLE -> false // 中间状态不锁定
         }
+        if (isStateLocked) return // 锁定状态下，直接忽略本次偏移
+        val newState = when {
+            // 展开判断：偏移量 ≤ 最终容差（基础+动态双保底）
+            abs(verticalOffset) <= finalTolerance -> State.EXPANDED
+            // 折叠判断：偏移量 ≥ 总范围 - 最终容差（双重保底，避免漏判）
+            abs(verticalOffset) >= (totalScrollRange - finalTolerance) -> State.COLLAPSED
+            // 中间状态
+            else -> State.IDLE
+        }
+        // 只有状态真正变化时才回调（避免重复）
+        if (newState != mCurrentState) {
+            mCurrentState = newState
+            onStateChanged(appBarLayout, newState)
+        }
+//        mCurrentState = if (verticalOffset == 0) {
+//            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
+//            State.EXPANDED
+//        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
+//            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
+//            State.COLLAPSED
+//        } else {
+//            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
+//            State.IDLE
+//        }
     }
 
-    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
+    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State)
 
 }
 
