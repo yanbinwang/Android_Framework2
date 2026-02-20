@@ -53,7 +53,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     // 默认开启嵌套滚动
-    private var nestedScrollEnabled = false
+    private var nestedScrollEnabled = true
     // 是否具有刷新
     private var refreshEnable = false
     // 是否具有空布局
@@ -83,7 +83,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
-            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, false)
+            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, true)
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
             emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
@@ -133,7 +133,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 重写View自带的是否支持惯性滑动
-     * 1) 默认情况下是false
+     * 1) 默认情况下是true
      * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
      * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
      */
