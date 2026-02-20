@@ -110,7 +110,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 setRootSize(height = rootFixedHeight)
             }
             // 嵌套滚动设置
-            recycler.isNestedScrollingEnabled = nestedScrollEnabled
+            setNestedScrollingEnabled(nestedScrollEnabled)
             // 取一次内部padding,针对RecyclerView做padding
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
@@ -129,6 +129,17 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             empty.size(MATCH_PARENT, MATCH_PARENT)
             empty.isClickable = emptyClickableEnable
         }
+    }
+
+    /**
+     * 重写View自带的是否支持惯性滑动
+     * 1) 默认情况下是true
+     * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
+     * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
+     */
+    override fun setNestedScrollingEnabled(enabled: Boolean) {
+        super.setNestedScrollingEnabled(enabled)
+        recycler.isNestedScrollingEnabled = enabled
     }
 
     /**
@@ -281,6 +292,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
         recycler.initConcat(*adapters)
     }
+
 
     /**
      * 添加分隔线
