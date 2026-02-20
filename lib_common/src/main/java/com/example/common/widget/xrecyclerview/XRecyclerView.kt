@@ -110,7 +110,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 setRootSize(height = rootFixedHeight)
             }
             // 嵌套滚动设置
-            recycler.isNestedScrollingEnabled = nestedScrollEnabled
+            setNestedScrollingEnabled(nestedScrollEnabled)
             // 取一次内部padding,针对RecyclerView做padding
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
@@ -132,7 +132,18 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 设置整体大小
+     * 重写View自带的是否支持惯性滑动
+     * 1) 默认情况下是false
+     * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
+     * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
+     */
+    override fun setNestedScrollingEnabled(enabled: Boolean) {
+        super.setNestedScrollingEnabled(enabled)
+        recycler.isNestedScrollingEnabled = enabled
+    }
+
+    /**
+     * 设置整体布局大小
      */
     fun setRootSize(width: Int? = null, height: Int? = null) {
         root.size(width.pt, height.pt)
@@ -194,15 +205,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
-        empty.empty(resId, resText, resRefreshText, width, height)
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        empty.empty(resId, text, refreshText, width, height)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
-        empty.error(resId, resText, resRefreshText, width, height)
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+        empty.error(resId, text, refreshText, width, height)
     }
 
     /**
@@ -318,7 +329,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 让列表滚动到对应下标点
      */
     fun scrollToPosition(position: Int) {
-        if (position < 0 || position > recycler.adapter?.itemCount.orZero - 1) return
+        if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
         recycler.scrollToPosition(position)
     }
 
