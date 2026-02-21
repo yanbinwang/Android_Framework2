@@ -314,17 +314,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         return recycler.adapter as? T
     }
 
-//    /**
-//     * 获取一个列表中固定下标的holder
-//     */
-//    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
-//        return recycler.getHolder(position)
-//    }
-//
-//    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
-//        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
-//    }
-
     /**
      * 让列表滚动到对应下标点
      */
