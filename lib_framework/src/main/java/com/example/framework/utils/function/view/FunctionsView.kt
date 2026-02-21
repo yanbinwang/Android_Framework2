@@ -1022,14 +1022,14 @@ fun CardView?.init(cornerRadius: Float = 0f) {
 /**
  * AppBarLayout监听
  * @Volatile
- * private var appBarState = AppBarStateChangeListener.State.EXPANDED
+ * private var appBarState = AppBarLayoutStateChangeListener.State.EXPANDED
  * mBinding?.alHeader.stateChanged {
  *    appBarState = it
  * }
  * // 获取一下当前列表处于什么状态
  * when (appBarState) {
  *     // 折叠状态 -> 根据底部列表值做特殊处理
- *     AppBarStateChangeListener.State.COLLAPSED -> {
+ *     AppBarLayoutStateChangeListener.State.COLLAPSED -> {
  *         // 当列表为空（adapter.size ≤ 0）时，开启嵌套滚动（让用户滑动空白区域也能触发 AppBar 折叠 / 展开）
  *         val childCount = mBinding?.adapter?.size().orZero
  *         if (childCount <= 0) {
@@ -1043,26 +1043,27 @@ fun CardView?.init(cornerRadius: Float = 0f) {
  *         }
  *     }
  */
-fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State) -> Unit = {}) {
+fun AppBarLayout?.setOnStateChangedListener(func: (state: AppBarLayoutStateChangeListener.State) -> Unit = {}) {
     this ?: return
-    addOnOffsetChangedListener(object : AppBarStateChangeListener() {
+    val listener = object : AppBarLayoutStateChangeListener() {
         override fun onStateChanged(appBarLayout: AppBarLayout?, state: State) {
             func.invoke(state)
         }
-    })
+    }
+    addOnOffsetChangedListener(listener)
+    getLifecycleOwner().doOnDestroy {
+        removeOnOffsetChangedListener(listener)
+    }
 }
 
 /**
  * AppBarLayout是否显示折叠的监听,捕获其状态(系统并未提供)
  */
-abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
-    enum class State {
-        // 展开，折叠，中间
-        EXPANDED, COLLAPSED, IDLE
-    }
-    // 默认状态取展开
+abstract class AppBarLayoutStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+    // 默认状态 -> 展开
     private var mCurrentState = State.EXPANDED
 
+    // 默认配置 (静态)
     companion object {
         // 基础像素容差（兜底最小值）
         private const val BASE_TOLERANCE_PX = 5
@@ -1070,6 +1071,12 @@ abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener 
         private const val DYNAMIC_TOLERANCE_RATIO = 0.05f
         // 状态锁定阈值：折叠/展开状态下，偏移变化小于该值不切换状态（防止抖动）
         private const val STATE_LOCK_THRESHOLD = 0.02f
+    }
+
+    // 状态枚举类
+    enum class State {
+        // 展开，折叠，中间
+        EXPANDED, COLLAPSED, IDLE
     }
 
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
@@ -1103,16 +1110,6 @@ abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener 
             mCurrentState = newState
             onStateChanged(appBarLayout, newState)
         }
-//        mCurrentState = if (verticalOffset == 0) {
-//            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
-//            State.EXPANDED
-//        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
-//            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
-//            State.COLLAPSED
-//        } else {
-//            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
-//            State.IDLE
-//        }
     }
 
     abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State)
