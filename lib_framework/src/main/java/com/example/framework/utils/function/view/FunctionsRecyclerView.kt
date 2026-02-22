@@ -259,9 +259,30 @@ fun RecyclerView?.isBottom(): Boolean {
 }
 
 /**
- * 滚动RecyclerView
+ * 目标位置置顶
+ * 1) 以其 “起始边” 对齐 RecyclerView 的可视区域起始边
+ * 2) 如果 pos 对应的 Item 原本就在可视区域内，只会滚动到 Item 置顶；如果 pos 在可视区域外，会先滚动到 Item 进入可视区域，再对齐顶部
  */
-fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
+fun RecyclerView?.toTopPositionSmooth(pos: Int, scale: Float = 1f) {
+    toPositionSmooth(pos, LinearSmoothScroller.SNAP_TO_START, scale)
+}
+
+/**
+ * 目标位置置底
+ * 1) 以其 “结束边” 对齐 RecyclerView 的可视区域结束边
+ * 2) 如果 pos 对应的 Item 原本就在可视区域内，只会滚动到 Item 置底；如果 pos 在可视区域外，会先滚动到 Item 进入可视区域，再对齐底部
+ */
+fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) {
+    toPositionSmooth(pos, LinearSmoothScroller.SNAP_TO_END, scale)
+}
+
+/**
+ * 滚动RecyclerView
+ * scale = 1f（默认）：按完整计算距离滚动，目标位置精准置顶 / 置底；
+ * scale < 1f（如 0.5f）：按计算距离的比例滚动，目标位置不会完全置顶 / 置底，而是保留一部分偏移；
+ * scale > 1f（如 1.2f）：滚动距离超过计算值，会额外多滚一段距离。
+ */
+fun RecyclerView?.toPositionSmooth(pos: Int, type: Int, scale: Float) {
     if (this == null) return
     (parent as? ViewGroup).actionCancel()
     val layoutManager = layoutManager as? LinearLayoutManager ?: return
@@ -287,21 +308,10 @@ fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
 }
 
 /**
- * 目标位置置顶
- */
-fun RecyclerView?.toPositionSmooth(pos: Int, scale: Float = 1f) {
-    smoothScroll(pos, LinearSmoothScroller.SNAP_TO_START, scale)
-}
-
-/**
- * 目标位置置底
- */
-fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) {
-    smoothScroll(pos, LinearSmoothScroller.SNAP_TO_END, scale)
-}
-
-/**
  * 滚动RecyclerView，可带有offset
+ * offset = 0（默认）：目标 Item 的顶部与 RecyclerView 的顶部完全对齐（精准置顶）；
+ * offset = 50：目标 Item 的顶部距离 RecyclerView 顶部保留 50px 的偏移；
+ * offset = -30：目标 Item 的顶部超出 RecyclerView 顶部 30px（部分被遮挡）。
  */
 fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
     if (this == null) return
