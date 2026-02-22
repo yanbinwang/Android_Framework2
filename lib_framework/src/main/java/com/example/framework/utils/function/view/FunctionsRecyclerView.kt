@@ -144,21 +144,54 @@ inline fun RecyclerView?.safeUpdate(crossinline func: () -> Unit) {
 
 /**
  * 获取滑动出来的第一个item的下标
- * (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero
+ * recyclerView?.getFirstVisibleItemPosition().orZero
+ *
+ * fun change(recyclerView: RecyclerView) {
+ *  val index = (recyclerView.layoutManager as? GridLayoutManager)?.findFirstVisibleItemPosition()
+ *  mBinding?.tvDate?.text = mBinding?.adapter?.item(index)?.date
+ * }
+ *
+ * val date get() = EN_YMDHMS.convert(CN_YM, createTime.orEmpty())
+ * viewModel.list.observe {
+ *     mBinding?.adapter?.notify(this, viewModel)
+ *     // 赋值后取出总集合，添加标记后再刷新列表
+ *     var createTime = ""
+ *     mBinding?.adapter?.list()?.forEach {
+ *         if (createTime != it.date) {
+ *             createTime = it.date
+ *             it.first = true
+ *          }
+ *     }
+ *     mBinding?.adapter?.notifyDataSetChanged()
+ * }
  */
-fun RecyclerView?.addOnScrollLayoutManagerListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView.LayoutManager?) -> Unit = {}) {
+fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView) -> Unit = {}) {
     if (this == null) return
     val listener = object : RecyclerView.OnScrollListener() {
-        // 滚动状态变化时（停止/拖拽/惯性滚动）回调
+        /**
+         * 滚动状态变化时（停止/拖拽/惯性滚动）回调
+         * change(recyclerView)
+         */
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            func.invoke(recyclerView.layoutManager)
+            func.invoke(recyclerView)
         }
 
-        // 滚动过程中持续回调
+        /**
+         * 滚动过程中持续回调
+         * // -1代表顶部,1代表底部,返回true表示没到还可以滑
+         * if (!recyclerView.canScrollVertically(-1)) {
+         *     mBinding?.tvDate.gone()
+         * } else {
+         *     if (recyclerView.canScrollVertically(1)) {
+         *         if (dy >= 1) mBinding?.tvDate.visible()
+         *     }
+         * }
+         * change(recyclerView)
+         */
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            func.invoke(recyclerView.layoutManager)
+            func.invoke(recyclerView)
         }
     }
     addOnScrollListener(listener)
@@ -170,6 +203,11 @@ fun RecyclerView?.addOnScrollLayoutManagerListener(owner: LifecycleOwner? = getL
 /**
  * GridLayoutManager 是 LinearLayoutManager 的子类，而两者都实现了 LinearLayoutManagerCompat 相关特性
  */
+fun RecyclerView?.getFirstVisibleItemPosition(): Int {
+    if (this == null) return 0
+    return layoutManager.getFirstVisibleItemPosition()
+}
+
 fun RecyclerView.LayoutManager?.getFirstVisibleItemPosition(): Int {
     return if (this is LinearLayoutManager) {
         this.findFirstVisibleItemPosition().orZero

@@ -32,6 +32,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.safeUpdate
+import com.example.framework.utils.function.view.setOnScrollListener
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -335,6 +336,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun setRecyclerBackgroundColor(@ColorInt color: Int) {
         recycler.setBackgroundColor(color)
+    }
+
+    /**
+     * 设置滚动监听
+     */
+    fun setOnScrollListener(func: (manager: RecyclerView) -> Unit = {}) {
+        recycler.setOnScrollListener(lifecycleOwner, func)
     }
 
     /**
