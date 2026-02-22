@@ -184,7 +184,8 @@ fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner
 }
 
 /**
- * GridLayoutManager 是 LinearLayoutManager 的子类，而两者都实现了 LinearLayoutManagerCompat 相关特性
+ * 获取 RecyclerView 第一个可见 Item 位置（部分可见）
+ * 适配 LinearLayout/Grid/StaggeredGrid 布局
  */
 fun RecyclerView?.getFirstVisibleItemPosition(): Int {
     if (this == null) return 0
@@ -192,10 +193,38 @@ fun RecyclerView?.getFirstVisibleItemPosition(): Int {
 }
 
 fun RecyclerView.LayoutManager?.getFirstVisibleItemPosition(): Int {
-    return if (this is LinearLayoutManager) {
-        this.findFirstVisibleItemPosition().orZero
-    } else {
-        0
+    return when (this) {
+        // LinearLayoutManager 及其子类（GridLayoutManager）
+        is LinearLayoutManager -> {
+            this.findFirstVisibleItemPosition()
+        }
+        // 瀑布流布局（StaggeredGridLayoutManager）
+        is StaggeredGridLayoutManager -> {
+            // 瀑布流返回的是数组（多列），取最小的位置（第一个可见）
+            this.findFirstVisibleItemPositions(null).minOrNull().orZero
+        }
+        // 其他布局管理器（如自定义），返回0（无通用方法）
+        else -> 0
+    }
+}
+
+/**
+ * 获取 RecyclerView 第一个完全可见 Item 位置
+ * 适配 LinearLayout/Grid 布局，StaggeredGrid 需手动判断
+ */
+fun RecyclerView?.getFirstCompletelyVisibleItemPosition(): Int {
+    if (this == null) return 0
+    return layoutManager.getFirstCompletelyVisibleItemPosition()
+}
+
+fun RecyclerView.LayoutManager?.getFirstCompletelyVisibleItemPosition(): Int {
+    return when (this) {
+        // LinearLayout/GridLayout 有现成方法，直接用
+        is LinearLayoutManager -> {
+            this.findFirstCompletelyVisibleItemPosition()
+        }
+        // 其他布局管理器返回0
+        else -> 0
     }
 }
 
