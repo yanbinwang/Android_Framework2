@@ -10,6 +10,7 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.os.Build
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.Gravity
@@ -770,20 +771,6 @@ fun View?.focus() {
     findFocus() //获取焦点
 }
 
-///**
-// * 控件获取默认值
-// * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
-// */
-//fun View?.text(): String {
-//    return when (this) {
-//        is EditText -> text.toString().trim { it <= ' ' }
-//        is TextView -> text.toString().trim { it <= ' ' }
-//        is CheckBox -> text.toString().trim { it <= ' ' }
-//        is RadioButton -> text.toString().trim { it <= ' ' }
-//        is Button -> text.toString().trim { it <= ' ' }
-//        else -> ""
-//    }
-//}
 /**
  * 获取View的文本内容并进行自定义trim处理
  * @param trimPredicate 自定义trim规则，默认移除所有Unicode空白字符
@@ -811,15 +798,18 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
  * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
  */
 fun ViewGroup?.actionCancel() {
-//    if (this == null) return
-//    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
     if (this == null) return
     // 构造 ACTION_CANCEL 事件（必须回收，避免内存泄漏）
-    val cancelEvent = MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
-    // 分发 CANCEL 事件，ItemTouchHelper 会收到并执行 select(null, ACTION_STATE_IDLE)
-    dispatchTouchEvent(cancelEvent)
-    // 回收事件
-    cancelEvent.recycle()
+    val cancelEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    // 分发取消事件（加try-catch避免极端场景崩溃）
+    try {
+        dispatchTouchEvent(cancelEvent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        // 无论是否异常，都回收事件
+        cancelEvent.recycle()
+    }
 //    // 清空 ItemTouchHelper 的选中状态（兜底）
 //    (itemTouchHelper as? YourItemTouchHelper)?.select(null, YourItemTouchHelper.ACTION_STATE_IDLE)
 }
@@ -993,8 +983,11 @@ fun ImageView?.safeRecycle() {
  */
 fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
     this ?: return
-    setGroupIndicator(null)//去除右侧箭头
-    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    // 去除右侧箭头
+    setGroupIndicator(null)
+    // 使列表不能点击收缩
+    setOnGroupClickListener { _, _, _, _ -> true }
+    // 设置折叠适配器
     setAdapter(adapter)
 }
 
@@ -1043,7 +1036,7 @@ fun CardView?.init(cornerRadius: Float = 0f) {
  *         }
  *     }
  */
-fun AppBarLayout?.setOnStateChangedListener(func: (state: AppBarLayoutStateChangeListener.State) -> Unit = {}) {
+fun AppBarLayout?.setOnStateChangedListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (state: AppBarLayoutStateChangeListener.State) -> Unit = {}) {
     this ?: return
     val listener = object : AppBarLayoutStateChangeListener() {
         override fun onStateChanged(appBarLayout: AppBarLayout?, state: State) {
@@ -1051,7 +1044,7 @@ fun AppBarLayout?.setOnStateChangedListener(func: (state: AppBarLayoutStateChang
         }
     }
     addOnOffsetChangedListener(listener)
-    getLifecycleOwner().doOnDestroy {
+    owner.doOnDestroy {
         removeOnOffsetChangedListener(listener)
     }
 }

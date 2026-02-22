@@ -325,8 +325,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 安全更新
      */
-    fun safeUpdate(action: () -> Unit) {
-        recycler.safeUpdate(action)
+    fun safeUpdate(func: () -> Unit) {
+        recycler.safeUpdate(func)
     }
 
     /**

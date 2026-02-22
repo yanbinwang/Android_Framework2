@@ -1,9 +1,8 @@
 package com.example.framework.utils.function.view
 
 import android.annotation.SuppressLint
-import android.os.SystemClock
-import android.view.MotionEvent
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,6 +10,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -87,14 +87,14 @@ fun RecyclerView?.enableViewHolderCache() {
  * 临时禁用缓存执行操作并自动恢复
  * 它只在执行特定操作（如数据刷新）时临时禁用缓存，操作完成后立即恢复默认缓存策略，实现精确控制与性能优化的平衡
  */
-inline fun RecyclerView?.withTempDisabledCache(action: () -> Unit) {
+inline fun RecyclerView?.withTempDisabledCache(func: () -> Unit) {
     this ?: return
     // 保存当前动画状态
     val originalAnimations = (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations ?: true
     // 临时禁用缓存
     disableViewHolderCache()
     // 执行具体操作（如刷新数据）
-    action()
+    func()
     // 恢复缓存策略（在 block 之后执行）
     enableViewHolderCache()
     // 恢复原始动画状态（在 block 之后执行）
@@ -104,9 +104,9 @@ inline fun RecyclerView?.withTempDisabledCache(action: () -> Unit) {
 /**
  * RecyclerView 安全更新扩展函数
  * 解决 "Cannot call this method while RecyclerView is computing a layout or scrolling" 异常
- * @param action 要执行的更新逻辑（如 adapter.notifyXXX()/数据修改）
+ * @param func 要执行的更新逻辑（如 adapter.notifyXXX()/数据修改）
  */
-inline fun RecyclerView?.safeUpdate(crossinline action: () -> Unit) {
+inline fun RecyclerView?.safeUpdate(crossinline func: () -> Unit) {
     // 空指针防护：RecyclerView 实例为空时直接返回
     this ?: return
     // 生命周期防护：View未挂载到窗口时不执行（避免页面销毁后仍更新）
@@ -115,7 +115,12 @@ inline fun RecyclerView?.safeUpdate(crossinline action: () -> Unit) {
     post {
         // 双重校验：执行前再次确认状态（防止post期间View状态变化）
         if (isAttachedToWindow && !isComputingLayout) {
-            action()
+            try {
+                func()
+            } catch (e: Exception) {
+                // 捕获意外异常，避免崩溃扩散（保留基础异常防护）
+                e.printStackTrace()
+            }
         }
     }
 }
@@ -124,19 +129,25 @@ inline fun RecyclerView?.safeUpdate(crossinline action: () -> Unit) {
  * 获取滑动出来的第一个item的下标
  * (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero
  */
-fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(action: ((manager: RecyclerView.LayoutManager?) -> Unit)?) {
+fun RecyclerView?.addOnScrollLayoutManagerListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView.LayoutManager?) -> Unit = {}) {
     if (this == null) return
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
+    val listener = object : RecyclerView.OnScrollListener() {
+        // 滚动状态变化时（停止/拖拽/惯性滚动）回调
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            action?.invoke(recyclerView.layoutManager)
+            func.invoke(recyclerView.layoutManager)
         }
 
+        // 滚动过程中持续回调
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            action?.invoke(recyclerView.layoutManager)
+            func.invoke(recyclerView.layoutManager)
         }
-    })
+    }
+    addOnScrollListener(listener)
+    owner.doOnDestroy {
+        removeOnScrollListener(listener)
+    }
 }
 
 /**
@@ -185,20 +196,19 @@ fun RecyclerView?.isBottom(): Boolean {
  */
 fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
     if (this == null) return
-    cancelParentTouchEvent()
-    val manager = layoutManager
-    if (manager !is LinearLayoutManager) return
-    val first = manager.findFirstVisibleItemPosition()
-    val last = manager.findLastVisibleItemPosition()
+    (parent as? ViewGroup).actionCancel()
+    val layoutManager = layoutManager as? LinearLayoutManager ?: return
+    val first = layoutManager.findFirstVisibleItemPosition()
+    val last = layoutManager.findLastVisibleItemPosition()
     if (pos !in first..last) {
         val smoothScroller = object : LinearSmoothScroller(this.context) {
             override fun getVerticalSnapPreference(): Int = type
             override fun getHorizontalSnapPreference(): Int = type
         }
         smoothScroller.targetPosition = pos
-        layoutManager?.startSmoothScroll(smoothScroller)
+        layoutManager.startSmoothScroll(smoothScroller)
     } else {
-        val targetView = manager.findViewByPosition(pos) ?: return
+        val targetView = layoutManager.findViewByPosition(pos) ?: return
         val top = targetView.top.orZero
         val height = targetView.height.orZero
         val listHeight = measuredHeight
@@ -229,7 +239,8 @@ fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) {
 fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
     if (this == null) return
     // 取消触摸事件
-    cancelParentTouchEvent()
+    (parent as? ViewGroup).actionCancel()
+    // 滑动到指定位置
     scrollToPosition(pos)
     // 合并 LinearLayoutManager + GridLayoutManager（父类覆盖子类，消除重复分支） 仅保留两个分支，消除冗余判断
     layoutManager?.let { lm ->
@@ -238,18 +249,6 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
             is StaggeredGridLayoutManager -> lm.scrollToPositionWithOffset(pos, offset)
             else -> Unit
         }
-    }
-}
-
-/**
- * 取消触摸事件
- */
-private fun RecyclerView?.cancelParentTouchEvent() {
-    this ?: return
-    try {
-        (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (e: Exception) {
-        e.printStackTrace()
     }
 }
 
