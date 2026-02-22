@@ -340,7 +340,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置滚动监听
      */
-    fun setOnScrollListener(func: (manager: RecyclerView) -> Unit = {}) {
+    fun setOnScrollListener(func: (manager: RecyclerView, isScrolled: Boolean) -> Unit = { _, _ -> }) {
         recycler.setOnScrollListener(lifecycleOwner, func)
     }
 
