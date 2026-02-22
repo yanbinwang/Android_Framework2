@@ -165,7 +165,7 @@ inline fun RecyclerView?.safeUpdate(crossinline func: () -> Unit) {
  *     mBinding?.adapter?.notifyDataSetChanged()
  * }
  */
-fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView) -> Unit = {}) {
+fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView, isScrolled: Boolean) -> Unit = { _, _ -> }) {
     if (this == null) return
     val listener = object : RecyclerView.OnScrollListener() {
         /**
@@ -174,7 +174,7 @@ fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner
          */
         override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
             super.onScrollStateChanged(recyclerView, newState)
-            func.invoke(recyclerView)
+            func.invoke(recyclerView, false)
         }
 
         /**
@@ -191,7 +191,7 @@ fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner
          */
         override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
             super.onScrolled(recyclerView, dx, dy)
-            func.invoke(recyclerView)
+            func.invoke(recyclerView, true)
         }
     }
     addOnScrollListener(listener)
