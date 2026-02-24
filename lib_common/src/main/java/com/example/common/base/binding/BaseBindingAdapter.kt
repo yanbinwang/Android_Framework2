@@ -36,11 +36,10 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
-import com.example.framework.utils.function.view.charBlackListLimitFilter
-import com.example.framework.utils.function.view.charWhiteListLimitFilter
+import com.example.framework.utils.function.view.blackListLimit
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
-import com.example.framework.utils.function.view.decimalLimitFilter
+import com.example.framework.utils.function.view.decimalLimit
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
@@ -49,7 +48,8 @@ import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
-import com.example.framework.utils.function.view.spaceLimitFilter
+import com.example.framework.utils.function.view.spaceLimit
+import com.example.framework.utils.function.view.whiteListLimit
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -68,17 +68,15 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
-        if (statusBarMargin.orFalse) {
-            view.margin(top = getStatusBarHeight())
-        }
+        if (!statusBarMargin.orFalse) return
+        view.margin(top = getStatusBarHeight())
     }
 
     @JvmStatic
     @BindingAdapter(value = ["statusBar_padding"])
     fun bindingStatusBarPadding(view: View, statusBarPadding: Boolean?) {
-        if (statusBarPadding.orFalse) {
-            view.padding(top = getStatusBarHeight())
-        }
+        if (!statusBarPadding.orFalse) return
+        view.padding(top = getStatusBarHeight())
     }
 
     /**
@@ -360,34 +358,34 @@ object BaseBindingAdapter {
      * 限制输入内容为目标值
      */
     @JvmStatic
-    @BindingAdapter(value = ["char_white_list_limit"])
-    fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
+    @BindingAdapter(value = ["allowed_limit"])
+    fun bindingEditTextAllowedLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return
-        editText.charWhiteListLimitFilter(charLimit)
+        editText.whiteListLimit(charLimit)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["char_white_list_limit"])
-    fun bindingEditTextCharLimit(editText: ClearEditText, charLimit: CharArray?) {
+    @BindingAdapter(value = ["allowed_limit"])
+    fun bindingEditTextAllowedLimit(editText: ClearEditText, charLimit: CharArray?) {
         if (charLimit == null) return
-        editText.editText.charWhiteListLimitFilter(charLimit)
+        editText.editText.whiteListLimit(charLimit)
     }
 
     /**
      * 限制输入内容排除指定字符（黑名单）
      */
     @JvmStatic
-    @BindingAdapter(value = ["char_black_list_limit"])
-    fun bindingEditTextCharBlackList(editText: EditText, characterAllowed: CharArray?) {
+    @BindingAdapter(value = ["disallowed_limit"])
+    fun bindingEditTextDisallowedList(editText: EditText, characterAllowed: CharArray?) {
         if (characterAllowed == null) return
-        editText.charBlackListLimitFilter(characterAllowed)
+        editText.blackListLimit(characterAllowed)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["char_black_list_limit"])
-    fun bindingEditTextCharBlackList(editText: ClearEditText, characterAllowed: CharArray?) {
+    @BindingAdapter(value = ["disallowed_limit"])
+    fun bindingEditTextDisallowedList(editText: ClearEditText, characterAllowed: CharArray?) {
         if (characterAllowed == null) return
-        editText.editText.charBlackListLimitFilter(characterAllowed)
+        editText.editText.blackListLimit(characterAllowed)
     }
 
     /**
@@ -406,13 +404,13 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["decimal_limit"])
     fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
-        editText.decimalLimitFilter(decimalPoint.toSafeInt())
+        editText.decimalLimit(decimalPoint.toSafeInt())
     }
 
     @JvmStatic
     @BindingAdapter(value = ["decimal_limit"])
     fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
-        editText.editText.decimalLimitFilter(decimalPoint.toSafeInt())
+        editText.editText.decimalLimit(decimalPoint.toSafeInt())
     }
 
     /**
@@ -439,14 +437,14 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["space_limit"])
     fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
         if (!spaceLimit.orFalse) return
-        editText.spaceLimitFilter()
+        editText.spaceLimit()
     }
 
     @JvmStatic
     @BindingAdapter(value = ["space_limit"])
     fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
         if (!spaceLimit.orFalse) return
-        editText.editText.spaceLimitFilter()
+        editText.editText.spaceLimit()
     }
 
     /**

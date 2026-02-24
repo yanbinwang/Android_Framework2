@@ -31,9 +31,14 @@ import androidx.annotation.DimenRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.BlackListFilter
+import com.example.framework.utils.ChineseCharFilter
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
+import com.example.framework.utils.NoEmojiFilter
+import com.example.framework.utils.NumberLimitFilter
 import com.example.framework.utils.SpaceInputFilter
+import com.example.framework.utils.WhiteListFilter
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
@@ -445,28 +450,6 @@ fun EditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROU
 }
 
 /**
- * EditText输入金额小数限制
- */
-fun EditText?.decimalLimitFilter(decimalPoint: Int = 2) {
-    if (this == null) return
-    // 配置数字输入类型（支持小数、正负号）
-    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-    // 移除已有的 DecimalInputFilter，避免重复添加
-    removeFilter { it is DecimalInputFilter }
-    // 添加新的小数筛选器
-    addFilter(DecimalInputFilter(decimalPoint))
-}
-
-/**
- * EditText不允许输入空格
- */
-fun EditText?.spaceLimitFilter() {
-    if (this == null) return
-    removeFilter { it is SpaceInputFilter }
-    addFilter(SpaceInputFilter())
-}
-
-/**
  * 添加EditText的InputFilter
  */
 fun EditText?.addFilter(vararg filterList: InputFilter) {
@@ -478,13 +461,16 @@ fun EditText?.addFilter(vararg filterList: InputFilter) {
 /**
  * 去除EditText的InputFilter
  */
-fun EditText?.removeFilter(vararg filterList: InputFilter) {
+fun EditText?.removeFilter(vararg filterClasses: Class<out InputFilter>) {
     if (this == null) return
     // 处理 filters 为 null 的情况，转为空列表
     val currentFilters = filters ?: emptyArray()
-    // 过滤掉要移除的筛选器
-    val newFilters = currentFilters.filter { !filterList.contains(it) }
-    // 重新设置筛选器（转为数组，避免类型错误）
+    // 过滤掉指定类型的Filter（保留非目标类型的）
+    val newFilters = currentFilters.filter { filter ->
+        // 只要Filter不属于传入的任意一个类型，就保留
+        !filterClasses.any { it.isInstance(filter) }
+    }
+    // 重新设置筛选器
     filters = newFilters.toTypedArray()
 }
 
@@ -499,20 +485,31 @@ internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
 }
 
 /**
+ * EditText不允许输入空格
+ */
+fun EditText?.spaceLimit() {
+    if (this == null) return
+    removeFilter { it is SpaceInputFilter }
+    addFilter(SpaceInputFilter())
+}
+
+/**
  * 限制输入内容仅为指定字符（白名单）
  * "0123456789."
  */
-fun EditText?.charWhiteListLimitFilter(characterAllowed: CharArray) {
+fun EditText?.whiteListLimit(allowed: CharArray) {
     this ?: return
-    EditTextUtil.setCharWhiteListLimitFilter(this, characterAllowed)
+    removeFilter { it is WhiteListFilter }
+    addFilter(WhiteListFilter(allowed))
 }
 
 /**
  * 限制输入内容排除指定字符（黑名单）
  */
-fun EditText?.charBlackListLimitFilter(characterAllowed: CharArray) {
+fun EditText?.blackListLimit(disallowed: CharArray) {
     this ?: return
-    EditTextUtil.setCharBlackListLimitFilter(this, characterAllowed)
+    removeFilter { it is BlackListFilter }
+    addFilter(BlackListFilter(disallowed))
 }
 
 /**
@@ -520,7 +517,8 @@ fun EditText?.charBlackListLimitFilter(characterAllowed: CharArray) {
  */
 fun EditText?.emojiLimit() {
     this ?: return
-    EditTextUtil.setEmojiLimit(this)
+    removeFilter { it is NoEmojiFilter }
+    addFilter(NoEmojiFilter())
 }
 
 /**
@@ -528,23 +526,40 @@ fun EditText?.emojiLimit() {
  */
 fun EditText?.chineseLimit() {
     this ?: return
-    EditTextUtil.setChineseLimit(this)
+    removeFilter { it is ChineseCharFilter }
+    addFilter(ChineseCharFilter())
+}
+
+/**
+ * EditText输入金额小数限制
+ */
+fun EditText?.decimalLimit(decimalPoint: Int = 2) {
+    if (this == null) return
+    // 配置数字输入类型（支持小数、正负号）
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    // 移除已有的 DecimalInputFilter，避免重复添加
+    removeFilter { it is DecimalInputFilter }
+    // 添加新的小数筛选器
+    addFilter(DecimalInputFilter(decimalPoint))
 }
 
 /**
  * 设置EditText输入的最大长度
  */
-fun EditText?.maxLength(maxLength: Int) {
+fun EditText?.maxLimit(maxLength: Int) {
     this ?: return
-    EditTextUtil.setMaxLength(this, maxLength)
+    removeFilter { it is InputFilter.LengthFilter }
+    addFilter(InputFilter.LengthFilter(maxLength))
 }
 
 /**
  * 设置EditText输入数值的最大值
  */
-fun EditText?.maxValue(maxLength: Int, maxDecimal: Int) {
+fun EditText?.maxLimit(maxLength: Int, maxDecimal: Int) {
     this ?: return
-    EditTextUtil.setMaxValue(this, maxLength, maxDecimal)
+    removeFilter(InputFilter.LengthFilter::class.java, NumberLimitFilter::class.java)
+    addFilter(InputFilter.LengthFilter(maxLength + 1 + maxDecimal))
+    addFilter(NumberLimitFilter(maxLength, maxDecimal))
 }
 
 /**
