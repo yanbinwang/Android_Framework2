@@ -15,10 +15,10 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
-import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
@@ -60,7 +60,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             val text = getResourceId(R.styleable.PasswordEditText_text, -1)
             if (text != -1) setText(text)
             // 文字大小
-            val textSize = getDimension(R.styleable.PasswordEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = getDimension(R.styleable.PasswordEditText_textSize, dimen(R.dimen.textSize14))
             setTextSize(textSize)
             // 文字颜色
             val textColor = getColor(R.styleable.PasswordEditText_textColor, color(R.color.textPrimary))
