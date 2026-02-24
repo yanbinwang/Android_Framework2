@@ -36,11 +36,11 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
-import com.example.framework.utils.function.view.charBlackList
-import com.example.framework.utils.function.view.charLimit
+import com.example.framework.utils.function.view.charBlackListLimitFilter
+import com.example.framework.utils.function.view.charWhiteListLimitFilter
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
-import com.example.framework.utils.function.view.decimalFilter
+import com.example.framework.utils.function.view.decimalLimitFilter
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
@@ -49,7 +49,7 @@ import com.example.framework.utils.function.view.initLinearVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
-import com.example.framework.utils.function.view.spaceLimit
+import com.example.framework.utils.function.view.spaceLimitFilter
 
 /**
  * Created by WangYanBin on 2020/6/10.
@@ -357,52 +357,37 @@ object BaseBindingAdapter {
     }
 
     /**
-     * 设置小数点
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["decimal_point"])
-    fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
-        editText.decimalFilter(decimalPoint.toSafeInt())
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["decimal_point"])
-    fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
-        editText.editText.decimalFilter(decimalPoint.toSafeInt())
-    }
-
-    /**
-     * 限制输入内容为非目标值
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["character_allowed"])
-    fun bindingEditTextCharBlackList(editText: EditText, characterAllowed: CharArray?) {
-        if (characterAllowed == null) return
-        editText.charBlackList(characterAllowed)
-    }
-
-    @JvmStatic
-    @BindingAdapter(value = ["character_allowed"])
-    fun bindingEditTextCharBlackList(editText: ClearEditText, characterAllowed: CharArray?) {
-        if (characterAllowed == null) return
-        editText.editText.charBlackList(characterAllowed)
-    }
-
-    /**
      * 限制输入内容为目标值
      */
     @JvmStatic
-    @BindingAdapter(value = ["char_limit"])
+    @BindingAdapter(value = ["char_white_list_limit"])
     fun bindingEditTextCharLimit(editText: EditText, charLimit: CharArray?) {
         if (charLimit == null) return
-        editText.charLimit(charLimit)
+        editText.charWhiteListLimitFilter(charLimit)
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["char_limit"])
+    @BindingAdapter(value = ["char_white_list_limit"])
     fun bindingEditTextCharLimit(editText: ClearEditText, charLimit: CharArray?) {
         if (charLimit == null) return
-        editText.editText.charLimit(charLimit)
+        editText.editText.charWhiteListLimitFilter(charLimit)
+    }
+
+    /**
+     * 限制输入内容排除指定字符（黑名单）
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["char_black_list_limit"])
+    fun bindingEditTextCharBlackList(editText: EditText, characterAllowed: CharArray?) {
+        if (characterAllowed == null) return
+        editText.charBlackListLimitFilter(characterAllowed)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["char_black_list_limit"])
+    fun bindingEditTextCharBlackList(editText: ClearEditText, characterAllowed: CharArray?) {
+        if (characterAllowed == null) return
+        editText.editText.charBlackListLimitFilter(characterAllowed)
     }
 
     /**
@@ -411,28 +396,23 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["emoji_limit"])
     fun bindingEditTextEmojiLimit(editText: EditText, emojiLimit: Boolean?) {
-        if (emojiLimit.orFalse) {
-            editText.emojiLimit()
-        }
+        if (!emojiLimit.orFalse) return
+        editText.emojiLimit()
     }
 
     /**
-     * 是否禁止输入空格
+     * 设置小数点
      */
     @JvmStatic
-    @BindingAdapter(value = ["space_limit"])
-    fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
-        if (spaceLimit.orFalse) {
-            editText.spaceLimit()
-        }
+    @BindingAdapter(value = ["decimal_limit"])
+    fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
+        editText.decimalLimitFilter(decimalPoint.toSafeInt())
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["space_limit"])
-    fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
-        if (spaceLimit.orFalse) {
-            editText.editText.spaceLimit()
-        }
+    @BindingAdapter(value = ["decimal_limit"])
+    fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
+        editText.editText.decimalLimitFilter(decimalPoint.toSafeInt())
     }
 
     /**
@@ -441,17 +421,32 @@ object BaseBindingAdapter {
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
     fun bindingEditTextNumberDecimal(editText: EditText, numberDecimal: Boolean?) {
-        if(numberDecimal.orFalse) {
-            editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-        }
+        if(!numberDecimal.orFalse) return
+        editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
 
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
     fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
-        if(numberDecimal.orFalse) {
-            editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
-        }
+        if(!numberDecimal.orFalse) return
+        editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    }
+
+    /**
+     * 是否禁止输入空格
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["space_limit"])
+    fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
+        if (!spaceLimit.orFalse) return
+        editText.spaceLimitFilter()
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["space_limit"])
+    fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
+        if (!spaceLimit.orFalse) return
+        editText.editText.spaceLimitFilter()
     }
 
     /**

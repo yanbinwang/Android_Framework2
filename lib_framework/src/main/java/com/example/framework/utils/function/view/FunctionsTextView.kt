@@ -10,8 +10,8 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.Editable
 import android.text.InputFilter
+import android.text.InputType
 import android.text.Spannable
-import android.text.Spanned
 import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
@@ -33,6 +33,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
+import com.example.framework.utils.SpaceInputFilter
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
@@ -42,7 +43,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.parseColor
 import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.value.toArrayList
-import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
@@ -293,74 +293,29 @@ fun TextView?.clearHighlightColor() {
 }
 
 /**
- * EditText输入密码是否可见(显隐)
+ * 切换 EditText 的密码可见性（隐藏 ↔ 显示）
+ * @return 切换后的状态：true=密码可见，false=密码隐藏
  */
-fun EditText?.passwordDevelopment(): Boolean {
+fun EditText?.togglePasswordVisibility(): Boolean {
     if (this == null) return false
-    var display = false
+    var isPasswordVisible = false
     try {
         if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
             transformationMethod = PasswordTransformationMethod.getInstance()
-            display = false
+            isPasswordVisible = false
         } else {
             transformationMethod = HideReturnsTransformationMethod.getInstance()
-            display = true
+            isPasswordVisible = true
         }
-        setSelection(text.length)
-        postInvalidate()
+        if (!text.isNullOrEmpty()) {
+            setSelection(text.length)
+        }
+//        postInvalidate() // 可在子线程执行,多一层判断
+        invalidate() // 主线程执行
     } catch (e: Exception) {
         e.printStackTrace()
     }
-    return display
-}
-
-/**
- * EditText输入金额小数限制
- */
-fun EditText?.decimalFilter(decimalPoint: Int = 2) {
-    if (this == null) return
-    removeFilter { it is DecimalInputFilter }
-    val decimalInputFilter = DecimalInputFilter()
-    decimalInputFilter.decimalPoint = decimalPoint
-    addFilter(decimalInputFilter)
-}
-
-/**
- * EditText不允许输入空格
- */
-fun EditText?.spaceLimit() {
-    if (this == null) return
-    addFilter(object : InputFilter {
-        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
-            val result = source ?: ""
-            return if (result == " ") "" else null
-        }
-    })
-}
-
-/**
- * 添加EditText的InputFilter
- */
-fun EditText?.addFilter(vararg filterList: InputFilter) {
-    if (this == null) return
-    filters = filters.plus(filterList)
-}
-
-/**
- * 去除EditText的InputFilter
- */
-fun EditText?.removeFilter(vararg filterList: InputFilter) {
-    if (this == null) return
-    filters = arrayOf<InputFilter>().plus(filters.filter { !filterList.contains(it) })
-}
-
-internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
-    if (this == null) return
-    val filterList = filters.toNewList { it }
-    filterList.forEach {
-        if (func(it)) filterList.remove(it)
-    }
-    filters = filterList.toTypedArray()
+    return isPasswordVisible
 }
 
 /**
@@ -416,17 +371,6 @@ fun EditText?.showInput(observer: LifecycleOwner) {
         showSoftKeyboard(context, this)
     }, 200)
 }
-
-///**
-// * 弹出软键盘
-// */
-//fun EditText?.doInput() {
-//    if (this == null) return
-//    requestFocus()
-//    showSoftKeyboard(context, this)
-////    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-////    inputManager.showSoftInput(this, 0)
-//}
 
 /**
  * 隐藏软键盘
@@ -501,12 +445,74 @@ fun EditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROU
 }
 
 /**
- * 限制输入内容为目标值
+ * EditText输入金额小数限制
+ */
+fun EditText?.decimalLimitFilter(decimalPoint: Int = 2) {
+    if (this == null) return
+    // 配置数字输入类型（支持小数、正负号）
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    // 移除已有的 DecimalInputFilter，避免重复添加
+    removeFilter { it is DecimalInputFilter }
+    // 添加新的小数筛选器
+    addFilter(DecimalInputFilter(decimalPoint))
+}
+
+/**
+ * EditText不允许输入空格
+ */
+fun EditText?.spaceLimitFilter() {
+    if (this == null) return
+    removeFilter { it is SpaceInputFilter }
+    addFilter(SpaceInputFilter())
+}
+
+/**
+ * 添加EditText的InputFilter
+ */
+fun EditText?.addFilter(vararg filterList: InputFilter) {
+    if (this == null) return
+    val currentFilters = filters ?: emptyArray()
+    filters = currentFilters.plus(filterList)
+}
+
+/**
+ * 去除EditText的InputFilter
+ */
+fun EditText?.removeFilter(vararg filterList: InputFilter) {
+    if (this == null) return
+    // 处理 filters 为 null 的情况，转为空列表
+    val currentFilters = filters ?: emptyArray()
+    // 过滤掉要移除的筛选器
+    val newFilters = currentFilters.filter { !filterList.contains(it) }
+    // 重新设置筛选器（转为数组，避免类型错误）
+    filters = newFilters.toTypedArray()
+}
+
+internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
+    if (this == null) return
+    // 安全获取当前筛选器列表（null 兜底为空列表）
+    val currentFilters = filters?.toList() ?: emptyList()
+    // 过滤掉要移除的 Filter（避免遍历删除的坑）
+    val remainingFilters = currentFilters.filterNot(func)
+    // 重新设置筛选器（转数组）
+    filters = remainingFilters.toTypedArray()
+}
+
+/**
+ * 限制输入内容仅为指定字符（白名单）
  * "0123456789."
  */
-fun EditText?.charLimit(characterAllowed: CharArray) {
+fun EditText?.charWhiteListLimitFilter(characterAllowed: CharArray) {
     this ?: return
-    EditTextUtil.setCharLimit(this, characterAllowed)
+    EditTextUtil.setCharWhiteListLimitFilter(this, characterAllowed)
+}
+
+/**
+ * 限制输入内容排除指定字符（黑名单）
+ */
+fun EditText?.charBlackListLimitFilter(characterAllowed: CharArray) {
+    this ?: return
+    EditTextUtil.setCharBlackListLimitFilter(this, characterAllowed)
 }
 
 /**
@@ -555,14 +561,6 @@ fun EditText?.inputType(inputType: Int) {
 fun EditText?.imeOptions(imeOptions: Int) {
     this ?: return
     EditTextUtil.setImeOptions(this, imeOptions)
-}
-
-/**
- * 限制输入内容为非目标值
- */
-fun EditText?.charBlackList(characterAllowed: CharArray) {
-    this ?: return
-    EditTextUtil.setCharBlackList(this, characterAllowed)
 }
 
 /**
