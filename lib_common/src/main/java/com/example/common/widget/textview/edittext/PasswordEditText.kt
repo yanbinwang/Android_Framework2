@@ -26,8 +26,8 @@ import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
-import com.example.framework.utils.function.view.passwordDevelopment
 import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.togglePasswordVisibility
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -52,7 +52,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         }
         mBinding.ivShow.apply {
             click {
-                setResource(Triple(mBinding.etClear.passwordDevelopment(), showRes, hideRes))
+                setResource(Triple(mBinding.etClear.togglePasswordVisibility(), showRes, hideRes))
             }
         }
         // 以下属性在xml中前缀使用app:调取
