@@ -20,10 +20,10 @@ import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.widget.textview.SpecialEditText
-import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
@@ -64,7 +64,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val text = getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
             // 文字大小
-            val textSize = getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = getDimension(R.styleable.ClearEditText_textSize, dimen(R.dimen.textSize14))
             setTextSize(textSize)
             // 文字颜色
             val textColor = getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
