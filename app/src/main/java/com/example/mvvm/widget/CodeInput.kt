@@ -12,11 +12,11 @@ import androidx.core.view.size
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.ptFloat
-import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.inputType
 import com.example.framework.utils.function.view.margin
@@ -39,7 +39,7 @@ class CodeInput @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.CodeInput) {
             // 文字大小 -> setTextSize(size, TypedValue.COMPLEX_UNIT_PX)
-            val textSize = getDimension(R.styleable.CodeInput_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = getDimension(R.styleable.CodeInput_textSize, dimen(R.dimen.textSize14))
             // 文字颜色 -> setTextColor(color)
             val textColor = getColor(R.styleable.CodeInput_textColor, color(R.color.textPrimary))
             // 配置文案输入的格式
