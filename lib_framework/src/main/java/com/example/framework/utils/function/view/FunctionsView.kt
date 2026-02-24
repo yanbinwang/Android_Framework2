@@ -40,6 +40,7 @@ import androidx.annotation.AnimRes
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
@@ -55,7 +56,9 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.font
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
@@ -833,6 +836,16 @@ fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
  * 获取resources中的drawable
  */
 fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
+
+/**
+ * 获取Resources中的font
+ */
+fun ViewGroup.font(@FontRes res: Int) = context.font(res)
+
+/**
+ * 获取Resources中的Dimes
+ */
+fun ViewGroup.dimen(@DimenRes res: Int) = context.dimen(res)
 
 /**
  * 获取Resources中的String
