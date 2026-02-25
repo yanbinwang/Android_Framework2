@@ -8,6 +8,8 @@ import android.content.pm.ActivityInfo
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.os.Process.killProcess
+import android.os.Process.myPid
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -66,12 +68,14 @@ import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.exitProcess
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -145,6 +149,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 先检测大屏设备，再执行父类的onCreate，避免布局加载
+        if (checkLargeScreen()) {
+            // 如果检测到大屏设备，直接return，不执行后续逻辑
+            return
+        }
         /**
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
          * 状态栏:
@@ -202,6 +211,49 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initView(savedInstanceState)
         initEvent()
         initData()
+    }
+
+    /**
+     * 检测大屏设备
+     * @return true-检测到大屏设备并弹出提示，false-正常设备
+     */
+    private var checkedLargeScreen = false
+    private fun checkLargeScreen(): Boolean {
+        if (checkedLargeScreen) return false
+        checkedLargeScreen = true
+        // Activity状态校验，防止异常场景下的崩溃
+        if (isFinishing || isDestroyed) {
+            return false
+        }
+        // 判断是否为大屏设备（宽度≥600dp）
+        val config = resources.configuration
+        val isLargeScreen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            // 安卓7.0+ 检测是否为分屏/多窗口模式
+            !isInMultiWindowMode && config.screenWidthDp >= 600
+        } else {
+            config.screenWidthDp >= 600
+        }
+        if (isLargeScreen) {
+            // 确保在UI线程执行弹窗操作
+            launch(Main.immediate) {
+                mDialog
+                    .setPositive(message = "当前设备为平板/大屏设备，暂不支持使用")
+                    .setDialogListener({
+                        // 关闭所有Activity
+                        finishAffinity()
+                        // 终止进程（兼容所有安卓版本，捕获异常）
+                        try {
+                            killProcess(myPid())
+                            exitProcess(0)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
+                    })
+                    .show()
+            }
+            return true
+        }
+        return false
     }
 
     /**

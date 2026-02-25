@@ -10,10 +10,10 @@ import java.io.IOException
 /**
  * @description 音频播放帮助类
  * @author yan
- * @autoResume 是否允许生命周期自动恢复播放（默认开启，可关闭）
+ * @autoResume 是否允许生命周期自动恢复播放（默认关闭，可开启）
  * @autoPause 是否允许生命周期自动暂停播放（默认开启，可关闭）
  */
-class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false, private val autoPause: Boolean = false) : LifecycleEventObserver {
+class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false, private val autoPause: Boolean = true) : LifecycleEventObserver {
     // 当前 MediaPlayer 状态（辅助判断，避免依赖 isPlaying() 单一状态）
     private var currentState = State.IDLE
     // 暴露外部回调
@@ -100,6 +100,10 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
      */
     fun start() {
         try {
+            // 切回前台时，如果currentState标记是STARTED，但底层MediaPlayer已经被系统暂停了，把状态校准为PAUSED，确保autoResume=true能正常触发播放
+            if (currentState == State.STARTED && !player.isPlaying) {
+                currentState = State.PAUSED
+            }
             when (currentState) {
                 State.PREPARED, State.PAUSED, State.COMPLETED -> {
                     player.start()
