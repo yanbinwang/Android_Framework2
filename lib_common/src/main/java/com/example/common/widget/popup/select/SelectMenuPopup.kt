@@ -26,7 +26,7 @@ import java.lang.ref.WeakReference
  */
 class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> String?) : BasePopupWindow<ViewPopupSelectMenuBinding>(activity, hasLight = false) {
     private var lastMenuWidth = 0
-    private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
+    private var listener: ((item: String?, index: Int) -> Unit)? = null
 
     companion object {
 
@@ -93,7 +93,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
                 val root = SelectItemHolder(this, formatter(t), index).also {
                     it.onItemClick = { item, clickIndex ->
                         dismiss()
-                        onCurrent?.invoke(item, clickIndex)
+                        listener?.invoke(item, clickIndex)
                     }
                 }.mBinding.root
                 // 添加布局进外层父布局
@@ -116,8 +116,8 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
         container.addView(view)
     }
 
-    fun setOnItemClickListener(onCurrent: ((item: String?, index: Int) -> Unit)) {
-        this.onCurrent = onCurrent
+    fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
+        this.listener = listener
     }
 
 }
