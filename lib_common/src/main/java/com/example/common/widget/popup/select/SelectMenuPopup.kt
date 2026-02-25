@@ -28,6 +28,17 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
     private var lastMenuWidth = 0
     private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
 
+    companion object {
+
+        /**
+         * 不添加默认数据的构建
+         */
+        fun create(activity: FragmentActivity): SelectMenuPopup<String> {
+            return SelectMenuPopup(activity) { "" }
+        }
+
+    }
+
     /**
      * 假设弹出的上方的view是绘制好的
      *  mBinding?.llFilter?.doOnceAfterLayout {

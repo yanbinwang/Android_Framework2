@@ -49,40 +49,71 @@ import com.example.framework.utils.function.view.size
 //    }
 //
 //}
-class SelectLabelPopup<T>(private val list: List<T>, var formatter: (T?) -> String?) : BaseBottomSheetDialogFragment<ViewPopupSelectLabelBinding>() {
-    private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
+class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> String?) : BaseBottomSheetDialogFragment<ViewPopupSelectLabelBinding>() {
+    private var listener: ((item: String?, index: Int) -> Unit)? = null
+
+    companion object {
+
+        /**
+         * 不添加默认数据的构建
+         */
+        fun create(list: List<String>? = emptyList()): SelectLabelPopup<String> {
+            return SelectLabelPopup(list.orEmpty()) { it }
+        }
+
+    }
+
+    override fun initEvent() {
+        super.initEvent()
+        mBinding?.tvCancel.click {
+            dismiss()
+        }
+    }
 
     override fun initData() {
         super.initData()
-        mBinding?.apply {
-            llItem.apply {
-                removeAllViews()
-                list.forEachIndexed { index, t ->
-                    // 获取根布局
-                    val root = SelectItemHolder(llItem, formatter(t), index).also {
-                        it.onItemClick = { item, index ->
-                            dismiss()
-                            onCurrent?.invoke(item, index)
-                        }
-                    }.mBinding.root
-                    // 添加布局进外层父布局
-                    addView(root)
-                    // 添加完成后设置大小
-                    root.size(height = 50.pt)
-                    // 判断是否需要添加下划线
-                    if (list.safeSize - 1 > index) {
-                        root.margin(bottom = 1.pt)
+        mBinding?.llItem?.apply {
+            removeAllViews()
+            list.forEachIndexed { index, t ->
+                // 获取根布局
+                val root = SelectItemHolder(this, formatter(t), index).also {
+                    it.onItemClick = { item, index ->
+                        dismiss()
+                        listener?.invoke(item, index)
                     }
+                }.mBinding.root
+                // 添加布局进外层父布局
+                addView(root)
+                // 添加完成后设置大小
+                root.size(height = 50.pt)
+                // 判断是否需要添加下划线
+                if (list.safeSize - 1 > index) {
+                    root.margin(bottom = 1.pt)
                 }
-            }
-            tvCancel.click {
-                dismiss()
             }
         }
     }
 
-    fun setOnItemClickListener(onCurrent: ((item: String?, index: Int) -> Unit)) {
-        this.onCurrent = onCurrent
+    /**
+     * 刷新内部布局
+     */
+    fun setParams(data: List<T>) {
+        list = data
+        initData()
+    }
+
+    /**
+     * 设置监听
+     */
+    fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
+        this.listener = listener
+    }
+
+    /**
+     * 获取数据
+     */
+    fun getData(): List<T> {
+        return list
     }
 
 }
