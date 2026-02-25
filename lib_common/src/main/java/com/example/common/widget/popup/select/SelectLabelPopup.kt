@@ -50,7 +50,18 @@ import com.example.framework.utils.function.view.size
 //
 //}
 class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> String?) : BaseBottomSheetDialogFragment<ViewPopupSelectLabelBinding>() {
-    private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
+    private var listener: ((item: String?, index: Int) -> Unit)? = null
+
+    companion object {
+
+        /**
+         * 不添加默认数据的构建
+         */
+        fun create(list: List<String>? = emptyList()): SelectLabelPopup<String> {
+            return SelectLabelPopup(list.orEmpty()) { it }
+        }
+
+    }
 
     override fun initEvent() {
         super.initEvent()
@@ -68,7 +79,7 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
                 val root = SelectItemHolder(this, formatter(t), index).also {
                     it.onItemClick = { item, index ->
                         dismiss()
-                        onCurrent?.invoke(item, index)
+                        listener?.invoke(item, index)
                     }
                 }.mBinding.root
                 // 添加布局进外层父布局
@@ -94,8 +105,15 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
     /**
      * 设置监听
      */
-    fun setOnItemClickListener(onCurrent: ((item: String?, index: Int) -> Unit)) {
-        this.onCurrent = onCurrent
+    fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
+        this.listener = listener
+    }
+
+    /**
+     * 获取数据
+     */
+    fun getData(): List<T> {
+        return list
     }
 
 }
