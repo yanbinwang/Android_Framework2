@@ -201,13 +201,13 @@
         <item name="android:clipToPadding">false</item>
         <item name="tabBackground">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
-        <item name="tabIndicatorColor">@color/bgMain</item>
+        <item name="tabIndicatorColor">@color/tabIndicator</item>
         <item name="tabIndicatorFullWidth">false</item>
         <item name="tabIndicatorHeight">3pt</item>
         <item name="tabMinWidth">0pt</item>
         <item name="tabRippleColor">@android:color/transparent</item>
-        <item name="tabSelectedTextColor">@color/appTheme</item>
-        <item name="tabTextColor">@color/textHint</item>
+        <item name="tabSelectedTextColor">@color/tabSelected</item>
+        <item name="tabTextColor">@color/tabUnselected</item>
         <item name="tabPadding">0pt</item>
         <item name="tabPaddingStart">0pt</item>
         <item name="tabPaddingTop">0pt</item>
