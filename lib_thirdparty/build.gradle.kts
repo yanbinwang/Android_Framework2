@@ -19,10 +19,6 @@ android {
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
-//    kotlinOptions {
-//        jvmTarget = "11"
-//    }
-
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)

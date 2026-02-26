@@ -31,10 +31,10 @@ import java.util.concurrent.atomic.AtomicReference
  * @author yan
  */
 object I18nUtil {
-    //用於存儲項目中所有繼承I18nImpl的view
+    // 用於存儲項目中所有繼承I18nImpl的view
     private val viewList = AtomicReference(ArrayList<WeakReference<I18nImpl>>())
-    //語言包
-    private val languageMap: ConcurrentHashMap<String, String?>
+    // 語言包
+    private val languageMap: ConcurrentHashMap<String, String>
         get() {
             if (languageBean.get() == null) {
                 languageBean.set(LanguageBean())
@@ -94,7 +94,7 @@ object I18nUtil {
         val result = getText(ctx, res)
         return try {
             String.format(result, *param)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             val sb = StringBuilder()
             param.forEach {
                 sb.append("$it ")
@@ -161,13 +161,13 @@ object I18nUtil {
         val assetManager = BaseApplication.instance.assets
         val inputStream = try {
             assetManager.open(pack)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             assetManager.open(en_US_PACK)
         }
         val reader = JsonReader(InputStreamReader(inputStream, "UTF-8"))
         val bean = try {
             gson.fromJson<LanguageBean>(reader, object : TypeToken<LanguageBean>() {}.type)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         } finally {
             inputStream.close()
@@ -184,7 +184,7 @@ object I18nUtil {
         val assetManager = BaseApplication.instance.assets
         val inputStream = try {
             assetManager.open(pack)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             return 0
         }
         val reader = BufferedReader(InputStreamReader(inputStream))
@@ -203,7 +203,7 @@ object I18nUtil {
                 }
             }
             result
-        } catch (e: java.lang.Exception) {
+        } catch (_: Exception) {
             null
         } finally {
             try {

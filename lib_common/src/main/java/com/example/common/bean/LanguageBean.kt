@@ -10,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 @Parcelize
 class LanguageBean(
     var version: String? = null,
-    var data: ConcurrentHashMap<String, String?>? = ConcurrentHashMap()
+    var data: ConcurrentHashMap<String, String>? = ConcurrentHashMap()
 ) : Parcelable
 
 /**

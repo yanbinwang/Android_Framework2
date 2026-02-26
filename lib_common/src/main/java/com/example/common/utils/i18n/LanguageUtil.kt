@@ -27,7 +27,7 @@ object LanguageUtil {
         }
         val bean = I18nUtil.getLocalLanguageBean(language) ?: return
         if (bean.data.isNullOrEmpty()) return
-        //语言包版本相同也可以进行更新，这里主要是用作同版本语言切换
+        // 语言包版本相同也可以进行更新，这里主要是用作同版本语言切换
         if (bean.version.toSafeInt() >= I18nUtil.getPackVersion()) {
             I18nUtil.setLanguagePack(language, bean)
         }
@@ -81,7 +81,7 @@ object LanguageUtil {
             return
         }
         val version = I18nUtil.getLocalLanguageVersion(language) ?: return
-        //只有语言包版本大于缓存版本需要强制更新，这里主要用作更新后语言包的强制更新
+        // 只有语言包版本大于缓存版本需要强制更新，这里主要用作更新后语言包的强制更新
         if (version > I18nUtil.getPackVersion()) {
             val bean = I18nUtil.getLocalLanguageBean(language) ?: return
             I18nUtil.setLanguagePack(language, bean)
@@ -95,26 +95,26 @@ object LanguageUtil {
  */
 annotation class Language {
     companion object {
-        /**繁中*/
-        const val zh_TW = "zh_HK"
+        // 繁中
+        const val zh_TW = "zh_TW"
 
-        /**英语*/
+        // 英语
         const val en_US = "en_US"
 
-        /**印尼语*/
+        // 印尼语
         const val in_ID = "id_ID"
     }
 }
 
 annotation class LanguagePackAsset {
     companion object {
-        /**繁中*/
+        // 繁中
         const val zh_TW_PACK = "zh_tw.json"
 
-        /**英语*/
+        // 英语
         const val en_US_PACK = "en_us.json"
 
-        /**印尼语*/
+        // 印尼语
         const val in_ID_PACK = "in_id.json"
     }
 }

@@ -25,11 +25,11 @@ import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.common.utils.function.pullUpNotification
+import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.i18n.string
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
@@ -110,8 +110,8 @@ object NotificationUtil {
         notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         // 避免重复创建渠道（检查是否已存在）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = context.string(R.string.notificationChannelId)
-            val channelName = context.string(R.string.notificationChannelName)
+            val channelId = string(R.string.notificationChannelId)
+            val channelName = string(R.string.notificationChannelName)
             notificationManager?.createNotificationChannelIfNeeded(NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT))
         }
     }
@@ -127,19 +127,17 @@ object NotificationUtil {
         intent: Intent? = null
     ) {
         this ?: return
-        //确定是否具备跳转
+        // 确定是否具备跳转
         var pendingIntent: PendingIntent? = null
         if (intent != null) {
-            //创建通知栏跳转
+            // 创建通知栏跳转
             pendingIntent = getPendingIntent(requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
         }
-        //创建通知栏构建器
+        // 创建通知栏构建器
         val notificationBuilder = builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
         if (!imageUrl.isNullOrEmpty()) {
             // 防止 Context 泄漏
-            val weakContext = WeakReference(this)
-            val context = weakContext.get()
-            context ?: return
+            val context = WeakReference(this).get() ?: return
             var bitmap: Bitmap? = null
             var largeIcon: Bitmap? = null
             var bigPicture: Bitmap? = null
@@ -160,15 +158,15 @@ object NotificationUtil {
             }.withHandling({
                 notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
             }, {
-                //整体下载完成后，创建通知
+                // 整体下载完成后，创建通知
                 notificationManager?.notify(notificationId, notificationBuilder.build())
-                bitmap?.recycle()
-                largeIcon?.recycle()
-                bigPicture?.recycle()
-                bigLargeIcon?.recycle()
+                bitmap.safeRecycle()
+                largeIcon.safeRecycle()
+                bigPicture.safeRecycle()
+                bigLargeIcon.safeRecycle()
             }).launchIn(postScope)
         } else {
-            //没有图片的，直接创建通知
+            // 没有图片的，直接创建通知
             notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
             notify(notificationId, notificationBuilder.build())
         }
@@ -185,7 +183,7 @@ object NotificationUtil {
         }
         // 在主线程调用 notify（确保 UI 相关操作安全）
         if (!isMainThread) {
-            postScope.launch {
+            postScope.launch(Main) {
                 notifyAction()
             }
         } else {
@@ -240,14 +238,16 @@ object NotificationUtil {
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
-            .setSmallIcon(smallIconRes)//24dp × 24dp
-            .setLargeIcon(decodeResource(largeIconRes))//64dp × 64dp
+            // 24dp × 24dp
+            .setSmallIcon(smallIconRes)
+            // 64dp × 64dp
+            .setLargeIcon(decodeResource(largeIconRes))
             .setContentTitle(title)
             .setContentText(text)
             .setColor(color(argb))
             .setAutoCancel(autoCancel)
             .setSound(sound)
-            //不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处currentTimeStamp做一个大致修正
+            // 不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处currentTimeStamp做一个大致修正
             .setWhen(currentTimeStamp)
         if (null != pendingIntent) {
             builder.setContentIntent(pendingIntent)
@@ -285,6 +285,7 @@ object NotificationUtil {
                 // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
                 baseFlags or PendingIntent.FLAG_IMMUTABLE
             }
+
             else -> baseFlags
         }
     }

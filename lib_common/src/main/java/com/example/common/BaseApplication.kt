@@ -32,10 +32,10 @@ import com.example.common.utils.i18n.I18nUtil.getPackVersion
 import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
 import com.example.common.utils.i18n.LanguageUtil.resetLanguage
 import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
+import com.example.common.utils.i18n.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
-import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.minute
@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicLong
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi")
 abstract class BaseApplication : Application() {
     private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
-    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
+//    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
     private val excludedRouterPaths by lazy {
         listOf(
             RouterPath.MainActivity,
@@ -112,8 +112,6 @@ abstract class BaseApplication : Application() {
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         // 語言包初始化
         initLanguage()
-//        // 解决androidP 第一次打开程序出现莫名弹窗-弹窗内容“detected problems with api ”
-//        closeAndroidPDialog()
         // 路由跳转初始化
         initRouter()
         // 部分推送打開的頁面，需要在關閉時回首頁,實現一個透明的activity，跳轉到對應push的activity之前，讓needOpenHome=true
