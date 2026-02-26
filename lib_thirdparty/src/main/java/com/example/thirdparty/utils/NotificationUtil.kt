@@ -238,9 +238,9 @@ object NotificationUtil {
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
-            // 24dp × 24dp
+            // 24dp × 24dp (96)
             .setSmallIcon(smallIconRes)
-            // 64dp × 64dp
+            // 64dp × 64dp (144)
             .setLargeIcon(decodeResource(largeIconRes))
             .setContentTitle(title)
             .setContentText(text)
