@@ -263,18 +263,18 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                         return true
                     }
                     val gap = mLastP.x - ev.rawX
-                    // 为了在水平滑动中禁止父类ListView等再竖直滑动
-                    if (abs(gap.toDouble()) > 10 || abs(scrollX.toDouble()) > 10) { // 修改此处，使屏蔽父布局滑动更加灵敏
+                    // 为了在水平滑动中禁止父类ListView等再竖直滑动 修改此处，使屏蔽父布局滑动更加灵敏
+                    if (abs(gap.toDouble()) > 10 || abs(scrollX.toDouble()) > 10) {
                         parent.requestDisallowInterceptTouchEvent(true)
                     }
                     // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。begin
                     if (abs(gap.toDouble()) > mScaleTouchSlop) {
                         isUnMoved = false
                     }
-                    // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。end
-                    scrollBy((gap).toInt(), 0) // 滑动使用scrollBy
-                    // 越界修正
-                    if (isLeftSwipe) { //左滑
+                    // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。end 滑动使用scrollBy
+                    scrollBy((gap).toInt(), 0)
+                    // 越界修正 左滑
+                    if (isLeftSwipe) {
                         if (scrollX < 0) {
                             scrollTo(0, 0)
                         }
