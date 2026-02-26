@@ -6,7 +6,7 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.framework.utils.function.value.matches
+import com.example.framework.utils.function.value.matchesRegex
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -234,7 +234,7 @@ object VideoInfoHelper {
         return try {
             when (videoSource) {
                 is String -> {
-                    if (videoSource.matches("^https?://.*")) {
+                    if (videoSource.matchesRegex("^https?://.*")) {
                         // 网络视频：捕获无效 URL、网络异常等情况
                         retriever.setDataSource(videoSource, hashMapOf())
                         true

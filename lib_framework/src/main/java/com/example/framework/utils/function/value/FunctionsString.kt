@@ -13,17 +13,22 @@ import kotlin.math.pow
  * 将 字节数组 转换成 Base64 编码
  * 用Base64.DEFAULT模式会导致加密的text下面多一行（在应用中显示是这样）
  */
-fun ByteArray?.base64Encode(): String {
+fun ByteArray?.base64EncodeToString(flags: Int = Base64.NO_WRAP): String {
     this ?: return ""
-    return Base64.encodeToString(this, Base64.NO_WRAP)
+    return Base64.encodeToString(this, flags)
+}
+
+fun ByteArray?.base64Encode(flags: Int = Base64.NO_WRAP): ByteArray {
+    this ?: return ByteArray(0)
+    return Base64.encode(this, flags)
 }
 
 /**
  * 将 Base64 字符串 解码成 字节数组
  */
-fun String?.base64Decode(): ByteArray {
+fun String?.base64Decode(flags: Int = Base64.NO_WRAP): ByteArray {
     this ?: return "".toByteArray()
-    return Base64.decode(this, Base64.NO_WRAP)
+    return Base64.decode(this, flags)
 }
 
 /**
@@ -104,33 +109,8 @@ fun String?.unicodeDecode(): String? {
 }
 
 /**
- * 检测正则
- */
-fun String?.matches(regex: String): Boolean {
-    this ?: return false
-    return this.matches(Regex(regex))
-//    val pattern = Pattern.compile(regex)
-//    val matcher = pattern.matcher(this)
-//    return matcher.matches()
-}
-
-/**
- * 富文本转化Spannable
- */
-fun String?.toSpanned(): Spanned? {
-    this ?: return null
-//    return Html.fromHtml(this)
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
-    } else {
-        Html.fromHtml(this)
-    }
-}
-
-/**
  * 千分位格式
- * 10000
- * ->10,000
+ * 10000 -> 10,000
  */
 fun String?.thousandsFormat(): String {
     this ?: return "0"
@@ -141,65 +121,6 @@ fun String?.thousandsFormat(): String {
     val retNum = Pattern.compile("(\\d{3})(?=\\d)").matcher(tmp.toString()).replaceAll("$1,")
     val value = StringBuffer().append(retNum).reverse().toString()
     return if (list.safeSize > 1) "${value}.${list.safeGet(1)}" else value
-}
-
-/**
- * 提取链接中的参数
- */
-fun String?.getValueByName(name: String): String {
-    this ?: return ""
-    var value = ""
-    val index = indexOf("?")
-    val temp = substring(index + 1)
-    val keyValue = temp.split("&".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-    for (str in keyValue) {
-        if (str.contains(name)) {
-            value = str.replace("$name=", "")
-            break
-        }
-    }
-    return value
-}
-
-/**
- * 添加网页链接中的Param
- * isNullOrEmpty()：该方法用于判断字符串是否为 null 或者长度为 0。也就是说，只要字符串为 null 或者是一个空字符串（""），此方法就会返回 true。
- * isNullOrBlank()：此方法不仅会检查字符串是否为 null 或者长度为 0，还会检查字符串是否只包含空白字符（如空格、制表符、换行符等）。若字符串为 null、空字符串或者只包含空白字符，isNullOrBlank() 都会返回 true。
- */
-fun String?.addUrlParam(key: String?, value: String?): String? {
-    // 若原字符串、键或值为空，直接返回原字符串
-    if (this.isNullOrEmpty() || key.isNullOrBlank() || value.isNullOrBlank()) {
-        return this
-    }
-    // 编码值以避免特殊字符问题
-    val encodedValue = Uri.encode(value)
-    // 判断原字符串是否已包含查询参数
-    return if (this.contains("?")) {
-        "$this&$key=${encodedValue}"
-    } else {
-        "$this?$key=${encodedValue}"
-    }
-}
-
-/**
- * 隐藏手机号码的中间4位
- */
-fun String?.hidePhoneNumber(): String {
-    this ?: return ""
-    var value = ""
-    if (matches(MOBILE)) {
-        val ch = toCharArray()
-        for (index in ch.indices) {
-            if (index in 3..6) {
-                value = "$value*"
-            } else {
-                value += ch[index]
-            }
-        }
-    } else {
-        value = this
-    }
-    return value
 }
 
 /**
@@ -222,6 +143,80 @@ fun String.limitLength(maxLength: Int = 3500): String {
         this.substring(0, maxLength) + "..."
     } else {
         this
+    }
+}
+
+/**
+ * 富文本转化Spannable
+ */
+fun String?.htmlToSpanned(): Spanned? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+        Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY)
+    } else {
+        Html.fromHtml(this)
+    }
+}
+
+/**
+ * 从 URL 链接中提取指定名称的参数值
+ * @param paramName 要提取的参数名
+ * @return 匹配的参数值（无匹配/URL为空返回空字符串）
+ */
+fun String?.getUrlParam(paramName: String): String {
+    this ?: return ""
+    // 先判断是否包含?，避免index=-1时substring(0)截取整个字符串
+    val queryStartIndex = indexOf("?")
+    if (queryStartIndex == -1) return ""
+    val queryStr = substring(queryStartIndex + 1)
+    val paramPairs = queryStr.split("&")
+    for (pair in paramPairs) {
+        // 用split("=", limit=2)精准拆分键值对，避免参数值含=的情况（比如param=123=456）
+        val keyValue = pair.split("=", limit = 2)
+        if (keyValue.size == 2 && keyValue[0] == paramName) {
+            return keyValue[1] // 直接返回值，无需replace，更高效
+        }
+    }
+    return ""
+}
+
+/**
+ * 给 URL 链接添加单个参数（自动编码参数值，避免特殊字符问题）
+ * @param key 要添加的参数名（空白/空则不添加）
+ * @param value 要添加的参数值（空白/空则不添加）
+ * @return 新增参数后的新URL（原URL/键/值不合法则返回原URL）
+ */
+fun String?.withUrlParam(key: String?, value: String?): String? {
+    if (this.isNullOrEmpty() || key.isNullOrBlank() || value.isNullOrBlank()) {
+        return this
+    }
+    val encodedValue = Uri.encode(value)
+    return if (this.contains("?")) {
+        "$this&$key=$encodedValue"
+    } else {
+        "$this?$key=$encodedValue"
+    }
+}
+
+/**
+ * 检测正则
+ */
+fun String?.matchesRegex(regex: String): Boolean {
+    this ?: return false
+    return this.matches(Regex(regex))
+}
+
+/**
+ * 隐藏手机号码的中间4位
+ */
+fun String?.hidePhoneNumber(): String {
+    this ?: return ""
+    // 先校验是否为合法手机号
+    if (!this.matchesRegex(MOBILE)) return this
+    return buildString {
+        append(this@hidePhoneNumber.substring(0, 3)) // 前3位
+        append("****") // 中间4位替换为*
+        append(this@hidePhoneNumber.substring(7)) // 后4位
     }
 }
 

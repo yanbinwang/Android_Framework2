@@ -147,10 +147,7 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 // 后续计划加入上滑、下滑，则将不再支持Item的margin
                 measureChild(childView, widthMeasureSpec, heightMeasureSpec)
                 val lp = childView.layoutParams as MarginLayoutParams
-                mHeight = max(
-                    mHeight.toSafeDouble(),
-                    childView.measuredHeight.toSafeDouble()
-                ).toSafeInt()
+                mHeight = max(mHeight.toSafeDouble(), childView.measuredHeight.toSafeDouble()).toSafeInt()
                 if (measureMatchParentChildren && lp.height == LayoutParams.MATCH_PARENT) {
                     isNeedMeasureChildHeight = true
                 }
@@ -163,7 +160,8 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 }
             }
         }
-        setMeasuredDimension(paddingLeft + paddingRight + contentWidth, mHeight + paddingTop + paddingBottom) //宽度取第一个Item(Content)的宽度
+        // 宽度取第一个Item(Content)的宽度
+        setMeasuredDimension(paddingLeft + paddingRight + contentWidth, mHeight + paddingTop + paddingBottom)
         // 滑动判断的临界值
         mLimit = mRightMenuWidths * 4 / 10
         // 如果子View的height有MatchParent属性的，设置子View高度
@@ -189,7 +187,6 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     // measureChildWithMargins 这个函数会用到宽，所以要保存一下
                     val oldWidth = lp.width
                     lp.width = child.measuredWidth
-                    // Remeasure with new dimensions
                     measureChildWithMargins(child, widthMeasureSpec, 0, uniformMeasureSpec, 0)
                     lp.width = oldWidth
                 }
@@ -300,8 +297,8 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     if (abs((ev.rawX - mFirstP.x).toDouble()) > mScaleTouchSlop) {
                         isUserSwiped = true
                     }
-                    // IOS模式开启的话，且当前有侧滑菜单的View，且不是自己的，就该拦截事件咯。滑动也不该出现
-                    if (!iosInterceptFlag) { // 且滑动了 才判断是否要收起、展开menu
+                    // IOS模式开启的话，且当前有侧滑菜单的View，且不是自己的，就该拦截事件咯。滑动也不该出现 且滑动了才判断是否要收起、展开menu
+                    if (!iosInterceptFlag) {
                         // 求伪瞬时速度
                         verTracker?.computeCurrentVelocity(1000, mMaxVelocity.toFloat())
                         val velocityX = verTracker?.getXVelocity(mPointerId).orZero
@@ -350,8 +347,6 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     /**
      * @param event 向VelocityTracker添加MotionEvent
-     * @see VelocityTracker.obtain
-     * @see VelocityTracker.addMovement
      */
     private fun acquireVelocityTracker(event: MotionEvent?) {
         if (null == mVelocityTracker) {
@@ -361,10 +356,7 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     /**
-     * * 释放VelocityTracker
-     *
-     * @see VelocityTracker.clear
-     * @see VelocityTracker.recycle
+     * 释放VelocityTracker
      */
     private fun releaseVelocityTracker() {
         if (null != mVelocityTracker) {

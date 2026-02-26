@@ -28,7 +28,6 @@ fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header
     setEnableLoadMore(true)
     if (listener != null) setOnRefreshLoadMoreListener(listener)
     setHeaderAndFooterHeight()
-//    applyFullScreen()
 }
 
 fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
@@ -50,7 +49,6 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
         setEnableLoadMore(false)
     }
     setHeaderAndFooterHeight()
-//    applyFullScreen()
 }
 
 /**
@@ -206,19 +204,3 @@ inline fun <T : SmartRefreshLayout> T.applyToHeaderAndFooter(crossinline action:
         action(header, footer)
     }
 }
-//
-///**
-// * 全屏
-// */
-//fun SmartRefreshLayout?.applyFullScreen() {
-//    this ?: return
-//    // 获取刷新控件的父容器（可以是任何类型的布局）
-//    val parentView = parent as? ViewGroup ?: return
-//    // 在父容器布局完成后调整刷新控件大小
-//    parentView.doOnceAfterLayout { container ->
-//        // 强制刷新控件使用父容器的高度
-//        layoutParams = layoutParams.apply {
-//            height = container.height
-//        }
-//    }
-//}

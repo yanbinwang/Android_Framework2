@@ -52,6 +52,7 @@ import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoft
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.util.Random
 
 //------------------------------------textview扩展函数类------------------------------------
@@ -444,9 +445,9 @@ fun EditText?.multiply(number: String?) {
     setText(getNumber().multiply(number))
 }
 
-fun EditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+fun EditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN) {
     this ?: return
-    setText(getNumber().divide(number, scale, mode))
+    setText(getNumber().divide(number, scale, roundingMode))
 }
 
 /**

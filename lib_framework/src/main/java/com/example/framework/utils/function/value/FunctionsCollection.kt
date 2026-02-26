@@ -7,6 +7,7 @@ import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
 import kotlin.random.Random
+import androidx.core.util.size
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
 /**
@@ -322,7 +323,7 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
             is IntArray -> bundle.putIntArray(key, value)
             is Long -> bundle.putLong(key, value)
             is LongArray -> bundle.putLongArray(key, value)
-            is SparseArray<*> -> if (value.size() != 0) when (value[0]) {
+            is SparseArray<*> -> if (value.size != 0) when (value[0]) {
                 is Parcelable -> bundle.putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
             }
             is Array<*> -> if (value.isNotEmpty()) when (value[0]) {
