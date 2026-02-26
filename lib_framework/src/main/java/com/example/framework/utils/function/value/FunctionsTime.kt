@@ -234,8 +234,11 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
         val comparedDate = dateFormat.parse(this).toSafeDate()
         val comparedDate2 = dateFormat.parse(source).toSafeDate()
         when {
-            comparedDate.time > comparedDate2.time -> 1//日程时间大于系统时间
-            comparedDate.time < comparedDate2.time -> -1//日程时间小于系统时间
+            // 日程时间大于系统时间
+            comparedDate.time > comparedDate2.time -> 1
+            // 日程时间小于系统时间
+            comparedDate.time < comparedDate2.time -> -1
+            // 日程时间等于系统时间
             else -> 0
         }
     } catch (e: Exception) {

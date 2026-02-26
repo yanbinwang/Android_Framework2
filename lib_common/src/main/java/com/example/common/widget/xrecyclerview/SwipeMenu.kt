@@ -147,10 +147,7 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 // 后续计划加入上滑、下滑，则将不再支持Item的margin
                 measureChild(childView, widthMeasureSpec, heightMeasureSpec)
                 val lp = childView.layoutParams as MarginLayoutParams
-                mHeight = max(
-                    mHeight.toSafeDouble(),
-                    childView.measuredHeight.toSafeDouble()
-                ).toSafeInt()
+                mHeight = max(mHeight.toSafeDouble(), childView.measuredHeight.toSafeDouble()).toSafeInt()
                 if (measureMatchParentChildren && lp.height == LayoutParams.MATCH_PARENT) {
                     isNeedMeasureChildHeight = true
                 }
@@ -163,7 +160,8 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                 }
             }
         }
-        setMeasuredDimension(paddingLeft + paddingRight + contentWidth, mHeight + paddingTop + paddingBottom) //宽度取第一个Item(Content)的宽度
+        // 宽度取第一个Item(Content)的宽度
+        setMeasuredDimension(paddingLeft + paddingRight + contentWidth, mHeight + paddingTop + paddingBottom)
         // 滑动判断的临界值
         mLimit = mRightMenuWidths * 4 / 10
         // 如果子View的height有MatchParent属性的，设置子View高度
@@ -189,7 +187,6 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     // measureChildWithMargins 这个函数会用到宽，所以要保存一下
                     val oldWidth = lp.width
                     lp.width = child.measuredWidth
-                    // Remeasure with new dimensions
                     measureChildWithMargins(child, widthMeasureSpec, 0, uniformMeasureSpec, 0)
                     lp.width = oldWidth
                 }
@@ -266,18 +263,18 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                         return true
                     }
                     val gap = mLastP.x - ev.rawX
-                    // 为了在水平滑动中禁止父类ListView等再竖直滑动
-                    if (abs(gap.toDouble()) > 10 || abs(scrollX.toDouble()) > 10) { // 修改此处，使屏蔽父布局滑动更加灵敏
+                    // 为了在水平滑动中禁止父类ListView等再竖直滑动 修改此处，使屏蔽父布局滑动更加灵敏
+                    if (abs(gap.toDouble()) > 10 || abs(scrollX.toDouble()) > 10) {
                         parent.requestDisallowInterceptTouchEvent(true)
                     }
                     // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。begin
                     if (abs(gap.toDouble()) > mScaleTouchSlop) {
                         isUnMoved = false
                     }
-                    // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。end
-                    scrollBy((gap).toInt(), 0) // 滑动使用scrollBy
-                    // 越界修正
-                    if (isLeftSwipe) { //左滑
+                    // 仿QQ，侧滑菜单展开时，点击内容区域，关闭侧滑菜单。end 滑动使用scrollBy
+                    scrollBy((gap).toInt(), 0)
+                    // 越界修正 左滑
+                    if (isLeftSwipe) {
                         if (scrollX < 0) {
                             scrollTo(0, 0)
                         }
@@ -300,8 +297,8 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
                     if (abs((ev.rawX - mFirstP.x).toDouble()) > mScaleTouchSlop) {
                         isUserSwiped = true
                     }
-                    // IOS模式开启的话，且当前有侧滑菜单的View，且不是自己的，就该拦截事件咯。滑动也不该出现
-                    if (!iosInterceptFlag) { // 且滑动了 才判断是否要收起、展开menu
+                    // IOS模式开启的话，且当前有侧滑菜单的View，且不是自己的，就该拦截事件咯。滑动也不该出现 且滑动了才判断是否要收起、展开menu
+                    if (!iosInterceptFlag) {
                         // 求伪瞬时速度
                         verTracker?.computeCurrentVelocity(1000, mMaxVelocity.toFloat())
                         val velocityX = verTracker?.getXVelocity(mPointerId).orZero
@@ -350,8 +347,6 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     /**
      * @param event 向VelocityTracker添加MotionEvent
-     * @see VelocityTracker.obtain
-     * @see VelocityTracker.addMovement
      */
     private fun acquireVelocityTracker(event: MotionEvent?) {
         if (null == mVelocityTracker) {
@@ -361,10 +356,7 @@ class SwipeMenu @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     /**
-     * * 释放VelocityTracker
-     *
-     * @see VelocityTracker.clear
-     * @see VelocityTracker.recycle
+     * 释放VelocityTracker
      */
     private fun releaseVelocityTracker() {
         if (null != mVelocityTracker) {

@@ -163,11 +163,11 @@ fun getMemInfo(): Long {
     var memory = 0L
     try {
         val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
-        //系统内存信息文件,读取meminfo第一行，系统总内存大小
+        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
         val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        //获得系统总内存，单位是KB
+        // 获得系统总内存，单位是KB
         val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-        //int值乘以1024转换为long类型
+        // int值乘以1024转换为long类型
         memory = systemMemory.toSafeLong() * 1024
         localBufferedReader.close()
     } catch (e: IOException) {

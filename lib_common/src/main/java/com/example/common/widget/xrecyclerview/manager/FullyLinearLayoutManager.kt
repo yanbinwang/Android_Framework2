@@ -17,7 +17,7 @@ class FullyLinearLayoutManager : LinearLayoutManager {
 
     constructor(context: Context) : super(context)
 
-    constructor(context: Context, orientation: Int, reverseLayout: Boolean) : super(context, orientation, reverseLayout)
+    constructor(context: Context, @RecyclerView.Orientation orientation: Int, reverseLayout: Boolean) : super(context, orientation, reverseLayout)
 
     override fun onMeasure(recycler: Recycler, state: RecyclerView.State, widthSpec: Int, heightSpec: Int) {
         val widthMode = View.MeasureSpec.getMode(widthSpec)
