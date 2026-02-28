@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="theme_text_tag" type="id"/>
     <item name="theme_spannable_tag" type="id"/>
+    <item name="theme_text_tag" type="id"/>
     <item name="theme_text_color_tag" type="id"/>
     <item name="theme_background_tag" type="id"/>
     <item name="theme_visibility_tag" type="id"/>
     <item name="theme_compound_drawable_tag" type="id"/>
+    <item name="theme_progress_max_tag" type="id"/>
+    <item name="theme_progress_drawable_tag" type="id"/>
     <item name="theme_ime_height_tag" type="id"/>
     <item name="theme_input_focus_tag" type="id"/>
     <item name="theme_tab_selected" type="id"/>
