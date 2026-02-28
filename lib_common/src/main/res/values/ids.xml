@@ -6,6 +6,7 @@
     <item name="theme_background_tag" type="id"/>
     <item name="theme_visibility_tag" type="id"/>
     <item name="theme_compound_drawable_tag" type="id"/>
+    <item name="theme_progress_tag" type="id"/>
     <item name="theme_progress_max_tag" type="id"/>
     <item name="theme_progress_drawable_tag" type="id"/>
     <item name="theme_ime_height_tag" type="id"/>
