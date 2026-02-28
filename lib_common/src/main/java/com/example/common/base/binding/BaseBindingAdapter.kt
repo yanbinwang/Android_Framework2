@@ -465,12 +465,20 @@ object BaseBindingAdapter {
 
     /**
      * 解决水平进度条频繁赋值带来的内存开销
-     * 1) xml内设置ProgressBar的style="?android:attr/progressBarStyleHorizontal"
-     * 2) max/progressDrawable改为传入,除progress会频繁更替外,其余值是不会改变的
+     * xml内设置ProgressBar的style="?android:attr/progressBarStyleHorizontal"
      */
     @JvmStatic
-    @BindingAdapter(value = ["max","progressDrawable"], requireAll = false)
-    fun bindingProgressBarCompound(view: ProgressBar, progressMax: Int?, @DrawableRes progressDrawable: Int?) {
+    @BindingAdapter(value = ["progress", "progressMax", "progressDrawable"], requireAll = false)
+    fun bindingProgressBarCompound(view: ProgressBar, progress: Int?, progressMax: Int?, @DrawableRes progressDrawable: Int?) {
+        // 进度条值
+        progress?.takeIf { it >= 0 }?.let { newProgress ->
+            val progressKey = R.id.theme_progress_tag
+            val oldProgress = view.getTag(progressKey) as? Int
+            if (oldProgress != newProgress) {
+                view.progress = newProgress
+                view.setTag(progressKey, newProgress)
+            }
+        }
         // 进度条最大值
         progressMax?.takeIf { it >= 0 }?.let { newProgressMax ->
             val progressMaxKey = R.id.theme_progress_max_tag
