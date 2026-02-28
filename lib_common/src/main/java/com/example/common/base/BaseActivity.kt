@@ -10,6 +10,8 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Process.killProcess
 import android.os.Process.myPid
+import android.transition.Slide
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -145,7 +147,17 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+        // 自定义滑入动画（从右侧进入）
+        val slideEnter = Slide(Gravity.END)
+        slideEnter.setDuration(300)
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.setExitTransition(slideEnter)
+        // 自定义滑出动画（向右侧退出）
+        val slideExit = Slide(Gravity.START)
+        slideExit.setDuration(300)
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.setReturnTransition(slideExit)
+//        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
