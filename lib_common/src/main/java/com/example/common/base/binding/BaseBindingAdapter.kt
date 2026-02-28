@@ -7,6 +7,7 @@ import android.text.Spannable
 import android.view.View
 import android.webkit.WebView
 import android.widget.EditText
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.ToggleButton
 import androidx.annotation.ColorRes
@@ -166,7 +167,7 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingViewTheme(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+    fun bindingCompound(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         if (view is TextView) {
             // 处理文本设置
             text?.let { newText ->
@@ -179,11 +180,11 @@ object BaseBindingAdapter {
             }
             // 处理高亮文本
             spannable?.let { newSpannable ->
-                val spanKey = R.id.theme_spannable_tag
-                val oldSpan = view.getTag(spanKey) as? Spannable
-                if (oldSpan != newSpannable) {
+                val spannableKey = R.id.theme_spannable_tag
+                val oldSpannable = view.getTag(spannableKey) as? Spannable
+                if (oldSpannable != newSpannable) {
                     view.text = newSpannable
-                    view.setTag(spanKey, newSpannable)
+                    view.setTag(spannableKey, newSpannable)
                 }
             }
             // 文本是必须要加载出来的
@@ -218,16 +219,6 @@ object BaseBindingAdapter {
                 view.setTag(visibilityKey, newVisibility)
             }
         }
-    }
-
-    /**
-     * 文案渐变
-     * tvTitle.linearGradient("#FFB818", "#8E00FE")
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["start_color", "end_color"], requireAll = false)
-    fun bindingTextViewGradient(textview: TextView, startColor: String?, endColor: String?) {
-        textview.linearGradient(startColor, endColor)
     }
 
     /**
@@ -269,7 +260,7 @@ object BaseBindingAdapter {
      *     }
      *  }
      */
-    data class CompoundDrawableAttrs(
+    data class TextViewCompoundDrawableConfig(
         val drawableText: String? = null,
         @param:DrawableRes val drawableStart: Int? = null,
         @param:DrawableRes val drawableTop: Int? = null,
@@ -283,21 +274,21 @@ object BaseBindingAdapter {
 
     @JvmStatic
     @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableTintColor", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
-    fun bindingCompoundDrawable(view: TextView, drawableText: String?, @DrawableRes drawableStart: Int?, @DrawableRes drawableTop: Int?, @DrawableRes drawableEnd: Int?, @DrawableRes drawableBottom: Int?, @ColorRes drawableTintColor: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
+    fun bindingTextViewCompound(view: TextView, drawableText: String?, @DrawableRes drawableStart: Int?, @DrawableRes drawableTop: Int?, @DrawableRes drawableEnd: Int?, @DrawableRes drawableBottom: Int?, @ColorRes drawableTintColor: Int?, drawableWidth: Int?, drawableHeight: Int?, drawablePadding: Int?) {
         // 清除背景
         view.clearBackground()
         view.clearHighlightColor()
         // 构建新的属性对象
-        val newAttrs = CompoundDrawableAttrs(drawableText, drawableStart, drawableTop, drawableEnd, drawableBottom, drawableTintColor, drawableWidth, drawableHeight, drawablePadding)
+        val newConfig = TextViewCompoundDrawableConfig(drawableText, drawableStart, drawableTop, drawableEnd, drawableBottom, drawableTintColor, drawableWidth, drawableHeight, drawablePadding)
         val compoundDrawableKey = R.id.theme_compound_drawable_tag
         // 获取旧属性对象，判断是否需要更新（利用数据类equals）
-        val oldAttrs = view.getTag(compoundDrawableKey) as? CompoundDrawableAttrs
+        val oldConfig = view.getTag(compoundDrawableKey) as? TextViewCompoundDrawableConfig
         // 属性未变化，直接返回，避免无效刷新
-        if (oldAttrs == newAttrs) return
-        view.setTag(compoundDrawableKey, newAttrs)
+        if (oldConfig == newConfig) return
+        view.setTag(compoundDrawableKey, newConfig)
         // 处理ToggleButton文本
         if (view is ToggleButton) {
-            val newText = newAttrs.drawableText.orEmpty()
+            val newText = newConfig.drawableText.orEmpty()
             // 避免空文本重复赋值，同时兼容null转空字符串
             if (view.text?.toString().orEmpty() != newText) {
                 view.text = newText
@@ -306,15 +297,15 @@ object BaseBindingAdapter {
             }
         }
         // 仅Drawable相关属性变化时，才执行Drawable加载/设置
-        if (!setDrawableCompare(oldAttrs, newAttrs)) {
-            val startDrawable = newAttrs.drawableStart?.let { drawable(it) }
-            val topDrawable = newAttrs.drawableTop?.let { drawable(it) }
-            val endDrawable = newAttrs.drawableEnd?.let { drawable(it) }
-            val bottomDrawable = newAttrs.drawableBottom?.let { drawable(it) }
+        if (!isOnlyTextChanged(oldConfig, newConfig)) {
+            val startDrawable = newConfig.drawableStart?.let { drawable(it) }
+            val topDrawable = newConfig.drawableTop?.let { drawable(it) }
+            val endDrawable = newConfig.drawableEnd?.let { drawable(it) }
+            val bottomDrawable = newConfig.drawableBottom?.let { drawable(it) }
             // 存储 Drawable 的数组
             val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 设置 Drawable 大小
-            setDrawableBounds(drawables, drawableTintColor, drawableWidth, drawableHeight)
+            applyDrawableBoundsAndTint(drawables, drawableTintColor, drawableWidth, drawableHeight)
             // 设置 TextView 的 CompoundDrawables
             view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
 //        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
@@ -325,25 +316,31 @@ object BaseBindingAdapter {
 
     /**
      * 判断仅文本变化（Drawable相关属性无变化）
-     * @return true = 仅文本变化，false = Drawable相关属性变化
+     * @param oldConfig 旧的配置对象
+     * @param newConfig 新的配置对象
+     * @return true = 仅文本变化（无需更新Drawable），false = Drawable相关属性变化（需要更新Drawable）
      */
-    private fun setDrawableCompare(oldBean: CompoundDrawableAttrs?, newBean: CompoundDrawableAttrs): Boolean {
+    private fun isOnlyTextChanged(oldConfig: TextViewCompoundDrawableConfig?, newConfig: TextViewCompoundDrawableConfig): Boolean {
         // 旧属性为空 → Drawable必变化
-        if (oldBean == null) return false
-        return oldBean.drawableStart == newBean.drawableStart &&
-                oldBean.drawableTop == newBean.drawableTop &&
-                oldBean.drawableEnd == newBean.drawableEnd &&
-                oldBean.drawableBottom == newBean.drawableBottom &&
-                oldBean.drawableTintColor == newBean.drawableTintColor &&
-                oldBean.drawableWidth == newBean.drawableWidth &&
-                oldBean.drawableHeight == newBean.drawableHeight &&
-                oldBean.drawablePadding == newBean.drawablePadding
+        if (oldConfig == null) return false
+        return oldConfig.drawableStart == newConfig.drawableStart &&
+                oldConfig.drawableTop == newConfig.drawableTop &&
+                oldConfig.drawableEnd == newConfig.drawableEnd &&
+                oldConfig.drawableBottom == newConfig.drawableBottom &&
+                oldConfig.drawableTintColor == newConfig.drawableTintColor &&
+                oldConfig.drawableWidth == newConfig.drawableWidth &&
+                oldConfig.drawableHeight == newConfig.drawableHeight &&
+                oldConfig.drawablePadding == newConfig.drawablePadding
     }
 
     /**
-     * 设置 Drawable 的边界
+     * 为Drawable设置边界（宽高）和着色
+     * @param drawables 需要处理的Drawable数组
+     * @param tintColor 着色颜色资源ID
+     * @param width Drawable宽度（px）
+     * @param height Drawable高度（px）
      */
-    private fun setDrawableBounds(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
+    private fun applyDrawableBoundsAndTint(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
         if (width != null && height != null) {
             for (drawable in drawables) {
                 drawable?.let {
@@ -355,20 +352,30 @@ object BaseBindingAdapter {
     }
 
     /**
+     * 文案渐变
+     * tvTitle.linearGradient("#FFB818", "#8E00FE")
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["start_color", "end_color"], requireAll = false)
+    fun bindingTextViewGradient(view: TextView, startColor: String?, endColor: String?) {
+        view.linearGradient(startColor, endColor)
+    }
+
+    /**
      * 限制输入内容为目标值
      */
     @JvmStatic
     @BindingAdapter(value = ["allowed_limit"])
-    fun bindingEditTextAllowedLimit(editText: EditText, charLimit: CharArray?) {
-        if (charLimit == null) return
-        editText.whiteListLimit(charLimit)
+    fun bindingEditTextAllowedLimit(view: EditText, allowed: CharArray?) {
+        if (allowed == null) return
+        view.whiteListLimit(allowed)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["allowed_limit"])
-    fun bindingEditTextAllowedLimit(editText: ClearEditText, charLimit: CharArray?) {
-        if (charLimit == null) return
-        editText.editText.whiteListLimit(charLimit)
+    fun bindingEditTextAllowedLimit(view: ClearEditText, allowed: CharArray?) {
+        if (allowed == null) return
+        view.editText.whiteListLimit(allowed)
     }
 
     /**
@@ -376,16 +383,16 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["disallowed_limit"])
-    fun bindingEditTextDisallowedList(editText: EditText, characterAllowed: CharArray?) {
-        if (characterAllowed == null) return
-        editText.blackListLimit(characterAllowed)
+    fun bindingEditTextDisallowedList(view: EditText, disallowed: CharArray?) {
+        if (disallowed == null) return
+        view.blackListLimit(disallowed)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["disallowed_limit"])
-    fun bindingEditTextDisallowedList(editText: ClearEditText, characterAllowed: CharArray?) {
-        if (characterAllowed == null) return
-        editText.editText.blackListLimit(characterAllowed)
+    fun bindingEditTextDisallowedList(view: ClearEditText, disallowed: CharArray?) {
+        if (disallowed == null) return
+        view.editText.blackListLimit(disallowed)
     }
 
     /**
@@ -393,9 +400,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["emoji_limit"])
-    fun bindingEditTextEmojiLimit(editText: EditText, emojiLimit: Boolean?) {
+    fun bindingEditTextEmojiLimit(view: EditText, emojiLimit: Boolean?) {
         if (!emojiLimit.orFalse) return
-        editText.emojiLimit()
+        view.emojiLimit()
     }
 
     /**
@@ -403,14 +410,14 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["decimal_limit"])
-    fun bindingEditTextDecimal(editText: EditText, decimalPoint: Int?) {
-        editText.decimalLimit(decimalPoint.toSafeInt())
+    fun bindingEditTextDecimal(view: EditText, decimalPoint: Int?) {
+        view.decimalLimit(decimalPoint.toSafeInt())
     }
 
     @JvmStatic
     @BindingAdapter(value = ["decimal_limit"])
-    fun bindingEditTextDecimal(editText: ClearEditText, decimalPoint: Int?) {
-        editText.editText.decimalLimit(decimalPoint.toSafeInt())
+    fun bindingEditTextDecimal(view: ClearEditText, decimalPoint: Int?) {
+        view.editText.decimalLimit(decimalPoint.toSafeInt())
     }
 
     /**
@@ -418,16 +425,16 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
-    fun bindingEditTextNumberDecimal(editText: EditText, numberDecimal: Boolean?) {
+    fun bindingEditTextNumberDecimal(view: EditText, numberDecimal: Boolean?) {
         if(!numberDecimal.orFalse) return
-        editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        view.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
 
     @JvmStatic
     @BindingAdapter(value = ["number_decimal"])
-    fun bindingEditTextNumberDecimal(editText: ClearEditText, numberDecimal: Boolean?) {
+    fun bindingEditTextNumberDecimal(view: ClearEditText, numberDecimal: Boolean?) {
         if(!numberDecimal.orFalse) return
-        editText.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+        view.editText.inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     }
 
     /**
@@ -435,16 +442,16 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["space_limit"])
-    fun bindingEditTextSpaceLimit(editText: EditText, spaceLimit: Boolean?) {
+    fun bindingEditTextSpaceLimit(view: EditText, spaceLimit: Boolean?) {
         if (!spaceLimit.orFalse) return
-        editText.spaceLimit()
+        view.spaceLimit()
     }
 
     @JvmStatic
     @BindingAdapter(value = ["space_limit"])
-    fun bindingEditTextSpaceLimit(editText: ClearEditText, spaceLimit: Boolean?) {
+    fun bindingEditTextSpaceLimit(view: ClearEditText, spaceLimit: Boolean?) {
         if (!spaceLimit.orFalse) return
-        editText.editText.spaceLimit()
+        view.editText.spaceLimit()
     }
 
     /**
@@ -455,6 +462,34 @@ object BaseBindingAdapter {
     fun bindingAdvertisingCorner(view: Advertising, cornerRadius: Int?, cornerColor: String?) {
         view.background = createRectangleDrawable(cornerColor ?: "#F9FAFB", cornerRadius.ptFloat)
     }
+
+    /**
+     * 解决水平进度条频繁赋值带来的内存开销
+     * 1) xml内设置ProgressBar的style="?android:attr/progressBarStyleHorizontal"
+     * 2) max/progressDrawable改为传入,除progress会频繁更替外,其余值是不会改变的
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["max","progressDrawable"], requireAll = false)
+    fun bindingProgressBarCompound(view: ProgressBar, progressMax: Int?, @DrawableRes progressDrawable: Int?) {
+        // 进度条最大值
+        progressMax?.takeIf { it >= 0 }?.let { newProgressMax ->
+            val progressMaxKey = R.id.theme_progress_max_tag
+            val oldProgressMax = view.getTag(progressMaxKey) as? Int
+            if (oldProgressMax != newProgressMax) {
+                view.max = newProgressMax
+                view.setTag(progressMaxKey, newProgressMax)
+            }
+        }
+        // 进度条背景
+        progressDrawable?.let { newProgressDrawable ->
+            val progressDrawableKey = R.id.theme_progress_drawable_tag
+            val oldProgressDrawable = view.getTag(progressDrawableKey) as? Int
+            if (oldProgressDrawable != newProgressDrawable) {
+                view.progressDrawable = drawable(newProgressDrawable)
+                view.setTag(progressDrawableKey, newProgressDrawable)
+            }
+        }
+    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="ViewPager/ViewPager2/XRecyclerView绑定方法">
@@ -463,11 +498,11 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["pager_adapter"])
-    fun <T : PagerAdapter> bindingScaleViewPagerAdapter(pager: ViewPager, pagerAdapter: T) {
-        pager.adapter = pagerAdapter
-        pager.offscreenPageLimit = pagerAdapter.count - 1
-        pager.currentItem = 0
-        pager.startAnimation(pager.context.elasticityEnter())
+    fun <T : PagerAdapter> bindingScaleViewPagerAdapter(view: ViewPager, pagerAdapter: T) {
+        view.adapter = pagerAdapter
+        view.offscreenPageLimit = pagerAdapter.count - 1
+        view.currentItem = 0
+        view.startAnimation(view.context.elasticityEnter())
     }
 
     /**
@@ -475,8 +510,8 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["pager2_adapter", "orientation", "user_input_enabled", "page_limit"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(flipper: ViewPager2, pager2Adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
-        flipper.adapter(pager2Adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
+    fun <T : RecyclerView.Adapter<*>> bindingViewPage2Adapter(view: ViewPager2, pager2Adapter: T, orientation: Int?, userInputEnabled: Boolean?, pageLimit: Boolean?) {
+        view.adapter(pager2Adapter, orientation.toSafeInt(ViewPager2.ORIENTATION_HORIZONTAL), userInputEnabled.orTrue, pageLimit.orFalse)
     }
 
     /**
@@ -484,21 +519,21 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(rec: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(view: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
         val validSpanCount = spanCount ?: 1
         val validOrientation = orientation ?: RecyclerView.VERTICAL
         when {
             validSpanCount <= 1 && validOrientation == RecyclerView.VERTICAL -> {
-                rec.initLinearVertical(adapter)
+                view.initLinearVertical(adapter)
             }
             validSpanCount <= 1 && validOrientation == RecyclerView.HORIZONTAL -> {
-                rec.initLinearHorizontal(adapter)
+                view.initLinearHorizontal(adapter)
             }
             validSpanCount > 1 && validOrientation == RecyclerView.VERTICAL -> {
-                rec.initGridVertical(adapter, validSpanCount)
+                view.initGridVertical(adapter, validSpanCount)
             }
             validSpanCount > 1 && validOrientation == RecyclerView.HORIZONTAL -> {
-                rec.initGridHorizontal(adapter, validSpanCount)
+                view.initGridHorizontal(adapter, validSpanCount)
             }
         }
     }
@@ -509,9 +544,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(rec: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(view: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
         val validOrientation = orientation ?: RecyclerView.VERTICAL
-        rec.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation)
+        view.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation)
     }
 
     /**
@@ -526,9 +561,9 @@ object BaseBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(rec: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(view: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
         val validOrientation = orientation ?: RecyclerView.VERTICAL
-        rec.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
+        view.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
     }
     // </editor-fold>
 
@@ -539,8 +574,8 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadUrl(webView: WebView, networkUrl: String?, needHeader: Boolean?) {
-        webView.load(networkUrl.orEmpty(), needHeader.orFalse)
+    fun bindingWebViewLoadUrl(view: WebView, networkUrl: String?, needHeader: Boolean?) {
+        view.load(networkUrl.orEmpty(), needHeader.orFalse)
     }
 
     /**
@@ -549,8 +584,8 @@ object BaseBindingAdapter {
     @JvmStatic
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
-    fun bindingWebViewLoadAssetUrl(webView: WebView, assetPath: String?, needHeader: Boolean?) {
-        webView.load("file:///android_asset/$assetPath", needHeader.orFalse)
+    fun bindingWebViewLoadAssetUrl(view: WebView, assetPath: String?, needHeader: Boolean?) {
+        view.load("file:///android_asset/$assetPath", needHeader.orFalse)
     }
     // </editor-fold>
 
