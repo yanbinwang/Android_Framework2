@@ -103,6 +103,45 @@ fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
 }
 
 /**
+ * first:总和  second:最小值  third:最大值
+ * 核心逻辑：集合是啥数值类型，返回就啥类型（仅支持Int/Long/Float/Double）
+ */
+fun Collection<Number>?.safeNumStats(): Triple<Number, Number, Number> {
+    // 空/可空集合直接返回(0,0,0)
+    if (this.isNullOrEmpty()) return Triple(0, 0, 0)
+    // 取第一个元素的原始类型，避免统一转Double
+    val first = first()
+    return fold(Triple(first, first, first)) { acc, num ->
+        Triple(
+            // 按原始类型做加法
+            first = when (acc.first) {
+                is Int -> (acc.first as Int) + (num as Int)
+                is Long -> (acc.first as Long) + (num as Long)
+                is Float -> (acc.first as Float) + (num as Float)
+                is Double -> (acc.first as Double) + (num as Double)
+                else -> 0
+            },
+            // 按原始类型取最小值
+            second = when (acc.second) {
+                is Int -> minOf(acc.second as Int, num as Int)
+                is Long -> minOf(acc.second as Long, num as Long)
+                is Float -> minOf(acc.second as Float, num as Float)
+                is Double -> minOf(acc.second as Double, num as Double)
+                else -> 0
+            },
+            // 按原始类型取最大值
+            third = when (acc.third) {
+                is Int -> maxOf(acc.third as Int, num as Int)
+                is Long -> maxOf(acc.third as Long, num as Long)
+                is Float -> maxOf(acc.third as Float, num as Float)
+                is Double -> maxOf(acc.third as Double, num as Double)
+                else -> 0
+            }
+        )
+    }
+}
+
+/**
  * 寻找符合条件的第一个item的index
  */
 fun <T> Collection<T>.findIndexOf(func: ((T) -> Boolean)): Int {
@@ -662,6 +701,19 @@ fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
  *     acc // 必须返回更新后的累加器
  * }
  * println(evenNumbers) // 输出：[2, 4]
+ *
+ * // 定义数据类存储结果
+ * data class SumAndMax(val sum: Int, val max: Int)
+ * fun main() {
+ * val numbers = listOf(1, 5, 3, 9, 2)
+ * val result = numbers.fold(SumAndMax(0, Int.MIN_VALUE)) { acc, num ->
+ *     SumAndMax(
+ *         sum = acc.sum + num, // 累加和
+ *         max = maxOf(acc.max, num) // 更新最大值
+ *     )
+ * }
+ * println(result) // 输出：SumAndMax(sum=20, max=9)
+ * }
  */
 fun <T> ArrayList<T>?.joinToJson(): String {
     if (isNullOrEmpty()) return ""
