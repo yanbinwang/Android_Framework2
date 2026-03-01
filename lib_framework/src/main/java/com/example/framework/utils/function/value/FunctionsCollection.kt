@@ -3,11 +3,11 @@ package com.example.framework.utils.function.value
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
+import androidx.core.util.size
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
 import kotlin.random.Random
-import androidx.core.util.size
 
 //------------------------------------全局用自定义方法 List部分------------------------------------
 /**
@@ -37,6 +37,35 @@ fun <T : List<K>, K> T?.safeGet(position: Int): K? {
     }
 }
 
+/**
+ * 返回第一个item，无法返回则返回null
+ */
+fun <T> List<T>?.safeGetFirst(): T? {
+    if (isNullOrEmpty()) return null
+    return try {
+        first()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 返回最后一个item，无法返回则返回null
+ */
+fun <T> List<T>?.safeGetLast(): T? {
+    if (isNullOrEmpty()) return null
+    return try {
+        get(size - 1)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 设置item的值，报错不处理
+ */
 fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
     this ?: return
     if (position in indices) try {
@@ -70,32 +99,6 @@ fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
     } catch (e: Exception) {
         e.printStackTrace()
         emptyList()
-    }
-}
-
-/**
- * 返回第一个item，无法返回则返回null
- */
-fun <T> Collection<T>?.safeFirst(): T? {
-    if (isNullOrEmpty()) return null
-    return try {
-        first()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
-}
-
-/**
- * 返回最后一个item，无法返回则返回null
- */
-fun <T> List<T>?.safeLast(): T? {
-    if (isNullOrEmpty()) return null
-    return try {
-        get(size - 1)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
     }
 }
 
@@ -417,8 +420,8 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
 
 /**
  * list1为服务器中数据 , list2为本地存储数据
- * isRepeated为是否返回重复的或不重复的数据 ,正向查为服务器新增数据 , 反向查为本地删除数据
- * 需重写equals和hasCode方法
+ * 1) isRepeated -> 是否返回重复的或不重复的数据 , 正向查为服务器新增数据 , 反向查为本地删除数据
+ * 2) 需重写equals和hasCode方法
  * data class User(val id: Int, val name: String) {
  *    override fun equals(other: Any?): Boolean {
  *        if (this === other) return true
@@ -629,7 +632,27 @@ fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
 }
 
 /**
- * pair转jsonobject
+ * 获取一串拼接的json
+ */
+fun <T> ArrayList<T>?.joinToJson(): String {
+    if (isNullOrEmpty()) return ""
+//    val builder = StringBuilder("[")
+//    for (i in indices) {
+//        builder.append(safeGet(i))
+//        if (i < lastIndex) {
+//            builder.append("],[")
+//        }
+//    }
+//    builder.append("]")
+//    return builder.toString()
+    // 利用 Kotlin 标准库 joinToString 方法（专门用于集合拼接字符串），先把列表元素用 ],[ 分隔拼接，再包裹 []
+    return joinToString(separator = "],[").let { "[$it]" }
+    // 用 fold 折叠集合，初始值为 [，每次拼接 ],[元素，最后补 ]
+//    return fold("[") { acc, t -> "${acc}],[${t}"}.run { "${this}]" }
+}
+
+/**
+ * 多个Pair转JsonObject
  */
 fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
     val json = JSONObject()
@@ -646,24 +669,6 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
     }
     return json
 }
-
-///**
-// * 获取一串拼接的json
-// */
-//fun <T> ArrayList<T>?.requestParams(): String {
-//    if (isNullOrEmpty()) return ""
-//    val builder = StringBuilder("[")
-//    for (i in indices) {
-//        builder.append(safeGet(i))
-//        if (i < lastIndex) {
-//            builder.append("],[")
-//        }
-//    }
-//    builder.append("]")
-//    return builder.toString()
-//    return joinToString(separator = "],[").let { "[$it]" }
-//    return fold("[") { acc, t -> "${acc}],[${t}"}.run { "${this}]" }
-//}
 
 /**
  * pair处理（如果都不为空，则返回true）
