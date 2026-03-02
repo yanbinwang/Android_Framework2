@@ -3,6 +3,7 @@ package com.example.framework.utils.function.value
 import com.example.framework.utils.function.value.DateFormat.EN_YMD
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.getDateFormat
+import com.example.framework.utils.function.value.DateFormat.getShanghaiCalendar
 import com.example.framework.utils.function.value.DateFormat.timeContrast
 import java.text.ParseException
 import java.text.ParsePosition
@@ -14,7 +15,6 @@ import java.util.Calendar.YEAR
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
-import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
 
 //------------------------------------日期时间工具类------------------------------------
@@ -131,7 +131,7 @@ fun Long?.getYearMonthDay(defaultYear: Int = 2000, defaultMonth: Int = 1, defaul
     // 空值直接返回默认的年月日
     this ?: return Triple(defaultYear, defaultMonth, defaultDay)
     // 非空则解析时间戳
-    val calendar = Calendar.getInstance().apply {
+    val calendar = getShanghaiCalendar().apply {
         // 避免lambda歧义，用this@xxx指定外层this
         time = Date(this@getYearMonthDay)
     }
@@ -150,18 +150,7 @@ fun Long?.getYearMonthDay(defaultYear: Int = 2000, defaultMonth: Int = 1, defaul
 fun Date?.isToday(): Boolean {
     this ?: return false
     return try {
-//        // 获取当前系统时间
-//        val subDate = EN_YMD.convert(System.currentTimeMillis())
-//        // 定义每天的24h时间范围
-//        val beginTime = "$subDate 00:00:00"
-//        val endTime = "$subDate 23:59:59"
-//        // 转换Date
-//        val dateFormat = EN_YMDHMS.getDateFormat()
-//        val parseBeginTime = dateFormat.parse(beginTime)
-//        val parseEndTime = dateFormat.parse(endTime)
-//        (after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)
-        val today = Calendar.getInstance().apply {
-            timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+        val today = getShanghaiCalendar().apply {
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
@@ -275,7 +264,7 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
 fun String?.getWeekOfMonth(): Int {
     this ?: return 0
     return try {
-        Calendar.getInstance().let {
+        getShanghaiCalendar().let {
             it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
             it.get(Calendar.WEEK_OF_MONTH)
         }
@@ -293,7 +282,7 @@ fun String?.getWeekOfMonth(): Int {
 fun String?.getWeekOfDate(): Int {
     this ?: return 0
     return try {
-        Calendar.getInstance(Locale.CHINA).apply {
+        getShanghaiCalendar().apply {
             time = EN_YMD.getDateFormat().parse(this@getWeekOfDate) ?: Date()
         }.get(Calendar.DAY_OF_WEEK).let {
             // Calendar中：周日=1，周一=2...周六=7 → 转换为：周一=1，周日=7
@@ -332,7 +321,7 @@ object DateFormat {
      * 通过 Calendar 类获取一个固定时间点（2000 年 1 月 1 日 0 点 0 分 0 秒）的毫秒时间戳
      */
     val timeContrast by lazy {
-        Calendar.getInstance().let {
+        getShanghaiCalendar().let {
             it.set(2000, 0, 1, 0, 0, 0)
             it.timeInMillis
         }
@@ -341,8 +330,16 @@ object DateFormat {
     /**
      * 缓存本地创建的日期格式（频繁创建SimpleDateFormat进行日期转换过于耗费内存）
      */
-    private val formattersCache by lazy { ConcurrentHashMap<String, SimpleDateFormat>() }
+//    private val formattersCache by lazy { ConcurrentHashMap<String, SimpleDateFormat>() }
     private val formatterThreadLocal by lazy { ThreadLocal<MutableMap<String, SimpleDateFormat>>() }
+
+    /**
+     * 通用方法：创建上海时区+中文Locale的Calendar实例（核心修复点）
+     */
+    @JvmStatic
+    fun getShanghaiCalendar(): Calendar {
+        return Calendar.getInstance(TimeZone.getTimeZone("Asia/Shanghai"), Locale.CHINA)
+    }
 
     /**
      * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区 (SimpleDateFormat 是线程不安全的)
@@ -366,17 +363,17 @@ object DateFormat {
      */
     @JvmStatic
     fun clearThreadLocalCache() {
-        formattersCache.clear()
+//        formattersCache.clear()
         formatterThreadLocal.remove()
     }
 
-    /**
-     * 清理指定格式的缓存（若不再需要特定格式）
-     */
-    @JvmStatic
-    fun removeCachedFormat(formatPattern: String) {
-        formattersCache.remove(formatPattern)
-    }
+//    /**
+//     * 清理指定格式的缓存（若不再需要特定格式）
+//     */
+//    @JvmStatic
+//    fun removeCachedFormat(formatPattern: String) {
+//        formattersCache.remove(formatPattern)
+//    }
 
     /**
      * 计算并设置服务器时间差
