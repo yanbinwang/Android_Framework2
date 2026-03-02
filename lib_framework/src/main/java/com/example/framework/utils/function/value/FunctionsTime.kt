@@ -334,7 +334,7 @@ object DateFormat {
      * 缓存本地创建的日期格式（频繁创建SimpleDateFormat进行日期转换过于耗费内存）
      */
     private val formattersCache by lazy { ConcurrentHashMap<String, SimpleDateFormat>() }
-    private val formatterThreadLocal = ThreadLocal<MutableMap<String, SimpleDateFormat>>()
+    private val formatterThreadLocal by lazy { ThreadLocal<MutableMap<String, SimpleDateFormat>>() }
 
     /**
      * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区 (SimpleDateFormat 是线程不安全的)
