@@ -159,7 +159,7 @@ fun Date?.isToday(): Boolean {
         val tomorrow = today + 1.day
         val thisTime = this.time
         thisTime in today..<tomorrow
-    } catch (e: ParseException) {
+    } catch (e: Exception) {
         e.printStackTrace()
         false
     }
@@ -343,7 +343,8 @@ object DateFormat {
             formatterThreadLocal.set(it)
         }
         return cache.getOrPut(this) {
-            SimpleDateFormat(this, Locale.getDefault()).apply {
+//            SimpleDateFormat(this, Locale.getDefault()).apply {
+            SimpleDateFormat(this, Locale.CHINA).apply {
                 timeZone = TimeZone.getTimeZone("Asia/Shanghai")
             }
         }
