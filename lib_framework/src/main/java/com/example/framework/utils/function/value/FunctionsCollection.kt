@@ -141,6 +141,18 @@ fun Collection<Number>?.safeNumStats(): Triple<Number, Number, Number> {
     }
 }
 
+fun Collection<Number>?.sum(): Number {
+    return safeNumStats().first
+}
+
+fun Collection<Number>?.min(): Number {
+    return safeNumStats().second
+}
+
+fun Collection<Number>?.max(): Number {
+    return safeNumStats().third
+}
+
 /**
  * 寻找符合条件的第一个item的index
  */
