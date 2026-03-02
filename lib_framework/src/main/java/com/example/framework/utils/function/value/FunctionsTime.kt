@@ -3,12 +3,17 @@ package com.example.framework.utils.function.value
 import com.example.framework.utils.function.value.DateFormat.EN_YMD
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.getDateFormat
+import com.example.framework.utils.function.value.DateFormat.timeContrast
 import java.text.ParseException
 import java.text.ParsePosition
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Calendar.DAY_OF_MONTH
 import java.util.Calendar.MONTH
 import java.util.Calendar.YEAR
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.floor
 
@@ -25,6 +30,7 @@ val Int.week get() = this * 7.day            // 1周 = 7天（复用day扩展）
 
 /**
  * 服务器时间-推测的服务器接收时间
+ * 存储 “服务器真实时间 - 本地 nano 转换的毫秒时间” 的差值，初始化 - 1 表示未同步服务器时间
  */
 private var timeDiff = -1L
 
@@ -50,17 +56,10 @@ val currentTimeStamp: Long
  * 1微秒 = 1000纳秒；
  * 1纳秒 = 1000皮秒；
  */
-val currentTimeNano get() = System.nanoTime() / 1000000L
-
-/**
- * 获取手机计算日历
- */
-val timeContrast by lazy {
-    Calendar.getInstance().let {
-        it.set(2000, 0, 1, 0, 0, 0)
-        it.timeInMillis
+val currentTimeNano: Long
+    get() {
+        return System.nanoTime() / 1000000L
     }
-}
 
 /**
  * 是否为今天
@@ -72,17 +71,18 @@ val Long?.isToday: Boolean
     }
 
 /**
- * 计算日期差距
+ * 计算日期差距 (将两个时间戳都转换为 “相对于 2000 年 1 月 1 日的天数”，再做差值计算)
+ * @this/other 毫秒级时间戳（从 1970-01-01 00:00:00 UTC 到某个时间的毫秒数）
  * this - other，主体时间越靠后值越大
- * 正数->日程时间大于系统时间
- * 负数->日程时间小于系统时间
- * 0->相等
+ * 正数 -> 日程时间大于系统时间
+ * 负数 -> 日程时间小于系统时间
+ * 0 -> 相等
  */
 fun Long?.dayDiff(other: Long?): Int {
     this ?: return 0
     other ?: return 0
-    val timeDay = floor((this - timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
-    val timeDay2 = floor((other - timeContrast) / (1000f * 60f * 60f * 24f)).toInt()
+    val timeDay = floor((this - timeContrast) / (1000f * 60f * 60f * 24f)).toSafeInt()
+    val timeDay2 = floor((other - timeContrast) / (1000f * 60f * 60f * 24f)).toSafeInt()
     return timeDay - timeDay2
 }
 
@@ -121,44 +121,59 @@ private fun Long.padZero(cap: Boolean = true): String {
 }
 
 /**
- * 获取年月
+ * 获取时间戳对应的年、月、日（支持可空Long，空值返回默认值）
+ * @param defaultYear 空值时的默认年（默认2000）
+ * @param defaultMonth 空值时的默认月（默认1）
+ * @param defaultDay 空值时的默认日（默认1）
+ * @return Triple<年, 月, 日>：月份已+1（符合日常认知，1=1月），日期从1开始
  */
-fun Long.getYearAndMonth(): Pair<Int, Int> {
-    val calendar = Calendar.getInstance()
-    calendar.time = Date(this)
-    return calendar.get(YEAR) to (calendar.get(MONTH) + 1)
+fun Long?.getYearMonthDay(defaultYear: Int = 2000, defaultMonth: Int = 1, defaultDay: Int = 1): Triple<Int, Int, Int> {
+    // 空值直接返回默认的年月日
+    this ?: return Triple(defaultYear, defaultMonth, defaultDay)
+    // 非空则解析时间戳
+    val calendar = Calendar.getInstance().apply {
+        // 避免lambda歧义，用this@xxx指定外层this
+        time = Date(this@getYearMonthDay)
+    }
+    // 年：直接取；月：Calendar.MONTH从0开始，+1后符合日常认知；日：直接取
+    val year = calendar.get(YEAR)
+    val month = calendar.get(MONTH) + 1
+    val day = calendar.get(DAY_OF_MONTH)
+    return Triple(year, month, day)
 }
 
 /**
- * 转换日期如果为空，则new一个当前手机的日期类返回
+ * 是否为当日 (手机时间为准) -> 针对国内时差
+ * after -> 当Date1大于Date2时，返回TRUE，当小于等于时，返回false
+ * before -> 当Date1小于Date2时，返回TRUE，当大于等于时，返回false
  */
-fun Date?.toSafeDate(): Date {
-    this ?: return Date()
-    return this
-}
-
-/**
- * 是否为当日(手机时间为准)->针对国内时差
- * after->当Date1大于Date2时，返回TRUE，当小于等于时，返回false
- * before->当Date1小于Date2时，返回TRUE，当大于等于时，返回false
- */
-fun Date.isToday(): Boolean {
-    var flag = false
-    try {
-        //获取当前系统时间
-        val subDate = EN_YMD.convert(System.currentTimeMillis())
-        //定义每天的24h时间范围
-        val beginTime = "$subDate 00:00:00"
-        val endTime = "$subDate 23:59:59"
-        //转换Date
-        val dateFormat = EN_YMDHMS.getDateFormat()
-        val parseBeginTime = dateFormat.parse(beginTime)
-        val parseEndTime = dateFormat.parse(endTime)
-        if ((after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)) flag = true
+fun Date?.isToday(): Boolean {
+    this ?: return false
+    return try {
+//        // 获取当前系统时间
+//        val subDate = EN_YMD.convert(System.currentTimeMillis())
+//        // 定义每天的24h时间范围
+//        val beginTime = "$subDate 00:00:00"
+//        val endTime = "$subDate 23:59:59"
+//        // 转换Date
+//        val dateFormat = EN_YMDHMS.getDateFormat()
+//        val parseBeginTime = dateFormat.parse(beginTime)
+//        val parseEndTime = dateFormat.parse(endTime)
+//        (after(parseBeginTime) && before(parseEndTime)) || equals(parseBeginTime) || equals(parseEndTime)
+        val today = Calendar.getInstance().apply {
+            timeZone = TimeZone.getTimeZone("Asia/Shanghai")
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val tomorrow = today + 1.day
+        val thisTime = this.time
+        thisTime in today..<tomorrow
     } catch (e: ParseException) {
         e.printStackTrace()
+        false
     }
-    return flag
 }
 
 /**
@@ -168,8 +183,12 @@ fun Date.isToday(): Boolean {
  * @return 将服务器返回的时间字符串解析为本地时间戳（毫秒），同时处理时区偏移问题
  */
 fun String?.convertServerTime(format: String = EN_YMDHMS): Long {
-    if (isNullOrEmpty()) return 0
-    val date = SimpleDateFormat(format, Locale.US).parse(this, ParsePosition(0)) ?: return 0
+    if (isNullOrEmpty()) return 0L
+    // 服务器时间是UTC，先按UTC解析，再转本地时区
+    val utcFormat = SimpleDateFormat(format, Locale.US).apply {
+        timeZone = TimeZone.getTimeZone("UTC")
+    }
+    val date = utcFormat.parse(this, ParsePosition(0)) ?: return 0L
     return date.time - date.timezoneOffset * 60000
 }
 
@@ -183,7 +202,7 @@ fun String?.convertServerTime(format: String = EN_YMDHMS): Long {
 fun String?.convert(format: String, source: String): String {
     this ?: return ""
     return try {
-        format.convert(getDateFormat().parse(source).toSafeDate())
+        format.convert(getDateFormat().parse(source))
     } catch (e: ParseException) {
         e.printStackTrace()
         ""
@@ -207,7 +226,7 @@ fun String.convert(source: String): Long {
  * @return          日期(2022-12-11)
  */
 fun String.convert(timestamp: Long): String {
-    return getDateFormat().format(Date(timestamp)).orEmpty()
+    return getDateFormat().format(Date(timestamp))
 }
 
 /**
@@ -216,8 +235,9 @@ fun String.convert(timestamp: Long): String {
  * @param date 日期类
  * @return     日期(2022-12-11)
  */
-fun String.convert(date: Date): String {
-    return getDateFormat().format(date).orEmpty()
+fun String.convert(date: Date?): String {
+    date ?: return ""
+    return getDateFormat().format(date)
 }
 
 /**
@@ -231,8 +251,8 @@ fun String?.compare(source: String, format: String = EN_YMD): Int {
     this ?: return 0
     val dateFormat = format.getDateFormat()
     return try {
-        val comparedDate = dateFormat.parse(this).toSafeDate()
-        val comparedDate2 = dateFormat.parse(source).toSafeDate()
+        val comparedDate = dateFormat.parse(this) ?: Date()
+        val comparedDate2 = dateFormat.parse(source) ?: Date()
         when {
             // 日程时间大于系统时间
             comparedDate.time > comparedDate2.time -> 1
@@ -256,7 +276,7 @@ fun String?.getWeekOfMonth(): Int {
     this ?: return 0
     return try {
         Calendar.getInstance().let {
-            it.time = EN_YMD.getDateFormat().parse(this).toSafeDate()
+            it.time = EN_YMD.getDateFormat().parse(this) ?: Date()
             it.get(Calendar.WEEK_OF_MONTH)
         }
     } catch (e: ParseException) {
@@ -274,7 +294,7 @@ fun String?.getWeekOfDate(): Int {
     this ?: return 0
     return try {
         Calendar.getInstance(Locale.CHINA).apply {
-            time = EN_YMD.getDateFormat().parse(this@getWeekOfDate).toSafeDate()
+            time = EN_YMD.getDateFormat().parse(this@getWeekOfDate) ?: Date()
         }.get(Calendar.DAY_OF_WEEK).let {
             // Calendar中：周日=1，周一=2...周六=7 → 转换为：周一=1，周日=7
             if (it == Calendar.SUNDAY) 7 else it - 1
@@ -300,20 +320,32 @@ object DateFormat {
     const val EN_YMDHMS = "yyyy-MM-dd HH:mm:ss"
 
     /**
+     * 获取手机计算日历
+     * 通过 Calendar 类获取一个固定时间点（2000 年 1 月 1 日 0 点 0 分 0 秒）的毫秒时间戳
+     */
+    val timeContrast by lazy {
+        Calendar.getInstance().let {
+            it.set(2000, 0, 1, 0, 0, 0)
+            it.timeInMillis
+        }
+    }
+
+    /**
      * 缓存本地创建的日期格式（频繁创建SimpleDateFormat进行日期转换过于耗费内存）
      */
     private val formattersCache by lazy { ConcurrentHashMap<String, SimpleDateFormat>() }
+    private val formatterThreadLocal = ThreadLocal<MutableMap<String, SimpleDateFormat>>()
 
     /**
-     * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区
+     * 获取手机本身日期格式，指定为国内时区，避免用户手动改时区 (SimpleDateFormat 是线程不安全的)
      * @param this 日期格式（yyyy-MM-dd）
      */
     @JvmStatic
     fun String.getDateFormat(): SimpleDateFormat {
-//        val dateFormat = SimpleDateFormat(this, Locale.getDefault())
-//        dateFormat.timeZone = TimeZone.getTimeZone("Asia/Shanghai")
-//        return dateFormat
-        return formattersCache.getOrPut(this) {
+        val cache = formatterThreadLocal.get() ?: mutableMapOf<String, SimpleDateFormat>().also {
+            formatterThreadLocal.set(it)
+        }
+        return cache.getOrPut(this) {
             SimpleDateFormat(this, Locale.getDefault()).apply {
                 timeZone = TimeZone.getTimeZone("Asia/Shanghai")
             }
@@ -327,6 +359,7 @@ object DateFormat {
     @JvmStatic
     fun clearThreadLocalCache() {
         formattersCache.clear()
+        formatterThreadLocal.remove()
     }
 
     /**
@@ -335,6 +368,31 @@ object DateFormat {
     @JvmStatic
     fun removeCachedFormat(formatPattern: String) {
         formattersCache.remove(formatPattern)
+    }
+
+    /**
+     * 计算并设置服务器时间差
+     * 1) reqStartTime：客户端发起请求的本地时间（nano 转的毫秒）；
+     * 2) reqEndTime：客户端收到响应的本地时间（nano 转的毫秒）；
+     * 3) serverReceiveTime：推测服务器收到请求的本地时间（取请求 / 响应时间的中间值）；
+     * 4) systemTime：服务器返回的真实时间戳；
+     * 5) 最终 timeDiff = 服务器真实时间 - 推测的服务器接收时间
+     */
+    @JvmStatic
+    fun setServiceTime(reqStartTime: Long, reqEndTime: Long, systemTime: Long) {
+        // 推测服务器接收请求的本地nano时间（中间值）
+        val serverReceiveTime = (reqEndTime + reqStartTime) / 2
+        // timeDiff = 服务器真实时间 - 推测的服务器接收时间 (reqStartTime/reqEndTime 必须是 currentTimeNano（而非System.currentTimeMillis()）)
+        timeDiff = systemTime - serverReceiveTime
+    }
+
+    /**
+     * 重置服务器时间差
+     * 将 timeDiff 恢复为初始值 -1L，后续 currentTimeStamp 会 fallback 到 System.currentTimeMillis()
+     */
+    @JvmStatic
+    fun resetServiceTime() {
+        timeDiff = -1L
     }
 }
 // </editor-fold>
