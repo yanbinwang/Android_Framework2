@@ -1,6 +1,5 @@
 package com.example.common.widget.textview.edittext
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Editable
 import android.text.InputFilter
@@ -15,6 +14,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.pt
@@ -38,11 +38,11 @@ import com.example.framework.widget.BaseViewGroup
  * @description 带删除按钮的输入框
  * @author yan
  */
-@SuppressLint("CustomViewStyleable")
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false // 是否不可操作
     private var isShowBtn = true // 是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
+    private var afterTextChanged: ((s: Editable?) -> Unit)? = null
     private val mBinding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = mBinding.etClear
 
@@ -53,6 +53,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
                 mBinding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
+            }
+            doAfterTextChanged {
+                afterTextChanged?.invoke(it)
             }
         }
         mBinding.ivClear.click {
@@ -230,6 +233,10 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
         this.onTextChanged = listener
+    }
+
+    fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
+        this.afterTextChanged = listener
     }
 
     fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
