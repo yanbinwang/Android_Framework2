@@ -81,7 +81,7 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
                         dismiss()
                         listener?.invoke(item, index)
                     }
-                }.mBinding.root
+                }.getRoot()
                 // 添加布局进外层父布局
                 addView(root)
                 // 添加完成后设置大小
