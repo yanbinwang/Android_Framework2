@@ -13,33 +13,28 @@ import com.example.framework.utils.function.view.click
  * @item -> 文案
  * @index -> 下标
  */
-class SelectItemHolder(parent: ViewGroup, item: String?, index: Int) {
+class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int) {
     internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
     internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
 
     init {
-        val txt = item.orNoData()
-        mBinding.tvLabel.text = txt
-        mBinding.root.click {
-            onItemClick?.invoke(txt, index)
+        val textToProcess = when (item) {
+            is Int -> {
+                string(item).also {
+                    mBinding.tvLabel.setI18nRes(item)
+                }
+            }
+            is String -> {
+                item.orNoData().also {
+                    mBinding.tvLabel.text = it
+                }
+            }
+            else -> {
+                ""
+            }
         }
-    }
-
-    fun getRoot(): View {
-        return mBinding.root
-    }
-
-}
-
-class SelectI18ItemHolder(parent: ViewGroup, resid: Int?, index: Int) {
-    internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
-    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
-
-    init {
-        val res = resid ?: R.string.unitNoData
-        mBinding.tvLabel.setI18nRes(res)
         mBinding.root.click {
-            onItemClick?.invoke(string(res), index)
+            onItemClick?.invoke(textToProcess, index)
         }
     }
 
