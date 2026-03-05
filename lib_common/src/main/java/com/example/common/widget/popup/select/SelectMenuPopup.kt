@@ -95,7 +95,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
                         dismiss()
                         listener?.invoke(item, clickIndex)
                     }
-                }.mBinding.root
+                }.getRoot()
                 // 添加布局进外层父布局
                 addView(root)
                 // 添加完成后设置大小
