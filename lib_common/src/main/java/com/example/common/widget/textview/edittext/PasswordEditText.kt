@@ -161,12 +161,16 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         mBinding.etClear.filters = filters
     }
 
-    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
-        mBinding.etClear.addTextChangedListener { onTextChanged.invoke(it) }
+    fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
+        mBinding.etClear.addTextChangedListener {
+            listener.invoke(it)
+        }
     }
 
-    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
-        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus -> onFocusChange.invoke(v, hasFocus) }
+    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+            listener.invoke(v, hasFocus)
+        }
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
