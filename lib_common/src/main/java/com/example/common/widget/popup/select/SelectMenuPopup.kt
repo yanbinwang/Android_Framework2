@@ -34,7 +34,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
          * 不添加默认数据的构建
          */
         fun create(activity: FragmentActivity): SelectMenuPopup<String> {
-            return SelectMenuPopup(activity) { "" }
+            return SelectMenuPopup(activity) { it }
         }
 
     }
