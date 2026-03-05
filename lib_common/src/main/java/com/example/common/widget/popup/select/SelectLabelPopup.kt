@@ -61,6 +61,10 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
             return SelectLabelPopup(list.orEmpty()) { it }
         }
 
+        fun createByI18(list: List<Int>? = emptyList()): SelectLabelPopup<Int> {
+            return SelectLabelPopup(list.orEmpty()) { "" }
+        }
+
     }
 
     override fun initEvent() {
@@ -76,12 +80,27 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局
-                val root = SelectItemHolder(this, formatter(t), index).also {
-                    it.onItemClick = { item, index ->
-                        dismiss()
-                        listener?.invoke(item, index)
-                    }
-                }.getRoot()
+//                val root = SelectItemHolder(this, formatter(t), index).also {
+//                    it.onItemClick = { item, index ->
+//                        dismiss()
+//                        listener?.invoke(item, index)
+//                    }
+//                }.getRoot()
+                val root = if (t is Int) {
+                    SelectI18ItemHolder(this, t, index).also {
+                        it.onItemClick = { item, index ->
+                            dismiss()
+                            listener?.invoke(item, index)
+                        }
+                    }.getRoot()
+                } else {
+                    SelectItemHolder(this, formatter(t), index).also {
+                        it.onItemClick = { item, index ->
+                            dismiss()
+                            listener?.invoke(item, index)
+                        }
+                    }.getRoot()
+                }
                 // 添加布局进外层父布局
                 addView(root)
                 // 添加完成后设置大小

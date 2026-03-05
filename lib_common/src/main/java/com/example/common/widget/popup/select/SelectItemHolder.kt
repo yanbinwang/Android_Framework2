@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import com.example.common.R
 import com.example.common.databinding.ItemPopupSelectBinding
 import com.example.common.utils.function.orNoData
+import com.example.common.utils.i18n.string
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 
@@ -21,6 +22,24 @@ class SelectItemHolder(parent: ViewGroup, item: String?, index: Int) {
         mBinding.tvLabel.text = txt
         mBinding.root.click {
             onItemClick?.invoke(txt, index)
+        }
+    }
+
+    fun getRoot(): View {
+        return mBinding.root
+    }
+
+}
+
+class SelectI18ItemHolder(parent: ViewGroup, resid: Int?, index: Int) {
+    internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
+    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
+
+    init {
+        val res = resid ?: R.string.unitNoData
+        mBinding.tvLabel.setI18nRes(res)
+        mBinding.root.click {
+            onItemClick?.invoke(string(res), index)
         }
     }
 

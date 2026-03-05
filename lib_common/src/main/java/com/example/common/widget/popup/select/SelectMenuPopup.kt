@@ -37,6 +37,10 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             return SelectMenuPopup(activity) { it }
         }
 
+        fun createByI18(activity: FragmentActivity): SelectMenuPopup<Int> {
+            return SelectMenuPopup(activity) { "" }
+        }
+
     }
 
     /**
@@ -90,12 +94,27 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局
-                val root = SelectItemHolder(this, formatter(t), index).also {
-                    it.onItemClick = { item, clickIndex ->
-                        dismiss()
-                        listener?.invoke(item, clickIndex)
-                    }
-                }.getRoot()
+//                val root = SelectItemHolder(this, formatter(t), index).also {
+//                    it.onItemClick = { item, clickIndex ->
+//                        dismiss()
+//                        listener?.invoke(item, clickIndex)
+//                    }
+//                }.getRoot()
+                val root = if (t is Int) {
+                    SelectI18ItemHolder(this, t, index).also {
+                        it.onItemClick = { item, index ->
+                            dismiss()
+                            listener?.invoke(item, index)
+                        }
+                    }.getRoot()
+                } else {
+                    SelectItemHolder(this, formatter(t), index).also {
+                        it.onItemClick = { item, index ->
+                            dismiss()
+                            listener?.invoke(item, index)
+                        }
+                    }.getRoot()
+                }
                 // 添加布局进外层父布局
                 addView(root)
                 // 添加完成后设置大小
