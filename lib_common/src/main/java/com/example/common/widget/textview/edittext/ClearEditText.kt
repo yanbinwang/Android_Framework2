@@ -130,19 +130,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    private fun setDisabled() {
-        isDisabled = true
-        isShowBtn = false
-        mBinding.etClear.apply {
-            isCursorVisible = false
-            isFocusable = false
-            isEnabled = false
-            isFocusableInTouchMode = false
-            textColor(R.color.textDisabled)
-        }
-        mBinding.ivClear.gone()
-    }
-
     private fun setEnabled() {
         isDisabled = false
         isShowBtn = false
@@ -154,6 +141,19 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             textColor(R.color.textPrimary)
         }
         mBinding.ivClear.visible()
+    }
+
+    private fun setDisabled() {
+        isDisabled = true
+        isShowBtn = false
+        mBinding.etClear.apply {
+            isCursorVisible = false
+            isFocusable = false
+            isEnabled = false
+            isFocusableInTouchMode = false
+            textColor(R.color.textDisabled)
+        }
+        mBinding.ivClear.gone()
     }
 
     fun setText(@StringRes resid: Int) {
@@ -233,22 +233,26 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun showBtn() {
         isShowBtn = true
-        mBinding.etClear.apply { if (text.toString().isNotEmpty()) visible() }
+        mBinding.etClear.apply {
+            if (text.toString().isNotEmpty()) {
+                visible()
+            }
+        }
     }
 
     fun addFilter(filter: InputFilter) {
-        val filters = Arrays.copyOf(mBinding.etClear.filters, mBinding.etClear.filters.size + 1)
+        val filters = mBinding.etClear.filters.copyOf(mBinding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
         mBinding.etClear.filters = filters
     }
 
-    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
-        this.onTextChanged = onTextChanged
+    fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
+        this.onTextChanged = listener
     }
 
-    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
         mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-            onFocusChange.invoke(v, hasFocus)
+            listener.invoke(v, hasFocus)
         }
     }
 

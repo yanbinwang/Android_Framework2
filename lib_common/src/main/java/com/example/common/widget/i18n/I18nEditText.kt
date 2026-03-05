@@ -9,6 +9,7 @@ import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.string
 import java.lang.ref.WeakReference
+import androidx.core.content.withStyledAttributes
 
 /**
  * @description 全局文字替換輸入框
@@ -17,30 +18,59 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("CustomViewStyleable")
 class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatEditText(context, attrs, defStyleAttr), I18nImpl {
-    private var i18nTextRes: Int = -1
-    private var i18nHintRes: Int = -1
+    private var i18nTextRes = -1
+    private var i18nHintRes = -1
     private var contents: Array<out String>? = null
     private val weakReference: WeakReference<I18nImpl> by lazy { WeakReference(this) }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.I18n)
-        //xml瀏覽的情況下
-        if (isInEditMode) {
-            val textRes = typedArray.getResourceId(R.styleable.I18n_android_text, -1)
-            if (textRes != -1) setText(textRes)
-            val hintRes = typedArray.getResourceId(R.styleable.I18n_android_hint, -1)
-            if (hintRes != -1) setHint(hintRes)
-        } else {
-            setI18nRes(typedArray.getResourceId(R.styleable.I18n_android_text, -1))
-            setI18nHintRes(typedArray.getResourceId(R.styleable.I18n_android_hint, -1))
+        context.withStyledAttributes(attrs, R.styleable.I18n) {
+            // xml瀏覽的情況下
+            if (isInEditMode) {
+                val textRes = getResourceId(R.styleable.I18n_android_text, -1)
+                if (textRes != -1) setText(textRes)
+                val hintRes = getResourceId(R.styleable.I18n_android_hint, -1)
+                if (hintRes != -1) setHint(hintRes)
+            } else {
+                setI18nRes(getResourceId(R.styleable.I18n_android_text, -1))
+                setI18nHintRes(getResourceId(R.styleable.I18n_android_hint, -1))
+            }
         }
-        typedArray.recycle()
-        isFocusable = true //设置输入框可聚集
-        isFocusableInTouchMode = true //设置触摸聚焦
+        // 设置输入框可聚集
+        isFocusable = true
+        // 设置触摸聚焦
+        isFocusableInTouchMode = true
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        I18nUtil.register(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        I18nUtil.unregister(this)
     }
 
     /**
-     * 設置text的string.xml資源地址
+     * @string 纯字符串
+     */
+    fun setTextString(string: String) {
+        this.contents = arrayOf()
+        this.i18nTextRes = -1
+        setText(string)
+    }
+
+    /**
+     * @string 纯字符串
+     */
+    fun setHintString(string: String) {
+        this.i18nHintRes = -1
+        hint = string
+    }
+
+    /**
+     * @i18nTextRes 文字在string.xml种的資源地址
      */
     fun setI18nRes(@StringRes i18nTextRes: Int) {
         this.i18nTextRes = i18nTextRes
@@ -48,7 +78,7 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     /**
-     * 設置hint的string.xml資源地址
+     * @i18nTextRes 提示文字在string.xml种的資源地址
      */
     fun setI18nHintRes(@StringRes i18nHintRes: Int) {
         this.i18nHintRes = i18nHintRes
@@ -56,29 +86,24 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
     }
 
     /**
-     * 项目中部分文案采取%n$s方式拼接，在xml中配置對應文案，然後調用該方法直接替換%n$s的值
+     * 设置一组集合文字,并通过String类拼接
+     */
+    fun setContent(vararg contents: String) {
+        this.contents = contents
+        refreshText()
+    }
+
+    /**
+     * 项目中部分文案采取%n$s方式拼接，在xml中配置對應文案，調用該方法直接替換%n$s的值
      */
     fun setI18nContent(@StringRes i18nTextRes: Int, vararg contents: String) {
         setI18nRes(i18nTextRes)
         setContent(*contents)
     }
 
-    fun setTextString(string: String) {
-        this.contents = arrayOf()
-        this.i18nTextRes = -1
-        setText(string)
-    }
-
-    fun setHintString(string: String) {
-        this.i18nHintRes = -1
-        hint = string
-    }
-
-    fun setContent(vararg contents: String) {
-        this.contents = contents
-        refreshText()
-    }
-
+    /**
+     * 清除集合文字
+     */
     fun clearI18n() {
         this.contents = arrayOf()
         this.i18nTextRes = -1
@@ -90,25 +115,19 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
             when {
                 i18nTextRes < 0 -> {
                 }
-                contents.isNullOrEmpty() -> setText(string(i18nTextRes))
-                else -> setText(string(i18nTextRes, *contents))
+                contents.isNullOrEmpty() -> {
+                    setText(string(i18nTextRes))
+                }
+                else -> {
+                    setText(string(i18nTextRes, *contents))
+                }
             }
-            if (i18nHintRes != -1) {
-                hint = string(i18nHintRes)
-            }
+        }
+        if (i18nHintRes != -1) {
+            hint = string(i18nHintRes)
         }
     }
 
     override fun getWeakRef() = weakReference
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        I18nUtil.register(this)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        I18nUtil.unregister(this)
-    }
 
 }

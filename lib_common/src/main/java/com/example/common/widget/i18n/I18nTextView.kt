@@ -12,6 +12,7 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatTextView
+import androidx.core.content.withStyledAttributes
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.string
@@ -28,10 +29,10 @@ import java.lang.ref.WeakReference
  */
 @SuppressLint("CustomViewStyleable")
 open class I18nTextView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatTextView(context, attrs, defStyleAttr), I18nImpl {
-    //本地res路径
-    private var i18nTextRes: Int = -1
+    // 本地res路径
+    private var i18nTextRes = -1
     private var contents: Array<out String>? = null
-    //文字点击跳转
+    // 文字点击跳转
     private var canSpanClick = true
     private var haveUnderline = false
     private var spanArray: ArrayList<Pair<Int, () -> Unit>> = arrayListOf()
@@ -40,19 +41,47 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
     private val weakReference: WeakReference<I18nImpl> by lazy { WeakReference(this) }
 
     init {
-        val typedArray = context.obtainStyledAttributes(attrs, R.styleable.I18n)
-        //xml瀏覽的情況下
-        if (isInEditMode) {
-            val textRes = typedArray.getResourceId(R.styleable.I18n_android_text, -1)
-            if (textRes != -1) setText(textRes)
-        } else {
-            setI18nRes(typedArray.getResourceId(R.styleable.I18n_android_text, -1))
+        context.withStyledAttributes(attrs, R.styleable.I18n) {
+            // xml瀏覽的情況下
+            if (isInEditMode) {
+                val textRes = getResourceId(R.styleable.I18n_android_text, -1)
+                if (textRes != -1) setText(textRes)
+            } else {
+                setI18nRes(getResourceId(R.styleable.I18n_android_text, -1))
+            }
         }
-        typedArray.recycle()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+        I18nUtil.register(this)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        I18nUtil.unregister(this)
     }
 
     /**
-     * 設置text的string.xml資源地址
+     * @string 纯字符串
+     */
+    fun setTextString(string: String) {
+        this.contents = arrayOf()
+        this.i18nTextRes = -1
+        text = string
+    }
+
+    /**
+     * @span TextSpan/ColorSpan等特殊字符
+     */
+    fun setTextString(span: Spannable) {
+        this.contents = arrayOf()
+        this.i18nTextRes = -1
+        text = span
+    }
+
+    /**
+     * @i18nTextRes 文字在string.xml种的資源地址
      */
     fun setI18nRes(@StringRes i18nTextRes: Int) {
         this.i18nTextRes = i18nTextRes
@@ -60,47 +89,39 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     /**
-     * 项目中部分文案采取%n$s方式拼接，在xml中配置對應文案，然後調用該方法直接替換%n$s的值
+     * 设置一组集合文字,并通过String类拼接
      */
-    fun setI18nContent(@StringRes i18nTextRes: Int, vararg contents: String) {
-        setI18nRes(i18nTextRes)
-        setContent(*contents)
-    }
-
-    fun setTextString(string: String) {
-        this.contents = arrayOf()
-        this.i18nTextRes = -1
-        text = string
-    }
-
-    fun setTextString(span: Spannable) {
-        this.contents = arrayOf()
-        this.i18nTextRes = -1
-        text = span
-    }
-
     fun setContent(vararg contents: String) {
         this.contents = contents
         refreshText()
     }
 
     /**
+     * 项目中部分文案采取%n$s方式拼接，在xml中配置對應文案，調用該方法直接替換%n$s的值
+     */
+    fun setI18nContent(@StringRes i18nTextRes: Int, vararg contents: String) {
+        setI18nRes(i18nTextRes)
+        setContent(*contents)
+    }
+
+    /**
+     * 设置可点击的Text文案
      * tvNoAdmin.setClickableTextString(string(R.string.loginToRegister) to {
      * JumpTo.register(this)
      * finish()
      * })
      */
-    fun setClickableTextString(vararg spanArray: Pair<String, (() -> Unit)?>) {
-        this.spanArray.clear()
-        this.spanArrayString.clear()
-        this.spanArrayString.addAll(spanArray)
-        refreshText()
-    }
-
     fun setClickableTextRes(vararg spanArray: Pair<Int, () -> Unit>) {
         this.spanArray.clear()
         this.spanArrayString.clear()
         this.spanArray.addAll(spanArray)
+        refreshText()
+    }
+
+    fun setClickableTextString(vararg spanArray: Pair<String, (() -> Unit)?>) {
+        this.spanArray.clear()
+        this.spanArrayString.clear()
+        this.spanArrayString.addAll(spanArray)
         refreshText()
     }
 
@@ -111,6 +132,9 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
         refreshText()
     }
 
+    /**
+     * 设置自定义带有下划线的TextSpan
+     */
     fun setSpanStyle(clickable: Boolean, haveUnderline: Boolean, @ColorInt vararg color: Int) {
         this.spanColor = color
         this.canSpanClick = clickable
@@ -118,6 +142,9 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
         refreshText()
     }
 
+    /**
+     * 清除集合文字
+     */
     fun clearI18n() {
         this.spanArray.clear()
         this.spanArrayString.clear()
@@ -140,8 +167,12 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
                     val result = string(i18nTextRes, *(spanString.toTypedArray()))
                     onSpan(spanString, result)
                 }
-                contents.isNullOrEmpty() -> text = string(i18nTextRes)
-                else -> text = string(i18nTextRes, *contents)
+                contents.isNullOrEmpty() -> {
+                    text = string(i18nTextRes)
+                }
+                else -> {
+                    text = string(i18nTextRes, *contents)
+                }
             }
         }
     }
@@ -183,15 +214,5 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
     }
 
     override fun getWeakRef() = weakReference
-
-    override fun onAttachedToWindow() {
-        super.onAttachedToWindow()
-        I18nUtil.register(this)
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        I18nUtil.unregister(this)
-    }
 
 }
