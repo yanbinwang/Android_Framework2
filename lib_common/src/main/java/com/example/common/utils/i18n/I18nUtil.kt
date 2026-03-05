@@ -16,7 +16,6 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logE
 import com.example.framework.utils.logV
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
@@ -157,63 +156,109 @@ object I18nUtil {
      * 讀取assets下的font字體文件
      */
     fun getLocalLanguageBean(language: String?): LanguageBean? {
+//        val pack = LanguageUtil.getLanguageLocalAsset(language)
+//        val assetManager = BaseApplication.instance.applicationContext.assets
+//        val inputStream = try {
+//            assetManager.open(pack)
+//        } catch (_: Exception) {
+//            assetManager.open(en_US_PACK)
+//        }
+//        val reader = JsonReader(InputStreamReader(inputStream, "UTF-8"))
+//        val bean = try {
+//            gson.fromJson<LanguageBean>(reader, object : TypeToken<LanguageBean>() {}.type)
+//        } catch (_: Exception) {
+//            null
+//        } finally {
+//            inputStream.close()
+//            reader.close()
+//        }
+//        return bean
         val pack = LanguageUtil.getLanguageLocalAsset(language)
-        val assetManager = BaseApplication.instance.assets
-        val inputStream = try {
-            assetManager.open(pack)
-        } catch (_: Exception) {
-            assetManager.open(en_US_PACK)
-        }
-        val reader = JsonReader(InputStreamReader(inputStream, "UTF-8"))
-        val bean = try {
-            gson.fromJson<LanguageBean>(reader, object : TypeToken<LanguageBean>() {}.type)
+        val assetManager = BaseApplication.instance.applicationContext.assets
+        return try {
+            val inputStream = try {
+                assetManager.open(pack)
+            } catch (_: Exception) {
+                assetManager.open(en_US_PACK)
+            }
+            inputStream.use { stream ->
+                InputStreamReader(stream, "UTF-8").use { reader ->
+                    JsonReader(reader).use { jsonReader ->
+                        gson.fromJson(jsonReader, object : TypeToken<LanguageBean>() {}.type)
+                    }
+                }
+            }
         } catch (_: Exception) {
             null
-        } finally {
-            inputStream.close()
-            reader.close()
         }
-        return bean
     }
 
     /**
      * 獲取本機語言包版本
      */
     fun getLocalLanguageVersion(language: String?): Int? {
+//        val pack = LanguageUtil.getLanguageLocalAsset(language)
+//        val assetManager = BaseApplication.instance.assets
+//        val inputStream = try {
+//            assetManager.open(pack)
+//        } catch (_: Exception) {
+//            return 0
+//        }
+//        val reader = BufferedReader(InputStreamReader(inputStream))
+//        val version = try {
+//            var count = 0
+//            val reg = Regex("""(?<="version"\s?:\s?")\d*(?=")""")
+//            var result: Int? = null
+//            while (reader.ready()) {
+//                count++
+//                if (count > 3) break
+//                val line = reader.readLine()
+//                val value = reg.find(line)?.value
+//                if (!value.isNullOrEmpty()) {
+//                    result = value.toSafeInt()
+//                    break
+//                }
+//            }
+//            result
+//        } catch (_: Exception) {
+//            null
+//        } finally {
+//            try {
+//                reader.close()
+//                inputStream.close()
+//            } catch (e: Exception) {
+//                e.logE
+//            }
+//        }
+//        return version
         val pack = LanguageUtil.getLanguageLocalAsset(language)
         val assetManager = BaseApplication.instance.assets
-        val inputStream = try {
-            assetManager.open(pack)
-        } catch (_: Exception) {
-            return 0
-        }
-        val reader = BufferedReader(InputStreamReader(inputStream))
-        val version = try {
-            var count = 0
-            val reg = Regex("""(?<="version"\s?:\s?")\d*(?=")""")
-            var result: Int? = null
-            while (reader.ready()) {
-                count++
-                if (count > 3) break
-                val line = reader.readLine()
-                val value = reg.find(line)?.value
-                if (!value.isNullOrEmpty()) {
-                    result = value.toSafeInt()
-                    break
+        return try {
+            // 打开指定语言包，失败直接返回0
+            assetManager.open(pack).use { inputStream ->
+                // 指定UTF-8编码，避免系统默认编码问题；use自动关闭流
+                InputStreamReader(inputStream, Charsets.UTF_8).use { inputReader ->
+                    BufferedReader(inputReader).use { reader ->
+                        var count = 0
+                        var version: Int? = null
+                        // 最多读3行，找到版本号立即退出
+                        while (reader.ready() && count < 3 && version == null) {
+                            count++
+                            val line = reader.readLine() ?: continue // 空行直接跳过
+                            // 匹配版本号并转换，toSafeInt() 是你的安全转换函数
+                            val versionStr = Regex("""(?<="version"\s?:\s?")\d*(?=")""").find(line)?.value
+                            if (!versionStr.isNullOrEmpty()) {
+                                version = versionStr.toSafeInt()
+                            }
+                        }
+                        // 返回匹配到的版本号（null则表示未找到）
+                        version
+                    }
                 }
             }
-            result
         } catch (_: Exception) {
-            null
-        } finally {
-            try {
-                reader.close()
-                inputStream.close()
-            } catch (e: Exception) {
-                e.logE
-            }
+            0
         }
-        return version
     }
 
     /**
