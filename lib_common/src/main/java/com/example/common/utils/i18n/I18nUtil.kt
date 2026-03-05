@@ -232,7 +232,7 @@ object I18nUtil {
 //        }
 //        return version
         val pack = LanguageUtil.getLanguageLocalAsset(language)
-        val assetManager = BaseApplication.instance.assets
+        val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             // 打开指定语言包，失败直接返回0
             assetManager.open(pack).use { inputStream ->
