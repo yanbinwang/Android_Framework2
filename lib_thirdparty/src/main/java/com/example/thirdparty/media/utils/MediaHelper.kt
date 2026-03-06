@@ -1,6 +1,11 @@
 package com.example.thirdparty.media.utils
 
+import android.content.Context
+import android.media.AudioFocusRequest
+import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -13,7 +18,7 @@ import java.io.IOException
  * @autoResume 是否允许生命周期自动恢复播放（默认关闭，可开启）
  * @autoPause 是否允许生命周期自动暂停播放（默认开启，可关闭）
  */
-class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false, private val autoPause: Boolean = true) : LifecycleEventObserver {
+class MediaHelper(mActivity: FragmentActivity, private val autoResume: Boolean = false, private val autoPause: Boolean = true) : LifecycleEventObserver {
     // 当前 MediaPlayer 状态（辅助判断，避免依赖 isPlaying() 单一状态）
     private var currentState = State.IDLE
     // 暴露外部回调
@@ -45,6 +50,14 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
             }
         }
     }
+    // 音频焦点管理器
+    private val isOreoOrHigher get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
+    private val audioManager by lazy { mActivity.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    private var audioFocusRequest: AudioFocusRequest? = null
+    // 低版本焦点监听器
+    private val lowVersionFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
+        handleAudioFocusChange(focusChange)
+    }
 
     companion object {
         // 日志tag
@@ -64,7 +77,7 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
     }
 
     init {
-        owner.lifecycle.addObserver(this)
+        mActivity.lifecycle.addObserver(this)
     }
 
     /**
@@ -74,8 +87,17 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
      */
     fun setDataSource(sourcePath: String, looping: Boolean = true) {
         try {
+            // 申请音频焦点
+            val focusGranted = requestAudioFocus()
+            if (!focusGranted) {
+                "音频焦点申请失败，可能无法播放".logWTF(TAG)
+                currentState = State.ERROR
+                onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
+                return
+            }
             // 切换数据源前，先重置状态（避免状态违规）
             resetPlayer()
+            // 设置数据源并异步准备
             player.apply {
                 setDataSource(sourcePath)
                 isLooping = looping
@@ -92,6 +114,59 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
             "设置数据源异常（未知错误）：${e.message}".logWTF(TAG)
             currentState = State.ERROR
             onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
+        }
+    }
+
+    /**
+     * 申请音频焦点（适配23+）
+     * @return 是否申请成功
+     */
+    private fun requestAudioFocus(): Boolean {
+        return if (isOreoOrHigher) {
+            // 26+ 使用新API
+            if (audioFocusRequest == null) {
+                audioFocusRequest = AudioFocusRequest.Builder(AudioManager.AUDIOFOCUS_GAIN).setOnAudioFocusChangeListener { focusChange ->
+                    handleAudioFocusChange(focusChange)
+                }.build()
+            }
+            val focusRequest = audioFocusRequest
+            if (null == focusRequest) {
+                "AudioFocusRequest 初始化失败，无法申请音频焦点".logWTF(TAG)
+                false
+            } else {
+                val result = audioManager.requestAudioFocus(focusRequest)
+                result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+            }
+        } else {
+            // 23-25 使用旧API
+            val result = audioManager.requestAudioFocus(lowVersionFocusListener, AudioManager.STREAM_MUSIC, AudioManager.AUDIOFOCUS_GAIN)
+            result == AudioManager.AUDIOFOCUS_REQUEST_GRANTED
+        }
+    }
+
+    /**
+     * 处理音频焦点变化（统一逻辑，兼容高低版本）
+     */
+    private fun handleAudioFocusChange(focusChange: Int) {
+        when (focusChange) {
+            AudioManager.AUDIOFOCUS_LOSS -> {
+                // 永久失去焦点，停止播放
+                stop()
+                "永久失去音频焦点，停止播放".logWTF(TAG)
+            }
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
+            AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
+                // 临时失去焦点，暂停播放
+                pause()
+                "临时失去音频焦点，暂停播放".logWTF(TAG)
+            }
+            AudioManager.AUDIOFOCUS_GAIN -> {
+                // 恢复焦点，自动播放（根据autoResume）
+                if (autoResume) {
+                    start()
+                    "恢复音频焦点，自动播放".logWTF(TAG)
+                }
+            }
         }
     }
 
@@ -162,7 +237,9 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
      */
     fun release() {
         try {
-            // 先移除所有监听器，避免内存泄漏
+            // 释放音频焦点
+            releaseAudioFocus()
+            // 移除所有监听器，避免内存泄漏
             player.setOnPreparedListener(null)
             player.setOnErrorListener(null)
             player.setOnCompletionListener(null)
@@ -216,10 +293,30 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
         }
     }
 
+    /**
+     * 释放音频焦点
+     */
+    private fun releaseAudioFocus() {
+        if (isOreoOrHigher) {
+            audioFocusRequest?.let {
+                audioManager.abandonAudioFocusRequest(it)
+                audioFocusRequest = null
+            }
+        } else {
+            audioManager.abandonAudioFocus(lowVersionFocusListener)
+        }
+    }
+
+    /**
+     * 是否在播放
+     */
     fun isPlaying(): Boolean {
         return currentState == State.STARTED
     }
 
+    /**
+     * 当前播放进度 (毫秒（ms）)
+     */
     fun getCurrentPosition(): Int {
         return try {
             if (currentState in listOf(State.PREPARED, State.STARTED, State.PAUSED, State.COMPLETED)) {
@@ -233,6 +330,9 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
         }
     }
 
+    /**
+     * 音频总时长（毫秒（ms））
+     */
     fun getDuration(): Int {
         return try {
             if (currentState in listOf(State.PREPARED, State.STARTED, State.PAUSED, State.COMPLETED)) {
@@ -246,6 +346,9 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
         }
     }
 
+    /**
+     * 准备/出错/完成 回调监听
+     */
     fun setOnPreparedListener(listener: ((mp: MediaPlayer) -> Unit)) {
         this.onPreparedListener = listener
     }
@@ -258,6 +361,9 @@ class MediaHelper(owner: LifecycleOwner, private val autoResume: Boolean = false
         this.onCompletionListener = listener
     }
 
+    /**
+     * 页面生命周期变化回调
+     */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             // 初次加载页面/切回页面时自动恢复播放，开始播放
