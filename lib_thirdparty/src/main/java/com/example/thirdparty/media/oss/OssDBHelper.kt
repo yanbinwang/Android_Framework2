@@ -32,7 +32,7 @@ object OssDBHelper {
     }
 
     /**
-     * 查询当前用户本机数据库存储的所有集合
+     * 查询 -> 当前用户本机数据库存储的所有集合
      */
     @JvmStatic
     fun query(): MutableList<OssDB>? {
@@ -42,67 +42,66 @@ object OssDBHelper {
                 ?.build()
                 ?.find()
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
 
     /**
-     * 查询对应保全号的具体文件信息
+     * 查询 -> 对应保全号的具体文件信息
      */
     @JvmStatic
     fun query(baoquan: String?): OssDB? {
         baoquan ?: return null
         return try {
-            getOssDBByBaoquan(baoquan)?.findUnique()
+            queryByBaoquan(baoquan)?.findUnique()
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }
 
     /**
-     * 插入对应数据
+     * 插入 -> 对应数据
      */
     @JvmStatic
-    fun insert(bean: OssDB?) {
+    fun put(bean: OssDB?) {
         bean ?: return
         dao?.put(bean)
     }
 
     /**
-     * 删除对应baoquan数据
+     * 更新 (插入) -> 文件上传状态
+     * 0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
      */
     @JvmStatic
-    fun delete(baoquan: String?) {
+    fun put(baoquan: String?, state: Int = 2) {
+        val bean = query(baoquan)
+        bean ?: return
+        bean.state = state
+        dao?.put(bean)
+    }
+
+    /**
+     * 删除 -> 对应baoquan数据
+     */
+    @JvmStatic
+    fun remove(baoquan: String?) {
         baoquan ?: return
         try {
-            getOssDBByBaoquan(baoquan)?.remove()
+            queryByBaoquan(baoquan)?.remove()
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
     /**
-     * 删除对应bean数据
+     * 删除 -> 对应bean数据
      */
     @JvmStatic
-    fun delete(bean: OssDB?) {
+    fun remove(bean: OssDB?) {
         bean ?: return
         dao?.remove(bean)
-    }
-
-    /**
-     * 针对当前用户的保全号的删除
-     */
-    private fun getOssDBByBaoquan(baoquan: String?): Query<OssDB>? {
-        baoquan ?: return null
-        return try {
-            dao?.query()
-                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
-                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
-                ?.build()
-        } catch (e: Exception) {
-            null
-        }
     }
     // </editor-fold>
 
@@ -112,18 +111,18 @@ object OssDBHelper {
      */
     @JvmStatic
     fun addObserver(observer: LifecycleOwner) {
-        //以main为底座，绑定main的生命周期
+        // 以main为底座，绑定main的生命周期
         OssFactory.instance.cancelAllWork(observer)
-        //加载数据前，让数据库中所有上传中状态的数据，变为未上传（上传失败）
-        updateAll(1)
+        // 加载数据前，让数据库中所有上传中状态的数据，变为未上传（上传失败）
+        putAll(1)
     }
 
     /**
      * 整理数据库对应用户的数据
-     * 1.服务器请求完成后-》 val existsList = data.list.filter { it.isExists() }//整理服务器给的对照列表，抓出其中本地具备的文件
-     * 2.调取sort方法，传入服务器的对照列表，对数据库进行一次删减
-     * 3.上述方法执行完毕后-》 val loseList = data.list.filter { !it.isExists() }//标记损坏的文件
-     * 4.批量调取oss文件上传
+     * 1) 服务器请求完成后 -> val existsList = data.list.filter { it.isExists() } // 整理服务器给的对照列表，抓出其中本地具备的文件
+     * 2) 调取sort方法，传入服务器的对照列表，对数据库进行一次删减
+     * 3) 上述方法执行完毕后 -> val loseList = data.list.filter { !it.isExists() } // 标记损坏的文件
+     * 4) 批量调取oss文件上传
      */
 //    @JvmStatic
 //    fun sort(serverList: MutableList<String>) {
@@ -144,7 +143,7 @@ object OssDBHelper {
         // 清除本地数据库内不存在于服务器的脏数据
         for (bean in localDbList?.filter { !serverAllSet.contains(it.sourcePath) }.orEmpty()) {
             // 删除源文件和数据表值
-            delete(bean)
+            remove(bean)
             bean.sourcePath.deleteFile()
         }
         // 本地源文件脏数据清理 1.拍照取证，2.录音取证，3.录像取证，4.录屏取证
@@ -171,29 +170,34 @@ object OssDBHelper {
     }
 
     /**
-     * 更新文件上传状态
-     * 0上传中 1上传失败 2上传完成（证据缺失直接校验源文件路径）
+     * 查询 -> 当前用户保全号的数据
      */
     @JvmStatic
-    fun update(baoquan: String?, state: Int = 2) {
-        val bean = query(baoquan)
-        bean ?: return
-        bean.state = state
-        dao?.put(bean)
+    fun queryByBaoquan(baoquan: String?): Query<OssDB>? {
+        baoquan ?: return null
+        return try {
+            dao?.query()
+                ?.equal(OssDB_.userId, AccountHelper.getUserId(), StringOrder.CASE_SENSITIVE)
+                ?.equal(OssDB_.baoquan, baoquan, StringOrder.CASE_SENSITIVE)
+                ?.build()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 
     /**
      * 更新所有文件的上传状态（登录成功后调取一次）
      */
     @JvmStatic
-    fun updateAll(state: Int = 1) {
-        //获取所有任务
+    fun putAll(state: Int = 1) {
+        // 获取所有任务
         val allTasks = dao?.all.orEmpty()
-        //批量修改任务属性
+        // 批量修改任务属性
         for (task in allTasks) {
             task.state = state
         }
-        //批量保存修改后的任务
+        // 批量保存修改后的任务
         dao?.put(allTasks)
     }
 

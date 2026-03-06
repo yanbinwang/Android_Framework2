@@ -352,9 +352,9 @@ class OssFactory private constructor() : CoroutineScope {
                 it.state = 1
                 it.extras = ""
             }
-            OssDBHelper.insert(query)
+            OssDBHelper.put(query)
         }
-        OssDBHelper.update(baoquan, if (isInit) 0 else 1)
+        OssDBHelper.put(baoquan, if (isInit) 0 else 1)
         // 2的时候才会有success参数
         callback(if (isInit) 0 else 2, baoquan, success = false)
         return query
@@ -369,7 +369,7 @@ class OssFactory private constructor() : CoroutineScope {
             // 全部传完停止服务器
             if (percentage == 100) {
                 //优先保证本地数据库记录成功
-                OssDBHelper.update(baoquan, 2)
+                OssDBHelper.put(baoquan, 2)
                 success(query, fileType, recordDirectory.orEmpty())
             }
         } else {
@@ -398,7 +398,7 @@ class OssFactory private constructor() : CoroutineScope {
                 // 删除对应断点续传的文件夹和源文件
                 query?.sourcePath.deleteFile()
                 recordDirectory.deleteFile()
-                OssDBHelper.delete(query)
+                OssDBHelper.remove(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
             }
@@ -414,7 +414,7 @@ class OssFactory private constructor() : CoroutineScope {
         }.withHandling(end = {
             end(baoquan)
         }).onStart {
-            OssDBHelper.update(baoquan, 1)
+            OssDBHelper.put(baoquan, 1)
             callback(2, baoquan, success = false)
         }.launchIn(this)
     }
