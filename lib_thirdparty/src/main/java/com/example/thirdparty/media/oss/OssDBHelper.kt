@@ -187,7 +187,7 @@ object OssDBHelper {
     }
 
     /**
-     * 更新所有文件的上传状态（登录成功后调取一次）
+     * 更新 (插入) -> 所有文件的上传状态（登录成功后调取一次）
      */
     @JvmStatic
     fun putAll(state: Int = 1) {
@@ -235,6 +235,15 @@ object OssDBHelper {
     @JvmStatic
     fun submitNumber(): Int {
         return query()?.filter { it.state == 0 }.safeSize
+    }
+
+    /**
+     * 获取额外配置
+     */
+    @JvmStatic
+    fun extras(baoquan: String?): String? {
+        baoquan ?: ""
+        return query(baoquan)?.extras
     }
     // </editor-fold>
 
