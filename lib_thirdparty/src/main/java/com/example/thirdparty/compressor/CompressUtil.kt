@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import com.example.common.BaseApplication
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.mb
 import com.example.common.utils.i18n.string
 import com.example.thirdparty.R
 import com.example.thirdparty.firebase.utils.CrashlyticsUtil
@@ -21,15 +22,16 @@ object CompressUtil {
     private var resWidth = 1000
     private var resHeight = 1000
 
-    suspend fun compressFile(context: Context, pathname: String?): File {
-        pathname ?: throw RuntimeException("文件路径为空")
+    suspend fun compressFile(context: Context?, pathname: String?): File {
+        pathname ?: throw RuntimeException(string(R.string.compressPathEmpty))
         return CompressUtil.compressFile(context, File(pathname))
     }
 
-    suspend fun compressFile(context: Context, file: File?): File {
-        file ?: throw RuntimeException("文件为空")
-        if (file.length() > 10 * 1024 * 1024) {
-            throw RuntimeException(string(R.string.compressError))
+    suspend fun compressFile(context: Context?, file: File?): File {
+        context ?: throw RuntimeException(string(R.string.compressError))
+        file ?: throw RuntimeException(string(R.string.compressFileEmpty))
+        if (file.length() > 10.mb) {
+            throw RuntimeException(string(R.string.compressSizeError))
         }
         // 内部已切换到了io线程
         return try {
