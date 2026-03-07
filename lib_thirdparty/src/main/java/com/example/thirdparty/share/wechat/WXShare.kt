@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import androidx.core.graphics.scale
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.common.BaseApplication
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
@@ -14,7 +13,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
-import com.example.thirdparty.share.wechat.WXShareUtil.bmpToByteArray
+import com.example.thirdparty.share.wechat.WXShareUtil.bitmapToByteArray
 import com.example.thirdparty.share.wechat.bean.WXShareMessage
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
@@ -71,35 +70,39 @@ class WXShare(private val mActivity: FragmentActivity) {
      */
     fun config(message: WXShareMessage? = null, bitmap: Bitmap? = null, block: (builder: WXShare) -> Unit = {}) {
         mShareMessage = message ?: WXShareMessage()
-        val bmp = bitmap ?: if (mThumbByte == null) {
-            BaseApplication.instance.decodeResource(R.mipmap.ic_share)
-        } else {
-            null
-        }
-        if (bmp != null) {
-            configJob?.cancel()
-            configJob = mActivity.lifecycleScope.launch {
-                flow {
-                    emit(requestAffair { buildThumb(bmp) })
-                }.withHandling(end = {
-                    block.invoke(this@WXShare)
-                }).collect {
-                    mThumbByte = it
-                }
+        mActivity.let {
+            val bmp = bitmap ?: if (mThumbByte == null) {
+                it.decodeResource(R.mipmap.ic_share)
+            } else {
+                null
             }
-        } else {
-            block.invoke(this)
+            if (bmp != null) {
+                configJob?.cancel()
+                configJob = it.lifecycleScope.launch {
+                    flow {
+                        emit(requestAffair { buildThumb(bmp) })
+                    }.withHandling(end = {
+                        block.invoke(this@WXShare)
+                    }).collect { thumbByte ->
+                        mThumbByte = thumbByte
+                    }
+                }
+            } else {
+                block.invoke(this)
+            }
         }
     }
 
     /**
      * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
      */
-    private suspend fun buildThumb(bmp: Bitmap?, THUMB_SIZE: Int = 100) = withContext(IO) {
-        bmp?.scale(THUMB_SIZE, THUMB_SIZE)?.let { thumbBmp ->
-            bmp.recycle()
-            bmpToByteArray(thumbBmp, true)
-        } ?: ByteArray(0)
+    private suspend fun buildThumb(bmp: Bitmap?, THUMB_SIZE: Int = 100): ByteArray {
+        return withContext(IO) {
+            bmp?.scale(THUMB_SIZE, THUMB_SIZE)?.let { thumbBmp ->
+                bmp.recycle()
+                bitmapToByteArray(thumbBmp, true)
+            } ?: ByteArray(0)
+        }
     }
 
     /**
@@ -156,25 +159,25 @@ class WXShare(private val mActivity: FragmentActivity) {
     }
 
     /**
-     * 小程序类型分享(小程序目前只支持会话->SendMessageToWX.Req.WXSceneSession)
+     * 小程序类型分享 (小程序目前只支持会话->SendMessageToWX.Req.WXSceneSession)
      * val miniProgramObj = WXMiniProgramObject()
-     * miniProgramObj.webpageUrl = result?.webpageUrl//兼容低版本的网页链接
+     * miniProgramObj.webpageUrl = result?.webpageUrl // 兼容低版本的网页链接
      * miniProgramObj.miniprogramType = result?.miniprogramType.orZero // 正式版:0，测试版:1，体验版:2
-     * miniProgramObj.userName = result?.userName//小程序原始id
-     * miniProgramObj.path = result?.path //小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
+     * miniProgramObj.userName = result?.userName //小程序原始id
+     * miniProgramObj.path = result?.path // 小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
      *
      * val msg = WXMediaMessage(miniProgramObj)
-     * msg.title = message?.title//小程序消息title
-     * msg.description = message?.description// 小程序消息desc
-     * msg.thumbData = thumbData// 小程序消息封面图片，小于128k
+     * msg.title = message?.title // 小程序消息title
+     * msg.description = message?.description // 小程序消息desc
+     * msg.thumbData = thumbData // 小程序消息封面图片，小于128k
      */
     fun shareMiniProgram(webpageUrl: String, miniprogramType: Int, userName: String, path: String) {
-        //小程序目前只支持会话
+        // 小程序目前只支持会话
         share(WXMiniProgramObject().also {
-            it.webpageUrl = webpageUrl//兼容低版本的网页链接
-            it.miniprogramType = miniprogramType//正式版:0，测试版:1，体验版:2
-            it.userName = userName//小程序原始id
-            it.path = path//小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
+            it.webpageUrl = webpageUrl // 兼容低版本的网页链接
+            it.miniprogramType = miniprogramType // 正式版:0，测试版:1，体验版:2
+            it.userName = userName // 小程序原始id
+            it.path = path // 小程序页面路径；对于小游戏，可以只传入 query 部分，来实现传参效果，如：传入 "?foo=bar"
         }, "miniProgram", SendMessageToWX.Req.WXSceneSession)
     }
 
@@ -197,7 +200,7 @@ class WXShare(private val mActivity: FragmentActivity) {
      * msg.title = message?.title // 必填，不能为空
      * msg.description = message?.description // 选填，建议与歌手名字段 singerName 保持一致
      * msg.messageExt = "额外信息" // 微信跳回应用时会带上
-     * msg.thumbData = thumbData// 音乐卡片缩略图，不超过64KB
+     * msg.thumbData = thumbData // 音乐卡片缩略图，不超过64KB
      */
     private fun shareMusic(musicUrl: String, musicDataUrl: String, scene: Int = SendMessageToWX.Req.WXSceneSession) {
         share(WXMusicVideoObject().also {
