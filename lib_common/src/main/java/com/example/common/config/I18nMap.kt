@@ -37,6 +37,9 @@ object I18nMap {
         R.string.authOpenIdError to "authOpenIdError",
         R.string.authNetworkFail to "authNetworkFail",
         //------------------图片压缩提示------------------
+        R.string.compressPathEmpty to "compressPathEmpty",
+        R.string.compressFileEmpty to "compressFileEmpty",
+        R.string.compressSizeError to "compressSizeError",
         R.string.compressError to "compressError",
         //------------------用户通用工具类提示字段------------------
         R.string.emailHint to "emailHint",
