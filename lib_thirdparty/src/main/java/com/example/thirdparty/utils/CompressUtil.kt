@@ -19,15 +19,16 @@ object CompressUtil {
     private const val resWidth = 1000
     private const val resHeight = 1000
 
-    suspend fun compressFile(context: Context, pathname: String?): File {
-        pathname ?: throw RuntimeException("文件路径为空")
+    suspend fun compressFile(context: Context?, pathname: String?): File {
+        pathname ?: throw RuntimeException(string(R.string.compressPathEmpty))
         return compressFile(context, File(pathname))
     }
 
-    suspend fun compressFile(context: Context, file: File?): File {
-        file ?: throw RuntimeException("文件为空")
+    suspend fun compressFile(context: Context?, file: File?): File {
+        context ?: throw RuntimeException(string(R.string.compressError))
+        file ?: throw RuntimeException(string(R.string.compressFileEmpty))
         if (file.length() > 10.mb) {
-            throw RuntimeException(string(R.string.compressError))
+            throw RuntimeException(string(R.string.compressSizeError))
         }
         // 内部已切换到了io线程
         return try {

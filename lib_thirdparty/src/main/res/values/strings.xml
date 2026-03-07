@@ -8,5 +8,8 @@
     <string name="wechatSupportError">当前微信版本不支持</string>
     <string name="alipayUnInstalled">您尚未安装支付宝</string>
     <!-- 图片压缩提示 -->
-    <string name="compressError">請上傳10M以內的圖片</string>
+    <string name="compressPathEmpty">文件路径为空</string>
+    <string name="compressFileEmpty">文件为空</string>
+    <string name="compressSizeError">请上传10M以内的图片</string>
+    <string name="compressError">图片上传异常</string>
 </resources>
