@@ -24,7 +24,6 @@ object CompressUtil {
         return compressFile(context, File(pathname))
     }
 
-    @JvmStatic
     suspend fun compressFile(context: Context, file: File?): File {
         file ?: throw RuntimeException("文件为空")
         if (file.length() > 10.mb) {
