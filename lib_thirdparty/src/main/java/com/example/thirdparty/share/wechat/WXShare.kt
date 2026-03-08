@@ -10,6 +10,7 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.safeRecycle
+import com.example.common.utils.function.string
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
@@ -58,15 +59,17 @@ class WXShare(private val mActivity: FragmentActivity) {
     private var mThumbByte: ByteArray? = null
     // 分享信息
     private var mShareMessage: WXShareMessage? = null
+    // 获取页面协程上下文
+    private val mScope get() = mActivity.lifecycleScope
     // 通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(mActivity) }
 
     companion object {
-        // 微信缩略图大小限制（官方要求≤128KB）
-        private const val MAX_THUMB_SIZE_KB = 128
-
         // 微信分享需要的100*100的缩略图（摆在左侧）
         private const val THUMB_SIZE = 100
+
+        // 微信缩略图大小限制（官方要求≤128KB）
+        private const val MAX_THUMB_SIZE_KB = 128
     }
 
     init {
@@ -85,87 +88,88 @@ class WXShare(private val mActivity: FragmentActivity) {
      */
     fun config(message: WXShareMessage? = null, bitmap: Bitmap? = null, block: (builder: WXShare) -> Unit = {}) {
         mShareMessage = message ?: WXShareMessage()
-        mActivity.let {
-            val bmp = bitmap ?: if (mThumbByte == null) {
-                it.decodeResource(R.mipmap.ic_share)
-            } else {
-                null
-            }
-            if (bmp != null) {
-                configJob?.cancel()
-                configJob = it.lifecycleScope.launch(Main.immediate) {
-                    flow {
-                        emit(requestAffair {
-                            val thumbByte = buildThumb(bmp) ?: throw RuntimeException("分享失败")
-                            // 校验缩略图大小，避免超过微信限制 (压缩到符合要求的大小)
-                            if (thumbByte.size / 1024 <= MAX_THUMB_SIZE_KB) {
-                                thumbByte
-                            } else {
-                                compressByteArray(thumbByte)
-                            }
-                        })
-                    }.withHandling(end = {
-                        block.invoke(this@WXShare)
-                    }, isShowToast = true).collect { thumbByte ->
-                        mThumbByte = thumbByte
-                    }
+        val bmp = bitmap ?: if (mThumbByte == null) {
+            mActivity.decodeResource(R.mipmap.ic_share)
+        } else {
+            null
+        }
+        if (bmp != null) {
+            configJob?.cancel()
+            configJob = mScope.launch(Main.immediate) {
+                flow {
+                    emit(requestAffair {
+                        val thumbByte = buildThumb(bmp)
+                        // 校验缩略图大小，避免超过微信限制 (压缩到符合要求的大小)
+                        if (thumbByte.size / 1024 <= MAX_THUMB_SIZE_KB) {
+                            thumbByte
+                        } else {
+                            compressByteArray(thumbByte)
+                        }
+                    })
+                }.withHandling(end = {
+                    block.invoke(this@WXShare)
+                }, isShowToast = true).collect { thumbByte ->
+                    mThumbByte = thumbByte
                 }
-            } else {
-                block.invoke(this)
             }
+        } else {
+            block.invoke(this)
         }
     }
 
     /**
      * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
      */
-    private suspend fun buildThumb(bmp: Bitmap?): ByteArray? {
-        bmp ?: return ByteArray(0)
+    private suspend fun buildThumb(bmp: Bitmap?): ByteArray {
+        bmp ?: throw RuntimeException(string(R.string.shareFailure))
         return withContext(IO) {
             bmp.scale(THUMB_SIZE, THUMB_SIZE).let { thumbBmp ->
                 bmp.safeRecycle()
                 bitmapToByteArray(thumbBmp, true)
             }
-        }
+        } ?: throw RuntimeException(string(R.string.shareFailure))
     }
 
     /**
      * 压缩字节数组到指定大小（KB）
      */
-    private fun compressByteArray(byteArray: ByteArray): ByteArray {
+    private suspend fun compressByteArray(byteArray: ByteArray?): ByteArray {
+        byteArray ?: return ByteArray(0)
         // 如果超过大小，直接截取
         val maxSize = MAX_THUMB_SIZE_KB * 1024
-        // 先判断大小，符合要求直接返回（避免无意义的解码/压缩）
+        // 判断大小，符合要求直接返回（避免无意义的解码/压缩）
         if (byteArray.size <= maxSize) {
             return byteArray
         }
-        // 字节数组转回Bitmap
-        val bitmap = try {
-            BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-        } catch (e: Exception) {
-            // 解码失败时降级为截取
-            e.printStackTrace()
-            return byteArray.copyOf(maxSize)
-        } ?: return byteArray.copyOf(maxSize)
-        // 质量压缩（JPEG/PNG自适应，兼容透明图）
-        val compressFormat = if (bitmap.hasAlpha()) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
-        val baos = ByteArrayOutputStream()
-        var quality = 100
-        bitmap.compress(compressFormat, quality, baos)
-        // 循环压缩直到符合大小（最低保留10%质量，避免过度压缩）
-        while (baos.toByteArray().size > maxSize && quality > 10) {
-            quality -= 10
-            baos.reset()
+        // 把所有耗时操作（解码+压缩）都放到IO线程
+        return withContext(IO) {
+            // 字节数组转回Bitmap（解码失败直接抛异常，由withHandling处理）
+            val bitmap = try {
+                BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+            } catch (e: Exception) {
+                throw RuntimeException("缩略图解码失败：${e.message}", e)
+            } ?: throw RuntimeException("缩略图解码结果为空")
+            // 质量压缩（JPEG/PNG自适应，兼容透明图）
+            val compressFormat = if (bitmap.hasAlpha()) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+            val baos = ByteArrayOutputStream()
+            var quality = 100
             bitmap.compress(compressFormat, quality, baos)
-        }
-        // 安全回收Bitmap（避免内存泄漏）
-        bitmap.safeRecycle()
-        // 最终校验
-        val result = baos.toByteArray()
-        return if (result.size > maxSize) {
-            result.copyOf(maxSize)
-        } else {
-            result
+            // 循环压缩直到符合大小（最低保留10%质量，避免过度压缩）
+            while (baos.toByteArray().size > maxSize && quality > 10) {
+                quality -= 10
+                baos.reset()
+                bitmap.compress(compressFormat, quality, baos)
+            }
+            // 安全回收Bitmap（避免内存泄漏）
+            bitmap.safeRecycle()
+            // 最终校验 (极端情况仍超大小则截取)
+            baos.toByteArray().let { result ->
+                if (result.size > maxSize) {
+                    result.copyOf(maxSize)
+                } else {
+                    result
+                }
+            }
         }
     }
 
@@ -317,7 +321,7 @@ class WXShare(private val mActivity: FragmentActivity) {
             }
         }
         shareJob?.cancel()
-        shareJob = mActivity.lifecycleScope.launch(Main.immediate) {
+        shareJob = mScope.launch(Main.immediate) {
             try {
                 wxApi?.sendReq(SendMessageToWX.Req().also {
                     it.transaction = buildTransaction(transaction)
