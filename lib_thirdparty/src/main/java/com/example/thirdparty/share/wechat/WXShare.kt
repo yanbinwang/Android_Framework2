@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory
 import androidx.core.graphics.scale
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.common.base.bridge.BaseView
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
@@ -83,30 +84,29 @@ class WXShare(private val mActivity: FragmentActivity) {
     }
 
     /**
-     * 设置分享基础信息
-     * 每一个分享之前先进行config配置，确定一下本次分享的基础值
+     * 设置分享基础信息 (每一个分享之前先进行config配置，确定分享基础值)
+     * @mView -> 基类的基础加载框操作
+     * @message -> 分享基础信息
+     * @bitmap -> 分享后的消息体左侧的图标
+     * @block -> 分享回调
      */
-    fun config(message: WXShareMessage? = null, bitmap: Bitmap? = null, block: (builder: WXShare) -> Unit = {}) {
+    fun config(mView: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, block: (builder: WXShare) -> Unit = {}) {
         mShareMessage = message ?: WXShareMessage()
-        val bmp = bitmap ?: if (mThumbByte == null) {
-            mActivity.decodeResource(R.mipmap.ic_share)
-        } else {
-            null
+        // 获取分享消息体的左侧图标
+        val targetBmp = when {
+            // 外部传入了bitmap，优先用
+            bitmap != null -> bitmap
+            // 已有有效缩略图，无需重新生成，直接走回调
+            mThumbByte != null -> null
+            // 无外部图 + 无有效缩略图 → 加载默认图（兜底）
+            else -> mActivity.decodeResource(R.mipmap.ic_share)
         }
-        if (bmp != null) {
+        if (targetBmp != null) {
             configJob?.cancel()
             configJob = mScope.launch(Main.immediate) {
                 flow {
-                    emit(requestAffair {
-                        val thumbByte = buildThumb(bmp)
-                        // 校验缩略图大小，避免超过微信限制 (压缩到符合要求的大小)
-                        if (thumbByte.size / 1024 <= MAX_THUMB_SIZE_KB) {
-                            thumbByte
-                        } else {
-                            compressByteArray(thumbByte)
-                        }
-                    })
-                }.withHandling(end = {
+                    emit(requestAffair { suspendingConfig(targetBmp) })
+                }.withHandling(mView, end = {
                     block.invoke(this@WXShare)
                 }, isShowToast = true).collect { thumbByte ->
                     mThumbByte = thumbByte
@@ -118,9 +118,25 @@ class WXShare(private val mActivity: FragmentActivity) {
     }
 
     /**
-     * 获取分享需要的100*100的缩略图（摆在左侧）BaseApplication.instance.decodeResource(R.mipmap.ic_share)
+     * 配置协程
      */
-    private suspend fun buildThumb(bmp: Bitmap?): ByteArray {
+    private suspend fun suspendingConfig(targetBmp: Bitmap): ByteArray {
+        return withContext(IO) {
+            // 获取图片的字节数组
+            val thumbByte = suspendingBuildThumb(targetBmp)
+            // 校验缩略图大小，避免超过微信限制 (压缩到符合要求的大小)
+            if (thumbByte.size / 1024 <= MAX_THUMB_SIZE_KB) {
+                thumbByte
+            } else {
+                suspendingCompressByteArray(thumbByte)
+            }
+        }
+    }
+
+    /**
+     * 获取分享需要的100*100的缩略图（摆在左侧 , 强制将 Bitmap 缩放到 100*100） -> context.decodeResource(R.mipmap.ic_share)
+     */
+    private suspend fun suspendingBuildThumb(bmp: Bitmap?): ByteArray {
         bmp ?: throw RuntimeException(string(R.string.shareFailure))
         return withContext(IO) {
             bmp.scale(THUMB_SIZE, THUMB_SIZE).let { thumbBmp ->
@@ -133,7 +149,7 @@ class WXShare(private val mActivity: FragmentActivity) {
     /**
      * 压缩字节数组到指定大小（KB）
      */
-    private suspend fun compressByteArray(byteArray: ByteArray?): ByteArray {
+    private suspend fun suspendingCompressByteArray(byteArray: ByteArray?): ByteArray {
         byteArray ?: return ByteArray(0)
         // 如果超过大小，直接截取
         val maxSize = MAX_THUMB_SIZE_KB * 1024
