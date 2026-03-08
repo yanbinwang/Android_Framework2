@@ -88,18 +88,25 @@ class WXShare(private val mActivity: FragmentActivity) {
      * @mView -> 基类的基础加载框操作
      * @message -> 分享基础信息
      * @bitmap -> 分享后的消息体左侧的图标
+     * @needRecycle -> 是否需要回收上一次的值
      * @block -> 分享回调
      */
-    fun config(mView: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, block: (builder: WXShare) -> Unit = {}) {
+    fun config(mView: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, needRecycle: Boolean = false, block: (builder: WXShare) -> Unit = {}) {
         mShareMessage = message ?: WXShareMessage()
         // 获取分享消息体的左侧图标
-        val targetBmp = when {
-            // 外部传入了bitmap，优先用
-            bitmap != null -> bitmap
-            // 已有有效缩略图，无需重新生成，直接走回调
-            mThumbByte != null -> null
-            // 无外部图 + 无有效缩略图 → 加载默认图（兜底）
-            else -> mActivity.decodeResource(R.mipmap.ic_share)
+//        val targetBmp = when {
+//            // 外部传入了bitmap，优先用
+//            bitmap != null -> bitmap
+//            // 已有有效缩略图，无需重新生成，直接走回调
+//            mThumbByte != null -> null
+//            // 无外部图 + 无有效缩略图 → 加载默认图（兜底）
+//            else -> mActivity.decodeResource(R.mipmap.ic_share)
+//        }
+        if (needRecycle) mThumbByte = null
+        val targetBmp = if (mThumbByte != null) {
+            null
+        } else {
+            bitmap ?: mActivity.decodeResource(R.mipmap.ic_share)
         }
         if (targetBmp != null) {
             configJob?.cancel()
