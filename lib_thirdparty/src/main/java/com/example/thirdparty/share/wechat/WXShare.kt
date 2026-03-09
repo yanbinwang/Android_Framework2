@@ -74,7 +74,7 @@ class WXShare(private val mActivity: FragmentActivity) {
 
         /**
          * 【公开工具方法】生成微信分享专用缩略图
-         * @param targetBmp 原始Bitmap（非空）
+         * @param targetBmp 原始Bitmap
          * @return 100×100、≤128KB的缩略图字节数组
          * @throws RuntimeException 生成失败时抛出（如Bitmap解码失败）
          */
@@ -97,7 +97,7 @@ class WXShare(private val mActivity: FragmentActivity) {
 
         /**
          * 【内部工具方法】压缩字节数组到指定大小
-         * @param byteArray 待压缩的字节数组（非空）
+         * @param byteArray 待压缩的字节数组
          * @return 压缩后的字节数组（≤128KB）
          */
         private suspend fun suspendingCompressByteArray(byteArray: ByteArray?): ByteArray {
