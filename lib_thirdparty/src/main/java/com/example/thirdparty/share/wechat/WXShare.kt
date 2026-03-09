@@ -189,7 +189,7 @@ class WXShare(private val mActivity: FragmentActivity) {
      * @message -> 分享基础信息
      * @thumbByte -> 预生成的缩略图字节数组
      */
-    fun config(message: WXShareMessage, thumbByte: ByteArray) {
+    fun config(message: WXShareMessage, thumbByte: ByteArray?) {
         mShareMessage = message
         mThumbByte = thumbByte
     }
