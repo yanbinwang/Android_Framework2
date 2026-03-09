@@ -78,7 +78,8 @@ class WXShare(private val mActivity: FragmentActivity) {
          * @return 100×100、≤128KB的缩略图字节数组
          * @throws RuntimeException 生成失败时抛出（如Bitmap解码失败）
          */
-        suspend fun suspendingBuildThumb(targetBmp: Bitmap): ByteArray {
+        suspend fun suspendingBuildThumb(targetBmp: Bitmap?): ByteArray {
+            targetBmp ?: throw RuntimeException(string(R.string.shareFailure))
             return withContext(IO) {
                 // 获取图片的字节数组
                 val thumbByte = targetBmp.scale(THUMB_SIZE, THUMB_SIZE).let { thumbBmp ->
@@ -99,7 +100,8 @@ class WXShare(private val mActivity: FragmentActivity) {
          * @param byteArray 待压缩的字节数组（非空）
          * @return 压缩后的字节数组（≤128KB）
          */
-        private suspend fun suspendingCompressByteArray(byteArray: ByteArray): ByteArray {
+        private suspend fun suspendingCompressByteArray(byteArray: ByteArray?): ByteArray {
+            byteArray ?: throw RuntimeException(string(R.string.shareFailure))
             // 如果超过大小，直接截取
             val maxSize = MAX_THUMB_SIZE_KB * 1024
             // 判断大小，符合要求直接返回（避免无意义的解码/压缩）
