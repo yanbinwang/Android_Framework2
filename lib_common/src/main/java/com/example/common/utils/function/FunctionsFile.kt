@@ -48,6 +48,10 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  * MediaStore.Images.Media.insertImage 在Android 10+已废弃，且返回值不可靠
  * ACTION_MEDIA_SCANNER_SCAN_FILE 广播在Android 10+对外部存储部分路径失效
  */
+fun Context.insertImageResolver(pathname: String?) {
+    insertImageResolver(File(pathname.orEmpty()))
+}
+
 fun Context.insertImageResolver(file: File?) {
     file ?: return
     if (!file.exists() || !file.canRead()) {
