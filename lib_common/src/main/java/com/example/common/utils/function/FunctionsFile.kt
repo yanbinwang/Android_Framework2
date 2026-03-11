@@ -48,15 +48,15 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  * MediaStore.Images.Media.insertImage 在Android 10+已废弃，且返回值不可靠
  * ACTION_MEDIA_SCANNER_SCAN_FILE 广播在Android 10+对外部存储部分路径失效
  */
-fun Context.insertImageResolver(pathname: String?) {
-    insertImageResolver(File(pathname.orEmpty()))
+fun Context.insertImageResolver(pathname: String?): Boolean {
+    return insertImageResolver(File(pathname.orEmpty()))
 }
 
-fun Context.insertImageResolver(file: File?) {
-    file ?: return
+fun Context.insertImageResolver(file: File?): Boolean {
+    file ?: return false
     if (!file.exists() || !file.canRead()) {
         "文件不存在或不可读：${file.absolutePath}".logWTF
-        return
+        return false
     }
     // 适配 Android 10+（Scoped Storage）
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -66,6 +66,7 @@ fun Context.insertImageResolver(file: File?) {
         MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, "file://${file.path}".toUri()))
     }
+    return true
 }
 
 /**
@@ -527,9 +528,11 @@ fun File?.getFirstFileInDirectory(): String? {
     }
     // 判断是否有文件，返回第一个文件的路径
     if (files != null && files.size > 0) {
-        // 按修改时间排序
-        // Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()));
-        // 返回第一个文件的绝对路径
+        /**
+         * 按修改时间排序
+         * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
+         * 返回第一个文件的绝对路径
+         */
         return files[0]?.absolutePath
     } else {
         "目录下无文件".logWTF
@@ -592,7 +595,7 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
     // 判断是否为图片MIME类型
     val isImageMime = mimeType.startsWith("image/")
     val extension = if (isImageMime) {
-        // 图片文件：保留原有图片MIME映射逻辑（完全不变）
+        // 图片文件：保留原有图片MIME映射逻辑
         when (mimeType) {
             "image/webp" -> "webp"
             "image/bmp" -> "bmp"
@@ -605,7 +608,7 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
     val standardSuffix = ".${extension.lowercase()}"
     // 图片文件：保留二进制头部校验（非图片文件无需此步骤，直接返回standardSuffix）
     if (!isImageMime) return standardSuffix
-    // 二进制头部校验（仅图片文件执行，逻辑完全不变）
+    // 二进制头部校验（仅图片文件执行）
     return try {
         mContext.contentResolver.openInputStream(this)?.use { inputStream ->
             val headerBytes = ByteArray(4)
@@ -900,7 +903,7 @@ internal fun File?.split(chunkSize: Long): MutableList<String> {
 private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
     // 源文件
     val file = File(filePath)
-//    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+//    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
 //    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
     val fileName = file.name.split(".")[0]
     // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
@@ -927,8 +930,8 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
 
 /**
  * 读取文件到文本（文本，找不到文件或读取错返回null）
- * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
- * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
+ * 1) kt中对File类做了'readText'扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
+ * 2) 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
 internal fun File?.read(): String {
     this ?: return ""
@@ -1000,7 +1003,7 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-        // 视频时长（毫秒）/1000=x秒
+        // 视频时长（毫秒）/ 1000 = x秒
         val duration = player.duration.orZero
         duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
     } catch (e: Exception) {
