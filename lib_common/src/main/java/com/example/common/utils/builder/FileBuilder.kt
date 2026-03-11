@@ -493,23 +493,23 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
         if (deleteDir) root.deleteDirectory()
         // 确保目录创建
         root.ensureDirExists()
+        // 开启Glide下载
         suspendingGlideDownload(mContext, string, storeDir)
     }
 }
 
-private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) =
-    suspendCancellableCoroutine {
-        ImageLoader.instance.downloadImage(mContext, string) { file ->
-            // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
-            if (null == file || !file.exists()) {
-                it.resumeWithException(RuntimeException("下载失败"))
-            } else {
-                file.copy(storeDir)
-                file.delete()
-                it.resume("${storeDir.absolutePath}/${file.name}")
-            }
+private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
+    ImageLoader.instance.downloadImage(mContext, string) { file ->
+        // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+        if (null == file || !file.exists()) {
+            it.resumeWithException(RuntimeException("下载失败"))
+        } else {
+            file.copy(storeDir)
+            file.delete()
+            it.resume("${storeDir.absolutePath}/${file.name}")
         }
     }
+}
 
 /**
  * 文件分片
@@ -639,10 +639,12 @@ fun batchUploadLogs(logDirPath: String? = getStoragePath("Crash Log", false)): L
     if (!logDir.isDirectory) {
         return emptyList()
     }
-    // 筛选逻辑优化：
-    // 1.仅保留txt文件
-    // 2.过滤空文件/全空白文件（自动删除）
-    // 3.按修改时间升序排序（优先上传旧日志）
+    /**
+     * 筛选逻辑优化
+     * 1) 仅保留txt文件
+     * 2) 过滤空文件/全空白文件（自动删除）
+     * 3) 按修改时间升序排序（优先上传旧日志）
+     */
     return logDir.listFiles { file ->
         file.isFile && file.name.endsWith(".txt", ignoreCase = true) && file.isNonEmptyLogFile()
     }?.sortedBy { it.lastModified() } ?: emptyList()
