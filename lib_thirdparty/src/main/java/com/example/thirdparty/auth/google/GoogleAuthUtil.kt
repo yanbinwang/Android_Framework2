@@ -1,7 +1,6 @@
 package com.example.thirdparty.auth.google
 
 import android.content.Context
-import android.os.CancellationSignal
 import android.util.Base64
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
@@ -134,7 +133,6 @@ import kotlin.coroutines.cancellation.CancellationException
 class GoogleAuthUtil(private val mActivity: FragmentActivity) {
     private var signInJob: Job? = null
     private var signOutJob: Job? = null
-    private val cancelSignal = CancellationSignal()
     private val credentialManager by lazy { CredentialManager.create(mActivity) }
 
     companion object {
@@ -166,7 +164,6 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
         mActivity.lifecycle.doOnDestroy {
             signInJob?.cancel()
             signOutJob?.cancel()
-            cancelSignal.cancel()
         }
     }
 

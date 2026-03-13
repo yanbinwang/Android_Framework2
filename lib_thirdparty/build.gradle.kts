@@ -44,16 +44,15 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.testing)
     // 框架库
     api(project(":lib_common"))
-    // 文件压缩
-    implementation("id.zelory:compressor:3.0.1")
+
 //    //谷歌三方登錄->淘汰
 //    implementation("com.google.android.gms:play-services-auth:21.3.0")
     // 谷歌三方登錄
-    implementation("androidx.credentials:credentials:1.3.0")
+    api("androidx.credentials:credentials:1.3.0")
     // 统一且安全的用户凭证管理方式
-    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    api("androidx.credentials:credentials-play-services-auth:1.3.0")
     // 支持 Google 登录等联合登录方式
-    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.1")
+    api("com.google.android.libraries.identity.googleid:googleid:1.1.1")
     // 谷歌推送
     implementation(platform("com.google.firebase:firebase-bom:31.3.0"))
     // 动态链接功能
@@ -64,4 +63,7 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     // 实现灵活的消息推送，支持主题广播和单播。
     implementation("com.google.firebase:firebase-messaging-ktx")
+
+    // 文件压缩
+    implementation("id.zelory:compressor:3.0.1")
 }
