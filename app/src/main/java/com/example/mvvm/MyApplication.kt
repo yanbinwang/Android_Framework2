@@ -10,6 +10,7 @@ import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
+import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.utils.NotificationUtil
 import java.util.concurrent.atomic.AtomicBoolean
@@ -42,11 +43,13 @@ class MyApplication : BaseApplication() {
         } else {
             initCrashHandler()
         }
-        try {
-            // 初始化firebase->没有谷歌服务的手机会报错
-            initFireBase()
-        } catch (e: Exception) {
-            e.printStackTrace()
+        if (isGooglePlayServicesAvailable()) {
+            try {
+                // 初始化firebase -> 没有谷歌服务的手机会报错
+                initFireBase()
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 //        // 初始化图片库类
 //        initAlbum()
