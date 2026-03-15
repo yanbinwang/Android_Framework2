@@ -12,6 +12,19 @@ import java.lang.reflect.Type
 /**
  * author:wyb
  * 对象转换类
+ * 1) 方法1 -> 对象
+ * data class User(val name: String, val age: Int)
+ * val user = User("小明", 20)
+ * val json = Gson().toJson(user)
+ *
+ * 2) 方法2 -> 自建键值对
+ * val json = Gson().toJson(
+ *     mapOf(
+ *         "name" to "小明",
+ *         "age" to 20,
+ *         "score" to listOf(90, 80, 100)
+ *     )
+ * )
  */
 object GsonUtil {
     private val gson by lazy {
