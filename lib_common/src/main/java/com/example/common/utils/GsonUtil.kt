@@ -1,10 +1,13 @@
 package com.example.common.utils
 
+import com.example.framework.utils.function.value.toJsonArray
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -179,4 +182,11 @@ fun <T> String?.toObj(type: Type): T? {
 fun <T> String?.toList(clazz: Class<T>): List<T>? {
     if (this == null) return null
     return GsonUtil.jsonToList(this, clazz)
+}
+
+/**
+ * 利用gson直接取的json字符串,无需创建data class
+ */
+fun jsonOf(vararg pairs: Pair<String, Any?>): String? {
+    return pairs.toMap().toJson()
 }
