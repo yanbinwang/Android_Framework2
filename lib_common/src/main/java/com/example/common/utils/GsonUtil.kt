@@ -25,6 +25,13 @@ import java.lang.reflect.Type
  *         "score" to listOf(90, 80, 100)
  *     )
  * )
+ *
+ * val list = listOf(
+ *     mapOf("id" to 1),
+ *     mapOf("id" to 2),
+ *     mapOf("id" to 3)
+ * )
+ * val json = Gson().toJson(list)
  */
 object GsonUtil {
     private val gson by lazy {
