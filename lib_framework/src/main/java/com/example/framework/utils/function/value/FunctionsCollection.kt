@@ -747,20 +747,27 @@ fun <T> ArrayList<T>?.joinToJson(): String {
 /**
  * 多个Pair转JsonObject
  */
-fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
+fun jsonOf(vararg pairs: Pair<String, Any?>): JSONObject {
     val json = JSONObject()
-    pairs.forEach {
-        if (it?.first != null && it.second != null) {
-            it.second.apply {
-                when (this) {
-                    is List<*> -> json.put(it.first, toJsonArray())
-                    is Array<*> -> json.put(it.first, toList().toJsonArray())
-                    else -> json.put(it.first, this)
-                }
+    pairs.forEach { (key, value) ->
+        value.also {
+            when (it) {
+                is List<*> -> json.put(key, it.toJsonArray())
+                is Array<*> -> json.put(key, it.toList().toJsonArray())
+                else -> json.put(key, it)
             }
         }
     }
     return json
+}
+
+/**
+ * 多个JsonObject转array
+ */
+fun jsonArrayOf(vararg objects: JSONObject): JSONArray {
+    return JSONArray().apply {
+        objects.forEach { put(it) }
+    }
 }
 
 /**

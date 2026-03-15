@@ -1,10 +1,13 @@
 package com.example.common.utils
 
+import com.example.framework.utils.function.value.toJsonArray
 import com.google.gson.GsonBuilder
 import com.google.gson.TypeAdapter
 import com.google.gson.reflect.TypeToken.*
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonWriter
+import org.json.JSONArray
+import org.json.JSONObject
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -12,6 +15,26 @@ import java.lang.reflect.Type
 /**
  * author:wyb
  * 对象转换类
+ * 1) 方法1 -> 对象
+ * data class User(val name: String, val age: Int)
+ * val user = User("小明", 20)
+ * val json = Gson().toJson(user)
+ *
+ * 2) 方法2 -> 自建键值对
+ * val json = Gson().toJson(
+ *     mapOf(
+ *         "name" to "小明",
+ *         "age" to 20,
+ *         "score" to listOf(90, 80, 100)
+ *     )
+ * )
+ *
+ * val list = listOf(
+ *     mapOf("id" to 1),
+ *     mapOf("id" to 2),
+ *     mapOf("id" to 3)
+ * )
+ * val json = Gson().toJson(list)
  */
 object GsonUtil {
     val gson by lazy {
@@ -159,4 +182,11 @@ fun <T> String?.toObj(type: Type): T? {
 fun <T> String?.toList(clazz: Class<T>): List<T>? {
     if (this == null) return null
     return GsonUtil.jsonToList(this, clazz)
+}
+
+/**
+ * 利用gson直接取的json字符串,无需创建data class
+ */
+fun jsonOf(vararg pairs: Pair<String, Any?>): String? {
+    return pairs.toMap().toJson()
 }
