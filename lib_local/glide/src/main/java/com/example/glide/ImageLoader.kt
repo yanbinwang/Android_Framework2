@@ -23,9 +23,9 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.BaseRequestOptions
 import com.bumptech.glide.request.RequestOptions
-import com.example.framework.utils.PropertyAnimator
 import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.ViewAnimator
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.gone
@@ -356,7 +356,7 @@ class ImageLoader private constructor() {
 //        // 返回
 //        onLoadComplete(resource)
         // 执行伸缩动画
-        PropertyAnimator(target, 300)
+        ViewAnimator(target, 300)
             .animateHeight(originalHeight, targetHeight)
             .start({
                 target.appear(300)

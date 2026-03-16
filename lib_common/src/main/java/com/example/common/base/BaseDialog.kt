@@ -16,10 +16,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.function.pt
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityExit
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.elasticIn
+import com.example.framework.utils.function.view.elasticOut
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
 
@@ -88,11 +88,11 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         if (hasAnimation) {
             // 当布局show出来的时候执行开始动画
             setOnShowListener {
-                rootView?.startAnimation(context.elasticityEnter())
+                rootView?.startAnimation(context.elasticIn())
             }
             // 当布局销毁时执行结束动画
             setOnDismissListener {
-                rootView?.startAnimation(context.elasticityExit())
+                rootView?.startAnimation(context.elasticOut())
             }
         }
         // 默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
