@@ -183,6 +183,11 @@ dependencies {
     implementation(project(":module_account"))
     // 页面路由
     ksp(libs.therouter.apt)
+
+    // 测试
+    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
+    implementation("com.google.android.exoplayer:exoplayer-core:2.19.1")
+    implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 }
 
 androidComponents {
