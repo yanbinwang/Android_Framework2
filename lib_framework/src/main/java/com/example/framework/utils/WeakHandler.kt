@@ -15,8 +15,8 @@ import java.util.concurrent.locks.ReentrantLock
 class WeakHandler {
     private var mCallback: Handler.Callback? = null
     private var mExec: ExecHandler? = null
-    private val mLock by lazy { ReentrantLock() }
-    private val mRunnables by lazy { ChainedRef(mLock, null) }
+    private val mLock = ReentrantLock()
+    private val mRunnables = ChainedRef(mLock, null)
 
     constructor() {
         mCallback = null
