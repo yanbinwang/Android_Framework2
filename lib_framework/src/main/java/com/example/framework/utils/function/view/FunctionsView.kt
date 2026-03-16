@@ -452,8 +452,8 @@ fun View?.getLifecycleOwner(): LifecycleOwner? {
 
 /**
  * 获取视图在屏幕上的顶部位置距离屏幕顶部的长度
- * location[0] 会被赋值为视图左上角的 x 坐标（水平位置）
- * location[1] 会被赋值为视图左上角的 y 坐标（垂直位置）
+ * 1) location[0] 会被赋值为视图左上角的 x 坐标（水平位置）
+ * 2) location[1] 会被赋值为视图左上角的 y 坐标（垂直位置）
  */
 fun View?.getScreenLocation(): IntArray {
     this ?: return intArrayOf(0, 0)
@@ -499,7 +499,7 @@ fun View?.vibrate(milliseconds: Long) {
 /**
  * 动画隐藏view
  */
-fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.fade(time: Long = 500L, cancelAnim: Boolean = true) {
     if (this == null) return
     if (!this.isVisible) return
     if (time <= 0) {
@@ -514,9 +514,13 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
         }
     }
     val anim = AlphaAnimation(1f, 0f)
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = time // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    // 设置保持动画最后的状态
+    anim.fillAfter = false
+    // 设置动画时间
+    anim.duration = time
+    // 设置插入器
+    anim.interpolator = AccelerateInterpolator()
+    // 设置监听
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
             gone()
@@ -538,9 +542,9 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     animation?.cancel()
     val anim = AlphaAnimation(from, to)
     if (to == 1f) visible()
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    anim.fillAfter = false
+    anim.duration = timeMS
+    anim.interpolator = AccelerateInterpolator()
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
             endListener?.invoke() ?: if (to == 0f) {
@@ -558,7 +562,7 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
 /**
  * 动画显示view
  */
-fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.appear(time: Long = 500L, cancelAnim: Boolean = true) {
     if (this == null) return
     if (this.isVisible) return
     if (time <= 0) {
@@ -574,9 +578,9 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
     }
     visible()
     val anim = AlphaAnimation(0f, 1f)
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = time // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
+    anim.fillAfter = false
+    anim.duration = time
+    anim.interpolator = AccelerateInterpolator()
     anim.setAnimationListener(object : Animation.AnimationListener {
         override fun onAnimationEnd(animation: Animation?) {
             visible()
@@ -609,7 +613,7 @@ fun View?.rotate(default: Boolean = true): Boolean {
 /**
  * 旋轉
  */
-fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.rotate(time: Long = 500L, cancelAnim: Boolean = true) {
     if (this == null) return
     if (cancelAnim) {
         cancelAnim()
@@ -631,10 +635,10 @@ fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolato
     this ?: return
     animation?.cancel()
     val anim = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    anim.fillAfter = true // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间3
+    anim.fillAfter = true
+    anim.duration = timeMS
     if (repeat) anim.repeatCount = -1
-    anim.interpolator = interpolator // 设置插入器
+    anim.interpolator = interpolator
     startAnimation(anim)
 }
 
@@ -647,9 +651,9 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
     animation?.setAnimationListener(null)
     animation?.cancel()
     val anim = TranslateAnimation(type, xFrom, type, xTo, type, yFrom, type, yTo)
-    if (fillAfter) anim.fillAfter = true //设置保持动画最后的状态
-    anim.duration = timeMS //设置动画时间
-    anim.interpolator = interpolator //设置插入器
+    if (fillAfter) anim.fillAfter = true
+    anim.duration = timeMS
+    anim.interpolator = interpolator
     if (onEnd != null || onStart != null) {
         anim.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationEnd(animation: Animation?) {
@@ -730,7 +734,8 @@ fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
 fun View?.startAnimation(@AnimRes animRes: Int) {
     this ?: return
     val anim = AnimationUtils.loadAnimation(context, animRes)
-    clearAnimation()// 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
+    // 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
+    clearAnimation()
     startAnimation(anim)
 }
 
@@ -740,8 +745,10 @@ fun View?.startAnimation(@AnimRes animRes: Int) {
 fun View?.cancelAnimation() {
     this ?: return
     try {
-        animation?.setAnimationListener(null)// 仅移除监听器，动画继续
-        animation?.cancel()// 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
+        // 仅移除监听器，动画继续
+        animation?.setAnimationListener(null)
+        // 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
+        animation?.cancel()
     } catch (e: Exception) {
         e.logE
     }
@@ -768,10 +775,14 @@ fun View?.stopHardwareAccelerate() {
  */
 fun View?.focus() {
     if (this == null) return
-    isFocusable = true //设置输入框可聚集
-    isFocusableInTouchMode = true //设置触摸聚焦
-    requestFocus() //请求焦点
-    findFocus() //获取焦点
+    // 设置输入框可聚集
+    isFocusable = true
+    // 设置触摸聚焦
+    isFocusableInTouchMode = true
+    // 请求焦点
+    requestFocus()
+    // 获取焦点
+    findFocus()
 }
 
 /**
@@ -867,8 +878,8 @@ fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean) = LayoutInflat
 /**
  * 防止多次点击, 至少要500毫秒的间隔
  */
-abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
-    private var lastClickTime: Long = 0
+abstract class OnMultiClickListener(private val time: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+    private var lastClickTime: Long = 0L
 
     open fun onMultiClick(v: View) {
         click(v)
@@ -924,8 +935,10 @@ fun ImageView?.setDrawable(resId: Drawable?) {
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
-    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
-    //-1则会闪退报错
+    /**
+     * 调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+     * -1则会闪退报错
+     */
     setImageResource(resId)
 }
 
