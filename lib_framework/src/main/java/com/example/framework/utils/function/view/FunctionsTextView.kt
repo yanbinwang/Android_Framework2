@@ -51,7 +51,6 @@ import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
-import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Random
 

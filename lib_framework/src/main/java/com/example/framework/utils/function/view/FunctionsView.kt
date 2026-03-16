@@ -969,13 +969,18 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 }
 
 /**
- * 设置一个新的bitmap
+ * 用于存储每个 ImageView 的订阅状态
+ * 只要ImageView 被销毁 / 页面被销毁 / 没有任何地方强引用它 那么 GC 一来，WeakHashMap 就会把这条记录自动删掉
  */
-// 用于存储每个 ImageView 的订阅状态
 private val subscriptionMap by lazy { WeakHashMap<ImageView, AtomicBoolean>() }
 
+/**
+ * 设置一个新的bitmap
+ */
 fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
     if (this == null || bit == null) return
+    // 主动清理一次无效条目（GC 未及时回收的 / 实时干净，无残留）
+    subscriptionMap.entries.removeAll { !it.key.isAttachedToWindow }
     // 优先使用传入的 observer，否则自动获取当前 View 所在的 LifecycleOwner
     val targetObserver = observer ?: getLifecycleOwner()
     // 检查 Lifecycle 是否已销毁（避免给销毁的页面设置 Bitmap）
@@ -1130,9 +1135,11 @@ abstract class AppBarLayoutStateChangeListener : AppBarLayout.OnOffsetChangedLis
         val isStateLocked = when (mCurrentState) {
             State.EXPANDED -> offsetRatio < STATE_LOCK_THRESHOLD
             State.COLLAPSED -> (1 - offsetRatio) < STATE_LOCK_THRESHOLD
-            State.IDLE -> false // 中间状态不锁定
+            // 中间状态不锁定
+            State.IDLE -> false
         }
-        if (isStateLocked) return // 锁定状态下，直接忽略本次偏移
+        // 锁定状态下，直接忽略本次偏移
+        if (isStateLocked) return
         val newState = when {
             // 展开判断：偏移量 ≤ 最终容差（基础+动态双保底）
             abs(verticalOffset) <= finalTolerance -> State.EXPANDED
