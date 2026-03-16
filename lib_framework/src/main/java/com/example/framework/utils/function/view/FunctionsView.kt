@@ -521,13 +521,16 @@ fun View?.fade(time: Long = 500L, cancelAnim: Boolean = true) {
     // 设置插入器
     anim.interpolator = AccelerateInterpolator()
     // 设置监听
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            gone()
-        }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
+//    anim.setAnimationListener(object : Animation.AnimationListener {
+//        override fun onAnimationEnd(animation: Animation?) {
+//            gone()
+//        }
+//        override fun onAnimationStart(animation: Animation?) {}
+//        override fun onAnimationRepeat(animation: Animation?) {}
+//    })
+    anim.doOnEnd {
+        gone()
+    }
     startAnimation(anim)
 }
 
@@ -545,17 +548,24 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     anim.fillAfter = false
     anim.duration = timeMS
     anim.interpolator = AccelerateInterpolator()
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: if (to == 0f) {
-                gone()
-            } else {
-                visible()
-            }
+//    anim.setAnimationListener(object : Animation.AnimationListener {
+//        override fun onAnimationEnd(animation: Animation?) {
+//            endListener?.invoke() ?: if (to == 0f) {
+//                gone()
+//            } else {
+//                visible()
+//            }
+//        }
+//        override fun onAnimationStart(animation: Animation?) {}
+//        override fun onAnimationRepeat(animation: Animation?) {}
+//    })
+    anim.doOnEnd {
+        endListener?.invoke() ?: if (to == 0f) {
+            gone()
+        } else {
+            visible()
         }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
+    }
     startAnimation(anim)
 }
 
@@ -581,13 +591,16 @@ fun View?.appear(time: Long = 500L, cancelAnim: Boolean = true) {
     anim.fillAfter = false
     anim.duration = time
     anim.interpolator = AccelerateInterpolator()
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            visible()
-        }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
+//    anim.setAnimationListener(object : Animation.AnimationListener {
+//        override fun onAnimationEnd(animation: Animation?) {
+//            visible()
+//        }
+//        override fun onAnimationStart(animation: Animation?) {}
+//        override fun onAnimationRepeat(animation: Animation?) {}
+//    })
+    anim.doOnEnd {
+        visible()
+    }
     startAnimation(anim)
 }
 
@@ -654,17 +667,22 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
     if (fillAfter) anim.fillAfter = true
     anim.duration = timeMS
     anim.interpolator = interpolator
-    if (onEnd != null || onStart != null) {
-        anim.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd?.invoke()
-            }
-            override fun onAnimationStart(animation: Animation?) {
-                onStart?.invoke()
-            }
-            override fun onAnimationRepeat(animation: Animation?) {}
-        })
-    }
+//    if (onEnd != null || onStart != null) {
+//        anim.setAnimationListener(object : Animation.AnimationListener {
+//            override fun onAnimationEnd(animation: Animation?) {
+//                onEnd?.invoke()
+//            }
+//            override fun onAnimationStart(animation: Animation?) {
+//                onStart?.invoke()
+//            }
+//            override fun onAnimationRepeat(animation: Animation?) {}
+//        })
+//    }
+    anim.addListener(onEnd = {
+        onEnd?.invoke()
+    }, onStart = {
+        onStart?.invoke()
+    })
     startAnimation(anim)
 }
 
@@ -702,29 +720,28 @@ fun View?.loopAnimation(anim: Animation) {
             repeatCount = Animation.INFINITE
         }
         startAnimation(anim)
-        animation?.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                startAnimation(anim)
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-        })
+//        animation?.setAnimationListener(object : Animation.AnimationListener {
+//            override fun onAnimationStart(animation: Animation?) {
+//            }
+//
+//            override fun onAnimationEnd(animation: Animation?) {
+//                startAnimation(anim)
+//            }
+//
+//            override fun onAnimationRepeat(animation: Animation?) {
+//            }
+//        })
+        animation.doOnEnd {
+            startAnimation(anim)
+        }
     } catch (e: Exception) {
         e.logE
     }
 }
 
-/**
- * 动画循环
- */
-fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
+fun View?.loopAnimation(@AnimRes animRes: Int) {
     this ?: return
-    ctx ?: return
-    val anim = AnimationUtils.loadAnimation(ctx, animRes)
+    val anim = AnimationUtils.loadAnimation(context, animRes)
     loopAnimation(anim)
 }
 

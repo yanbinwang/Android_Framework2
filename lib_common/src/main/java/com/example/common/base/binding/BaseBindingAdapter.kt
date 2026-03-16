@@ -29,7 +29,6 @@ import com.example.common.utils.function.ptFloat
 import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.value.createOvalDrawable
 import com.example.framework.utils.function.value.createRectangleDrawable
 import com.example.framework.utils.function.value.orFalse
@@ -41,6 +40,7 @@ import com.example.framework.utils.function.view.blackListLimit
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalLimit
+import com.example.framework.utils.function.view.elasticIn
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
@@ -510,7 +510,7 @@ object BaseBindingAdapter {
         view.adapter = pagerAdapter
         view.offscreenPageLimit = pagerAdapter.count - 1
         view.currentItem = 0
-        view.startAnimation(view.context.elasticityEnter())
+        view.startAnimation(view.context.elasticIn())
     }
 
     /**
