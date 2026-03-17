@@ -1,9 +1,14 @@
 package com.example.mvvm.utils
 
 import android.content.Context
+import android.view.ViewGroup
 import androidx.core.net.toUri
 import androidx.media3.common.MediaItem
+import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.AspectRatioFrameLayout
+import androidx.media3.ui.PlayerView
+import com.example.framework.utils.function.view.removeSelf
 import com.opensource.svgaplayer.SVGAImageView
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAParser.ParseCompletion
@@ -56,6 +61,15 @@ fun Context?.createSVGAView(videoItem: SVGAVideoEntity?): SVGAImageView? {
 }
 
 /**
+ * 销毁svg
+ */
+fun SVGAImageView?.releaseSVGAView() {
+    this ?: return
+    stopAnimation(true)
+    removeSelf()
+}
+
+/**
  * 用代码手动加载 SVGA，不依赖 XML 自动解析
  * // 加载 assets
  * context.parserSource("gift_rocket.svga") { videoEntity ->
@@ -87,7 +101,7 @@ fun Context?.createSVGAView(videoItem: SVGAVideoEntity?): SVGAImageView? {
  *     app:source="posche.svga""
  *     app:autoPlay="true"/>
  */
-fun Context?.parserSource(source: String, callback: ParseCompletion? = null, playCallback: PlayCallback? = null) {
+fun Context?.parserSVGASource(source: String, callback: ParseCompletion? = null, playCallback: PlayCallback? = null) {
     this ?: return
     // 获取一个全局共用的 SVGA 解析器实例（单例）
     val parser = SVGAParser.shareParser()
@@ -100,18 +114,62 @@ fun Context?.parserSource(source: String, callback: ParseCompletion? = null, pla
 }
 
 /**
- * 播放 MP4
+ * ExoPlayer -> 创建
+ * 1) 代码创建播放器
+ * val exoPlayer = ExoPlayer.Builder(this).build()
+ * playerView.player = exoPlayer // 绑定到 PlayerView（XML 或代码创建的都行）
+ * 2) xml绘制或代码创建
  * <com.google.android.exoplayer2.ui.PlayerView
  *     android:id="@+id/videoView"
  *     android:layout_width="match_parent"
  *     android:layout_height="match_parent"
- *     app:use_controller="false"  <!-- 关键：隐藏播放条 -->
+ *     app:use_controller="false"  <!-- 隐藏播放条 -->
  *     app:resize_mode="fill" />    <!-- 铺满屏幕 -->
  */
-fun Context?.createExoPlayer(mp4Path: String): ExoPlayer? {
+fun Context?.createPlayerView(exoPlayer: ExoPlayer?): PlayerView? {
     this ?: return null
-    // 创建播放器
-    val exoPlayer = ExoPlayer.Builder(this).build()
+    val playerView = PlayerView(this)
+    playerView.bindExoPlayer(exoPlayer)
+    // 返回view
+    return playerView
+}
+
+/**
+ * 建立绑定关系
+ */
+fun PlayerView?.bindExoPlayer(exoPlayer: ExoPlayer?) {
+    if (null == this || null == exoPlayer) return
+    // 等价 app:use_controller="false"
+    useController = false
+    // 等价 app:resize_mode="fill"
+    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FILL
+    // 布局参数（全屏）
+    layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+    // 绑定
+    player = exoPlayer
+}
+
+/**
+ * 销毁 PlayerView
+ */
+fun PlayerView?.releasePlayerView() {
+    this ?: return
+    // 断开播放器引用（最关键）
+    player = null
+    // 从父布局移除
+    removeSelf()
+}
+
+/**
+ * ExoPlayer -> 播放
+ */
+// 保存当前的播放结束监听,确保能移除
+private var exoPlayEndListener: Player.Listener? = null
+
+fun ExoPlayer?.playExoPlayer(mp4Path: String, onEnd: () -> Unit = {}) {
+    this ?: return
+    // 先移除旧监听
+    exoPlayEndListener?.let { removeListener(it) }
     // 设置视频（本地assets / 网络链接都支持）
     val uri = if (mp4Path.startsWith("http")) {
         // 网络链接 → 直接用
@@ -121,22 +179,39 @@ fun Context?.createExoPlayer(mp4Path: String): ExoPlayer? {
         "asset:///$mp4Path".toUri()
     }
     val mediaItem = MediaItem.fromUri(uri)
-    exoPlayer?.setMediaItem(mediaItem)
-//    // 3. 准备 + 播放
-//    exoPlayer?.prepare()
-//    exoPlayer?.play()
-//    // 4. 播放完隐藏/回收
-//    exoPlayer?.addListener(object : Player.Listener {
-//        override fun onPlaybackStateChanged(state: Int) {
-//            if (state == Player.STATE_ENDED) {
-//                videoView.visibility = View.GONE
-//                releasePlayer() // 必须释放
-//            }
-//        }
-//    })
-//    private fun releasePlayer() {
-//        exoPlayer?.release()
-//        exoPlayer = null
-//    }
-    return exoPlayer
+    setMediaItem(mediaItem)
+    // 准备 + 播放
+    prepare()
+    play()
+    // 创建新监听
+    val listener = object : Player.Listener {
+        override fun onPlaybackStateChanged(state: Int) {
+            if (state == Player.STATE_ENDED) {
+                onEnd()
+                releaseExoPlayer()
+            }
+        }
+    }.also { exoPlayEndListener = it }
+    // 播放完隐藏/回收
+    addListener(listener)
+}
+
+/**
+ * ExoPlayer -> 销毁
+ * exoPlayer.releaseExoPlayer()    // 销毁播放器
+ * playerView.releasePlayerView()  // 销毁界面
+ */
+fun ExoPlayer?.releaseExoPlayer() {
+    this ?: return
+    // 移除监听
+    exoPlayEndListener?.let { removeListener(it) }
+    exoPlayEndListener = null
+    // 停止播放
+    stop()
+    // 清空播放源
+    setMediaItems(emptyList())
+    // 官方销毁
+    release()
+//    // 置空
+//    this = null
 }
