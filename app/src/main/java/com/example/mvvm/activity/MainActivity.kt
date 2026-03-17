@@ -523,13 +523,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions { isGranted, permissions ->
-//                if (isGranted) {
-//                    gallery.imageSelection(hasDurban = true)
-////                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
-            testDialog.show()
+            mPermission.requestPermissions { isGranted, _ ->
+                if (isGranted) {
+                    gallery.imageSelection(hasDurban = true)
+//                    navigation(ARouterPath.TestActivity)
+                }
+            }
+//            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)
