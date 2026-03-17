@@ -19,6 +19,13 @@ val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
+configurations {
+    all {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions")
+    }
+}
+
 @Suppress("DEPRECATION")
 android {
     signingConfigs {
