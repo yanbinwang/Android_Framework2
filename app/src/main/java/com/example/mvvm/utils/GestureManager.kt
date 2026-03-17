@@ -7,12 +7,20 @@ import com.example.framework.utils.function.value.orFalse
 
 /**
  * 手势管理
- * private val gestureManager by lazy { GestureManager(object :GestureCallback{
- *  }) }
- *  override fun onTouchEvent(event: MotionEvent?): Boolean {
- *   // 先让手势管理器处理，再决定是否传递给父类
- *   val handled = gestureManager.onTouchEvent(event)
- *   return handled || super.onTouchEvent(event)
+ * // 懒加载创建 GestureManager
+ * private val gestureManager by lazy { GestureManager(object :GestureCallback{}) }
+ *
+ * // 初始化
+ * override fun onCreate(savedInstanceState: Bundle?) {
+ *    super.onCreate(savedInstanceState)
+ *    gestureManager.init(this)
+ * }
+ *
+ * // 把触摸事件传给管理器
+ * override fun onTouchEvent(event: MotionEvent?): Boolean {
+ *    // 先让手势管理器处理，再决定是否传递给父类
+ *    val handled = gestureManager.onTouchEvent(event)
+ *    return handled || super.onTouchEvent(event)
  *  }
  */
 class GestureManager(private val callback: GestureCallback) {
@@ -20,9 +28,9 @@ class GestureManager(private val callback: GestureCallback) {
     private var gestureDetector: GestureDetector? = null
 
     /**
-     * 1.创建 GestureDetector 对象：在Activity中声明一个GestureDetector对象，并在onCreate方法中进行初始化。(val mGestureDetector = GestureDetector(this, this))
-     * 2.让 Activity 实现 OnGestureListener 接口：OnGestureListener接口定义了处理各种手势事件的方法。可以让Activity直接实现该接口，然后重写需要的手势处理方法。
-     * 3.重写 onTouchEvent 方法：在Activity中重写onTouchEvent方法，将触摸事件传递给GestureDetector进行处理。
+     * 1) 创建 GestureDetector 对象：在Activity中声明一个GestureDetector对象，并在onCreate方法中进行初始化。(val mGestureDetector = GestureDetector(this, this))
+     * 2) 让 Activity 实现 OnGestureListener 接口：OnGestureListener接口定义了处理各种手势事件的方法。可以让Activity直接实现该接口，然后重写需要的手势处理方法。
+     * 3) 重写 onTouchEvent 方法：在Activity中重写onTouchEvent方法，将触摸事件传递给GestureDetector进行处理。
      * (如果不想实现OnGestureListener接口中的所有方法，也可以继承GestureDetector.SimpleOnGestureListener类，它是一个包含了OnGestureListener所有方法的空实现类，开发者可以根据需求选择性地重写其中的手势处理方法)
      */
     fun init(context: Context) {
