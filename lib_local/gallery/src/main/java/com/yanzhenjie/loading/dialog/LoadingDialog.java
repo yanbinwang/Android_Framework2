@@ -8,41 +8,46 @@ import com.example.gallery.R;
 import com.yanzhenjie.loading.LoadingView;
 
 /**
- * <p>Default loading dialog.</p>
- * Created by Yan Zhenjie on 2017/5/17.
+ * 通用加载对话框
+ * 功能：显示 LoadingView + 提示文字，外部可设置文字、颜色
  */
 public class LoadingDialog extends Dialog {
-    private LoadingView mLoadingView;
-    private TextView mTvMessage;
+    // 加载动画View
+    private final LoadingView mLoadingView;
+    // 提示文字
+    private final TextView mTvMessage;
 
+    /**
+     * 构造方法
+     */
     public LoadingDialog(Context context) {
         super(context, R.style.loadingDialog_Loading);
         setCancelable(false);
         setCanceledOnTouchOutside(false);
-        setContentView(R.layout.loading_wait_dialog);
+        setContentView(R.layout.view_dialog_loading_wait);
         mLoadingView = findViewById(R.id.loading_view);
         mTvMessage = findViewById(R.id.loading_tv_message);
     }
 
     /**
-     * Set several colors of the circle.
-     */
-    public void setCircleColors(int r1, int r2, int r3) {
-        mLoadingView.setCircleColors(r1, r2, r3);
-    }
-
-    /**
-     * Set message.
+     * 设置提示文字（资源ID）
      */
     public void setMessage(int resId) {
         mTvMessage.setText(resId);
     }
 
     /**
-     * Set message.
+     * 设置提示文字（字符串）
      */
     public void setMessage(String message) {
         mTvMessage.setText(message);
+    }
+
+    /**
+     * 设置加载圈三段颜色
+     */
+    public void setCircleColors(int r1, int r2, int r3) {
+        mLoadingView.setCircleColors(r1, r2, r3);
     }
 
 }
