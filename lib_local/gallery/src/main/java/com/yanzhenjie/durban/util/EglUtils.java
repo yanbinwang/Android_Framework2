@@ -1,6 +1,5 @@
 package com.yanzhenjie.durban.util;
 
-import android.annotation.TargetApi;
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
 import android.opengl.EGLContext;
@@ -14,14 +13,22 @@ import android.util.Log;
 import javax.microedition.khronos.egl.EGL10;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * OpenGL 工具类
+ * 作用：获取设备支持的最大纹理大小（用于图片裁剪时限制最大尺寸）
+ * 底层系统级工具，无需理解原理
  */
 public class EglUtils {
     private static final String TAG = "EglUtils";
 
+    /**
+     * 私有构造，禁止实例化
+     */
     private EglUtils() {
     }
 
+    /**
+     * 获取设备支持的最大纹理尺寸
+     */
     public static int getMaxTextureSize() {
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
@@ -35,7 +42,9 @@ public class EglUtils {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
+    /**
+     * Android 4.2+ 使用 EGL14 获取最大纹理尺寸
+     */
     private static int getMaxTextureEgl14() {
         EGLDisplay dpy = EGL14.eglGetDisplay(EGL14.EGL_DEFAULT_DISPLAY);
         int[] vers = new int[2];
@@ -55,6 +64,7 @@ public class EglUtils {
         EGL14.eglMakeCurrent(dpy, surf, surf, ctx);
         int[] maxSize = new int[1];
         GLES20.glGetIntegerv(GLES20.GL_MAX_TEXTURE_SIZE, maxSize, 0);
+        // 释放资源
         EGL14.eglMakeCurrent(dpy, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_SURFACE, EGL14.EGL_NO_CONTEXT);
         EGL14.eglDestroySurface(dpy, surf);
         EGL14.eglDestroyContext(dpy, ctx);
@@ -62,7 +72,9 @@ public class EglUtils {
         return maxSize[0];
     }
 
-    @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+    /**
+     * Android 4.0~4.1 使用 EGL10 获取最大纹理尺寸
+     */
     private static int getMaxTextureEgl10() {
         EGL10 egl = (EGL10) javax.microedition.khronos.egl.EGLContext.getEGL();
         javax.microedition.khronos.egl.EGLDisplay dpy = egl.eglGetDisplay(EGL10.EGL_DEFAULT_DISPLAY);
@@ -78,12 +90,14 @@ public class EglUtils {
         javax.microedition.khronos.egl.EGLConfig config = configs[0];
         int[] surfAttr = {EGL10.EGL_WIDTH, 64, EGL10.EGL_HEIGHT, 64, EGL10.EGL_NONE};
         javax.microedition.khronos.egl.EGLSurface surf = egl.eglCreatePbufferSurface(dpy, config, surfAttr);
-        final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;  // missing in EGL10
+        // EGL10 中缺失的常量
+        final int EGL_CONTEXT_CLIENT_VERSION = 0x3098;
         int[] ctxAttribute = {EGL_CONTEXT_CLIENT_VERSION, 1, EGL10.EGL_NONE};
         javax.microedition.khronos.egl.EGLContext ctx = egl.eglCreateContext(dpy, config, EGL10.EGL_NO_CONTEXT, ctxAttribute);
         egl.eglMakeCurrent(dpy, surf, surf, ctx);
         int[] maxSize = new int[1];
         GLES10.glGetIntegerv(GLES10.GL_MAX_TEXTURE_SIZE, maxSize, 0);
+        // 释放资源
         egl.eglMakeCurrent(dpy, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_SURFACE, EGL10.EGL_NO_CONTEXT);
         egl.eglDestroySurface(dpy, surf);
         egl.eglDestroyContext(dpy, ctx);

@@ -17,10 +17,20 @@ import java.io.IOException;
 import java.io.InputStream;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 图片加载工具类
+ * 功能：缩放计算、EXIF 旋转解析、图片变换、最大尺寸计算
  */
 public class BitmapLoadUtils {
 
+    /**
+     * 私有构造，禁止实例化
+     */
+    private BitmapLoadUtils() {
+    }
+
+    /**
+     * 对图片执行矩阵变换（旋转、翻转）
+     */
     public static Bitmap transformBitmap(@NonNull Bitmap bitmap, @NonNull Matrix transformMatrix) {
         try {
             return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), transformMatrix, true);
@@ -29,14 +39,14 @@ public class BitmapLoadUtils {
         }
     }
 
+    /**
+     * 计算图片缩放比例 inSampleSize
+     */
     public static int calculateInSampleSize(@NonNull BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
         if (height > reqHeight || width > reqWidth) {
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width lower or equal to the requested height and width.
             while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
@@ -44,6 +54,9 @@ public class BitmapLoadUtils {
         return inSampleSize;
     }
 
+    /**
+     * 获取图片的 EXIF 方向
+     */
     public static int getExifOrientation(@NonNull String imagePath) {
         int orientation = ExifInterface.ORIENTATION_UNDEFINED;
         try {
@@ -56,6 +69,9 @@ public class BitmapLoadUtils {
         return orientation;
     }
 
+    /**
+     * 将 EXIF 方向 转为 旋转角度
+     */
     public static int exifToDegrees(int exifOrientation) {
         int rotation;
         switch (exifOrientation) {
@@ -77,6 +93,9 @@ public class BitmapLoadUtils {
         return rotation;
     }
 
+    /**
+     * 将 EXIF 方向 转为 水平翻转值
+     */
     public static int exifToTranslation(int exifOrientation) {
         int translation;
         switch (exifOrientation) {
@@ -93,11 +112,7 @@ public class BitmapLoadUtils {
     }
 
     /**
-     * This method calculates maximum size of both width and height of exception.
-     * It is twice the device screen diagonal for default implementation (extra quality to zoom image).
-     * Size cannot exceed max texture size.
-     *
-     * @return - max exception size in pixels.
+     * 计算图片最大安全加载尺寸（屏幕对角线 * 2，不超过 GL 最大纹理）
      */
     public static int calculateMaxBitmapSize(@NonNull Context context) {
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -112,9 +127,9 @@ public class BitmapLoadUtils {
             width = display.getWidth();
             height = display.getHeight();
         }
-        // Twice the device screen diagonal as default
+        // 屏幕对角线长度
         int maxBitmapSize = (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
-        // Check for max texture size via GL
+        // 不超过 OpenGL 最大纹理限制
         final int maxTextureSize = EglUtils.getMaxTextureSize();
         if (maxTextureSize > 0) {
             maxBitmapSize = Math.min(maxBitmapSize, maxTextureSize);

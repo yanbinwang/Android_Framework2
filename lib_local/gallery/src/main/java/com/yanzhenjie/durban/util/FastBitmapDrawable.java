@@ -7,13 +7,18 @@ import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
 
+import androidx.annotation.NonNull;
+
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 高效 Bitmap 绘制 Drawable
+ * 作用：裁剪界面中专门用来显示图片的高性能组件
+ * 比系统 BitmapDrawable 更轻、更快、无内存抖动
  */
 public class FastBitmapDrawable extends Drawable {
     private int mAlpha;
     private int mWidth, mHeight;
     private Bitmap mBitmap;
+    // 图片抗锯齿画笔
     private final Paint mPaint = new Paint(Paint.FILTER_BITMAP_FLAG);
 
     public FastBitmapDrawable(Bitmap b) {
@@ -22,7 +27,7 @@ public class FastBitmapDrawable extends Drawable {
     }
 
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
         if (mBitmap != null && !mBitmap.isRecycled()) {
             canvas.drawBitmap(mBitmap, null, getBounds(), mPaint);
         }
@@ -36,14 +41,6 @@ public class FastBitmapDrawable extends Drawable {
     @Override
     public int getOpacity() {
         return PixelFormat.TRANSLUCENT;
-    }
-
-    public void setFilterBitmap(boolean filterBitmap) {
-        mPaint.setFilterBitmap(filterBitmap);
-    }
-
-    public int getAlpha() {
-        return mAlpha;
     }
 
     @Override
@@ -72,8 +69,12 @@ public class FastBitmapDrawable extends Drawable {
         return mHeight;
     }
 
-    public Bitmap getBitmap() {
-        return mBitmap;
+    public void setFilterBitmap(boolean filterBitmap) {
+        mPaint.setFilterBitmap(filterBitmap);
+    }
+
+    public int getAlpha() {
+        return mAlpha;
     }
 
     public void setBitmap(Bitmap b) {
@@ -84,6 +85,10 @@ public class FastBitmapDrawable extends Drawable {
         } else {
             mWidth = mHeight = 0;
         }
+    }
+
+    public Bitmap getBitmap() {
+        return mBitmap;
     }
 
 }

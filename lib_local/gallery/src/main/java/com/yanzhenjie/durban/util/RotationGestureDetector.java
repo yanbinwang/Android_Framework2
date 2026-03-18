@@ -5,14 +5,20 @@ import android.view.MotionEvent;
 import androidx.annotation.NonNull;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 监听双指旋转手势
  */
 public class RotationGestureDetector {
+    // 第1、第2个手指的索引（Android 多点触摸）
     private int mPointerIndex1, mPointerIndex2;
+    // 第一个手指、第二个手指的坐标：f=第一个点，s=第二个点
     private float fX, fY, sX, sY;
+    // 旋转角度
     private float mAngle;
+    // 是否是第一次触摸（避免刚按下就跳变）
     private boolean mIsFirstTouch;
-    private OnRotationGestureListener mListener;
+    // 旋转监听（外部接收角度）
+    private final OnRotationGestureListener mListener;
+    // 无效手指索引（代表没触摸）
     private static final int INVALID_POINTER_INDEX = -1;
 
     public RotationGestureDetector(OnRotationGestureListener listener) {
@@ -21,10 +27,9 @@ public class RotationGestureDetector {
         mPointerIndex2 = INVALID_POINTER_INDEX;
     }
 
-    public float getAngle() {
-        return mAngle;
-    }
-
+    /**
+     * 处理触摸事件
+     */
     public boolean onTouchEvent(@NonNull MotionEvent event) {
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -73,6 +78,9 @@ public class RotationGestureDetector {
         return true;
     }
 
+    /**
+     * 计算两条线之间的角度
+     */
     private float calculateAngleBetweenLines(float fx1, float fy1, float fx2, float fy2, float sx1, float sy1, float sx2, float sy2) {
         return calculateAngleDelta((float) Math.toDegrees((float) Math.atan2((fy1 - fy2), (fx1 - fx2))), (float) Math.toDegrees((float) Math.atan2((sy1 - sy2), (sx1 - sx2))));
     }
@@ -87,18 +95,31 @@ public class RotationGestureDetector {
         return mAngle;
     }
 
+    /**
+     * 获取当前旋转角度
+     */
+    public float getAngle() {
+        return mAngle;
+    }
+
+    /**
+     * 旋转监听接口
+     */
+    public interface OnRotationGestureListener {
+
+        boolean onRotation(RotationGestureDetector rotationDetector);
+
+    }
+
+    /**
+     * 静态内部类：空实现
+     */
     public static class SimpleOnRotationGestureListener implements OnRotationGestureListener {
 
         @Override
         public boolean onRotation(RotationGestureDetector rotationDetector) {
             return false;
         }
-    }
-
-    public interface OnRotationGestureListener {
-
-        boolean onRotation(RotationGestureDetector rotationDetector);
-
     }
 
 }

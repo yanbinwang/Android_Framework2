@@ -24,7 +24,7 @@ public class LoadingDialog extends Dialog {
         super(context, R.style.loadingDialog_Loading);
         setCancelable(false);
         setCanceledOnTouchOutside(false);
-        setContentView(R.layout.view_dialog_loading_wait);
+        setContentView(R.layout.loading_wait_dialog);
         mLoadingView = findViewById(R.id.loading_view);
         mTvMessage = findViewById(R.id.loading_tv_message);
     }

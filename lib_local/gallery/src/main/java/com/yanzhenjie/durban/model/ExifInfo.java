@@ -1,11 +1,15 @@
 package com.yanzhenjie.durban.model;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 图片 EXIF 信息实体类
+ * 作用：存储图片的旋转方向、旋转角度、翻转信息，解决图片裁剪时倒置/错位问题
  */
 public class ExifInfo {
+    // EXIF 原始方向（1-8，标准相机方向定义）
     private int mExifOrientation;
+    // 需要旋转的角度（0°、90°、180°、270°）
     private int mExifDegrees;
+    // 图片平移/翻转参数（内部裁剪视图使用）
     private int mExifTranslation;
 
     public ExifInfo(int exifOrientation, int exifDegrees, int exifTranslation) {
