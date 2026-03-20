@@ -7,56 +7,58 @@ import android.widget.CompoundButton;
 
 import com.example.gallery.base.bridge.BasePresenter;
 import com.example.gallery.base.bridge.BaseView;
-import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 
 import java.util.List;
 
 /**
- * Created by YanZhenjie on 2018/4/7.
+ * MVP 架构契约类
+ * 统一定义：相册页面、空页面、预览页面 的 Presenter 和 View 接口
+ * 作用：规范页面行为，解耦 P 层和 V 层
  */
 public final class Contract {
 
+    /**
+     * 相册主页（图片列表页）-> Presenter 接口
+     */
     public interface AlbumPresenter extends BasePresenter {
 
         /**
-         * Click the folder switch.
+         * 点击切换文件夹
          */
         void clickFolderSwitch();
 
         /**
-         * Click camera.
+         * 点击拍照
          */
         void clickCamera(View v);
 
         /**
-         * Try to check item.
-         *
-         * @param button   view.
-         * @param position position of item.
+         * 尝试选中/取消选中某个条目
          */
         void tryCheckItem(CompoundButton button, int position);
 
         /**
-         * Try to preview item.
-         *
-         * @param position position of item.
+         * 尝试预览当前位置的图片/视频
          */
         void tryPreviewItem(int position);
 
         /**
-         * Preview the checked items.
+         * 预览已选中的所有图片
          */
         void tryPreviewChecked();
 
         /**
-         * Complete.
+         * 完成选择（确定）
          */
         void complete();
 
     }
 
+    /**
+     * 相册主页（图片列表页）-> View 接口
+     */
     public static abstract class AlbumView extends BaseView<AlbumPresenter> {
 
         public AlbumView(Activity activity, AlbumPresenter presenter) {
@@ -64,81 +66,72 @@ public final class Contract {
         }
 
         /**
-         * Set some properties of the view.
+         * 初始化页面控件
          *
-         * @param widget     {@link Widget}.
-         * @param column     the count of columns.
-         * @param hasCamera  the camera is enabled.
-         * @param choiceMode choice mode, one of {@link Album#FUNCTION_CHOICE_ALBUM}, {@link
-         *                   Album#FUNCTION_CHOICE_IMAGE} or {@link Album#FUNCTION_CHOICE_VIDEO}.
+         * @param widget     配置项
+         * @param column     列数
+         * @param hasCamera  是否显示相机
+         * @param choiceMode 选择模式：图片/视频/全部
          */
         public abstract void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode);
 
         /**
-         * Set the loading visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置加载状态是否显示
          */
         public abstract void setLoadingDisplay(boolean display);
 
         /**
-         * Should be re-layout.
-         *
-         * @param newConfig config.
+         * 屏幕旋转时重新布局
          */
         public abstract void onConfigurationChanged(Configuration newConfig);
 
         /**
-         * Set the complete menu visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置完成按钮是否显示
          */
         public abstract void setCompleteDisplay(boolean display);
 
         /**
-         * Bind folder.
-         *
-         * @param albumFolder {@link AlbumFolder}.
+         * 绑定当前文件夹
          */
         public abstract void bindAlbumFolder(AlbumFolder albumFolder);
 
         /**
-         * Notify item was inserted.
-         *
-         * @param position position of item.
+         * 通知条目插入
          */
         public abstract void notifyInsertItem(int position);
 
         /**
-         * Notify item was changed.
-         *
-         * @param position position of item.
+         * 通知条目更新
          */
         public abstract void notifyItem(int position);
 
         /**
-         * Set checked count.
-         *
-         * @param count the number of items checked.
+         * 设置已选中数量
          */
         public abstract void setCheckedCount(int count);
 
     }
 
+    /**
+     * 空页面 -> Presenter 接口
+     */
     public interface NullPresenter extends BasePresenter {
 
         /**
-         * Take a picture.
+         * 拍照
          */
         void takePicture();
 
         /**
-         * Take a video.
+         * 录像
          */
         void takeVideo();
 
     }
 
+    /**
+     * 空页面 -> View 接口
+     */
     public static abstract class NullView extends BaseView<NullPresenter> {
 
         public NullView(Activity activity, NullPresenter presenter) {
@@ -146,58 +139,62 @@ public final class Contract {
         }
 
         /**
-         * Set some properties of the view.
-         *
-         * @param widget {@link Widget}.
+         * 初始化控件
          */
         public abstract void setupViews(Widget widget);
 
         /**
-         * Set the message of page.
-         *
-         * @param message message.
+         * 设置空页面提示文字
          */
         public abstract void setMessage(int message);
 
         /**
-         * Set the button visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置拍照按钮显示/隐藏
          */
         public abstract void setMakeImageDisplay(boolean display);
 
         /**
-         * Set the button visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置录像按钮显示/隐藏
          */
         public abstract void setMakeVideoDisplay(boolean display);
 
     }
 
+    /**
+     * 预览页（大图预览）-> Presenter 接口
+     */
     public interface GalleryPresenter extends BasePresenter {
 
+        /**
+         * 点击预览页条目
+         */
         void clickItem(int position);
 
+        /**
+         * 长按预览页条目
+         */
         void longClickItem(int position);
 
         /**
-         * Set the current position of item .
+         * 预览页滑动切换时回调
          */
         void onCurrentChanged(int position);
 
         /**
-         * Try to check the current item.
+         * 切换当前条目的选中状态
          */
         void onCheckedChanged();
 
         /**
-         * Complete.
+         * 完成选择
          */
         void complete();
 
     }
 
+    /**
+     * 预览页（大图预览）-> View 接口
+     */
     public static abstract class GalleryView<Data> extends BaseView<GalleryPresenter> {
 
         public GalleryView(Activity activity, GalleryPresenter presenter) {
@@ -205,66 +202,47 @@ public final class Contract {
         }
 
         /**
-         * Set some properties of the view.
-         *
-         * @param widget    {@link Widget}.
-         * @param checkable show the checkbox.
+         * 初始化预览页控件
          */
         public abstract void setupViews(Widget widget, boolean checkable);
 
         /**
-         * Bind data.
-         *
-         * @param dataList data.
+         * 绑定预览数据
          */
         public abstract void bindData(List<Data> dataList);
 
         /**
-         * Set the position of the item to be displayed.
-         *
-         * @param position position.
+         * 切换到指定位置预览
          */
         public abstract void setCurrentItem(int position);
 
         /**
-         * Set duration visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置视频时长显示/隐藏
          */
         public abstract void setDurationDisplay(boolean display);
 
         /**
-         * Set duration.
-         *
-         * @param duration duration.
+         * 设置视频时长文字
          */
         public abstract void setDuration(String duration);
 
         /**
-         * Changes the checked state of this button.
-         *
-         * @param checked true to check the button, false to uncheck it.
+         * 设置当前条目选中状态
          */
         public abstract void setChecked(boolean checked);
 
         /**
-         * Set bottom visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置底部栏显示/隐藏
          */
         public abstract void setBottomDisplay(boolean display);
 
         /**
-         * Set layer visibility.
-         *
-         * @param display true is displayed, otherwise it is not displayed.
+         * 设置遮罩层显示/隐藏
          */
         public abstract void setLayerDisplay(boolean display);
 
         /**
-         * Set the complete button text.
-         *
-         * @param text text.
+         * 设置完成按钮文字
          */
         public abstract void setCompleteText(String text);
 

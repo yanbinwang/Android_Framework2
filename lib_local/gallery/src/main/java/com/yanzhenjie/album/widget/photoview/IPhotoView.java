@@ -7,246 +7,197 @@ import android.view.GestureDetector;
 import android.view.View;
 import android.widget.ImageView;
 
+/**
+ * 图片预览控件的功能接口
+ * 定义：缩放、旋转、拖动、矩阵、各种点击事件
+ */
 public interface IPhotoView {
+    // 缩放动画默认时长：200毫秒
     int DEFAULT_ZOOM_DURATION = 200;
+    // 最大缩放比例：3倍
     float DEFAULT_MAX_SCALE = 3.0f;
+    // 中等缩放比例：1.75倍（双击放大到这个值）
     float DEFAULT_MID_SCALE = 1.75f;
+    // 最小缩放比例：1倍（原图）
     float DEFAULT_MIN_SCALE = 1.0f;
 
     /**
-     * Returns true if the PhotoView is set to allow zooming of Photos.
+     * 判断当前图片是否允许缩放
      *
-     * @return true if the PhotoView allows zooming.
+     * @return true=允许
      */
     boolean canZoom();
 
     /**
-     * Gets the Display Rectangle of the currently displayed Drawable. The Rectangle is relative to
-     * this View and includes all scaling and translations.
+     * 获取当前图片在控件中的显示区域（坐标、宽高）
+     * 包含缩放、平移后的最终位置
      *
-     * @return - RectF of Displayed Drawable
+     * @return 图片显示区域 RectF
      */
     RectF getDisplayRect();
 
     /**
-     * Sets the Display Matrix of the currently displayed Drawable. The Rectangle is considered
-     * relative to this View and includes all scaling and translations.
+     * 直接设置图片的显示矩阵（控制位置、缩放、旋转）
      *
-     * @param finalMatrix target matrix to set PhotoView to
-     * @return - true if rectangle was applied successfully
+     * @param finalMatrix 要设置的最终矩阵
+     * @return 是否设置成功
      */
     boolean setDisplayMatrix(Matrix finalMatrix);
 
     /**
-     * Copies the Display Matrix of the currently displayed Drawable. The Rectangle is considered
-     * relative to this View and includes all scaling and translations.
+     * 获取当前图片的显示矩阵（复制到传入的 matrix 中）
      *
-     * @param matrix target matrix to copy to
+     * @param matrix 用于接收矩阵数据的对象
      */
     void getDisplayMatrix(Matrix matrix);
 
     /**
-     * @return The current minimum scale level. What this value represents depends on the current
-     * {@link ImageView.ScaleType}.
+     * 获取当前最小缩放比例
      */
     float getMinimumScale();
 
     /**
-     * @return The current medium scale level. What this value represents depends on the current
-     * {@link ImageView.ScaleType}.
+     * 获取当前中等缩放比例
      */
     float getMediumScale();
 
     /**
-     * @return The current maximum scale level. What this value represents depends on the current
-     * {@link ImageView.ScaleType}.
+     * 获取当前最大缩放比例
      */
     float getMaximumScale();
 
     /**
-     * Returns the current scale value
-     *
-     * @return float - current scale value
+     * 获取当前图片的缩放比例
      */
     float getScale();
 
     /**
-     * Return the current scale type in use by the ImageView.
-     *
-     * @return current ImageView.ScaleType
+     * 获取当前 ImageView 的缩放模式（ScaleType）
      */
     ImageView.ScaleType getScaleType();
 
     /**
-     * Whether to allow the ImageView's parent to intercept the touch event when the photo is scroll
-     * to it's horizontal edge.
+     * 设置：当图片滑动到边缘时，是否允许父控件拦截触摸事件
+     * 用于解决 ViewPager 滑动冲突
      *
-     * @param allow whether to allow intercepting by parent element or not
+     * @param allow true=允许
      */
     void setAllowParentInterceptOnEdge(boolean allow);
 
     /**
-     * Sets the minimum scale level. What this value represents depends on the current {@link
-     * ImageView.ScaleType}.
-     *
-     * @param minimumScale minimum allowed scale
+     * 设置最小缩放比例
      */
     void setMinimumScale(float minimumScale);
 
     /**
-     * Sets the medium scale level. What this value represents depends on the current {@link ImageView.ScaleType}.
-     *
-     * @param mediumScale medium scale preset
+     * 设置中等缩放比例
      */
     void setMediumScale(float mediumScale);
 
     /**
-     * Sets the maximum scale level. What this value represents depends on the current {@link
-     * ImageView.ScaleType}.
-     *
-     * @param maximumScale maximum allowed scale preset
+     * 设置最大缩放比例
      */
     void setMaximumScale(float maximumScale);
 
     /**
-     * Allows to set all three scale levels at once, so you don't run into problem with setting
-     * medium/minimum scale before the maximum one
-     *
-     * @param minimumScale minimum allowed scale
-     * @param mediumScale  medium allowed scale
-     * @param maximumScale maximum allowed scale preset
+     * 一次性设置 最小/中等/最大 三个缩放级别
+     * 避免单独设置时出现比例冲突
      */
     void setScaleLevels(float minimumScale, float mediumScale, float maximumScale);
 
     /**
-     * Register a callback to be invoked when the Photo displayed by this view is long-pressed.
-     *
-     * @param listener - Listener to be registered.
+     * 设置图片长按监听
      */
     void setOnLongClickListener(View.OnLongClickListener listener);
 
     /**
-     * Register a callback to be invoked when the Matrix has changed for this View. An example would
-     * be the user panning or scaling the Photo.
-     *
-     * @param listener - Listener to be registered.
+     * 设置图片矩阵变化监听（拖动/缩放/旋转时回调）
      */
     void setOnMatrixChangeListener(PhotoViewAttacher.OnMatrixChangedListener listener);
 
     /**
-     * Register a callback to be invoked when the Photo displayed by this View is tapped with a
-     * single tap.
-     *
-     * @param listener - Listener to be registered.
+     * 设置点击图片的监听
      */
     void setOnPhotoTapListener(PhotoViewAttacher.OnPhotoTapListener listener);
 
     /**
-     * Register a callback to be invoked when the View is tapped with a single tap.
-     *
-     * @param listener - Listener to be registered.
+     * 设置点击控件空白区域的监听
      */
     void setOnViewTapListener(PhotoViewAttacher.OnViewTapListener listener);
 
     /**
-     * Enables rotation via PhotoView internal functions.
+     * 直接将图片旋转到指定角度
      *
-     * @param rotationDegree - Degree to rotate PhotoView to, should be in range 0 to 360
+     * @param rotationDegree 目标角度 0~360
      */
     void setRotationTo(float rotationDegree);
 
     /**
-     * Enables rotation via PhotoView internal functions.
+     * 在当前角度基础上再旋转多少度
      *
-     * @param rotationDegree - Degree to rotate PhotoView by, should be in range 0 to 360
+     * @param rotationDegree 旋转增量 0~360
      */
     void setRotationBy(float rotationDegree);
 
     /**
-     * Changes the current scale to the specified value.
-     *
-     * @param scale - Value to scale to
+     * 设置图片缩放比例（默认开启动画）
      */
     void setScale(float scale);
 
     /**
-     * Changes the current scale to the specified value.
-     *
-     * @param scale   - Value to scale to
-     * @param animate - Whether to animate the scale
+     * 设置图片缩放比例，并指定是否开启动画
      */
     void setScale(float scale, boolean animate);
 
     /**
-     * Changes the current scale to the specified value, around the given focal point.
+     * 以指定坐标为中心点，进行缩放
      *
-     * @param scale   - Value to scale to
-     * @param focalX  - X Focus Point
-     * @param focalY  - Y Focus Point
-     * @param animate - Whether to animate the scale
+     * @param scale   目标比例
+     * @param focalX  中心点X
+     * @param focalY  中心点Y
+     * @param animate 是否动画
      */
     void setScale(float scale, float focalX, float focalY, boolean animate);
 
     /**
-     * Controls how the image should be resized or moved to match the size of the ImageView. Any
-     * scaling or panning will happen within the confines of this {@link
-     * ImageView.ScaleType}.
-     *
-     * @param scaleType - The desired scaling mode.
+     * 设置图片的缩放模式（ScaleType）
      */
     void setScaleType(ImageView.ScaleType scaleType);
 
     /**
-     * Allows you to enable/disable the zoom functionality on the ImageView. When disable the
-     * ImageView reverts to using the FIT_CENTER matrix.
-     *
-     * @param zoomable - Whether the zoom functionality is enabled.
+     * 开启/关闭图片缩放功能
      */
     void setZoomable(boolean zoomable);
 
     /**
-     * Extracts currently visible area to Bitmap object, if there is no image loaded yet or the
-     * ImageView is already destroyed, returns {@code null}
+     * 获取当前屏幕显示区域的图片片段（截图当前可见区域）
      *
-     * @return currently visible area as bitmap or null
+     * @return 可见区域的Bitmap，无图时返回null
      */
     Bitmap getVisibleRectangleBitmap();
 
     /**
-     * Allows to change zoom transition speed, default value is 200 (PhotoViewAttacher.DEFAULT_ZOOM_DURATION).
-     * Will default to 200 if provided negative value
-     *
-     * @param milliseconds duration of zoom interpolation
+     * 设置缩放动画的过渡时长
      */
     void setZoomTransitionDuration(int milliseconds);
 
     /**
-     * Will return instance of IPhotoView (eg. PhotoViewAttacher), can be used to provide better
-     * integration
-     *
-     * @return IPhotoView implementation instance if available, null if not
+     * 获取 IPhotoView 实现类实例（用于扩展）
      */
     IPhotoView getIPhotoViewImplementation();
 
     /**
-     * Sets custom double tap listener, to intercept default given functions. To reset behavior to
-     * default, you can just pass in "null" or public field of PhotoViewAttacher.defaultOnDoubleTapListener
-     *
-     * @param newOnDoubleTapListener custom OnDoubleTapListener to be set on ImageView
+     * 设置自定义双击事件监听，传null则恢复默认行为
      */
     void setOnDoubleTapListener(GestureDetector.OnDoubleTapListener newOnDoubleTapListener);
 
     /**
-     * Will report back about scale changes
-     *
-     * @param onScaleChangeListener OnScaleChangeListener instance
+     * 设置缩放比例变化监听
      */
     void setOnScaleChangeListener(PhotoViewAttacher.OnScaleChangeListener onScaleChangeListener);
 
     /**
-     * Will report back about fling(single touch)
-     *
-     * @param onSingleFlingListener OnSingleFlingListener instance
+     * 设置单手快速滑动（Fling）监听
      */
     void setOnSingleFlingListener(PhotoViewAttacher.OnSingleFlingListener onSingleFlingListener);
 

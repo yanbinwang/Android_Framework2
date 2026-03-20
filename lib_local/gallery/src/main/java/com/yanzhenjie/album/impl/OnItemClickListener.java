@@ -3,16 +3,16 @@ package com.yanzhenjie.album.impl;
 import android.view.View;
 
 /**
- * <p>Listens on the item's click.</p>
- * Created by Yan Zhenjie on 2016/9/23.
+ * 列表条目点击事件监听器
+ * 用于监听 RecyclerView / ListView 条目的点击回调
  */
 public interface OnItemClickListener {
 
     /**
-     * When Item is clicked.
+     * 当条目被点击时回调
      *
-     * @param view     item view.
-     * @param position item position.
+     * @param view     被点击的条目视图
+     * @param position 被点击的条目位置
      */
     void onItemClick(View view, int position);
 

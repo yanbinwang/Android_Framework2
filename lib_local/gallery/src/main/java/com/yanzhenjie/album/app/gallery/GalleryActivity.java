@@ -19,15 +19,22 @@ import java.util.Map;
 import kotlin.Unit;
 
 /**
- * Created by YanZhenjie on 2017/8/16.
+ * 图片路径预览页面
+ * 功能：只预览图片路径（String），不处理 AlbumFile
+ * 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
+    // 当前预览位置
     private int mCurrentPosition;
+    // 是否可选中
     private boolean mCheckable;
+    // 图片路径列表
     private ArrayList<String> mPathList;
+    // 记录选中状态（路径 -> 是否选中）
     private Map<String, Boolean> mCheckedMap;
-    private Widget mWidget;
+    // MVP View 层
     private Contract.GalleryView<String> mView;
+    // 外部回调监听
     public static ItemAction<String> sClick;
     public static ItemAction<String> sLongClick;
     public static Action<String> sCancel;
@@ -37,31 +44,39 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_gallery);
+        // 初始化 MVP
         mView = new GalleryView<>(this, this);
+        // 获取传递参数
         Bundle argument = getIntent().getExtras();
-        assert argument != null;
-        mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+        Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mPathList = argument.getStringArrayList(Album.KEY_INPUT_CHECKED_LIST);
         mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
         mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
+        // 初始化选中状态：全部默认选中
         mCheckedMap = new HashMap<>();
         for (String path : mPathList) {
             mCheckedMap.put(path, true);
         }
+        // 初始化 UI
         mView.setTitle(mWidget.getTitle());
         mView.setupViews(mWidget, mCheckable);
+        // 不可选时隐藏底部栏
         if (!mCheckable) {
             mView.setBottomDisplay(false);
         }
         mView.setLayerDisplay(false);
         mView.setDurationDisplay(false);
+        // 绑定数据
         mView.bindData(mPathList);
+        // 定位到当前位置
         if (mCurrentPosition == 0) {
             onCurrentChanged(mCurrentPosition);
         } else {
             mView.setCurrentItem(mCurrentPosition);
         }
+        // 更新完成按钮文字
         setCheckedCount();
+        // 返回按钮监听
         setOnBackPressedListener(() -> {
             if (sCancel != null) {
                 sCancel.onAction("User canceled.");
@@ -71,6 +86,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         });
     }
 
+    /**
+     * 计算选中数量，更新按钮文字
+     */
     private void setCheckedCount() {
         int checkedCount = 0;
         for (Map.Entry<String, Boolean> entry : mCheckedMap.entrySet()) {
@@ -83,6 +101,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mView.setCompleteText(completeText);
     }
 
+    /**
+     * 点击图片
+     */
     @Override
     public void clickItem(int position) {
         if (sClick != null) {
@@ -90,6 +111,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
     }
 
+    /**
+     * 长按图片
+     */
     @Override
     public void longClickItem(int position) {
         if (sLongClick != null) {
@@ -97,6 +121,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
     }
 
+    /**
+     * 滑动切换图片
+     */
     @Override
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
@@ -106,6 +133,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
     }
 
+    /**
+     * 切换选中状态
+     */
     @Override
     public void onCheckedChanged() {
         String path = mPathList.get(mCurrentPosition);
@@ -113,6 +143,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         setCheckedCount();
     }
 
+    /**
+     * 完成选择，返回结果
+     */
     @Override
     public void complete() {
         if (sResult != null) {
@@ -127,6 +160,9 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         finish();
     }
 
+    /**
+     * 页面销毁，清空监听防止内存泄漏
+     */
     @Override
     public void finish() {
         sResult = null;

@@ -22,24 +22,31 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 
 /**
- * Created by YanZhenjie on 2017/10/15.
+ * 缩略图构建工具类（核心）
+ * 功能：为图片/视频生成压缩、旋转正确的缩略图，并缓存到本地
+ * 解决大图卡顿、图片方向错误问题
  */
 public class ThumbnailBuilder {
-    private File mCacheDir;
+    // 缩略图缓存目录
+    private final File mCacheDir;
+    // 缩略图默认尺寸
     private static final int THUMBNAIL_SIZE = 360;
+    // 缩略图压缩质量
     private static final int THUMBNAIL_QUALITY = 80;
 
+    /**
+     * 初始化：创建缓存文件夹
+     */
     public ThumbnailBuilder(Context context) {
         this.mCacheDir = AlbumUtils.getAlbumRootPath(context);
+        // 如果路径是文件，先删除
         if (mCacheDir.exists() && mCacheDir.isFile()) mCacheDir.delete();
+        // 创建目录
         if (!mCacheDir.exists()) mCacheDir.mkdirs();
     }
 
     /**
-     * Create a thumbnail for the image.
-     *
-     * @param imagePath image path.
-     * @return thumbnail path.
+     * 为图片生成缩略图（子线程执行）
      */
     @WorkerThread
     @Nullable
@@ -47,14 +54,19 @@ public class ThumbnailBuilder {
         if (TextUtils.isEmpty(imagePath)) return null;
         File inFile = new File(imagePath);
         if (!inFile.exists()) return null;
+        // 根据原路径生成唯一缓存文件名
         File thumbnailFile = randomPath(imagePath);
+        // 缓存已存在，直接返回
         if (thumbnailFile.exists()) return thumbnailFile.getAbsolutePath();
+        // 读取并压缩图片
         Bitmap inBitmap = readImageFromPath(imagePath, THUMBNAIL_SIZE, THUMBNAIL_SIZE);
         if (inBitmap == null) return null;
+        // 压缩成 JPG
         ByteArrayOutputStream compressStream = new ByteArrayOutputStream();
         inBitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, compressStream);
         try {
             compressStream.close();
+            // 写入缓存文件
             thumbnailFile.createNewFile();
             FileOutputStream writeStream = new FileOutputStream(thumbnailFile);
             writeStream.write(compressStream.toByteArray());
@@ -67,10 +79,7 @@ public class ThumbnailBuilder {
     }
 
     /**
-     * Create a thumbnail for the video.
-     *
-     * @param videoPath video path.
-     * @return thumbnail path.
+     * 为视频生成缩略图（子线程执行）
      */
     @WorkerThread
     @Nullable
@@ -80,11 +89,13 @@ public class ThumbnailBuilder {
         if (thumbnailFile.exists()) return thumbnailFile.getAbsolutePath();
         try {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            // 支持网络视频 / 本地视频
             if (URLUtil.isNetworkUrl(videoPath)) {
                 retriever.setDataSource(videoPath, new HashMap<>());
             } else {
                 retriever.setDataSource(videoPath);
             }
+            // 获取视频第一帧作为缩略图
             Bitmap bitmap = retriever.getFrameAtTime();
             thumbnailFile.createNewFile();
             bitmap.compress(Bitmap.CompressFormat.JPEG, THUMBNAIL_QUALITY, new FileOutputStream(thumbnailFile));
@@ -94,29 +105,33 @@ public class ThumbnailBuilder {
         }
     }
 
+    /**
+     * 根据文件路径生成 MD5 作为唯一缓存名
+     */
     private File randomPath(String filePath) {
         String outFilePath = AlbumUtils.getMD5ForString(filePath) + ".album";
         return new File(mCacheDir, outFilePath);
     }
 
     /**
-     * Deposit in the province read images, mViewWidth is high, the greater the picture clearer, but also the memory.
-     *
-     * @param imagePath pictures in the path of the memory card.
-     * @return bitmap.
+     * 按目标宽高安全读取图片（防 OOM）
+     * 自动计算缩放比例 + 自动纠正图片方向
      */
     @Nullable
     public static Bitmap readImageFromPath(String imagePath, int width, int height) {
         File imageFile = new File(imagePath);
         if (imageFile.exists()) {
             try {
+                // 只读取图片宽高，不加载到内存
                 BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(imageFile));
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inJustDecodeBounds = true;
                 BitmapFactory.decodeStream(inputStream, null, options);
                 inputStream.close();
+                // 计算缩放比例
                 options.inJustDecodeBounds = false;
                 options.inSampleSize = computeSampleSize(options, width, height);
+                // 尝试加载，失败则继续放大缩放比例
                 Bitmap sampledBitmap = null;
                 boolean attemptSuccess = false;
                 while (!attemptSuccess) {
@@ -129,6 +144,7 @@ public class ThumbnailBuilder {
                     }
                     inputStream.close();
                 }
+                // 纠正图片旋转角度（解决手机拍照图片歪的问题）
                 String lowerPath = imagePath.toLowerCase();
                 if (lowerPath.endsWith(".jpg") || lowerPath.endsWith(".jpeg")) {
                     int degrees = computeDegree(imagePath);
@@ -149,6 +165,9 @@ public class ThumbnailBuilder {
         return null;
     }
 
+    /**
+     * 计算图片缩放比例，防止 OOM
+     */
     private static int computeSampleSize(BitmapFactory.Options options, int width, int height) {
         int inSampleSize = 1;
         if (options.outWidth > width || options.outHeight > height) {
@@ -159,6 +178,9 @@ public class ThumbnailBuilder {
         return inSampleSize;
     }
 
+    /**
+     * 读取图片 EXIF 信息，获取旋转角度
+     */
     private static int computeDegree(String path) {
         try {
             ExifInterface exifInterface = new ExifInterface(path);

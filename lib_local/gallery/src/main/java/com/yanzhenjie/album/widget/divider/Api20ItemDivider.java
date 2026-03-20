@@ -5,63 +5,84 @@ import android.graphics.Rect;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
 /**
- * <p>The implementation of divider does not add dividers around the list.</p>
- * Created by YanZhenjie on 2017/8/14.
+ * 通用列表分割线（兼容线性/网格/瀑布流布局）
+ * 特点：不会在列表最外层绘制多余的分割线，只在条目之间绘制
+ * 适配 Android 所有版本
  */
 public class Api20ItemDivider extends Divider {
+    // 分割线宽度/高度（实际一半）
     private final int mWidth;
     private final int mHeight;
+    // 分割线绘制器
     private final Drawer mDrawer;
 
     /**
-     * @param color divider line color.
+     * 构造方法：使用默认宽高（4px）
+     *
+     * @param color 分割线颜色
      */
     public Api20ItemDivider(@ColorInt int color) {
         this(color, 4, 4);
     }
 
     /**
-     * @param color  line color.
-     * @param width  line width.
-     * @param height line height.
+     * 构造方法：自定义宽高
+     *
+     * @param color  分割线颜色
+     * @param width  分割线总宽度
+     * @param height 分割线总高度
      */
     public Api20ItemDivider(@ColorInt int color, int width, int height) {
+        // 宽高取一半，让分割线均匀分布在两个条目之间
         this.mWidth = Math.round(width / 2F);
         this.mHeight = Math.round(height / 2F);
+        // 创建纯色绘制器
         this.mDrawer = new ColorDrawer(color, mWidth, mHeight);
     }
 
+    /**
+     * 设置条目偏移量（给分割线留出空间）
+     */
     @Override
-    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+    public void getItemOffsets(@NonNull Rect outRect, @NonNull View view, RecyclerView parent, @NonNull RecyclerView.State state) {
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
         if (layoutManager instanceof LinearLayoutManager) {
+            // 线性/网格布局
             int orientation = getOrientation(layoutManager);
             int position = parent.getChildLayoutPosition(view);
             int spanCount = getSpanCount(layoutManager);
             int childCount = layoutManager.getItemCount();
             if (orientation == RecyclerView.VERTICAL) {
+                // 垂直列表
                 offsetVertical(outRect, position, spanCount, childCount);
             } else {
+                // 水平列表
                 offsetHorizontal(outRect, position, spanCount, childCount);
             }
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
-            outRect.set(mWidth, mHeight, mWidth, mHeight); // |-|-
+            // 瀑布流：四周都留偏移
+            outRect.set(mWidth, mHeight, mWidth, mHeight);
         }
     }
 
+    /**
+     * 计算【水平列表】条目偏移
+     */
     private void offsetHorizontal(Rect outRect, int position, int spanCount, int childCount) {
         boolean firstRaw = isFirstRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastRaw = isLastRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
+        // 单列列表
         if (spanCount == 1) {
-            if (firstColumn && lastColumn) { // xxxx
+            if (firstColumn && lastColumn) {
                 outRect.set(0, 0, 0, 0);
             } else if (firstColumn) { // xx|x
                 outRect.set(0, 0, mWidth, 0);
@@ -71,66 +92,75 @@ public class Api20ItemDivider extends Divider {
                 outRect.set(mWidth, 0, mWidth, 0);
             }
         } else {
-            if (firstColumn && firstRaw) { // xx|-
+            // 多列网格
+            if (firstColumn && firstRaw) {
                 outRect.set(0, 0, mWidth, mHeight);
-            } else if (firstColumn && lastRaw) { // x-|x
+            } else if (firstColumn && lastRaw) {
                 outRect.set(0, mHeight, mWidth, 0);
-            } else if (lastColumn && firstRaw) { // |xx-
+            } else if (lastColumn && firstRaw) {
                 outRect.set(mWidth, 0, 0, mHeight);
-            } else if (lastColumn && lastRaw) { // |-xx
+            } else if (lastColumn && lastRaw) {
                 outRect.set(mWidth, mHeight, 0, 0);
-            } else if (firstColumn) { // x-|-
+            } else if (firstColumn) {
                 outRect.set(0, mHeight, mWidth, mHeight);
-            } else if (lastColumn) { // |-x-
+            } else if (lastColumn) {
                 outRect.set(mWidth, mHeight, 0, mHeight);
-            } else if (firstRaw) { // |x|-
+            } else if (firstRaw) {
                 outRect.set(mWidth, 0, mWidth, mHeight);
-            } else if (lastRaw) { // |-|x
+            } else if (lastRaw) {
                 outRect.set(mWidth, mHeight, mWidth, 0);
-            } else { // |-|-
+            } else {
                 outRect.set(mWidth, mHeight, mWidth, mHeight);
             }
         }
     }
 
+    /**
+     * 计算【垂直列表】条目偏移
+     */
     private void offsetVertical(Rect outRect, int position, int spanCount, int childCount) {
         boolean firstRaw = isFirstRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastRaw = isLastRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
+        // 单列列表
         if (spanCount == 1) {
-            if (firstRaw && lastRaw) { // xxxx
+            if (firstRaw && lastRaw) {
                 outRect.set(0, 0, 0, 0);
-            } else if (firstRaw) { // xxx-
+            } else if (firstRaw) {
                 outRect.set(0, 0, 0, mHeight);
-            } else if (lastRaw) { // x-xx
+            } else if (lastRaw) {
                 outRect.set(0, mHeight, 0, 0);
-            } else { // x-x-
+            } else {
                 outRect.set(0, mHeight, 0, mHeight);
             }
         } else {
-            if (firstRaw && firstColumn) { // xx|-
+            // 多列网格
+            if (firstRaw && firstColumn) {
                 outRect.set(0, 0, mWidth, mHeight);
-            } else if (firstRaw && lastColumn) { // |xx-
+            } else if (firstRaw && lastColumn) {
                 outRect.set(mWidth, 0, 0, mHeight);
-            } else if (lastRaw && firstColumn) { // x-|x
+            } else if (lastRaw && firstColumn) {
                 outRect.set(0, mHeight, mWidth, 0);
-            } else if (lastRaw && lastColumn) { // |-xx
+            } else if (lastRaw && lastColumn) {
                 outRect.set(mWidth, mHeight, 0, 0);
-            } else if (firstRaw) { // |x|-
+            } else if (firstRaw) {
                 outRect.set(mWidth, 0, mWidth, mHeight);
-            } else if (lastRaw) { // |-|x
+            } else if (lastRaw) {
                 outRect.set(mWidth, mHeight, mWidth, 0);
-            } else if (firstColumn) { // x-|-
+            } else if (firstColumn) {
                 outRect.set(0, mHeight, mWidth, mHeight);
-            } else if (lastColumn) { // |-x-
+            } else if (lastColumn) {
                 outRect.set(mWidth, mHeight, 0, mHeight);
-            } else { // |-|-
+            } else {
                 outRect.set(mWidth, mHeight, mWidth, mHeight);
             }
         }
     }
 
+    /**
+     * 获取列表方向：垂直/水平
+     */
     private int getOrientation(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager instanceof LinearLayoutManager) {
             return ((LinearLayoutManager) layoutManager).getOrientation();
@@ -140,6 +170,9 @@ public class Api20ItemDivider extends Divider {
         return RecyclerView.VERTICAL;
     }
 
+    /**
+     * 获取网格列数
+     */
     private int getSpanCount(RecyclerView.LayoutManager layoutManager) {
         if (layoutManager instanceof GridLayoutManager) {
             return ((GridLayoutManager) layoutManager).getSpanCount();
@@ -149,6 +182,9 @@ public class Api20ItemDivider extends Divider {
         return 1;
     }
 
+    /**
+     * 判断是否是第一行
+     */
     private boolean isFirstRaw(int orientation, int position, int columnCount, int childCount) {
         if (orientation == RecyclerView.VERTICAL) {
             return position < columnCount;
@@ -158,6 +194,9 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 判断是否是最后一行
+     */
     private boolean isLastRaw(int orientation, int position, int columnCount, int childCount) {
         if (orientation == RecyclerView.VERTICAL) {
             if (columnCount == 1) {
@@ -180,6 +219,9 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 判断是否是第一列
+     */
     private boolean isFirstColumn(int orientation, int position, int columnCount, int childCount) {
         if (orientation == RecyclerView.VERTICAL) {
             if (columnCount == 1) return true;
@@ -189,6 +231,9 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 判断是否是最后一列
+     */
     private boolean isLastColumn(int orientation, int position, int columnCount, int childCount) {
         if (orientation == RecyclerView.VERTICAL) {
             if (columnCount == 1) return true;
@@ -211,8 +256,11 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 绘制分割线
+     */
     @Override
-    public void onDraw(Canvas canvas, RecyclerView parent, RecyclerView.State state) {
+    public void onDraw(@NonNull Canvas canvas, RecyclerView parent, @NonNull RecyclerView.State state) {
         RecyclerView.LayoutManager layoutManager = parent.getLayoutManager();
         int orientation = getOrientation(layoutManager);
         int spanCount = getSpanCount(layoutManager);
@@ -230,6 +278,7 @@ public class Api20ItemDivider extends Divider {
             }
             canvas.restore();
         } else if (layoutManager instanceof StaggeredGridLayoutManager) {
+            // 瀑布流：四周都画
             canvas.save();
             for (int i = 0; i < childCount; i++) {
                 View view = layoutManager.getChildAt(i);
@@ -242,52 +291,54 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 绘制【水平列表】的分割线
+     */
     private void drawHorizontal(Canvas canvas, View view, int position, int spanCount, int childCount) {
         boolean firstRaw = isFirstRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastRaw = isLastRaw(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.HORIZONTAL, position, spanCount, childCount);
         if (spanCount == 1) {
-            if (firstRaw && lastColumn) { // xxxx
-                // Nothing.
-            } else if (firstColumn) { // xx|x
+            if (firstRaw && lastColumn) {
+            } else if (firstColumn) {
                 mDrawer.drawRight(view, canvas);
-            } else if (lastColumn) { // |xxx
+            } else if (lastColumn) {
                 mDrawer.drawLeft(view, canvas);
-            } else { // |x|x
+            } else {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawRight(view, canvas);
             }
         } else {
-            if (firstColumn && firstRaw) { // xx|-
+            if (firstColumn && firstRaw) {
                 mDrawer.drawRight(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else if (firstColumn && lastRaw) { // x-|x
+            } else if (firstColumn && lastRaw) {
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);
-            } else if (lastColumn && firstRaw) { // |xx-
+            } else if (lastColumn && firstRaw) {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else if (lastColumn && lastRaw) { // |-xx
+            } else if (lastColumn && lastRaw) {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawTop(view, canvas);
-            } else if (firstColumn) { // x-|-
-                mDrawer.drawTop(view, canvas);
-                mDrawer.drawRight(view, canvas);
-                mDrawer.drawBottom(view, canvas);
-            } else if (lastColumn) { // |-x-
-                mDrawer.drawLeft(view, canvas);
-                mDrawer.drawTop(view, canvas);
-                mDrawer.drawBottom(view, canvas);
-            } else if (firstRaw) { // |x|-
-                mDrawer.drawLeft(view, canvas);
-                mDrawer.drawRight(view, canvas);
-                mDrawer.drawBottom(view, canvas);
-            } else if (lastRaw) { // |-|x
-                mDrawer.drawLeft(view, canvas);
+            } else if (firstColumn) {
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);
-            } else { // |-|-
+                mDrawer.drawBottom(view, canvas);
+            } else if (lastColumn) {
+                mDrawer.drawLeft(view, canvas);
+                mDrawer.drawTop(view, canvas);
+                mDrawer.drawBottom(view, canvas);
+            } else if (firstRaw) {
+                mDrawer.drawLeft(view, canvas);
+                mDrawer.drawRight(view, canvas);
+                mDrawer.drawBottom(view, canvas);
+            } else if (lastRaw) {
+                mDrawer.drawLeft(view, canvas);
+                mDrawer.drawTop(view, canvas);
+                mDrawer.drawRight(view, canvas);
+            } else {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);
@@ -296,52 +347,54 @@ public class Api20ItemDivider extends Divider {
         }
     }
 
+    /**
+     * 绘制【垂直列表】的分割线
+     */
     private void drawVertical(Canvas canvas, View view, int position, int spanCount, int childCount) {
         boolean firstRaw = isFirstRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastRaw = isLastRaw(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean firstColumn = isFirstColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
         boolean lastColumn = isLastColumn(RecyclerView.VERTICAL, position, spanCount, childCount);
         if (spanCount == 1) {
-            if (firstRaw && lastRaw) { // xxxx
-                // Nothing.
-            } else if (firstRaw) { // xxx-
+            if (firstRaw && lastRaw) {
+            } else if (firstRaw) {
                 mDrawer.drawBottom(view, canvas);
-            } else if (lastRaw) { // x-xx
+            } else if (lastRaw) {
                 mDrawer.drawTop(view, canvas);
-            } else { // x-x-
+            } else {
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawBottom(view, canvas);
             }
         } else {
-            if (firstRaw && firstColumn) { // xx|-
+            if (firstRaw && firstColumn) {
                 mDrawer.drawRight(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else if (firstRaw && lastColumn) { // |xx-
+            } else if (firstRaw && lastColumn) {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else if (lastRaw && firstColumn) { // x-|x
+            } else if (lastRaw && firstColumn) {
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);
-            } else if (lastRaw && lastColumn) { // |-xx
+            } else if (lastRaw && lastColumn) {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawTop(view, canvas);
-            } else if (firstRaw) { // |x|-
+            } else if (firstRaw) {
                 mDrawer.drawLeft(view, canvas);
-                mDrawer.drawRight(view, canvas);
-                mDrawer.drawBottom(view, canvas);
-            } else if (lastRaw) { // |-|x
-                mDrawer.drawLeft(view, canvas);
-                mDrawer.drawTop(view, canvas);
-                mDrawer.drawRight(view, canvas);
-            } else if (firstColumn) { // x-|-
-                mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else if (lastColumn) { // |-x-
+            } else if (lastRaw) {
+                mDrawer.drawLeft(view, canvas);
+                mDrawer.drawTop(view, canvas);
+                mDrawer.drawRight(view, canvas);
+            } else if (firstColumn) {
+                mDrawer.drawTop(view, canvas);
+                mDrawer.drawRight(view, canvas);
+                mDrawer.drawBottom(view, canvas);
+            } else if (lastColumn) {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawBottom(view, canvas);
-            } else { // |-|-
+            } else {
                 mDrawer.drawLeft(view, canvas);
                 mDrawer.drawTop(view, canvas);
                 mDrawer.drawRight(view, canvas);

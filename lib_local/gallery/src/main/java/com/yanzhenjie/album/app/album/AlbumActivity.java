@@ -38,29 +38,53 @@ import java.util.List;
 import kotlin.Unit;
 
 /**
- * <p>Responsible for controlling the album data and the overall logic.</p>
- * Created by Yan Zhenjie on 2016/10/17.
+ * 相册主页面（总控 Activity）
+ * MVP 中的 Presenter —— 掌管：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
+ * MediaReadTask.Callback       // 媒体扫描回调
+ * GalleryActivity.Callback     // 预览页回调
+ * PathConvertTask.Callback     // 路径转换回调
+ * ThumbnailBuildTask.Callback  // 缩略图生成回调
  */
 public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, GalleryActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
+    // 当前选中的文件夹
     private int mCurrentFolder;
+    // 功能：图片/视频/全部
     private int mFunction;
+    // 单选/多选
     private int mChoiceMode;
+    // 列表列数
     private int mColumnCount;
+    // 最大选择数量
     private int mLimitCount;
+    // 视频质量
     private int mQuality;
+    // 视频最大时长
     private long mLimitDuration;
+    // 视频最大大小
     private long mLimitBytes;
+    // 是否显示拍照按钮
     private boolean mHasCamera;
+    // 是否显示不可用文件
     private boolean mFilterVisibility;
+    // 所有文件夹
     private List<AlbumFolder> mAlbumFolders;
+    // 已选中的图片
     private ArrayList<AlbumFile> mCheckedList;
+    // 主题样式
     private Widget mWidget;
+    // MVP & UI
     private Contract.AlbumView mView;
+    // 相机选择弹窗
     private PopupMenu mCameraPopupMenu;
+    // 文件夹选择弹窗
     private FolderDialog mFolderDialog;
+    // 加载对话框
     private LoadingDialog mLoadingDialog;
+    // 媒体扫描
     private MediaScanner mMediaScanner;
+    // 异步读取媒体
     private MediaReadTask mMediaReadTask;
+    // 静态常量
     private static final int CODE_ACTIVITY_NULL = 1;
     public static Filter<Long> sSizeFilter;
     public static Filter<Long> sDurationFilter;
@@ -71,23 +95,25 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 读取参数
         initializeArgument();
+        // 根据主题加载布局
         setContentView(createView());
         mView = new AlbumView(this, this);
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
         mView.setTitle("");
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
-        // 设置图标样式
+        // 初始化状态栏
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
         boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
-        // 扫描相册
+        // 开始异步扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
         mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
         mMediaReadTask.execute();
-        // 全局返回
+        // 返回键 → 取消
         setOnBackPressedListener(() -> {
             if (mMediaReadTask != null) {
                 mMediaReadTask.cancel(true);
@@ -97,9 +123,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         });
     }
 
+    /**
+     * 读取外部传递的配置参数
+     */
     private void initializeArgument() {
         Bundle argument = getIntent().getExtras();
-        assert argument != null;
         mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
         mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
         mChoiceMode = argument.getInt(Album.KEY_INPUT_CHOICE_MODE);
@@ -113,9 +141,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * Use different layouts depending on the style.
-     *
-     * @return layout id.
+     * 根据主题加载亮/暗色布局
      */
     private int createView() {
         switch (mWidget.getUiStyle()) {
@@ -131,6 +157,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 屏幕旋转
+     */
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
@@ -138,10 +167,15 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
     }
 
+    /**
+     * 媒体扫描完成回调
+     */
     @Override
     public void onScanCallback(ArrayList<AlbumFolder> albumFolders, ArrayList<AlbumFile> checkedFiles) {
         mMediaReadTask = null;
-        // 遮罩延迟半秒,有个页面过渡时间
+        mAlbumFolders = albumFolders;
+        mCheckedList = checkedFiles;
+        // 延迟半秒关闭 loading，过渡更自然
         TimerBuilder.schedule(this, () -> {
             switch (mChoiceMode) {
                 case Album.MODE_MULTIPLE: {
@@ -158,14 +192,14 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             }
             mView.setLoadingDisplay(false);
             return Unit.INSTANCE;
-        },500);
-        mAlbumFolders = albumFolders;
-        mCheckedList = checkedFiles;
+        }, 500);
+        // 没有图片 → 打开空页面
         if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
             startActivityForResult(intent, CODE_ACTIVITY_NULL);
             overridePendingTransition(0, 0);
+            // 显示全部图片
         } else {
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
@@ -174,6 +208,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 空页面拍照返回
+     */
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -190,6 +227,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 切换文件夹
+     */
     @Override
     public void clickFolderSwitch() {
         if (mFolderDialog == null) {
@@ -204,7 +244,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * Update data source.
+     * 显示某个文件夹下的图片
      */
     private void showFolderAlbumFiles(int position) {
         this.mCurrentFolder = position;
@@ -212,9 +252,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mView.bindAlbumFolder(albumFolder);
     }
 
+    /**
+     * 点击拍照按钮
+     */
     @Override
     public void clickCamera(View v) {
         int hasCheckSize = mCheckedList.size();
+        // 超过最大选择数量 → 提示
         if (hasCheckSize >= mLimitCount) {
             int messageRes;
             switch (mFunction) {
@@ -235,6 +279,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 }
             }
             mView.toast(getResources().getQuantityString(messageRes, mLimitCount, mLimitCount));
+            // 根据功能类型拍照/录像/选择
         } else {
             switch (mFunction) {
                 case Album.FUNCTION_CHOICE_IMAGE: {
@@ -269,6 +314,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 拍照
+     */
     private void takePicture() {
         String filePath;
         if (mCurrentFolder == 0) {
@@ -284,6 +332,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 .start();
     }
 
+    /**
+     * 录像
+     */
     private void takeVideo() {
         String filePath;
         if (mCurrentFolder == 0) {
@@ -302,6 +353,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 .start();
     }
 
+    /**
+     * 拍照/录像完成 → 插入相册
+     */
     private final Action<String> mCameraAction = new Action<>() {
         @Override
         public void onAction(@NonNull String result) {
@@ -315,6 +369,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     };
 
+    /**
+     * 路径转换回调
+     */
     @Override
     public void onConvertStart() {
         showLoadingDialog();
@@ -325,19 +382,29 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     public void onConvertCallback(AlbumFile albumFile) {
         albumFile.setChecked(!albumFile.isDisable());
         if (albumFile.isDisable()) {
-            if (mFilterVisibility) addFileToList(albumFile);
-            else mView.toast(getString(R.string.album_take_file_unavailable));
+            if (mFilterVisibility) {
+                addFileToList(albumFile);
+            } else {
+                mView.toast(getString(R.string.album_take_file_unavailable));
+            }
         } else {
+            // 添加到列表
             addFileToList(albumFile);
         }
         dismissLoadingDialog();
     }
 
+    /**
+     * 将新拍摄的图片插入列表
+     */
     private void addFileToList(AlbumFile albumFile) {
         if (mCurrentFolder != 0) {
             List<AlbumFile> albumFiles = mAlbumFolders.get(0).getAlbumFiles();
-            if (!albumFiles.isEmpty()) albumFiles.add(0, albumFile);
-            else albumFiles.add(albumFile);
+            if (!albumFiles.isEmpty()) {
+                albumFiles.add(0, albumFile);
+            } else {
+                albumFiles.add(albumFile);
+            }
         }
         AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
         List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
@@ -358,7 +425,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 break;
             }
             case Album.MODE_MULTIPLE: {
-                // Nothing.
                 break;
             }
             default: {
@@ -367,6 +433,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 选择/取消选择图片
+     */
     @Override
     public void tryCheckItem(CompoundButton button, int position) {
         AlbumFile albumFile = mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(position);
@@ -404,15 +473,22 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 更新已选数量
+     */
     private void setCheckedCount() {
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
         mView.setSubTitle(count + "/" + mLimitCount);
     }
 
+    /**
+     * 预览图片
+     */
     @Override
     public void tryPreviewItem(int position) {
         switch (mChoiceMode) {
+            // 单选 → 直接返回
             case Album.MODE_SINGLE: {
                 AlbumFile albumFile = mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(position);
 //                albumFile.setChecked(true);
@@ -422,6 +498,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 callbackResult();
                 break;
             }
+            // 多选 → 打开预览页
             case Album.MODE_MULTIPLE: {
                 GalleryActivity.sAlbumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
                 GalleryActivity.sCheckedCount = mCheckedList.size();
@@ -438,6 +515,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 预览已选中的图片
+     */
     @Override
     public void tryPreviewChecked() {
         if (!mCheckedList.isEmpty()) {
@@ -451,6 +531,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
+    /**
+     * 预览页回调
+     */
     @Override
     public void onPreviewComplete() {
         callbackResult();
@@ -470,6 +553,9 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         setCheckedCount();
     }
 
+    /**
+     * 点击完成
+     */
     @Override
     public void complete() {
         if (mCheckedList.isEmpty()) {
@@ -498,7 +584,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * Callback result action.
+     * 最终回调：生成缩略图并返回
      */
     private void callbackResult() {
         ThumbnailBuildTask task = new ThumbnailBuildTask(this, mCheckedList, this);
@@ -521,7 +607,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * Callback cancel action.
+     * 取消
      */
     private void callbackCancel() {
         if (sCancel != null) {
@@ -531,7 +617,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * Display loading dialog.
+     * 加载对话框
      */
     private void showLoadingDialog() {
         if (mLoadingDialog == null) {
@@ -543,15 +629,15 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
     }
 
-    /**
-     * Dismiss loading dialog.
-     */
     public void dismissLoadingDialog() {
         if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
             mLoadingDialog.dismiss();
         }
     }
 
+    /**
+     * 销毁
+     */
     @Override
     public void finish() {
         sSizeFilter = null;

@@ -9,7 +9,8 @@ import android.widget.ProgressBar;
 import androidx.annotation.ColorInt;
 
 /**
- * Created by YanZhenjie on 2018/4/11.
+ * 可自定义颜色的 ProgressBar
+ * 专门给 LoadingDialog 加载弹窗使用
  */
 public class ColorProgressBar extends ProgressBar {
 
@@ -26,14 +27,16 @@ public class ColorProgressBar extends ProgressBar {
     }
 
     /**
-     * Set the color of the Bar.
-     *
-     * @param color color.
+     * 给加载条设置颜色
      */
     public void setColorFilter(@ColorInt int color) {
+        // 获取系统自带的旋转动画条
         Drawable drawable = getIndeterminateDrawable();
+        // 关键：mutate() 让这个 Drawable 独立，不影响其他地方的 ProgressBar
         drawable = drawable.mutate();
+        // 着色
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        // 设置回去
         setIndeterminateDrawable(drawable);
     }
 

@@ -9,94 +9,60 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Created by YanZhenjie on 2017/8/15.
+ * 相册媒体文件实体类（图片 / 视频）
+ * 实现序列化、排序、相等判断，是整个相册库的核心数据模型
  */
 public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
+    // 类型：图片/视频
     public static final int TYPE_IMAGE = 1;
     public static final int TYPE_VIDEO = 2;
 
+    // 媒体类型限定注解：只能是 TYPE_IMAGE / TYPE_VIDEO
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({TYPE_IMAGE, TYPE_VIDEO})
     public @interface MediaType {
     }
 
-    /**
-     * File path.
-     */
+    // 文件绝对路径
     private String mPath;
-    /**
-     * Folder mName.
-     */
+    // 所属文件夹名称
     private String mBucketName;
-    /**
-     * File mime type.
-     */
+    // 文件MIME类型（image/jpeg、video/mp4等）
     private String mMimeType;
-    /**
-     * Add date.
-     */
+    // 添加时间（毫秒）
     private long mAddDate;
-    /**
-     * Latitude
-     */
+    // 纬度/经度（拍照位置信息）
     private float mLatitude;
-    /**
-     * Longitude.
-     */
     private float mLongitude;
-    /**
-     * Size.
-     */
+    // 文件大小（字节）
     private long mSize;
-    /**
-     * Duration.
-     */
+    // 视频时长（毫秒），图片为0
     private long mDuration;
-    /**
-     * Thumb path.
-     */
+    // 缩略图路径
     private String mThumbPath;
-    /**
-     * MediaType.
-     */
+    // 媒体类型：图片/视频
     private int mMediaType;
-    /**
-     * Checked.
-     */
+    // 是否被选中
     private boolean isChecked;
-    /**
-     * Enabled.
-     */
+    // 是否不可选中（禁用状态）
     private boolean isDisable;
 
     public AlbumFile() {
     }
 
-    @Override
-    public int compareTo(AlbumFile o) {
-        long time = o.getAddDate() - getAddDate();
-        if (time > Integer.MAX_VALUE)
-            return Integer.MAX_VALUE;
-        else if (time < -Integer.MAX_VALUE)
-            return -Integer.MAX_VALUE;
-        return (int) time;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof AlbumFile) {
-            AlbumFile o = (AlbumFile) obj;
-            String inPath = o.getPath();
-            if (mPath != null && inPath != null) {
-                return mPath.equals(inPath);
-            }
-        }
-        return super.equals(obj);
-    }
-
-    @Override
-    public int hashCode() {
-        return mPath != null ? mPath.hashCode() : super.hashCode();
+    protected AlbumFile(Parcel in) {
+        mPath = in.readString();
+        mBucketName = in.readString();
+        mMimeType = in.readString();
+        mAddDate = in.readLong();
+        mLatitude = in.readFloat();
+        mLongitude = in.readFloat();
+        mSize = in.readLong();
+        mDuration = in.readLong();
+        mThumbPath = in.readString();
+        mMediaType = in.readInt();
+        isChecked = in.readByte() != 0;
+        isDisable = in.readByte() != 0;
     }
 
     public String getPath() {
@@ -196,21 +162,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
         this.isDisable = disable;
     }
 
-    protected AlbumFile(Parcel in) {
-        mPath = in.readString();
-        mBucketName = in.readString();
-        mMimeType = in.readString();
-        mAddDate = in.readLong();
-        mLatitude = in.readFloat();
-        mLongitude = in.readFloat();
-        mSize = in.readLong();
-        mDuration = in.readLong();
-        mThumbPath = in.readString();
-        mMediaType = in.readInt();
-        isChecked = in.readByte() != 0;
-        isDisable = in.readByte() != 0;
-    }
-
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(mPath);
@@ -243,5 +194,33 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
             return new AlbumFile[size];
         }
     };
+
+    @Override
+    public int compareTo(AlbumFile o) {
+        long time = o.getAddDate() - getAddDate();
+        if (time > Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        } else if (time < -Integer.MAX_VALUE) {
+            return -Integer.MAX_VALUE;
+        }
+        return (int) time;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof AlbumFile) {
+            AlbumFile o = (AlbumFile) obj;
+            String inPath = o.getPath();
+            if (mPath != null && inPath != null) {
+                return mPath.equals(inPath);
+            }
+        }
+        return super.equals(obj);
+    }
+
+    @Override
+    public int hashCode() {
+        return mPath != null ? mPath.hashCode() : super.hashCode();
+    }
 
 }

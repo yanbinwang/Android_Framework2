@@ -1,5 +1,6 @@
 package com.yanzhenjie.album.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Build;
@@ -13,20 +14,22 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 /**
- * Created by YanZhenjie on 2018/4/10.
+ * 系统状态栏/导航栏工具类
+ * 功能：设置状态栏颜色、导航栏颜色、沉浸式、深色状态栏文字（兼容小米、魅族、原生安卓）
  */
 public class SystemBar {
 
     /**
-     * Set the status bar color.
+     * 设置状态栏颜色
      */
     public static void setStatusBarColor(Activity activity, int statusBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setStatusBarColor(activity.getWindow(), statusBarColor);
+        }
     }
 
     /**
-     * Set the status bar color.
+     * 设置状态栏颜色（LOLLIPOP以上）
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setStatusBarColor(Window window, int statusBarColor) {
@@ -35,15 +38,16 @@ public class SystemBar {
     }
 
     /**
-     * Set the navigation bar color.
+     * 设置导航栏颜色
      */
     public static void setNavigationBarColor(Activity activity, int navigationBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             setNavigationBarColor(activity.getWindow(), navigationBarColor);
+        }
     }
 
     /**
-     * Set the navigation bar color.
+     * 设置导航栏颜色（LOLLIPOP以上）
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setNavigationBarColor(Window window, int navigationBarColor) {
@@ -52,15 +56,16 @@ public class SystemBar {
     }
 
     /**
-     * Set the content layout full the StatusBar, but do not hide StatusBar.
+     * 布局侵入状态栏（沉浸式，不隐藏状态栏）
      */
     public static void invasionStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             invasionStatusBar(activity.getWindow());
+        }
     }
 
     /**
-     * Set the content layout full the StatusBar, but do not hide StatusBar.
+     * 布局侵入状态栏（LOLLIPOP以上）
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionStatusBar(Window window) {
@@ -70,15 +75,16 @@ public class SystemBar {
     }
 
     /**
-     * Set the content layout full the NavigationBar, but do not hide NavigationBar.
+     * 布局侵入导航栏（沉浸式）
      */
     public static void invasionNavigationBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             invasionNavigationBar(activity.getWindow());
+        }
     }
 
     /**
-     * Set the content layout full the NavigationBar, but do not hide NavigationBar.
+     * 布局侵入导航栏（LOLLIPOP以上）
      */
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionNavigationBar(Window window) {
@@ -88,27 +94,34 @@ public class SystemBar {
     }
 
     /**
-     * Set the status bar to dark.
+     * 设置状态栏文字为深色/浅色
      */
     public static boolean setStatusBarDarkFont(Activity activity, boolean darkFont) {
         return setStatusBarDarkFont(activity.getWindow(), darkFont);
     }
 
     /**
-     * Set the status bar to dark.
+     * 统一设置深色状态栏字体（兼容：原生、小米MIUI、魅族Flyme）
      */
     public static boolean setStatusBarDarkFont(Window window, boolean darkFont) {
+        // 先尝试适配小米
         if (setMIUIStatusBarFont(window, darkFont)) {
             setDefaultStatusBarFont(window, darkFont);
             return true;
+            // 再尝试适配魅族
         } else if (setMeizuStatusBarFont(window, darkFont)) {
             setDefaultStatusBarFont(window, darkFont);
             return true;
+            // 最后用原生安卓方案
         } else {
             return setDefaultStatusBarFont(window, darkFont);
         }
     }
 
+    /**
+     * 魅族手机状态栏深色字体适配
+     */
+    @SuppressLint("PrivateApi")
     private static boolean setMeizuStatusBarFont(Window window, boolean darkFont) {
         try {
             WindowManager.LayoutParams lp = window.getAttributes();
@@ -131,6 +144,10 @@ public class SystemBar {
         return false;
     }
 
+    /**
+     * 小米MIUI手机状态栏深色字体适配
+     */
+    @SuppressLint("PrivateApi")
     private static boolean setMIUIStatusBarFont(Window window, boolean dark) {
         Class<?> clazz = window.getClass();
         try {
@@ -149,6 +166,9 @@ public class SystemBar {
         return false;
     }
 
+    /**
+     * 原生Android 6.0+ 深色字体方案
+     */
     private static boolean setDefaultStatusBarFont(Window window, boolean dark) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             View decorView = window.getDecorView();

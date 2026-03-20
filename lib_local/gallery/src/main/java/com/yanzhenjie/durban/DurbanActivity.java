@@ -146,7 +146,6 @@ public class DurbanActivity extends BaseActivity {
         setSupportActionBar(toolbar);
         // 通过getSupportActionBar()操作这个Toolbar
         final ActionBar actionBar = getSupportActionBar();
-        assert actionBar != null;
         // 显示返回键
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("");
@@ -169,7 +168,6 @@ public class DurbanActivity extends BaseActivity {
         }
         // 设置返回按钮
         Drawable navigationIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_back_white);
-        assert navigationIcon != null;
         if (!statusBarBattery) {
             navigationIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
         }
@@ -350,7 +348,6 @@ public class DurbanActivity extends BaseActivity {
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
             Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
-            assert doneIcon != null;
             doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
             // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
             View okView = okItem.getActionView();

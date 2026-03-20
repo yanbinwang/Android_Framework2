@@ -22,6 +22,7 @@ import android.view.animation.Interpolator;
 import android.widget.ImageView;
 import android.widget.ImageView.ScaleType;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MotionEventCompat;
 
@@ -31,20 +32,63 @@ import com.yanzhenjie.album.widget.photoview.scrollerproxy.ScrollerProxy;
 
 import java.lang.ref.WeakReference;
 
+/**
+ * PhotoView 核心控制器
+ * 所有缩放、拖动、旋转、惯性滑动、双击放大、矩阵计算 都在这里实现
+ * 是整个图片预览库的大脑
+ */
+@SuppressLint("ClickableViewAccessibility")
 public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGestureListener, ViewTreeObserver.OnGlobalLayoutListener {
-    private float mMinScale = DEFAULT_MIN_SCALE;
-    private float mMidScale = DEFAULT_MID_SCALE;
-    private float mMaxScale = DEFAULT_MAX_SCALE;
+    // ImageView 显示区域
+    private int mIvTop, mIvRight, mIvBottom, mIvLeft;
+    // 图片滚动边缘状态
+    private int mScrollEdge = EDGE_BOTH;
+    // 基础旋转角度
+    private float mBaseRotation;
+    // 是否允许缩放
+    private boolean mZoomEnabled;
+    // 弱引用持有 ImageView，防止内存泄漏
+    private WeakReference<ImageView> mImageView;
+    // 图片显示模式
+    private ScaleType mScaleType = ScaleType.FIT_CENTER;
+    // 惯性滑动任务
+    private FlingRunnable mCurrentFlingRunnable;
+    // 各种监听
+    private OnMatrixChangedListener mMatrixChangeListener;
+    private OnPhotoTapListener mPhotoTapListener;
+    private OnViewTapListener mViewTapListener;
+    private OnLongClickListener mLongClickListener;
+    private OnScaleChangeListener mScaleChangeListener;
+    private OnSingleFlingListener mSingleFlingListener;
+    // 手势检测器
+    private GestureDetector mGestureDetector;
+    private com.yanzhenjie.album.widget.photoview.gestures.GestureDetector mScaleDragDetector;
+    // 矩阵对象（复用，避免频繁创建）
+    private final Matrix mBaseMatrix = new Matrix(); // 基础矩阵（居中、适应屏幕）
+    private final Matrix mDrawMatrix = new Matrix(); // 最终绘制矩阵
+    private final Matrix mSuppMatrix = new Matrix(); // 缩放/平移/旋转矩阵
+    private final RectF mDisplayRect = new RectF(); // 图片显示区域
+    private final float[] mMatrixValues = new float[9]; // 矩阵数值存储
+    // 缩放级别配置
+    private float mMinScale = DEFAULT_MIN_SCALE; // 最小缩放
+    private float mMidScale = DEFAULT_MID_SCALE; // 中等缩放（双击第一级）
+    private float mMaxScale = DEFAULT_MAX_SCALE; // 最大缩放
+    // 滑动边缘父控件拦截配置
     private boolean mAllowParentInterceptOnEdge = true;
     private boolean mBlockParentIntercept = false;
+    // 缩放动画插值器与时长
+    private int ZOOM_DURATION = DEFAULT_ZOOM_DURATION;
     private Interpolator mInterpolator = new AccelerateDecelerateInterpolator();
-    int ZOOM_DURATION = DEFAULT_ZOOM_DURATION;
-    static int SINGLE_TOUCH = 1;
-    static final int EDGE_NONE = -1;
-    static final int EDGE_LEFT = 0;
-    static final int EDGE_RIGHT = 1;
-    static final int EDGE_BOTH = 2;
+    // 常量
+    private static final int SINGLE_TOUCH = 1;
+    private static final int EDGE_NONE = -1;
+    private static final int EDGE_LEFT = 0;
+    private static final int EDGE_RIGHT = 1;
+    private static final int EDGE_BOTH = 2;
 
+    /**
+     * 检查缩放级别合法性：最小 < 中等 < 最大
+     */
     private static void checkZoomLevels(float minZoom, float midZoom, float maxZoom) {
         if (minZoom >= midZoom) {
             throw new IllegalArgumentException("Minimum zoom has to be less than Medium zoom. Call setMinimumZoom() with a more appropriate value");
@@ -54,35 +98,29 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * @return true if the ImageView exists, and its Drawable exists
+     * 判断 ImageView 是否有图片
      */
     private static boolean hasDrawable(ImageView imageView) {
         return null != imageView && null != imageView.getDrawable();
     }
 
     /**
-     * @return true if the ScaleType is supported.
+     * 判断 ScaleType 是否支持（不支持 MATRIX）
      */
     private static boolean isSupportedScaleType(final ScaleType scaleType) {
         if (null == scaleType) {
             return false;
         }
-        switch (scaleType) {
-            case MATRIX:
-                throw new IllegalArgumentException(scaleType.name() + " is not supported in PhotoView");
-            default:
-                return true;
+        if (scaleType == ScaleType.MATRIX) {
+            throw new IllegalArgumentException(scaleType.name() + " is not supported in PhotoView");
         }
+        return true;
     }
 
     /**
-     * Sets the ImageView's ScaleType to Matrix.
+     * 强制把 ImageView 的 ScaleType 设为 MATRIX（必须用矩阵才能缩放）
      */
     private static void setImageViewScaleTypeMatrix(ImageView imageView) {
-        /**
-         * PhotoView sets its own ScaleType to Matrix, then diverts all calls
-         * setScaleType to this.setScaleType automatically.
-         */
         if (null != imageView && !(imageView instanceof IPhotoView)) {
             if (!ScaleType.MATRIX.equals(imageView.getScaleType())) {
                 imageView.setScaleType(ScaleType.MATRIX);
@@ -90,59 +128,52 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
-    private int mIvTop, mIvRight, mIvBottom, mIvLeft;
-    private int mScrollEdge = EDGE_BOTH;
-    private float mBaseRotation;
-    private boolean mZoomEnabled;
-    private WeakReference<ImageView> mImageView;
-    private ScaleType mScaleType = ScaleType.FIT_CENTER;
-    private FlingRunnable mCurrentFlingRunnable;
-    // Listeners
-    private OnMatrixChangedListener mMatrixChangeListener;
-    private OnPhotoTapListener mPhotoTapListener;
-    private OnViewTapListener mViewTapListener;
-    private OnLongClickListener mLongClickListener;
-    private OnScaleChangeListener mScaleChangeListener;
-    private OnSingleFlingListener mSingleFlingListener;
-    // Gesture Detectors
-    private GestureDetector mGestureDetector;
-    private com.yanzhenjie.album.widget.photoview.gestures.GestureDetector mScaleDragDetector;
-    // These are set so we don't keep allocating them on the heap
-    private final Matrix mBaseMatrix = new Matrix();
-    private final Matrix mDrawMatrix = new Matrix();
-    private final Matrix mSuppMatrix = new Matrix();
-    private final RectF mDisplayRect = new RectF();
-    private final float[] mMatrixValues = new float[9];
-
+    /**
+     * 构造方法
+     */
     public PhotoViewAttacher(ImageView imageView) {
         this(imageView, true);
     }
 
+    /**
+     * 构造方法
+     *
+     * @param imageView 绑定的图片控件
+     * @param zoomable  是否允许缩放
+     */
     public PhotoViewAttacher(ImageView imageView, boolean zoomable) {
         mImageView = new WeakReference<>(imageView);
+        // 开启绘制缓存
         imageView.setDrawingCacheEnabled(true);
+        // 设置触摸监听
         imageView.setOnTouchListener(this);
+        // 监听布局完成
         ViewTreeObserver observer = imageView.getViewTreeObserver();
         if (null != observer) observer.addOnGlobalLayoutListener(this);
-        // Make sure we using MATRIX Scale Type
+        // 强制使用矩阵模式
         setImageViewScaleTypeMatrix(imageView);
         if (imageView.isInEditMode()) {
             return;
         }
-        // Create Gesture Detectors...
+        // 创建手势检测器
         mScaleDragDetector = VersionedGestureDetector.newInstance(imageView.getContext(), this);
+        // 创建系统手势检测器，处理长按、快速滑动
         mGestureDetector = new GestureDetector(imageView.getContext(), new GestureDetector.SimpleOnGestureListener() {
-
-            // forward long click listener
+            /**
+             * 长按回调
+             */
             @Override
-            public void onLongPress(MotionEvent e) {
+            public void onLongPress(@NonNull MotionEvent e) {
                 if (null != mLongClickListener) {
                     mLongClickListener.onLongClick(getImageView());
                 }
             }
 
+            /**
+             * 快速滑动回调
+             */
             @Override
-            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (mSingleFlingListener != null) {
                     if (getScale() > DEFAULT_MIN_SCALE) {
                         return false;
@@ -155,75 +186,87 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 return false;
             }
         });
+        // 设置默认双击监听器
         mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this));
         mBaseRotation = 0.0f;
-        // Finally, update the UI so that we're zoomable
+        // 设置是否可缩放
         setZoomable(zoomable);
     }
 
+    /**
+     * 设置双击监听器
+     */
     @Override
     public void setOnDoubleTapListener(GestureDetector.OnDoubleTapListener newOnDoubleTapListener) {
         if (newOnDoubleTapListener != null) {
-            this.mGestureDetector.setOnDoubleTapListener(newOnDoubleTapListener);
+            mGestureDetector.setOnDoubleTapListener(newOnDoubleTapListener);
         } else {
-            this.mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this));
+            mGestureDetector.setOnDoubleTapListener(new DefaultOnDoubleTapListener(this));
         }
     }
 
+    /**
+     * 设置缩放变化监听
+     */
     @Override
     public void setOnScaleChangeListener(OnScaleChangeListener onScaleChangeListener) {
-        this.mScaleChangeListener = onScaleChangeListener;
+        mScaleChangeListener = onScaleChangeListener;
     }
 
+    /**
+     * 设置单指快速滑动监听
+     */
     @Override
     public void setOnSingleFlingListener(OnSingleFlingListener onSingleFlingListener) {
-        this.mSingleFlingListener = onSingleFlingListener;
+        mSingleFlingListener = onSingleFlingListener;
     }
 
+    /**
+     * 是否允许缩放
+     */
     @Override
     public boolean canZoom() {
         return mZoomEnabled;
     }
 
     /**
-     * Clean-up the resources attached to this object. This needs to be called when the ImageView is no longer used. A
-     * good example is from {@link View# onDetachedFromWindow()} or from {@link android.app.Activity# onDestroy()}. This
-     * is automatically called if you are using {@link IPhotoView}.
+     * 清理资源，防止内存泄漏
+     * 在界面销毁时调用
      */
-    @SuppressWarnings("deprecation")
     public void cleanup() {
         if (null == mImageView) {
-            return; // cleanup already done
+            return;
         }
         final ImageView imageView = mImageView.get();
         if (null != imageView) {
-            // Remove this as a global layout listener
             ViewTreeObserver observer = imageView.getViewTreeObserver();
             if (null != observer && observer.isAlive()) {
                 observer.removeGlobalOnLayoutListener(this);
             }
-            // Remove the ImageView's reference to this
             imageView.setOnTouchListener(null);
-            // make sure a pending fling runnable won't be run
             cancelFling();
         }
         if (null != mGestureDetector) {
             mGestureDetector.setOnDoubleTapListener(null);
         }
-        // Clear listeners too
         mMatrixChangeListener = null;
         mPhotoTapListener = null;
         mViewTapListener = null;
-        // Finally, clear ImageView
         mImageView = null;
     }
 
+    /**
+     * 获取图片当前显示区域
+     */
     @Override
     public RectF getDisplayRect() {
         checkMatrixBounds();
         return getDisplayRect(getDrawMatrix());
     }
 
+    /**
+     * 直接设置显示矩阵
+     */
     @Override
     public boolean setDisplayMatrix(Matrix finalMatrix) {
         if (finalMatrix == null) {
@@ -242,6 +285,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return true;
     }
 
+    /**
+     * 设置基础旋转角度
+     */
     public void setBaseRotation(final float degrees) {
         mBaseRotation = degrees % 360;
         update();
@@ -249,24 +295,32 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         checkAndDisplayMatrix();
     }
 
+    /**
+     * 旋转图片到指定角度
+     */
     @Override
     public void setRotationTo(float degrees) {
         mSuppMatrix.setRotate(degrees % 360);
         checkAndDisplayMatrix();
     }
 
+    /**
+     * 在当前角度基础上再旋转
+     */
     @Override
     public void setRotationBy(float degrees) {
         mSuppMatrix.postRotate(degrees % 360);
         checkAndDisplayMatrix();
     }
 
+    /**
+     * 获取绑定的 ImageView
+     */
     public ImageView getImageView() {
         ImageView imageView = null;
         if (null != mImageView) {
             imageView = mImageView.get();
         }
-        // If we don't have an ImageView, call cleanup()
         if (null == imageView) {
             cleanup();
         }
@@ -288,6 +342,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return mMaxScale;
     }
 
+    /**
+     * 获取当前缩放比例
+     */
     @Override
     public float getScale() {
         return (float) Math.sqrt((float) Math.pow(getValue(mSuppMatrix, Matrix.MSCALE_X), 2) + (float) Math.pow(getValue(mSuppMatrix, Matrix.MSKEW_Y), 2));
@@ -298,6 +355,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return mScaleType;
     }
 
+    /**
+     * 拖动回调
+     */
     @Override
     public void onDrag(float dx, float dy) {
         if (mScaleDragDetector.isScaling()) {
@@ -306,15 +366,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         ImageView imageView = getImageView();
         mSuppMatrix.postTranslate(dx, dy);
         checkAndDisplayMatrix();
-        /**
-         * Here we decide whether to let the ImageView's parent to start taking
-         * over the touch event.
-         *
-         * First we check whether this function is enabled. We never want the
-         * parent to take over if we're scaling. We then check the edge we're
-         * on, and the direction of the scroll (i.e. if we're pulling against
-         * the edge, aka 'overscrolling', let the parent take over).
-         */
+        // 边缘时允许父控件拦截（解决ViewPager滑动冲突）
         ViewParent parent = imageView.getParent();
         if (mAllowParentInterceptOnEdge && !mScaleDragDetector.isScaling() && !mBlockParentIntercept) {
             if (mScrollEdge == EDGE_BOTH || (mScrollEdge == EDGE_LEFT && dx >= 1f) || (mScrollEdge == EDGE_RIGHT && dx <= -1f)) {
@@ -329,6 +381,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 快速滑动（惯性）回调
+     */
     @Override
     public void onFling(float startX, float startY, float velocityX, float velocityY) {
         ImageView imageView = getImageView();
@@ -337,6 +392,10 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         imageView.post(mCurrentFlingRunnable);
     }
 
+    /**
+     * 布局完成回调
+     * 重新计算图片居中、缩放、位置
+     */
     @Override
     public void onGlobalLayout() {
         ImageView imageView = getImageView();
@@ -346,13 +405,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 final int right = imageView.getRight();
                 final int bottom = imageView.getBottom();
                 final int left = imageView.getLeft();
-                /**
-                 * We need to check whether the ImageView's bounds have changed.
-                 * This would be easier if we targeted API 11+ as we could just use
-                 * View.OnLayoutChangeListener. Instead we have to replicate the
-                 * work, keeping track of the ImageView's bounds and then checking
-                 * if the values change.
-                 */
+                // 位置发生变化，重新更新矩阵
                 if (top != mIvTop || bottom != mIvBottom || left != mIvLeft || right != mIvRight) {
                     // Update our base matrix, as the bounds have changed
                     updateBaseMatrix(imageView.getDrawable());
@@ -368,6 +421,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 缩放回调
+     */
     @Override
     public void onScale(float scaleFactor, float focusX, float focusY) {
         if ((getScale() < mMaxScale || scaleFactor < 1f) && (getScale() > mMinScale || scaleFactor > 1f)) {
@@ -379,7 +435,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    /**
+     * 触摸事件处理
+     */
     @Override
     public boolean onTouch(View v, MotionEvent ev) {
         boolean handled = false;
@@ -387,19 +445,15 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             ViewParent parent = v.getParent();
             switch (ev.getAction()) {
                 case ACTION_DOWN:
-                    // First, disable the Parent from intercepting the touch
-                    // event
+                    // 按下时禁止父控件拦截，保证图片能拖动
                     if (null != parent) {
                         parent.requestDisallowInterceptTouchEvent(true);
                     }
-                    // If we're flinging, and the user presses down, cancel
-                    // fling
                     cancelFling();
                     break;
                 case ACTION_CANCEL:
                 case ACTION_UP:
-                    // If the user has zoomed less than min scale, zoom back
-                    // to min scale
+                    // 抬起时，如果缩放小于最小值，自动回弹到最小
                     if (getScale() < mMinScale) {
                         RectF rect = getDisplayRect();
                         if (null != rect) {
@@ -409,7 +463,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                     }
                     break;
             }
-            // Try the Scale/Drag detector
+            // 处理缩放、拖动
             if (null != mScaleDragDetector) {
                 boolean wasScaling = mScaleDragDetector.isScaling();
                 boolean wasDragging = mScaleDragDetector.isDragging();
@@ -418,7 +472,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 boolean didntDrag = !wasDragging && !mScaleDragDetector.isDragging();
                 mBlockParentIntercept = didntScale && didntDrag;
             }
-            // Check to see if the user double tapped
+            // 处理双击、长按
             if (null != mGestureDetector && mGestureDetector.onTouchEvent(ev)) {
                 handled = true;
             }
@@ -517,9 +571,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Set the zoom interpolator
-     *
-     * @param interpolator the zoom interpolator
+     * 设置缩放动画插值器
      */
     public void setZoomInterpolator(Interpolator interpolator) {
         mInterpolator = interpolator;
@@ -529,7 +581,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     public void setScaleType(ScaleType scaleType) {
         if (isSupportedScaleType(scaleType) && scaleType != mScaleType) {
             mScaleType = scaleType;
-            // Finally update
             update();
         }
     }
@@ -540,25 +591,23 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         update();
     }
 
+    /**
+     * 更新图片显示（重新计算矩阵、位置）
+     */
     public void update() {
         ImageView imageView = getImageView();
         if (null != imageView) {
             if (mZoomEnabled) {
-                // Make sure we using MATRIX Scale Type
                 setImageViewScaleTypeMatrix(imageView);
-                // Update the base matrix using the current drawable
                 updateBaseMatrix(imageView.getDrawable());
             } else {
-                // Reset the Matrix...
                 resetMatrix();
             }
         }
     }
 
     /**
-     * Get the display matrix
-     *
-     * @param matrix target matrix to copy to
+     * 获取显示矩阵
      */
     @Override
     public void getDisplayMatrix(Matrix matrix) {
@@ -566,18 +615,24 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Get the current support matrix
+     * 获取缩放/平移矩阵
      */
     public void getSuppMatrix(Matrix matrix) {
         matrix.set(mSuppMatrix);
     }
 
+    /**
+     * 获取最终绘制矩阵
+     */
     private Matrix getDrawMatrix() {
         mDrawMatrix.set(mBaseMatrix);
         mDrawMatrix.postConcat(mSuppMatrix);
         return mDrawMatrix;
     }
 
+    /**
+     * 取消惯性滑动
+     */
     private void cancelFling() {
         if (null != mCurrentFlingRunnable) {
             mCurrentFlingRunnable.cancelFling();
@@ -585,12 +640,15 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 获取图片矩阵
+     */
     public Matrix getImageMatrix() {
         return mDrawMatrix;
     }
 
     /**
-     * Helper method that simply checks the Matrix, and then displays the result
+     * 检查矩阵边界并应用
      */
     private void checkAndDisplayMatrix() {
         if (checkMatrixBounds()) {
@@ -598,12 +656,11 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 检查 ImageView 缩放模式是否正确
+     */
     private void checkImageViewScaleType() {
         ImageView imageView = getImageView();
-        /**
-         * PhotoView's getScaleType() will just divert to this.getScaleType() so
-         * only call if we're not attached to a PhotoView.
-         */
         if (null != imageView && !(imageView instanceof IPhotoView)) {
             if (!ScaleType.MATRIX.equals(imageView.getScaleType())) {
                 throw new IllegalStateException("The ImageView's ScaleType has been changed since attaching a PhotoViewAttacher. You should call " + "setScaleType on the PhotoViewAttacher instead of on the ImageView");
@@ -611,6 +668,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 检查矩阵边界，限制图片不能划出屏幕
+     */
     private boolean checkMatrixBounds() {
         final ImageView imageView = getImageView();
         if (null == imageView) {
@@ -663,16 +723,12 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         } else {
             mScrollEdge = EDGE_NONE;
         }
-        // Finally actually translate the matrix
         mSuppMatrix.postTranslate(deltaX, deltaY);
         return true;
     }
 
     /**
-     * Helper method that maps the supplied Matrix to the current Drawable
-     *
-     * @param matrix - Matrix to map Drawable against
-     * @return RectF - Displayed Rectangle
+     * 计算矩阵对应的图片显示区域
      */
     private RectF getDisplayRect(Matrix matrix) {
         ImageView imageView = getImageView();
@@ -687,6 +743,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return null;
     }
 
+    /**
+     * 获取当前可见区域的截图
+     */
     public Bitmap getVisibleRectangleBitmap() {
         ImageView imageView = getImageView();
         return imageView == null ? null : imageView.getDrawingCache();
@@ -695,7 +754,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     @Override
     public void setZoomTransitionDuration(int milliseconds) {
         if (milliseconds < 0) milliseconds = DEFAULT_ZOOM_DURATION;
-        this.ZOOM_DURATION = milliseconds;
+        ZOOM_DURATION = milliseconds;
     }
 
     @Override
@@ -704,11 +763,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Helper method that 'unpacks' a Matrix and returns the required value
-     *
-     * @param matrix     - Matrix to unpack
-     * @param whichValue - Which value from Matrix.M* to return
-     * @return float - returned value
+     * 从矩阵中获取指定数值
      */
     private float getValue(Matrix matrix, int whichValue) {
         matrix.getValues(mMatrixValues);
@@ -716,7 +771,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Resets the Matrix back to FIT_CENTER, and then displays it.s
+     * 重置矩阵
      */
     private void resetMatrix() {
         mSuppMatrix.reset();
@@ -725,12 +780,14 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         checkMatrixBounds();
     }
 
+    /**
+     * 把矩阵应用到 ImageView
+     */
     private void setImageViewMatrix(Matrix matrix) {
         ImageView imageView = getImageView();
         if (null != imageView) {
             checkImageViewScaleType();
             imageView.setImageMatrix(matrix);
-            // Call MatrixChangedListener if needed
             if (null != mMatrixChangeListener) {
                 RectF displayRect = getDisplayRect(matrix);
                 if (null != displayRect) {
@@ -741,9 +798,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Calculate Matrix for FIT_CENTER
-     *
-     * @param d - Drawable being displayed
+     * 计算基础矩阵（图片居中、适应屏幕）
      */
     private void updateBaseMatrix(Drawable d) {
         ImageView imageView = getImageView();
@@ -793,6 +848,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         resetMatrix();
     }
 
+    /**
+     * 获取 ImageView 有效宽度/高度（去除内边距）
+     */
     private int getImageViewWidth(ImageView imageView) {
         if (null == imageView) return 0;
         return imageView.getWidth() - imageView.getPaddingLeft() - imageView.getPaddingRight();
@@ -804,103 +862,43 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     /**
-     * Interface definition for a callback to be invoked when the internal Matrix has changed for this View.
-     *
-     * @author Chris Banes
+     * 内部接口
      */
     public interface OnMatrixChangedListener {
 
-        /**
-         * AlbumCallback for when the Matrix displaying the Drawable has changed. This could be because the View's
-         * bounds have changed, or the user has zoomed.
-         *
-         * @param rect - Rectangle displaying the Drawable's new bounds.
-         */
         void onMatrixChanged(RectF rect);
 
     }
 
-    /**
-     * Interface definition for callback to be invoked when attached ImageView scale changes
-     *
-     * @author Marek Sebera
-     */
     public interface OnScaleChangeListener {
 
-        /**
-         * AlbumCallback for when the scale changes
-         *
-         * @param scaleFactor the scale factor (less than 1 for zoom out, greater than 1 for zoom in)
-         * @param focusX      focal point X position
-         * @param focusY      focal point Y position
-         */
         void onScaleChange(float scaleFactor, float focusX, float focusY);
 
     }
 
-    /**
-     * Interface definition for a callback to be invoked when the Photo is tapped with a single tap.
-     *
-     * @author Chris Banes
-     */
     public interface OnPhotoTapListener {
 
-        /**
-         * A callback to receive where the user taps on a photo. You will only receive a callback if the user taps on
-         * the actual photo, tapping on 'whitespace' will be ignored.
-         *
-         * @param view - View the user tapped.
-         * @param x    - where the user tapped from the of the Drawable, as percentage of the Drawable width.
-         * @param y    - where the user tapped from the top of the Drawable, as percentage of the Drawable height.
-         */
         void onPhotoTap(View view, float x, float y);
 
-        /**
-         * A simple callback where out of photo happened;
-         */
         void onOutsidePhotoTap();
 
     }
 
-    /**
-     * Interface definition for a callback to be invoked when the ImageView is tapped with a single tap.
-     *
-     * @author Chris Banes
-     */
     public interface OnViewTapListener {
 
-        /**
-         * A callback to receive where the user taps on a ImageView. You will receive a callback if the user taps
-         * anywhere on the view, tapping on 'whitespace' will not be ignored.
-         *
-         * @param v - View the user tapped.
-         * @param x - where the user tapped from the left of the View.
-         * @param y - where the user tapped from the top of the View.
-         */
         void onViewTap(View v, float x, float y);
 
     }
 
-    /**
-     * Interface definition for a callback to be invoked when the ImageView is fling with a single touch
-     *
-     * @author tonyjs
-     */
     public interface OnSingleFlingListener {
 
-        /**
-         * A callback to receive where the user flings on a ImageView. You will receive a callback if the user flings
-         * anywhere on the view.
-         *
-         * @param e1        - MotionEvent the user first touch.
-         * @param e2        - MotionEvent the user last touch.
-         * @param velocityX - distance of user's horizontal fling.
-         * @param velocityY - distance of user's vertical fling.
-         */
         boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY);
 
     }
 
+    /**
+     * 缩放动画
+     */
     private class AnimatedZoomRunnable implements Runnable {
         private final float mFocalX, mFocalY;
         private final float mZoomStart, mZoomEnd;
@@ -924,7 +922,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             float scale = mZoomStart + t * (mZoomEnd - mZoomStart);
             float deltaScale = scale / getScale();
             onScale(deltaScale, mFocalX, mFocalY);
-            // We haven't hit our target scale yet, so post ourselves again
             if (t < 1f) {
                 Compat.postOnAnimation(imageView, this);
             }
@@ -938,6 +935,9 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         }
     }
 
+    /**
+     * 惯性滑动
+     */
     private class FlingRunnable implements Runnable {
         private int mCurrentX, mCurrentY;
         private final ScrollerProxy mScroller;
@@ -972,7 +972,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             }
             mCurrentX = startX;
             mCurrentY = startY;
-            // If we actually can move, fling the scroller
             if (startX != maxX || startY != maxY) {
                 mScroller.fling(startX, startY, velocityX, velocityY, minX, maxX, minY, maxY, 0, 0);
             }
@@ -981,7 +980,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         @Override
         public void run() {
             if (mScroller.isFinished()) {
-                return; // remaining post that should not be handled
+                return;
             }
             ImageView imageView = getImageView();
             if (null != imageView && mScroller.computeScrollOffset()) {
@@ -991,7 +990,6 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 setImageViewMatrix(getDrawMatrix());
                 mCurrentX = newX;
                 mCurrentY = newY;
-                // Post On animation
                 Compat.postOnAnimation(imageView, this);
             }
         }
