@@ -19,96 +19,59 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * Created by YanZhenjie on 2017/8/16.
+ * 相册主题样式配置类
+ * 作用：统一管理相册的所有UI样式（亮色/暗色、状态栏、导航栏、标题、选择框、按钮）
+ * 采用 Builder 模式 + Parcelable 序列化（可跨页面传递）
  */
 public class Widget implements Parcelable {
-    /**
-     * 类本身持有对象
-     */
+    // 上下文
     private Context mContext;
-    private int mUiStyle;
-    private int mStatusBarColor;
-    private int mNavigationBarColor;
-    private String mTitle;
-    private ColorStateList mMediaItemCheckSelector;
-    private ColorStateList mBucketItemCheckSelector;
-    private ButtonStyle mButtonStyle;
-    /**
-     * 亮/暗样式
-     */
-    public static final int STYLE_LIGHT = 1;
-    public static final int STYLE_DARK = 2;
+    // 主题样式：亮色 / 暗色
+    private final int mUiStyle;
+    // 状态栏颜色
+    private final int mStatusBarColor;
+    // 导航栏颜色
+    private final int mNavigationBarColor;
+    // 标题
+    private final String mTitle;
+    // 媒体条目（图片/视频）选择框颜色状态
+    private final ColorStateList mMediaItemCheckSelector;
+    // 文件夹条目选择框颜色状态
+    private final ColorStateList mBucketItemCheckSelector;
+    // 按钮样式
+    private final ButtonStyle mButtonStyle;
+    // 主题样式常量
+    public static final int STYLE_LIGHT = 1; // 亮色
+    public static final int STYLE_DARK = 2;  // 暗色
 
+    // 限定主题只能是这两种
     @IntDef({STYLE_DARK, STYLE_LIGHT})
     @Retention(RetentionPolicy.SOURCE)
     public @interface UiStyle {
     }
 
+    /**
+     * 构造方法：通过 Builder 构建
+     */
     private Widget(Builder builder) {
         this.mContext = builder.mContext;
         this.mUiStyle = builder.mUiStyle;
+        // 未设置则使用默认颜色
         this.mStatusBarColor = builder.mStatusBarColor == 0 ? R.color.albumColorPrimaryDark : builder.mStatusBarColor;
         this.mNavigationBarColor = builder.mNavigationBarColor == 0 ? R.color.albumColorPrimaryBlack : builder.mNavigationBarColor;
+        // 未设置标题则使用默认标题
         this.mTitle = TextUtils.isEmpty(builder.mTitle) ? mContext.getString(R.string.album_title) : builder.mTitle;
         this.mMediaItemCheckSelector = builder.mMediaItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mMediaItemCheckSelector;
         this.mBucketItemCheckSelector = builder.mBucketItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mBucketItemCheckSelector;
+        // 未设置按钮样式则使用默认按钮样式
         this.mButtonStyle = builder.mButtonStyle == null ? ButtonStyle.newDarkBuilder(mContext).build() : builder.mButtonStyle;
     }
 
-    private int getColor(int colorId) {
+    /**
+     * 获取颜色
+     */
+    private int getColor(@ColorRes int colorId) {
         return ContextCompat.getColor(mContext, colorId);
-    }
-
-    /**
-     * 暗色状态栏(黑色)
-     */
-    public static Builder newDarkBuilder(Context context) {
-        return new Builder(context, STYLE_DARK);
-    }
-
-    /**
-     * 亮色状态栏(白色)
-     */
-    public static Builder newLightBuilder(Context context) {
-        return new Builder(context, STYLE_LIGHT);
-    }
-
-    /**
-     * 指定亮/暗
-     */
-    public static Builder newBuilder(Context context, @UiStyle int style) {
-        return new Builder(context, style);
-    }
-
-    @UiStyle
-    public int getUiStyle() {
-        return mUiStyle;
-    }
-
-    @ColorRes
-    public int getStatusBarColor() {
-        return mStatusBarColor;
-    }
-
-    @ColorRes
-    public int getNavigationBarColor() {
-        return mNavigationBarColor;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public ColorStateList getMediaItemCheckSelector() {
-        return mMediaItemCheckSelector;
-    }
-
-    public ColorStateList getBucketItemCheckSelector() {
-        return mBucketItemCheckSelector;
-    }
-
-    public ButtonStyle getButtonStyle() {
-        return mButtonStyle;
     }
 
     protected Widget(Parcel in) {
@@ -149,15 +112,83 @@ public class Widget implements Parcelable {
         }
     };
 
+    @UiStyle
+    public int getUiStyle() {
+        return mUiStyle;
+    }
+
+    @ColorRes
+    public int getStatusBarColor() {
+        return mStatusBarColor;
+    }
+
+    @ColorRes
+    public int getNavigationBarColor() {
+        return mNavigationBarColor;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public ColorStateList getMediaItemCheckSelector() {
+        return mMediaItemCheckSelector;
+    }
+
+    public ColorStateList getBucketItemCheckSelector() {
+        return mBucketItemCheckSelector;
+    }
+
+    public ButtonStyle getButtonStyle() {
+        return mButtonStyle;
+    }
+
+    /**
+     * 获取默认主题（暗色主题）
+     */
+    public static Widget getDefaultWidget(Context context) {
+        return Widget.newDarkBuilder(context)
+                .statusBarColor(R.color.albumColorPrimaryDark)
+                .navigationBarColor(R.color.albumColorPrimaryBlack)
+                .title(R.string.album_title)
+                .mediaItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
+                .bucketItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
+                .buttonStyle(ButtonStyle
+                        .newDarkBuilder(context)
+                        .setButtonSelector(ContextCompat.getColor(context, R.color.albumColorPrimary), ContextCompat.getColor(context, R.color.albumColorPrimaryDark)).build())
+                .build();
+    }
+
+    /**
+     * 暗色状态栏(黑色)
+     */
+    public static Builder newDarkBuilder(Context context) {
+        return new Builder(context, STYLE_DARK);
+    }
+
+    /**
+     * 亮色状态栏(白色)
+     */
+    public static Builder newLightBuilder(Context context) {
+        return new Builder(context, STYLE_LIGHT);
+    }
+
+    /**
+     * 指定亮/暗
+     */
+    public static Builder newBuilder(Context context, @UiStyle int style) {
+        return new Builder(context, style);
+    }
+
     public static class Builder {
-        private int mUiStyle;
         private int mStatusBarColor;
         private int mNavigationBarColor;
         private String mTitle;
         private ColorStateList mMediaItemCheckSelector;
         private ColorStateList mBucketItemCheckSelector;
         private ButtonStyle mButtonStyle;
-        private Context mContext;
+        private final int mUiStyle;
+        private final Context mContext;
 
         private Builder(Context context, @UiStyle int style) {
             this.mContext = context;
@@ -165,7 +196,7 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * Status bar color.
+         * 设置状态栏颜色
          */
         public Builder statusBarColor(@ColorRes int color) {
             this.mStatusBarColor = color;
@@ -173,7 +204,7 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * Virtual navigation bar.
+         * 设置导航栏颜色
          */
         public Builder navigationBarColor(@ColorRes int color) {
             this.mNavigationBarColor = color;
@@ -181,22 +212,19 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * Set the title of the Toolbar.
+         * 设置标题
          */
         public Builder title(@StringRes int title) {
             return title(mContext.getString(title));
         }
 
-        /**
-         * Set the title of the Toolbar.
-         */
         public Builder title(String title) {
             this.mTitle = title;
             return this;
         }
 
         /**
-         * The color of the {@code Media Item} selector.
+         * 设置媒体条目选择框颜色
          */
         public Builder mediaItemCheckSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
             this.mMediaItemCheckSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
@@ -204,7 +232,7 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * The color of the {@code Bucket Item} selector.
+         * 设置文件夹条目选择框颜色
          */
         public Builder bucketItemCheckSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
             this.mBucketItemCheckSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
@@ -212,7 +240,7 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * Set the style of the Button.
+         * 设置按钮样式
          */
         public Builder buttonStyle(ButtonStyle buttonStyle) {
             this.mButtonStyle = buttonStyle;
@@ -220,35 +248,22 @@ public class Widget implements Parcelable {
         }
 
         /**
-         * Create target.
+         * 构建 Widget
          */
         public Widget build() {
             return new Widget(this);
         }
     }
 
+    /**
+     * 按钮样式内部类
+     */
     public static class ButtonStyle implements Parcelable {
-
-        /**
-         * Use when the Button are dark.
-         */
-        public static Builder newDarkBuilder(Context context) {
-            return new Builder(context, STYLE_DARK);
-        }
-
-        /**
-         * Use when the Button are light.
-         */
-        public static Builder newLightBuilder(Context context) {
-            return new Builder(context, STYLE_LIGHT);
-        }
-
-        private int mUiStyle;
-        private Context mContext;
-        private ColorStateList mButtonSelector;
+        private final int mUiStyle;
+        private final ColorStateList mButtonSelector;
 
         private ButtonStyle(Builder builder) {
-            this.mContext = builder.mContext;
+            Context mContext = builder.mContext;
             this.mUiStyle = builder.mUiStyle;
             this.mButtonSelector = builder.mButtonSelector == null ? AlbumUtils.getColorStateList(ContextCompat.getColor(mContext, R.color.albumColorPrimary), ContextCompat.getColor(mContext, R.color.albumColorPrimaryDark)) : builder.mButtonSelector;
         }
@@ -289,10 +304,21 @@ public class Widget implements Parcelable {
             }
         };
 
+        public static Builder newDarkBuilder(Context context) {
+            return new Builder(context, STYLE_DARK);
+        }
+
+        public static Builder newLightBuilder(Context context) {
+            return new Builder(context, STYLE_LIGHT);
+        }
+
+        /**
+         * 按钮 Builder
+         */
         public static class Builder {
-            private int mUiStyle;
-            private Context mContext;
             private ColorStateList mButtonSelector;
+            private final int mUiStyle;
+            private final Context mContext;
 
             private Builder(Context context, @UiStyle int style) {
                 this.mContext = context;
@@ -300,10 +326,7 @@ public class Widget implements Parcelable {
             }
 
             /**
-             * Set button click effect.
-             *
-             * @param normalColor    normal color.
-             * @param highLightColor feedback color.
+             * 设置按钮点击效果
              */
             public Builder setButtonSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
                 mButtonSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
@@ -314,22 +337,6 @@ public class Widget implements Parcelable {
                 return new ButtonStyle(this);
             }
         }
-    }
-
-    /**
-     * Create default widget.
-     */
-    public static Widget getDefaultWidget(Context context) {
-        return Widget.newDarkBuilder(context)
-                .statusBarColor(R.color.albumColorPrimaryDark)
-                .navigationBarColor(R.color.albumColorPrimaryBlack)
-                .title(R.string.album_title)
-                .mediaItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
-                .bucketItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.albumColorPrimary))
-                .buttonStyle(ButtonStyle
-                        .newDarkBuilder(context)
-                        .setButtonSelector(ContextCompat.getColor(context, R.color.albumColorPrimary), ContextCompat.getColor(context, R.color.albumColorPrimaryDark)).build())
-                .build();
     }
 
 }

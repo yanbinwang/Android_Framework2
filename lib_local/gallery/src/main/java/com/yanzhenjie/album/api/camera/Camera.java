@@ -1,17 +1,21 @@
 package com.yanzhenjie.album.api.camera;
 
 /**
- * Created by YanZhenjie on 2017/8/18.
+ * 相机功能统一接口（契约）
+ * 定义：相机必须提供【拍照】和【录像】两个能力
+ *
+ * @param Image   拍照包装类
+ * @param Video   录像包装类
  */
 public interface Camera<Image, Video> {
 
     /**
-     * Take picture.
+     * 拍照
      */
     Image image();
 
     /**
-     * Take video.
+     * 录像
      */
     Video video();
 

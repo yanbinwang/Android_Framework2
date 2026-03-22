@@ -13,10 +13,14 @@ import com.yanzhenjie.album.app.album.AlbumActivity;
 import java.util.ArrayList;
 
 /**
- * Created by YanZhenjie on 2017/8/16.
+ * 视频多选专用包装类
+ * 继承自：BasicChoiceVideoWrapper（视频专属父类）
+ * 功能：只选视频 + 多选 + 视频时长过滤 + 相机录制参数
  */
 public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMultipleWrapper, ArrayList<AlbumFile>, String, ArrayList<AlbumFile>> {
+    // 最大选择数量
     private int mLimitCount = Integer.MAX_VALUE;
+    // 视频时长过滤器
     private Filter<Long> mDurationFilter;
 
     public VideoMultipleWrapper(Context context) {
@@ -24,9 +28,7 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
     }
 
     /**
-     * Set the list has been selected.
-     *
-     * @param checked the data list.
+     * 设置已选中的视频列表
      */
     public final VideoMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
         this.mChecked = checked;
@@ -34,9 +36,7 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
     }
 
     /**
-     * Set the maximum number to be selected.
-     *
-     * @param count the maximum number.
+     * 设置已选中的视频列表
      */
     public VideoMultipleWrapper selectCount(@IntRange(from = 1, to = Integer.MAX_VALUE) int count) {
         this.mLimitCount = count;
@@ -44,17 +44,19 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
     }
 
     /**
-     * Filter video duration.
-     *
-     * @param filter filter.
+     * 设置视频时长过滤（只显示符合时长的视频）
      */
     public VideoMultipleWrapper filterDuration(Filter<Long> filter) {
         this.mDurationFilter = filter;
         return this;
     }
 
+    /**
+     * 启动视频多选页面
+     */
     @Override
     public void start() {
+        // 传递过滤器和回调
         AlbumActivity.sSizeFilter = mSizeFilter;
         AlbumActivity.sMimeFilter = mMimeTypeFilter;
         AlbumActivity.sDurationFilter = mDurationFilter;
@@ -63,12 +65,16 @@ public final class VideoMultipleWrapper extends BasicChoiceVideoWrapper<VideoMul
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);
+        // 功能 = 只选视频
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_VIDEO);
+        // 模式 = 多选
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_MULTIPLE);
+        // 其他配置
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
         intent.putExtra(Album.KEY_INPUT_ALLOW_CAMERA, mHasCamera);
         intent.putExtra(Album.KEY_INPUT_LIMIT_COUNT, mLimitCount);
         intent.putExtra(Album.KEY_INPUT_FILTER_VISIBILITY, mFilterVisibility);
+        // 相机录制视频的参数（父类传来的）
         intent.putExtra(Album.KEY_INPUT_CAMERA_QUALITY, mQuality);
         intent.putExtra(Album.KEY_INPUT_CAMERA_DURATION, mLimitDuration);
         intent.putExtra(Album.KEY_INPUT_CAMERA_BYTES, mLimitBytes);
