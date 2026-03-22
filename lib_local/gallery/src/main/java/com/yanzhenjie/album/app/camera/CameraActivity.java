@@ -16,7 +16,7 @@ import com.yanzhenjie.album.util.SystemBar;
 import java.io.File;
 
 /**
- * 相机跳转 Activity
+ * 相机跳转页
  * 功能：调用系统相机拍照 / 录制视频
  * 拍完后把文件路径回调给外部
  */

@@ -30,7 +30,7 @@ import com.yanzhenjie.durban.view.TransformImageView;
 import java.util.ArrayList;
 
 /**
- * 图片裁剪
+ * 图片裁剪页
  * 功能：接收配置 → 显示裁剪 → 旋转/缩放 → 保存 → 返回结果
  */
 public class DurbanActivity extends BaseActivity {

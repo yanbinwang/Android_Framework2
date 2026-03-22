@@ -38,7 +38,7 @@ import java.util.List;
 import kotlin.Unit;
 
 /**
- * 相册主页面（总控 Activity）
+ * 相册主页（总控 Activity）
  * MVP 中的 Presenter —— 掌管：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
  * MediaReadTask.Callback       // 媒体扫描回调
  * GalleryActivity.Callback     // 预览页回调

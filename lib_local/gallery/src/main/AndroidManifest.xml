@@ -2,41 +2,49 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
+        <!-- 图片裁剪页 -->
         <activity
             android:name="com.yanzhenjie.durban.DurbanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
-        <activity
-            android:name="com.yanzhenjie.album.app.album.AlbumActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Album.Theme.Activity"
-            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
-        <activity
-            android:name="com.yanzhenjie.album.app.album.GalleryActivity"
-            android:configChanges="orientation|screenSize"
-            android:theme="@style/Album.Theme.Activity"
-            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 空页面 -->
         <activity
             android:name="com.yanzhenjie.album.app.album.NullActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相册主页 -->
+        <activity
+            android:name="com.yanzhenjie.album.app.album.AlbumActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 图片/视频 预览页 -->
+        <activity
+            android:name="com.yanzhenjie.album.app.album.GalleryActivity"
+            android:configChanges="orientation|screenSize"
+            android:theme="@style/Album.Theme.Activity"
+            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 图片路径 预览页 -->
         <activity
             android:name="com.yanzhenjie.album.app.gallery.GalleryActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 图片/视频 预览页 -->
         <activity
             android:name="com.yanzhenjie.album.app.gallery.GalleryAlbumActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相机跳转页 -->
         <activity
             android:name="com.yanzhenjie.album.app.camera.CameraActivity"
             android:configChanges="orientation|screenSize"
             android:theme="@style/Album.Theme.Activity.Transparent"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+        <!-- 相机文件 FileProvider -->
         <provider
             android:name="com.yanzhenjie.album.provider.CameraFileProvider"
             android:authorities="${applicationId}.app.file.provider"

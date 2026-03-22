@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import kotlin.Unit;
 
 /**
- * 图片/视频 预览页面 Activity
+ * 图片/视频 预览页
  * 对应 MVP 中的 Presenter 层
  * 职责：处理所有预览页的业务逻辑（选中、切换、完成、回调）
  */

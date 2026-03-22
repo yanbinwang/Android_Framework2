@@ -15,7 +15,7 @@ import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 
 /**
- * 空页面 Activity
+ * 空页面
  * 功能：当手机里没有图片/视频时显示
  * 提供：拍照、录像入口，属于 MVP 中的 Presenter 层
  */

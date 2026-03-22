@@ -19,7 +19,7 @@ import java.util.Map;
 import kotlin.Unit;
 
 /**
- * 图片路径预览页面
+ * 图片路径 预览页
  * 功能：只预览图片路径（String），不处理 AlbumFile
  * 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
  */
