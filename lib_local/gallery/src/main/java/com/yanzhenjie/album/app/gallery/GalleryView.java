@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.viewpager.widget.ViewPager;
 
@@ -65,7 +66,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      * 创建菜单（完成按钮）
      */
     @Override
-    protected void onCreateOptionsMenu(Menu menu) {
+    protected void onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.album_menu_gallery, menu);
         mCompleteMenu = menu.findItem(R.id.album_menu_finish);
     }
@@ -74,7 +75,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      * 菜单点击：完成选择
      */
     @Override
-    protected void onOptionsItemSelected(MenuItem item) {
+    protected void onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.album_menu_finish) {
             getPresenter().complete();

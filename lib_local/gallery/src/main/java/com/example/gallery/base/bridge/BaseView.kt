@@ -73,64 +73,47 @@ abstract class BaseView<Presenter : BasePresenter> {
             }
 
             override fun onMenuClick(item: MenuItem?) {
-                optionsItemSelected(item)
+                item ?: return
+                if (item.itemId == R.id.home) {
+                    if (!onInterceptToolbarBack()) {
+                        getPresenter()?.bye()
+                    }
+                } else {
+                    onOptionsItemSelected(item)
+                }
             }
         })
         // 监听 Presenter 生命周期，绑定 View 生命周期
         getPresenter()?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
-                resume()
+                onResume()
             }
 
             override fun onPause(owner: LifecycleOwner) {
                 super.onPause(owner)
-                pause()
+                onPause()
             }
 
             override fun onStop(owner: LifecycleOwner) {
                 super.onStop(owner)
-                stop()
+                onStop()
             }
 
             override fun onDestroy(owner: LifecycleOwner) {
                 super.onDestroy(owner)
-                destroy()
+                closeInputMethod()
+                onDestroy()
             }
         })
     }
 
     /**
-     * 分发页面生命周期
+     * 刷新菜单
      */
-    private fun resume() {
-        onResume()
-    }
-
-    private fun pause() {
-        onPause()
-    }
-
-    private fun stop() {
-        onStop()
-    }
-
-    private fun destroy() {
-        closeInputMethod()
-        onDestroy()
-    }
-
-    /**
-     * 菜单选项点击分发
-     */
-    private fun optionsItemSelected(item: MenuItem?) {
-        if (item?.itemId == R.id.home) {
-            if (!onInterceptToolbarBack()) {
-                getPresenter()?.bye()
-            }
-        } else {
-            onOptionsItemSelected(item)
-        }
+    protected fun invalidateOptionsMenu() {
+        val menu = mSource?.getMenu() ?: return
+        onCreateOptionsMenu(menu)
     }
 
     /**
@@ -149,51 +132,6 @@ abstract class BaseView<Presenter : BasePresenter> {
     }
 
     /**
-     * 创建菜单（子类可重写）
-     */
-    protected open fun onCreateOptionsMenu(menu: Menu?) {
-    }
-
-    /**
-     * 菜单点击事件（子类可重写）
-     */
-    protected open fun onOptionsItemSelected(item: MenuItem?) {
-    }
-
-    /**
-     * 刷新菜单
-     */
-    protected fun invalidateOptionsMenu() {
-        val menu = mSource?.getMenu()
-        if (menu != null) {
-            onCreateOptionsMenu(menu)
-        }
-    }
-
-    /**
-     * 拦截 Toolbar 返回按钮点击事件
-     * @return true 表示拦截，false 不拦截
-     */
-    protected open fun onInterceptToolbarBack(): Boolean {
-        return false
-    }
-
-    /**
-     * 设置 ActionBar/Toolbar
-     */
-    protected fun setActionBar(actionBar: Toolbar?) {
-        mSource?.setActionBar(actionBar)
-        invalidateOptionsMenu()
-    }
-
-    /**
-     * 获取菜单加载器
-     */
-    protected fun getMenuInflater(): MenuInflater? {
-        return mSource?.getMenuInflater()
-    }
-
-    /**
      * 打开/关闭输入法
      */
     protected fun openInputMethod(view: View) {
@@ -204,6 +142,14 @@ abstract class BaseView<Presenter : BasePresenter> {
 
     protected fun closeInputMethod() {
         mSource?.closeInputMethod()
+    }
+
+    /**
+     * 设置 ActionBar/Toolbar
+     */
+    protected fun setActionBar(actionBar: Toolbar) {
+        mSource?.setActionBar(actionBar)
+        invalidateOptionsMenu()
     }
 
     /**
@@ -224,6 +170,13 @@ abstract class BaseView<Presenter : BasePresenter> {
         mSource?.setHomeAsUpIndicator(icon)
     }
 
+    /**
+     * 获取菜单加载器
+     */
+    protected fun getMenuInflater(): MenuInflater? {
+        return mSource?.getMenuInflater()
+    }
+
     protected fun getContext(): Context? {
         return mSource?.getContext()
     }
@@ -232,6 +185,29 @@ abstract class BaseView<Presenter : BasePresenter> {
         return getContext()?.resources
     }
 
+    /**
+     * 菜单点击事件（子类可重写）
+     */
+    protected open fun onOptionsItemSelected(item: MenuItem) {
+    }
+
+    /**
+     * 创建菜单（子类可重写）
+     */
+    protected open fun onCreateOptionsMenu(menu: Menu) {
+    }
+
+    /**
+     * 拦截 Toolbar 返回按钮点击事件
+     * @return true 表示拦截，false 不拦截
+     */
+    protected open fun onInterceptToolbarBack(): Boolean {
+        return false
+    }
+
+    /**
+     * 子类获取的参数回调
+     */
     fun getPresenter(): Presenter? {
         return mPresenter
     }
@@ -361,7 +337,8 @@ abstract class BaseView<Presenter : BasePresenter> {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
     }
 
-    fun snackBar(message: CharSequence) {
+    fun snackBar(message: CharSequence?) {
+        message ?: return
         mSource?.getView()?.let {
             val snackBar = Snackbar.make(it, message, Snackbar.LENGTH_SHORT)
             val view = snackBar.getView()

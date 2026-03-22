@@ -13,6 +13,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -84,7 +85,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      * 创建右上角菜单（完成按钮）
      */
     @Override
-    protected void onCreateOptionsMenu(Menu menu) {
+    protected void onCreateOptionsMenu(@NonNull Menu menu) {
         getMenuInflater().inflate(R.menu.album_menu_album, menu);
         mCompleteMenu = menu.findItem(R.id.album_menu_finish);
     }
@@ -93,7 +94,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      * 菜单点击：完成选择
      */
     @Override
-    protected void onOptionsItemSelected(MenuItem item) {
+    protected void onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.album_menu_finish) {
             getPresenter().complete();
