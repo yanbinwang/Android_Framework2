@@ -11,44 +11,98 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.Toolbar
 
 /**
- * Created by YanZhenjie on 2017/12/8.
+ * 视图载体抽象基类
+ * 用于统一封装 Activity / View 的公共能力，为 BaseView 提供页面支撑
+ * 所有页面载体（ActivitySource、ViewSource）都必须继承此类
+ * @param Host 载体宿主（Activity / View）
  */
 abstract class Source<Host>(private val mHost: Host) {
 
+    /**
+     * 获取当前载体宿主（Activity / View）
+     */
     fun getHost(): Host? {
         return mHost
     }
 
+    /**
+     * 初始化准备工作（如：绑定Toolbar、初始化视图）
+     */
     abstract fun prepare()
 
+    /**
+     * 设置 ActionBar / Toolbar
+     */
     abstract fun setActionBar(actionBar: Toolbar?)
 
+    /**
+     * 获取菜单加载器
+     */
     abstract fun getMenuInflater(): MenuInflater?
 
+    /**
+     * 获取菜单对象
+     */
     abstract fun getMenu(): Menu?
 
+    /**
+     * 设置菜单/返回按钮点击监听
+     */
     abstract fun setMenuClickListener(selectedListener: MenuClickListener?)
 
+    /**
+     * 设置是否显示返回按钮
+     */
     abstract fun setDisplayHomeAsUpEnabled(showHome: Boolean)
 
+    /**
+     * 设置返回箭头图标（资源ID）
+     */
     abstract fun setHomeAsUpIndicator(@DrawableRes icon: Int)
 
+    /**
+     * 设置返回箭头图标（Drawable）
+     */
     abstract fun setHomeAsUpIndicator(icon: Drawable?)
 
+    /**
+     * 设置标题
+     */
     abstract fun setTitle(title: CharSequence?)
 
+    /**
+     * 设置标题（字符串资源）
+     */
     abstract fun setTitle(@StringRes title: Int)
 
+    /**
+     * 设置副标题
+     */
     abstract fun setSubTitle(title: CharSequence?)
 
+    /**
+     * 设置副标题（字符串资源）
+     */
     abstract fun setSubTitle(@StringRes title: Int)
 
+    /**
+     * 获取上下文 Context
+     */
     abstract fun getContext(): Context?
 
+    /**
+     * 获取当前视图
+     */
     abstract fun getView(): View?
 
+    /**
+     * 关闭输入法
+     */
     abstract fun closeInputMethod()
 
+    /**
+     * 菜单 & 返回按钮 点击回调接口
+     */
     interface MenuClickListener {
         /**
          * 左侧返回按钮点击
@@ -56,7 +110,7 @@ abstract class Source<Host>(private val mHost: Host) {
         fun onHomeClick()
 
         /**
-         * 右侧菜单点击
+         * 菜单条目点击
          */
         fun onMenuClick(item: MenuItem?)
     }

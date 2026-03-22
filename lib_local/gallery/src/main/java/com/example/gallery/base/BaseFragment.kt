@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment
 import com.example.gallery.base.bridge.Bye
 
 /**
- * Created by YanZhenjie on 2018/4/7.
+ * 针对所有相册子页面的基类
  */
 abstract class BaseFragment : Fragment(), Bye {
 
