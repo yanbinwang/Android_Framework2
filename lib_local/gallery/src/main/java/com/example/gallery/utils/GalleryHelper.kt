@@ -64,32 +64,51 @@ class GalleryHelper {
     }
 
     /**
-     * 1.AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
-     * 2.FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
+     * 1) AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
+     * 2) FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
      */
-    constructor(activity: AppCompatActivity) {
-        imageCamera = Album.camera(activity)
-        videoMultiple = Album.video(activity)
-        imageMultiple = Album.image(activity)
-        widget = activity.getAlbumWidget()
-        durban = Durban.with(activity)
+    constructor(any: Any) {
+        when (any) {
+            is AppCompatActivity, is FragmentActivity -> {
+                imageCamera = Album.camera(any)
+                videoMultiple = Album.video(any)
+                imageMultiple = Album.image(any)
+                widget = any.getAlbumWidget()
+                durban = Durban.with(any)
+            }
+            is Fragment -> {
+                imageCamera = Album.camera(any)
+                videoMultiple = Album.video(any)
+                imageMultiple = Album.image(any)
+                widget = any.context.getAlbumWidget()
+                durban = Durban.with(any)
+            }
+        }
     }
 
-    constructor(fragment: Fragment) {
-        imageCamera = Album.camera(fragment)
-        videoMultiple = Album.video(fragment)
-        imageMultiple = Album.image(fragment)
-        widget = fragment.context.getAlbumWidget()
-        durban = Durban.with(fragment)
-    }
-
-    constructor(activity: FragmentActivity) {
-        imageCamera = Album.camera(activity)
-        videoMultiple = Album.video(activity)
-        imageMultiple = Album.image(activity)
-        widget = activity.getAlbumWidget()
-        durban = Durban.with(activity)
-    }
+//    constructor(activity: AppCompatActivity) {
+//        imageCamera = Album.camera(activity)
+//        videoMultiple = Album.video(activity)
+//        imageMultiple = Album.image(activity)
+//        widget = activity.getAlbumWidget()
+//        durban = Durban.with(activity)
+//    }
+//
+//    constructor(fragment: Fragment) {
+//        imageCamera = Album.camera(fragment)
+//        videoMultiple = Album.video(fragment)
+//        imageMultiple = Album.image(fragment)
+//        widget = fragment.context.getAlbumWidget()
+//        durban = Durban.with(fragment)
+//    }
+//
+//    constructor(activity: FragmentActivity) {
+//        imageCamera = Album.camera(activity)
+//        videoMultiple = Album.video(activity)
+//        imageMultiple = Album.image(activity)
+//        widget = activity.getAlbumWidget()
+//        durban = Durban.with(activity)
+//    }
 
     /**
      * 创建相册统一配置
