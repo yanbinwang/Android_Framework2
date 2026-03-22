@@ -30,7 +30,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     private Contract.GalleryView<AlbumFile> mView;
     // 静态全局数据（跨页面传递）
     public static int sCheckedCount;                  // 已选数量
-    public static int sCurrentPosition;              // 当前预览位置
+    public static int sCurrentPosition;               // 当前预览位置
     public static ArrayList<AlbumFile> sAlbumFiles;   // 预览列表
     public static Callback sCallback;                 // 预览回调
 
@@ -42,12 +42,14 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mView = new GalleryView<>(this, this);
         // 获取参数
         Bundle argument = getIntent().getExtras();
-        Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
-        mAllowSelectCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-        // 初始化 UI
-        mView.setupViews(mWidget, true);
-        mView.bindData(sAlbumFiles);
+        if (null != argument) {
+            mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
+            mAllowSelectCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
+            // 初始化 UI
+            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mView.setupViews(mWidget, true);
+            mView.bindData(sAlbumFiles);
+        }
         // 定位到当前预览位置
         if (sCurrentPosition == 0) {
             onCurrentChanged(sCurrentPosition);

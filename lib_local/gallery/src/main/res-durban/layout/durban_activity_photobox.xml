@@ -55,7 +55,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_rotation_left"
                     style="@style/durban_WrapContent.ControllerButton"
-                    android:src="@drawable/durban_ic_rotation_90_left_white" />
+                    android:src="@mipmap/durban_ic_rotation_90_left_white" />
 
             </FrameLayout>
 
@@ -66,7 +66,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_rotation_right"
                     style="@style/durban_WrapContent.ControllerButton"
-                    android:src="@drawable/durban_ic_rotation_90_right_white" />
+                    android:src="@mipmap/durban_ic_rotation_90_right_white" />
 
             </FrameLayout>
 
@@ -77,7 +77,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_scale_big"
                     style="@style/durban_WrapContent.ControllerButton"
-                    android:src="@drawable/durban_ic_scale_out_white" />
+                    android:src="@mipmap/durban_ic_scale_out_white" />
 
             </FrameLayout>
 
@@ -88,7 +88,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_scale_small"
                     style="@style/durban_WrapContent.ControllerButton"
-                    android:src="@drawable/durban_ic_scale_in_white" />
+                    android:src="@mipmap/durban_ic_scale_in_white" />
 
             </FrameLayout>
 

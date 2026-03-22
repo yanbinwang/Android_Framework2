@@ -64,7 +64,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         super(activity, presenter);
         this.mActivity = activity;
         // 绑定所有控件
-        // 设置Toolbar
         this.mToolbar = activity.findViewById(R.id.toolbar);
         setSupportToolbar(mToolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);
@@ -116,7 +115,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             mTitle.setTextColor(getColor(R.color.textBlack));
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
             // 暗色图标
-            Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
+            Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
             Drawable completeIcon = mCompleteMenu.getIcon();
@@ -126,7 +125,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             // 白色文字、白色图标
             mTitle.setTextColor(getColor(R.color.textWhite));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
-            setHomeAsUpIndicator(R.drawable.album_ic_back_white);
+            setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
         }
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {

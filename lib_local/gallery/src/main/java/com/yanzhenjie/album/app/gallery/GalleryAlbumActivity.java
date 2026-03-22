@@ -46,14 +46,16 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         mView = new GalleryView<>(this, this);
         // 获取上一页传过来的数据
         Bundle argument = getIntent().getExtras();
-        Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        mAlbumFiles = argument.getParcelableArrayList(Album.KEY_INPUT_CHECKED_LIST);
-        mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
-        mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
-        // 初始化 View
-        mView.setTitle("");
-        mView.setupViews(mWidget, mCheckable);
-        mView.bindData(mAlbumFiles);
+        if (null != argument) {
+            mAlbumFiles = argument.getParcelableArrayList(Album.KEY_INPUT_CHECKED_LIST);
+            mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
+            mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
+            // 初始化 View
+            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mView.setTitle("");
+            mView.setupViews(mWidget, mCheckable);
+            mView.bindData(mAlbumFiles);
+        }
         // 显示当前预览位置
         if (mCurrentPosition == 0) {
             onCurrentChanged(mCurrentPosition);

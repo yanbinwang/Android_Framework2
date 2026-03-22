@@ -48,18 +48,22 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mView = new GalleryView<>(this, this);
         // 获取传递参数
         Bundle argument = getIntent().getExtras();
-        Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        mPathList = argument.getStringArrayList(Album.KEY_INPUT_CHECKED_LIST);
-        mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
-        mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
+        if (null != argument) {
+            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mPathList = argument.getStringArrayList(Album.KEY_INPUT_CHECKED_LIST);
+            mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
+            mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
+            // 初始化 UI
+            if (null != mWidget) {
+                mView.setTitle(mWidget.getTitle());
+                mView.setupViews(mWidget, mCheckable);
+            }
+        }
         // 初始化选中状态：全部默认选中
         mCheckedMap = new HashMap<>();
         for (String path : mPathList) {
             mCheckedMap.put(path, true);
         }
-        // 初始化 UI
-        mView.setTitle(mWidget.getTitle());
-        mView.setupViews(mWidget, mCheckable);
         // 不可选时隐藏底部栏
         if (!mCheckable) {
             mView.setBottomDisplay(false);
@@ -129,7 +133,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mCurrentPosition = position;
         mView.setSubTitle(position + 1 + " / " + mPathList.size());
         if (mCheckable) {
-            mView.setChecked(mCheckedMap.get(mPathList.get(position)));
+            mView.setChecked(Boolean.TRUE.equals(mCheckedMap.get(mPathList.get(position))));
         }
     }
 
@@ -139,7 +143,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     @Override
     public void onCheckedChanged() {
         String path = mPathList.get(mCurrentPosition);
-        mCheckedMap.put(path, !mCheckedMap.get(path));
+        mCheckedMap.put(path, Boolean.FALSE.equals(mCheckedMap.get(path)));
         setCheckedCount();
     }
 

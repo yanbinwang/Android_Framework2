@@ -147,8 +147,10 @@ public class DurbanActivity extends BaseActivity {
         // 通过getSupportActionBar()操作这个Toolbar
         final ActionBar actionBar = getSupportActionBar();
         // 显示返回键
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setTitle("");
+        if (null != actionBar) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle("");
+        }
         // 设置Toolbar样式
         setSupportToolbar(toolbar);
         toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusColor));
@@ -167,8 +169,8 @@ public class DurbanActivity extends BaseActivity {
             tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textBlack));
         }
         // 设置返回按钮
-        Drawable navigationIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_back_white);
-        if (!statusBarBattery) {
+        Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.durban_ic_back_white);
+        if (!statusBarBattery && null != navigationIcon) {
             navigationIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
         }
         toolbar.setNavigationIcon(navigationIcon);
@@ -347,12 +349,14 @@ public class DurbanActivity extends BaseActivity {
         okItem.setTitle("");
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
-            Drawable doneIcon = ContextCompat.getDrawable(this, R.drawable.durban_ic_done_white);
-            doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
-            // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
-            View okView = okItem.getActionView();
-            if (okView != null) {
-                okView.setBackground(doneIcon);
+            Drawable doneIcon = ContextCompat.getDrawable(this, R.mipmap.durban_ic_done_white);
+            if (null != doneIcon) {
+                doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+                // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
+                View okView = okItem.getActionView();
+                if (okView != null) {
+                    okView.setBackground(doneIcon);
+                }
             }
         }
         // 设置额外添加的按钮外层间距

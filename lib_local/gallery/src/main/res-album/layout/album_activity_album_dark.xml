@@ -12,7 +12,7 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/Album.Toolbar.Dark"
-            app:navigationIcon="@drawable/album_ic_back_white">
+            app:navigationIcon="@mipmap/album_ic_back_white">
 
             <TextView
                 android:id="@+id/tv_title"

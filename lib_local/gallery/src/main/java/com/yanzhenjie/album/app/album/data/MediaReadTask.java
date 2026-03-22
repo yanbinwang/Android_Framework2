@@ -104,7 +104,7 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
      */
     public static class ResultWrapper {
         private ArrayList<AlbumFolder> mAlbumFolders; // 所有文件夹
-        private ArrayList<AlbumFile> mAlbumFiles;    // 已选中的文件
+        private ArrayList<AlbumFile> mAlbumFiles;     // 已选中的文件
     }
 
 }

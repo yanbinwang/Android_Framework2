@@ -92,7 +92,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
         SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
         // 返回箭头
-        setHomeAsUpIndicator(R.drawable.album_ic_back_white);
+        setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu.setVisible(false);

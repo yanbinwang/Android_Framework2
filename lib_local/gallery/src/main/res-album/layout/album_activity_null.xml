@@ -12,7 +12,7 @@
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             style="@style/Album.Toolbar.Dark"
-            app:navigationIcon="@drawable/album_ic_back_white">
+            app:navigationIcon="@mipmap/album_ic_back_white">
 
             <TextView
                 android:id="@+id/tv_title"
@@ -45,7 +45,7 @@
             android:id="@+id/btn_camera_image"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@drawable/album_ic_image_camera_white"
+            android:drawableStart="@mipmap/album_ic_image_camera_white"
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_image_capture"
@@ -55,7 +55,7 @@
             android:id="@+id/btn_camera_video"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@drawable/album_ic_video_camera_white"
+            android:drawableStart="@mipmap/album_ic_video_camera_white"
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_video_capture"

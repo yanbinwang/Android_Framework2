@@ -128,16 +128,18 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      */
     private void initializeArgument() {
         Bundle argument = getIntent().getExtras();
-        mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
-        mChoiceMode = argument.getInt(Album.KEY_INPUT_CHOICE_MODE);
-        mColumnCount = argument.getInt(Album.KEY_INPUT_COLUMN_COUNT);
-        mHasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-        mLimitCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-        mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
-        mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
-        mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-        mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
+        if (null != argument) {
+            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
+            mChoiceMode = argument.getInt(Album.KEY_INPUT_CHOICE_MODE);
+            mColumnCount = argument.getInt(Album.KEY_INPUT_COLUMN_COUNT);
+            mHasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
+            mLimitCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
+            mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
+            mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
+            mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
+            mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
+        }
     }
 
     /**

@@ -61,7 +61,7 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         mToolbar.setTitleTextColor(getColor(mStatusColor));
         mTitle.setText(widget.getTitle());
         // 设置返回箭头
-        Drawable navigationIcon = getDrawable(R.drawable.album_ic_back_white);
+        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));

@@ -26,8 +26,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     private long mLimitDuration;
     // 视频最大大小
     private long mLimitBytes;
-    // 界面样式配置
-    private Widget mWidget;
     // 拍照/录像返回的路径 Key
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
@@ -46,47 +44,52 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         Contract.NullView mView = new NullView(this, this);
         // 获取上一页传递的参数
         Bundle argument = getIntent().getExtras();
-        int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
-        boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-        mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
-        mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
-        mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-        mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        // 初始化 UI
-        mView.setupViews(mWidget);
-        mView.setTitle("");
-        // 根据当前功能类型，显示不同提示文案
-        switch (function) {
-            // 只选图片：隐藏录像按钮
-            case Album.FUNCTION_CHOICE_IMAGE: {
-                mView.setMessage(R.string.album_not_found_image);
-                mView.setMakeVideoDisplay(false);
-                break;
+        if (null != argument) {
+            mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
+            mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
+            mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
+            // 界面样式配置
+            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            if (null != mWidget) {
+                // 初始化 UI
+                mView.setupViews(mWidget);
+                mView.setTitle("");
+                // 初始化状态栏/导航栏颜色（黑白字体自适应）
+                boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+                boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
+                initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
             }
-            // 只选视频：隐藏拍照按钮
-            case Album.FUNCTION_CHOICE_VIDEO: {
-                mView.setMessage(R.string.album_not_found_video);
+            // 根据当前功能类型，显示不同提示文案
+            int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
+            switch (function) {
+                // 只选图片：隐藏录像按钮
+                case Album.FUNCTION_CHOICE_IMAGE: {
+                    mView.setMessage(R.string.album_not_found_image);
+                    mView.setMakeVideoDisplay(false);
+                    break;
+                }
+                // 只选视频：隐藏拍照按钮
+                case Album.FUNCTION_CHOICE_VIDEO: {
+                    mView.setMessage(R.string.album_not_found_video);
+                    mView.setMakeImageDisplay(false);
+                    break;
+                }
+                // 全部媒体：都显示
+                case Album.FUNCTION_CHOICE_ALBUM: {
+                    mView.setMessage(R.string.album_not_found_album);
+                    break;
+                }
+                default: {
+                    throw new AssertionError("This should not be the case.");
+                }
+            }
+            // 如果不允许使用相机，隐藏两个按钮
+            boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
+            if (!hasCamera) {
                 mView.setMakeImageDisplay(false);
-                break;
-            }
-            // 全部媒体：都显示
-            case Album.FUNCTION_CHOICE_ALBUM: {
-                mView.setMessage(R.string.album_not_found_album);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
+                mView.setMakeVideoDisplay(false);
             }
         }
-        // 如果不允许使用相机，隐藏两个按钮
-        if (!hasCamera) {
-            mView.setMakeImageDisplay(false);
-            mView.setMakeVideoDisplay(false);
-        }
-        // 初始化状态栏/导航栏颜色（黑白字体自适应）
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 
     /**
