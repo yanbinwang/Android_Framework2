@@ -42,6 +42,12 @@ public class AlbumUtils {
     private static final String CACHE_DIRECTORY = "AlbumCache";
 
     /**
+     * 私有化构造，禁止实例化
+     */
+    private AlbumUtils() {
+    }
+
+    /**
      * 获取相册根目录（优先SD卡，否则内部存储）
      */
     @NonNull

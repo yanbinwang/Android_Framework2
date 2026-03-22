@@ -20,6 +20,12 @@ import java.lang.reflect.Method;
 public class SystemBar {
 
     /**
+     * 私有化构造，禁止实例化
+     */
+    private SystemBar() {
+    }
+
+    /**
      * 设置状态栏颜色
      */
     public static void setStatusBarColor(Activity activity, int statusBarColor) {
