@@ -33,12 +33,12 @@ abstract class Source<Host>(private val mHost: Host) {
     /**
      * 设置 ActionBar / Toolbar
      */
-    abstract fun setActionBar(actionBar: Toolbar?)
+    abstract fun setActionBar(actionBar: Toolbar)
 
     /**
      * 获取菜单加载器
      */
-    abstract fun getMenuInflater(): MenuInflater?
+    abstract fun getMenuInflater(): MenuInflater
 
     /**
      * 获取菜单对象
@@ -48,7 +48,7 @@ abstract class Source<Host>(private val mHost: Host) {
     /**
      * 设置菜单/返回按钮点击监听
      */
-    abstract fun setMenuClickListener(selectedListener: MenuClickListener?)
+    abstract fun setMenuClickListener(selectedListener: MenuClickListener)
 
     /**
      * 设置是否显示返回按钮

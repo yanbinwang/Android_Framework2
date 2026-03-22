@@ -47,22 +47,20 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     /**
      * 设置 Toolbar 并绑定点击事件
      */
-    override fun setActionBar(actionBar: Toolbar?) {
+    override fun setActionBar(actionBar: Toolbar) {
         this.mActionBar = actionBar
-        if (mActionBar != null) {
-            setTitle(getHost()?.title)
-            // 菜单点击
-            mActionBar?.setOnMenuItemClickListener {
-                mMenuItemSelectedListener?.onMenuClick(it)
-                true
-            }
-            // 返回按钮点击
-            mActionBar?.setNavigationOnClickListener {
-                mMenuItemSelectedListener?.onHomeClick()
-            }
-            // 保存默认返回图标
-            mActionBarIcon = mActionBar?.navigationIcon
+        setTitle(getHost()?.title)
+        // 菜单点击
+        mActionBar?.setOnMenuItemClickListener {
+            mMenuItemSelectedListener?.onMenuClick(it)
+            true
         }
+        // 返回按钮点击
+        mActionBar?.setNavigationOnClickListener {
+            mMenuItemSelectedListener?.onHomeClick()
+        }
+        // 保存默认返回图标
+        mActionBarIcon = mActionBar?.navigationIcon
     }
 
     /**
@@ -82,7 +80,7 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     /**
      * 设置菜单/返回按钮监听
      */
-    override fun setMenuClickListener(selectedListener: MenuClickListener?) {
+    override fun setMenuClickListener(selectedListener: MenuClickListener) {
         this.mMenuItemSelectedListener = selectedListener
     }
 

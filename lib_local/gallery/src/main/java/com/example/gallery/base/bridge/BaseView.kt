@@ -166,7 +166,7 @@ abstract class BaseView<Presenter : BasePresenter> {
         mSource?.setHomeAsUpIndicator(icon)
     }
 
-    protected fun setHomeAsUpIndicator(icon: Drawable?) {
+    protected fun setHomeAsUpIndicator(icon: Drawable) {
         mSource?.setHomeAsUpIndicator(icon)
     }
 
