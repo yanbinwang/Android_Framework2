@@ -241,12 +241,12 @@ abstract class BaseView<Presenter : BasePresenter> {
     }
 
     fun getDrawable(@DrawableRes id: Int): Drawable? {
-        return mSource?.getContext()?.let { ContextCompat.getDrawable(it, id) }
+        return getContext()?.let { ContextCompat.getDrawable(it, id) }
     }
 
     @ColorInt
     fun getColor(@ColorRes id: Int): Int? {
-        return mSource?.getContext()?.let { ContextCompat.getColor(it, id) }
+        return getContext()?.let { ContextCompat.getColor(it, id) }
     }
 
     fun getStringArray(@ArrayRes id: Int): Array<String>? {

@@ -44,7 +44,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 兼容控件内toolbar
          */
         @JvmStatic
-        fun setSupportToolbar(toolbar: Toolbar) {
+        fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout {
                 val statusBarHeight = getStatusBarHeight()
                 it.size(height = it.measuredHeight + statusBarHeight)
@@ -65,7 +65,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         /**
          * 反射获取 Toolbar 中的私有字段 mNavButtonView（返回按钮）
          */
-        private fun getNavButtonView(toolbar: Toolbar): ImageButton? {
+        private fun getNavButtonView(toolbar: Toolbar?): ImageButton? {
             try {
                 // 获取 Toolbar 类中的 mNavButtonView 字段
                 val field = Toolbar::class.java.getDeclaredField("mNavButtonView")
