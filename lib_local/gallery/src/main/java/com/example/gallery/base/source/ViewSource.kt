@@ -2,6 +2,7 @@ package com.example.gallery.base.source
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,6 +11,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toDrawable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 
@@ -30,8 +32,8 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 设置 Toolbar 并绑定点击事件
      */
-    override fun setActionBar(actionBar: Toolbar) {
-        this.mActionBar = actionBar
+    override fun setActionBar(toolbar: Toolbar) {
+        this.mActionBar = toolbar
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -48,23 +50,23 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 设置标题
      */
-    override fun setTitle(title: CharSequence?) {
+    override fun setTitle(title: CharSequence) {
         mActionBar?.setTitle(title)
     }
 
-    override fun setTitle(title: Int) {
-        mActionBar?.setTitle(title)
+    override fun setTitle(resId: Int) {
+        mActionBar?.setTitle(resId)
     }
 
     /**
      * 设置副标题
      */
-    override fun setSubTitle(title: CharSequence?) {
+    override fun setSubTitle(title: CharSequence) {
         mActionBar?.setSubtitle(title)
     }
 
-    override fun setSubTitle(title: Int) {
-        mActionBar?.setSubtitle(title)
+    override fun setSubTitle(resId: Int) {
+        mActionBar?.setSubtitle(resId)
     }
 
     /**
@@ -83,11 +85,11 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 设置返回图标（资源ID/Drawable）
      */
-    override fun setHomeAsUpIndicator(icon: Int) {
-        setHomeAsUpIndicator(getContext()?.let { ContextCompat.getDrawable(it, icon) })
+    override fun setHomeAsUpIndicator(id: Int) {
+        setHomeAsUpIndicator(getContext()?.let { ContextCompat.getDrawable(it, id) } ?: Color.TRANSPARENT.toDrawable())
     }
 
-    override fun setHomeAsUpIndicator(icon: Drawable?) {
+    override fun setHomeAsUpIndicator(icon: Drawable) {
         this.mActionBarIcon = icon
         mActionBar?.setNavigationIcon(icon)
     }
@@ -95,8 +97,8 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 设置菜单/返回按钮监听
      */
-    override fun setMenuClickListener(selectedListener: MenuClickListener) {
-        this.mMenuItemSelectedListener = selectedListener
+    override fun setMenuClickListener(listener: MenuClickListener) {
+        this.mMenuItemSelectedListener = listener
     }
 
     /**
@@ -123,7 +125,7 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 获取菜单加载器
      */
-    override fun getMenuInflater(): MenuInflater {
+    override fun getMenuInflater(): MenuInflater? {
         return SupportMenuInflater(getContext())
     }
 
