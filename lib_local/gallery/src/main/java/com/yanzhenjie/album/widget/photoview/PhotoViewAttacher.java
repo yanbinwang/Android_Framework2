@@ -26,8 +26,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.view.MotionEventCompat;
 
+import com.yanzhenjie.album.widget.photoview.gestures.FroyoGestureDetector;
 import com.yanzhenjie.album.widget.photoview.gestures.OnGestureListener;
-import com.yanzhenjie.album.widget.photoview.gestures.VersionedGestureDetector;
+import com.yanzhenjie.album.widget.photoview.scrollerproxy.IcsScroller;
 import com.yanzhenjie.album.widget.photoview.scrollerproxy.ScrollerProxy;
 
 import java.lang.ref.WeakReference;
@@ -156,7 +157,8 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             return;
         }
         // 创建手势检测器
-        mScaleDragDetector = VersionedGestureDetector.newInstance(imageView.getContext(), this);
+        mScaleDragDetector = new FroyoGestureDetector(imageView.getContext());
+        mScaleDragDetector.setOnGestureListener(this);
         // 创建系统手势检测器，处理长按、快速滑动
         mGestureDetector = new GestureDetector(imageView.getContext(), new GestureDetector.SimpleOnGestureListener() {
             /**
@@ -923,7 +925,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             float deltaScale = scale / getScale();
             onScale(deltaScale, mFocalX, mFocalY);
             if (t < 1f) {
-                Compat.postOnAnimation(imageView, this);
+                imageView.postOnAnimation(this);
             }
         }
 
@@ -943,7 +945,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         private final ScrollerProxy mScroller;
 
         public FlingRunnable(Context context) {
-            mScroller = ScrollerProxy.getScroller(context);
+            mScroller = new IcsScroller(context);
         }
 
         public void cancelFling() {
@@ -990,7 +992,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
                 setImageViewMatrix(getDrawMatrix());
                 mCurrentX = newX;
                 mCurrentY = newY;
-                Compat.postOnAnimation(imageView, this);
+                imageView.postOnAnimation(this);
             }
         }
     }

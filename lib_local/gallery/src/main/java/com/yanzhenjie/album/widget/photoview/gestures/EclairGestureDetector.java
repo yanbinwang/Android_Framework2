@@ -3,8 +3,6 @@ package com.yanzhenjie.album.widget.photoview.gestures;
 import android.content.Context;
 import android.view.MotionEvent;
 
-import com.yanzhenjie.album.widget.photoview.Compat;
-
 /**
  * Android 2.1 专用手势检测器
  * 主要作用：处理【多点触控】时的手指切换逻辑
@@ -67,7 +65,7 @@ public class EclairGestureDetector extends CupcakeGestureDetector {
             // 非第一根手指抬起（多指操作）
             case MotionEvent.ACTION_POINTER_UP:
                 // 获取抬起的手指索引
-                final int pointerIndex = Compat.getPointerIndex(ev.getAction());
+                final int pointerIndex = getPointerIndex(ev.getAction());
                 final int pointerId = ev.getPointerId(pointerIndex);
                 // 如果抬起的是当前有效的手指
                 if (pointerId == mActivePointerId) {
@@ -89,6 +87,14 @@ public class EclairGestureDetector extends CupcakeGestureDetector {
             // 兼容系统库崩溃
             return true;
         }
+    }
+
+    /**
+     * 获取多点触控的“手指索引”
+     * 用于：双指缩放、多指滑动
+     */
+    private static int getPointerIndex(int action) {
+        return (action & MotionEvent.ACTION_POINTER_INDEX_MASK) >> MotionEvent.ACTION_POINTER_INDEX_SHIFT;
     }
 
 }
