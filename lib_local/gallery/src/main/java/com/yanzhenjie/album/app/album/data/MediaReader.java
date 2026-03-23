@@ -52,7 +52,7 @@ public class MediaReader {
             MediaStore.Video.Media.LATITUDE,
             MediaStore.Video.Media.LONGITUDE,
             MediaStore.Video.Media.SIZE,
-            MediaStore.Video.Media.DURATION           // 视频时长
+            MediaStore.Video.Media.DURATION              // 视频时长
     };
 
     /**

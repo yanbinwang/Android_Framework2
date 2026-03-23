@@ -66,6 +66,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
      * 构造裁剪任务
      */
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters, @Nullable BitmapCropCallback cropCallback) {
+        super();
         mDialog = new LoadingDialog(context);
         mViewBitmap = viewBitmap;
         mCropRect = imageState.getCropRect();

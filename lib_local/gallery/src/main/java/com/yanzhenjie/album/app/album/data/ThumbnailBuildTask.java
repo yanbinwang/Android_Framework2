@@ -39,6 +39,7 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
      * 构造任务
      */
     public ThumbnailBuildTask(Context context, ArrayList<AlbumFile> albumFiles, Callback callback) {
+        super();
         this.mAlbumFiles = albumFiles;
         this.mCallback = callback;
         this.mThumbnailBuilder = new ThumbnailBuilder(context);

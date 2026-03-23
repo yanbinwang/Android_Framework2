@@ -34,6 +34,7 @@ public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
      * 构造任务
      */
     public PathConvertTask(PathConversion conversion, Callback callback) {
+        super();
         this.mConversion = conversion;
         this.mCallback = callback;
     }

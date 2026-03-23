@@ -1,6 +1,7 @@
 package com.yanzhenjie.album.app.album.data;
 
 import android.os.AsyncTask;
+import android.os.Looper;
 
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
@@ -28,6 +29,7 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
      * 构造任务
      */
     public MediaReadTask(int function, List<AlbumFile> checkedFiles, MediaReader mediaReader, Callback callback) {
+        super();
         this.mFunction = function;
         this.mCheckedFiles = checkedFiles;
         this.mMediaReader = mediaReader;

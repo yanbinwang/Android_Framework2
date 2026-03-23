@@ -43,6 +43,7 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
      * 构造图片加载任务
      */
     public BitmapLoadTask(Context context, int requiredWidth, int requiredHeight, BitmapLoadCallback loadCallback) {
+        super();
         mDialog = new LoadingDialog(context);
         mRequiredWidth = requiredWidth;
         mRequiredHeight = requiredHeight;
