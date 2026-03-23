@@ -208,11 +208,7 @@ abstract class BaseView<Presenter : BasePresenter> {
     /**
      * 子类获取的参数回调
      */
-    fun getPresenter(): Presenter? {
-        return mPresenter
-    }
-
-    fun setTitle(title: String?) {
+    fun setTitle(title: String) {
         mSource?.setTitle(title)
     }
 
@@ -220,12 +216,16 @@ abstract class BaseView<Presenter : BasePresenter> {
         mSource?.setTitle(title)
     }
 
-    fun setSubTitle(title: String?) {
+    fun setSubTitle(title: String) {
         mSource?.setSubTitle(title)
     }
 
     fun setSubTitle(@StringRes title: Int) {
         mSource?.setSubTitle(title)
+    }
+
+    fun getPresenter(): Presenter? {
+        return mPresenter
     }
 
     fun getText(@StringRes id: Int): CharSequence? {

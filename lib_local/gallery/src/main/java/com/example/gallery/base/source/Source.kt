@@ -21,27 +21,27 @@ abstract class Source<Host>(private val mHost: Host) {
     /**
      * 设置 ActionBar / Toolbar
      */
-    abstract fun setActionBar(actionBar: Toolbar)
+    abstract fun setActionBar(toolbar: Toolbar)
 
     /**
      * 设置标题
      */
-    abstract fun setTitle(title: CharSequence?)
+    abstract fun setTitle(title: CharSequence)
 
     /**
      * 设置标题（字符串资源）
      */
-    abstract fun setTitle(@StringRes title: Int)
+    abstract fun setTitle(@StringRes resId: Int)
 
     /**
      * 设置副标题
      */
-    abstract fun setSubTitle(title: CharSequence?)
+    abstract fun setSubTitle(title: CharSequence)
 
     /**
      * 设置副标题（字符串资源）
      */
-    abstract fun setSubTitle(@StringRes title: Int)
+    abstract fun setSubTitle(@StringRes resId: Int)
 
     /**
      * 设置是否显示返回按钮
@@ -51,17 +51,17 @@ abstract class Source<Host>(private val mHost: Host) {
     /**
      * 设置返回箭头图标（资源ID）
      */
-    abstract fun setHomeAsUpIndicator(@DrawableRes icon: Int)
+    abstract fun setHomeAsUpIndicator(@DrawableRes id: Int)
 
     /**
      * 设置返回箭头图标（Drawable）
      */
-    abstract fun setHomeAsUpIndicator(icon: Drawable?)
+    abstract fun setHomeAsUpIndicator(icon: Drawable)
 
     /**
      * 设置菜单/返回按钮点击监听 (代码new监听)
      */
-    abstract fun setMenuClickListener(selectedListener: MenuClickListener)
+    abstract fun setMenuClickListener(listener: MenuClickListener)
 
     /**
      * 获取当前载体宿主（Activity / View）
@@ -88,7 +88,7 @@ abstract class Source<Host>(private val mHost: Host) {
     /**
      * 获取菜单加载器 (代码创建SupportMenuInflater)
      */
-    abstract fun getMenuInflater(): MenuInflater
+    abstract fun getMenuInflater(): MenuInflater?
 
     /**
      * 初始化准备工作（如：绑定Toolbar、初始化视图）
