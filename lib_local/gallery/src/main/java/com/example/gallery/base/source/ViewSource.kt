@@ -28,16 +28,6 @@ class ViewSource(view: View) : Source<View>(view) {
     private var mMenuItemSelectedListener: MenuClickListener? = null
 
     /**
-     * 初始化：自动查找并绑定 Toolbar
-     */
-    override fun prepare() {
-        getHost()?.findViewById<Toolbar>(R.id.toolbar)?.let { toolbar ->
-            setActionBar(toolbar)
-            setSupportToolbar(toolbar)
-        }
-    }
-
-    /**
      * 设置 Toolbar 并绑定点击事件
      */
     override fun setActionBar(actionBar: Toolbar) {
@@ -56,24 +46,25 @@ class ViewSource(view: View) : Source<View>(view) {
     }
 
     /**
-     * 获取菜单加载器
+     * 设置标题
      */
-    override fun getMenuInflater(): MenuInflater {
-        return SupportMenuInflater(getContext())
+    override fun setTitle(title: CharSequence?) {
+        mActionBar?.setTitle(title)
+    }
+
+    override fun setTitle(title: Int) {
+        mActionBar?.setTitle(title)
     }
 
     /**
-     * 获取 Toolbar 菜单
+     * 设置副标题
      */
-    override fun getMenu(): Menu? {
-        return if (mActionBar == null) null else mActionBar?.getMenu()
+    override fun setSubTitle(title: CharSequence?) {
+        mActionBar?.setSubtitle(title)
     }
 
-    /**
-     * 设置菜单/返回按钮监听
-     */
-    override fun setMenuClickListener(selectedListener: MenuClickListener) {
-        this.mMenuItemSelectedListener = selectedListener
+    override fun setSubTitle(title: Int) {
+        mActionBar?.setSubtitle(title)
     }
 
     /**
@@ -102,25 +93,10 @@ class ViewSource(view: View) : Source<View>(view) {
     }
 
     /**
-     * 设置标题
+     * 设置菜单/返回按钮监听
      */
-    override fun setTitle(title: CharSequence?) {
-        mActionBar?.setTitle(title)
-    }
-
-    override fun setTitle(title: Int) {
-        mActionBar?.setTitle(title)
-    }
-
-    /**
-     * 设置副标题
-     */
-    override fun setSubTitle(title: CharSequence?) {
-        mActionBar?.setSubtitle(title)
-    }
-
-    override fun setSubTitle(title: Int) {
-        mActionBar?.setSubtitle(title)
+    override fun setMenuClickListener(selectedListener: MenuClickListener) {
+        this.mMenuItemSelectedListener = selectedListener
     }
 
     /**
@@ -135,6 +111,30 @@ class ViewSource(view: View) : Source<View>(view) {
      */
     override fun getView(): View? {
         return getHost()
+    }
+
+    /**
+     * 获取 Toolbar 菜单
+     */
+    override fun getMenu(): Menu? {
+        return if (mActionBar == null) null else mActionBar?.getMenu()
+    }
+
+    /**
+     * 获取菜单加载器
+     */
+    override fun getMenuInflater(): MenuInflater {
+        return SupportMenuInflater(getContext())
+    }
+
+    /**
+     * 初始化：自动查找并绑定 Toolbar
+     */
+    override fun prepare() {
+        getHost()?.findViewById<Toolbar>(R.id.toolbar)?.let { toolbar ->
+            setActionBar(toolbar)
+            setSupportToolbar(toolbar)
+        }
     }
 
     /**

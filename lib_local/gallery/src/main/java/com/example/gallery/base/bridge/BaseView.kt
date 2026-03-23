@@ -109,14 +109,6 @@ abstract class BaseView<Presenter : BasePresenter> {
     }
 
     /**
-     * 刷新菜单
-     */
-    protected fun invalidateOptionsMenu() {
-        val menu = mSource?.getMenu() ?: return
-        onCreateOptionsMenu(menu)
-    }
-
-    /**
      * 生命周期（子类重写）
      */
     protected fun onResume() {
@@ -142,6 +134,14 @@ abstract class BaseView<Presenter : BasePresenter> {
 
     protected fun closeInputMethod() {
         mSource?.closeInputMethod()
+    }
+
+    /**
+     * 刷新菜单
+     */
+    protected fun invalidateOptionsMenu() {
+        val menu = mSource?.getMenu() ?: return
+        onCreateOptionsMenu(menu)
     }
 
     /**

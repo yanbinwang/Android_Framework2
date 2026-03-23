@@ -19,51 +19,9 @@ import androidx.appcompat.widget.Toolbar
 abstract class Source<Host>(private val mHost: Host) {
 
     /**
-     * 获取当前载体宿主（Activity / View）
-     */
-    fun getHost(): Host? {
-        return mHost
-    }
-
-    /**
-     * 初始化准备工作（如：绑定Toolbar、初始化视图）
-     */
-    abstract fun prepare()
-
-    /**
      * 设置 ActionBar / Toolbar
      */
     abstract fun setActionBar(actionBar: Toolbar)
-
-    /**
-     * 获取菜单加载器
-     */
-    abstract fun getMenuInflater(): MenuInflater
-
-    /**
-     * 获取菜单对象
-     */
-    abstract fun getMenu(): Menu?
-
-    /**
-     * 设置菜单/返回按钮点击监听
-     */
-    abstract fun setMenuClickListener(selectedListener: MenuClickListener)
-
-    /**
-     * 设置是否显示返回按钮
-     */
-    abstract fun setDisplayHomeAsUpEnabled(showHome: Boolean)
-
-    /**
-     * 设置返回箭头图标（资源ID）
-     */
-    abstract fun setHomeAsUpIndicator(@DrawableRes icon: Int)
-
-    /**
-     * 设置返回箭头图标（Drawable）
-     */
-    abstract fun setHomeAsUpIndicator(icon: Drawable?)
 
     /**
      * 设置标题
@@ -86,6 +44,33 @@ abstract class Source<Host>(private val mHost: Host) {
     abstract fun setSubTitle(@StringRes title: Int)
 
     /**
+     * 设置是否显示返回按钮
+     */
+    abstract fun setDisplayHomeAsUpEnabled(showHome: Boolean)
+
+    /**
+     * 设置返回箭头图标（资源ID）
+     */
+    abstract fun setHomeAsUpIndicator(@DrawableRes icon: Int)
+
+    /**
+     * 设置返回箭头图标（Drawable）
+     */
+    abstract fun setHomeAsUpIndicator(icon: Drawable?)
+
+    /**
+     * 设置菜单/返回按钮点击监听 (代码new监听)
+     */
+    abstract fun setMenuClickListener(selectedListener: MenuClickListener)
+
+    /**
+     * 获取当前载体宿主（Activity / View）
+     */
+    fun getHost(): Host? {
+        return mHost
+    }
+
+    /**
      * 获取上下文 Context
      */
     abstract fun getContext(): Context?
@@ -94,6 +79,21 @@ abstract class Source<Host>(private val mHost: Host) {
      * 获取当前视图
      */
     abstract fun getView(): View?
+
+    /**
+     * 获取菜单对象
+     */
+    abstract fun getMenu(): Menu?
+
+    /**
+     * 获取菜单加载器 (代码创建SupportMenuInflater)
+     */
+    abstract fun getMenuInflater(): MenuInflater
+
+    /**
+     * 初始化准备工作（如：绑定Toolbar、初始化视图）
+     */
+    abstract fun prepare()
 
     /**
      * 关闭输入法
