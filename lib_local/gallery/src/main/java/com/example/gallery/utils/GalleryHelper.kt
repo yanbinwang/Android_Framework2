@@ -86,30 +86,6 @@ class GalleryHelper {
         }
     }
 
-//    constructor(activity: AppCompatActivity) {
-//        imageCamera = Album.camera(activity)
-//        videoMultiple = Album.video(activity)
-//        imageMultiple = Album.image(activity)
-//        widget = activity.getAlbumWidget()
-//        durban = Durban.with(activity)
-//    }
-//
-//    constructor(fragment: Fragment) {
-//        imageCamera = Album.camera(fragment)
-//        videoMultiple = Album.video(fragment)
-//        imageMultiple = Album.image(fragment)
-//        widget = fragment.context.getAlbumWidget()
-//        durban = Durban.with(fragment)
-//    }
-//
-//    constructor(activity: FragmentActivity) {
-//        imageCamera = Album.camera(activity)
-//        videoMultiple = Album.video(activity)
-//        imageMultiple = Album.image(activity)
-//        widget = activity.getAlbumWidget()
-//        durban = Durban.with(activity)
-//    }
-
     /**
      * 创建相册统一配置
      */
