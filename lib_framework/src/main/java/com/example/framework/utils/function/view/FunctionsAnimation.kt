@@ -168,7 +168,7 @@ inline fun Animation.addListener(
  * 支持：文本数字、字号、颜色、背景色、宽高、边距、缩放等
  */
 @SuppressLint("SetTextI18n")
-class ViewAnimator(private val view: View?, private val duration: Long) {
+class ViewAnimator(private val view: View?, private val millisecond: Long) {
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
     private val animatorList = mutableListOf<Animator>()
 
@@ -219,7 +219,7 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
 
     fun animateTextColor(@ColorInt start: Int, @ColorInt end: Int): ViewAnimator {
         if (view !is TextView) return this
-        if (duration == 0L) {
+        if (millisecond == 0L) {
             view.setTextColor(end)
             return this
         }
@@ -239,7 +239,7 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
 
     fun animateBackgroundColor(@ColorInt start: Int, @ColorInt end: Int): ViewAnimator {
         if (view == null) return this
-        if (duration == 0L) {
+        if (millisecond == 0L) {
             view.setBackgroundColor(end)
             return this
         }
@@ -294,7 +294,7 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
      */
     fun animateScale(start: Float, end: Float): ViewAnimator {
         if (view == null) return this
-        if (duration == 0L || start == end) {
+        if (millisecond == 0L || start == end) {
             view.scaleX = end
             view.scaleY = end
             return this
@@ -310,14 +310,14 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
      */
     private fun createAnimator(start: Float, end: Float, update: (Float?) -> Unit): ViewAnimator {
         if (view == null) return this
-        if (duration == 0L) {
+        if (millisecond == 0L) {
             update(end)
             return this
         }
         ValueAnimator.ofFloat(start, end).also { animator ->
             animator.setTarget(view)
             animator.interpolator = interpolator
-            animator.duration = duration
+            animator.duration = millisecond
             animator.addUpdateListener {
                 update(it.animatedValue as? Float)
             }
@@ -330,7 +330,7 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
      * 开始执行动画
      */
     fun start(onStart: () -> Unit = {}, onEnd: () -> Unit = {}) {
-        if (duration == 0L) {
+        if (millisecond == 0L) {
             onEnd()
             return
         }
@@ -341,24 +341,9 @@ class ViewAnimator(private val view: View?, private val duration: Long) {
         val animSet = AnimatorSet().apply {
             setTarget(view)
             playTogether(animatorList)
-            duration = duration
+            duration = millisecond
             doOnStart { onStart() }
             doOnEnd { onEnd() }
-//            addListener(object : Animator.AnimatorListener {
-//                override fun onAnimationStart(animation: Animator) {
-//                    onStart.invoke()
-//                }
-//
-//                override fun onAnimationEnd(animation: Animator) {
-//                    onEnd.invoke()
-//                }
-//
-//                override fun onAnimationCancel(animation: Animator) {
-//                }
-//
-//                override fun onAnimationRepeat(animation: Animator) {
-//                }
-//            })
         }
         view?.tag = animSet
         animSet.start()
