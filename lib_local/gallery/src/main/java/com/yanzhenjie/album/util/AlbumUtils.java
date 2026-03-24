@@ -22,8 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.divider.Api20ItemDivider;
-import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
+import com.yanzhenjie.album.widget.divider.ItemDivider;
 import com.yanzhenjie.album.widget.divider.Divider;
 
 import java.io.File;
@@ -271,10 +270,7 @@ public class AlbumUtils {
      * 获取列表分割线
      */
     public static Divider getDivider(@ColorInt int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new Api21ItemDivider(color);
-        }
-        return new Api20ItemDivider(color);
+        return new ItemDivider(color);
     }
 
     /**

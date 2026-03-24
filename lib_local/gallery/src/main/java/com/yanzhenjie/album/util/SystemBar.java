@@ -8,8 +8,6 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
-import androidx.annotation.RequiresApi;
-
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
@@ -29,15 +27,12 @@ public class SystemBar {
      * 设置状态栏颜色
      */
     public static void setStatusBarColor(Activity activity, int statusBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setStatusBarColor(activity.getWindow(), statusBarColor);
-        }
+        setStatusBarColor(activity.getWindow(), statusBarColor);
     }
 
     /**
      * 设置状态栏颜色（LOLLIPOP以上）
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setStatusBarColor(Window window, int statusBarColor) {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setStatusBarColor(statusBarColor);
@@ -47,15 +42,12 @@ public class SystemBar {
      * 设置导航栏颜色
      */
     public static void setNavigationBarColor(Activity activity, int navigationBarColor) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            setNavigationBarColor(activity.getWindow(), navigationBarColor);
-        }
+        setNavigationBarColor(activity.getWindow(), navigationBarColor);
     }
 
     /**
      * 设置导航栏颜色（LOLLIPOP以上）
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setNavigationBarColor(Window window, int navigationBarColor) {
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.setNavigationBarColor(navigationBarColor);
@@ -65,15 +57,12 @@ public class SystemBar {
      * 布局侵入状态栏（沉浸式，不隐藏状态栏）
      */
     public static void invasionStatusBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            invasionStatusBar(activity.getWindow());
-        }
+        invasionStatusBar(activity.getWindow());
     }
 
     /**
      * 布局侵入状态栏（LOLLIPOP以上）
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionStatusBar(Window window) {
         View decorView = window.getDecorView();
         decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
@@ -84,15 +73,12 @@ public class SystemBar {
      * 布局侵入导航栏（沉浸式）
      */
     public static void invasionNavigationBar(Activity activity) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            invasionNavigationBar(activity.getWindow());
-        }
+        invasionNavigationBar(activity.getWindow());
     }
 
     /**
      * 布局侵入导航栏（LOLLIPOP以上）
      */
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void invasionNavigationBar(Window window) {
         View decorView = window.getDecorView();
         decorView.setSystemUiVisibility(decorView.getSystemUiVisibility() | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);

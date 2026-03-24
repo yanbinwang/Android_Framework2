@@ -11,9 +11,8 @@ import androidx.recyclerview.widget.RecyclerView;
 /**
  * Android 5.0+ 专用的简单分割线
  * 功能：给每个条目四周都绘制均匀的分割线（全屏网格样式）
- * 比 Api20ItemDivider 更简单，无复杂逻辑
  */
-public class Api21ItemDivider extends Divider {
+public class ItemDivider extends Divider {
     // 分割线宽度/高度
     private final int mWidth;
     private final int mHeight;
@@ -24,7 +23,7 @@ public class Api21ItemDivider extends Divider {
      * 构造方法：使用默认宽高 4px
      * @param color 分割线颜色
      */
-    public Api21ItemDivider(@ColorInt int color) {
+    public ItemDivider(@ColorInt int color) {
         this(color, 4, 4);
     }
 
@@ -34,7 +33,7 @@ public class Api21ItemDivider extends Divider {
      * @param width  分割线总宽度
      * @param height 分割线总高度
      */
-    public Api21ItemDivider(@ColorInt int color, int width, int height) {
+    public ItemDivider(@ColorInt int color, int width, int height) {
         // 宽高取一半，让分割线均匀分布在条目四周
         this.mWidth = Math.round(width / 2F);
         this.mHeight = Math.round(height / 2F);

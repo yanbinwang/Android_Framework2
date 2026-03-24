@@ -27,7 +27,7 @@ import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.impl.DoubleClickWrapper;
 import com.yanzhenjie.album.util.AlbumUtils;
 import com.yanzhenjie.album.widget.ColorProgressBar;
-import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
+import com.yanzhenjie.album.widget.divider.ItemDivider;
 
 /**
  * 相册主页面 View 层
@@ -138,7 +138,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         mRecyclerView.setLayoutManager(mLayoutManager);
         // 设置列表间隔
         int dividerSize = getResources().getDimensionPixelSize(R.dimen.album_dp_4);
-        mRecyclerView.addItemDecoration(new Api21ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize));
+        mRecyclerView.addItemDecoration(new ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize));
         // 初始化适配器
         mAdapter = new AlbumAdapter(getContext(), hasCamera, choiceMode, widget.getMediaItemCheckSelector());
         // 点击拍照
