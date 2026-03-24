@@ -251,6 +251,13 @@ fun Drawable?.getBitmap(): Bitmap? {
 }
 
 /**
+ * 安全获取Drawable
+ */
+fun Drawable?.orEmpty(): Drawable {
+    return this ?: Color.TRANSPARENT.toDrawable()
+}
+
+/**
  * 根据目标宽高缩放 Drawable
  * @param context 上下文（用于创建 Drawable）
  * @param targetWidth 目标宽度（像素）
