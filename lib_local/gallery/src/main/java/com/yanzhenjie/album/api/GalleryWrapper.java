@@ -7,8 +7,10 @@ import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.app.gallery.GalleryActivity;
 
 /**
- * <p>Gallery wrapper.</p>
- * Created by yanzhenjie on 17-3-29.
+ * 路径预览包装器
+ * 继承自：BasicGalleryWrapper
+ * 功能：只预览【图片路径字符串】，不是 AlbumFile
+ * 打开的是：GalleryActivity
  */
 public class GalleryWrapper extends BasicGalleryWrapper<GalleryWrapper, String, String, String> {
 
@@ -16,12 +18,17 @@ public class GalleryWrapper extends BasicGalleryWrapper<GalleryWrapper, String, 
         super(context);
     }
 
+    /**
+     * 启动路径预览页面
+     */
     @Override
     public void start() {
+        // 给 GalleryActivity 设置静态回调
         GalleryActivity.sResult = mResult;
         GalleryActivity.sCancel = mCancel;
         GalleryActivity.sClick = mItemClick;
         GalleryActivity.sLongClick = mItemLongClick;
+        // 跳转预览
         Intent intent = new Intent(mContext, GalleryActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putStringArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);

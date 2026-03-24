@@ -6,24 +6,32 @@ import android.os.Parcelable;
 import java.util.ArrayList;
 
 /**
- * <p>Album folder, contains selected status and pictures.</p>
- * Created by Yan Zhenjie on 2016/10/14.
+ * 相册文件夹实体类
+ * 代表手机里的一个图片/相册文件夹，包含文件夹名称、图片列表、选中状态
  */
 public class AlbumFolder implements Parcelable {
-    /**
-     * Folder name.
-     */
-    private String name;
-    /**
-     * Image list in folder.
-     */
-    private ArrayList<AlbumFile> mAlbumFiles = new ArrayList<>();
-    /**
-     * checked.
-     */
+    // 相册文件夹是否被选中（在文件夹切换列表中标记当前选中项）
     private boolean isChecked;
+    // 文件夹名称（例如：Camera、Screenshots、微信）
+    private String name;
+    // 该文件夹下的图片/视频文件列表
+    private ArrayList<AlbumFile> mAlbumFiles = new ArrayList<>();
 
     public AlbumFolder() {
+    }
+
+    protected AlbumFolder(Parcel in) {
+        name = in.readString();
+        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
+        isChecked = in.readByte() != 0;
+    }
+
+    public boolean isChecked() {
+        return isChecked;
+    }
+
+    public void setChecked(boolean checked) {
+        isChecked = checked;
     }
 
     public String getName() {
@@ -40,20 +48,6 @@ public class AlbumFolder implements Parcelable {
 
     public void addAlbumFile(AlbumFile albumFile) {
         mAlbumFiles.add(albumFile);
-    }
-
-    public boolean isChecked() {
-        return isChecked;
-    }
-
-    public void setChecked(boolean checked) {
-        isChecked = checked;
-    }
-
-    protected AlbumFolder(Parcel in) {
-        name = in.readString();
-        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
-        isChecked = in.readByte() != 0;
     }
 
     @Override

@@ -26,42 +26,63 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 /**
- * <p>
- * This view is used for drawing the overlay on top of the image. It may have frame, crop guidelines and dimmed area.
- * This must have LAYER_TYPE_SOFTWARE to draw itself properly.
- * </p>
- * Update by Yan Zhenjie on 2017/5/23.
+ * 裁剪遮罩层View
+ * 功能：绘制半透明背景、裁剪框、网格线、支持自由拖拽裁剪框
  */
 public class OverlayView extends View {
+    // 自由裁剪模式
     @FreestyleMode
     private int mFreestyleCropMode = DEFAULT_FREESTYLE_CROP_MODE;
+    // 裁剪网格行列数
     private int mCropGridRowCount, mCropGridColumnCount;
+    // 遮罩半透明颜色
     private int mDimmedColor;
+    // 当前触摸的裁剪框角点索引
     private int mCurrentTouchCornerIndex = -1;
+    // 触摸识别阈值
     private int mTouchPointThreshold;
+    // 裁剪框最小尺寸
     private int mCropRectMinSize;
+    // 裁剪框角点触摸区域长度
     private int mCropRectCornerTouchAreaLineLength;
+    // 目标宽高比
     private float mTargetAspectRatio;
+    // 上一次触摸坐标
     private float mPreviousTouchX = -1, mPreviousTouchY = -1;
+    // 网格线坐标点
     private float[] mGridPoints = null;
+    // 是否显示裁剪框、网格
     private boolean mShowCropFrame, mShowCropGrid;
+    // 是否圆形遮罩
     private boolean mCircleDimmedLayer;
+    // 是否需要初始化裁剪边界
     private boolean mShouldSetupCropBounds;
+    // 裁剪框变化回调
     private OverlayViewChangeListener mCallback;
+    // 圆形裁剪路径
     private Path mCircularPath = new Path();
+    // 半透明背景画笔
     private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // 裁剪网格画笔
     private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // 裁剪框画笔
     private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // 裁剪框角点画笔
     private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    // 裁剪框矩形
     private final RectF mCropViewRect = new RectF();
+    // 临时矩形
     private final RectF mTempRect = new RectF();
+    // View宽高
     protected int mThisWidth, mThisHeight;
+    // 裁剪框四个角坐标、中心坐标
     protected float[] mCropGridCorners;
     protected float[] mCropGridCenter;
-    public static final int FREESTYLE_CROP_MODE_DISABLE = 0;
-    public static final int FREESTYLE_CROP_MODE_ENABLE = 1;
-    public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2;
-    public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE;
+    // 自由裁剪模式常量
+    public static final int FREESTYLE_CROP_MODE_DISABLE = 0; // 禁用自由裁剪
+    public static final int FREESTYLE_CROP_MODE_ENABLE = 1; // 启用自由裁剪
+    public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2; // 启用并支持触摸穿透
+    public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE; // 默认模式
 
     public OverlayView(Context context) {
         this(context, null);
@@ -76,177 +97,22 @@ public class OverlayView extends View {
         init();
     }
 
+    /**
+     * 初始化：尺寸、系统版本兼容处理
+     */
     protected void init() {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.durban_dp_30);
         mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.durban_dp_100);
         mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.durban_dp_10);
+        // 低版本系统开启软件渲染，保证绘制正常
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             setLayerType(LAYER_TYPE_SOFTWARE, null);
         }
     }
 
-    public void setOverlayViewChangeListener(OverlayViewChangeListener callback) {
-        mCallback = callback;
-    }
-
-    @NonNull
-    public RectF getCropViewRect() {
-        return mCropViewRect;
-    }
-
     /**
-     * Please use the new method {@link #getFreestyleCropMode() getFreestyleCropMode} method as we have more than 1 freestyle
-     * crop mode.
+     * View布局完成，计算宽高
      */
-    @Deprecated
-    public boolean isFreestyleCropEnabled() {
-        return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE;
-    }
-
-    /**
-     * Please use the new method {@link #setFreestyleCropMode setFreestyleCropMode} method as we have more than 1 freestyle
-     * crop mode.
-     */
-    @Deprecated
-    public void setFreestyleCropEnabled(boolean freestyleCropEnabled) {
-        mFreestyleCropMode = freestyleCropEnabled ? FREESTYLE_CROP_MODE_ENABLE : FREESTYLE_CROP_MODE_DISABLE;
-    }
-
-    @FreestyleMode
-    public int getFreestyleCropMode() {
-        return mFreestyleCropMode;
-    }
-
-    public void setFreestyleCropMode(@FreestyleMode int mFreestyleCropMode) {
-        this.mFreestyleCropMode = mFreestyleCropMode;
-        postInvalidate();
-    }
-
-    /**
-     * Setter for {@link #mCircleDimmedLayer} variable.
-     *
-     * @param circleDimmedLayer - set it to true if you want dimmed layer to be an circle
-     */
-    public void setCircleDimmedLayer(boolean circleDimmedLayer) {
-        mCircleDimmedLayer = circleDimmedLayer;
-    }
-
-    /**
-     * Setter for crop grid rows count.
-     * Resets {@link #mGridPoints} variable because it is not valid anymore.
-     */
-    public void setCropGridRowCount(@IntRange(from = 0) int cropGridRowCount) {
-        mCropGridRowCount = cropGridRowCount;
-        mGridPoints = null;
-    }
-
-    /**
-     * Setter for crop grid columns count.
-     * Resets {@link #mGridPoints} variable because it is not valid anymore.
-     */
-    public void setCropGridColumnCount(@IntRange(from = 0) int cropGridColumnCount) {
-        mCropGridColumnCount = cropGridColumnCount;
-        mGridPoints = null;
-    }
-
-    /**
-     * Setter for {@link #mShowCropFrame} variable.
-     *
-     * @param showCropFrame - set to true if you want to see a crop frame rectangle on top of an image
-     */
-    public void setShowCropFrame(boolean showCropFrame) {
-        mShowCropFrame = showCropFrame;
-    }
-
-    /**
-     * Setter for {@link #mShowCropGrid} variable.
-     *
-     * @param showCropGrid - set to true if you want to see a crop grid on top of an image
-     */
-    public void setShowCropGrid(boolean showCropGrid) {
-        mShowCropGrid = showCropGrid;
-    }
-
-    /**
-     * Setter for {@link #mDimmedColor} variable.
-     *
-     * @param dimmedColor - desired color of dimmed area around the crop bounds
-     */
-    public void setDimmedColor(@ColorInt int dimmedColor) {
-        mDimmedColor = dimmedColor;
-    }
-
-    /**
-     * Setter for crop frame stroke width
-     */
-    public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
-        mCropFramePaint.setStrokeWidth(width);
-    }
-
-    /**
-     * Setter for crop grid stroke width
-     */
-    public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
-        mCropGridPaint.setStrokeWidth(width);
-    }
-
-    /**
-     * Setter for crop frame color
-     */
-    public void setCropFrameColor(@ColorInt int color) {
-        mCropFramePaint.setColor(color);
-    }
-
-    /**
-     * Setter for crop grid color
-     */
-    public void setCropGridColor(@ColorInt int color) {
-        mCropGridPaint.setColor(color);
-    }
-
-    /**
-     * This method sets aspect ratio for crop bounds.
-     *
-     * @param targetAspectRatio - aspect ratio for image crop (e.g. 1.77(7) for 16:9)
-     */
-    public void setTargetAspectRatio(final float targetAspectRatio) {
-        mTargetAspectRatio = targetAspectRatio;
-        if (mThisWidth > 0) {
-            setupCropBounds();
-            postInvalidate();
-        } else {
-            mShouldSetupCropBounds = true;
-        }
-    }
-
-    /**
-     * This method setups crop bounds rectangles for given aspect ratio and view size.
-     * {@link #mCropViewRect} is used to draw crop bounds - uses padding.
-     */
-    public void setupCropBounds() {
-        int height = (int) (mThisWidth / mTargetAspectRatio);
-        if (height > mThisHeight) {
-            int width = (int) (mThisHeight * mTargetAspectRatio);
-            int halfDiff = (mThisWidth - width) / 2;
-            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(), getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
-        } else {
-            int halfDiff = (mThisHeight - height) / 2;
-            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff, getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
-        }
-        if (mCallback != null) {
-            mCallback.onCropRectUpdated(mCropViewRect);
-        }
-        updateGridPoints();
-    }
-
-    private void updateGridPoints() {
-        mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
-        mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
-        mGridPoints = null;
-        mCircularPath.reset();
-        mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);
-    }
-
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         super.onLayout(changed, left, top, right, bottom);
@@ -265,15 +131,18 @@ public class OverlayView extends View {
     }
 
     /**
-     * Along with image there are dimmed layer, crop bounds and crop guidelines that must be drawn.
+     * 绘制：半透明背景 + 裁剪网格 + 裁剪框
      */
     @Override
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
         drawDimmedLayer(canvas);
         drawCropGrid(canvas);
     }
 
+    /**
+     * 触摸事件：处理自由裁剪模式下的裁剪框拖拽、缩放
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (mCropViewRect.isEmpty() || mFreestyleCropMode == FREESTYLE_CROP_MODE_DISABLE) {
@@ -281,6 +150,7 @@ public class OverlayView extends View {
         }
         float x = event.getX();
         float y = event.getY();
+        // 手指按下：判断是否触摸到裁剪框角点
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
             mCurrentTouchCornerIndex = getCurrentTouchIndex(x, y);
             boolean shouldHandle = mCurrentTouchCornerIndex != -1;
@@ -293,8 +163,10 @@ public class OverlayView extends View {
             }
             return shouldHandle;
         }
+        // 手指移动：更新裁剪框大小/位置
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
             if (event.getPointerCount() == 1 && mCurrentTouchCornerIndex != -1) {
+                // 限制触摸范围在View内
                 x = Math.min(Math.max(x, getPaddingLeft()), getWidth() - getPaddingRight());
                 y = Math.min(Math.max(y, getPaddingTop()), getHeight() - getPaddingBottom());
                 updateCropViewRect(x, y);
@@ -303,6 +175,7 @@ public class OverlayView extends View {
                 return true;
             }
         }
+        // 手指抬起：重置状态，通知裁剪框变化
         if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
             mPreviousTouchX = -1;
             mPreviousTouchY = -1;
@@ -315,17 +188,13 @@ public class OverlayView extends View {
     }
 
     /**
-     * * The order of the corners is:
-     * 0------->1
-     * ^        |
-     * |   4    |
-     * |        v
-     * 3<-------2
+     * 根据触摸点更新裁剪框矩形（缩放/移动）
+     * 角点顺序：0左上 1右上 2右下 3左下 4内部拖动
      */
     private void updateCropViewRect(float touchX, float touchY) {
         mTempRect.set(mCropViewRect);
         switch (mCurrentTouchCornerIndex) {
-            // resize rectangle
+            // 缩放裁剪框
             case 0:
                 mTempRect.set(touchX, touchY, mCropViewRect.right, mCropViewRect.bottom);
                 break;
@@ -338,7 +207,7 @@ public class OverlayView extends View {
             case 3:
                 mTempRect.set(touchX, mCropViewRect.top, mCropViewRect.right, touchY);
                 break;
-            // move rectangle
+            // 移动整个裁剪框
             case 4:
                 mTempRect.offset(touchX - mPreviousTouchX, touchY - mPreviousTouchY);
                 if (mTempRect.left > getLeft() && mTempRect.top > getTop() && mTempRect.right < getRight() && mTempRect.bottom < getBottom()) {
@@ -348,7 +217,7 @@ public class OverlayView extends View {
                 }
                 return;
         }
-
+        // 限制最小尺寸
         boolean changeHeight = mTempRect.height() >= mCropRectMinSize;
         boolean changeWidth = mTempRect.width() >= mCropRectMinSize;
         mCropViewRect.set(changeWidth ? mTempRect.left : mCropViewRect.left, changeHeight ? mTempRect.top : mCropViewRect.top, changeWidth ? mTempRect.right : mCropViewRect.right, changeHeight ? mTempRect.bottom : mCropViewRect.bottom);
@@ -359,63 +228,62 @@ public class OverlayView extends View {
     }
 
     /**
-     * * The order of the corners in the float array is:
-     * 0------->1
-     * ^        |
-     * |   4    |
-     * |        v
-     * 3<-------2
-     *
-     * @return - index of corner that is being dragged
+     * 获取触摸点对应的裁剪框角点索引
      */
     private int getCurrentTouchIndex(float touchX, float touchY) {
         int closestPointIndex = -1;
         double closestPointDistance = mTouchPointThreshold;
         for (int i = 0; i < 8; i += 2) {
+            // 计算触摸点到四个角的距离
             double distanceToCorner = Math.sqrt(Math.pow(touchX - mCropGridCorners[i], 2) + Math.pow(touchY - mCropGridCorners[i + 1], 2));
             if (distanceToCorner < closestPointDistance) {
                 closestPointDistance = distanceToCorner;
                 closestPointIndex = i / 2;
             }
         }
-        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY))
+        // 在裁剪框内部且允许自由裁剪 → 返回拖动模式
+        if (mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE && closestPointIndex < 0 && mCropViewRect.contains(touchX, touchY)) {
             return 4;
+        }
         return closestPointIndex;
     }
 
     /**
-     * This method draws dimmed area around the crop bounds.
-     *
-     * @param canvas - valid canvas object
+     * 绘制半透明遮罩层（圆形/矩形）
      */
     protected void drawDimmedLayer(@NonNull Canvas canvas) {
         canvas.save();
-        if (mCircleDimmedLayer) canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
-        else canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
+        // 裁剪掉中间区域，只留四周半透明
+        if (mCircleDimmedLayer) {
+            canvas.clipPath(mCircularPath, Region.Op.DIFFERENCE);
+        } else {
+            canvas.clipRect(mCropViewRect, Region.Op.DIFFERENCE);
+        }
         canvas.drawColor(mDimmedColor);
         canvas.restore();
-        if (mCircleDimmedLayer) { // Draw 1px stroke to fix antialias
+        // 圆形遮罩绘制1px边框修复抗锯齿
+        if (mCircleDimmedLayer) {
             canvas.drawCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, mDimmedStrokePaint);
         }
     }
 
     /**
-     * This method draws crop bounds (empty rectangle)
-     * and crop guidelines (vertical and horizontal lines inside the crop bounds) if needed.
-     *
-     * @param canvas - valid canvas object
+     * 绘制裁剪网格 + 裁剪框 + 角点
      */
     protected void drawCropGrid(@NonNull Canvas canvas) {
+        // 绘制网格线
         if (mShowCropGrid) {
             if (mGridPoints == null && !mCropViewRect.isEmpty()) {
                 mGridPoints = new float[(mCropGridRowCount) * 4 + (mCropGridColumnCount) * 4];
                 int index = 0;
+                // 绘制水平网格线
                 for (int i = 0; i < mCropGridRowCount; i++) {
                     mGridPoints[index++] = mCropViewRect.left;
                     mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                     mGridPoints[index++] = mCropViewRect.right;
                     mGridPoints[index++] = (mCropViewRect.height() * (((float) i + 1.0f) / (float) (mCropGridRowCount + 1))) + mCropViewRect.top;
                 }
+                // 绘制垂直网格线
                 for (int i = 0; i < mCropGridColumnCount; i++) {
                     mGridPoints[index++] = (mCropViewRect.width() * (((float) i + 1.0f) / (float) (mCropGridColumnCount + 1))) + mCropViewRect.left;
                     mGridPoints[index++] = mCropViewRect.top;
@@ -423,13 +291,18 @@ public class OverlayView extends View {
                     mGridPoints[index++] = mCropViewRect.bottom;
                 }
             }
-            if (mGridPoints != null)
+            if (mGridPoints != null) {
                 canvas.drawLines(mGridPoints, mCropGridPaint);
+            }
         }
-        if (mShowCropFrame)
+        // 绘制裁剪框
+        if (mShowCropFrame) {
             canvas.drawRect(mCropViewRect, mCropFramePaint);
+        }
+        // 自由模式下绘制角点
         if (mFreestyleCropMode != FREESTYLE_CROP_MODE_DISABLE) {
             canvas.save();
+            // 只绘制四个角，不绘制边
             mTempRect.set(mCropViewRect);
             mTempRect.inset(mCropRectCornerTouchAreaLineLength, -mCropRectCornerTouchAreaLineLength);
             canvas.clipRect(mTempRect, Region.Op.DIFFERENCE);
@@ -442,8 +315,7 @@ public class OverlayView extends View {
     }
 
     /**
-     * This method extracts all needed values from the styled attributes.
-     * Those are used to configure the view.
+     * 解析XML自定义属性
      */
     protected void processStyledAttributes(@NonNull TypedArray a) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false);
@@ -458,7 +330,7 @@ public class OverlayView extends View {
     }
 
     /**
-     * This method setups Paint object for the crop bounds.
+     * 初始化裁剪框画笔
      */
     private void initCropFrameStyle(@NonNull TypedArray a) {
         int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
@@ -472,7 +344,7 @@ public class OverlayView extends View {
     }
 
     /**
-     * This method setups Paint object for the crop guidelines.
+     * 初始化裁剪框画笔
      */
     private void initCropGridStyle(@NonNull TypedArray a) {
         int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
@@ -483,6 +355,165 @@ public class OverlayView extends View {
         mCropGridColumnCount = a.getInt(R.styleable.durban_CropView_durban_grid_column_count, 2);
     }
 
+    /**
+     * 获取裁剪框矩形
+     */
+    @NonNull
+    public RectF getCropViewRect() {
+        return mCropViewRect;
+    }
+
+    /**
+     * @deprecated 已废弃，使用getFreestyleCropMode
+     */
+    @Deprecated
+    public boolean isFreestyleCropEnabled() {
+        return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE;
+    }
+
+    @Deprecated
+    public void setFreestyleCropEnabled(boolean freestyleCropEnabled) {
+        mFreestyleCropMode = freestyleCropEnabled ? FREESTYLE_CROP_MODE_ENABLE : FREESTYLE_CROP_MODE_DISABLE;
+    }
+
+    /**
+     * 获取/设置自由裁剪模式
+     */
+    @FreestyleMode
+    public int getFreestyleCropMode() {
+        return mFreestyleCropMode;
+    }
+
+    public void setFreestyleCropMode(@FreestyleMode int mFreestyleCropMode) {
+        this.mFreestyleCropMode = mFreestyleCropMode;
+        postInvalidate();
+    }
+
+    /**
+     * 设置是否圆形遮罩
+     */
+    public void setCircleDimmedLayer(boolean circleDimmedLayer) {
+        mCircleDimmedLayer = circleDimmedLayer;
+    }
+
+    /**
+     * 设置裁剪网格行数
+     */
+    public void setCropGridRowCount(@IntRange(from = 0) int cropGridRowCount) {
+        mCropGridRowCount = cropGridRowCount;
+        mGridPoints = null;
+    }
+
+    /**
+     * 设置裁剪网格列数
+     */
+    public void setCropGridColumnCount(@IntRange(from = 0) int cropGridColumnCount) {
+        mCropGridColumnCount = cropGridColumnCount;
+        mGridPoints = null;
+    }
+
+    /**
+     * 设置是否显示裁剪框
+     */
+    public void setShowCropFrame(boolean showCropFrame) {
+        mShowCropFrame = showCropFrame;
+    }
+
+    /**
+     * 设置是否显示裁剪网格
+     */
+    public void setShowCropGrid(boolean showCropGrid) {
+        mShowCropGrid = showCropGrid;
+    }
+
+    /**
+     * 设置遮罩颜色
+     */
+    public void setDimmedColor(@ColorInt int dimmedColor) {
+        mDimmedColor = dimmedColor;
+    }
+
+    /**
+     * 设置裁剪框线条宽度
+     */
+    public void setCropFrameStrokeWidth(@IntRange(from = 0) int width) {
+        mCropFramePaint.setStrokeWidth(width);
+    }
+
+    /**
+     * 设置网格线条宽度
+     */
+    public void setCropGridStrokeWidth(@IntRange(from = 0) int width) {
+        mCropGridPaint.setStrokeWidth(width);
+    }
+
+    /**
+     * 设置裁剪框颜色
+     */
+    public void setCropFrameColor(@ColorInt int color) {
+        mCropFramePaint.setColor(color);
+    }
+
+    /**
+     * 设置网格颜色
+     */
+    public void setCropGridColor(@ColorInt int color) {
+        mCropGridPaint.setColor(color);
+    }
+
+    /**
+     * 设置裁剪框宽高比
+     */
+    public void setTargetAspectRatio(final float targetAspectRatio) {
+        mTargetAspectRatio = targetAspectRatio;
+        if (mThisWidth > 0) {
+            setupCropBounds();
+            postInvalidate();
+        } else {
+            mShouldSetupCropBounds = true;
+        }
+    }
+
+    /**
+     * 根据宽高比计算并设置裁剪框位置大小
+     */
+    public void setupCropBounds() {
+        int height = (int) (mThisWidth / mTargetAspectRatio);
+        if (height > mThisHeight) {
+            int width = (int) (mThisHeight * mTargetAspectRatio);
+            int halfDiff = (mThisWidth - width) / 2;
+            mCropViewRect.set(getPaddingLeft() + halfDiff, getPaddingTop(), getPaddingLeft() + width + halfDiff, getPaddingTop() + mThisHeight);
+        } else {
+            int halfDiff = (mThisHeight - height) / 2;
+            mCropViewRect.set(getPaddingLeft(), getPaddingTop() + halfDiff, getPaddingLeft() + mThisWidth, getPaddingTop() + height + halfDiff);
+        }
+        if (mCallback != null) {
+            mCallback.onCropRectUpdated(mCropViewRect);
+        }
+        updateGridPoints();
+    }
+
+    /**
+     * 更新裁剪框角点、中心点、圆形路径
+     */
+    private void updateGridPoints() {
+        mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
+        mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
+        mGridPoints = null;
+        mCircularPath.reset();
+        mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);
+    }
+
+    /**
+     * 设置裁剪框变化监听
+     */
+    public void setOverlayViewChangeListener(OverlayViewChangeListener callback) {
+        mCallback = callback;
+    }
+
+    /**
+     * 自由裁剪模式注解
+     */
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH})
     public @interface FreestyleMode {

@@ -15,15 +15,18 @@ import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 
 /**
- * 相册内无任何数据的空页面
- * Created by YanZhenjie on 2017/3/28.
+ * 空页面
+ * 功能：当手机里没有图片/视频时显示
+ * 提供：拍照、录像入口，属于 MVP 中的 Presenter 层
  */
 public class NullActivity extends BaseActivity implements Contract.NullPresenter {
+    // 视频质量
     private int mQuality = 1;
+    // 视频最大时长
     private long mLimitDuration;
+    // 视频最大大小
     private long mLimitBytes;
-    private Widget mWidget;
-    private Contract.NullView mView;
+    // 拍照/录像返回的路径 Key
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
     @Override
@@ -35,47 +38,63 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_null);
+        // 禁用页面切换动画
         overridePendingTransition(0, 0);
-        mView = new NullView(this, this);
+        // 绑定 MVP：自己是 Presenter，NullView 是 View
+        Contract.NullView mView = new NullView(this, this);
+        // 获取上一页传递的参数
         Bundle argument = getIntent().getExtras();
-        assert argument != null;
-        int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
-        boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-        mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
-        mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
-        mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-        mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-        mView.setupViews(mWidget);
-        mView.setTitle("");
-        switch (function) {
-            case Album.FUNCTION_CHOICE_IMAGE: {
-                mView.setMessage(R.string.album_not_found_image);
-                mView.setMakeVideoDisplay(false);
-                break;
+        if (null != argument) {
+            mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
+            mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
+            mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
+            // 界面样式配置
+            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            if (null != mWidget) {
+                // 初始化 UI
+                mView.setupViews(mWidget);
+                mView.setTitle("");
+                // 初始化状态栏/导航栏颜色（黑白字体自适应）
+                boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+                boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
+                initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
             }
-            case Album.FUNCTION_CHOICE_VIDEO: {
-                mView.setMessage(R.string.album_not_found_video);
+            // 根据当前功能类型，显示不同提示文案
+            int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
+            switch (function) {
+                // 只选图片：隐藏录像按钮
+                case Album.FUNCTION_CHOICE_IMAGE: {
+                    mView.setMessage(R.string.album_not_found_image);
+                    mView.setMakeVideoDisplay(false);
+                    break;
+                }
+                // 只选视频：隐藏拍照按钮
+                case Album.FUNCTION_CHOICE_VIDEO: {
+                    mView.setMessage(R.string.album_not_found_video);
+                    mView.setMakeImageDisplay(false);
+                    break;
+                }
+                // 全部媒体：都显示
+                case Album.FUNCTION_CHOICE_ALBUM: {
+                    mView.setMessage(R.string.album_not_found_album);
+                    break;
+                }
+                default: {
+                    throw new AssertionError("This should not be the case.");
+                }
+            }
+            // 如果不允许使用相机，隐藏两个按钮
+            boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
+            if (!hasCamera) {
                 mView.setMakeImageDisplay(false);
-                break;
-            }
-            case Album.FUNCTION_CHOICE_ALBUM: {
-                mView.setMessage(R.string.album_not_found_album);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
+                mView.setMakeVideoDisplay(false);
             }
         }
-        if (!hasCamera) {
-            mView.setMakeImageDisplay(false);
-            mView.setMakeVideoDisplay(false);
-        }
-        // 设置图标样式
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
     }
 
+    /**
+     * 点击拍照
+     */
     @Override
     public void takePicture() {
         Album.camera(this)
@@ -84,6 +103,9 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 .start();
     }
 
+    /**
+     * 点击录像
+     */
     @Override
     public void takeVideo() {
         Album.camera(this)
@@ -95,6 +117,9 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
                 .start();
     }
 
+    /**
+     * 相机拍摄完成的回调：返回路径
+     */
     private final Action<String> mCameraAction = result -> {
         Intent intent = new Intent();
         intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result);
@@ -102,6 +127,9 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         finish();
     };
 
+    /**
+     * 外部解析返回路径
+     */
     public static String parsePath(Intent intent) {
         return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
     }

@@ -1,32 +1,37 @@
 package com.yanzhenjie.album;
 
 /**
- * <p>Album config.</p>
- * Created by Yan Zhenjie on 2017/3/31.
+ * 相册全局配置类
+ * 用于统一配置相册的图片加载器（AlbumLoader），采用 Builder 构建模式
  */
 public class AlbumConfig {
-    private AlbumLoader mLoader;
+    // 图片加载器（Glide/Picasso等）
+    private final AlbumLoader mLoader;
 
+    /**
+     * 私有构造，通过 Builder 创建实例
+     */
     private AlbumConfig(Builder builder) {
         this.mLoader = builder.mLoader == null ? AlbumLoader.DEFAULT : builder.mLoader;
     }
 
     /**
-     * Create a new builder.
+     * 获取配置好的图片加载器
+     */
+    public AlbumLoader getAlbumLoader() {
+        return mLoader;
+    }
+
+    /**
+     * 获取构建器实例
      */
     public static Builder newBuilder() {
         return new Builder();
     }
 
     /**
-     * Get {@link AlbumLoader}.
-     *
-     * @return {@link AlbumLoader}.
+     * 构建器内部类
      */
-    public AlbumLoader getAlbumLoader() {
-        return mLoader;
-    }
-
     public static final class Builder {
         private AlbumLoader mLoader;
 
@@ -34,10 +39,7 @@ public class AlbumConfig {
         }
 
         /**
-         * Set album loader.
-         *
-         * @param loader {@link AlbumLoader}.
-         * @return {@link Builder}.
+         * 设置自定义图片加载器
          */
         public Builder setAlbumLoader(AlbumLoader loader) {
             this.mLoader = loader;
@@ -45,9 +47,7 @@ public class AlbumConfig {
         }
 
         /**
-         * Create AlbumConfig.
-         *
-         * @return {@link AlbumConfig}.
+         * 构建最终配置对象
          */
         public AlbumConfig build() {
             return new AlbumConfig(this);

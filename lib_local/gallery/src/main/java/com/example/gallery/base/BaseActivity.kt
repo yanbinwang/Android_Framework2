@@ -1,5 +1,6 @@
 package com.example.gallery.base
 
+import android.annotation.SuppressLint
 import android.os.Build
 import android.os.Bundle
 import android.view.Gravity
@@ -31,7 +32,6 @@ import com.example.framework.utils.function.view.textSize
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
-
 /**
  * 针对所有相册页面的基类
  */
@@ -44,7 +44,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 兼容控件内toolbar
          */
         @JvmStatic
-        fun setSupportToolbar(toolbar: Toolbar) {
+        fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout {
                 val statusBarHeight = getStatusBarHeight()
                 it.size(height = it.measuredHeight + statusBarHeight)
@@ -65,7 +65,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         /**
          * 反射获取 Toolbar 中的私有字段 mNavButtonView（返回按钮）
          */
-        private fun getNavButtonView(toolbar: Toolbar): ImageButton? {
+        private fun getNavButtonView(toolbar: Toolbar?): ImageButton? {
             try {
                 // 获取 Toolbar 类中的 mNavButtonView 字段
                 val field = Toolbar::class.java.getDeclaredField("mNavButtonView")
@@ -97,6 +97,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             }
         }
 
+        @SuppressLint("RestrictedApi")
         private fun adjustActionMenuView(menuView: ActionMenuView, @ColorRes colorRes: Int) {
             for (i in 0..<menuView.childCount) {
                 val itemView = menuView.getChildAt(i)
@@ -127,6 +128,22 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         }
 
     }
+
+//    /**
+//     * 复用页面时强制统一动画
+//     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+//     */
+//    override fun onNewIntent(intent: Intent?) {
+//        super.onNewIntent(intent)
+//        val (fadeEnter, fadeExit) = Pair(
+//            Fade().apply { duration = 500; mode = Visibility.MODE_IN },
+//            Fade().apply { duration = 500; mode = Visibility.MODE_OUT }
+//        )
+//        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+//        window.setExitTransition(fadeEnter)
+//        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+//        window.setReturnTransition(fadeExit)
+//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 开启谷歌全屏模式
@@ -172,10 +189,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             val callback = OnBackInvokedCallback {
                 onBackPressedListener.invoke()
             }
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(
-                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
-                callback
-            )
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
             backCallback = callback
         } else {
             // API <33 使用 OnBackPressedCallback

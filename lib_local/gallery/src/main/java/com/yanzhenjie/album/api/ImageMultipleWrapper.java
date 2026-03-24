@@ -12,9 +12,13 @@ import com.yanzhenjie.album.app.album.AlbumActivity;
 import java.util.ArrayList;
 
 /**
- * Created by YanZhenjie on 2017/8/16.
+ * 图片多选专用包装器
+ * 继承自：BasicChoiceWrapper
+ * 功能：只选图片 + 多选
+ * 最终打开：AlbumActivity（图片模式）
  */
 public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultipleWrapper, ArrayList<AlbumFile>, String, ArrayList<AlbumFile>> {
+    // 最大选择数量
     @IntRange(from = 1, to = Integer.MAX_VALUE)
     private int mLimitCount = Integer.MAX_VALUE;
 
@@ -23,9 +27,7 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
     }
 
     /**
-     * Set the list has been selected.
-     *
-     * @param checked the data list.
+     * 设置已选中的列表
      */
     public ImageMultipleWrapper checkedList(ArrayList<AlbumFile> checked) {
         this.mChecked = checked;
@@ -33,17 +35,19 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
     }
 
     /**
-     * Set the maximum number to be selected.
-     *
-     * @param count the maximum number.
+     * 设置最多选多少张
      */
     public ImageMultipleWrapper selectCount(@IntRange(from = 1, to = Integer.MAX_VALUE) int count) {
         this.mLimitCount = count;
         return this;
     }
 
+    /**
+     * 启动图片多选页面
+     */
     @Override
     public void start() {
+        // 把过滤器、回调丢给 AlbumActivity
         AlbumActivity.sSizeFilter = mSizeFilter;
         AlbumActivity.sMimeFilter = mMimeTypeFilter;
         AlbumActivity.sResult = mResult;
@@ -51,8 +55,11 @@ public final class ImageMultipleWrapper extends BasicChoiceWrapper<ImageMultiple
         Intent intent = new Intent(mContext, AlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);
+        // 功能 = 只选图片
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CHOICE_IMAGE);
+        // 模式 = 多选
         intent.putExtra(Album.KEY_INPUT_CHOICE_MODE, Album.MODE_MULTIPLE);
+        // 列数、相机、数量、过滤...
         intent.putExtra(Album.KEY_INPUT_COLUMN_COUNT, mColumnCount);
         intent.putExtra(Album.KEY_INPUT_ALLOW_CAMERA, mHasCamera);
         intent.putExtra(Album.KEY_INPUT_LIMIT_COUNT, mLimitCount);

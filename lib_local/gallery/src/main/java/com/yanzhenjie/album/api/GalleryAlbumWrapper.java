@@ -8,8 +8,10 @@ import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.app.gallery.GalleryAlbumActivity;
 
 /**
- * <p>Gallery wrapper.</p>
- * Created by yanzhenjie on 17-3-29.
+ * 相册预览大图包装器
+ * 继承自：BasicGalleryWrapper（预览顶层抽象）
+ * 功能：外部调用 → 打开大图预览页面（GalleryAlbumActivity）
+ * 这是整个库的最后一个类！
  */
 public class GalleryAlbumWrapper extends BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> {
 
@@ -17,12 +19,18 @@ public class GalleryAlbumWrapper extends BasicGalleryWrapper<GalleryAlbumWrapper
         super(context);
     }
 
+    /**
+     * 启动预览页面
+     * 把所有配置传给 GalleryAlbumActivity
+     */
     @Override
     public void start() {
+        // 静态赋值，让预览页面接收回调
         GalleryAlbumActivity.sResult = mResult;
         GalleryAlbumActivity.sCancel = mCancel;
         GalleryAlbumActivity.sClick = mItemClick;
         GalleryAlbumActivity.sLongClick = mItemLongClick;
+        // 跳转到预览页面
         Intent intent = new Intent(mContext, GalleryAlbumActivity.class);
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget);
         intent.putParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST, mChecked);

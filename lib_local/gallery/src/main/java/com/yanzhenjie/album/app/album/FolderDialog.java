@@ -18,33 +18,45 @@ import com.yanzhenjie.album.impl.OnItemClickListener;
 import java.util.List;
 
 /**
- * <p>Folder preview.</p>
- * Created by Yan Zhenjie on 2016/10/18.
+ * 文件夹选择弹窗（从底部弹出）
+ * 功能：点击相册顶部文件夹名称 → 弹出此对话框切换文件夹
  */
 public class FolderDialog extends BottomSheetDialog {
+    // 当前选中的文件夹位置
     private int mCurrentPosition = 0;
-    private Widget mWidget;
-    private List<AlbumFolder> mAlbumFolders;
-    private FolderAdapter mFolderAdapter;
-    private OnItemClickListener mItemClickListener;
+    // 文件夹列表数据
+    private final List<AlbumFolder> mAlbumFolders;
+    // 列表适配器
+    private final FolderAdapter mFolderAdapter;
+    // 条目点击回调
+    private final OnItemClickListener mItemClickListener;
 
+    /**
+     * 构造方法：初始化弹窗、列表、适配器
+     */
     public FolderDialog(Context context, Widget widget, List<AlbumFolder> albumFolders, OnItemClickListener itemClickListener) {
         super(context, R.style.Album_Dialog_Folder);
+        // 加载布局
         setContentView(R.layout.album_dialog_floder);
-        this.mWidget = widget;
         this.mAlbumFolders = albumFolders;
         this.mItemClickListener = itemClickListener;
+        // 初始化RecyclerView
         RecyclerView recyclerView = getDelegate().findViewById(R.id.rv_content_list);
-        assert recyclerView != null;
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        // 创建适配器
         mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
+        // 条目点击事件
         mFolderAdapter.setItemClickListener((view, position) -> {
+            // 如果点击的不是当前选中项
             if (mCurrentPosition != position) {
+                // 取消上一个选中状态
                 mAlbumFolders.get(mCurrentPosition).setChecked(false);
                 mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                // 记录新位置并设置选中
                 mCurrentPosition = position;
                 mAlbumFolders.get(mCurrentPosition).setChecked(true);
                 mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                // 回调外部
                 if (mItemClickListener != null) {
                     mItemClickListener.onItemClick(view, position);
                 }
@@ -54,14 +66,19 @@ public class FolderDialog extends BottomSheetDialog {
         recyclerView.setAdapter(mFolderAdapter);
     }
 
+    /**
+     * 创建弹窗：设置宽高
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Window window = getWindow();
         if (window != null) {
+            // 获取屏幕宽高
             Display display = window.getWindowManager().getDefaultDisplay();
             DisplayMetrics metrics = new DisplayMetrics();
             display.getRealMetrics(metrics);
+            // 宽度取屏幕最小值，高度铺满
             int minSize = Math.min(metrics.widthPixels, metrics.heightPixels);
             window.setLayout(minSize, -1);
 //            if (Build.VERSION.SDK_INT >= 21) {

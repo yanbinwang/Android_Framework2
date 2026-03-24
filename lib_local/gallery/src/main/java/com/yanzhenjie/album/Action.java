@@ -3,15 +3,15 @@ package com.yanzhenjie.album;
 import androidx.annotation.NonNull;
 
 /**
- * <p>Any action takes place.</p>
- * Created by YanZhenjie on 2017/8/16.
+ * 通用行为/回调接口
+ * 任何操作、任务、逻辑执行完成后的通用回调
  */
 public interface Action<T> {
 
     /**
-     * When the action responds.
+     * 当操作执行完成、结果返回时回调
      *
-     * @param result the result of the action.
+     * @param result 回调返回的数据结果（泛型）
      */
     void onAction(@NonNull T result);
 

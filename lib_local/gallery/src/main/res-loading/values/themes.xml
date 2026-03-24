@@ -1,16 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
+    <!-- 基础对话框样式 -->
     <style name="loadingDialog" parent="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
 
+    <!--
+        加载对话框专用样式
+        功能：无边框、半透明背景、浮层效果、无标题、居中显示
+    -->
     <style name="loadingDialog.Loading">
+        <!-- 无标题 -->
         <item name="android:windowNoTitle">true</item>
+        <!-- 无ActionBar -->
         <item name="android:windowActionBar">false</item>
+        <!-- 无边框 -->
         <item name="android:windowFrame">@null</item>
+        <!-- 悬浮在Activity之上 -->
         <item name="android:windowIsFloating">true</item>
+        <!-- 半透明 -->
         <item name="android:windowIsTranslucent">true</item>
+        <!-- 背景半透明变暗 -->
         <item name="android:backgroundDimEnabled">true</item>
+        <!-- 窗口背景透明 -->
         <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 对话框弹出/关闭动画 -->
         <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 

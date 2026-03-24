@@ -22,8 +22,7 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.divider.Api20ItemDivider;
-import com.yanzhenjie.album.widget.divider.Api21ItemDivider;
+import com.yanzhenjie.album.widget.divider.ItemDivider;
 import com.yanzhenjie.album.widget.divider.Divider;
 
 import java.io.File;
@@ -34,17 +33,21 @@ import java.util.Locale;
 import java.util.UUID;
 
 /**
- * <p>Helper for album.</p>
- * Created by Yan Zhenjie on 2016/10/30.
+ * 相册工具类
+ * 功能：文件路径、拍照、录视频、时间格式化、MD5、Drawable 着色、时间转换等
  */
 public class AlbumUtils {
+    // 相册缓存文件夹名称
     private static final String CACHE_DIRECTORY = "AlbumCache";
 
     /**
-     * Get a writable root directory.
-     *
-     * @param context context.
-     * @return {@link File}.
+     * 私有化构造，禁止实例化
+     */
+    private AlbumUtils() {
+    }
+
+    /**
+     * 获取相册根目录（优先SD卡，否则内部存储）
      */
     @NonNull
     public static File getAlbumRootPath(Context context) {
@@ -56,23 +59,18 @@ public class AlbumUtils {
     }
 
     /**
-     * SD card is available.
-     *
-     * @return true when available, other wise is false.
+     * 判断SD卡是否可用
      */
     public static boolean sdCardIsAvailable() {
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
             return Environment.getExternalStorageDirectory().canWrite();
-        } else
+        } else {
             return false;
+        }
     }
 
     /**
-     * Take picture.
-     *
-     * @param activity    activity.
-     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
-     * @param outPath     file path.
+     * 调用系统相机拍照
      */
     public static void takeImage(@NonNull Activity activity, int requestCode, File outPath) {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
@@ -84,14 +82,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Take video.
-     *
-     * @param activity    activity.
-     * @param requestCode code, see {@link Activity#`onActivityResult`(int, int, Intent)}.
-     * @param outPath     file path.
-     * @param quality     currently value 0 means low quality, suitable for MMS messages, and  value 1 means high quality.
-     * @param duration    specify the maximum allowed recording duration in seconds.
-     * @param limitBytes  specify the maximum allowed size.
+     * 调用系统相机录像
      */
     public static void takeVideo(@NonNull Activity activity, int requestCode, File outPath, @IntRange(from = 0, to = 1) int quality, @IntRange(from = 1) long duration, @IntRange(from = 1) long limitBytes) {
         Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
@@ -106,11 +97,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generates an externally accessed URI based on path.
-     *
-     * @param context context.
-     * @param outPath file path.
-     * @return the uri address of the file.
+     * 根据文件获取 Uri（兼容 7.0 FileProvider）
      */
     @NonNull
     public static Uri getUri(@NonNull Context context, @NonNull File outPath) {
@@ -124,10 +111,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generate a random jpg file path.
-     *
-     * @return file path.
-     * @deprecated use {@link #randomJPGPath(Context)} instead.
+     * 生成随机 JPG 路径（废弃）
      */
     @NonNull
     @Deprecated
@@ -137,10 +121,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generate a random jpg file path.
-     *
-     * @param context context.
-     * @return file path.
+     * 生成随机 JPG 路径
      */
     @NonNull
     public static String randomJPGPath(Context context) {
@@ -151,10 +132,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generates a random jpg file path in the specified directory.
-     *
-     * @param bucket specify the directory.
-     * @return file path.
+     * 在指定目录生成随机 JPG 路径
      */
     @NonNull
     public static String randomJPGPath(File bucket) {
@@ -162,10 +140,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generate a random mp4 file path.
-     *
-     * @return file path.
-     * @deprecated use {@link #randomMP4Path(Context)} instead.
+     * 生成随机 MP4 路径（废弃）
      */
     @NonNull
     @Deprecated
@@ -175,10 +150,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generate a random mp4 file path.
-     *
-     * @param context context.
-     * @return file path.
+     * 生成随机 MP4 路径
      */
     @NonNull
     public static String randomMP4Path(Context context) {
@@ -189,9 +161,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Generates a random mp4 file path in the specified directory.
-     *
-     * @return file path.
+     * 在指定目录生成随机 MP4 路径
      */
     @NonNull
     public static String randomMP4Path(File bucket) {
@@ -199,25 +169,23 @@ public class AlbumUtils {
     }
 
     /**
-     * Generates a random file path using the specified suffix name in the specified directory.
-     *
-     * @param bucket    specify the directory.
-     * @param extension extension.
-     * @return file path.
+     * 根据目录和后缀生成随机文件路径
      */
     @NonNull
     private static String randomMediaPath(File bucket, String extension) {
-        if (bucket.exists() && bucket.isFile()) bucket.delete();
-        if (!bucket.exists()) bucket.mkdirs();
+        if (bucket.exists() && bucket.isFile()) {
+            bucket.delete();
+        }
+        if (!bucket.exists()) {
+            bucket.mkdirs();
+        }
         String outFilePath = AlbumUtils.getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension;
         File file = new File(bucket, outFilePath);
         return file.getAbsolutePath();
     }
 
     /**
-     * Format the current time in the specified format.
-     *
-     * @return the time string.
+     * 获取当前时间格式化字符串
      */
     @NonNull
     public static String getNowDateTime(@NonNull String format) {
@@ -227,10 +195,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Get the mime type of the file in the url.
-     *
-     * @param url file url.
-     * @return mime type.
+     * 获取文件 MimeType
      */
     public static String getMimeType(String url) {
         String extension = getExtension(url);
@@ -240,10 +205,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Get the file extension in url.
-     *
-     * @param url file url.
-     * @return extension.
+     * 获取文件后缀
      */
     public static String getExtension(String url) {
         url = TextUtils.isEmpty(url) ? "" : url.toLowerCase();
@@ -252,21 +214,14 @@ public class AlbumUtils {
     }
 
     /**
-     * Specifies a tint for {@code drawable}.
-     *
-     * @param drawable drawable target, mutate.
-     * @param color    color.
+     * 给 Drawable 设置着色
      */
     public static void setDrawableTint(@NonNull Drawable drawable, @ColorInt int color) {
         DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color);
     }
 
     /**
-     * Specifies a tint for {@code drawable}.
-     *
-     * @param drawable drawable target, mutate.
-     * @param color    color.
-     * @return convert drawable.
+     * 获取着色后的 Drawable
      */
     @NonNull
     public static Drawable getTintDrawable(@NonNull Drawable drawable, @ColorInt int color) {
@@ -276,11 +231,7 @@ public class AlbumUtils {
     }
 
     /**
-     * {@link ColorStateList}.
-     *
-     * @param normal    normal color.
-     * @param highLight highLight color.
-     * @return {@link ColorStateList}.
+     * 构建按钮/选择器的颜色状态
      */
     public static ColorStateList getColorStateList(@ColorInt int normal, @ColorInt int highLight) {
         int[][] states = new int[6][];
@@ -295,13 +246,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Change part of the color of CharSequence.
-     *
-     * @param content content text.
-     * @param start   start index.
-     * @param end     end index.
-     * @param color   color.
-     * @return {@code SpannableString}.
+     * 设置字符串部分文字颜色
      */
     @NonNull
     public static SpannableString getColorText(@NonNull CharSequence content, int start, int end, @ColorInt int color) {
@@ -311,10 +256,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Return a color-int from alpha, red, green, blue components.
-     *
-     * @param color color.
-     * @param alpha alpha, alpha component [0..255] of the color.
+     * 给颜色设置透明度
      */
     @ColorInt
     public static int getAlphaColor(@ColorInt int color, @IntRange(from = 0, to = 255) int alpha) {
@@ -325,23 +267,14 @@ public class AlbumUtils {
     }
 
     /**
-     * Generate divider.
-     *
-     * @param color color.
-     * @return {@link Divider}.
+     * 获取列表分割线
      */
     public static Divider getDivider(@ColorInt int color) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            return new Api21ItemDivider(color);
-        }
-        return new Api20ItemDivider(color);
+        return new ItemDivider(color);
     }
 
     /**
-     * Time conversion.
-     *
-     * @param duration ms.
-     * @return such as: {@code 00:00:00}, {@code 00:00}.
+     * 把毫秒时长转换成 00:00 / 00:00:00 格式
      */
     @NonNull
     public static String convertDuration(@IntRange(from = 1) long duration) {
@@ -383,10 +316,7 @@ public class AlbumUtils {
     }
 
     /**
-     * Get the MD5 value of string.
-     *
-     * @param content the target string.
-     * @return the MD5 value.
+     * 获取字符串 MD5
      */
     public static String getMD5ForString(String content) {
         StringBuilder md5Buffer = new StringBuilder();
@@ -394,8 +324,8 @@ public class AlbumUtils {
             MessageDigest digest = MessageDigest.getInstance("MD5");
             byte[] tempBytes = digest.digest(content.getBytes());
             int digital;
-            for (int i = 0; i < tempBytes.length; i++) {
-                digital = tempBytes[i];
+            for (byte tempByte : tempBytes) {
+                digital = tempByte;
                 if (digital < 0) {
                     digital += 256;
                 }

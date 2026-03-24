@@ -4,7 +4,7 @@
     style="@style/Album.MatchParent"
     android:background="@color/albumColorPrimaryBlack">
 
-    <com.yanzhenjie.album.widget.photoview.FixViewPager
+    <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
         style="@style/Album.MatchParent" />
 
@@ -50,7 +50,7 @@
                     style="@style/Album.WrapContent"
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/album_dp_10"
-                    android:drawableStart="@drawable/album_tag_video_white"
+                    android:drawableStart="@mipmap/album_tag_video_white"
                     android:drawablePadding="@dimen/album_dp_4"
                     android:gravity="center"
                     android:maxLines="1"

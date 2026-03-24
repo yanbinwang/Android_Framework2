@@ -26,7 +26,7 @@
             android:layout_alignParentBottom="true"
             android:layout_marginStart="@dimen/album_dp_6"
             android:layout_marginBottom="@dimen/album_dp_6"
-            android:drawableStart="@drawable/album_tag_video_white"
+            android:drawableStart="@mipmap/album_tag_video_white"
             android:drawablePadding="@dimen/album_dp_4"
             android:ellipsize="end"
             android:gravity="center"

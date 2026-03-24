@@ -6,13 +6,17 @@ import android.os.Parcelable;
 import androidx.annotation.Nullable;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 裁剪比例实体类
+ * 作用：存储裁剪框的宽高比例、比例标题（如 1:1、4:3、16:9）
+ * 实现 Parcelable 用于跨组件、页面传递数据
  */
 public class AspectRatio implements Parcelable {
-    private final float mAspectRatioX;
-    private final float mAspectRatioY;
+    // 比例标题（如"1:1"）
     @Nullable
     private final String mAspectRatioTitle;
+    // 宽/高比例
+    private final float mAspectRatioX;
+    private final float mAspectRatioY;
 
     public AspectRatio(@Nullable String aspectRatioTitle, float aspectRatioX, float aspectRatioY) {
         mAspectRatioTitle = aspectRatioTitle;

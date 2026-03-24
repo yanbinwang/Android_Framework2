@@ -3,15 +3,14 @@ package com.yanzhenjie.durban;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 
 import androidx.annotation.ColorRes;
 import androidx.annotation.IntDef;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.io.OutputStream;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Method;
@@ -19,20 +18,17 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 /**
- * <p>Entrance.</p>
- * Create by Yan Zhenjie on 2017/5/23.
+ * 图片裁剪入口类（链式调用裁剪配置）
+ * 作用：外部调用裁剪功能，统一配置、跳转、接收结果
+ * 设计模式：Builder 链式调用
  */
 public class Durban {
-    /**
-     * 类本身持有对象
-     */
-    private Object o;
-    private Intent mCropIntent;
-
-    /**
-     * 页面跳转参数
-     */
-    private static final String KEY_PREFIX = "AlbumCrop";
+    // 传入的 Activity / Fragment 对象
+    private final Object o;
+    // 跳转裁剪页的 Intent
+    private final Intent mCropIntent;
+    // 跳转 KEY 常量
+    public static final String KEY_PREFIX = "AlbumCrop";
     public static final String KEY_INPUT_STATUS_COLOR = KEY_PREFIX + ".KEY_INPUT_STATUS_COLOR";
     public static final String KEY_INPUT_NAVIGATION_COLOR = KEY_PREFIX + ".KEY_INPUT_NAVIGATION_COLOR";
     public static final String KEY_INPUT_TITLE = KEY_PREFIX + ".KEY_INPUT_TITLE";
@@ -45,38 +41,26 @@ public class Durban {
     public static final String KEY_INPUT_PATH_ARRAY = KEY_PREFIX + ".KEY_INPUT_PATH_ARRAY";
     public static final String KEY_INPUT_CONTROLLER = KEY_PREFIX + ".KEY_INPUT_CONTROLLER";
     public static final String KEY_OUTPUT_IMAGE_LIST = KEY_PREFIX + ".KEY_OUTPUT_IMAGE_LIST";
-
-    /**
-     * 不允许任何手势
-     */
+    // 不允许任何手势
     public static final int GESTURE_NONE = 0;
-    /**
-     * 允许缩放
-     */
+    // 允许缩放
     public static final int GESTURE_SCALE = 1;
-    /**
-     * 允许旋转
-     */
+    // 允许旋转
     public static final int GESTURE_ROTATE = 2;
-    /**
-     * 允许旋转和缩放
-     */
+    // 允许旋转和缩放
     public static final int GESTURE_ALL = 3;
 
+    // 编译时注解：限制手势类型输入
     @IntDef({GESTURE_NONE, GESTURE_SCALE, GESTURE_ROTATE, GESTURE_ALL})
     @Retention(RetentionPolicy.SOURCE)
     public @interface GestureTypes {
     }
 
-    /**
-     * JPEG 格式
-     */
+    // JPEG/PNG 格式
     public static final int COMPRESS_JPEG = 0;
-    /**
-     * PNG 格式
-     */
     public static final int COMPRESS_PNG = 1;
 
+    // 编译时注解：限制格式输入
     @IntDef({COMPRESS_JPEG, COMPRESS_PNG})
     @Retention(RetentionPolicy.SOURCE)
     public @interface FormatTypes {
@@ -93,7 +77,7 @@ public class Durban {
     /**
      * activity/fragment如果是需要在对应页面的onActivityResult获取到值,通过该方法实现拿取上下文,然后映射的方式进行页面跳转
      */
-    @NonNull
+    @Nullable
     protected static Context getContext(Object o) {
         if (o instanceof Activity) return (Context) o;
         else if (o instanceof Fragment) return ((Fragment) o).getContext();
@@ -104,12 +88,12 @@ public class Durban {
     /**
      * 发起裁剪的页面需要得到裁剪后的图片路径集合的时候在onActivityResult中使用
      * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-     * super.onActivityResult(requestCode, resultCode, data)
-     * if (requestCode == RESULT_ALBUM) {
-     * data ?: return
-     * val mImageList = Durban.parseResult(data)
-     * mImageList.safeGet(0).shortToast()
-     * }
+     *   super.onActivityResult(requestCode, resultCode, data)
+     *     if (requestCode == RESULT_ALBUM) {
+     *         data ?: return
+     *         val mImageList = Durban.parseResult(data)
+     *         mImageList.safeGet(0).shortToast()
+     *     }
      * }
      */
     public static ArrayList<String> parseResult(@NonNull Intent intent) {
@@ -157,12 +141,6 @@ public class Durban {
 
     /**
      * 裁剪时的手势支持
-     *
-     * @param gesture gesture sign.
-     * @see #GESTURE_NONE
-     * @see #GESTURE_ALL
-     * @see #GESTURE_ROTATE
-     * @see #GESTURE_SCALE
      */
     public Durban gesture(@GestureTypes int gesture) {
         mCropIntent.putExtra(KEY_INPUT_GESTURE, gesture);
@@ -171,9 +149,6 @@ public class Durban {
 
     /**
      * 裁剪时的宽高比
-     *
-     * @param x aspect ratio X.
-     * @param y aspect ratio Y.
      */
     public Durban aspectRatio(float x, float y) {
         mCropIntent.putExtra(KEY_INPUT_ASPECT_RATIO, new float[]{x, y});
@@ -189,9 +164,6 @@ public class Durban {
 
     /**
      * 裁剪图片输出的最大宽高
-     *
-     * @param width  max cropped image width.
-     * @param height max cropped image height.
      */
     public Durban maxWidthHeight(@IntRange(from = 100) int width, @IntRange(from = 100) int height) {
         mCropIntent.putExtra(KEY_INPUT_MAX_WIDTH_HEIGHT, new int[]{width, height});
@@ -200,10 +172,6 @@ public class Durban {
 
     /**
      * 图片压缩格式：JPEG、PNG
-     *
-     * @param format image format.
-     * @see #COMPRESS_JPEG
-     * @see #COMPRESS_PNG
      */
     public Durban compressFormat(@FormatTypes int format) {
         mCropIntent.putExtra(KEY_INPUT_COMPRESS_FORMAT, format);
@@ -212,9 +180,6 @@ public class Durban {
 
     /**
      * 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
-     *
-     * @param quality see {@link Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)}.
-     * @see Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
      */
     public Durban compressQuality(int quality) {
         mCropIntent.putExtra(KEY_INPUT_COMPRESS_QUALITY, quality);

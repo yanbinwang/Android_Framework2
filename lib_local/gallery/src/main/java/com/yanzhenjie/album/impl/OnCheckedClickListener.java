@@ -3,15 +3,16 @@ package com.yanzhenjie.album.impl;
 import android.widget.CompoundButton;
 
 /**
- * Created by YanZhenjie on 2018/4/11.
+ * 列表条目内复选框/开关的点击监听器
+ * 专门用于监听 CheckBox、Switch 等按钮的选中事件
  */
 public interface OnCheckedClickListener {
 
     /**
-     * Compound button is clicked.
+     * 当复合按钮（CheckBox/Switch）被点击时回调
      *
-     * @param button   view.
-     * @param position the position in the list.
+     * @param button   被点击的复合按钮对象
+     * @param position 条目在列表中的位置
      */
     void onCheckedClick(CompoundButton button, int position);
 

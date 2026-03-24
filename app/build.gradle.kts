@@ -19,6 +19,13 @@ val keystorePropertiesFile = rootProject.file("keystore.properties")
 val keystoreProperties = Properties()
 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
+configurations {
+    all {
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions-runtime")
+        exclude(group = "org.jetbrains.kotlin", module = "kotlin-android-extensions")
+    }
+}
+
 @Suppress("DEPRECATION")
 android {
     signingConfigs {
@@ -146,6 +153,11 @@ dependencies {
     implementation(project(":module_account"))
     // 页面路由
     ksp(libs.therouter.apt)
+
+    // 测试
+    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
+    implementation("com.google.android.exoplayer:exoplayer-core:2.19.1")
+    implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 }
 
 /**

@@ -8,32 +8,37 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Update by Yan Zhenjie on 2017/5/23.
+ * 图片 EXIF 信息解析器
+ * 解析图片方向、旋转信息，保证裁剪后图片不倒置
  */
 public class ImageHeaderParser {
     private static final String TAG = "ImageHeaderParser";
+    // JPEG 图片的标志
     private static final int EXIF_MAGIC_NUMBER = 0xFFD8;
-    // "MM".
+    // TIFF 图片（大端序）
     private static final int MOTOROLA_TIFF_MAGIC_NUMBER = 0x4D4D;
-    // "II".
+    // TIFF 图片（小端序）
     private static final int INTEL_TIFF_MAGIC_NUMBER = 0x4949;
+    // 图像数据开始标记
     private static final int SEGMENT_SOS = 0xDA;
+    // 图像结束标记
     private static final int MARKER_EOI = 0xD9;
+    // 每个段都以 0xFF 开头
     private static final int SEGMENT_START_ID = 0xFF;
+    // EXIF 信息段类型
     private static final int EXIF_SEGMENT_TYPE = 0xE1;
+    // 方向标签编号
     private static final int ORIENTATION_TAG_TYPE = 0x0112;
+    // EXIF 头固定字符串
     private static final String JPEG_EXIF_SEGMENT_PREAMBLE = "Exif\0\0";
     private static final int[] BYTES_PER_FORMAT = {0, 1, 1, 2, 4, 8, 1, 1, 2, 4, 8, 4, 8};
-    private static final byte[] JPEG_EXIF_SEGMENT_PREAMBLE_BYTES = JPEG_EXIF_SEGMENT_PREAMBLE.getBytes(Charset.forName("UTF-8"));
+    private static final byte[] JPEG_EXIF_SEGMENT_PREAMBLE_BYTES = JPEG_EXIF_SEGMENT_PREAMBLE.getBytes(StandardCharsets.UTF_8);
+    // 读取图片流的工具
     private final Reader reader;
-    /**
-     * A constant indicating we were unable to parse the orientation from the image either because
-     * no exif segment containing orientation data existed, or because of an I/O error attempting to
-     * read the exif segment.
-     */
+    // 无法识别方向
     public static final int UNKNOWN_ORIENTATION = -1;
 
     public ImageHeaderParser(InputStream is) {
@@ -41,12 +46,7 @@ public class ImageHeaderParser {
     }
 
     /**
-     * Parse the orientation from the image header. If it doesn't handle this image type (or this is
-     * not an image) it will return a default value rather than throwing an exception.
-     *
-     * @return The exif orientation if present or -1 if the header couldn't be parsed or doesn't
-     * contain an orientation
-     * @throws IOException
+     * 获取图片旋转方向（0/90/180/270）
      */
     public int getOrientation() throws IOException {
         final int magicNumber = reader.getUInt16();
@@ -68,6 +68,9 @@ public class ImageHeaderParser {
         }
     }
 
+    /**
+     * 读取 EXIF 段内容
+     */
     private int parseExifSegment(byte[] tempArray, int exifSegmentLength) throws IOException {
         int read = reader.read(tempArray, exifSegmentLength);
         if (read != exifSegmentLength) {
@@ -87,6 +90,9 @@ public class ImageHeaderParser {
         }
     }
 
+    /**
+     * 检查是不是合法的 EXIF 头
+     */
     private boolean hasJpegExifPreamble(byte[] exifData, int exifSegmentLength) {
         boolean result = exifData != null && exifSegmentLength > JPEG_EXIF_SEGMENT_PREAMBLE_BYTES.length;
         if (result) {
@@ -101,8 +107,7 @@ public class ImageHeaderParser {
     }
 
     /**
-     * Moves reader to the start of the exif segment and returns the length of the exif segment or
-     * {@code -1} if no exif segment is found.
+     * 在图片里找到 EXIF 段，并返回长度
      */
     private int moveToExifSegmentAndGetLength() throws IOException {
         short segmentId, segmentType;
@@ -124,7 +129,6 @@ public class ImageHeaderParser {
                 }
                 return -1;
             }
-            // Segment length includes bytes for segment length.
             segmentLength = reader.getUInt16() - 2;
             if (segmentType != EXIF_SEGMENT_TYPE) {
                 long skipped = reader.skip(segmentLength);
@@ -140,6 +144,10 @@ public class ImageHeaderParser {
         }
     }
 
+    /**
+     * 解析 EXIF 里面的方向,从 EXIF 数据里把方向（ORIENTATION）读出来
+     * java中 -> 如果一个方法不访问任何成员变量，就应该写成 static
+     */
     private static int parseExifSegment(RandomAccessReader segmentData) {
         final int headerOffsetSize = JPEG_EXIF_SEGMENT_PREAMBLE.length();
         short byteOrderIdentifier = segmentData.getInt16(headerOffsetSize);
@@ -161,12 +169,10 @@ public class ImageHeaderParser {
         for (int i = 0; i < tagCount; i++) {
             tagOffset = calcTagOffset(firstIfdOffset, i);
             tagType = segmentData.getInt16(tagOffset);
-            // We only want orientation.
             if (tagType != ORIENTATION_TAG_TYPE) {
                 continue;
             }
             formatCode = segmentData.getInt16(tagOffset + 2);
-            // 12 is max format code.
             if (formatCode < 1 || formatCode > 12) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Log.d(TAG, "Got invalid format code = " + formatCode);
@@ -203,20 +209,28 @@ public class ImageHeaderParser {
                 }
                 continue;
             }
-            //assume componentCount == 1 && fmtCode == 3
             return segmentData.getInt16(tagValueOffset);
         }
         return -1;
     }
 
+    /**
+     * 计算标签在文件中的偏移位置
+     */
     private static int calcTagOffset(int ifdOffset, int tagIndex) {
         return ifdOffset + 2 + 12 * tagIndex;
     }
 
+    /**
+     * 判断是不是支持的图片格式
+     */
     private static boolean handles(int imageMagicNumber) {
         return (imageMagicNumber & EXIF_MAGIC_NUMBER) == EXIF_MAGIC_NUMBER || imageMagicNumber == MOTOROLA_TIFF_MAGIC_NUMBER || imageMagicNumber == INTEL_TIFF_MAGIC_NUMBER;
     }
 
+    /**
+     * 随机读取 EXIF 数据
+     */
     private static class RandomAccessReader {
         private final ByteBuffer data;
 
@@ -243,6 +257,9 @@ public class ImageHeaderParser {
         }
     }
 
+    /**
+     * 读取接口
+     */
     private interface Reader {
         int getUInt16() throws IOException;
 
@@ -253,10 +270,12 @@ public class ImageHeaderParser {
         int read(byte[] buffer, int byteCount) throws IOException;
     }
 
+    /**
+     * 把旧图片的 EXIF 复制到新图片
+     */
     private static class StreamReader implements Reader {
         private final InputStream is;
 
-        // Motorola / big endian byte order.
         public StreamReader(InputStream is) {
             this.is = is;
         }
@@ -282,10 +301,6 @@ public class ImageHeaderParser {
                 if (skipped > 0) {
                     toSkip -= skipped;
                 } else {
-                    // Skip has no specific contract as to what happens when you reach the end of
-                    // the stream. To differentiate between temporarily not having more data and
-                    // having finished the stream, we read a single byte when we fail to skip any
-                    // amount of data.
                     int testEofByte = is.read();
                     if (testEofByte == -1) {
                         break;

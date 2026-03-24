@@ -4,7 +4,7 @@
 
     <item
         android:id="@+id/album_menu_finish"
-        android:icon="@drawable/album_ic_done_white"
+        android:icon="@mipmap/album_ic_done_white"
         android:title="@string/album_menu_finish"
         app:showAsAction="always|withText" />
 
