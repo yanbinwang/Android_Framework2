@@ -8,8 +8,8 @@ import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
 import com.example.common.base.bridge.viewModels
 import com.example.common.base.page.Extra
-import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_FINISH
+import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
@@ -18,6 +18,7 @@ import com.example.common.utils.function.getExtra
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -48,7 +49,6 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.therouter.router.Route
-import com.yanzhenjie.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -525,7 +525,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            mBinding?.finder?.onShutter()
             mPermission.requestPermissions { isGranted, _ ->
                 if (isGranted) {
-                    gallery.imageSelection(hasDurban = true)
+                    pullUpImage()
+//                    gallery.takePicture(getStoragePath("保存图片",false),true)
+//                    gallery.imageSelection(hasDurban = true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }
@@ -723,11 +725,16 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RESULT_ALBUM) {
-            data ?: return
-            val mImageList = Durban.parseResult(data)
-            mImageList.safeGet(0).shortToast()
+        if (requestCode == RESULT_IMAGE) {
+            val uri = data?.data
+            val oriFile = uri.getFileFromUri(this)
+            "${oriFile?.absolutePath}".shortToast()
         }
+//        if (requestCode == RESULT_ALBUM) {
+//            data ?: return
+//            val mImageList = Durban.parseResult(data)
+//            mImageList.safeGet(0).shortToast()
+//        }
     }
 
 //    class TestBean(

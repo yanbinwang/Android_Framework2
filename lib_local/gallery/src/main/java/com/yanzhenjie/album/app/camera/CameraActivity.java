@@ -51,7 +51,6 @@ public class CameraActivity extends BaseActivity {
         SystemBar.setStatusBarColor(this, Color.TRANSPARENT);
         SystemBar.setNavigationBarColor(this, Color.TRANSPARENT);
         SystemBar.invasionNavigationBar(this);
-        SystemBar.invasionNavigationBar(this);
         // 页面重建（旋转屏幕）：恢复参数
         if (savedInstanceState != null) {
             mFunction = savedInstanceState.getInt(INSTANCE_CAMERA_FUNCTION);

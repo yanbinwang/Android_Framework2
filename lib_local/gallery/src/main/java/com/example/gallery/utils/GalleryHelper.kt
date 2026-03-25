@@ -9,7 +9,6 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
-import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.gallery.R
 import com.yanzhenjie.album.Album
@@ -102,37 +101,41 @@ class GalleryHelper {
             .build()
     }
 
-    /**
-     * 跳转至相机-拍照
-     */
-    fun takePicture(filePath: String, hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
-        imageCamera?.image()
-            ?.filePath(filePath)
-            ?.onResult {
-                if (hasDurban) toDurban(it) else listener.invoke(it)
-            }
-            ?.start()
-    }
-
-    /**
-     * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
-     */
-    fun recordVideo(filePath: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
-        imageCamera?.video()
-            // 视频输出路径
-            ?.filePath(filePath)
-            // 视频质量, [0, 1].
-            ?.quality(1)
-            // 视频的最长持续时间以毫秒为单位
-            ?.limitDuration(duration)
-//            // 视频的最大大小，以字节为单位
-//            .limitBytes(Long.MAX_VALUE)
-            // 完成回调
-            ?.onResult {
-                listener.invoke(it)
-            }
-            ?.start()
-    }
+//    /**
+//     * 跳转至相机-拍照
+//     */
+//    fun takePicture(root: String, hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
+//        imageCamera?.image()
+//            ?.filePath(root)
+//            ?.onResult {
+//                if (hasDurban) {
+//                    toDurban(it)
+//                } else {
+//                    listener.invoke(it)
+//                }
+//            }
+//            ?.start()
+//    }
+//
+//    /**
+//     * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
+//     */
+//    fun recordVideo(root: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
+//        imageCamera?.video()
+//            // 视频输出路径
+//            ?.filePath(root)
+//            // 视频质量, [0, 1].
+//            ?.quality(1)
+//            // 视频的最长持续时间以毫秒为单位
+//            ?.limitDuration(duration)
+////            // 视频的最大大小，以字节为单位
+////            .limitBytes(Long.MAX_VALUE)
+//            // 完成回调
+//            ?.onResult {
+//                listener.invoke(it)
+//            }
+//            ?.start()
+//    }
 
     /**
      * 选择图片
@@ -158,7 +161,11 @@ class GalleryHelper {
                         string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    if (hasDurban) toDurban(path) else listener.invoke(path)
+                    if (hasDurban) {
+                        toDurban(path)
+                    } else {
+                        listener.invoke(path)
+                    }
                 }
             }
             ?.start()

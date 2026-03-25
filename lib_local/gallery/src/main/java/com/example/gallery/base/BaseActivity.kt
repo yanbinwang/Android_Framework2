@@ -41,12 +41,23 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     companion object {
 
         /**
+         * 一启动就拿一次系统默认状态栏高度（永远不变）
+         */
+        private val defaultStatusBarHeight = getStatusBarHeight()
+
+        /**
          * 兼容控件内toolbar
          */
         @JvmStatic
         fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout {
-                val statusBarHeight = getStatusBarHeight()
+//                val statusBarHeight = getStatusBarHeight()
+                // 拿当前页面的高度
+                var statusBarHeight = getStatusBarHeight()
+                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用【一开始就存好的默认高度】
+                if (statusBarHeight != defaultStatusBarHeight) {
+                    statusBarHeight = defaultStatusBarHeight
+                }
                 it.size(height = it.measuredHeight + statusBarHeight)
                 it.padding(top = statusBarHeight)
                 // 返回按钮调整
@@ -56,7 +67,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     navButton?.tooltipText = null
                 }
                 navButton?.setContentDescription(null)
-                navButton?.setOnLongClickListener { v -> true }
+                navButton?.setOnLongClickListener { _ -> true }
                 // 去除水波纹
                 navButton?.background = null
             }
