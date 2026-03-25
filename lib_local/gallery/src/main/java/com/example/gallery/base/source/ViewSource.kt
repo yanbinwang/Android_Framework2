@@ -2,7 +2,6 @@ package com.example.gallery.base.source
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.Menu
 import android.view.MenuInflater
@@ -10,8 +9,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toDrawable
+import com.example.common.utils.function.orEmpty
+import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 
@@ -33,7 +32,7 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置 Toolbar 并绑定点击事件
      */
     override fun setActionBar(toolbar: Toolbar) {
-        this.mActionBar = toolbar
+        mActionBar = toolbar
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -73,12 +72,10 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置是否显示返回按钮
      */
     override fun setDisplayHomeAsUpEnabled(showHome: Boolean) {
-        if (mActionBar != null) {
-            if (showHome) {
-                mActionBar?.setNavigationIcon(mActionBarIcon)
-            } else {
-                mActionBar?.setNavigationIcon(null)
-            }
+        if (showHome) {
+            mActionBar?.setNavigationIcon(mActionBarIcon)
+        } else {
+            mActionBar?.setNavigationIcon(null)
         }
     }
 
@@ -86,11 +83,11 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置返回图标（资源ID/Drawable）
      */
     override fun setHomeAsUpIndicator(id: Int) {
-        setHomeAsUpIndicator(getContext()?.let { ContextCompat.getDrawable(it, id) } ?: Color.TRANSPARENT.toDrawable())
+        setHomeAsUpIndicator(getContext().drawable(id).orEmpty())
     }
 
     override fun setHomeAsUpIndicator(icon: Drawable) {
-        this.mActionBarIcon = icon
+        mActionBarIcon = icon
         mActionBar?.setNavigationIcon(icon)
     }
 
@@ -98,21 +95,21 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置菜单/返回按钮监听
      */
     override fun setMenuClickListener(listener: MenuClickListener) {
-        this.mMenuItemSelectedListener = listener
+        mMenuItemSelectedListener = listener
     }
 
     /**
      * 获取上下文
      */
-    override fun getContext(): Context? {
-        return getHost()?.context
+    override fun getContext(): Context {
+        return mHost.context
     }
 
     /**
      * 获取当前根视图
      */
-    override fun getView(): View? {
-        return getHost()
+    override fun getView(): View {
+        return mHost
     }
 
     /**
@@ -125,7 +122,7 @@ class ViewSource(view: View) : Source<View>(view) {
     /**
      * 获取菜单加载器
      */
-    override fun getMenuInflater(): MenuInflater? {
+    override fun getMenuInflater(): MenuInflater {
         return SupportMenuInflater(getContext())
     }
 
@@ -133,7 +130,7 @@ class ViewSource(view: View) : Source<View>(view) {
      * 初始化：自动查找并绑定 Toolbar
      */
     override fun prepare() {
-        getHost()?.findViewById<Toolbar>(R.id.toolbar)?.let { toolbar ->
+        mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
             setActionBar(toolbar)
             setSupportToolbar(toolbar)
         }
@@ -143,8 +140,8 @@ class ViewSource(view: View) : Source<View>(view) {
      * 关闭输入法
      */
     override fun closeInputMethod() {
-        val focusView = getView()?.findFocus()
-        val manager = getContext()?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val focusView = getView().findFocus()
+        val manager = getContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         manager?.hideSoftInputFromWindow(focusView?.windowToken, 0)
     }
 

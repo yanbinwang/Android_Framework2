@@ -3,7 +3,6 @@ package com.example.gallery.base.source
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
-import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.view.Menu
 import android.view.MenuInflater
@@ -11,8 +10,8 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.drawable.toDrawable
+import com.example.common.utils.function.orEmpty
+import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 
@@ -22,26 +21,21 @@ import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
  */
 @SuppressLint("RestrictedApi")
 class ActivitySource(activity: Activity) : Source<Activity>(activity) {
-    // 页面根视图
-    private var mView: View? = null
     // 页面标题栏 Toolbar
     private var mActionBar: Toolbar? = null
     // 导航返回图标
     private var mActionBarIcon: Drawable? = null
     // 菜单/返回按钮点击监听
     private var mMenuItemSelectedListener: MenuClickListener? = null
-
-    init {
-        // 绑定页面主视图 content
-        mView = activity.findViewById(R.id.content)
-    }
+    // 页面根视图
+    private val mView = activity.findViewById<View>(R.id.content)
 
     /**
      * 设置 Toolbar 并绑定点击事件
      */
     override fun setActionBar(toolbar: Toolbar) {
-        this.mActionBar = toolbar
-        getHost()?.title?.let { setTitle(it) }
+        mActionBar = toolbar
+        setTitle(mHost.title)
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -92,11 +86,11 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 设置返回图标（资源ID/Drawable）
      */
     override fun setHomeAsUpIndicator(id: Int) {
-        setHomeAsUpIndicator(getContext()?.let { ContextCompat.getDrawable(it, id) } ?: Color.TRANSPARENT.toDrawable())
+        setHomeAsUpIndicator(getContext().drawable(id).orEmpty())
     }
 
     override fun setHomeAsUpIndicator(icon: Drawable) {
-        this.mActionBarIcon = icon
+        mActionBarIcon = icon
         mActionBar?.setNavigationIcon(icon)
     }
 
@@ -104,21 +98,28 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 设置菜单/返回按钮监听
      */
     override fun setMenuClickListener(listener: MenuClickListener) {
-        this.mMenuItemSelectedListener = listener
+        mMenuItemSelectedListener = listener
     }
 
     /**
      * 获取上下文
      */
-    override fun getContext(): Context? {
-        return getHost()
+    override fun getContext(): Context {
+        return mHost
     }
 
     /**
      * 获取主视图
      */
-    override fun getView(): View? {
+    override fun getView(): View {
         return mView
+    }
+
+    /**
+     * 获取菜单加载器
+     */
+    override fun getMenuInflater(): MenuInflater {
+        return SupportMenuInflater(getContext())
     }
 
     /**
@@ -129,17 +130,10 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     }
 
     /**
-     * 获取菜单加载器
-     */
-    override fun getMenuInflater(): MenuInflater? {
-        return SupportMenuInflater(getContext())
-    }
-
-    /**
      * 初始化：自动查找并绑定 Toolbar
      */
     override fun prepare() {
-        getHost()?.findViewById<Toolbar>(R.id.toolbar)?.let { toolbar ->
+        mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
             setActionBar(toolbar)
             setSupportToolbar(toolbar)
         }
@@ -149,8 +143,8 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 关闭输入法
      */
     override fun closeInputMethod() {
-        val focusView = getHost()?.currentFocus
-        val manager = getHost()?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val focusView = mHost.currentFocus
+        val manager = mHost.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         manager?.hideSoftInputFromWindow(focusView?.windowToken, 0)
     }
 
