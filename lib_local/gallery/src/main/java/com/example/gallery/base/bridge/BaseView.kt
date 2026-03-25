@@ -148,8 +148,8 @@ abstract class BaseView<Presenter : BasePresenter> {
     /**
      * 设置 ActionBar/Toolbar
      */
-    protected fun setActionBar(actionBar: Toolbar) {
-        mSource.setActionBar(actionBar)
+    protected fun setActionBar(toolbar: Toolbar) {
+        mSource.setActionBar(toolbar)
         invalidateOptionsMenu()
     }
 
@@ -163,8 +163,8 @@ abstract class BaseView<Presenter : BasePresenter> {
     /**
      * 设置返回按钮图标（资源/Drawable）
      */
-    protected fun setHomeAsUpIndicator(@DrawableRes icon: Int) {
-        mSource.setHomeAsUpIndicator(icon)
+    protected fun setHomeAsUpIndicator(@DrawableRes id: Int) {
+        mSource.setHomeAsUpIndicator(id)
     }
 
     protected fun setHomeAsUpIndicator(icon: Drawable) {
@@ -213,49 +213,55 @@ abstract class BaseView<Presenter : BasePresenter> {
         mSource.setTitle(title)
     }
 
-    fun setTitle(@StringRes title: Int) {
-        mSource.setTitle(title)
+    fun setTitle(@StringRes resId: Int) {
+        mSource.setTitle(resId)
     }
 
     fun setSubTitle(title: String) {
         mSource.setSubTitle(title)
     }
 
-    fun setSubTitle(@StringRes title: Int) {
-        mSource.setSubTitle(title)
+    fun setSubTitle(@StringRes resId: Int) {
+        mSource.setSubTitle(resId)
     }
 
     fun getPresenter(): Presenter {
         return mPresenter
     }
 
-    fun getText(@StringRes id: Int): CharSequence {
-        return getContext().getText(id)
+    /**
+     * 返回带粗体、斜体、颜色等富文本样式
+     */
+    fun getText(@StringRes resId: Int): CharSequence {
+        return getContext().getText(resId)
     }
 
-    fun getString(@StringRes id: Int): String {
-        return getContext().getString(id)
+    /**
+     * 返回纯文本，不带任何样式
+     */
+    fun getString(@StringRes resId: Int): String {
+        return getContext().getString(resId)
     }
 
-    fun getString(@StringRes id: Int, vararg formatArgs: Any): String {
-        return getContext().getString(id, *formatArgs)
+    fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
+        return getContext().getString(resId, *formatArgs)
     }
 
-    fun getDrawable(@DrawableRes id: Int): Drawable {
-        return getContext().drawable(id).orEmpty()
+    fun getDrawable(@DrawableRes resId: Int): Drawable {
+        return getContext().drawable(resId).orEmpty()
     }
 
     @ColorInt
-    fun getColor(@ColorRes id: Int): Int {
-        return getContext().color(id)
+    fun getColor(@ColorRes resId: Int): Int {
+        return getContext().color(resId)
     }
 
-    fun getStringArray(@ArrayRes id: Int): Array<String> {
-        return getResources().getStringArray(id)
+    fun getStringArray(@ArrayRes resId: Int): Array<String> {
+        return getResources().getStringArray(resId)
     }
 
-    fun getIntArray(@ArrayRes id: Int): IntArray {
-        return getResources().getIntArray(id)
+    fun getIntArray(@ArrayRes resId: Int): IntArray {
+        return getResources().getIntArray(resId)
     }
 
     fun showMessageDialog(@StringRes title: Int, @StringRes message: Int) {
@@ -329,24 +335,19 @@ abstract class BaseView<Presenter : BasePresenter> {
         alertDialog.show()
     }
 
+    fun toast(@StringRes message: Int) {
+        toast(getText(message))
+    }
+
     fun toast(message: CharSequence) {
         Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
     }
 
-    fun toast(@StringRes message: Int) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
+    fun snackBar(@StringRes message: Int) {
+        snackBar(getText(message))
     }
 
     fun snackBar(message: CharSequence) {
-        val snackBar = Snackbar.make(mSource.getView(), message, Snackbar.LENGTH_SHORT)
-        val view = snackBar.getView()
-        view.setBackgroundColor(getColor(R.color.albumColorPrimaryBlack).orZero)
-        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        textView.setTextColor(Color.WHITE)
-        snackBar.show()
-    }
-
-    fun snackBar(@StringRes message: Int) {
         val snackBar = Snackbar.make(mSource.getView(), message, Snackbar.LENGTH_SHORT)
         val view = snackBar.getView()
         view.setBackgroundColor(getColor(R.color.albumColorPrimaryBlack).orZero)
