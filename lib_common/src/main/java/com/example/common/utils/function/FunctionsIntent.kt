@@ -39,9 +39,9 @@ import java.io.Serializable
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
- * 1.拉起相册/视频库/录屏皆可
- * 2.需要读写权限
- * 3.注册方法不允许by lazy，直接变量里这么写
+ * 1) 拉起相册/视频库/录屏皆可
+ * 2) 需要读写权限
+ * 3) 注册方法不允许by lazy，直接变量里这么写
  *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
  *      if (it.resultCode == Activity.RESULT_OK) {
  *          it?.data ?: return@registerForActivityResult
@@ -121,31 +121,36 @@ fun Activity?.pullUpAlbum() {
 }
 
 /**
- * 打开手机相机-拍照
- * CAMERA, STORAGE
+ * 打开手机相机 -> 拍照
+ * 1) 授权: CAMERA, STORAGE
+ * 2) 调起后获取源文件创建路径
+ * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  */
-fun Activity?.pullUpImage() {
-    this ?: return
+fun Activity?.pullUpImage(): String? {
+    this ?: return null
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    startActivityForResult(file, intent, RESULT_IMAGE)
+    return startActivityForResult(file, intent, RESULT_IMAGE)
 }
 
 /**
- * 打开手机相机-录像
- * CAMERA, MICROPHONE, STORAGE
+ * 打开手机相机 -> 录像
+ * 1) 授权: CAMERA, MICROPHONE, STORAGE
+ * 2) 调起后获取源文件创建路径
+ * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  */
-fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5) {
-    this ?: return
+fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5): String? {
+    this ?: return null
     val file = getOutputFile(StorageType.VIDEO)
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)//设置视频录制的最长时间
+    // 设置视频录制的最长时间
+    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
-    startActivityForResult(file, intent, RESULT_VIDEO)
+    return startActivityForResult(file, intent, RESULT_VIDEO)
 }
 
-private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int) {
-    if (null == file || null == this) return
+private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int): String? {
+    if (null == file || null == this) return null
     try {
         val uri: Uri?
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -159,6 +164,7 @@ private fun Activity?.startActivityForResult(file: File?, intent: Intent, reques
     } catch (e: Exception) {
         e.printStackTrace()
     }
+    return file.absolutePath
 }
 
 /**
