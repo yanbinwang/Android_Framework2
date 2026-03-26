@@ -33,6 +33,7 @@ import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
@@ -135,17 +136,27 @@ fun Activity?.pullUpImage(): String? {
 
 /**
  * 打开手机相机 -> 录像
+ * @param maxDurationMs 最大时长(毫秒)
+ * @param maxSizeMb 最大文件大小(MB)
+ * @param quality 视频质量 0~1 (0 或 1)
  * 1) 授权: CAMERA, MICROPHONE, STORAGE
  * 2) 调起后获取源文件创建路径
  * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  */
-fun Activity?.pullUpVideo(second: Int? = 50000, quality: Double? = 0.5): String? {
+fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0): String? {
     this ?: return null
     val file = getOutputFile(StorageType.VIDEO)
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
-    // 设置视频录制的最长时间
-    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, second)
-    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
+    // 时间限制 (单位：秒)
+    val maxSecond = maxDurationMs.coerceAtLeast(1000) / 1000
+    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maxSecond)
+    // 大小限制 (单位：字节 byte)
+    val sizeLimit = maxSizeMb * 1024L * 1024L
+    intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, sizeLimit)
+    // 质量 (0[低清、小体积]或1[高清、大体积])
+    val safeQuality = if (quality == 0) 0 else 1
+    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, safeQuality)
+    // 正式开启录制视频
     return startActivityForResult(file, intent, RESULT_VIDEO)
 }
 

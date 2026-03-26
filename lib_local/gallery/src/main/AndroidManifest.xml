@@ -2,6 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application>
+        <!-- 外部调取系统相机页 -->
+        <activity
+            android:name="com.example.gallery.activity.CameraPermissionActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
+            android:theme="@style/TransparentTheme"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
             android:name="com.yanzhenjie.durban.DurbanActivity"

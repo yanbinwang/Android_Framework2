@@ -1,6 +1,7 @@
 package com.example.gallery.utils
 
 import android.content.Context
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -9,16 +10,19 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
+import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.gallery.R
+import com.example.gallery.activity.CameraPermissionActivity
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_BYTES
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_DURATION
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_QUALITY
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.api.ImageCameraWrapper
 import com.yanzhenjie.album.api.ImageMultipleWrapper
 import com.yanzhenjie.album.api.ImageSingleWrapper
-import com.yanzhenjie.album.api.VideoCameraWrapper
 import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
-import com.yanzhenjie.album.api.camera.Camera
 import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Controller
@@ -31,9 +35,10 @@ import com.yanzhenjie.durban.Durban
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
 class GalleryHelper {
+    private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
-    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
+//    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
     private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
@@ -69,14 +74,14 @@ class GalleryHelper {
     constructor(any: Any) {
         when (any) {
             is AppCompatActivity, is FragmentActivity -> {
-                imageCamera = Album.camera(any)
+//                imageCamera = Album.camera(any)
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
                 widget = any.getAlbumWidget()
                 durban = Durban.with(any)
             }
             is Fragment -> {
-                imageCamera = Album.camera(any)
+//                imageCamera = Album.camera(any)
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
                 widget = any.context.getAlbumWidget()
@@ -90,6 +95,7 @@ class GalleryHelper {
      */
     private fun Context?.getAlbumWidget(barColor: Int = R.color.bgBlack): Widget? {
         this ?: return null
+        context = this
         return Widget.newDarkBuilder(this)
             // 标题 ---标题颜色只有黑色白色
             .title(string(R.string.albumTitle))
@@ -101,10 +107,10 @@ class GalleryHelper {
             .build()
     }
 
-//    /**
-//     * 跳转至相机-拍照
-//     */
-//    fun takePicture(root: String, hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
+    /**
+     * 跳转至相机-拍照
+     */
+    fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
 //        imageCamera?.image()
 //            ?.filePath(root)
 //            ?.onResult {
@@ -115,12 +121,23 @@ class GalleryHelper {
 //                }
 //            }
 //            ?.start()
-//    }
-//
-//    /**
-//     * 跳转至相机-录像(时间不一定能指定，大多数手机不兼容)
-//     */
-//    fun recordVideo(root: String, duration: Long = 1.hour, listener: (albumPath: String?) -> Unit = {}) {
+        CameraPermissionActivity.onResult = {
+            if (hasDurban) {
+                toDurban(it)
+            } else {
+                listener.invoke(it)
+            }
+        }
+        val intent = Intent(context, CameraPermissionActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra(CAMERA_FUNCTION, 0)
+        context?.startActivity(intent)
+    }
+
+    /**
+     * 跳转至相机-录像
+     */
+    fun recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String?) -> Unit = {}) {
 //        imageCamera?.video()
 //            // 视频输出路径
 //            ?.filePath(root)
@@ -135,7 +152,17 @@ class GalleryHelper {
 //                listener.invoke(it)
 //            }
 //            ?.start()
-//    }
+        CameraPermissionActivity.onResult = {
+            listener.invoke(it)
+        }
+        val intent = Intent(context, CameraPermissionActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra(CAMERA_FUNCTION, 1)
+        intent.putExtra(CAMERA_QUALITY, quality)
+        intent.putExtra(CAMERA_DURATION, maxDurationMs)
+        intent.putExtra(CAMERA_BYTES, maxSizeMb)
+        context?.startActivity(intent)
+    }
 
     /**
      * 选择图片
