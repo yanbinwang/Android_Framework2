@@ -34,14 +34,14 @@ class CameraPermissionActivity : AppCompatActivity() {
     private val mLimitBytes by lazy { intentLong(CAMERA_BYTES, 10L) }
 
     companion object {
-        // 相机功能类型
-        const val CAMERA_FUNCTION = "CAMERA_FUNCTION"
         // 拍照
         const val CAMERA_FUNCTION_IMAGE = 0
         // 录像
         const val CAMERA_FUNCTION_VIDEO = 1
         // 相册
         const val CAMERA_FUNCTION_ALBUM = 2
+        // 相机功能类型
+        const val CAMERA_FUNCTION = "CAMERA_FUNCTION"
         // 视频质量
         const val CAMERA_QUALITY = "CAMERA_QUALITY"
         // 视频最大时长
