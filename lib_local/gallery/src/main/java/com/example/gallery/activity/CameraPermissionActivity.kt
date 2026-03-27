@@ -14,6 +14,7 @@ import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
@@ -33,14 +34,14 @@ class CameraPermissionActivity : AppCompatActivity() {
     private val mLimitBytes by lazy { intentLong(CAMERA_BYTES, 10L) }
 
     companion object {
-        // 相机功能类型
-        const val CAMERA_FUNCTION = "CAMERA_FUNCTION"
         // 拍照
         const val CAMERA_FUNCTION_IMAGE = 0
         // 录像
         const val CAMERA_FUNCTION_VIDEO = 1
         // 相册
         const val CAMERA_FUNCTION_ALBUM = 2
+        // 相机功能类型
+        const val CAMERA_FUNCTION = "CAMERA_FUNCTION"
         // 视频质量
         const val CAMERA_QUALITY = "CAMERA_QUALITY"
         // 视频最大时长
@@ -94,6 +95,16 @@ class CameraPermissionActivity : AppCompatActivity() {
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
             startActivity(intent)
         }
+
+        /**
+         * 调取当前页面的前一个页面的OnResume中调取 , 避免用户跳转后去别的app然后直接切回我们的app
+         */
+        fun clearCameraPage() {
+            val cameraClass = CameraPermissionActivity::class.java
+            if (AppManager.isActivityAlive(cameraClass)) {
+                AppManager.finishActivitiesOfClass(cameraClass)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +117,8 @@ class CameraPermissionActivity : AppCompatActivity() {
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+        // 加入管理类
+        AppManager.addActivity(this)
         initData()
     }
 
@@ -113,9 +126,9 @@ class CameraPermissionActivity : AppCompatActivity() {
         // 根据功能类型：打开系统相机
         when (mFunction) {
             // 拍照
-            0 -> mFilePath = pullUpImage()
+            CAMERA_FUNCTION_IMAGE -> mFilePath = pullUpImage()
             // 录像
-            1 -> mFilePath = pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
+            CAMERA_FUNCTION_VIDEO -> mFilePath = pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
             // 相册
             else -> pullUpAlbum()
         }
@@ -147,6 +160,8 @@ class CameraPermissionActivity : AppCompatActivity() {
         }
         // 用完清空，防止泄漏
         onResult = null
+        // 清除管理类
+        AppManager.removeActivity(this)
     }
 
     override fun finish() {
