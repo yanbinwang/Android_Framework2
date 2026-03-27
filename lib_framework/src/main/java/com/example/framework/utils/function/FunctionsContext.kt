@@ -343,6 +343,8 @@ fun Activity.intentString(key: String, default: String = "") = intent.getStringE
 
 fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
 
+fun Activity.intentLong(key: String, default: Long = 0) = intent.getLongExtra(key, default)
+
 fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
 
 fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
@@ -360,6 +362,8 @@ fun Fragment.intentString(key: String, default: String = "") = arguments?.getStr
 //fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
 
 fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
+
+fun Fragment.intentLong(key: String, default: Long = 0) = arguments?.getLong(key, default)
 
 fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
 
