@@ -14,6 +14,7 @@ import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
@@ -94,6 +95,16 @@ class CameraPermissionActivity : AppCompatActivity() {
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
             startActivity(intent)
         }
+
+        /**
+         * 调取当前页面的前一个页面的OnResume中调取 , 避免用户跳转后去别的app然后直接切回我们的app
+         */
+        fun clearCameraPage() {
+            val cameraClass = CameraPermissionActivity::class.java
+            if (AppManager.isActivityAlive(cameraClass)) {
+                AppManager.finishActivitiesOfClass(cameraClass)
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -106,6 +117,8 @@ class CameraPermissionActivity : AppCompatActivity() {
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
+        // 加入管理类
+        AppManager.addActivity(this)
         initData()
     }
 
@@ -131,6 +144,7 @@ class CameraPermissionActivity : AppCompatActivity() {
                 mFilePath = oriFile?.absolutePath
                 finish()
             }
+
             else -> {
                 schedule(this, {
                     finish()
@@ -147,6 +161,8 @@ class CameraPermissionActivity : AppCompatActivity() {
         }
         // 用完清空，防止泄漏
         onResult = null
+        // 清除管理类
+        AppManager.removeActivity(this)
     }
 
     override fun finish() {
