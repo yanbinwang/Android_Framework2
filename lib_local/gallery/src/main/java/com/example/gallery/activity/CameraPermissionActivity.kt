@@ -126,9 +126,9 @@ class CameraPermissionActivity : AppCompatActivity() {
         // 根据功能类型：打开系统相机
         when (mFunction) {
             // 拍照
-            0 -> mFilePath = pullUpImage()
+            CAMERA_FUNCTION_IMAGE -> mFilePath = pullUpImage()
             // 录像
-            1 -> mFilePath = pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
+            CAMERA_FUNCTION_VIDEO -> mFilePath = pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
             // 相册
             else -> pullUpAlbum()
         }
