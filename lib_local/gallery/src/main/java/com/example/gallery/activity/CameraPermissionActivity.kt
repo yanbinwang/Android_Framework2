@@ -144,7 +144,6 @@ class CameraPermissionActivity : AppCompatActivity() {
                 mFilePath = oriFile?.absolutePath
                 finish()
             }
-
             else -> {
                 schedule(this, {
                     finish()
