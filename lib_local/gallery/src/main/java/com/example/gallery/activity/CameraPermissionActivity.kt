@@ -1,13 +1,17 @@
 package com.example.gallery.activity
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.base.page.ResultCode.RESULT_VIDEO
+import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.isPathExists
+import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -17,18 +21,26 @@ import com.example.framework.utils.function.value.hour
 import com.example.gallery.R
 
 /**
- * 外部直接通过工具类拉起相机时调取
+ * 相机跳转页
+ * 功能：调用系统相机拍照 / 录制视频 / 相册
+ * 1) 相册模块单独独立,内部调取相册不会有问题,该页面解决的是外部调取
  */
 class CameraPermissionActivity : AppCompatActivity() {
     private var mFilePath: String? = null
-    private val mFunction by lazy { intentInt(CAMERA_FUNCTION, 0) }
+    private val mFunction by lazy { intentInt(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE) }
     private val mQuality by lazy { intentInt(CAMERA_QUALITY, 0) }
     private val mLimitDuration by lazy { intentLong(CAMERA_DURATION, 1.hour) }
     private val mLimitBytes by lazy { intentLong(CAMERA_BYTES, 10L) }
 
     companion object {
-        // 相机功能类型：0 -> 拍照 / 1 -> 录像
+        // 相机功能类型
         const val CAMERA_FUNCTION = "CAMERA_FUNCTION"
+        // 拍照
+        const val CAMERA_FUNCTION_IMAGE = 0
+        // 录像
+        const val CAMERA_FUNCTION_VIDEO = 1
+        // 相册
+        const val CAMERA_FUNCTION_ALBUM = 2
         // 视频质量
         const val CAMERA_QUALITY = "CAMERA_QUALITY"
         // 视频最大时长
@@ -37,6 +49,51 @@ class CameraPermissionActivity : AppCompatActivity() {
         const val CAMERA_BYTES = "CAMERA_BYTES"
         // 相机回调
         var onResult: ((String) -> Unit)? = null
+
+        /**
+         * 拍照
+         */
+        fun Context?.takePicture(listener: (albumPath: String) -> Unit = {}) {
+            this ?: return
+            onResult = {
+                listener.invoke(it)
+            }
+            val intent = Intent(this, CameraPermissionActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
+            startActivity(intent)
+        }
+
+        /**
+         * 录像
+         */
+        fun Context?.recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
+            this ?: return
+            onResult = {
+                listener.invoke(it)
+            }
+            val intent = Intent(this, CameraPermissionActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
+            intent.putExtra(CAMERA_QUALITY, quality)
+            intent.putExtra(CAMERA_DURATION, maxDurationMs)
+            intent.putExtra(CAMERA_BYTES, maxSizeMb)
+            startActivity(intent)
+        }
+
+        /**
+         * 相册
+         */
+        fun Context?.pickImage(listener: (albumPath: String) -> Unit = {}) {
+            this ?: return
+            onResult = {
+                listener.invoke(it)
+            }
+            val intent = Intent(this, CameraPermissionActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
+            startActivity(intent)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,22 +111,31 @@ class CameraPermissionActivity : AppCompatActivity() {
 
     private fun initData() {
         // 根据功能类型：打开系统相机
-        mFilePath = when (mFunction) {
+        when (mFunction) {
             // 拍照
-            0 -> pullUpImage()
+            0 -> mFilePath = pullUpImage()
             // 录像
-            else -> pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
+            1 -> mFilePath = pullUpVideo(mLimitDuration, mLimitBytes, mQuality)
+            // 相册
+            else -> pullUpAlbum()
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == RESULT_IMAGE || requestCode == RESULT_VIDEO) {
-            finish()
-        } else {
-            schedule(this, {
+        when (requestCode) {
+            RESULT_IMAGE, RESULT_VIDEO -> finish()
+            RESULT_ALBUM -> {
+                val uri = data?.data
+                val oriFile = uri.getFileFromUri(this)
+                mFilePath = oriFile?.absolutePath
                 finish()
-            }, 500)
+            }
+            else -> {
+                schedule(this, {
+                    finish()
+                }, 500)
+            }
         }
     }
 

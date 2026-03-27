@@ -12,11 +12,15 @@ import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toNewList
 import com.example.gallery.R
 import com.example.gallery.activity.CameraPermissionActivity
 import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_BYTES
 import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_DURATION
 import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_ALBUM
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_IMAGE
+import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_VIDEO
 import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_QUALITY
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.ImageMultipleWrapper
@@ -38,7 +42,7 @@ class GalleryHelper {
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
-//    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
+    //    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
     private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
@@ -110,7 +114,7 @@ class GalleryHelper {
     /**
      * 跳转至相机-拍照
      */
-    fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String?) -> Unit = {}) {
+    fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
 //        imageCamera?.image()
 //            ?.filePath(root)
 //            ?.onResult {
@@ -130,14 +134,14 @@ class GalleryHelper {
         }
         val intent = Intent(context, CameraPermissionActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(CAMERA_FUNCTION, 0)
+        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
         context?.startActivity(intent)
     }
 
     /**
      * 跳转至相机-录像
      */
-    fun recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String?) -> Unit = {}) {
+    fun recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
 //        imageCamera?.video()
 //            // 视频输出路径
 //            ?.filePath(root)
@@ -157,7 +161,7 @@ class GalleryHelper {
         }
         val intent = Intent(context, CameraPermissionActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(CAMERA_FUNCTION, 1)
+        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
         intent.putExtra(CAMERA_QUALITY, quality)
         intent.putExtra(CAMERA_DURATION, maxDurationMs)
         intent.putExtra(CAMERA_BYTES, maxSizeMb)
@@ -165,9 +169,26 @@ class GalleryHelper {
     }
 
     /**
-     * 选择图片
+     * 选择图片-系统相册
      */
-    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String?) -> Unit = {}) {
+    fun pickImage(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
+        CameraPermissionActivity.onResult = {
+            if (hasDurban) {
+                toDurban(it)
+            } else {
+                listener.invoke(it)
+            }
+        }
+        val intent = Intent(context, CameraPermissionActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
+        context?.startActivity(intent)
+    }
+
+    /**
+     * 选择图片-单选
+     */
+    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String) -> Unit = {}) {
         imageMultiple
             // 多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
             ?.singleChoice()
@@ -199,9 +220,27 @@ class GalleryHelper {
     }
 
     /**
-     * 选择视频
+     * 选择图片-多选
      */
-    fun videoSelection(megabyte: Long = 100, listener: (albumPath: String?) -> Unit = {}) {
+    fun imageMultipleSelection(hasCamera: Boolean = true, selectCount: Int = 100, listener: (list: ArrayList<String>) -> Unit = {}) {
+        imageMultiple
+            ?.multipleChoice()
+            ?.selectCount(selectCount)
+            ?.widget(widget)
+            ?.camera(hasCamera)
+            ?.columnCount(3)
+            ?.filterSize { it == 0L }
+            ?.afterFilterVisibility(false)
+            ?.onResult { result ->
+                listener.invoke(result.toNewList { it.path })
+            }
+            ?.start()
+    }
+
+    /**
+     * 选择视频-单选
+     */
+    fun videoSelection(megabyte: Long = 100, listener: (albumPath: String) -> Unit = {}) {
         videoMultiple
             ?.singleChoice()
             ?.widget(widget)
@@ -217,6 +256,24 @@ class GalleryHelper {
                     }
                     listener.invoke(path)
                 }
+            }
+            ?.start()
+    }
+
+    /**
+     * 选择视频-多选
+     */
+    fun videoMultipleSelection(selectCount: Int = 100, listener: (list: ArrayList<String>) -> Unit = {}) {
+        videoMultiple
+            ?.multipleChoice()
+            ?.selectCount(selectCount)
+            ?.widget(widget)
+            ?.camera(true)
+            ?.columnCount(3)
+            ?.filterSize { it == 0L }
+            ?.afterFilterVisibility(false)
+            ?.onResult { result ->
+                listener.invoke(result.toNewList { it.path })
             }
             ?.start()
     }
