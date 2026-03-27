@@ -142,6 +142,7 @@ fun Activity?.pullUpImage(): String? {
  * 1) 授权: CAMERA, MICROPHONE, STORAGE
  * 2) 调起后获取源文件创建路径
  * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
+ * 4) 三个参数基本失效, 国产 ROM 深度定制相机忽略了对应参数的兼容, Google 自家相机（Pixel）也在 2019 年移除了支持, 传输参数是没有任何意义的, 定制化相机需自行依赖三方库做限制
  */
 fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0): String? {
     this ?: return null
