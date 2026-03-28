@@ -22,6 +22,20 @@
 
     </androidx.appcompat.widget.Toolbar>
 
+    <FrameLayout
+        android:id="@+id/content_frame"
+        style="@style/durban_MatchParent"
+        android:layout_above="@id/iv_controller_root"
+        android:layout_below="@id/toolbar"
+        android:background="@color/durban_CropBackground">
+
+        <com.yanzhenjie.durban.view.CropView
+            android:id="@+id/crop_view"
+            style="@style/durban_MatchParent"
+            android:alpha="0" />
+
+    </FrameLayout>
+
     <LinearLayout
         android:id="@+id/iv_controller_root"
         style="@style/durban_WrapContent.WidthMatchParent"
@@ -95,19 +109,5 @@
         </LinearLayout>
 
     </LinearLayout>
-
-    <FrameLayout
-        android:id="@+id/content_frame"
-        style="@style/durban_MatchParent"
-        android:layout_above="@id/iv_controller_root"
-        android:layout_below="@id/toolbar"
-        android:background="@color/durban_CropBackground">
-
-        <com.yanzhenjie.durban.view.CropView
-            android:id="@+id/crop_view"
-            style="@style/durban_MatchParent"
-            android:alpha="0" />
-
-    </FrameLayout>
 
 </RelativeLayout>

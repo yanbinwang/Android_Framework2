@@ -4,20 +4,22 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         style="@style/Album.WrapContent.WidthMatchParent"
-        android:layout_below="@id/app_bar_layout" />
+        android:layout_below="@id/toolbar"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
 
     <RelativeLayout
         style="@style/Album.MatchParent.SheetBottom"
         android:layout_alignParentBottom="true"
         android:background="@color/albumSheetBottom">
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_switch_dir"
             style="@style/Album.TextButton.WrapContent.SheetBottom"
             android:layout_alignParentStart="true"
             android:drawableEnd="@mipmap/album_abc_spinner_white" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_preview"
             style="@style/Album.TextButton.WrapContent.SheetBottom"
             android:layout_alignParentEnd="true"
@@ -28,7 +30,7 @@
     <LinearLayout
         android:id="@+id/layout_loading"
         style="@style/Album.MatchParent"
-        android:layout_below="@id/app_bar_layout"
+        android:layout_below="@id/toolbar"
         android:background="@color/albumPageLight"
         android:gravity="center"
         android:visibility="gone">

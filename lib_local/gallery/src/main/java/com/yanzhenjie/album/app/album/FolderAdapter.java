@@ -6,10 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatRadioButton;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gallery.R;
@@ -103,7 +103,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
         // 文件夹名称 + 文件数量
         private final TextView mTvTitle;
         // 单选按钮
-        private final AppCompatRadioButton mCheckBox;
+        private final RadioButton mCheckBox;
         private final OnItemClickListener mItemClickListener;
 
         private FolderViewHolder(View itemView, ColorStateList selector, OnItemClickListener itemClickListener) {

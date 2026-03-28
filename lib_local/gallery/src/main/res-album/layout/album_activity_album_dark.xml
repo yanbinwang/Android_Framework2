@@ -5,30 +5,24 @@
     style="@style/Album.MatchParent"
     android:background="@color/albumPageLight">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        style="@style/Album.AppBar.General">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Album.Toolbar.Dark"
+        app:navigationIcon="@mipmap/album_ic_back_white">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/Album.Toolbar.Dark"
-            app:navigationIcon="@mipmap/album_ic_back_white">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:lines="1"
+            android:scrollHorizontally="true"
+            android:textSize="@dimen/album_sp_18"
+            tools:text="@string/albumTitle"
+            tools:textColor="@color/textWhite" />
 
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:ellipsize="end"
-                android:lines="1"
-                android:scrollHorizontally="true"
-                android:textSize="@dimen/album_sp_18"
-                tools:text="@string/albumTitle"
-                tools:textColor="@color/textWhite" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <include layout="@layout/album_content_album" />
 

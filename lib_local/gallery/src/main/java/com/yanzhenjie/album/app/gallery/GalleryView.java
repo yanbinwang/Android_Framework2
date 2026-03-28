@@ -6,13 +6,13 @@ import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
@@ -41,7 +41,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
     // 视频时长文字
     private final TextView mTvDuration;
     // 选择框
-    private final AppCompatCheckBox mCheckBox;
+    private final CheckBox mCheckBox;
     // 顶层遮罩层（拦截点击事件）
     private final FrameLayout mLayoutLayer;
 

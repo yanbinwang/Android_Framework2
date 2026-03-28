@@ -528,10 +528,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             mPermission.requestPermissions { isGranted, _ ->
                 if (isGranted) {
 //                    pullUpImage()
-                    gallery.takePicture{
-                        it.shortToast()
-                    }
-//                    gallery.imageSelection(hasDurban = true)
+//                    gallery.takePicture(true){
+//                        it.shortToast()
+//                    }
+                    gallery.imageSelection(hasDurban = true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }

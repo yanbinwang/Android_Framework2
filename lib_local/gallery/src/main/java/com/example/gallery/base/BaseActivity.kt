@@ -41,7 +41,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     companion object {
 
         /**
-         * 一启动就拿一次系统默认状态栏高度（永远不变）
+         * 启动相册页面就拿一次系统默认状态栏高度（由于第一个界面一定是相册库而不是裁剪,故而该值几乎是启动相册库后就不变的）
          */
         private val defaultStatusBarHeight = getStatusBarHeight()
 
@@ -51,8 +51,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         @JvmStatic
         fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout {
-//                val statusBarHeight = getStatusBarHeight()
-                // 拿当前页面的高度
+                // 取当前页面状态栏高度
                 var statusBarHeight = getStatusBarHeight()
                 // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用【一开始就存好的默认高度】
                 if (statusBarHeight != defaultStatusBarHeight) {

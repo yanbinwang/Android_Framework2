@@ -5,30 +5,24 @@
     style="@style/Album.MatchParent"
     android:background="@color/albumPageLight">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        style="@style/Album.AppBar.General">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Album.Toolbar.Dark"
+        app:navigationIcon="@mipmap/album_ic_back_white">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/Album.Toolbar.Dark"
-            app:navigationIcon="@mipmap/album_ic_back_white">
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:lines="1"
+            android:scrollHorizontally="true"
+            android:textSize="@dimen/album_sp_18"
+            tools:text="@string/albumTitle"
+            tools:textColor="@color/textWhite" />
 
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:ellipsize="end"
-                android:lines="1"
-                android:scrollHorizontally="true"
-                android:textSize="@dimen/album_sp_18"
-                tools:text="@string/albumTitle"
-                tools:textColor="@color/textWhite" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         style="@style/Album.MatchParent"
@@ -41,7 +35,7 @@
             style="@style/Album.WrapContent"
             android:textColor="@color/albumFontHint" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_camera_image"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"
@@ -51,7 +45,7 @@
             android:text="@string/album_camera_image_capture"
             android:textColor="@color/albumFontLight" />
 
-        <androidx.appcompat.widget.AppCompatButton
+        <Button
             android:id="@+id/btn_camera_video"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"

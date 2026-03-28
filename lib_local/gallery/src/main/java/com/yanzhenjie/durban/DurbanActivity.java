@@ -408,6 +408,7 @@ public class DurbanActivity extends BaseActivity {
     private void setResultSuccessful() {
         Intent intent = new Intent();
         intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
         setResult(RESULT_OK, intent);
         finish();
     }
@@ -415,6 +416,7 @@ public class DurbanActivity extends BaseActivity {
     private void setResultFailure() {
         Intent intent = new Intent();
         intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
         setResult(RESULT_CANCELED, intent);
         finish();
     }

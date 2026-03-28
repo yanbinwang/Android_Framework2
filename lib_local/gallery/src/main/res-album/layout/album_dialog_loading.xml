@@ -2,10 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Album.WrapContent"
     android:gravity="center"
-    android:paddingLeft="@dimen/album_dp_35"
-    android:paddingTop="@dimen/album_dp_20"
-    android:paddingRight="@dimen/album_dp_35"
-    android:paddingBottom="@dimen/album_dp_20">
+    android:paddingHorizontal="@dimen/album_dp_35"
+    android:paddingVertical="@dimen/album_dp_20">
 
     <com.yanzhenjie.album.widget.ColorProgressBar
         android:id="@+id/progress_bar"

@@ -6,9 +6,9 @@ import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
-import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
@@ -29,9 +29,9 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
     // 空页面提示文字
     private final TextView mTvMessage;
     // 拍照按钮
-    private final AppCompatButton mBtnTakeImage;
+    private final Button mBtnTakeImage;
     // 录像按钮
-    private final AppCompatButton mBtnTakeVideo;
+    private final Button mBtnTakeVideo;
 
     /**
      * 构造方法：绑定控件
