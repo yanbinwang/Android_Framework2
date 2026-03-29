@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
-import com.example.common.R
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
@@ -29,6 +28,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
+import com.example.gallery.R
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 
@@ -50,25 +50,26 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          */
         @JvmStatic
         fun setSupportToolbar(toolbar: Toolbar?) {
-            toolbar.doOnceAfterLayout {
+            toolbar.doOnceAfterLayout { tb ->
                 // 取当前页面状态栏高度
                 var statusBarHeight = getStatusBarHeight()
                 // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用【一开始就存好的默认高度】
                 if (statusBarHeight != defaultStatusBarHeight) {
                     statusBarHeight = defaultStatusBarHeight
                 }
-                it.size(height = it.measuredHeight + statusBarHeight)
-                it.padding(top = statusBarHeight)
-                // 返回按钮调整
-                val navButton = getNavButtonView(it)
+                // 设置高度
+                tb.size(height = tb.measuredHeight + statusBarHeight)
+                tb.padding(top = statusBarHeight)
+                // 取出系统按钮
+                val systemNavBtn = getNavButtonView(tb)
                 // 去除长按文字
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    navButton?.tooltipText = null
+                    systemNavBtn?.tooltipText = null
                 }
-                navButton?.setContentDescription(null)
-                navButton?.setOnLongClickListener { _ -> true }
+                systemNavBtn?.setContentDescription(null)
+                systemNavBtn?.setOnLongClickListener { _ -> true }
                 // 去除水波纹
-                navButton?.background = null
+                systemNavBtn?.background = null
             }
         }
 
