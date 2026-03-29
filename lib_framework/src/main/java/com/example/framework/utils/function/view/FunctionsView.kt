@@ -824,6 +824,40 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
 }
 
 /**
+ * 反射获取 View 的 OnClickListener
+ */
+fun View?.clickListener(): View.OnClickListener? {
+    return try {
+        val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
+        listenerInfoField.isAccessible = true
+        val listenerInfo = listenerInfoField.get(this)
+        val onClickField = listenerInfo.javaClass.getDeclaredField("mOnClickListener")
+        onClickField.isAccessible = true
+        onClickField.get(listenerInfo) as? View.OnClickListener
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 反射获取 View 的 OnLongClickListener
+ */
+fun View?.longClickListener(): View.OnLongClickListener? {
+    return try {
+        val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
+        listenerInfoField.isAccessible = true
+        val listenerInfo = listenerInfoField.get(this)
+        val longClickField = listenerInfo.javaClass.getDeclaredField("mOnLongClickListener")
+        longClickField.isAccessible = true
+        longClickField.get(listenerInfo) as? View.OnLongClickListener
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
  * header的onDragListener中关闭refresh的刷新前，先调用取消的action，告知系统手势离开屏幕，然后再关闭
  * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....

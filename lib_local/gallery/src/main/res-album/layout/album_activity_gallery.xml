@@ -25,8 +25,8 @@
                 android:layout_gravity="center"
                 android:ellipsize="end"
                 android:lines="1"
-                android:scrollHorizontally="true"
                 android:textSize="@dimen/album_sp_18"
+                android:textStyle="bold"
                 tools:text="@string/albumTitle"
                 tools:textColor="@color/textWhite" />
 

@@ -12,6 +12,7 @@ import android.text.Editable
 import android.text.InputFilter
 import android.text.InputType
 import android.text.Spannable
+import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
@@ -291,10 +292,30 @@ fun TextView?.setSpannable(spannable: Spannable) {
  * 清除高亮
  */
 fun TextView?.clearHighlightColor() {
-    if (this == null) return
+    this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         highlightColor = Color.TRANSPARENT
     }
+}
+
+/**
+ * 自动跑马灯滚动效果
+ * 适用于：标题、超长文本、Toolbar 标题等
+ */
+fun TextView?.enableMarquee() {
+    this ?: return
+    // 必须单行
+    isSingleLine = true
+    // 跑马灯模式
+    ellipsize = TextUtils.TruncateAt.MARQUEE
+    // 无限循环
+    marqueeRepeatLimit = -1
+    // 强制获取焦点
+    isFocusable = true
+    isFocusableInTouchMode = true
+    requestFocus()
+    // 解决部分机型/布局中不滚动的问题（如被包裹在 Toolbar 里）
+    isSelected = true
 }
 
 /**

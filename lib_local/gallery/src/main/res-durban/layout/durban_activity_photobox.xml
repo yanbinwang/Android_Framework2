@@ -15,7 +15,6 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:scrollHorizontally="true"
             android:textSize="@dimen/album_sp_18"
             tools:text="@string/durbanTitle"
             tools:textColor="@color/textWhite" />
