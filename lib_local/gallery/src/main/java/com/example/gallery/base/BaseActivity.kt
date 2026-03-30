@@ -246,9 +246,9 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     /**
-     * 1.bye() 方法中直接调用了 onBackPressed()
-     * 2.在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
-     * 3.系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
+     * 1) bye() 方法中直接调用了 onBackPressed()
+     * 2) 在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
+     * 3) 系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
      */
     override fun bye() {
 //        onBackPressed()
