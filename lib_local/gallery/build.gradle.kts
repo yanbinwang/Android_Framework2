@@ -3,7 +3,6 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.parcelize)
 }
 
 @Suppress("DEPRECATION")
@@ -30,10 +29,6 @@ android {
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
-    }
-
-    buildFeatures {
-        dataBinding = true
     }
 
     kotlin {
