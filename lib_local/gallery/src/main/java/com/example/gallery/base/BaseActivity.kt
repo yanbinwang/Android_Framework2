@@ -53,23 +53,24 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             toolbar.doOnceAfterLayout { tb ->
                 // 取当前页面状态栏高度
                 var statusBarHeight = getStatusBarHeight()
-                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用【一开始就存好的默认高度】
+                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用"一开始就存好的默认高度"
                 if (statusBarHeight != defaultStatusBarHeight) {
                     statusBarHeight = defaultStatusBarHeight
                 }
                 // 设置高度
                 tb.size(height = tb.measuredHeight + statusBarHeight)
+                // 设置左、右内边距全为0
                 tb.padding(top = statusBarHeight)
                 // 取出系统按钮
                 val systemNavBtn = getNavButtonView(tb)
+                // 去除水波纹
+                systemNavBtn?.background = null
                 // 去除长按文字
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     systemNavBtn?.tooltipText = null
                 }
                 systemNavBtn?.setContentDescription(null)
                 systemNavBtn?.setOnLongClickListener { _ -> true }
-                // 去除水波纹
-                systemNavBtn?.background = null
             }
         }
 
