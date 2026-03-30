@@ -50,22 +50,22 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置标题
      */
     override fun setTitle(title: CharSequence) {
-        mActionBar?.setTitle(title)
+//        mActionBar?.setTitle(title)
     }
 
     override fun setTitle(resId: Int) {
-        mActionBar?.setTitle(resId)
+//        mActionBar?.setTitle(resId)
     }
 
     /**
      * 设置副标题
      */
     override fun setSubTitle(title: CharSequence) {
-        mActionBar?.setSubtitle(title)
+//        mActionBar?.setSubtitle(title)
     }
 
     override fun setSubTitle(resId: Int) {
-        mActionBar?.setSubtitle(resId)
+//        mActionBar?.setSubtitle(resId)
     }
 
     /**

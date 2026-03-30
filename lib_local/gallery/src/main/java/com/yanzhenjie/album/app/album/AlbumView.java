@@ -107,10 +107,10 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
         int mStatusColor = widget.getStatusBarColor();
-        mTitle.setText(widget.getTitle());
         mToolbar.setBackgroundColor(getColor(mStatusColor));
-        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
-        mToolbar.setTitleTextColor(getColor(mStatusColor));
+//        mToolbar.setTitleTextColor(getColor(mStatusColor));
+//        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
+        mTitle.setText(widget.getTitle());
         // 浅色 / 深色主题
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));
@@ -120,7 +120,9 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
             Drawable completeIcon = mCompleteMenu.getIcon();
-            AlbumUtils.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+            if (null != completeIcon) {
+                AlbumUtils.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+            }
             mCompleteMenu.setIcon(completeIcon);
         } else {
             // 白色文字、白色图标

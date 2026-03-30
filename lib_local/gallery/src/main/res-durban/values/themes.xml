@@ -31,7 +31,7 @@
         <item name="theme">@style/durban_ToolbarTheme</item>
     </style>
 
-    <style name="durban_Toolbar.PopupTheme">
+    <style name="durban_Toolbar.PopupTheme" parent="Album.Toolbar">
         <item name="popupTheme">@style/durban_PopupOverlay</item>
         <item name="selectableItemBackground">@null</item>
         <item name="selectableItemBackgroundBorderless">@null</item>

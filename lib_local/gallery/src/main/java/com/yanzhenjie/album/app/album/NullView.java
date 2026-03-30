@@ -57,8 +57,8 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
     public void setupViews(Widget widget) {
         int mStatusColor = widget.getStatusBarColor();
         mToolbar.setBackgroundColor(getColor(mStatusColor));
-        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
-        mToolbar.setTitleTextColor(getColor(mStatusColor));
+//        mToolbar.setTitleTextColor(getColor(mStatusColor));
+//        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
         mTitle.setText(widget.getTitle());
         // 设置返回箭头
         Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
