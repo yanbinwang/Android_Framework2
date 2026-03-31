@@ -41,11 +41,18 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public static Action<ArrayList<String>> sResult;
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.album_activity_gallery);
         // 初始化 MVP
         mView = new GalleryView<>(this, this);
+        // 导航栏
+        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
         // 获取传递参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
