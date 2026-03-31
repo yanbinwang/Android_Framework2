@@ -57,31 +57,6 @@ public class TransformImageView extends AppCompatImageView {
     protected final float[] mCurrentImageCorners = new float[RECT_CORNER_POINTS_COORDS];
     protected final float[] mCurrentImageCenter = new float[RECT_CENTER_POINT_COORDS];
 
-    /**
-     * 图片状态监听接口
-     */
-    public interface TransformImageListener {
-        /**
-         * 加载完成
-         */
-        void onLoadComplete();
-
-        /**
-         * 加载失败
-         */
-        void onLoadFailure();
-
-        /**
-         * 旋转回调
-         */
-        void onRotate(float currentAngle);
-
-        /**
-         * 缩放回调
-         */
-        void onScale(float currentScale);
-    }
-
     public TransformImageView(Context context) {
         this(context, null);
     }
@@ -93,6 +68,13 @@ public class TransformImageView extends AppCompatImageView {
     public TransformImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         init();
+    }
+
+    /**
+     * 初始化设置
+     */
+    protected void init() {
+        setScaleType(ScaleType.MATRIX);
     }
 
     /**
@@ -172,21 +154,6 @@ public class TransformImageView extends AppCompatImageView {
     }
 
     /**
-     * 获取矩阵中某个值
-     */
-    protected float getMatrixValue(@NonNull Matrix matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT) int valueIndex) {
-        matrix.getValues(mMatrixValues);
-        return mMatrixValues[valueIndex];
-    }
-
-    /**
-     * 初始化设置
-     */
-    protected void init() {
-        setScaleType(ScaleType.MATRIX);
-    }
-
-    /**
      * 设置/获取 图片最大尺寸
      */
     public void setMaxBitmapSize(int maxBitmapSize) {
@@ -201,26 +168,7 @@ public class TransformImageView extends AppCompatImageView {
     }
 
     /**
-     * 获取路径、目录、图片信息
-     */
-    public String getImagePath() {
-        return mImagePath;
-    }
-
-    public void setOutputDirectory(String outputDirectory) {
-        mOutputDirectory = outputDirectory;
-    }
-
-    public String getOutputDirectory() {
-        return mOutputDirectory;
-    }
-
-    public ExifInfo getExifInfo() {
-        return mExifInfo;
-    }
-
-    /**
-     * 异步加载图片
+     * 获取 / 加载 图片路径 (异步)
      */
     public void setImagePath(@NonNull String inputImagePath) throws Exception {
         mImagePath = inputImagePath;
@@ -242,18 +190,30 @@ public class TransformImageView extends AppCompatImageView {
         }).execute(inputImagePath);
     }
 
+    public String getImagePath() {
+        return mImagePath;
+    }
+
+    /**
+     * 获取路径、目录、图片信息
+     */
+    public void setOutputDirectory(String outputDirectory) {
+        mOutputDirectory = outputDirectory;
+    }
+
+    public String getOutputDirectory() {
+        return mOutputDirectory;
+    }
+
+    public ExifInfo getExifInfo() {
+        return mExifInfo;
+    }
+
     /**
      * 获取当前缩放倍数
      */
     public float getCurrentScale() {
         return getMatrixScale(mCurrentImageMatrix);
-    }
-
-    /**
-     * 公式计算：矩阵 → 缩放值
-     */
-    public float getMatrixScale(@NonNull Matrix matrix) {
-        return (float) Math.sqrt(Math.pow(getMatrixValue(matrix, Matrix.MSCALE_X), 2) + Math.pow(getMatrixValue(matrix, Matrix.MSKEW_Y), 2));
     }
 
     /**
@@ -264,10 +224,25 @@ public class TransformImageView extends AppCompatImageView {
     }
 
     /**
+     * 公式计算：矩阵 → 缩放值
+     */
+    public float getMatrixScale(@NonNull Matrix matrix) {
+        return (float) Math.sqrt(Math.pow(getMatrixValue(matrix, Matrix.MSCALE_X), 2) + Math.pow(getMatrixValue(matrix, Matrix.MSKEW_Y), 2));
+    }
+
+    /**
      * 公式计算：矩阵 → 角度
      */
     public float getMatrixAngle(@NonNull Matrix matrix) {
         return (float) -(Math.atan2(getMatrixValue(matrix, Matrix.MSKEW_X), getMatrixValue(matrix, Matrix.MSCALE_X)) * (180 / Math.PI));
+    }
+
+    /**
+     * 获取矩阵中某个值
+     */
+    private float getMatrixValue(@NonNull Matrix matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT) int valueIndex) {
+        matrix.getValues(mMatrixValues);
+        return mMatrixValues[valueIndex];
     }
 
     /**
@@ -325,15 +300,29 @@ public class TransformImageView extends AppCompatImageView {
         mTransformImageListener = transformImageListener;
     }
 
-//    /**
-//     * 把当前图片的 偏移 X / 偏移 Y / 缩放倍数 / 旋转角度 输出到 Logcat 方便调试
-//     */
-//    protected void printMatrix(@NonNull String logPrefix, @NonNull Matrix matrix) {
-//        float x = getMatrixValue(matrix, Matrix.MTRANS_X);
-//        float y = getMatrixValue(matrix, Matrix.MTRANS_Y);
-//        float rScale = getMatrixScale(matrix);
-//        float rAngle = getMatrixAngle(matrix);
-//        Log.d(TAG, logPrefix + ": matrix: { x: " + x + ", y: " + y + ", scale: " + rScale + ", angle: " + rAngle + " }");
-//    }
+    /**
+     * 图片状态监听接口
+     */
+    public interface TransformImageListener {
+        /**
+         * 加载完成
+         */
+        void onLoadComplete();
+
+        /**
+         * 加载失败
+         */
+        void onLoadFailure();
+
+        /**
+         * 旋转回调
+         */
+        void onRotate(float currentAngle);
+
+        /**
+         * 缩放回调
+         */
+        void onScale(float currentScale);
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.yanzhenjie.durban.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -29,6 +30,7 @@ import java.lang.annotation.RetentionPolicy;
  * 裁剪遮罩层View
  * 功能：绘制半透明背景、裁剪框、网格线、支持自由拖拽裁剪框
  */
+@SuppressLint("ClickableViewAccessibility")
 public class OverlayView extends View {
     // 自由裁剪模式
     @FreestyleMode
@@ -60,15 +62,15 @@ public class OverlayView extends View {
     // 裁剪框变化回调
     private OverlayViewChangeListener mCallback;
     // 圆形裁剪路径
-    private Path mCircularPath = new Path();
+    private final Path mCircularPath = new Path();
     // 半透明背景画笔
-    private Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mDimmedStrokePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     // 裁剪网格画笔
-    private Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropGridPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     // 裁剪框画笔
-    private Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropFramePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     // 裁剪框角点画笔
-    private Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint mCropFrameCornersPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     // 裁剪框矩形
     private final RectF mCropViewRect = new RectF();
     // 临时矩形
@@ -104,10 +106,6 @@ public class OverlayView extends View {
         mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.durban_dp_30);
         mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.durban_dp_100);
         mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.durban_dp_10);
-        // 低版本系统开启软件渲染，保证绘制正常
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2 && Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-            setLayerType(LAYER_TYPE_SOFTWARE, null);
-        }
     }
 
     /**

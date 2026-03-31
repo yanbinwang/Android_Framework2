@@ -1,5 +1,6 @@
 package com.yanzhenjie.durban.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.util.AttributeSet;
@@ -17,6 +18,7 @@ import com.example.gallery.R;
  * 2) OverlayView → 负责裁剪框、九宫格、阴影遮罩
  * 作用：把图片层 + 遮罩层 组合在一起，互相通信
  */
+@SuppressLint("CustomViewStyleable")
 public class CropView extends FrameLayout {
     // 图片裁剪View（旋转、缩放、手势、保存）
     private final GestureCropImageView mGestureCropImageView;

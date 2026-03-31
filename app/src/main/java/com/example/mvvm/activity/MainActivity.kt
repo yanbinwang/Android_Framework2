@@ -531,7 +531,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                    gallery.takePicture(true){
 //                        it.shortToast()
 //                    }
-                    gallery.imageMultipleSelection(true)
+                    gallery.imageSelection(hasDurban = true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }

@@ -1,5 +1,6 @@
 package com.yanzhenjie.durban.widget;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
@@ -12,6 +13,7 @@ import com.yanzhenjie.durban.utils.RotationGestureDetector;
  * 最终对外使用的裁剪View
  * 具备：单指拖动、双指缩放、双指旋转、双击放大
  */
+@SuppressLint("ClickableViewAccessibility")
 public class GestureCropImageView extends CropImageView {
     // 双击放大分步数（默认从最小到最大需要5次双击）
     private int mDoubleTapScaleSteps = 5;
