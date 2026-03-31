@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
+import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 
 /**
  * Activity 载体实现类
@@ -134,7 +135,7 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     override fun prepare() {
         mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
             setActionBar(toolbar)
-//            setSupportToolbar(toolbar)
+            setSupportToolbar(toolbar)
         }
     }
 
