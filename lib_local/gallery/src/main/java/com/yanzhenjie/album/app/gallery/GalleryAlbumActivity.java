@@ -52,7 +52,7 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
             mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
             // 初始化 View
             Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-            mView.setTitle("");
+//            mView.setTitle("");
             mView.setupViews(mWidget, mCheckable);
             mView.bindData(mAlbumFiles);
         }
@@ -116,7 +116,7 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
         // 设置标题：1 / 10
-        mView.setSubTitle(position + 1 + " / " + mAlbumFiles.size());
+//        mView.setSubTitle(position + 1 + " / " + mAlbumFiles.size());
         AlbumFile albumFile = mAlbumFiles.get(position);
         // 同步勾选状态
         if (mCheckable) {

@@ -95,7 +95,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public void onCurrentChanged(int position) {
         sCurrentPosition = position;
         // 设置标题：1 / 10
-        mView.setTitle(sCurrentPosition + 1 + " / " + sAlbumFiles.size());
+//        mView.setTitle(sCurrentPosition + 1 + " / " + sAlbumFiles.size());
         AlbumFile albumFile = sAlbumFiles.get(position);
         // 同步勾选状态
         mView.setChecked(albumFile.isChecked());

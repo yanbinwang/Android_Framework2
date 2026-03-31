@@ -206,24 +206,24 @@ abstract class BaseView<Presenter : BasePresenter> {
         return false
     }
 
-    /**
-     * 子类获取的参数回调
-     */
-    fun setTitle(title: String) {
-        mSource.setTitle(title)
-    }
-
-    fun setTitle(@StringRes resId: Int) {
-        mSource.setTitle(resId)
-    }
-
-    fun setSubTitle(title: String) {
-        mSource.setSubTitle(title)
-    }
-
-    fun setSubTitle(@StringRes resId: Int) {
-        mSource.setSubTitle(resId)
-    }
+//    /**
+//     * 子类获取的参数回调
+//     */
+//    fun setTitle(title: String) {
+//        mSource.setTitle(title)
+//    }
+//
+//    fun setTitle(@StringRes resId: Int) {
+//        mSource.setTitle(resId)
+//    }
+//
+//    fun setSubTitle(title: String) {
+//        mSource.setSubTitle(title)
+//    }
+//
+//    fun setSubTitle(@StringRes resId: Int) {
+//        mSource.setSubTitle(resId)
+//    }
 
     fun getPresenter(): Presenter {
         return mPresenter

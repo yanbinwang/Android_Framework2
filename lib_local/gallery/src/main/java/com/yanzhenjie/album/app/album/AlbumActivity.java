@@ -101,7 +101,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         setContentView(createView());
         mView = new AlbumView(this, this);
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
-        mView.setTitle("");
+//        mView.setTitle("");
         mView.setCompleteDisplay(false);
         mView.setLoadingDisplay(true);
         // 初始化状态栏
@@ -206,7 +206,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
             mView.setCheckedCount(count);
-            mView.setSubTitle(count + "/" + mLimitCount);
+//            mView.setSubTitle(count + "/" + mLimitCount);
         }
     }
 
@@ -420,7 +420,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-        mView.setSubTitle(count + "/" + mLimitCount);
+//        mView.setSubTitle(count + "/" + mLimitCount);
         switch (mChoiceMode) {
             case Album.MODE_SINGLE: {
                 callbackResult();
@@ -481,7 +481,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void setCheckedCount() {
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-        mView.setSubTitle(count + "/" + mLimitCount);
+//        mView.setSubTitle(count + "/" + mLimitCount);
     }
 
     /**

@@ -23,25 +23,25 @@ abstract class Source<Host>(protected val mHost: Host) {
      */
     abstract fun setActionBar(toolbar: Toolbar)
 
-    /**
-     * 设置标题
-     */
-    abstract fun setTitle(title: CharSequence)
-
-    /**
-     * 设置标题（字符串资源）
-     */
-    abstract fun setTitle(@StringRes resId: Int)
-
-    /**
-     * 设置副标题
-     */
-    abstract fun setSubTitle(title: CharSequence)
-
-    /**
-     * 设置副标题（字符串资源）
-     */
-    abstract fun setSubTitle(@StringRes resId: Int)
+//    /**
+//     * 设置标题
+//     */
+//    abstract fun setTitle(title: CharSequence)
+//
+//    /**
+//     * 设置标题（字符串资源）
+//     */
+//    abstract fun setTitle(@StringRes resId: Int)
+//
+//    /**
+//     * 设置副标题
+//     */
+//    abstract fun setSubTitle(title: CharSequence)
+//
+//    /**
+//     * 设置副标题（字符串资源）
+//     */
+//    abstract fun setSubTitle(@StringRes resId: Int)
 
     /**
      * 设置是否显示返回按钮
