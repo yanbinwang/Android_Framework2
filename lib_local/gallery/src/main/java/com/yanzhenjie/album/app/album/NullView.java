@@ -1,7 +1,5 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.example.gallery.base.BaseActivity.setSupportToolbar;
-
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
@@ -40,7 +38,6 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         super(activity, presenter);
         // 设置Toolbar
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setSupportToolbar(mToolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);
         this.mTvMessage = activity.findViewById(R.id.tv_message);
         this.mBtnTakeImage = activity.findViewById(R.id.btn_camera_image);

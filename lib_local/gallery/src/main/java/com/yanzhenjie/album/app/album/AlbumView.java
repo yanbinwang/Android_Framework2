@@ -1,7 +1,5 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.example.gallery.base.BaseActivity.setSupportToolbar;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -68,7 +66,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         this.mActivity = activity;
         // 绑定所有控件
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setSupportToolbar(mToolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);
         this.mRecyclerView = activity.findViewById(R.id.recycler_view);
         this.mBtnSwitchFolder = activity.findViewById(R.id.btn_switch_dir);

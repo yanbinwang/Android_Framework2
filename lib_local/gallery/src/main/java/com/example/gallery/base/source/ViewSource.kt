@@ -32,6 +32,7 @@ class ViewSource(view: View) : Source<View>(view) {
      * 设置 Toolbar 并绑定点击事件
      */
     override fun setActionBar(toolbar: Toolbar) {
+        setSupportToolbar(toolbar)
         mActionBar = toolbar
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
@@ -108,10 +109,7 @@ class ViewSource(view: View) : Source<View>(view) {
      * 初始化：自动查找并绑定 Toolbar
      */
     override fun prepare() {
-        mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
-            setActionBar(toolbar)
-            setSupportToolbar(toolbar)
-        }
+        setActionBar(mHost.findViewById(R.id.toolbar))
     }
 
     /**
