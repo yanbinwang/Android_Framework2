@@ -93,6 +93,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     public static Action<ArrayList<AlbumFile>> sResult;
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         // 读取参数
