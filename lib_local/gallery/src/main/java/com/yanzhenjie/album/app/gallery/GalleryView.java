@@ -1,7 +1,5 @@
 package com.yanzhenjie.album.app.gallery;
 
-import static com.example.gallery.base.BaseActivity.setSupportToolbar;
-
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
@@ -15,7 +13,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
@@ -55,8 +52,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         super(activity, presenter);
         // 绑定所有控件
         this.mActivity = activity;
-        Toolbar mToolbar = activity.findViewById(R.id.toolbar);
-        setSupportToolbar(mToolbar);
         this.mViewPager = activity.findViewById(R.id.view_pager);
         this.mLayoutBottom = activity.findViewById(R.id.layout_bottom);
         this.mTvDuration = activity.findViewById(R.id.tv_duration);

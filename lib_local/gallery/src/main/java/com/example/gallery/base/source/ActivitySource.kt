@@ -34,8 +34,8 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 设置 Toolbar 并绑定点击事件
      */
     override fun setActionBar(toolbar: Toolbar) {
+        setSupportToolbar(toolbar)
         mActionBar = toolbar
-//        setTitle(mHost.title)
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -48,28 +48,6 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
         // 保存默认返回图标
         mActionBarIcon = mActionBar?.navigationIcon
     }
-
-//    /**
-//     * 设置标题
-//     */
-//    override fun setTitle(title: CharSequence) {
-//        mActionBar?.setTitle(title)
-//    }
-//
-//    override fun setTitle(resId: Int) {
-//        mActionBar?.setTitle(resId)
-//    }
-//
-//    /**
-//     * 设置副标题
-//     */
-//    override fun setSubTitle(title: CharSequence) {
-//        mActionBar?.setSubtitle(title)
-//    }
-//
-//    override fun setSubTitle(resId: Int) {
-//        mActionBar?.setSubtitle(resId)
-//    }
 
     /**
      * 设置是否显示返回按钮
@@ -133,10 +111,7 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 初始化：自动查找并绑定 Toolbar
      */
     override fun prepare() {
-        mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
-            setActionBar(toolbar)
-            setSupportToolbar(toolbar)
-        }
+        setActionBar(mHost.findViewById(R.id.toolbar))
     }
 
     /**

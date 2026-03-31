@@ -1,7 +1,6 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.example.gallery.base.BaseActivity.setSupportToolbar;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -34,6 +33,7 @@ import com.yanzhenjie.album.widget.divider.ItemDivider;
  * 功能：负责所有 UI 展示、事件点击、列表刷新、主题切换
  * MVP 中的 V 层
  */
+@SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
 public class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     // 相册列表适配器
     private AlbumAdapter mAdapter;
@@ -66,7 +66,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         this.mActivity = activity;
         // 绑定所有控件
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setSupportToolbar(mToolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);
         this.mRecyclerView = activity.findViewById(R.id.recycler_view);
         this.mBtnSwitchFolder = activity.findViewById(R.id.btn_switch_dir);
@@ -108,8 +107,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
         int mStatusColor = widget.getStatusBarColor();
         mToolbar.setBackgroundColor(getColor(mStatusColor));
-//        mToolbar.setTitleTextColor(getColor(mStatusColor));
-//        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
         mTitle.setText(widget.getTitle());
         // 浅色 / 深色主题
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
