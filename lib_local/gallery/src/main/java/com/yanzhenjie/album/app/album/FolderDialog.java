@@ -1,6 +1,8 @@
 package com.yanzhenjie.album.app.album;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.Display;
@@ -9,13 +11,17 @@ import android.view.Window;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.common.utils.ScreenUtilKt;
 import com.example.gallery.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
+import com.gyf.immersionbar.ImmersionBar;
 import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.impl.OnItemClickListener;
 
 import java.util.List;
+
+import kotlin.Unit;
 
 /**
  * 文件夹选择弹窗（从底部弹出）
@@ -30,6 +36,7 @@ public class FolderDialog extends BottomSheetDialog {
     private final FolderAdapter mFolderAdapter;
     // 条目点击回调
     private final OnItemClickListener mItemClickListener;
+
 
     /**
      * 构造方法：初始化弹窗、列表、适配器
@@ -85,6 +92,20 @@ public class FolderDialog extends BottomSheetDialog {
 //                window.setStatusBarColor(Color.TRANSPARENT);
 //                window.setNavigationBarColor(mWidget.getNavigationBarColor());
 //            }
+            // 导航栏控件
+            ScreenUtilKt.setStatusBarLightMode(getWindow(), false, false);
+            ScreenUtilKt.setNavigationBarLightMode(getWindow(), true, false);
+            ScreenUtilKt.setNavigationBarDrawable(getWindow(), R.color.albumPageLight, windowInsetsCompat -> Unit.INSTANCE);
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+                Activity activity = getOwnerActivity();
+                if (null != activity) {
+                    ImmersionBar.with(activity)
+                            .reset()
+                            .statusBarDarkFont(false, 0.2f)
+                            .navigationBarDarkIcon(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O, 0.2f)
+                            .init();
+                }
+            }
         }
     }
 
