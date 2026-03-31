@@ -53,7 +53,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             if (null != mWidget) {
                 // 初始化 UI
                 mView.setupViews(mWidget);
-//                mView.setTitle("");
                 // 初始化状态栏/导航栏颜色（黑白字体自适应）
                 boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
                 boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());

@@ -55,7 +55,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
             // 初始化 UI
             if (null != mWidget) {
-//                mView.setTitle(mWidget.getTitle());
                 mView.setupViews(mWidget, mCheckable);
             }
         }
@@ -131,7 +130,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     @Override
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
-//        mView.setSubTitle(position + 1 + " / " + mPathList.size());
         if (mCheckable) {
             mView.setChecked(Boolean.TRUE.equals(mCheckedMap.get(mPathList.get(position))));
         }

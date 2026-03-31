@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
+import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 
 /**
  * Activity 载体实现类
@@ -34,7 +35,6 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      */
     override fun setActionBar(toolbar: Toolbar) {
         mActionBar = toolbar
-//        setTitle(mHost.title)
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -47,28 +47,6 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
         // 保存默认返回图标
         mActionBarIcon = mActionBar?.navigationIcon
     }
-
-//    /**
-//     * 设置标题
-//     */
-//    override fun setTitle(title: CharSequence) {
-//        mActionBar?.setTitle(title)
-//    }
-//
-//    override fun setTitle(resId: Int) {
-//        mActionBar?.setTitle(resId)
-//    }
-//
-//    /**
-//     * 设置副标题
-//     */
-//    override fun setSubTitle(title: CharSequence) {
-//        mActionBar?.setSubtitle(title)
-//    }
-//
-//    override fun setSubTitle(resId: Int) {
-//        mActionBar?.setSubtitle(resId)
-//    }
 
     /**
      * 设置是否显示返回按钮
@@ -134,7 +112,7 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     override fun prepare() {
         mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
             setActionBar(toolbar)
-//            setSupportToolbar(toolbar)
+            setSupportToolbar(toolbar)
         }
     }
 

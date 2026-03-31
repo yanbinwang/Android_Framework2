@@ -1,5 +1,6 @@
 package com.yanzhenjie.album.app.album;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import java.util.List;
  * 文件夹选择弹窗 列表适配器
  * 功能：展示所有图片/视频文件夹，带单选、封面图、数量显示
  */
+@SuppressLint("SetTextI18n")
 public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
     // 条目点击回调
     private OnItemClickListener mItemClickListener;
@@ -75,7 +77,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
      */
     @Override
     public void onBindViewHolder(FolderViewHolder holder, int position) {
-        final int newPosition = holder.getAdapterPosition();
+        final int newPosition = holder.getAbsoluteAdapterPosition();
         holder.setData(mAlbumFolders.get(newPosition));
     }
 

@@ -32,8 +32,6 @@ public class FolderDialog extends BottomSheetDialog {
     private int mCurrentPosition = 0;
     // 文件夹列表数据
     private final List<AlbumFolder> mAlbumFolders;
-    // 列表适配器
-    private final FolderAdapter mFolderAdapter;
     // 条目点击回调
     private final OnItemClickListener mItemClickListener;
 
@@ -50,28 +48,28 @@ public class FolderDialog extends BottomSheetDialog {
         RecyclerView recyclerView = getDelegate().findViewById(R.id.rv_content_list);
         if (null != recyclerView) {
             recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        }
-        // 创建适配器
-        mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
-        // 条目点击事件
-        mFolderAdapter.setItemClickListener((view, position) -> {
-            // 如果点击的不是当前选中项
-            if (mCurrentPosition != position) {
-                // 取消上一个选中状态
-                mAlbumFolders.get(mCurrentPosition).setChecked(false);
-                mFolderAdapter.notifyItemChanged(mCurrentPosition);
-                // 记录新位置并设置选中
-                mCurrentPosition = position;
-                mAlbumFolders.get(mCurrentPosition).setChecked(true);
-                mFolderAdapter.notifyItemChanged(mCurrentPosition);
-                // 回调外部
-                if (mItemClickListener != null) {
-                    mItemClickListener.onItemClick(view, position);
+            // 创建适配器
+            FolderAdapter mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
+            // 条目点击事件
+            mFolderAdapter.setItemClickListener((view, position) -> {
+                // 如果点击的不是当前选中项
+                if (mCurrentPosition != position) {
+                    // 取消上一个选中状态
+                    mAlbumFolders.get(mCurrentPosition).setChecked(false);
+                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                    // 记录新位置并设置选中
+                    mCurrentPosition = position;
+                    mAlbumFolders.get(mCurrentPosition).setChecked(true);
+                    mFolderAdapter.notifyItemChanged(mCurrentPosition);
+                    // 回调外部
+                    if (mItemClickListener != null) {
+                        mItemClickListener.onItemClick(view, position);
+                    }
                 }
-            }
-            dismiss();
-        });
-        recyclerView.setAdapter(mFolderAdapter);
+                dismiss();
+            });
+            recyclerView.setAdapter(mFolderAdapter);
+        }
     }
 
     /**
@@ -89,10 +87,6 @@ public class FolderDialog extends BottomSheetDialog {
             // 宽度取屏幕最小值，高度铺满
             int minSize = Math.min(metrics.widthPixels, metrics.heightPixels);
             window.setLayout(minSize, -1);
-//            if (Build.VERSION.SDK_INT >= 21) {
-//                window.setStatusBarColor(Color.TRANSPARENT);
-//                window.setNavigationBarColor(mWidget.getNavigationBarColor());
-//            }
             // 导航栏控件
             ScreenUtilKt.setStatusBarLightMode(getWindow(), false, false);
             ScreenUtilKt.setNavigationBarLightMode(getWindow(), true, false);
