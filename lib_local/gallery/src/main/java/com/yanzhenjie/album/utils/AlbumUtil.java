@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.util;
+package com.yanzhenjie.album.utils;
 
 import android.app.Activity;
 import android.content.Context;
@@ -36,14 +36,14 @@ import java.util.UUID;
  * 相册工具类
  * 功能：文件路径、拍照、录视频、时间格式化、MD5、Drawable 着色、时间转换等
  */
-public class AlbumUtils {
+public class AlbumUtil {
     // 相册缓存文件夹名称
     private static final String CACHE_DIRECTORY = "AlbumCache";
 
     /**
      * 私有化构造，禁止实例化
      */
-    private AlbumUtils() {
+    private AlbumUtil() {
     }
 
     /**
@@ -179,7 +179,7 @@ public class AlbumUtils {
         if (!bucket.exists()) {
             bucket.mkdirs();
         }
-        String outFilePath = AlbumUtils.getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension;
+        String outFilePath = AlbumUtil.getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension;
         File file = new File(bucket, outFilePath);
         return file.getAbsolutePath();
     }

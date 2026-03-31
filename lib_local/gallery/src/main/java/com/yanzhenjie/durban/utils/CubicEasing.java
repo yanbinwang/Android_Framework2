@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 /**
  * 三次方缓动动画工具类

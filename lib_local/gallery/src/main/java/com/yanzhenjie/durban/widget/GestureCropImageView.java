@@ -1,13 +1,12 @@
-package com.yanzhenjie.durban.view;
+package com.yanzhenjie.durban.widget;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import com.yanzhenjie.durban.util.RotationGestureDetector;
+import com.yanzhenjie.durban.utils.RotationGestureDetector;
 
 /**
  * 最终对外使用的裁剪View

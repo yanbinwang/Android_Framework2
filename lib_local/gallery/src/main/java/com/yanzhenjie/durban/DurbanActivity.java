@@ -22,10 +22,10 @@ import androidx.core.content.ContextCompat;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.view.CropView;
-import com.yanzhenjie.durban.view.GestureCropImageView;
-import com.yanzhenjie.durban.view.OverlayView;
-import com.yanzhenjie.durban.view.TransformImageView;
+import com.yanzhenjie.durban.widget.CropView;
+import com.yanzhenjie.durban.widget.GestureCropImageView;
+import com.yanzhenjie.durban.widget.OverlayView;
+import com.yanzhenjie.durban.widget.TransformImageView;
 
 import java.util.ArrayList;
 

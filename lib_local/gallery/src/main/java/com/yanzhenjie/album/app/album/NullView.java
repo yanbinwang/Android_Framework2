@@ -14,7 +14,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.example.gallery.R;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 /**
  * 空页面 View 层
@@ -65,7 +65,7 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             mTitle.setTextColor(getColor(R.color.textBlack));
-            AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
         } else {
             mTitle.setTextColor(getColor(R.color.textWhite));
@@ -79,10 +79,10 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         // 浅色主题下，按钮图标/文字 改为深色
         if (buttonStyle.getUiStyle() == Widget.STYLE_LIGHT) {
             Drawable drawable = mBtnTakeImage.getCompoundDrawables()[0];
-            AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeImage.setCompoundDrawables(drawable, null, null, null);
             drawable = mBtnTakeVideo.getCompoundDrawables()[0];
-            AlbumUtils.setDrawableTint(drawable, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(drawable, getColor(R.color.albumIconDark));
             mBtnTakeVideo.setCompoundDrawables(drawable, null, null, null);
             mBtnTakeImage.setTextColor(getColor(R.color.albumFontDark));
             mBtnTakeVideo.setTextColor(getColor(R.color.albumFontDark));

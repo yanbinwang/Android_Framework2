@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.opengl.EGL14;
 import android.opengl.EGLConfig;
@@ -17,13 +17,13 @@ import javax.microedition.khronos.egl.EGL10;
  * 作用：获取设备支持的最大纹理大小（用于图片裁剪时限制最大尺寸）
  * 底层系统级工具，无需理解原理
  */
-public class EglUtils {
-    private static final String TAG = "EglUtils";
+public class EglUtil {
+    private static final String TAG = "EglUtil";
 
     /**
      * 私有构造，禁止实例化
      */
-    private EglUtils() {
+    private EglUtil() {
     }
 
     /**

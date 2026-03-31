@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.view;
+package com.yanzhenjie.durban.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -18,8 +18,8 @@ import com.yanzhenjie.durban.callback.CropBoundsChangeListener;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.task.BitmapCropTask;
-import com.yanzhenjie.durban.util.CubicEasing;
-import com.yanzhenjie.durban.util.RectUtils;
+import com.yanzhenjie.durban.utils.CubicEasing;
+import com.yanzhenjie.durban.utils.RectUtil;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;
@@ -113,11 +113,11 @@ public class CropImageView extends TransformImageView {
         mTempMatrix.reset();
         mTempMatrix.setRotate(-getCurrentAngle());
         float[] unRotatedImageCorners = Arrays.copyOf(mCurrentImageCorners, mCurrentImageCorners.length);
-        float[] unRotatedCropBoundsCorners = RectUtils.getCornersFromRect(mCropRect);
+        float[] unRotatedCropBoundsCorners = RectUtil.getCornersFromRect(mCropRect);
         mTempMatrix.mapPoints(unRotatedImageCorners);
         mTempMatrix.mapPoints(unRotatedCropBoundsCorners);
-        RectF unRotatedImageRect = RectUtils.trapToRect(unRotatedImageCorners);
-        RectF unRotatedCropRect = RectUtils.trapToRect(unRotatedCropBoundsCorners);
+        RectF unRotatedImageRect = RectUtil.trapToRect(unRotatedImageCorners);
+        RectF unRotatedCropRect = RectUtil.trapToRect(unRotatedCropBoundsCorners);
         float deltaLeft = unRotatedImageRect.left - unRotatedCropRect.left;
         float deltaTop = unRotatedImageRect.top - unRotatedCropRect.top;
         float deltaRight = unRotatedImageRect.right - unRotatedCropRect.right;
@@ -180,9 +180,9 @@ public class CropImageView extends TransformImageView {
         mTempMatrix.setRotate(-getCurrentAngle());
         float[] unRotatedImageCorners = Arrays.copyOf(imageCorners, imageCorners.length);
         mTempMatrix.mapPoints(unRotatedImageCorners);
-        float[] unRotatedCropBoundsCorners = RectUtils.getCornersFromRect(mCropRect);
+        float[] unRotatedCropBoundsCorners = RectUtil.getCornersFromRect(mCropRect);
         mTempMatrix.mapPoints(unRotatedCropBoundsCorners);
-        return RectUtils.trapToRect(unRotatedImageCorners).contains(RectUtils.trapToRect(unRotatedCropBoundsCorners));
+        return RectUtil.trapToRect(unRotatedImageCorners).contains(RectUtil.trapToRect(unRotatedCropBoundsCorners));
     }
 
     /**
@@ -219,7 +219,7 @@ public class CropImageView extends TransformImageView {
         // 让图片适应裁剪框
         setImageToWrapCropBounds(false);
         // 封装当前图片状态
-        final ImageState imageState = new ImageState(mCropRect, RectUtils.trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle());
+        final ImageState imageState = new ImageState(mCropRect, RectUtil.trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle());
         // 封装裁剪参数
         final CropParameters cropParameters = new CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo());
         // 异步裁剪并保存
@@ -389,7 +389,7 @@ public class CropImageView extends TransformImageView {
                 mTempMatrix.reset();
                 mTempMatrix.setRotate(getCurrentAngle());
                 mTempMatrix.mapRect(tempCropRect);
-                final float[] currentImageSides = RectUtils.getRectSidesFromCorners(mCurrentImageCorners);
+                final float[] currentImageSides = RectUtil.getRectSidesFromCorners(mCurrentImageCorners);
                 deltaScale = Math.max(tempCropRect.width() / currentImageSides[0], tempCropRect.height() / currentImageSides[1]);
                 deltaScale = deltaScale * currentScale - currentScale;
             }

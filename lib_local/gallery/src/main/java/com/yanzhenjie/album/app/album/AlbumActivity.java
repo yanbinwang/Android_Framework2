@@ -27,7 +27,7 @@ import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
 import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.mediascanner.MediaScanner;
 
@@ -219,7 +219,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (requestCode == CODE_ACTIVITY_NULL) {
             if (resultCode == RESULT_OK) {
                 String imagePath = NullActivity.parsePath(data);
-                String mimeType = AlbumUtils.getMimeType(imagePath);
+                String mimeType = AlbumUtil.getMimeType(imagePath);
                 if (!TextUtils.isEmpty(mimeType)) {
                     mCameraAction.onAction(imagePath);
                 }
@@ -322,10 +322,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void takePicture() {
         String filePath;
         if (mCurrentFolder == 0) {
-            filePath = AlbumUtils.randomJPGPath();
+            filePath = AlbumUtil.randomJPGPath();
         } else {
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtils.randomJPGPath(file.getParentFile());
+            filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }
         Album.camera(this)
                 .image()
@@ -340,10 +340,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void takeVideo() {
         String filePath;
         if (mCurrentFolder == 0) {
-            filePath = AlbumUtils.randomMP4Path();
+            filePath = AlbumUtil.randomMP4Path();
         } else {
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtils.randomMP4Path(file.getParentFile());
+            filePath = AlbumUtil.randomMP4Path(file.getParentFile());
         }
         Album.camera(this)
                 .video()

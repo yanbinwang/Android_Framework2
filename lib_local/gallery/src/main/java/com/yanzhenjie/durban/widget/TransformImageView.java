@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.view;
+package com.yanzhenjie.durban.widget;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -16,9 +16,9 @@ import androidx.appcompat.widget.AppCompatImageView;
 import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.task.BitmapLoadTask;
-import com.yanzhenjie.durban.util.BitmapLoadUtils;
-import com.yanzhenjie.durban.util.FastBitmapDrawable;
-import com.yanzhenjie.durban.util.RectUtils;
+import com.yanzhenjie.durban.utils.BitmapLoadUtil;
+import com.yanzhenjie.durban.utils.FastBitmapDrawable;
+import com.yanzhenjie.durban.utils.RectUtil;
 
 /**
  * 图片变换【基类】
@@ -163,8 +163,8 @@ public class TransformImageView extends AppCompatImageView {
         float h = drawable.getIntrinsicHeight();
         Log.d(TAG, String.format("Image size: [%d:%d]", (int) w, (int) h));
         RectF initialImageRect = new RectF(0, 0, w, h);
-        mInitialImageCorners = RectUtils.getCornersFromRect(initialImageRect);
-        mInitialImageCenter = RectUtils.getCenterFromRect(initialImageRect);
+        mInitialImageCorners = RectUtil.getCornersFromRect(initialImageRect);
+        mInitialImageCenter = RectUtil.getCenterFromRect(initialImageRect);
         mBitmapLaidOut = true;
         if (mTransformImageListener != null) {
             mTransformImageListener.onLoadComplete();
@@ -195,7 +195,7 @@ public class TransformImageView extends AppCompatImageView {
 
     public int getMaxBitmapSize() {
         if (mMaxBitmapSize <= 0) {
-            mMaxBitmapSize = BitmapLoadUtils.calculateMaxBitmapSize(getContext());
+            mMaxBitmapSize = BitmapLoadUtil.calculateMaxBitmapSize(getContext());
         }
         return mMaxBitmapSize;
     }

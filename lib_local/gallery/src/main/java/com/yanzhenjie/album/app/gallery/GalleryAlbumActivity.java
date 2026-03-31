@@ -12,7 +12,7 @@ import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.ItemAction;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.ArrayList;
 
@@ -129,7 +129,7 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
             if (!mCheckable) {
                 mView.setBottomDisplay(true);
             }
-            mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
+            mView.setDuration(AlbumUtil.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
             // 图片 → 隐藏视频时长
         } else {

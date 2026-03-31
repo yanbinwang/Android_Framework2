@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.media.ExifInterface;
 import android.text.TextUtils;

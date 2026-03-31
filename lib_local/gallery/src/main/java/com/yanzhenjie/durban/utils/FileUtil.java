@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.graphics.Bitmap;
 
@@ -20,13 +20,13 @@ import java.util.Random;
  * 文件操作工具类
  * 作用：目录创建、文件复制、流关闭、生成随机图片文件名
  */
-public class FileUtils {
+public class FileUtil {
     private static final Random random = new Random();
 
     /**
      * 私有构造，禁止实例化
      */
-    private FileUtils() {
+    private FileUtil() {
     }
 
     /**

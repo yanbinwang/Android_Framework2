@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;

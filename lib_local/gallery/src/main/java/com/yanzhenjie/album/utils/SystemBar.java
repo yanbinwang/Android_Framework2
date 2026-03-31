@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.util;
+package com.yanzhenjie.album.utils;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;

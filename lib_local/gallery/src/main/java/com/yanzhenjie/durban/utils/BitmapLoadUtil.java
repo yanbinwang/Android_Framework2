@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -20,12 +20,12 @@ import java.io.InputStream;
  * 图片加载工具类
  * 功能：缩放计算、EXIF 旋转解析、图片变换、最大尺寸计算
  */
-public class BitmapLoadUtils {
+public class BitmapLoadUtil {
 
     /**
      * 私有构造，禁止实例化
      */
-    private BitmapLoadUtils() {
+    private BitmapLoadUtil() {
     }
 
     /**
@@ -130,7 +130,7 @@ public class BitmapLoadUtils {
         // 屏幕对角线长度
         int maxBitmapSize = (int) Math.sqrt(Math.pow(width, 2) + Math.pow(height, 2));
         // 不超过 OpenGL 最大纹理限制
-        final int maxTextureSize = EglUtils.getMaxTextureSize();
+        final int maxTextureSize = EglUtil.getMaxTextureSize();
         if (maxTextureSize > 0) {
             maxBitmapSize = Math.min(maxBitmapSize, maxTextureSize);
         }

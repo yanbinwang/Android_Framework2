@@ -25,7 +25,7 @@ import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.impl.DoubleClickWrapper;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.ColorProgressBar;
 import com.yanzhenjie.album.widget.divider.ItemDivider;
 
@@ -117,11 +117,11 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
             // 暗色图标
             Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
-            AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             setHomeAsUpIndicator(navigationIcon);
             Drawable completeIcon = mCompleteMenu.getIcon();
             if (null != completeIcon) {
-                AlbumUtils.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
             }
             mCompleteMenu.setIcon(completeIcon);
         } else {

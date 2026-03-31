@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.view;
+package com.yanzhenjie.durban.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -20,7 +20,7 @@ import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
 import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
-import com.yanzhenjie.durban.util.RectUtils;
+import com.yanzhenjie.durban.utils.RectUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -497,8 +497,8 @@ public class OverlayView extends View {
      * 更新裁剪框角点、中心点、圆形路径
      */
     private void updateGridPoints() {
-        mCropGridCorners = RectUtils.getCornersFromRect(mCropViewRect);
-        mCropGridCenter = RectUtils.getCenterFromRect(mCropViewRect);
+        mCropGridCorners = RectUtil.getCornersFromRect(mCropViewRect);
+        mCropGridCenter = RectUtil.getCenterFromRect(mCropViewRect);
         mGridPoints = null;
         mCircularPath.reset();
         mCircularPath.addCircle(mCropViewRect.centerX(), mCropViewRect.centerY(), Math.min(mCropViewRect.width(), mCropViewRect.height()) / 2.f, Path.Direction.CW);

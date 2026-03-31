@@ -11,7 +11,7 @@ import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.ArrayList;
 
@@ -103,7 +103,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mView.setLayerDisplay(albumFile.isDisable());
         // 视频 → 显示时长
         if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
-            mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
+            mView.setDuration(AlbumUtil.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
         } else {
             mView.setDurationDisplay(false);

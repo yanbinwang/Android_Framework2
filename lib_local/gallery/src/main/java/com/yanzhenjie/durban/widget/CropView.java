@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.view;
+package com.yanzhenjie.durban.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;

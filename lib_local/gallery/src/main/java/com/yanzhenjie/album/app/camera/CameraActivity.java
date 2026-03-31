@@ -10,8 +10,8 @@ import androidx.annotation.Nullable;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.util.AlbumUtils;
-import com.yanzhenjie.album.util.SystemBar;
+import com.yanzhenjie.album.utils.AlbumUtil;
+import com.yanzhenjie.album.utils.SystemBar;
 
 import java.io.File;
 
@@ -73,20 +73,20 @@ public class CameraActivity extends BaseActivity {
                     case Album.FUNCTION_CAMERA_IMAGE: {
                         if (TextUtils.isEmpty(mCameraFilePath)) {
                             // 没有指定路径，自动生成一个
-                            mCameraFilePath = AlbumUtils.randomJPGPath(this);
+                            mCameraFilePath = AlbumUtil.randomJPGPath(this);
                         }
                         // 调用系统拍照
-                        AlbumUtils.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
+                        AlbumUtil.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
                         break;
                     }
                     // 录像
                     case Album.FUNCTION_CAMERA_VIDEO: {
                         if (TextUtils.isEmpty(mCameraFilePath)) {
                             // 自动生成视频路径
-                            mCameraFilePath = AlbumUtils.randomMP4Path(this);
+                            mCameraFilePath = AlbumUtil.randomMP4Path(this);
                         }
                         // 调用系统录像
-                        AlbumUtils.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
+                        AlbumUtil.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
                         break;
                     }
                     default: {

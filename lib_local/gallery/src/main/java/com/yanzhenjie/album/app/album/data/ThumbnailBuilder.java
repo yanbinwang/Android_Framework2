@@ -12,7 +12,7 @@ import android.webkit.URLUtil;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,7 +38,7 @@ public class ThumbnailBuilder {
      * 初始化：创建缓存文件夹
      */
     public ThumbnailBuilder(Context context) {
-        this.mCacheDir = AlbumUtils.getAlbumRootPath(context);
+        this.mCacheDir = AlbumUtil.getAlbumRootPath(context);
         // 如果路径是文件，先删除
         if (mCacheDir.exists() && mCacheDir.isFile()) mCacheDir.delete();
         // 创建目录
@@ -109,7 +109,7 @@ public class ThumbnailBuilder {
      * 根据文件路径生成 MD5 作为唯一缓存名
      */
     private File randomPath(String filePath) {
-        String outFilePath = AlbumUtils.getMD5ForString(filePath) + ".album";
+        String outFilePath = AlbumUtil.getMD5ForString(filePath) + ".album";
         return new File(mCacheDir, outFilePath);
     }
 

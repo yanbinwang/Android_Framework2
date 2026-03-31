@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.util;
+package com.yanzhenjie.durban.utils;
 
 import android.graphics.RectF;
 
@@ -6,12 +6,12 @@ import android.graphics.RectF;
  * 矩形坐标计算工具类
  * 作用：裁剪视图中计算矩形、角点、中心点、包围盒等几何逻辑
  */
-public class RectUtils {
+public class RectUtil {
 
     /**
      * 私有构造，禁止实例化
      */
-    private RectUtils() {
+    private RectUtil() {
     }
 
     /**
