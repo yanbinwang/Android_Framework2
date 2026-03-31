@@ -37,7 +37,6 @@ public class FolderDialog extends BottomSheetDialog {
     // 条目点击回调
     private final OnItemClickListener mItemClickListener;
 
-
     /**
      * 构造方法：初始化弹窗、列表、适配器
      */
@@ -49,7 +48,9 @@ public class FolderDialog extends BottomSheetDialog {
         this.mItemClickListener = itemClickListener;
         // 初始化RecyclerView
         RecyclerView recyclerView = getDelegate().findViewById(R.id.rv_content_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        if (null != recyclerView) {
+            recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        }
         // 创建适配器
         mFolderAdapter = new FolderAdapter(context, mAlbumFolders, widget.getBucketItemCheckSelector());
         // 条目点击事件
