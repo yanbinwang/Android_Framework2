@@ -5,12 +5,12 @@ import android.content.res.ColorStateList;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gallery.R;
@@ -36,8 +36,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private OnCheckedClickListener mCheckedClickListener; // 点击选择框
     // 三种条目类型
     private static final int TYPE_BUTTON = 1;  // 拍照按钮
-    private static final int TYPE_IMAGE = 2;  // 图片
-    private static final int TYPE_VIDEO = 3;  // 视频
+    private static final int TYPE_IMAGE = 2;   // 图片
+    private static final int TYPE_VIDEO = 3;   // 视频
     // 选择模式：单选/多选
     private final int mChoiceMode;
     // 是否显示拍照按钮
@@ -193,7 +193,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static class ImageHolder extends MediaViewHolder implements View.OnClickListener {
         private final boolean hasCamera;
         private final ImageView mIvImage;
-        private final AppCompatCheckBox mCheckBox;
+        private final CheckBox mCheckBox;
         private final FrameLayout mLayoutLayer;
         private final OnItemClickListener mItemClickListener;
         private final OnCheckedClickListener mCheckedClickListener;
@@ -243,7 +243,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private static class VideoHolder extends MediaViewHolder implements View.OnClickListener {
         private final boolean hasCamera;
         private final ImageView mIvImage;
-        private final AppCompatCheckBox mCheckBox;
+        private final CheckBox mCheckBox;
         private final TextView mTvDuration;
         private final FrameLayout mLayoutLayer;
         private final OnItemClickListener mItemClickListener;

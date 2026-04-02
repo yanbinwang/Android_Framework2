@@ -30,6 +30,8 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
     private boolean mCheckable;
     // 要预览的图片/视频列表
     private ArrayList<AlbumFile> mAlbumFiles;
+    // 主题样式
+    private Widget mWidget;
     // MVP 的 View 层（负责UI）
     private Contract.GalleryView<AlbumFile> mView;
     // 外部设置的静态监听：点击、长按、取消、选择结果
@@ -46,22 +48,23 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.album_activity_gallery);
-        // 绑定 MVP：自己是 Presenter，GalleryView 是 View
-        mView = new GalleryView<>(this, this);
-        // 导航栏
-        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
         // 获取上一页传过来的数据
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
+            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
             mAlbumFiles = argument.getParcelableArrayList(Album.KEY_INPUT_CHECKED_LIST);
             mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
             mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
-            // 初始化 View
-            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-            mView.setupViews(mWidget, mCheckable);
-            mView.bindData(mAlbumFiles);
+        } else {
+            finish();
         }
+        setContentView(R.layout.album_activity_gallery);
+        // 导航栏
+        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        // 绑定 MVP：自己是 Presenter，GalleryView 是 View
+        mView = new GalleryView<>(this, this);
+        mView.setupViews(mWidget, mCheckable);
+        mView.bindData(mAlbumFiles);
         // 显示当前预览位置
         if (mCurrentPosition == 0) {
             onCurrentChanged(mCurrentPosition);

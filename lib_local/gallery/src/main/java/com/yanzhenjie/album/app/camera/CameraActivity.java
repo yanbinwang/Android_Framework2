@@ -60,13 +60,13 @@ public class CameraActivity extends BaseActivity {
             mLimitBytes = savedInstanceState.getLong(INSTANCE_CAMERA_BYTES);
         } else {
             // 正常打开：获取外部传递的参数
-            Bundle bundle = getIntent().getExtras();
-            if (null != bundle) {
-                mFunction = bundle.getInt(Album.KEY_INPUT_FUNCTION);
-                mCameraFilePath = bundle.getString(Album.KEY_INPUT_FILE_PATH);
-                mQuality = bundle.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
-                mLimitDuration = bundle.getLong(Album.KEY_INPUT_CAMERA_DURATION);
-                mLimitBytes = bundle.getLong(Album.KEY_INPUT_CAMERA_BYTES);
+            Bundle argument = getIntent().getExtras();
+            if (null != argument) {
+                mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
+                mCameraFilePath = argument.getString(Album.KEY_INPUT_FILE_PATH);
+                mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
+                mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
+                mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
                 // 根据功能类型：打开系统相机
                 switch (mFunction) {
                     // 拍照
@@ -93,6 +93,8 @@ public class CameraActivity extends BaseActivity {
                         throw new AssertionError("This should not be the case.");
                     }
                 }
+            } else {
+                finish();
             }
         }
     }

@@ -68,11 +68,10 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.durban_activity_photobox);
-        // 拿到外部传过来的配置
-        final Intent intent = getIntent();
         // 读取所有配置
-        initArgument(intent);
+        initArgument();
+        // 设置布局
+        setContentView(R.layout.durban_activity_photobox);
         // 初始化状态栏、标题栏
         initFrameViews();
         // 初始化裁剪图片视图
@@ -95,46 +94,51 @@ public class DurbanActivity extends BaseActivity {
     /**
      * 处理页面传输而来的参数
      */
-    private void initArgument(Intent intent) {
-        // 状态栏/导航栏颜色
-        mStatusColor = intent.getIntExtra(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
-        mNavigationColor = intent.getIntExtra(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
-        // 标题
-        mTitle = intent.getStringExtra(Durban.KEY_INPUT_TITLE);
-        if (TextUtils.isEmpty(mTitle)) {
-            mTitle = getString(R.string.durban_title_crop);
+    private void initArgument() {
+        Bundle argument = getIntent().getExtras();
+        if (null != argument) {
+            // 状态栏/导航栏颜色
+            mStatusColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
+            mNavigationColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
+            // 标题
+            mTitle = argument.getString(Durban.KEY_INPUT_TITLE);
+            if (TextUtils.isEmpty(mTitle)) {
+                mTitle = getString(R.string.durban_title_crop);
+            }
+            // 手势：旋转 / 缩放
+            mGesture = argument.getInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
+            // 裁剪比例
+            mAspectRatio = argument.getFloatArray(Durban.KEY_INPUT_ASPECT_RATIO);
+            if (mAspectRatio == null) {
+                mAspectRatio = new float[]{0, 0};
+            }
+            // 输出最大尺寸
+            mMaxWidthHeight = argument.getIntArray(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
+            if (mMaxWidthHeight == null) {
+                mMaxWidthHeight = new int[]{500, 500};
+            }
+            // 压缩格式
+            int compressFormat = argument.getInt(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
+            mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
+            // 压缩质量
+            mCompressQuality = argument.getInt(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
+            // 输出文件夹
+            mOutputDirectory = argument.getString(Durban.KEY_INPUT_DIRECTORY);
+            if (TextUtils.isEmpty(mOutputDirectory)) {
+                mOutputDirectory = getFilesDir().getAbsolutePath();
+            }
+            // 要裁剪的图片列表
+            mInputPathList = argument.getStringArrayList(Durban.KEY_INPUT_PATH_ARRAY);
+            // 底部按钮配置
+            mController = argument.getParcelable(Durban.KEY_INPUT_CONTROLLER);
+            if (mController == null) {
+                mController = Controller.newBuilder().build();
+            }
+            // 输出结果列表
+            mOutputPathList = new ArrayList<>();
+        } else {
+            finish();
         }
-        // 手势：旋转 / 缩放
-        mGesture = intent.getIntExtra(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
-        // 裁剪比例
-        mAspectRatio = intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO);
-        if (mAspectRatio == null) {
-            mAspectRatio = new float[]{0, 0};
-        }
-        // 输出最大尺寸
-        mMaxWidthHeight = intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
-        if (mMaxWidthHeight == null) {
-            mMaxWidthHeight = new int[]{500, 500};
-        }
-        // 压缩格式
-        int compressFormat = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
-        mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
-        // 压缩质量
-        mCompressQuality = intent.getIntExtra(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
-        // 输出文件夹
-        mOutputDirectory = intent.getStringExtra(Durban.KEY_INPUT_DIRECTORY);
-        if (TextUtils.isEmpty(mOutputDirectory)) {
-            mOutputDirectory = getFilesDir().getAbsolutePath();
-        }
-        // 要裁剪的图片列表
-        mInputPathList = intent.getStringArrayListExtra(Durban.KEY_INPUT_PATH_ARRAY);
-        // 底部按钮配置
-        mController = intent.getParcelableExtra(Durban.KEY_INPUT_CONTROLLER);
-        if (mController == null) {
-            mController = Controller.newBuilder().build();
-        }
-        // 输出结果列表
-        mOutputPathList = new ArrayList<>();
     }
 
     /**

@@ -14,7 +14,7 @@
             style="@style/Album.WrapContent.Transfer"
             android:layout_alignParentEnd="true">
 
-            <androidx.appcompat.widget.AppCompatCheckBox
+            <CheckBox
                 android:id="@+id/check_box"
                 style="@style/Album.CheckBox.WrapContent" />
 

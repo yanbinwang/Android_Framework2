@@ -20,12 +20,18 @@ import com.yanzhenjie.album.app.Contract;
  * 提供：拍照、录像入口，属于 MVP 中的 Presenter 层
  */
 public class NullActivity extends BaseActivity implements Contract.NullPresenter {
+    // 功能：图片/视频/全部
+    private int mFunction;
+    // 是否显示拍照按钮
+    private boolean mHasCamera;
     // 视频质量
     private int mQuality = 1;
     // 视频最大时长
     private long mLimitDuration;
     // 视频最大大小
     private long mLimitBytes;
+    // 主题样式
+    private Widget mWidget;
     // 拍照/录像返回的路径 Key
     private static final String KEY_OUTPUT_IMAGE_PATH = "KEY_OUTPUT_IMAGE_PATH";
 
@@ -37,57 +43,53 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.album_activity_null);
-        // 禁用页面切换动画
-        overridePendingTransition(0, 0);
-        // 绑定 MVP：自己是 Presenter，NullView 是 View
-        Contract.NullView mView = new NullView(this, this);
-        // 获取上一页传递的参数
+        // 获取参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
+            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
             mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
             mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
             mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-            // 界面样式配置
-            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-            if (null != mWidget) {
-                // 初始化 UI
-                mView.setupViews(mWidget);
-                // 初始化状态栏/导航栏颜色（黑白字体自适应）
-                boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
-                boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
-                initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
-            }
-            // 根据当前功能类型，显示不同提示文案
-            int function = argument.getInt(Album.KEY_INPUT_FUNCTION);
-            switch (function) {
-                // 只选图片：隐藏录像按钮
-                case Album.FUNCTION_CHOICE_IMAGE: {
-                    mView.setMessage(R.string.album_not_found_image);
-                    mView.setMakeVideoDisplay(false);
-                    break;
-                }
-                // 只选视频：隐藏拍照按钮
-                case Album.FUNCTION_CHOICE_VIDEO: {
-                    mView.setMessage(R.string.album_not_found_video);
-                    mView.setMakeImageDisplay(false);
-                    break;
-                }
-                // 全部媒体：都显示
-                case Album.FUNCTION_CHOICE_ALBUM: {
-                    mView.setMessage(R.string.album_not_found_album);
-                    break;
-                }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
-            }
-            // 如果不允许使用相机，隐藏两个按钮
-            boolean hasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-            if (!hasCamera) {
-                mView.setMakeImageDisplay(false);
+            mHasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
+        } else {
+            finish();
+        }
+        setContentView(R.layout.album_activity_null);
+        // 初始化状态栏/导航栏颜色（黑白字体自适应）
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
+        // 绑定 MVP
+        Contract.NullView mView = new NullView(this, this);
+        mView.setupViews(mWidget);
+        // 根据当前功能类型，显示不同提示文案
+        switch (mFunction) {
+            // 只选图片：隐藏录像按钮
+            case Album.FUNCTION_CHOICE_IMAGE: {
+                mView.setMessage(R.string.album_not_found_image);
                 mView.setMakeVideoDisplay(false);
+                break;
             }
+            // 只选视频：隐藏拍照按钮
+            case Album.FUNCTION_CHOICE_VIDEO: {
+                mView.setMessage(R.string.album_not_found_video);
+                mView.setMakeImageDisplay(false);
+                break;
+            }
+            // 全部媒体：都显示
+            case Album.FUNCTION_CHOICE_ALBUM: {
+                mView.setMessage(R.string.album_not_found_album);
+                break;
+            }
+            default: {
+                throw new AssertionError("This should not be the case.");
+            }
+        }
+        // 如果不允许使用相机，隐藏两个按钮
+        if (!mHasCamera) {
+            mView.setMakeImageDisplay(false);
+            mView.setMakeVideoDisplay(false);
         }
     }
 

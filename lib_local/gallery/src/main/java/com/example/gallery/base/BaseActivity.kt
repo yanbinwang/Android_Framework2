@@ -1,8 +1,11 @@
 package com.example.gallery.base
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.transition.Fade
+import android.transition.Visibility
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
@@ -144,35 +147,39 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 }
             }
         }
-
     }
-
-//    /**
-//     * 复用页面时强制统一动画
-//     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
-//     */
-//    override fun onNewIntent(intent: Intent?) {
-//        super.onNewIntent(intent)
-//        val (fadeEnter, fadeExit) = Pair(
-//            Fade().apply { duration = 500; mode = Visibility.MODE_IN },
-//            Fade().apply { duration = 500; mode = Visibility.MODE_OUT }
-//        )
-//        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-//        window.setExitTransition(fadeEnter)
-//        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-//        window.setReturnTransition(fadeExit)
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        setActivityAnimations()
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
+    }
+
+    /**
+     * 复用页面时强制统一动画
+     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setActivityAnimations()
+    }
+
+    private fun setActivityAnimations() {
+        val (fadeEnter, fadeExit) = Pair(
+            Fade().apply { duration = 500; mode = Visibility.MODE_IN },
+            Fade().apply { duration = 500; mode = Visibility.MODE_OUT }
+        )
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.setExitTransition(fadeEnter)
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.setReturnTransition(fadeExit)
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {

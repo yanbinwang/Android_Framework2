@@ -100,18 +100,19 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 读取参数
-        initializeArgument();
+        // 获取参数
+        initArgument();
         // 根据主题加载布局
         setContentView(createView());
-        mView = new AlbumView(this, this);
-        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
-        mView.setCompleteDisplay(false);
-        mView.setLoadingDisplay(true);
         // 初始化状态栏
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
         boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
+        // 绑定 MVP
+        mView = new AlbumView(this, this);
+        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
+        mView.setCompleteDisplay(false);
+        mView.setLoadingDisplay(true);
         // 开始异步扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
@@ -130,7 +131,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     /**
      * 读取外部传递的配置参数
      */
-    private void initializeArgument() {
+    private void initArgument() {
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
             mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
@@ -143,6 +144,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
             mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
             mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
+        } else {
+            finish();
         }
     }
 
@@ -204,7 +207,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
             startActivityForResult(intent, CODE_ACTIVITY_NULL);
-            overridePendingTransition(0, 0);
             // 显示全部图片
         } else {
             showFolderAlbumFiles(0);
