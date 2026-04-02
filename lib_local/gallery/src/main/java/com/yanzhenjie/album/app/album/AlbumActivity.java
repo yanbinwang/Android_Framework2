@@ -207,6 +207,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             Intent intent = new Intent(this, NullActivity.class);
             intent.putExtras(getIntent());
             startActivityForResult(intent, CODE_ACTIVITY_NULL);
+            overridePendingTransition(0, 0);
             // 显示全部图片
         } else {
             showFolderAlbumFiles(0);

@@ -2,6 +2,7 @@ package com.example.gallery.base
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
 import android.transition.Slide
@@ -19,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
@@ -26,6 +29,7 @@ import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
@@ -34,6 +38,8 @@ import com.example.framework.utils.function.view.textSize
 import com.example.gallery.R
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
 
 /**
  * 针对所有相册页面的基类
@@ -262,6 +268,26 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     override fun bye() {
 //        onBackPressed()
         finish()
+    }
+
+    override fun getResources(): Resources {
+        if (isMainThread) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        }
+        return super.getResources()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoSizeConfig.getInstance().stop(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        AutoSizeConfig.getInstance().restart()
     }
 
     override fun finish() {

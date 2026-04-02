@@ -43,6 +43,8 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 空页面实际是由相册页跳转的,去除过渡动画
+        overridePendingTransition(0, 0);
         // 获取参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
