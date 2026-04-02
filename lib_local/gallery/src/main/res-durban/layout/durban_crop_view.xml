@@ -6,13 +6,11 @@
     <com.yanzhenjie.durban.widget.GestureCropImageView
         android:id="@+id/image_view_crop"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/durban_dp_16" />
+        android:layout_height="match_parent" />
 
     <com.yanzhenjie.durban.widget.OverlayView
         android:id="@+id/view_overlay"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="@dimen/durban_dp_16" />
+        android:layout_height="match_parent" />
 
 </merge>
