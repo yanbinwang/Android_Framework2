@@ -4,7 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.transition.Fade
+import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
 import android.view.ViewGroup
@@ -160,6 +160,8 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
+        // 强制补动画（外部跳转生效）
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
     }
 
     /**
@@ -172,14 +174,14 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     private fun setActivityAnimations() {
-        val (fadeEnter, fadeExit) = Pair(
-            Fade().apply { duration = 500; mode = Visibility.MODE_IN },
-            Fade().apply { duration = 500; mode = Visibility.MODE_OUT }
+        val (slideEnter, slideExit) = Pair(
+            Slide(Gravity.END).apply { duration = 300; mode = Visibility.MODE_IN },
+            Slide(Gravity.START).apply { duration = 500; mode = Visibility.MODE_OUT }
         )
         // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-        window.setExitTransition(fadeEnter)
+        window.setExitTransition(slideEnter)
         // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-        window.setReturnTransition(fadeExit)
+        window.setReturnTransition(slideExit)
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {
@@ -260,6 +262,11 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     override fun bye() {
 //        onBackPressed()
         finish()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
     override fun onDestroy() {
