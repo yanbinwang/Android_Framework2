@@ -95,7 +95,7 @@ class ViewSource(view: View) : Source<View>(view) {
      * 获取 Toolbar 菜单
      */
     override fun getMenu(): Menu? {
-        return if (mActionBar == null) null else mActionBar?.getMenu()
+        return mActionBar?.getMenu()
     }
 
     /**
