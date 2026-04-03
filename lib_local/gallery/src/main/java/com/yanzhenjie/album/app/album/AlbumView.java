@@ -1,5 +1,7 @@
 package com.yanzhenjie.album.app.album;
 
+import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -129,6 +131,8 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         // 标题同步状态栏颜色
         mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
         mTitle.setText(widget.getTitle());
+        // 等 Toolbar 布局结束
+        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);

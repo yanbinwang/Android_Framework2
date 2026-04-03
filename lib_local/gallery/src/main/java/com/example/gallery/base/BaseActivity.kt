@@ -40,6 +40,8 @@ import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
+import androidx.core.view.isNotEmpty
+
 
 /**
  * 针对所有相册页面的基类
@@ -116,6 +118,45 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     }
                 }
             }
+        }
+
+        /**
+         * 1) 32ms = 屏幕一帧的时间（约 30fps） 既不卡 UI，又能最快感知到菜单出现
+         * 2) 大多数手机 60fps → 16ms 刷新一次 , 低一点 30fps → 32ms 刷新一次 , 32ms 就是「等下一帧渲染完」
+         */
+        @JvmStatic
+        fun setSupportMenuViewAsync(toolbar: Toolbar, @ColorRes colorRes: Int) {
+            val interval = 32L   // 每帧检查一次
+            val maxRetry = 30    // 最多重试30次 ≈ 1秒超时
+            var retry = 0        // 正确计数
+            val runnable = object : Runnable {
+                override fun run() {
+                    // View 已销毁 / 超时 → 停止轮询
+                    if (!toolbar.isAttachedToWindow || retry >= maxRetry) {
+                        toolbar.removeCallbacks(this)
+                        return
+                    }
+                    // 查找菜单
+                    var found = false
+                    for (i in 0 until toolbar.childCount) {
+                        val child = toolbar.getChildAt(i)
+                        if (child is ActionMenuView) {
+                            if (child.isNotEmpty()) {
+                                adjustActionMenuView(toolbar, child, colorRes)
+                                found = true
+                            }
+                        }
+                    }
+                    // 找到/没找到
+                    if (found) {
+                        toolbar.removeCallbacks(this)
+                    } else {
+                        retry++ // 正确计数
+                        toolbar.postDelayed(this, interval)
+                    }
+                }
+            }
+            toolbar.post(runnable)
         }
 
         @SuppressLint("RestrictedApi")
