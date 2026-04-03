@@ -103,7 +103,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         // 获取参数
         initArgument();
         // 根据主题加载布局
-        setContentView(createView());
+        setContentView(R.layout.album_activity_album);
         // 初始化状态栏
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
         boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
@@ -146,23 +146,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
         } else {
             finish();
-        }
-    }
-
-    /**
-     * 根据主题加载亮/暗色布局
-     */
-    private int createView() {
-        switch (mWidget.getUiStyle()) {
-            case Widget.STYLE_DARK: {
-                return R.layout.album_activity_album_dark;
-            }
-            case Widget.STYLE_LIGHT: {
-                return R.layout.album_activity_album_light;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
         }
     }
 

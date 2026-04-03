@@ -94,7 +94,7 @@
 
     <!-- 底部文字按钮：居中、亮色、单行 -->
     <style name="Album.TextButton.WrapContent.SheetBottom">
-        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:maxWidth">@dimen/album_dp_200</item>

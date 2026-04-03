@@ -52,36 +52,42 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
      */
     @Override
     public void setupViews(Widget widget) {
-        int mStatusColor = widget.getStatusBarColor();
-        mToolbar.setBackgroundColor(getColor(mStatusColor));
-        mTitle.setText(widget.getTitle());
         // 设置返回箭头
         Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.textBlack));
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Dark);
+            mTitle.setTextColor(getColor(R.color.albumFontDark));
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
-            setHomeAsUpIndicator(navigationIcon);
-        } else {
-            mTitle.setTextColor(getColor(R.color.textWhite));
-            setHomeAsUpIndicator(navigationIcon);
-        }
-        // 按钮样式：颜色、背景
-        Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
-        ColorStateList buttonSelector = buttonStyle.getButtonSelector();
-        mBtnTakeImage.setBackgroundTintList(buttonSelector);
-        mBtnTakeVideo.setBackgroundTintList(buttonSelector);
-        // 浅色主题下，按钮图标/文字 改为深色
-        if (buttonStyle.getUiStyle() == Widget.STYLE_LIGHT) {
-            Drawable drawable = mBtnTakeImage.getCompoundDrawables()[0];
-            AlbumUtil.setDrawableTint(drawable, getColor(R.color.albumIconDark));
-            mBtnTakeImage.setCompoundDrawables(drawable, null, null, null);
-            drawable = mBtnTakeVideo.getCompoundDrawables()[0];
-            AlbumUtil.setDrawableTint(drawable, getColor(R.color.albumIconDark));
-            mBtnTakeVideo.setCompoundDrawables(drawable, null, null, null);
+            /**
+             * 按钮样式：颜色、背景
+             * .buttonStyle(Widget.ButtonStyle.newDarkBuilder(context)
+             *       .setButtonSelector(normalColor, highlightColor)
+             *       .build())
+             */
+            Drawable[] takeImageDraws = mBtnTakeImage.getCompoundDrawablesRelative();
+            Drawable takeImageIcon = takeImageDraws[0];
+            AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.albumIconDark));
+            mBtnTakeImage.setCompoundDrawables(takeImageIcon, null, null, null);
             mBtnTakeImage.setTextColor(getColor(R.color.albumFontDark));
+            Drawable[] takeVideoDraws = mBtnTakeVideo.getCompoundDrawablesRelative();
+            Drawable takeVideoIcon = takeVideoDraws[0];
+            AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.albumIconDark));
+            mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null);
             mBtnTakeVideo.setTextColor(getColor(R.color.albumFontDark));
+        } else {
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Light);
+            mTitle.setTextColor(getColor(R.color.albumFontLight));
+            Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
+            ColorStateList buttonSelector = buttonStyle.getButtonSelector();
+            mBtnTakeImage.setBackgroundTintList(buttonSelector);
+            mBtnTakeVideo.setBackgroundTintList(buttonSelector);
         }
+        // 设置返回按钮
+        setHomeAsUpIndicator(navigationIcon);
+        // 标题同步状态栏颜色
+        mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
+        mTitle.setText(widget.getTitle());
     }
 
     /**

@@ -105,28 +105,30 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      */
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
-        int mStatusColor = widget.getStatusBarColor();
-        mToolbar.setBackgroundColor(getColor(mStatusColor));
-        mTitle.setText(widget.getTitle());
-        // 浅色 / 深色主题
+        // 设置返回箭头
+        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+        // 浅色 / 深色主题 -> 影响图标
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.textBlack));
-            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
-            // 暗色图标
-            Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Dark);
+            mTitle.setTextColor(getColor(R.color.albumFontDark));
+            // 暗色返回 / 完成
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
-            setHomeAsUpIndicator(navigationIcon);
             Drawable completeIcon = mCompleteMenu.getIcon();
             if (null != completeIcon) {
                 AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+                mCompleteMenu.setIcon(completeIcon);
             }
-            mCompleteMenu.setIcon(completeIcon);
+            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
         } else {
-            // 白色文字、白色图标
-            mTitle.setTextColor(getColor(R.color.textWhite));
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Light);
+            mTitle.setTextColor(getColor(R.color.albumFontLight));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
-            setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
         }
+        // 设置返回按钮
+        setHomeAsUpIndicator(navigationIcon);
+        // 标题同步状态栏颜色
+        mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
+        mTitle.setText(widget.getTitle());
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);

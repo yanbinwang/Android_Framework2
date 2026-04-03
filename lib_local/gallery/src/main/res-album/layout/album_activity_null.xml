@@ -7,7 +7,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Album.Toolbar.Dark"
+        style="@style/Album.Toolbar"
         app:navigationIcon="@mipmap/album_ic_back_white">
 
         <TextView
