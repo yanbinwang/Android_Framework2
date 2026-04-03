@@ -10,6 +10,7 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
@@ -100,13 +101,22 @@ class GalleryHelper {
     private fun Context?.getAlbumWidget(barColor: Int = R.color.bgBlack): Widget? {
         this ?: return null
         context = this
+        // 参考Widget -> getDefaultWidget()方法
         return Widget.newDarkBuilder(this)
-            // 标题 ---标题颜色只有黑色白色
-            .title(string(R.string.albumTitle))
             // 状态栏颜色
             .statusBarColor(barColor)
             // 导航栏颜色
             .navigationBarColor(barColor)
+            // 标题 --- 标题文字颜色只有黑色白色
+            .title(string(R.string.albumTitle))
+            // 媒体条目选择框颜色
+            .mediaItemCheckSelector(color(R.color.albumSelectorNormal), color(R.color.albumColorPrimary))
+            // 文件夹条目选择框颜色
+            .bucketItemCheckSelector(color(R.color.albumSelectorNormal), color(R.color.albumColorPrimary))
+            // 按钮样式
+            .buttonStyle(Widget.ButtonStyle
+                .newDarkBuilder(this)
+                .setButtonSelector(color(R.color.albumColorPrimary), color(R.color.albumColorPrimaryDark)).build())
             // 构建配置
             .build()
     }

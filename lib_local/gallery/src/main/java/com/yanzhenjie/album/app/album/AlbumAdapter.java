@@ -117,7 +117,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 // 多选模式显示选择框
                 if (mChoiceMode == Album.MODE_MULTIPLE) {
                     imageViewHolder.mCheckBox.setVisibility(View.VISIBLE);
-                    imageViewHolder.mCheckBox.setBackgroundTintList(mSelector);
+                    imageViewHolder.mCheckBox.setButtonTintList(mSelector);
                     imageViewHolder.mCheckBox.setTextColor(mSelector);
                 } else {
                     imageViewHolder.mCheckBox.setVisibility(View.GONE);
@@ -129,7 +129,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
                 VideoHolder videoViewHolder = new VideoHolder(mInflater.inflate(R.layout.album_item_content_video, parent, false), hasCamera, mItemClickListener, mCheckedClickListener);
                 if (mChoiceMode == Album.MODE_MULTIPLE) {
                     videoViewHolder.mCheckBox.setVisibility(View.VISIBLE);
-                    videoViewHolder.mCheckBox.setBackgroundTintList(mSelector);
+                    videoViewHolder.mCheckBox.setButtonTintList(mSelector);
                     videoViewHolder.mCheckBox.setTextColor(mSelector);
                 } else {
                     videoViewHolder.mCheckBox.setVisibility(View.GONE);

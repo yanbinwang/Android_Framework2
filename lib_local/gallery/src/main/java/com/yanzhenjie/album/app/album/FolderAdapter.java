@@ -118,7 +118,7 @@ public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderView
             // 设置点击事件
             itemView.setOnClickListener(this);
             // 设置单选按钮颜色
-            mCheckBox.setBackgroundTintList(selector);
+            mCheckBox.setButtonTintList(selector);
         }
 
         /**
