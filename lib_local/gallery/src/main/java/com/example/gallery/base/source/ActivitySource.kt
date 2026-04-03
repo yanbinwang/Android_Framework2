@@ -32,6 +32,7 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
 
     /**
      * 设置 Toolbar 并绑定点击事件
+     * prepare() 完成后会主动调取
      */
     override fun setActionBar(toolbar: Toolbar) {
         setSupportToolbar(toolbar)

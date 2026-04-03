@@ -110,13 +110,13 @@ class GalleryHelper {
             // 标题 --- 标题文字颜色只有黑色白色
             .title(string(R.string.albumTitle))
             // 媒体条目选择框颜色
-            .mediaItemCheckSelector(color(R.color.albumSelectorNormal), color(R.color.albumColorPrimary))
+            .mediaItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
             // 文件夹条目选择框颜色
-            .bucketItemCheckSelector(color(R.color.albumSelectorNormal), color(R.color.albumColorPrimary))
+            .bucketItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
             // 按钮样式
             .buttonStyle(Widget.ButtonStyle
                 .newDarkBuilder(this)
-                .setButtonSelector(color(R.color.albumColorPrimary), color(R.color.albumColorPrimaryDark)).build())
+                .setButtonSelector(color(R.color.btnMain), color(R.color.btnMain)).build())
             // 构建配置
             .build()
     }

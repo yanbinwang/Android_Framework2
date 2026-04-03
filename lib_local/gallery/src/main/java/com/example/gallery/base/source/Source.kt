@@ -19,6 +19,7 @@ abstract class Source<Host>(protected val mHost: Host) {
 
     /**
      * 设置 ActionBar / Toolbar
+     * prepare() 完成后会主动调取
      */
     abstract fun setActionBar(toolbar: Toolbar)
 

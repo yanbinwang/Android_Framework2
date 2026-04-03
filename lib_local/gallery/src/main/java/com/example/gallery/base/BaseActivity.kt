@@ -69,7 +69,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 // 设置高度
                 tb.size(height = tb.measuredHeight + statusBarHeight)
                 // 设置左、右内边距全为0
-                tb.padding(top = statusBarHeight)
+                tb.padding(top = statusBarHeight, start = 0, end = 0)
                 // 取出系统按钮
                 val systemNavBtn = getNavButtonView(tb)
                 // 去除水波纹
