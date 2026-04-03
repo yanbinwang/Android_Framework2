@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
-    android:background="@color/albumPageLight"
-    tools:ignore="MissingConstraints">
+    android:background="@color/albumPageLight">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -28,11 +27,13 @@
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         style="@style/Album.WrapContent.WidthMatchParent"
-        android:layout_below="@id/toolbar"
+        android:layout_above="@+id/layout_menu"
+        android:layout_below="@+id/toolbar"
         android:overScrollMode="never"
         android:scrollbars="none" />
 
     <FrameLayout
+        android:id="@+id/layout_menu"
         style="@style/Album.MatchParent.SheetBottom"
         android:layout_alignParentBottom="true"
         android:background="@color/albumSheetBottom">
@@ -54,7 +55,7 @@
     <LinearLayout
         android:id="@+id/layout_loading"
         style="@style/Album.MatchParent"
-        android:layout_below="@id/toolbar"
+        android:layout_below="@+id/toolbar"
         android:background="@color/albumPageLight"
         android:gravity="center"
         android:visibility="gone">
