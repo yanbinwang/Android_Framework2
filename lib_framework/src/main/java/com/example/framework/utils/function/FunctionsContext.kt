@@ -334,7 +334,7 @@ fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>)
     return intent
 }
 
-fun Activity.setResult(resultCode: Int, vararg pairs: Pair<String, Any?>) {
+fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
     val intent = Intent()
     pairs.forEach {
         val key = it.first
@@ -363,70 +363,117 @@ fun Activity.setResult(resultCode: Int, vararg pairs: Pair<String, Any?>) {
         }
     }
     setResult(resultCode, intent)
+    return this
+}
+
+fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
+    val bundle = Bundle()
+    pairs.forEach {
+        val key = it.first
+        when (val value = it.second) {
+            is Int -> bundle.putInt(key, value)
+            is Byte -> bundle.putByte(key, value)
+            is Char -> bundle.putChar(key, value)
+            is Long -> bundle.putLong(key, value)
+            is Float -> bundle.putFloat(key, value)
+            is Short -> bundle.putShort(key, value)
+            is Double -> bundle.putDouble(key, value)
+            is Boolean -> bundle.putBoolean(key, value)
+            is String -> bundle.putString(key, value)
+            is Bundle -> bundle.putBundle(key, value)
+            is IntArray -> bundle.putIntArray(key, value)
+            is ByteArray -> bundle.putByteArray(key, value)
+            is CharArray -> bundle.putCharArray(key, value)
+            is LongArray -> bundle.putLongArray(key, value)
+            is FloatArray -> bundle.putFloatArray(key, value)
+            is Parcelable -> bundle.putParcelable(key, value)
+            is ShortArray -> bundle.putShortArray(key, value)
+            is DoubleArray -> bundle.putDoubleArray(key, value)
+            is BooleanArray -> bundle.putBooleanArray(key, value)
+            is CharSequence -> bundle.putCharSequence(key, value)
+            is Serializable -> bundle.putSerializable(key, value)
+        }
+    }
+    arguments = bundle
+    return this
+}
+
+/**
+ * 判断当前页面是否有传递参数
+ */
+fun Activity.hasExtras(): Boolean {
+    return intent.extras != null
+}
+
+fun Fragment.hasArguments(): Boolean {
+    return arguments != null
 }
 
 /**
  * 页面间取值扩展
- * 1) intent 本身不为空，但 intent.extras 可能为 null, 没有传递参数时，extras 就是 null
+ * 1) Intent 本身不为空，但 intent.extras 可能为 null, 没有传递参数时，extras 就是 null
  * 2) inline：编译期把函数代码直接粘贴到调用处，省掉函数调用开销。
  *    reified：靠 inline 帮忙，保留泛型真实类型，运行时不擦除。
  */
 fun Activity.intentString(key: String, default: String = ""): String {
-    return intent.extras?.getString(key) ?: default
+    return intent.getStringExtra(key) ?: default
 }
 
 fun Activity.intentInt(key: String, default: Int = 0): Int {
-    return intent.extras?.getInt(key, default) ?: default
+    return intent.getIntExtra(key, default)
 }
 
 fun Activity.intentLong(key: String, default: Long = 0L): Long {
-    return intent.extras?.getLong(key, default) ?: default
+    return intent.getLongExtra(key, default)
 }
 
 fun Activity.intentFloat(key: String, default: Float = 0f): Float {
-    return intent.extras?.getFloat(key, default) ?: default
+    return intent.getFloatExtra(key, default)
 }
 
 fun Activity.intentDouble(key: String, default: Double = 0.0): Double {
-    return intent.extras?.getDouble(key, default) ?: default
+    return intent.getDoubleExtra(key, default)
 }
 
 fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
-    return intent.extras?.getBoolean(key, default) ?: default
+    return intent.getBooleanExtra(key, default)
 }
 
 inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.extras?.getSerializable(key, T::class.java)
+        intent.getSerializableExtra(key, T::class.java)
     } else {
-        intent.extras?.getSerializable(key) as? T
+        intent.getSerializableExtra(key) as? T
     }
 }
 
 inline fun <reified T : Serializable> Activity.intentSerializableArrayList(name: String): ArrayList<T>? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.extras?.getSerializable(name, ArrayList::class.java)
+        intent.getSerializableExtra(name, ArrayList::class.java)
     } else {
-        intent.extras?.getSerializable(name)
+        intent.getSerializableExtra(name)
     } as? ArrayList<T>
 }
 
 inline fun <reified T : Parcelable> Activity.intentParcelable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.extras?.getParcelable(key, T::class.java)
+        intent.getParcelableExtra(key, T::class.java)
     } else {
-        intent.extras?.getParcelable(key) as? T
+        intent.getParcelableExtra(key) as? T
     }
 }
 
 inline fun <reified T : Parcelable> Activity.intentParcelableArrayList(name: String): ArrayList<T>? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        intent.extras?.getParcelableArrayList(name, T::class.java)
+        intent.getParcelableArrayListExtra(name, T::class.java)
     } else {
-        intent.extras?.getParcelableArrayList(name)
+        intent.getParcelableArrayListExtra(name)
     }
 }
 
+/**
+ * Fragment 没有自己的 Intent，数据只能存在 arguments 这个 Bundle 里
+ */
 fun Fragment.intentString(key: String, default: String = ""): String {
     return arguments?.getString(key) ?: default
 }

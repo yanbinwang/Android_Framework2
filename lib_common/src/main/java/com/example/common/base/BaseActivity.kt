@@ -198,6 +198,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             enableEdgeToEdge()
         }
         super.onCreate(savedInstanceState)
+        initBefore()
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
