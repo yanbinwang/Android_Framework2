@@ -20,6 +20,11 @@ import com.example.framework.utils.function.view.visible
 internal interface BaseImpl {
 
     /**
+     * super.onCreate(savedInstanceState)下方执行,用于做overridePendingTransition,取值extras等操作
+     */
+    fun initBefore() {}
+
+    /**
      * 初始化状态栏
      * activity/fragment具备，其余不可重写
      */
