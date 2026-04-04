@@ -336,46 +336,129 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
 
 /**
  * 页面间取值扩展
+ * 1) intent 本身不为空，但 intent.extras 可能为 null, 没有传递参数时，extras 就是 null
+ * 2) inline：编译期把函数代码直接粘贴到调用处，省掉函数调用开销。
+ *    reified：靠 inline 帮忙，保留泛型真实类型，运行时不擦除。
  */
-fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
+fun Activity.intentString(key: String, default: String = ""): String {
+    return intent.extras?.getString(key) ?: default
+}
 
-//fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+fun Activity.intentInt(key: String, default: Int = 0): Int {
+    return intent.extras?.getInt(key, default) ?: default
+}
 
-fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
+fun Activity.intentLong(key: String, default: Long = 0L): Long {
+    return intent.extras?.getLong(key, default) ?: default
+}
 
-fun Activity.intentLong(key: String, default: Long = 0) = intent.getLongExtra(key, default)
+fun Activity.intentFloat(key: String, default: Float = 0f): Float {
+    return intent.extras?.getFloat(key, default) ?: default
+}
 
-fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+fun Activity.intentDouble(key: String, default: Double = 0.0): Double {
+    return intent.extras?.getDouble(key, default) ?: default
+}
 
-fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
+fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
+    return intent.extras?.getBoolean(key, default) ?: default
+}
 
-fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
+//inline fun <reified T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
 
-fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.extras?.getSerializable(key, T::class.java)
+    } else {
+        intent.extras?.getSerializable(key) as? T
+    }
+}
 
-//fun <T : Serializable> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
+inline fun <reified T : Serializable> Activity.intentSerializableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.extras?.getSerializable(name, ArrayList::class.java)
+    } else {
+        intent.extras?.getSerializable(name)
+    } as? ArrayList<T>
+}
 
-fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
+//inline fun <reified T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
 
-fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
+inline fun <reified T : Parcelable> Activity.intentParcelable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.extras?.getParcelable(key, T::class.java)
+    } else {
+        intent.extras?.getParcelable(key) as? T
+    }
+}
 
-//fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
+inline fun <reified T : Parcelable> Activity.intentParcelableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.extras?.getParcelableArrayList(name, T::class.java)
+    } else {
+        intent.extras?.getParcelableArrayList(name)
+    }
+}
 
-fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
+fun Fragment.intentString(key: String, default: String = ""): String {
+    return arguments?.getString(key) ?: default
+}
 
-fun Fragment.intentLong(key: String, default: Long = 0) = arguments?.getLong(key, default)
+fun Fragment.intentInt(key: String, default: Int = 0): Int {
+    return arguments?.getInt(key, default) ?: default
+}
 
-fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
+fun Fragment.intentLong(key: String, default: Long = 0L): Long {
+    return arguments?.getLong(key, default) ?: default
+}
 
-fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
+fun Fragment.intentFloat(key: String, default: Float = 0f): Float {
+    return arguments?.getFloat(key, default) ?: default
+}
 
-fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
+fun Fragment.intentDouble(key: String, default: Double = 0.0): Double {
+    return arguments?.getDouble(key, default) ?: default
+}
 
-fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
+fun Fragment.intentBoolean(key: String, default: Boolean = false): Boolean {
+    return arguments?.getBoolean(key, default) ?: default
+}
 
-//fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
+//inline fun <reified T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
 
-fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
+inline fun <reified T : Serializable> Fragment.intentSerializable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getSerializable(key, T::class.java)
+    } else {
+        arguments?.getSerializable(key) as? T
+    }
+}
+
+inline fun <reified T : Serializable> Fragment.intentSerializableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getSerializable(name, ArrayList::class.java)
+    } else {
+        arguments?.getSerializable(name)
+    } as? ArrayList<T>
+}
+
+//inline fun <reified T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
+
+inline fun <reified T : Parcelable> Fragment.intentParcelable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getParcelable(key, T::class.java)
+    } else {
+        arguments?.getParcelable(key)
+    }
+}
+
+inline fun <reified T : Parcelable> Fragment.intentParcelableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getParcelableArrayList(name, T::class.java)
+    } else {
+        arguments?.getParcelableArrayList(name)
+    }
+}
 
 /**
  * 页面广播
@@ -386,9 +469,9 @@ fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParc
  *    Android 13- 默认 android:exported="true"（等价于 RECEIVER_EXPORTED）
  * 4) 使用
  * mActivity.doOnReceiver(receiver, IntentFilter().apply {
- * addAction(RECEIVER_USB)
- * addAction(RECEIVER_USB_ATTACHED)
- * addAction(RECEIVER_USB_DETACHED)
+ *   addAction(RECEIVER_USB)
+ *   addAction(RECEIVER_USB_ATTACHED)
+ *   addAction(RECEIVER_USB_DETACHED)
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")

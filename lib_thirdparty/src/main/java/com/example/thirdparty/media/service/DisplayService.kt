@@ -17,7 +17,7 @@ import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getExtra
+import com.example.common.utils.function.intentParcelable
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
@@ -144,7 +144,8 @@ class DisplayService : TrackableLifecycleService() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // 获取到页面OnActivityResult取得的值
         val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-        val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
+//        val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
+        val resultData = intent?.intentParcelable<Intent>(Extra.BUNDLE_BEAN)
         startRecording(resultCode, resultData)
 //        return START_STICKY
         return super.onStartCommand(intent, flags, startId)

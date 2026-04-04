@@ -15,11 +15,10 @@ import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.drawable
-import com.example.common.utils.function.getExtra
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.function.intentParcelableArrayList
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -461,13 +460,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
             }
             if (it.resultCode == RESULT_FINISH) {
-                val list = it.data?.getExtra(Extra.BUNDLE_LIST,ArrayList::class.java) as? ArrayList<TestBean>
+//                val list = it.data?.getExtra(Extra.BUNDLE_LIST,ArrayList::class.java) as? ArrayList<TestBean>
+                val list = it.data?.intentParcelableArrayList<TestBean>(Extra.BUNDLE_LIST)
                 "回退的集合:${list.toJson()}".logWTF("wyb")
             }
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-//            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
+            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
 //                localItem.id == serverItem.id
@@ -525,17 +525,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions { isGranted, _ ->
-                if (isGranted) {
-//                    pullUpImage()
-//                    gallery.takePicture(true){
-//                        it.shortToast()
-//                    }
-                    gallery.imageSelection(hasDurban = true)
-//                    gallery.imageMultipleSelection(true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions { isGranted, _ ->
+//                if (isGranted) {
+////                    pullUpImage()
+////                    gallery.takePicture(true){
+////                        it.shortToast()
+////                    }
+//                    gallery.imageSelection(hasDurban = true)
+////                    gallery.imageMultipleSelection(true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景
