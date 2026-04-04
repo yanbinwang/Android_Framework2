@@ -24,7 +24,8 @@ import com.example.gallery.R
 /**
  * 相机跳转页
  * 功能：调用系统相机拍照 / 录制视频 / 相册
- * 1) 相册模块单独独立,内部调取相册不会有问题,该页面解决的是外部调取
+ * 1) 相册模块单独独立,本身内部调取不会有问题,该页面解决的是外部调取
+ * 2) 相机类的所有可配置参数考虑到兼容性问题,实际上都是没有任何意义的,不能限制系统的相机时间.清晰度等,这是厂商忽略谷歌相机采用自家定制的问题
  */
 class CameraPermissionActivity : AppCompatActivity() {
     private var mFilePath: String? = null

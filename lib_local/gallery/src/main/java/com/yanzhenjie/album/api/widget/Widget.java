@@ -13,7 +13,7 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -61,8 +61,8 @@ public class Widget implements Parcelable {
         this.mNavigationBarColor = builder.mNavigationBarColor == 0 ? R.color.albumColorPrimaryBlack : builder.mNavigationBarColor;
         // 未设置标题则使用默认标题
         this.mTitle = TextUtils.isEmpty(builder.mTitle) ? mContext.getString(R.string.album_title) : builder.mTitle;
-        this.mMediaItemCheckSelector = builder.mMediaItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mMediaItemCheckSelector;
-        this.mBucketItemCheckSelector = builder.mBucketItemCheckSelector == null ? AlbumUtils.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mBucketItemCheckSelector;
+        this.mMediaItemCheckSelector = builder.mMediaItemCheckSelector == null ? AlbumUtil.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mMediaItemCheckSelector;
+        this.mBucketItemCheckSelector = builder.mBucketItemCheckSelector == null ? AlbumUtil.getColorStateList(getColor(R.color.albumSelectorNormal), getColor(R.color.albumColorPrimary)) : builder.mBucketItemCheckSelector;
         // 未设置按钮样式则使用默认按钮样式
         this.mButtonStyle = builder.mButtonStyle == null ? ButtonStyle.newDarkBuilder(mContext).build() : builder.mButtonStyle;
     }
@@ -227,7 +227,7 @@ public class Widget implements Parcelable {
          * 设置媒体条目选择框颜色
          */
         public Builder mediaItemCheckSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
-            this.mMediaItemCheckSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
+            this.mMediaItemCheckSelector = AlbumUtil.getColorStateList(normalColor, highLightColor);
             return this;
         }
 
@@ -235,7 +235,7 @@ public class Widget implements Parcelable {
          * 设置文件夹条目选择框颜色
          */
         public Builder bucketItemCheckSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
-            this.mBucketItemCheckSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
+            this.mBucketItemCheckSelector = AlbumUtil.getColorStateList(normalColor, highLightColor);
             return this;
         }
 
@@ -265,7 +265,7 @@ public class Widget implements Parcelable {
         private ButtonStyle(Builder builder) {
             Context mContext = builder.mContext;
             this.mUiStyle = builder.mUiStyle;
-            this.mButtonSelector = builder.mButtonSelector == null ? AlbumUtils.getColorStateList(ContextCompat.getColor(mContext, R.color.albumColorPrimary), ContextCompat.getColor(mContext, R.color.albumColorPrimaryDark)) : builder.mButtonSelector;
+            this.mButtonSelector = builder.mButtonSelector == null ? AlbumUtil.getColorStateList(ContextCompat.getColor(mContext, R.color.albumColorPrimary), ContextCompat.getColor(mContext, R.color.albumColorPrimaryDark)) : builder.mButtonSelector;
         }
 
         public int getUiStyle() {
@@ -329,7 +329,7 @@ public class Widget implements Parcelable {
              * 设置按钮点击效果
              */
             public Builder setButtonSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
-                mButtonSelector = AlbumUtils.getColorStateList(normalColor, highLightColor);
+                mButtonSelector = AlbumUtil.getColorStateList(normalColor, highLightColor);
                 return this;
             }
 

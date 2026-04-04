@@ -10,7 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
-import com.yanzhenjie.durban.util.BitmapLoadUtils;
+import com.yanzhenjie.durban.utils.BitmapLoadUtil;
 import com.yanzhenjie.loading.dialog.LoadingDialog;
 
 /**
@@ -86,7 +86,7 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
             return new BitmapWorkerResult(null, null);
         }
         // 计算缩放比例
-        options.inSampleSize = BitmapLoadUtils.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
+        options.inSampleSize = BitmapLoadUtil.calculateInSampleSize(options, mRequiredWidth, mRequiredHeight);
         options.inJustDecodeBounds = false;
         Bitmap decodeSampledBitmap = null;
         boolean decodeAttemptSuccess = false;
@@ -100,9 +100,9 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
             }
         }
         // 读取图片EXIF信息（旋转、方向）
-        int exifOrientation = BitmapLoadUtils.getExifOrientation(imagePath);
-        int exifDegrees = BitmapLoadUtils.exifToDegrees(exifOrientation);
-        int exifTranslation = BitmapLoadUtils.exifToTranslation(exifOrientation);
+        int exifOrientation = BitmapLoadUtil.getExifOrientation(imagePath);
+        int exifDegrees = BitmapLoadUtil.exifToDegrees(exifOrientation);
+        int exifTranslation = BitmapLoadUtil.exifToTranslation(exifOrientation);
         ExifInfo exifInfo = new ExifInfo(exifOrientation, exifDegrees, exifTranslation);
         // 纠正图片旋转
         Matrix matrix = new Matrix();
@@ -113,7 +113,7 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
             matrix.postScale(exifTranslation, 1);
         }
         if (!matrix.isIdentity()) {
-            return new BitmapWorkerResult(BitmapLoadUtils.transformBitmap(decodeSampledBitmap, matrix), exifInfo);
+            return new BitmapWorkerResult(BitmapLoadUtil.transformBitmap(decodeSampledBitmap, matrix), exifInfo);
         }
         return new BitmapWorkerResult(decodeSampledBitmap, exifInfo);
     }

@@ -14,8 +14,8 @@ import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.error.StorageError;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
-import com.yanzhenjie.durban.util.FileUtils;
-import com.yanzhenjie.durban.util.ImageHeaderParser;
+import com.yanzhenjie.durban.utils.FileUtil;
+import com.yanzhenjie.durban.utils.ImageHeaderParser;
 import com.yanzhenjie.loading.dialog.LoadingDialog;
 
 import java.io.File;
@@ -123,9 +123,9 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
      */
     private String crop() throws Exception {
         // 检查输出目录是否存在
-        FileUtils.validateDirectory(mOutputDirectory);
+        FileUtil.validateDirectory(mOutputDirectory);
         // 生成随机文件名
-        String fileName = FileUtils.randomImageName(mCompressFormat);
+        String fileName = FileUtil.randomImageName(mCompressFormat);
         String outputImagePath = new File(mOutputDirectory, fileName).getAbsolutePath();
         // 如果需要，先缩小图片
         if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
@@ -171,7 +171,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
                 throw new StorageError("图片保存失败");
             } finally {
                 croppedBitmap.recycle();
-                FileUtils.close(outputStream);
+                FileUtil.close(outputStream);
             }
             // 如果是JPG，复制EXIF信息
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
@@ -180,7 +180,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
             }
         } else {
             // 无需裁剪，直接复制文件
-            FileUtils.copyFile(mInputImagePath, outputImagePath);
+            FileUtil.copyFile(mInputImagePath, outputImagePath);
         }
         // 回收图片
         if (mViewBitmap != null && !mViewBitmap.isRecycled()) {

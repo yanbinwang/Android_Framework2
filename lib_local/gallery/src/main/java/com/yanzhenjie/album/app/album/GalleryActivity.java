@@ -11,7 +11,7 @@ import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.ArrayList;
 
@@ -19,13 +19,16 @@ import kotlin.Unit;
 
 /**
  * 图片/视频 预览页
- * MVP 中的 Presenter —— 负责：选择控制、数量限制、预览切换、完成返回
+ * MVP 中的 Presenter
+ * 负责：选择控制、数量限制、预览切换、完成返回
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
     // 功能类型：图片 / 视频 / 全部
     private int mFunction;
     // 最大可选数量
     private int mAllowSelectCount;
+    // 主题样式
+    private Widget mWidget;
     // MVP View 层
     private Contract.GalleryView<AlbumFile> mView;
     // 静态全局数据（跨页面传递）
@@ -35,21 +38,29 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public static Callback sCallback;                 // 预览回调
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.album_activity_gallery);
-        // 绑定 MVP
-        mView = new GalleryView<>(this, this);
         // 获取参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
+            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
             mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
             mAllowSelectCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-            // 初始化 UI
-            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-            mView.setupViews(mWidget, true);
-            mView.bindData(sAlbumFiles);
+        } else {
+            finish();
         }
+        setContentView(R.layout.album_activity_gallery);
+        // 导航栏
+        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        // 绑定 MVP
+        mView = new GalleryView<>(this, this);
+        mView.setupViews(mWidget, true);
+        mView.bindData(sAlbumFiles);
         // 定位到当前预览位置
         if (sCurrentPosition == 0) {
             onCurrentChanged(sCurrentPosition);
@@ -63,6 +74,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
             finish();
             return Unit.INSTANCE;
         });
+
     }
 
     /**
@@ -94,8 +106,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     @Override
     public void onCurrentChanged(int position) {
         sCurrentPosition = position;
-        // 设置标题：1 / 10
-        mView.setTitle(sCurrentPosition + 1 + " / " + sAlbumFiles.size());
         AlbumFile albumFile = sAlbumFiles.get(position);
         // 同步勾选状态
         mView.setChecked(albumFile.isChecked());
@@ -103,7 +113,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         mView.setLayerDisplay(albumFile.isDisable());
         // 视频 → 显示时长
         if (albumFile.getMediaType() == AlbumFile.TYPE_VIDEO) {
-            mView.setDuration(AlbumUtils.convertDuration(albumFile.getDuration()));
+            mView.setDuration(AlbumUtil.convertDuration(albumFile.getDuration()));
             mView.setDurationDisplay(true);
         } else {
             mView.setDurationDisplay(false);

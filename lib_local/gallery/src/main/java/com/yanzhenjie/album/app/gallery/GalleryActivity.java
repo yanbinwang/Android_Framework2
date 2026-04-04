@@ -32,6 +32,8 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     private ArrayList<String> mPathList;
     // 记录选中状态（路径 -> 是否选中）
     private Map<String, Boolean> mCheckedMap;
+    // 主题样式
+    private Widget mWidget;
     // MVP View 层
     private Contract.GalleryView<String> mView;
     // 外部回调监听
@@ -41,24 +43,29 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     public static Action<ArrayList<String>> sResult;
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.album_activity_gallery);
-        // 初始化 MVP
-        mView = new GalleryView<>(this, this);
         // 获取传递参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
-            Widget mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
+            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
             mPathList = argument.getStringArrayList(Album.KEY_INPUT_CHECKED_LIST);
             mCurrentPosition = argument.getInt(Album.KEY_INPUT_CURRENT_POSITION);
             mCheckable = argument.getBoolean(Album.KEY_INPUT_GALLERY_CHECKABLE);
-            // 初始化 UI
-            if (null != mWidget) {
-                mView.setTitle(mWidget.getTitle());
-                mView.setupViews(mWidget, mCheckable);
-            }
+        } else {
+            finish();
         }
+        setContentView(R.layout.album_activity_gallery);
+        // 导航栏
+        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        // 初始化 MVP
+        mView = new GalleryView<>(this, this);
+        mView.setupViews(mWidget, mCheckable);
         // 初始化选中状态：全部默认选中
         mCheckedMap = new HashMap<>();
         for (String path : mPathList) {
@@ -131,7 +138,6 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
     @Override
     public void onCurrentChanged(int position) {
         mCurrentPosition = position;
-        mView.setSubTitle(position + 1 + " / " + mPathList.size());
         if (mCheckable) {
             mView.setChecked(Boolean.TRUE.equals(mCheckedMap.get(mPathList.get(position))));
         }

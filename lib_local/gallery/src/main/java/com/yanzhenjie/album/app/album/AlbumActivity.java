@@ -27,7 +27,7 @@ import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
 import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.mediascanner.MediaScanner;
 
@@ -93,21 +93,26 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     public static Action<ArrayList<AlbumFile>> sResult;
 
     @Override
+    protected boolean isImmersionBarEnabled() {
+        return false;
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 读取参数
-        initializeArgument();
+        // 获取参数
+        initArgument();
         // 根据主题加载布局
-        setContentView(createView());
-        mView = new AlbumView(this, this);
-        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
-        mView.setTitle("");
-        mView.setCompleteDisplay(false);
-        mView.setLoadingDisplay(true);
+        setContentView(R.layout.album_activity_album);
         // 初始化状态栏
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
         boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
+        // 绑定 MVP
+        mView = new AlbumView(this, this);
+        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
+        mView.setCompleteDisplay(false);
+        mView.setLoadingDisplay(true);
         // 开始异步扫描相册
         ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
         MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
@@ -126,7 +131,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     /**
      * 读取外部传递的配置参数
      */
-    private void initializeArgument() {
+    private void initArgument() {
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
             mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
@@ -139,23 +144,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
             mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
             mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
-        }
-    }
-
-    /**
-     * 根据主题加载亮/暗色布局
-     */
-    private int createView() {
-        switch (mWidget.getUiStyle()) {
-            case Widget.STYLE_DARK: {
-                return R.layout.album_activity_album_dark;
-            }
-            case Widget.STYLE_LIGHT: {
-                return R.layout.album_activity_album_light;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
+        } else {
+            finish();
         }
     }
 
@@ -206,7 +196,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
             mView.setCheckedCount(count);
-            mView.setSubTitle(count + "/" + mLimitCount);
         }
     }
 
@@ -219,7 +208,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (requestCode == CODE_ACTIVITY_NULL) {
             if (resultCode == RESULT_OK) {
                 String imagePath = NullActivity.parsePath(data);
-                String mimeType = AlbumUtils.getMimeType(imagePath);
+                String mimeType = AlbumUtil.getMimeType(imagePath);
                 if (!TextUtils.isEmpty(mimeType)) {
                     mCameraAction.onAction(imagePath);
                 }
@@ -322,10 +311,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void takePicture() {
         String filePath;
         if (mCurrentFolder == 0) {
-            filePath = AlbumUtils.randomJPGPath();
+            filePath = AlbumUtil.randomJPGPath();
         } else {
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtils.randomJPGPath(file.getParentFile());
+            filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }
         Album.camera(this)
                 .image()
@@ -340,10 +329,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void takeVideo() {
         String filePath;
         if (mCurrentFolder == 0) {
-            filePath = AlbumUtils.randomMP4Path();
+            filePath = AlbumUtil.randomMP4Path();
         } else {
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtils.randomMP4Path(file.getParentFile());
+            filePath = AlbumUtil.randomMP4Path(file.getParentFile());
         }
         Album.camera(this)
                 .video()
@@ -420,7 +409,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-        mView.setSubTitle(count + "/" + mLimitCount);
         switch (mChoiceMode) {
             case Album.MODE_SINGLE: {
                 callbackResult();
@@ -481,7 +469,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void setCheckedCount() {
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-        mView.setSubTitle(count + "/" + mLimitCount);
     }
 
     /**
@@ -493,8 +480,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             // 单选 → 直接返回
             case Album.MODE_SINGLE: {
                 AlbumFile albumFile = mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(position);
-//                albumFile.setChecked(true);
-//                mView.notifyItem(position);
                 mCheckedList.add(albumFile);
                 setCheckedCount();
                 callbackResult();

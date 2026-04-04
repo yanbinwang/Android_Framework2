@@ -1,18 +1,21 @@
 package com.yanzhenjie.album.app.gallery;
 
+import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
+
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
+import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
@@ -20,7 +23,7 @@ import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.util.SystemBar;
+import com.yanzhenjie.album.utils.SystemBar;
 
 import java.util.List;
 
@@ -34,6 +37,8 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
     private MenuItem mCompleteMenu;
     // 上下文
     private final Activity mActivity;
+    // 标题栏
+    private final Toolbar mToolbar;
     // 预览 ViewPager
     private final ViewPager mViewPager;
     // 底部操作栏
@@ -41,7 +46,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
     // 视频时长文字
     private final TextView mTvDuration;
     // 选择框
-    private final AppCompatCheckBox mCheckBox;
+    private final CheckBox mCheckBox;
     // 顶层遮罩层（拦截点击事件）
     private final FrameLayout mLayoutLayer;
 
@@ -50,7 +55,9 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      */
     public GalleryView(Activity activity, Contract.GalleryPresenter presenter) {
         super(activity, presenter);
+        // 绑定所有控件
         this.mActivity = activity;
+        this.mToolbar = activity.findViewById(R.id.toolbar);
         this.mViewPager = activity.findViewById(R.id.view_pager);
         this.mLayoutBottom = activity.findViewById(R.id.layout_bottom);
         this.mTvDuration = activity.findViewById(R.id.tv_duration);
@@ -94,12 +101,14 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
+        // 等 Toolbar 布局结束
+        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu.setVisible(false);
             mCheckBox.setVisibility(View.GONE);
         } else {
-            // 可选：设置选择框样式
+            // 设置选择框样式
             ColorStateList itemSelector = widget.getMediaItemCheckSelector();
             mCheckBox.setBackgroundTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);

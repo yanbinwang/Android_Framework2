@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    style="@style/Album.MatchParent"
+    android:background="@color/albumPageLight">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        style="@style/Album.Toolbar"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:ellipsize="end"
+            android:lines="1"
+            android:textSize="@dimen/album_sp_18"
+            android:textStyle="bold"
+            tools:text="@string/albumTitle"
+            tools:textColor="@color/textWhite" />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view"
+        style="@style/Album.WrapContent.WidthMatchParent"
+        android:layout_above="@+id/layout_menu"
+        android:layout_below="@+id/toolbar"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
+
+    <FrameLayout
+        android:id="@+id/layout_menu"
+        style="@style/Album.MatchParent.SheetBottom"
+        android:layout_alignParentBottom="true"
+        android:background="@color/albumSheetBottom">
+
+        <Button
+            android:id="@+id/btn_switch_dir"
+            style="@style/Album.TextButton.WrapContent.SheetBottom"
+            android:layout_gravity="start"
+            android:drawableEnd="@mipmap/album_abc_spinner_white" />
+
+        <Button
+            android:id="@+id/btn_preview"
+            style="@style/Album.TextButton.WrapContent.SheetBottom"
+            android:layout_gravity="end"
+            android:drawableStart="@mipmap/album_ic_eye_white" />
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:id="@+id/layout_loading"
+        style="@style/Album.MatchParent"
+        android:layout_below="@+id/toolbar"
+        android:background="@color/albumPageLight"
+        android:gravity="center"
+        android:visibility="gone">
+
+        <com.yanzhenjie.album.widget.ColorProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/Album.Progress.Loading" />
+
+        <TextView
+            style="@style/Album.WrapContent"
+            android:layout_marginStart="@dimen/album_dp_20"
+            android:text="@string/album_loading"
+            android:textColor="@color/albumFontHint"
+            android:textSize="@dimen/album_sp_16" />
+
+    </LinearLayout>
+
+</RelativeLayout>

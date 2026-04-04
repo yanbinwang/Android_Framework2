@@ -4,22 +4,6 @@
     <!-- ====================== 相册基础样式 ====================== -->
     <style name="Album" />
 
-    <!-- AppBar 通用样式：背景透明 -->
-    <style name="Album.AppBar">
-        <item name="android:background">@color/albumTransparent</item>
-    </style>
-
-    <!-- AppBar 通用布局：宽充满、高包裹 -->
-    <style name="Album.AppBar.General">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <!-- 透明 AppBar：去除阴影 -->
-    <style name="Album.AppBar.General.Transparent">
-        <item name="elevation">@dimen/album_dp_0</item>
-    </style>
-
     <!-- ====================== 按钮样式 ====================== -->
     <style name="Album.Button" parent="Widget.AppCompat.Button">
         <item name="android:theme">@style/Album.Theme.Button</item>
@@ -110,7 +94,7 @@
 
     <!-- 底部文字按钮：居中、亮色、单行 -->
     <style name="Album.TextButton.WrapContent.SheetBottom">
-        <item name="android:layout_centerVertical">true</item>
+        <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:maxWidth">@dimen/album_dp_200</item>
@@ -167,17 +151,18 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="popupTheme">@style/Album.Theme.Toolbar.Popup</item>
+        <item name="elevation">@dimen/album_dp_0</item>
     </style>
 
     <!-- 深色 Toolbar -->
-    <style name="Album.Toolbar.Dark">
+    <style name="Album.Toolbar.Dark" parent="Album.Toolbar">
         <item name="android:theme">@style/Album.Theme.Toolbar.Dark</item>
         <item name="titleTextColor">@color/albumFontLight</item>
         <item name="subtitleTextColor">@color/albumFontLight</item>
     </style>
 
     <!-- 浅色 Toolbar -->
-    <style name="Album.Toolbar.Light">
+    <style name="Album.Toolbar.Light" parent="Album.Toolbar">
         <item name="android:theme">@style/Album.Theme.Toolbar.Light</item>
         <item name="titleTextColor">@color/albumFontDark</item>
         <item name="subtitleTextColor">@color/albumFontDark</item>

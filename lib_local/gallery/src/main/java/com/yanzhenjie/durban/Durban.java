@@ -41,6 +41,7 @@ public class Durban {
     public static final String KEY_INPUT_PATH_ARRAY = KEY_PREFIX + ".KEY_INPUT_PATH_ARRAY";
     public static final String KEY_INPUT_CONTROLLER = KEY_PREFIX + ".KEY_INPUT_CONTROLLER";
     public static final String KEY_OUTPUT_IMAGE_LIST = KEY_PREFIX + ".KEY_OUTPUT_IMAGE_LIST";
+    public static final String KEY_ORIGINAL_PATH_LIST = KEY_PREFIX + ".KEY_ORIGINAL_IMAGE_LIST";
     // 不允许任何手势
     public static final int GESTURE_NONE = 0;
     // 允许缩放
@@ -98,6 +99,13 @@ public class Durban {
      */
     public static ArrayList<String> parseResult(@NonNull Intent intent) {
         return intent.getStringArrayListExtra(KEY_OUTPUT_IMAGE_LIST);
+    }
+
+    /**
+     * 拿原始图片集合
+     */
+    public static ArrayList<String> parseOriginal(@NonNull Intent intent) {
+        return intent.getStringArrayListExtra(KEY_ORIGINAL_PATH_LIST);
     }
 
     /**

@@ -32,10 +32,11 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
 
     /**
      * 设置 Toolbar 并绑定点击事件
+     * prepare() 完成后会主动调取
      */
     override fun setActionBar(toolbar: Toolbar) {
+        setSupportToolbar(toolbar)
         mActionBar = toolbar
-        setTitle(mHost.title)
         // 菜单点击
         mActionBar?.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
@@ -47,28 +48,6 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
         }
         // 保存默认返回图标
         mActionBarIcon = mActionBar?.navigationIcon
-    }
-
-    /**
-     * 设置标题
-     */
-    override fun setTitle(title: CharSequence) {
-        mActionBar?.setTitle(title)
-    }
-
-    override fun setTitle(resId: Int) {
-        mActionBar?.setTitle(resId)
-    }
-
-    /**
-     * 设置副标题
-     */
-    override fun setSubTitle(title: CharSequence) {
-        mActionBar?.setSubtitle(title)
-    }
-
-    override fun setSubTitle(resId: Int) {
-        mActionBar?.setSubtitle(resId)
     }
 
     /**
@@ -126,17 +105,14 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
      * 获取 Toolbar 菜单
      */
     override fun getMenu(): Menu? {
-        return if (mActionBar == null) null else mActionBar?.getMenu()
+        return mActionBar?.getMenu()
     }
 
     /**
      * 初始化：自动查找并绑定 Toolbar
      */
     override fun prepare() {
-        mHost.findViewById<Toolbar>(R.id.toolbar).let { toolbar ->
-            setActionBar(toolbar)
-            setSupportToolbar(toolbar)
-        }
+        setActionBar(mHost.findViewById(R.id.toolbar))
     }
 
     /**

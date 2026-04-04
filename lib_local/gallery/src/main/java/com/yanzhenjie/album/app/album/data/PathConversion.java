@@ -8,7 +8,7 @@ import androidx.annotation.WorkerThread;
 
 import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.Filter;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.io.File;
 
@@ -49,7 +49,7 @@ public class PathConversion {
         File parentFile = file.getParentFile();
         albumFile.setBucketName(parentFile.getName());
         // 获取文件类型（image/jpeg、video/mp4...）
-        String mimeType = AlbumUtils.getMimeType(filePath);
+        String mimeType = AlbumUtil.getMimeType(filePath);
         albumFile.setMimeType(mimeType);
         // 设置添加时间（当前时间）
         long nowTime = System.currentTimeMillis();

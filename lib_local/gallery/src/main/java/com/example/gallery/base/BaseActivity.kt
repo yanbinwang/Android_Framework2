@@ -1,8 +1,12 @@
 package com.example.gallery.base
 
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.transition.Slide
+import android.transition.Visibility
 import android.view.Gravity
 import android.view.ViewGroup
 import android.view.Window
@@ -16,7 +20,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
-import com.example.common.R
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.manager.AppManager
@@ -24,13 +29,19 @@ import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
+import com.example.framework.utils.function.value.isMainThread
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
+import com.example.gallery.R
 import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
+import androidx.core.view.isNotEmpty
+
 
 /**
  * 针对所有相册页面的基类
@@ -41,7 +52,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     companion object {
 
         /**
-         * 一启动就拿一次系统默认状态栏高度（永远不变）
+         * 启动相册页面就拿一次系统默认状态栏高度（由于第一个界面一定是相册库而不是裁剪,故而该值几乎是启动相册库后就不变的）
          */
         private val defaultStatusBarHeight = getStatusBarHeight()
 
@@ -50,26 +61,27 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          */
         @JvmStatic
         fun setSupportToolbar(toolbar: Toolbar?) {
-            toolbar.doOnceAfterLayout {
-//                val statusBarHeight = getStatusBarHeight()
-                // 拿当前页面的高度
+            toolbar.doOnceAfterLayout { tb ->
+                // 取当前页面状态栏高度
                 var statusBarHeight = getStatusBarHeight()
-                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用【一开始就存好的默认高度】
+                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用"一开始就存好的默认高度"
                 if (statusBarHeight != defaultStatusBarHeight) {
                     statusBarHeight = defaultStatusBarHeight
                 }
-                it.size(height = it.measuredHeight + statusBarHeight)
-                it.padding(top = statusBarHeight)
-                // 返回按钮调整
-                val navButton = getNavButtonView(it)
+                // 设置高度
+                tb.size(height = tb.measuredHeight + statusBarHeight)
+                // 设置左、右内边距全为0
+                tb.padding(top = statusBarHeight, start = 0, end = 0)
+                // 取出系统按钮
+                val systemNavBtn = getNavButtonView(tb)
+                // 去除水波纹
+                systemNavBtn?.background = null
                 // 去除长按文字
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    navButton?.tooltipText = null
+                    systemNavBtn?.tooltipText = null
                 }
-                navButton?.setContentDescription(null)
-                navButton?.setOnLongClickListener { _ -> true }
-                // 去除水波纹
-                navButton?.background = null
+                systemNavBtn?.setContentDescription(null)
+                systemNavBtn?.setOnLongClickListener { _ -> true }
             }
         }
 
@@ -102,14 +114,53 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 if (child is ActionMenuView) {
                     // 设定的按钮被绘制为ActionMenuView,本身高度看似撑满屏幕并且绘制也是,但其内部的view还是带有一定的上下边距
                     child.doOnceAfterLayout {
-                        adjustActionMenuView(it, colorRes)
+                        adjustActionMenuView(toolbar, it, colorRes)
                     }
                 }
             }
         }
 
+        /**
+         * 1) 32ms = 屏幕一帧的时间（约 30fps） 既不卡 UI，又能最快感知到菜单出现
+         * 2) 大多数手机 60fps → 16ms 刷新一次 , 低一点 30fps → 32ms 刷新一次 , 32ms 就是「等下一帧渲染完」
+         */
+        @JvmStatic
+        fun setSupportMenuViewAsync(toolbar: Toolbar, @ColorRes colorRes: Int) {
+            val interval = 32L   // 每帧检查一次
+            val maxRetry = 30    // 最多重试30次 ≈ 1秒超时
+            var retry = 0        // 正确计数
+            val runnable = object : Runnable {
+                override fun run() {
+                    // View 已销毁 / 超时 → 停止轮询
+                    if (!toolbar.isAttachedToWindow || retry >= maxRetry) {
+                        toolbar.removeCallbacks(this)
+                        return
+                    }
+                    // 查找菜单
+                    var found = false
+                    for (i in 0 until toolbar.childCount) {
+                        val child = toolbar.getChildAt(i)
+                        if (child is ActionMenuView) {
+                            if (child.isNotEmpty()) {
+                                adjustActionMenuView(toolbar, child, colorRes)
+                                found = true
+                            }
+                        }
+                    }
+                    // 找到/没找到
+                    if (found) {
+                        toolbar.removeCallbacks(this)
+                    } else {
+                        retry++ // 正确计数
+                        toolbar.postDelayed(this, interval)
+                    }
+                }
+            }
+            toolbar.post(runnable)
+        }
+
         @SuppressLint("RestrictedApi")
-        private fun adjustActionMenuView(menuView: ActionMenuView, @ColorRes colorRes: Int) {
+        private fun adjustActionMenuView(toolbar: Toolbar, menuView: ActionMenuView, @ColorRes colorRes: Int) {
             for (i in 0..<menuView.childCount) {
                 val itemView = menuView.getChildAt(i)
                 // 打破 ActionMenuItemView 的高度限制
@@ -134,38 +185,50 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     }
                     // 字体大小
                     itemView.textSize(R.dimen.textSize14)
+                    // 大小修正 -> 判断这个按钮有没有 ICON
+                    val hasIcon = itemView.itemData?.icon != null
+                    if (hasIcon) {
+                        val adjustHeight = toolbar.measuredHeight - defaultStatusBarHeight
+                        itemView.size(width = adjustHeight)
+                    }
                 }
             }
         }
-
     }
-
-//    /**
-//     * 复用页面时强制统一动画
-//     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
-//     */
-//    override fun onNewIntent(intent: Intent?) {
-//        super.onNewIntent(intent)
-//        val (fadeEnter, fadeExit) = Pair(
-//            Fade().apply { duration = 500; mode = Visibility.MODE_IN },
-//            Fade().apply { duration = 500; mode = Visibility.MODE_OUT }
-//        )
-//        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-//        window.setExitTransition(fadeEnter)
-//        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-//        window.setReturnTransition(fadeExit)
-//    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        setActivityAnimations()
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
+        // 强制补动画（外部跳转生效）
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+    }
+
+    /**
+     * 复用页面时强制统一动画
+     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setActivityAnimations()
+    }
+
+    private fun setActivityAnimations() {
+        val (slideEnter, slideExit) = Pair(
+            Slide(Gravity.END).apply { duration = 300; mode = Visibility.MODE_IN },
+            Slide(Gravity.START).apply { duration = 500; mode = Visibility.MODE_OUT }
+        )
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.setExitTransition(slideEnter)
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.setReturnTransition(slideExit)
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {
@@ -239,13 +302,38 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     /**
-     * 1.bye() 方法中直接调用了 onBackPressed()
-     * 2.在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
-     * 3.系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
+     * 1) bye() 方法中直接调用了 onBackPressed()
+     * 2) 在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
+     * 3) 系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
      */
     override fun bye() {
 //        onBackPressed()
         finish()
+    }
+
+    override fun getResources(): Resources {
+        if (isMainThread) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        }
+        return super.getResources()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoSizeConfig.getInstance().stop(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        AutoSizeConfig.getInstance().restart()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
     override fun onDestroy() {

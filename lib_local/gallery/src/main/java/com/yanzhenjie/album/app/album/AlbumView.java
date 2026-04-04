@@ -1,7 +1,8 @@
 package com.yanzhenjie.album.app.album;
 
-import static com.example.gallery.base.BaseActivity.setSupportToolbar;
+import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.graphics.Color;
@@ -25,7 +26,7 @@ import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.impl.DoubleClickWrapper;
-import com.yanzhenjie.album.util.AlbumUtils;
+import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.ColorProgressBar;
 import com.yanzhenjie.album.widget.divider.ItemDivider;
 
@@ -34,6 +35,7 @@ import com.yanzhenjie.album.widget.divider.ItemDivider;
  * 功能：负责所有 UI 展示、事件点击、列表刷新、主题切换
  * MVP 中的 V 层
  */
+@SuppressLint({"SetTextI18n", "NotifyDataSetChanged"})
 public class AlbumView extends Contract.AlbumView implements View.OnClickListener {
     // 相册列表适配器
     private AlbumAdapter mAdapter;
@@ -66,7 +68,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         this.mActivity = activity;
         // 绑定所有控件
         this.mToolbar = activity.findViewById(R.id.toolbar);
-        setSupportToolbar(mToolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);
         this.mRecyclerView = activity.findViewById(R.id.recycler_view);
         this.mBtnSwitchFolder = activity.findViewById(R.id.btn_switch_dir);
@@ -106,28 +107,32 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      */
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
-        int mStatusColor = widget.getStatusBarColor();
-        mTitle.setText(widget.getTitle());
-        mToolbar.setBackgroundColor(getColor(mStatusColor));
-        mToolbar.setSubtitleTextColor(getColor(mStatusColor));
-        mToolbar.setTitleTextColor(getColor(mStatusColor));
-        // 浅色 / 深色主题
+        // 设置返回箭头
+        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+        // 浅色 / 深色主题 -> 影响图标
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.textBlack));
-            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
-            // 暗色图标
-            Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
-            AlbumUtils.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
-            setHomeAsUpIndicator(navigationIcon);
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Dark);
+            mTitle.setTextColor(getColor(R.color.albumFontDark));
+            // 暗色返回 / 完成
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             Drawable completeIcon = mCompleteMenu.getIcon();
-            AlbumUtils.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
-            mCompleteMenu.setIcon(completeIcon);
+            if (null != completeIcon) {
+                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+                mCompleteMenu.setIcon(completeIcon);
+            }
+            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
         } else {
-            // 白色文字、白色图标
-            mTitle.setTextColor(getColor(R.color.textWhite));
+            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Light);
+            mTitle.setTextColor(getColor(R.color.albumFontLight));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
-            setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
         }
+        // 设置返回按钮
+        setHomeAsUpIndicator(navigationIcon);
+        // 标题同步状态栏颜色
+        mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
+        mTitle.setText(widget.getTitle());
+        // 等 Toolbar 布局结束
+        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);

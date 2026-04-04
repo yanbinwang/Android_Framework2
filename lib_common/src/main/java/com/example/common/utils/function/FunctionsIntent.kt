@@ -442,47 +442,116 @@ private fun File?.fileValidation(): Boolean {
 }
 
 /**
- * 获取对应对象->方法已经淘汰，扩展写下
+ * Intent取值
  */
-fun <T : Serializable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+fun Intent?.intentString(key: String, default: String = ""): String {
+    this ?: return default
+    return extras?.getString(key) ?: default
+}
+
+fun Intent?.intentInt(key: String, default: Int = 0): Int {
+    this ?: return default
+    return extras?.getInt(key, default) ?: default
+}
+
+fun Intent?.intentLong(key: String, default: Long = 0L): Long {
+    this ?: return default
+    return extras?.getLong(key, default) ?: default
+}
+
+fun Intent?.intentFloat(key: String, default: Float = 0f): Float {
+    this ?: return default
+    return extras?.getFloat(key, default) ?: default
+}
+
+fun Intent?.intentDouble(key: String, default: Double = 0.0): Double {
+    this ?: return default
+    return extras?.getDouble(key, default) ?: default
+}
+
+fun Intent?.intentBoolean(key: String, default: Boolean = false): Boolean {
+    this ?: return default
+    return extras?.getBoolean(key, default) ?: default
+}
+
+inline fun <reified T : Serializable> Intent?.intentSerializable(key: String): T? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getSerializableExtra(name, clazz)
+        extras?.getSerializable(key, T::class.java)
     } else {
-        getSerializableExtra(name) as? T
+        extras?.getSerializable(key) as? T
     }
 }
 
-fun <T : Parcelable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+inline fun <reified T : Serializable> Intent?.intentSerializableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableExtra(name, clazz)
+        extras?.getSerializable(name, ArrayList::class.java)
     } else {
-        getParcelableExtra(name) as? T
+        extras?.getSerializable(name)
+    } as? ArrayList<T>
+}
+
+inline fun <reified T : Parcelable> Intent?.intentParcelable(key: String): T? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        extras?.getParcelable(key, T::class.java)
+    } else {
+        extras?.getParcelable(key) as? T
     }
 }
 
-/**
- * Serializable未提供集合的方法，需要强转：
- * putSerializable(Extra.BUNDLE_LIST, list as? Serializable)
- * 然后getArrayListExtra取值后再强转
- * 故而使用putParcelableArrayListExtra来传输集合
- * putParcelableArrayListExtra(Extra.BUNDLE_LIST, list) })
- * list--->ArrayList<T>
- */
-fun <T : Parcelable> Intent?.getArrayListExtra(name: String, clazz: Class<T>): ArrayList<T>? {
+inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableArrayListExtra(name, clazz)
+        extras?.getParcelableArrayList(name, T::class.java)
     } else {
-        getParcelableArrayListExtra(name)
+        extras?.getParcelableArrayList(name)
     }
 }
 
-fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
-    this ?: return null
-    return getSerializableExtra(name) as? ArrayList<T>
-}
+///**
+// * 获取对应对象->方法已经淘汰，扩展写下
+// */
+//fun <T : Serializable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+//    this ?: return null
+//    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//        getSerializableExtra(name, clazz)
+//    } else {
+//        getSerializableExtra(name) as? T
+//    }
+//}
+//
+//fun <T : Parcelable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+//    this ?: return null
+//    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//        getParcelableExtra(name, clazz)
+//    } else {
+//        getParcelableExtra(name) as? T
+//    }
+//}
+//
+///**
+// * Serializable未提供集合的方法，需要强转：
+// * putSerializable(Extra.BUNDLE_LIST, list as? Serializable)
+// * 然后getArrayListExtra取值后再强转
+// * 故而使用putParcelableArrayListExtra来传输集合
+// * putParcelableArrayListExtra(Extra.BUNDLE_LIST, list) })
+// * list--->ArrayList<T>
+// */
+//fun <T : Parcelable> Intent?.getArrayListExtra(name: String, clazz: Class<T>): ArrayList<T>? {
+//    this ?: return null
+//    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//        getParcelableArrayListExtra(name, clazz)
+//    } else {
+//        getParcelableArrayListExtra(name)
+//    }
+//}
+//
+//fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
+//    this ?: return null
+//    return getSerializableExtra(name) as? ArrayList<T>
+//}
 
 /**
  * makeCustomAnimation

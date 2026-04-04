@@ -4,4 +4,6 @@
     android:id="@+id/rv_content_list"
     style="@style/Album.WrapContent.WidthMatchParent"
     android:background="@color/albumPageLight"
+    android:overScrollMode="never"
+    android:scrollbars="none"
     app:behavior_hideable="true" />
