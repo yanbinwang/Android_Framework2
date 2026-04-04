@@ -9,6 +9,7 @@ import com.example.common.config.RouterPath
 import com.example.common.widget.xrecyclerview.gesture.ItemDecorationCallBack
 import com.example.common.widget.xrecyclerview.gesture.ItemDecorationHelper
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
+import com.example.framework.utils.function.setResult
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -81,7 +82,8 @@ class TouchActivity : BaseTitleActivity<ActivityTouchBinding>(), OnRefreshLoadMo
 
     private fun close() {
         val localData = mBinding?.adapter?.list()?.toArrayList()
-        setResult(ResultCode.RESULT_FINISH, Intent().apply { putExtra(Extra.BUNDLE_LIST, localData) })
+//        setResult(ResultCode.RESULT_FINISH, Intent().apply { putExtra(Extra.BUNDLE_LIST, localData) })
+        setResult(ResultCode.RESULT_FINISH, Extra.BUNDLE_LIST to localData)
         finish()
     }
 

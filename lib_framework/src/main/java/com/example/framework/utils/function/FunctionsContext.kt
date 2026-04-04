@@ -289,8 +289,20 @@ fun Context?.isAccessibilityServiceEnabled(service: Class<*>): Boolean {
 }
 
 /**
- *  获取对应class类页面中intent的消息
+ *  获取对应Class类页面中Intent的消息
  */
+fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
+    startActivity(getIntent(cls, *pairs).apply {
+        if (this@startActivity is Application) {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+    })
+}
+
+fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
+    startActivityForResult(getIntent(cls, *pairs), requestCode)
+}
+
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
     val intent = Intent(this, cls)
     pairs.forEach {
@@ -304,34 +316,53 @@ fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>)
             is Short -> intent.putExtra(key, value)
             is Double -> intent.putExtra(key, value)
             is Boolean -> intent.putExtra(key, value)
-            is String? -> intent.putExtra(key, value)
-            is Bundle? -> intent.putExtra(key, value)
-            is IntArray? -> intent.putExtra(key, value)
-            is ByteArray? -> intent.putExtra(key, value)
-            is CharArray? -> intent.putExtra(key, value)
-            is LongArray? -> intent.putExtra(key, value)
-            is FloatArray? -> intent.putExtra(key, value)
-            is Parcelable? -> intent.putExtra(key, value)
-            is ShortArray? -> intent.putExtra(key, value)
-            is DoubleArray? -> intent.putExtra(key, value)
-            is BooleanArray? -> intent.putExtra(key, value)
-            is CharSequence? -> intent.putExtra(key, value)
-            is Serializable? -> intent.putExtra(key, value)
+            is String -> intent.putExtra(key, value)
+            is Bundle -> intent.putExtra(key, value)
+            is IntArray -> intent.putExtra(key, value)
+            is ByteArray -> intent.putExtra(key, value)
+            is CharArray -> intent.putExtra(key, value)
+            is LongArray -> intent.putExtra(key, value)
+            is FloatArray -> intent.putExtra(key, value)
+            is Parcelable -> intent.putExtra(key, value)
+            is ShortArray -> intent.putExtra(key, value)
+            is DoubleArray -> intent.putExtra(key, value)
+            is BooleanArray -> intent.putExtra(key, value)
+            is CharSequence -> intent.putExtra(key, value)
+            is Serializable -> intent.putExtra(key, value)
         }
     }
     return intent
 }
 
-fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
-    startActivity(getIntent(cls, *pairs).apply {
-        if (this@startActivity is Application) {
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+fun Activity.setResult(resultCode: Int, vararg pairs: Pair<String, Any?>) {
+    val intent = Intent()
+    pairs.forEach {
+        val key = it.first
+        when (val value = it.second) {
+            is Int -> intent.putExtra(key, value)
+            is Byte -> intent.putExtra(key, value)
+            is Char -> intent.putExtra(key, value)
+            is Long -> intent.putExtra(key, value)
+            is Float -> intent.putExtra(key, value)
+            is Short -> intent.putExtra(key, value)
+            is Double -> intent.putExtra(key, value)
+            is Boolean -> intent.putExtra(key, value)
+            is String -> intent.putExtra(key, value)
+            is Bundle -> intent.putExtra(key, value)
+            is IntArray -> intent.putExtra(key, value)
+            is ByteArray -> intent.putExtra(key, value)
+            is CharArray -> intent.putExtra(key, value)
+            is LongArray -> intent.putExtra(key, value)
+            is FloatArray -> intent.putExtra(key, value)
+            is Parcelable -> intent.putExtra(key, value)
+            is ShortArray -> intent.putExtra(key, value)
+            is DoubleArray -> intent.putExtra(key, value)
+            is BooleanArray -> intent.putExtra(key, value)
+            is CharSequence -> intent.putExtra(key, value)
+            is Serializable -> intent.putExtra(key, value)
         }
-    })
-}
-
-fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
-    startActivityForResult(getIntent(cls, *pairs), requestCode)
+    }
+    setResult(resultCode, intent)
 }
 
 /**
@@ -364,8 +395,6 @@ fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
     return intent.extras?.getBoolean(key, default) ?: default
 }
 
-//inline fun <reified T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
-
 inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         intent.extras?.getSerializable(key, T::class.java)
@@ -381,8 +410,6 @@ inline fun <reified T : Serializable> Activity.intentSerializableArrayList(name:
         intent.extras?.getSerializable(name)
     } as? ArrayList<T>
 }
-
-//inline fun <reified T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
 
 inline fun <reified T : Parcelable> Activity.intentParcelable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -424,8 +451,6 @@ fun Fragment.intentBoolean(key: String, default: Boolean = false): Boolean {
     return arguments?.getBoolean(key, default) ?: default
 }
 
-//inline fun <reified T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
-
 inline fun <reified T : Serializable> Fragment.intentSerializable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         arguments?.getSerializable(key, T::class.java)
@@ -441,8 +466,6 @@ inline fun <reified T : Serializable> Fragment.intentSerializableArrayList(name:
         arguments?.getSerializable(name)
     } as? ArrayList<T>
 }
-
-//inline fun <reified T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
 
 inline fun <reified T : Parcelable> Fragment.intentParcelable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
