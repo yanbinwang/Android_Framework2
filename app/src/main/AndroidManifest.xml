@@ -257,14 +257,6 @@
             android:name="com.example.home.activity.LinkActivity"
             android:exported="true"
             android:theme="@style/LinkTheme" />
-        <!-- 外部调取系统相机页 -->
-        <activity
-            android:name="com.example.home.activity.CameraActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:launchMode="singleTask"
-            android:screenOrientation="portrait"
-            android:theme="@style/TransparentTheme"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- 伸縮大圖 -->
         <activity
             android:name="com.example.home.activity.ScaleActivity"

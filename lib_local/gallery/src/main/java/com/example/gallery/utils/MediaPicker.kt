@@ -15,14 +15,14 @@ import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
 import com.example.gallery.R
-import com.example.gallery.activity.CameraPermissionActivity
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_BYTES
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_DURATION
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_ALBUM
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_IMAGE
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_FUNCTION_VIDEO
-import com.example.gallery.activity.CameraPermissionActivity.Companion.CAMERA_QUALITY
+import com.example.gallery.activity.CameraActivity
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_BYTES
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_DURATION
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_ALBUM
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_IMAGE
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_VIDEO
+import com.example.gallery.activity.CameraActivity.Companion.CAMERA_QUALITY
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.ImageMultipleWrapper
 import com.yanzhenjie.album.api.ImageSingleWrapper
@@ -69,7 +69,6 @@ class MediaPicker {
         private fun gcd(a: Int, b: Int): Int {
             return if (b == 0) a else gcd(b, a % b)
         }
-
     }
 
     /**
@@ -135,14 +134,14 @@ class MediaPicker {
 //                }
 //            }
 //            ?.start()
-        CameraPermissionActivity.onResult = {
+        CameraActivity.onResult = {
             if (hasDurban) {
                 toDurban(it)
             } else {
                 listener.invoke(it)
             }
         }
-        val intent = Intent(context, CameraPermissionActivity::class.java)
+        val intent = Intent(context, CameraActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
         context?.startActivity(intent)
@@ -166,10 +165,10 @@ class MediaPicker {
 //                listener.invoke(it)
 //            }
 //            ?.start()
-        CameraPermissionActivity.onResult = {
+        CameraActivity.onResult = {
             listener.invoke(it)
         }
-        val intent = Intent(context, CameraPermissionActivity::class.java)
+        val intent = Intent(context, CameraActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
         intent.putExtra(CAMERA_QUALITY, quality)
@@ -182,14 +181,14 @@ class MediaPicker {
      * 选择图片-系统相册
      */
     fun pickImage(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
-        CameraPermissionActivity.onResult = {
+        CameraActivity.onResult = {
             if (hasDurban) {
                 toDurban(it)
             } else {
                 listener.invoke(it)
             }
         }
-        val intent = Intent(context, CameraPermissionActivity::class.java)
+        val intent = Intent(context, CameraActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
         context?.startActivity(intent)

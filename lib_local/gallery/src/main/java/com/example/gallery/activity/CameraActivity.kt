@@ -1,4 +1,4 @@
-package com.example.home.activity
+package com.example.gallery.activity
 
 import android.content.Context
 import android.content.Intent
