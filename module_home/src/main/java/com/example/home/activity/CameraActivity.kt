@@ -1,4 +1,4 @@
-package com.example.gallery.activity
+package com.example.home.activity
 
 import android.content.Context
 import android.content.Intent
@@ -6,16 +6,14 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.base.page.ResultCode.RESULT_ALBUM
-import com.example.common.base.page.ResultCode.RESULT_IMAGE
-import com.example.common.base.page.ResultCode.RESULT_VIDEO
+import com.example.common.base.page.ResultCode
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
 import com.example.common.utils.manager.AppManager
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.value.hour
@@ -27,7 +25,7 @@ import com.example.gallery.R
  * 1) 相册模块单独独立,本身内部调取不会有问题,该页面解决的是外部调取
  * 2) 相机类的所有可配置参数考虑到兼容性问题,实际上都是没有任何意义的,不能限制系统的相机时间.清晰度等,这是厂商忽略谷歌相机采用自家定制的问题
  */
-class CameraPermissionActivity : AppCompatActivity() {
+class CameraActivity : AppCompatActivity() {
     private var mFilePath: String? = null
     private val mFunction by lazy { intentInt(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE) }
     private val mQuality by lazy { intentInt(CAMERA_QUALITY, 0) }
@@ -60,7 +58,7 @@ class CameraPermissionActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraPermissionActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
             startActivity(intent)
@@ -74,7 +72,7 @@ class CameraPermissionActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraPermissionActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
             intent.putExtra(CAMERA_QUALITY, quality)
@@ -91,7 +89,7 @@ class CameraPermissionActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraPermissionActivity::class.java)
+            val intent = Intent(this, CameraActivity::class.java)
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
             startActivity(intent)
@@ -101,7 +99,7 @@ class CameraPermissionActivity : AppCompatActivity() {
          * 调取当前页面的前一个页面的OnResume中调取 , 避免用户跳转后去别的app然后直接切回我们的app
          */
         fun clearCameraPage() {
-            val cameraClass = CameraPermissionActivity::class.java
+            val cameraClass = CameraActivity::class.java
             if (AppManager.isActivityAlive(cameraClass)) {
                 AppManager.finishActivitiesOfClass(cameraClass)
             }
@@ -138,15 +136,15 @@ class CameraPermissionActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode) {
-            RESULT_IMAGE, RESULT_VIDEO -> finish()
-            RESULT_ALBUM -> {
+            ResultCode.RESULT_IMAGE, ResultCode.RESULT_VIDEO -> finish()
+            ResultCode.RESULT_ALBUM -> {
                 val uri = data?.data
                 val oriFile = uri.getFileFromUri(this)
                 mFilePath = oriFile?.absolutePath
                 finish()
             }
             else -> {
-                schedule(this, {
+                TimerBuilder.Companion.schedule(this, {
                     finish()
                 }, 500)
             }

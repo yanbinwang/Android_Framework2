@@ -42,7 +42,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
-import com.example.gallery.utils.GalleryHelper
+import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
@@ -390,7 +390,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
     private val timerBuilder by lazy { TimerBuilder(this) }
 
-    private val gallery by lazy { GalleryHelper(this) }
+    private val gallery by lazy { MediaPicker(this) }
 
     override fun isImmersionBarEnabled() = false
 

@@ -39,7 +39,7 @@ import com.yanzhenjie.durban.Durban
  * 调用该类之前需检测权限，activity属性设为
  * android:configChanges="orientation|keyboardHidden|screenSize"
  */
-class GalleryHelper {
+class MediaPicker {
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null

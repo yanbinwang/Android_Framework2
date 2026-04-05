@@ -6,7 +6,7 @@ import com.example.common.BaseApplication
 import com.example.common.utils.builder.generateCrashLog
 import com.example.common.utils.builder.saveCrashLogToFile
 import com.example.framework.utils.function.value.isDebug
-import com.example.gallery.GlideLoader
+import com.example.gallery.utils.GlideLoader
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
 import com.example.thirdparty.media.oss.OssDBHelper

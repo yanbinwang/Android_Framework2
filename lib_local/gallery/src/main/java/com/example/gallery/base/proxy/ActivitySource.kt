@@ -1,6 +1,7 @@
-package com.example.gallery.base.source
+package com.example.gallery.base.proxy
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.Menu
@@ -13,20 +14,22 @@ import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
+import com.example.gallery.base.bridge.BaseSource
 
 /**
- * 普通 View 载体实现类
- * 用于将 BaseView 与 View 绑定，提供视图、Toolbar、菜单、输入法等能力
- * 适用于非 Activity 场景（如 Fragment、Dialog、自定义View 中使用）
+ * Activity 载体实现类
+ * 用于将 BaseView 与 Activity 绑定，提供页面、Toolbar、菜单、输入法等能力
  */
 @SuppressLint("RestrictedApi")
-class ViewSource(view: View) : Source<View>(view) {
-    // 标题栏 Toolbar
+class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
+    // 页面标题栏 Toolbar
     private var mActionBar: Toolbar? = null
     // 导航返回图标
     private var mActionBarIcon: Drawable? = null
     // 菜单/返回按钮点击监听
     private var mMenuItemSelectedListener: MenuClickListener? = null
+    // 页面根视图
+    private val mView = activity.findViewById<View>(R.id.content)
 
     /**
      * 设置 Toolbar 并绑定点击事件
@@ -82,21 +85,14 @@ class ViewSource(view: View) : Source<View>(view) {
      * 获取上下文
      */
     override fun getContext(): Context {
-        return mHost.context
-    }
-
-    /**
-     * 获取当前根视图
-     */
-    override fun getView(): View {
         return mHost
     }
 
     /**
-     * 获取 Toolbar 菜单
+     * 获取主视图
      */
-    override fun getMenu(): Menu? {
-        return mActionBar?.getMenu()
+    override fun getView(): View {
+        return mView
     }
 
     /**
@@ -104,6 +100,13 @@ class ViewSource(view: View) : Source<View>(view) {
      */
     override fun getMenuInflater(): MenuInflater {
         return SupportMenuInflater(getContext())
+    }
+
+    /**
+     * 获取 Toolbar 菜单
+     */
+    override fun getMenu(): Menu? {
+        return mActionBar?.getMenu()
     }
 
     /**
@@ -117,8 +120,8 @@ class ViewSource(view: View) : Source<View>(view) {
      * 关闭输入法
      */
     override fun closeInputMethod() {
-        val focusView = getView().findFocus()
-        val manager = getContext().getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val focusView = mHost.currentFocus
+        val manager = mHost.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
         manager?.hideSoftInputFromWindow(focusView?.windowToken, 0)
     }
 

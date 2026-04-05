@@ -36,12 +36,11 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.gallery.R
-import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import androidx.core.view.isNotEmpty
-
+import com.example.gallery.base.bridge.Bye
 
 /**
  * 针对所有相册页面的基类

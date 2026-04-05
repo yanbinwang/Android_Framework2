@@ -1,4 +1,4 @@
-package com.example.gallery
+package com.example.gallery.utils
 
 import android.widget.ImageView
 import com.example.glide.ImageLoader

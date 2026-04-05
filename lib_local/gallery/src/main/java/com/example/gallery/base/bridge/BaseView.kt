@@ -21,9 +21,8 @@ import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
-import com.example.gallery.base.source.ActivitySource
-import com.example.gallery.base.source.Source
-import com.example.gallery.base.source.ViewSource
+import com.example.gallery.base.proxy.ActivitySource
+import com.example.gallery.base.bridge.BaseSource
 
 /**
  * MVP 架构中所有 View 层的基类
@@ -32,7 +31,7 @@ import com.example.gallery.base.source.ViewSource
  */
 abstract class BaseView<Presenter : BasePresenter> {
     // View 载体（Activity/View 包装类）
-    private var mSource: Source<*>
+    private var mSource: BaseSource<*>
     // 当前 View 绑定的 Presenter
     private var mPresenter: Presenter
 
@@ -44,18 +43,11 @@ abstract class BaseView<Presenter : BasePresenter> {
     constructor(activity: Activity, presenter: Presenter) : this(ActivitySource(activity), presenter)
 
     /**
-     * 绑定 View 作为载体
-     * @param view 视图
-     * @param presenter 绑定的 Presenter
-     */
-    constructor(view: View, presenter: Presenter) : this(ViewSource(view), presenter)
-
-    /**
      * 绑定自定义 Source 作为载体
      * @param source 视图载体包装类
      * @param presenter 绑定的 Presenter
      */
-    constructor(source: Source<*>, presenter: Presenter) {
+    constructor(source: BaseSource<*>, presenter: Presenter) {
         mSource = source
         mPresenter = presenter
         // 初始化载体 -> Source层已执行setActionBar
@@ -63,7 +55,7 @@ abstract class BaseView<Presenter : BasePresenter> {
         // 初始化菜单
         invalidateOptionsMenu()
         // 设置菜单点击事件
-        mSource.setMenuClickListener(object : Source.MenuClickListener {
+        mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
             override fun onHomeClick() {
                 getPresenter().bye()
             }
