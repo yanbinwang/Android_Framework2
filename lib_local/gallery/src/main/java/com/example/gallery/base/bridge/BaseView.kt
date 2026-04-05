@@ -22,7 +22,6 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.proxy.ActivitySource
-import com.example.gallery.base.bridge.BaseSource
 
 /**
  * MVP 架构中所有 View 层的基类
@@ -53,7 +52,9 @@ abstract class BaseView<Presenter : BasePresenter> {
         // 初始化载体 -> Source层已执行setActionBar
         mSource.prepare()
         // 初始化菜单
-        invalidateOptionsMenu()
+        mSource.getMenu()?.let {
+            onCreateOptionsMenu(it)
+        }
         // 设置菜单点击事件
         mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
             override fun onHomeClick() {
@@ -123,22 +124,6 @@ abstract class BaseView<Presenter : BasePresenter> {
         mSource.closeInputMethod()
     }
 
-//    /**
-//     * 设置 ActionBar/Toolbar
-//     */
-//    protected fun setActionBar(toolbar: Toolbar) {
-//        mSource.setActionBar(toolbar)
-//        invalidateOptionsMenu()
-//    }
-
-    /**
-     * 刷新菜单
-     */
-    protected fun invalidateOptionsMenu() {
-        val menu = mSource.getMenu() ?: return
-        onCreateOptionsMenu(menu)
-    }
-
     /**
      * 设置是否显示返回按钮
      */
@@ -192,15 +177,11 @@ abstract class BaseView<Presenter : BasePresenter> {
         return false
     }
 
+    /**
+     * 获取P层
+     */
     fun getPresenter(): Presenter {
         return mPresenter
-    }
-
-    /**
-     * 返回带粗体、斜体、颜色等富文本样式
-     */
-    fun getText(@StringRes resId: Int): CharSequence {
-        return getContext().getText(resId)
     }
 
     /**
@@ -214,15 +195,6 @@ abstract class BaseView<Presenter : BasePresenter> {
         return getContext().getString(resId, *formatArgs)
     }
 
-    fun getDrawable(@DrawableRes resId: Int): Drawable {
-        return getContext().drawable(resId).orEmpty()
-    }
-
-    @ColorInt
-    fun getColor(@ColorRes resId: Int): Int {
-        return getContext().color(resId)
-    }
-
     fun getStringArray(@ArrayRes resId: Int): Array<String> {
         return getResources().getStringArray(resId)
     }
@@ -231,104 +203,21 @@ abstract class BaseView<Presenter : BasePresenter> {
         return getResources().getIntArray(resId)
     }
 
-//    fun showMessageDialog(@StringRes title: Int, @StringRes message: Int) {
-//        showMessageDialog(getText(title), getText(message))
-//    }
-//
-//    fun showMessageDialog(@StringRes title: Int, message: CharSequence) {
-//        showMessageDialog(getText(title), message)
-//    }
-//
-//    fun showMessageDialog(title: CharSequence, @StringRes message: Int) {
-//        showMessageDialog(title, getText(message))
-//    }
-//
-//    fun showMessageDialog(title: CharSequence, message: CharSequence) {
-//        val alertDialog = AlertDialog.Builder(getContext())
-//            .setTitle(title)
-//            .setMessage(message)
-//            .setPositiveButton(R.string.album_ok) { _, _ -> }
-//            .create()
-//        alertDialog.show()
-//    }
-//
-//    fun showConfirmDialog(@StringRes title: Int, @StringRes message: Int, confirmClickListener: OnDialogClickListener) {
-//        showConfirmDialog(getText(title), getText(message), confirmClickListener)
-//    }
-//
-//    fun showConfirmDialog(@StringRes title: Int, message: CharSequence, confirmClickListener: OnDialogClickListener) {
-//        showConfirmDialog(getText(title), message, confirmClickListener)
-//    }
-//
-//    fun showConfirmDialog(title: CharSequence, @StringRes message: Int, confirmClickListener: OnDialogClickListener) {
-//        showConfirmDialog(title, getText(message), confirmClickListener)
-//    }
-//
-//    fun showConfirmDialog(title: CharSequence, message: CharSequence, confirmClickListener: OnDialogClickListener) {
-//        val alertDialog = AlertDialog.Builder(getContext())
-//            .setTitle(title)
-//            .setMessage(message)
-//            .setNegativeButton(R.string.album_cancel) { _, _ -> }
-//            .setPositiveButton(R.string.album_confirm) { _, which ->
-//                confirmClickListener.onClick(which)
-//            }
-//            .create()
-//        alertDialog.show()
-//    }
-//
-//    fun showMessageDialog(@StringRes title: Int, @StringRes message: Int, cancelClickListener: OnDialogClickListener, confirmClickListener: OnDialogClickListener) {
-//        showMessageDialog(getText(title), getText(message), cancelClickListener, confirmClickListener)
-//    }
-//
-//    fun showMessageDialog(@StringRes title: Int, message: CharSequence, cancelClickListener: OnDialogClickListener, confirmClickListener: OnDialogClickListener) {
-//        showMessageDialog(getText(title), message, cancelClickListener, confirmClickListener)
-//    }
-//
-//    fun showMessageDialog(title: CharSequence, @StringRes message: Int, cancelClickListener: OnDialogClickListener, confirmClickListener: OnDialogClickListener) {
-//        showMessageDialog(title, getText(message), cancelClickListener, confirmClickListener)
-//    }
-//
-//    fun showMessageDialog(title: CharSequence, message: CharSequence, cancelClickListener: OnDialogClickListener, confirmClickListener: OnDialogClickListener) {
-//        val alertDialog = AlertDialog.Builder(getContext())
-//            .setTitle(title)
-//            .setMessage(message)
-//            .setNegativeButton(R.string.album_cancel) { _, which ->
-//                cancelClickListener.onClick(which)
-//            }
-//            .setPositiveButton(R.string.album_confirm) { _, which ->
-//                confirmClickListener.onClick(which)
-//            }
-//            .create()
-//        alertDialog.show()
-//    }
+    @ColorInt
+    fun getColor(@ColorRes resId: Int): Int {
+        return getContext().color(resId)
+    }
+
+    fun getDrawable(@DrawableRes resId: Int): Drawable {
+        return getContext().drawable(resId).orEmpty()
+    }
 
     fun toast(@StringRes message: Int) {
-        toast(getText(message))
+        toast(getString(message))
     }
 
     fun toast(message: CharSequence) {
-//        Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show()
         message.toString().shortToast()
-    }
-
-//    fun snackBar(@StringRes message: Int) {
-//        snackBar(getText(message))
-//    }
-//
-//    fun snackBar(message: CharSequence) {
-//        val snackBar = Snackbar.make(mSource.getView(), message, Snackbar.LENGTH_SHORT)
-//        val view = snackBar.getView()
-//        view.setBackgroundColor(getColor(R.color.albumColorPrimaryBlack).orZero)
-//        val textView = view.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-//        textView.setTextColor(Color.WHITE)
-//        snackBar.show()
-//    }
-
-    /**
-     * 对话框点击回调接口
-     */
-    interface OnDialogClickListener {
-        fun onClick(which: Int)
     }
 
 }
