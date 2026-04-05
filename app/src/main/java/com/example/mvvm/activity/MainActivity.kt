@@ -467,7 +467,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
+//            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
 //                localItem.id == serverItem.id
@@ -525,17 +525,17 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions { isGranted, _ ->
-//                if (isGranted) {
-////                    pullUpImage()
-////                    gallery.takePicture(true){
-////                        it.shortToast()
-////                    }
-//                    gallery.imageSelection(hasDurban = true)
-////                    gallery.imageMultipleSelection(true)
-////                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
+            mPermission.requestPermissions { isGranted, _ ->
+                if (isGranted) {
+//                    pullUpImage()
+//                    gallery.takePicture(true){
+//                        it.shortToast()
+//                    }
+                    gallery.imageSelection(hasDurban = true)
+//                    gallery.imageMultipleSelection(true)
+//                    navigation(ARouterPath.TestActivity)
+                }
+            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                //透明背景

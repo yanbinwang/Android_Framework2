@@ -131,11 +131,12 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         // 标题同步状态栏颜色
         mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
         mTitle.setText(widget.getTitle());
-        // 等 Toolbar 布局结束
-        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);
+        } else {
+            // 多选等 Toolbar 布局结束右侧强行撑满
+            setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         }
         // 配置网格布局（横竖屏切换）
         Configuration config = mActivity.getResources().getConfiguration();
