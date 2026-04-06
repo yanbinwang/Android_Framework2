@@ -15,11 +15,7 @@ import androidx.appcompat.widget.PopupMenu;
 import com.example.framework.utils.builder.TimerBuilder;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.album.data.MediaReadTask;
@@ -27,6 +23,10 @@ import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
 import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
+import com.yanzhenjie.album.callback.Action;
+import com.yanzhenjie.album.callback.Filter;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.mediascanner.MediaScanner;
@@ -316,6 +316,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
             filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }
+//        String filePath = StorageUtil.getOutputFile(StorageUtil.StorageType.IMAGE).getPath();
         Album.camera(this)
                 .image()
                 .filePath(filePath)
