@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.impl.DoubleClickWrapper;
+import com.yanzhenjie.album.callback.DoubleClickWrapper;
+import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.ColorProgressBar;
 import com.yanzhenjie.album.widget.divider.ItemDivider;
@@ -111,7 +111,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
         // 浅色 / 深色主题 -> 影响图标
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Dark);
             mTitle.setTextColor(getColor(R.color.albumFontDark));
             // 暗色返回 / 完成
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
@@ -122,7 +121,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             }
             mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
         } else {
-            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Light);
             mTitle.setTextColor(getColor(R.color.albumFontLight));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
         }
@@ -131,11 +129,12 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         // 标题同步状态栏颜色
         mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
         mTitle.setText(widget.getTitle());
-        // 等 Toolbar 布局结束
-        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);
+        } else {
+            // 多选等 Toolbar 布局结束右侧强行撑满
+            setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         }
         // 配置网格布局（横竖屏切换）
         Configuration config = mActivity.getResources().getConfiguration();

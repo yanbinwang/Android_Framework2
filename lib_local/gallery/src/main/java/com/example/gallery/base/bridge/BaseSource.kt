@@ -1,4 +1,4 @@
-package com.example.gallery.base.source
+package com.example.gallery.base.bridge
 
 import android.content.Context
 import android.graphics.drawable.Drawable
@@ -12,16 +12,16 @@ import androidx.appcompat.widget.Toolbar
 /**
  * 视图载体抽象基类
  * 用于统一封装 Activity / View 的公共能力，为 BaseView 提供页面支撑
- * 所有页面载体（ActivitySource、ViewSource）都必须继承此类
+ * 所有页面载体 ActivitySource 都必须继承此类
  * @param Host 载体宿主（Activity / View）
  */
-abstract class Source<Host>(protected val mHost: Host) {
+abstract class BaseSource<Host>(protected val mHost: Host) {
 
-    /**
-     * 设置 ActionBar / Toolbar
-     * prepare() 完成后会主动调取
-     */
-    abstract fun setActionBar(toolbar: Toolbar)
+//    /**
+//     * 设置 ActionBar / Toolbar
+//     * prepare() 完成后会主动调取
+//     */
+//    abstract fun setActionBar(toolbar: Toolbar)
 
     /**
      * 设置是否显示返回按钮

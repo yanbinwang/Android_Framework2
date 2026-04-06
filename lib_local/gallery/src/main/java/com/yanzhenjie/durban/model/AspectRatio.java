@@ -24,6 +24,19 @@ public class AspectRatio implements Parcelable {
         mAspectRatioY = aspectRatioY;
     }
 
+    @Nullable
+    public String getAspectRatioTitle() {
+        return mAspectRatioTitle;
+    }
+
+    public float getAspectRatioX() {
+        return mAspectRatioX;
+    }
+
+    public float getAspectRatioY() {
+        return mAspectRatioY;
+    }
+
     protected AspectRatio(Parcel in) {
         mAspectRatioTitle = in.readString();
         mAspectRatioX = in.readFloat();
@@ -53,18 +66,5 @@ public class AspectRatio implements Parcelable {
             return new AspectRatio[size];
         }
     };
-
-    @Nullable
-    public String getAspectRatioTitle() {
-        return mAspectRatioTitle;
-    }
-
-    public float getAspectRatioX() {
-        return mAspectRatioX;
-    }
-
-    public float getAspectRatioY() {
-        return mAspectRatioY;
-    }
 
 }

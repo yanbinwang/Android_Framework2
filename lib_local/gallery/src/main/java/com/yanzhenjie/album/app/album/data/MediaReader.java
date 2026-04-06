@@ -8,9 +8,9 @@ import android.provider.MediaStore;
 import androidx.annotation.WorkerThread;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.AlbumFile;
-import com.yanzhenjie.album.AlbumFolder;
-import com.yanzhenjie.album.Filter;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.model.AlbumFolder;
+import com.yanzhenjie.album.callback.Filter;
 
 import java.util.ArrayList;
 import java.util.Collections;

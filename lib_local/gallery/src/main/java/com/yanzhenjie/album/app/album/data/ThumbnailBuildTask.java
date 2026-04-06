@@ -3,7 +3,7 @@ package com.yanzhenjie.album.app.album.data;
 import android.content.Context;
 import android.os.AsyncTask;
 
-import com.yanzhenjie.album.AlbumFile;
+import com.yanzhenjie.album.model.AlbumFile;
 
 import java.util.ArrayList;
 

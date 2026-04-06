@@ -8,8 +8,8 @@ import android.text.TextUtils;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.album.Action;
 import com.yanzhenjie.album.Album;
+import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.utils.SystemBar;
 
@@ -67,34 +67,34 @@ public class CameraActivity extends BaseActivity {
                 mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
                 mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
                 mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-                // 根据功能类型：打开系统相机
-                switch (mFunction) {
-                    // 拍照
-                    case Album.FUNCTION_CAMERA_IMAGE: {
-                        if (TextUtils.isEmpty(mCameraFilePath)) {
-                            // 没有指定路径，自动生成一个
-                            mCameraFilePath = AlbumUtil.randomJPGPath(this);
-                        }
-                        // 调用系统拍照
-                        AlbumUtil.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
-                        break;
-                    }
-                    // 录像
-                    case Album.FUNCTION_CAMERA_VIDEO: {
-                        if (TextUtils.isEmpty(mCameraFilePath)) {
-                            // 自动生成视频路径
-                            mCameraFilePath = AlbumUtil.randomMP4Path(this);
-                        }
-                        // 调用系统录像
-                        AlbumUtil.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
-                        break;
-                    }
-                    default: {
-                        throw new AssertionError("This should not be the case.");
-                    }
-                }
             } else {
                 finish();
+            }
+        }
+        // 根据功能类型：打开系统相机
+        switch (mFunction) {
+            // 拍照
+            case Album.FUNCTION_CAMERA_IMAGE: {
+                if (TextUtils.isEmpty(mCameraFilePath)) {
+                    // 没有指定路径，自动生成一个
+                    mCameraFilePath = AlbumUtil.randomJPGPath(this);
+                }
+                // 调用系统拍照
+                AlbumUtil.takeImage(this, CODE_ACTIVITY_TAKE_IMAGE, new File(mCameraFilePath));
+                break;
+            }
+            // 录像
+            case Album.FUNCTION_CAMERA_VIDEO: {
+                if (TextUtils.isEmpty(mCameraFilePath)) {
+                    // 自动生成视频路径
+                    mCameraFilePath = AlbumUtil.randomMP4Path(this);
+                }
+                // 调用系统录像
+                AlbumUtil.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, new File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes);
+                break;
+            }
+            default: {
+                throw new AssertionError("This should not be the case.");
             }
         }
     }

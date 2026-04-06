@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.IntRange;
 
-import com.yanzhenjie.album.ItemAction;
+import com.yanzhenjie.album.callback.ItemAction;
 
 import java.util.ArrayList;
 

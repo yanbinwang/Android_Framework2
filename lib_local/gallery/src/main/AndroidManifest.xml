@@ -4,7 +4,7 @@
     <application>
         <!-- 外部调取系统相机页 -->
         <activity
-            android:name="com.example.gallery.activity.CameraPermissionActivity"
+            android:name="com.example.gallery.activity.CameraActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -12,7 +12,7 @@
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
-            android:name="com.yanzhenjie.durban.DurbanActivity"
+            android:name="com.yanzhenjie.durban.app.DurbanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />

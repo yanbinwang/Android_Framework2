@@ -1,4 +1,6 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.model;
+
+import com.yanzhenjie.album.callback.AlbumLoader;
 
 /**
  * 相册全局配置类

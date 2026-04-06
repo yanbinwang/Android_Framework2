@@ -1,4 +1,4 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -18,12 +18,6 @@ public class AlbumFolder implements Parcelable {
     private ArrayList<AlbumFile> mAlbumFiles = new ArrayList<>();
 
     public AlbumFolder() {
-    }
-
-    protected AlbumFolder(Parcel in) {
-        name = in.readString();
-        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
-        isChecked = in.readByte() != 0;
     }
 
     public boolean isChecked() {
@@ -48,6 +42,12 @@ public class AlbumFolder implements Parcelable {
 
     public void addAlbumFile(AlbumFile albumFile) {
         mAlbumFiles.add(albumFile);
+    }
+
+    protected AlbumFolder(Parcel in) {
+        name = in.readString();
+        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
+        isChecked = in.readByte() != 0;
     }
 
     @Override

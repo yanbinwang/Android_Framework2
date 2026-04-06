@@ -1,4 +1,4 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -48,21 +48,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
     private boolean isDisable;
 
     public AlbumFile() {
-    }
-
-    protected AlbumFile(Parcel in) {
-        mPath = in.readString();
-        mBucketName = in.readString();
-        mMimeType = in.readString();
-        mAddDate = in.readLong();
-        mLatitude = in.readFloat();
-        mLongitude = in.readFloat();
-        mSize = in.readLong();
-        mDuration = in.readLong();
-        mThumbPath = in.readString();
-        mMediaType = in.readInt();
-        isChecked = in.readByte() != 0;
-        isDisable = in.readByte() != 0;
     }
 
     public String getPath() {
@@ -160,6 +145,21 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
 
     public void setDisable(boolean disable) {
         this.isDisable = disable;
+    }
+
+    protected AlbumFile(Parcel in) {
+        mPath = in.readString();
+        mBucketName = in.readString();
+        mMimeType = in.readString();
+        mAddDate = in.readLong();
+        mLatitude = in.readFloat();
+        mLongitude = in.readFloat();
+        mSize = in.readLong();
+        mDuration = in.readLong();
+        mThumbPath = in.readString();
+        mMediaType = in.readInt();
+        isChecked = in.readByte() != 0;
+        isDisable = in.readByte() != 0;
     }
 
     @Override

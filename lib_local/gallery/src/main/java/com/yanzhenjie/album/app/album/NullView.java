@@ -56,7 +56,6 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Dark);
             mTitle.setTextColor(getColor(R.color.albumFontDark));
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
             /**
@@ -76,7 +75,6 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null);
             mBtnTakeVideo.setTextColor(getColor(R.color.albumFontDark));
         } else {
-            mToolbar.setPopupTheme(R.style.Album_Theme_Toolbar_Light);
             mTitle.setTextColor(getColor(R.color.albumFontLight));
             Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
             ColorStateList buttonSelector = buttonStyle.getButtonSelector();

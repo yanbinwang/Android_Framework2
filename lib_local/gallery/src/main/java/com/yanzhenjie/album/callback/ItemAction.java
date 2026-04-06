@@ -1,4 +1,4 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.callback;
 
 import android.content.Context;
 

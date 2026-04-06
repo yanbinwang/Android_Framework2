@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.task;
+package com.yanzhenjie.durban.app.data;
 
 import android.content.Context;
 import android.graphics.Bitmap;

@@ -6,9 +6,9 @@ import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.album.Action;
+import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.ItemAction;
+import com.yanzhenjie.album.callback.ItemAction;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 

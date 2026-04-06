@@ -1,4 +1,4 @@
-package com.example.gallery.base.source
+package com.example.gallery.base.proxy
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -14,13 +14,14 @@ import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
+import com.example.gallery.base.bridge.BaseSource
 
 /**
  * Activity 载体实现类
  * 用于将 BaseView 与 Activity 绑定，提供页面、Toolbar、菜单、输入法等能力
  */
 @SuppressLint("RestrictedApi")
-class ActivitySource(activity: Activity) : Source<Activity>(activity) {
+class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
     // 页面标题栏 Toolbar
     private var mActionBar: Toolbar? = null
     // 导航返回图标
@@ -29,26 +30,6 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
     private var mMenuItemSelectedListener: MenuClickListener? = null
     // 页面根视图
     private val mView = activity.findViewById<View>(R.id.content)
-
-    /**
-     * 设置 Toolbar 并绑定点击事件
-     * prepare() 完成后会主动调取
-     */
-    override fun setActionBar(toolbar: Toolbar) {
-        setSupportToolbar(toolbar)
-        mActionBar = toolbar
-        // 菜单点击
-        mActionBar?.setOnMenuItemClickListener {
-            mMenuItemSelectedListener?.onMenuClick(it)
-            true
-        }
-        // 返回按钮点击
-        mActionBar?.setNavigationOnClickListener {
-            mMenuItemSelectedListener?.onHomeClick()
-        }
-        // 保存默认返回图标
-        mActionBarIcon = mActionBar?.navigationIcon
-    }
 
     /**
      * 设置是否显示返回按钮
@@ -110,10 +91,47 @@ class ActivitySource(activity: Activity) : Source<Activity>(activity) {
 
     /**
      * 初始化：自动查找并绑定 Toolbar
+     * 1) BaseView层在构造方法的实现里先调取prepare()再调取mSource.getMenu()
+     * 2) mSource.getMenu()获取的是Toolbar的菜单,Toolbar并未走系统的setSupportActionBar()方法,属于自己创建菜单
+     * 3) 由于并未调取系统方法,故而页面的onCreateOptionsMenu()是不会执行的
      */
     override fun prepare() {
-        setActionBar(mHost.findViewById(R.id.toolbar))
+//        setActionBar(mHost.findViewById(R.id.toolbar))
+        val toolbar = mHost.findViewById<Toolbar>(R.id.toolbar)
+        setSupportToolbar(toolbar)
+        mActionBar = toolbar
+        // 菜单点击
+        mActionBar?.setOnMenuItemClickListener {
+            mMenuItemSelectedListener?.onMenuClick(it)
+            true
+        }
+        // 返回按钮点击
+        mActionBar?.setNavigationOnClickListener {
+            mMenuItemSelectedListener?.onHomeClick()
+        }
+        // 保存默认返回图标
+        mActionBarIcon = mActionBar?.navigationIcon
     }
+
+//    /**
+//     * 设置 Toolbar 并绑定点击事件
+//     * prepare() 完成后会主动调取
+//     */
+//    override fun setActionBar(toolbar: Toolbar) {
+//        setSupportToolbar(toolbar)
+//        mActionBar = toolbar
+//        // 菜单点击
+//        mActionBar?.setOnMenuItemClickListener {
+//            mMenuItemSelectedListener?.onMenuClick(it)
+//            true
+//        }
+//        // 返回按钮点击
+//        mActionBar?.setNavigationOnClickListener {
+//            mMenuItemSelectedListener?.onHomeClick()
+//        }
+//        // 保存默认返回图标
+//        mActionBarIcon = mActionBar?.navigationIcon
+//    }
 
     /**
      * 关闭输入法

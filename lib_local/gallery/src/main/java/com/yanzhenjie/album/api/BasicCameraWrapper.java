@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.Nullable;
 
-import com.yanzhenjie.album.Action;
+import com.yanzhenjie.album.callback.Action;
 
 /**
  * 相机功能 顶层抽象父类

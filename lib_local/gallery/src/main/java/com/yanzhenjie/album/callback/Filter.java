@@ -1,4 +1,4 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.callback;
 
 /**
  * 通用过滤器接口

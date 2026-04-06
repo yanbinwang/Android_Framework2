@@ -20,9 +20,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
+import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.utils.SystemBar;
 
 import java.util.List;
@@ -101,7 +101,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
-        // 等 Toolbar 布局结束
+        // 等 Toolbar 布局结束右侧强行撑满
         setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
@@ -110,7 +110,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         } else {
             // 设置选择框样式
             ColorStateList itemSelector = widget.getMediaItemCheckSelector();
-            mCheckBox.setBackgroundTintList(itemSelector);
+            mCheckBox.setButtonTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);
         }
         // 页面滑动监听

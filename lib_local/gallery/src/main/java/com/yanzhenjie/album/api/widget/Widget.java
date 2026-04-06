@@ -74,6 +74,37 @@ public class Widget implements Parcelable {
         return ContextCompat.getColor(mContext, colorId);
     }
 
+    @UiStyle
+    public int getUiStyle() {
+        return mUiStyle;
+    }
+
+    @ColorRes
+    public int getStatusBarColor() {
+        return mStatusBarColor;
+    }
+
+    @ColorRes
+    public int getNavigationBarColor() {
+        return mNavigationBarColor;
+    }
+
+    public String getTitle() {
+        return mTitle;
+    }
+
+    public ColorStateList getMediaItemCheckSelector() {
+        return mMediaItemCheckSelector;
+    }
+
+    public ColorStateList getBucketItemCheckSelector() {
+        return mBucketItemCheckSelector;
+    }
+
+    public ButtonStyle getButtonStyle() {
+        return mButtonStyle;
+    }
+
     protected Widget(Parcel in) {
         mUiStyle = in.readInt();
         mStatusBarColor = in.readInt();
@@ -111,37 +142,6 @@ public class Widget implements Parcelable {
             return new Widget[size];
         }
     };
-
-    @UiStyle
-    public int getUiStyle() {
-        return mUiStyle;
-    }
-
-    @ColorRes
-    public int getStatusBarColor() {
-        return mStatusBarColor;
-    }
-
-    @ColorRes
-    public int getNavigationBarColor() {
-        return mNavigationBarColor;
-    }
-
-    public String getTitle() {
-        return mTitle;
-    }
-
-    public ColorStateList getMediaItemCheckSelector() {
-        return mMediaItemCheckSelector;
-    }
-
-    public ColorStateList getBucketItemCheckSelector() {
-        return mBucketItemCheckSelector;
-    }
-
-    public ButtonStyle getButtonStyle() {
-        return mButtonStyle;
-    }
 
     /**
      * 获取默认主题（暗色主题）

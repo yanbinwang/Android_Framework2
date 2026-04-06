@@ -4,8 +4,8 @@
     <color name="albumColorPrimaryBlack">#2B2B2B</color>
     <color name="albumColorPrimaryDark">#1E88E5</color>
     <color name="albumFontDark">#333</color>
-    <color name="albumFontHint">#808080</color>
     <color name="albumFontLight">#FFF</color>
+    <color name="albumFontHint">#808080</color>
     <color name="albumIconDark">#333</color>
     <color name="albumLoadingDark">#333</color>
     <color name="albumPageLight">#FFF</color>
