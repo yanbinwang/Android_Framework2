@@ -34,7 +34,6 @@ import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
 import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.hour
-import com.example.framework.utils.function.value.orZero
 import java.io.File
 import java.io.Serializable
 
@@ -165,7 +164,7 @@ private fun Activity?.startActivityForResult(file: File?, intent: Intent, reques
     if (null == file || null == this) return null
     try {
         val uri: Uri?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
             uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
         } else {
@@ -309,10 +308,13 @@ fun Context?.pullUpPackage(packageName: String) {
  */
 fun Context?.toGoogleSearch(searchText: String) {
     this ?: return
-    Intent().apply {
-        action = Intent.ACTION_WEB_SEARCH
-        putExtra(SearchManager.QUERY, searchText)
-        startActivity(this)
+    try {
+        startActivity(Intent(Intent.ACTION_WEB_SEARCH).apply {
+            putExtra(SearchManager.QUERY, searchText)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -321,7 +323,13 @@ fun Context?.toGoogleSearch(searchText: String) {
  */
 fun Context?.toBrowser(url: String) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
@@ -329,7 +337,14 @@ fun Context?.toBrowser(url: String) {
  */
 fun Context?.toMap(longitude: Double, latitude: Double) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_VIEW, "geo:${longitude.orZero},${latitude.orZero}".toUri()))
+    try {
+        val uri = "geo:${latitude},${longitude}".toUri()
+        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
@@ -337,7 +352,13 @@ fun Context?.toMap(longitude: Double, latitude: Double) {
  */
 fun Context?.toPhone(tel: String) {
     this ?: return
-    startActivity(Intent(Intent.ACTION_DIAL, "tel:$tel".toUri()))
+    try {
+        startActivity(Intent(Intent.ACTION_DIAL, "tel:$tel".toUri()).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
@@ -345,10 +366,14 @@ fun Context?.toPhone(tel: String) {
  */
 fun Context?.toSMS(text: String) {
     this ?: return
-    Intent(Intent.ACTION_VIEW).apply {
-        putExtra("sms_body", text)
-        type = "vnd.android-dir/mms-sms"
-        startActivity(this)
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW).apply {
+            type = "vnd.android-dir/mms-sms"
+            putExtra("sms_body", text)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -357,9 +382,13 @@ fun Context?.toSMS(text: String) {
  */
 fun Context?.toSMSApp(tel: String, text: String) {
     this ?: return
-    Intent(Intent.ACTION_SENDTO, "smsto:$tel".toUri()).apply {
-        putExtra("sms_body", text)
-        startActivity(this)
+    try {
+        startActivity(Intent(Intent.ACTION_SENDTO, "smsto:$tel".toUri()).apply {
+            putExtra("sms_body", text)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -381,15 +410,17 @@ fun Context?.openSetupApk(filePath: String) = openFile(filePath, "application/vn
 /**
  * 统一开启文件
  * https://zhuanlan.zhihu.com/p/260340912
+ * @filePath 完整绝对路径 -> /storage/emulated/0/Android/data/xxx/files/test.zip
  */
 fun Context?.openFile(filePath: String, type: String) {
     this ?: return
     val file = File(filePath)
-    if (file.fileValidation()) {
+    if (file.isFileValid()) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW).apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    // FLAG_ACTIVITY_NEW_TASK -> 系统创建一个全新任务栈 (返回时 → 回到文件管理器 / 系统页面，而不是应用，任何上下文都能调用（Activity / Application / View）)
+                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
                     setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
                 } else {
                     setDataAndType("file://$filePath".toUri(), type)
@@ -410,17 +441,16 @@ fun Context?.openFile(filePath: String, type: String) {
 fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
     this ?: return
     val file = File(filePath)
-    if (file.fileValidation()) {
+    if (file.isFileValid()) {
         try {
             startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                     putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
                 } else {
                     putExtra(Intent.EXTRA_STREAM, file)
                 }
-                addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                type = fileType//此处可发送多种文件
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                type = fileType
             }, title))
         } catch (e: Exception) {
             e.printStackTrace()
@@ -431,9 +461,9 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
 /**
  * 文件校验方法
  */
-private fun File?.fileValidation(): Boolean {
+private fun File?.isFileValid(): Boolean {
     this ?: return false
-    return if (!exists()) {
+    return if (!absolutePath.isPathExists()) {
         R.string.sourcePathError.shortToast()
         false
     } else {
@@ -595,7 +625,6 @@ fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<Vie
  * );
  * 实现效果：新 Activity 从指定点开始，像水波一样逐渐显示出来。
  */
-@RequiresApi(Build.VERSION_CODES.M)
 fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
     return ActivityOptionsCompat.makeClipRevealAnimation(view, startX, startY, width, height)
 }
@@ -621,7 +650,6 @@ fun getTaskLaunchBehind(): ActivityOptionsCompat {
  * options.setLaunchBounds(new Rect(left, top, right, bottom));
  * startActivity(intent, options.toBundle());
  */
-@RequiresApi(Build.VERSION_CODES.N)
 fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
     return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
 }
