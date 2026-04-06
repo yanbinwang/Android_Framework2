@@ -20,12 +20,6 @@ public class AlbumFolder implements Parcelable {
     public AlbumFolder() {
     }
 
-    protected AlbumFolder(Parcel in) {
-        name = in.readString();
-        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
-        isChecked = in.readByte() != 0;
-    }
-
     public boolean isChecked() {
         return isChecked;
     }
@@ -48,6 +42,12 @@ public class AlbumFolder implements Parcelable {
 
     public void addAlbumFile(AlbumFile albumFile) {
         mAlbumFiles.add(albumFile);
+    }
+
+    protected AlbumFolder(Parcel in) {
+        name = in.readString();
+        mAlbumFiles = in.createTypedArrayList(AlbumFile.CREATOR);
+        isChecked = in.readByte() != 0;
     }
 
     @Override

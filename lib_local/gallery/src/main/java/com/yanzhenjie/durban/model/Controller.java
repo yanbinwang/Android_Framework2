@@ -20,20 +20,43 @@ public class Controller implements Parcelable {
     // 缩放文字标题开关
     private final boolean scaleTitle;
 
-    private Controller(Parcel in) {
-        this.enable = in.readByte() != 0;
-        this.rotation = in.readByte() != 0;
-        this.rotationTitle = in.readByte() != 0;
-        this.scale = in.readByte() != 0;
-        this.scaleTitle = in.readByte() != 0;
-    }
-
+    /**
+     * 构造方法：通过 Builder 构建
+     */
     private Controller(Builder builder) {
         enable = builder.enable;
         rotation = builder.rotation;
         rotationTitle = builder.rotationTitle;
         scale = builder.scale;
         scaleTitle = builder.scaleTitle;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public boolean isRotation() {
+        return rotation;
+    }
+
+    public boolean isRotationTitle() {
+        return rotationTitle;
+    }
+
+    public boolean isScale() {
+        return scale;
+    }
+
+    public boolean isScaleTitle() {
+        return scaleTitle;
+    }
+
+    protected Controller(Parcel in) {
+        this.enable = in.readByte() != 0;
+        this.rotation = in.readByte() != 0;
+        this.rotationTitle = in.readByte() != 0;
+        this.scale = in.readByte() != 0;
+        this.scaleTitle = in.readByte() != 0;
     }
 
     @Override
@@ -62,29 +85,6 @@ public class Controller implements Parcelable {
         }
     };
 
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public boolean isRotation() {
-        return rotation;
-    }
-
-    public boolean isRotationTitle() {
-        return rotationTitle;
-    }
-
-    public boolean isScale() {
-        return scale;
-    }
-
-    public boolean isScaleTitle() {
-        return scaleTitle;
-    }
-
-    /**
-     * 对外创建 Builder
-     */
     public static Builder newBuilder() {
         return new Builder();
     }
