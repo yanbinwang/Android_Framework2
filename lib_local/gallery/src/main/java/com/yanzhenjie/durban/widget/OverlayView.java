@@ -8,7 +8,6 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.RectF;
 import android.graphics.Region;
-import android.os.Build;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -317,7 +316,7 @@ public class OverlayView extends View {
      */
     protected void processStyledAttributes(@NonNull TypedArray a) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false);
-        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(getContext(), R.color.durban_CropDimmed));
+        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(getContext(), R.color.durbanCropDimmed));
         mDimmedStrokePaint.setColor(mDimmedColor);
         mDimmedStrokePaint.setStyle(Paint.Style.STROKE);
         mDimmedStrokePaint.setStrokeWidth(1);
@@ -332,7 +331,7 @@ public class OverlayView extends View {
      */
     private void initCropFrameStyle(@NonNull TypedArray a) {
         int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-        int cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(getContext(), R.color.durban_CropFrameLine));
+        int cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(getContext(), R.color.durbanCropFrameLine));
         mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
         mCropFramePaint.setColor(cropFrameColor);
         mCropFramePaint.setStyle(Paint.Style.STROKE);
@@ -346,7 +345,7 @@ public class OverlayView extends View {
      */
     private void initCropGridStyle(@NonNull TypedArray a) {
         int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
-        int cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(getContext(), R.color.durban_CropGridLine));
+        int cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(getContext(), R.color.durbanCropGridLine));
         mCropGridPaint.setStrokeWidth(cropGridStrokeSize);
         mCropGridPaint.setColor(cropGridColor);
         mCropGridRowCount = a.getInt(R.styleable.durban_CropView_durban_grid_row_count, 2);

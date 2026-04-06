@@ -9,13 +9,12 @@
         android:overScrollMode="never"
         android:scrollbars="none" />
 
-    <RelativeLayout
-        style="@style/Album.MatchParent"
-        android:fitsSystemWindows="true">
+    <RelativeLayout style="@style/Album.MatchParent">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            style="@style/Album.Toolbar.Dark"/>
+            style="@style/Album.Toolbar" />
+
 
         <FrameLayout
             style="@style/Album.WrapContent.WidthMatchParent"

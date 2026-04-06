@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/durban_MatchParent">
+    style="@style/Durban.MatchParent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/durban_Toolbar.PopupTheme"
+        style="@style/Durban.Toolbar"
+        tools:background="@color/durbanColorPrimary"
         tools:navigationIcon="@mipmap/durban_ic_back_white">
 
         <TextView
@@ -23,84 +24,84 @@
 
     <FrameLayout
         android:id="@+id/content_frame"
-        style="@style/durban_MatchParent"
+        style="@style/Durban.MatchParent"
         android:layout_above="@id/iv_controller_root"
         android:layout_below="@id/toolbar"
-        android:background="@color/durban_CropBackground">
+        android:background="@color/durbanCropBackground">
 
         <com.yanzhenjie.durban.widget.CropView
             android:id="@+id/crop_view"
-            style="@style/durban_MatchParent"
+            style="@style/Durban.MatchParent"
             android:alpha="0" />
 
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/iv_controller_root"
-        style="@style/durban_WrapContent.WidthMatchParent"
+        style="@style/Durban.WrapContent.WidthMatchParent"
         android:layout_alignParentBottom="true"
-        android:background="@color/durban_ControllerBackground"
+        android:background="@color/durbanControllerBackground"
         android:orientation="vertical"
         android:paddingTop="@dimen/durban_dp_10">
 
         <LinearLayout
             android:id="@+id/layout_controller_title_root"
-            style="@style/durban_WrapContent.WidthMatchParent">
+            style="@style/Durban.WrapContent.WidthMatchParent">
 
             <TextView
                 android:id="@+id/tv_controller_title_rotation"
-                style="@style/durban_WrapContent.WidthWeight.ControllerTitle"
+                style="@style/Durban.WrapContent.WidthWeight.ControllerTitle"
                 android:text="@string/durban_controller_title_rotation" />
 
             <TextView
                 android:id="@+id/tv_controller_title_scale"
-                style="@style/durban_WrapContent.WidthWeight.ControllerTitle"
+                style="@style/Durban.WrapContent.WidthWeight.ControllerTitle"
                 android:text="@string/durban_controller_title_scale" />
 
         </LinearLayout>
 
-        <LinearLayout style="@style/durban_MatchParent.ItemRoot">
+        <LinearLayout style="@style/Durban.MatchParent.ItemRoot">
 
             <FrameLayout
                 android:id="@+id/layout_controller_rotation_left"
-                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
 
                 <ImageView
                     android:id="@+id/iv_controller_rotation_left"
-                    style="@style/durban_WrapContent.ControllerButton"
+                    style="@style/Durban.WrapContent.ControllerButton"
                     android:src="@mipmap/durban_ic_rotation_90_left_white" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_rotation_right"
-                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
 
                 <ImageView
                     android:id="@+id/iv_controller_rotation_right"
-                    style="@style/durban_WrapContent.ControllerButton"
+                    style="@style/Durban.WrapContent.ControllerButton"
                     android:src="@mipmap/durban_ic_rotation_90_right_white" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_scale_big"
-                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
 
                 <ImageView
                     android:id="@+id/iv_controller_scale_big"
-                    style="@style/durban_WrapContent.ControllerButton"
+                    style="@style/Durban.WrapContent.ControllerButton"
                     android:src="@mipmap/durban_ic_scale_out_white" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_scale_small"
-                style="@style/durban_MatchParent.WidthWeight.ControllerItem">
+                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
 
                 <ImageView
                     android:id="@+id/iv_controller_scale_small"
-                    style="@style/durban_WrapContent.ControllerButton"
+                    style="@style/Durban.WrapContent.ControllerButton"
                     android:src="@mipmap/durban_ic_scale_in_white" />
 
             </FrameLayout>

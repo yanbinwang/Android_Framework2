@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
     android:background="@color/albumPageLight">
@@ -8,7 +7,8 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Album.Toolbar"
-        app:navigationIcon="@mipmap/album_ic_back_white">
+        tools:background="@color/albumColorPrimary"
+        tools:navigationIcon="@mipmap/album_ic_back_white">
 
         <TextView
             android:id="@+id/tv_title"
@@ -20,7 +20,7 @@
             android:textSize="@dimen/album_sp_18"
             android:textStyle="bold"
             tools:text="@string/albumTitle"
-            tools:textColor="@color/textWhite" />
+            tools:textColor="@color/albumFontLight" />
 
     </androidx.appcompat.widget.Toolbar>
 

@@ -100,8 +100,8 @@ public class DurbanActivity extends BaseActivity {
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
             // 状态栏/导航栏颜色
-            mStatusColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.durban_ColorPrimaryDark);
-            mNavigationColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durban_ColorPrimaryBlack);
+            mStatusColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.durbanColorPrimaryDark);
+            mNavigationColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durbanColorPrimaryBlack);
             // 标题
             mTitle = argument.getString(Durban.KEY_INPUT_TITLE);
             if (TextUtils.isEmpty(mTitle)) {
@@ -175,7 +175,7 @@ public class DurbanActivity extends BaseActivity {
         // 设置返回按钮
         Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.durban_ic_back_white);
         if (!statusBarBattery && null != navigationIcon) {
-            navigationIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+            navigationIcon.setTint(ContextCompat.getColor(this, R.color.durbanIconDark));
         }
         toolbar.setNavigationIcon(navigationIcon);
     }
@@ -197,15 +197,15 @@ public class DurbanActivity extends BaseActivity {
         // 裁剪视图样式
         OverlayView overlayView = mCropView.getOverlayView();
         overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE);
-        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durban_CropDimmed));
+        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed));
         overlayView.setCircleDimmedLayer(false);
         overlayView.setShowCropFrame(true);
-        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durban_CropFrameLine));
+        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durbanCropFrameLine));
         overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
         overlayView.setShowCropGrid(true);
         overlayView.setCropGridRowCount(2);
         overlayView.setCropGridColumnCount(2);
-        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durban_CropGridLine));
+        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durbanCropGridLine));
         overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {

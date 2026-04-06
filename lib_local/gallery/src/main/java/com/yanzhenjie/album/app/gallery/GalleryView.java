@@ -20,9 +20,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
+import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.utils.SystemBar;
 
 import java.util.List;
@@ -110,7 +110,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         } else {
             // 设置选择框样式
             ColorStateList itemSelector = widget.getMediaItemCheckSelector();
-            mCheckBox.setBackgroundTintList(itemSelector);
+            mCheckBox.setButtonTintList(itemSelector);
             mCheckBox.setTextColor(itemSelector);
         }
         // 页面滑动监听
