@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban;
+package com.yanzhenjie.durban.app;
 
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
@@ -21,7 +21,9 @@ import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
+import com.yanzhenjie.durban.Durban;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
+import com.yanzhenjie.durban.model.Controller;
 import com.yanzhenjie.durban.widget.CropView;
 import com.yanzhenjie.durban.widget.GestureCropImageView;
 import com.yanzhenjie.durban.widget.OverlayView;

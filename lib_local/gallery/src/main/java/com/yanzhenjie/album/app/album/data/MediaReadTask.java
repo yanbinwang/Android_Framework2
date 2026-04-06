@@ -1,11 +1,10 @@
 package com.yanzhenjie.album.app.album.data;
 
 import android.os.AsyncTask;
-import android.os.Looper;
 
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFile;
-import com.yanzhenjie.album.AlbumFolder;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.model.AlbumFolder;
 
 import java.util.ArrayList;
 import java.util.List;

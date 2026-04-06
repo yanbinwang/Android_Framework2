@@ -6,8 +6,8 @@ import android.content.Intent;
 import androidx.annotation.IntRange;
 
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFile;
-import com.yanzhenjie.album.Filter;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.app.album.AlbumActivity;
 
 import java.util.ArrayList;

@@ -1,4 +1,4 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;

@@ -22,10 +22,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFolder;
+import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.impl.DoubleClickWrapper;
+import com.yanzhenjie.album.callback.DoubleClickWrapper;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.ColorProgressBar;
 import com.yanzhenjie.album.widget.divider.ItemDivider;

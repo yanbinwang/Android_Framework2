@@ -7,7 +7,7 @@ import android.widget.CompoundButton;
 
 import com.example.gallery.base.bridge.BasePresenter;
 import com.example.gallery.base.bridge.BaseView;
-import com.yanzhenjie.album.AlbumFolder;
+import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
 
 import java.util.List;

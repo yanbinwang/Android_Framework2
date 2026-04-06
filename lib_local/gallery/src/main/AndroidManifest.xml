@@ -12,7 +12,7 @@
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
-            android:name="com.yanzhenjie.durban.DurbanActivity"
+            android:name="com.yanzhenjie.durban.app.DurbanActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />

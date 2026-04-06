@@ -32,26 +32,6 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
     private val mView = activity.findViewById<View>(R.id.content)
 
     /**
-     * 设置 Toolbar 并绑定点击事件
-     * prepare() 完成后会主动调取
-     */
-    override fun setActionBar(toolbar: Toolbar) {
-        setSupportToolbar(toolbar)
-        mActionBar = toolbar
-        // 菜单点击
-        mActionBar?.setOnMenuItemClickListener {
-            mMenuItemSelectedListener?.onMenuClick(it)
-            true
-        }
-        // 返回按钮点击
-        mActionBar?.setNavigationOnClickListener {
-            mMenuItemSelectedListener?.onHomeClick()
-        }
-        // 保存默认返回图标
-        mActionBarIcon = mActionBar?.navigationIcon
-    }
-
-    /**
      * 设置是否显示返回按钮
      */
     override fun setDisplayHomeAsUpEnabled(showHome: Boolean) {
@@ -111,10 +91,47 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
 
     /**
      * 初始化：自动查找并绑定 Toolbar
+     * 1) BaseView层在构造方法的实现里先调取prepare()再调取mSource.getMenu()
+     * 2) mSource.getMenu()获取的是Toolbar的菜单,Toolbar并未走系统的setSupportActionBar()方法,属于自己创建菜单
+     * 3) 由于并未调取系统方法,故而页面的onCreateOptionsMenu()是不会执行的
      */
     override fun prepare() {
-        setActionBar(mHost.findViewById(R.id.toolbar))
+//        setActionBar(mHost.findViewById(R.id.toolbar))
+        val toolbar = mHost.findViewById<Toolbar>(R.id.toolbar)
+        setSupportToolbar(toolbar)
+        mActionBar = toolbar
+        // 菜单点击
+        mActionBar?.setOnMenuItemClickListener {
+            mMenuItemSelectedListener?.onMenuClick(it)
+            true
+        }
+        // 返回按钮点击
+        mActionBar?.setNavigationOnClickListener {
+            mMenuItemSelectedListener?.onHomeClick()
+        }
+        // 保存默认返回图标
+        mActionBarIcon = mActionBar?.navigationIcon
     }
+
+//    /**
+//     * 设置 Toolbar 并绑定点击事件
+//     * prepare() 完成后会主动调取
+//     */
+//    override fun setActionBar(toolbar: Toolbar) {
+//        setSupportToolbar(toolbar)
+//        mActionBar = toolbar
+//        // 菜单点击
+//        mActionBar?.setOnMenuItemClickListener {
+//            mMenuItemSelectedListener?.onMenuClick(it)
+//            true
+//        }
+//        // 返回按钮点击
+//        mActionBar?.setNavigationOnClickListener {
+//            mMenuItemSelectedListener?.onHomeClick()
+//        }
+//        // 保存默认返回图标
+//        mActionBarIcon = mActionBar?.navigationIcon
+//    }
 
     /**
      * 关闭输入法

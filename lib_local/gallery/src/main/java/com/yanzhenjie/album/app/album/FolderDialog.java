@@ -15,9 +15,9 @@ import com.example.common.utils.ScreenUtilKt;
 import com.example.gallery.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.gyf.immersionbar.ImmersionBar;
-import com.yanzhenjie.album.AlbumFolder;
+import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.api.widget.Widget;
-import com.yanzhenjie.album.impl.OnItemClickListener;
+import com.yanzhenjie.album.callback.OnItemClickListener;
 
 import java.util.List;
 

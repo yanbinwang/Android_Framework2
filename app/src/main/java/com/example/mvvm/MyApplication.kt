@@ -14,7 +14,7 @@ import com.example.thirdparty.media.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
 import com.example.thirdparty.utils.wechat.WXManager
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.AlbumConfig
+import com.yanzhenjie.album.model.AlbumConfig
 import io.objectbox.BoxStore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess

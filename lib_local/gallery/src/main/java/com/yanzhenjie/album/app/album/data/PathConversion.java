@@ -6,8 +6,8 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.WorkerThread;
 
-import com.yanzhenjie.album.AlbumFile;
-import com.yanzhenjie.album.Filter;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.io.File;

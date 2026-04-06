@@ -24,6 +24,8 @@ import com.yanzhenjie.album.api.choice.AlbumChoice;
 import com.yanzhenjie.album.api.choice.Choice;
 import com.yanzhenjie.album.api.choice.ImageChoice;
 import com.yanzhenjie.album.api.choice.VideoChoice;
+import com.yanzhenjie.album.model.AlbumConfig;
+import com.yanzhenjie.album.model.AlbumFile;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

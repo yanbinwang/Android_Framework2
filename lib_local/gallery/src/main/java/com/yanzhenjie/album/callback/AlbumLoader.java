@@ -1,6 +1,8 @@
-package com.yanzhenjie.album;
+package com.yanzhenjie.album.callback;
 
 import android.widget.ImageView;
+
+import com.yanzhenjie.album.model.AlbumFile;
 
 /**
  * 相册图片加载器接口

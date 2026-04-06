@@ -49,7 +49,7 @@ abstract class BaseView<Presenter : BasePresenter> {
     constructor(source: BaseSource<*>, presenter: Presenter) {
         mSource = source
         mPresenter = presenter
-        // 初始化载体 -> Source层已执行setActionBar
+        // 初始化载体
         mSource.prepare()
         // 初始化菜单
         mSource.getMenu()?.let {

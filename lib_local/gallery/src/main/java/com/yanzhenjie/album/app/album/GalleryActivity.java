@@ -7,7 +7,7 @@ import androidx.annotation.Nullable;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.AlbumFile;
+import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;

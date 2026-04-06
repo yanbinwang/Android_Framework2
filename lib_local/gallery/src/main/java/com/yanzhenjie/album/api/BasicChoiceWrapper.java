@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.IntRange;
 
-import com.yanzhenjie.album.Filter;
+import com.yanzhenjie.album.callback.Filter;
 
 /**
  * 选择器通用封装

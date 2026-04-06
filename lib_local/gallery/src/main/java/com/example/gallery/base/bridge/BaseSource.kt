@@ -17,11 +17,11 @@ import androidx.appcompat.widget.Toolbar
  */
 abstract class BaseSource<Host>(protected val mHost: Host) {
 
-    /**
-     * 设置 ActionBar / Toolbar
-     * prepare() 完成后会主动调取
-     */
-    abstract fun setActionBar(toolbar: Toolbar)
+//    /**
+//     * 设置 ActionBar / Toolbar
+//     * prepare() 完成后会主动调取
+//     */
+//    abstract fun setActionBar(toolbar: Toolbar)
 
     /**
      * 设置是否显示返回按钮

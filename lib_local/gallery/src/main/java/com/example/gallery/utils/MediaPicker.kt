@@ -30,7 +30,7 @@ import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.api.widget.Widget
-import com.yanzhenjie.durban.Controller
+import com.yanzhenjie.durban.model.Controller
 import com.yanzhenjie.durban.Durban
 
 /**
