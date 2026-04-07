@@ -7,7 +7,7 @@
         android:id="@+id/toolbar"
         style="@style/Durban.Toolbar"
         tools:background="@color/galleryColorPrimary"
-        tools:navigationIcon="@mipmap/gallery_ic_done">
+        tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
             android:id="@+id/tv_title"
