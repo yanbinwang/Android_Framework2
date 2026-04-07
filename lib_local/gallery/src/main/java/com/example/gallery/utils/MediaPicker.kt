@@ -197,7 +197,7 @@ class MediaPicker {
     /**
      * 选择图片-单选
      */
-    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10, listener: (albumPath: String) -> Unit = {}) {
+    fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10L, listener: (albumPath: String) -> Unit = {}) {
         imageMultiple
             // 多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
             ?.singleChoice()
@@ -249,7 +249,7 @@ class MediaPicker {
     /**
      * 选择视频-单选
      */
-    fun videoSelection(megabyte: Long = 100, listener: (albumPath: String) -> Unit = {}) {
+    fun videoSelection(megabyte: Long = 100L, listener: (albumPath: String) -> Unit = {}) {
         videoMultiple
             ?.singleChoice()
             ?.widget(widget)
