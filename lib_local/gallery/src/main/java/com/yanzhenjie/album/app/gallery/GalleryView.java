@@ -4,7 +4,6 @@ import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
 
 import android.app.Activity;
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -23,7 +22,6 @@ import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.utils.SystemBar;
 
 import java.util.List;
 
@@ -94,11 +92,11 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      */
     @Override
     public void setupViews(Widget widget, boolean checkable) {
-        // 沉浸式状态栏 + 导航栏
-        SystemBar.invasionStatusBar(mActivity);
-        SystemBar.invasionNavigationBar(mActivity);
-        SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
-        SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
+//        // 沉浸式状态栏 + 导航栏
+//        SystemBar.invasionStatusBar(mActivity);
+//        SystemBar.invasionNavigationBar(mActivity);
+//        SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
+//        SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.album_ic_back_white);
         // 等 Toolbar 布局结束右侧强行撑满

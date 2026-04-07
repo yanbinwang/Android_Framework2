@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
+import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.base.page.ResultCode
 import com.example.common.utils.function.getFileFromUri
@@ -12,8 +13,7 @@ import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
-import com.example.common.utils.manager.AppManager
-import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.value.hour
@@ -94,16 +94,6 @@ class CameraActivity : AppCompatActivity() {
             intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
             startActivity(intent)
         }
-
-        /**
-         * 调取当前页面的前一个页面的OnResume中调取 , 避免用户跳转后去别的app然后直接切回我们的app
-         */
-        fun clearCameraPage() {
-            val cameraClass = CameraActivity::class.java
-            if (AppManager.isActivityAlive(cameraClass)) {
-                AppManager.finishActivitiesOfClass(cameraClass)
-            }
-        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -116,8 +106,6 @@ class CameraActivity : AppCompatActivity() {
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-        // 加入管理类
-        AppManager.addActivity(this)
         initData()
     }
 
@@ -144,11 +132,17 @@ class CameraActivity : AppCompatActivity() {
                 finish()
             }
             else -> {
-                TimerBuilder.Companion.schedule(this, {
+                schedule(this, {
                     finish()
                 }, 500)
             }
         }
+    }
+
+    // 拉起系统相机后,用户主动切回透明相机页,此时不管用户点击任何地方都关闭页面
+    override fun onTouchEvent(event: MotionEvent?): Boolean {
+        finish()
+        return true
     }
 
     override fun onDestroy() {
@@ -159,8 +153,6 @@ class CameraActivity : AppCompatActivity() {
         }
         // 用完清空，防止泄漏
         onResult = null
-        // 清除管理类
-        AppManager.removeActivity(this)
     }
 
     override fun finish() {

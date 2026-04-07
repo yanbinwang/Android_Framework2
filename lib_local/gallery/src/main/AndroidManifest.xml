@@ -9,7 +9,7 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/TransparentTheme"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
             android:name="com.yanzhenjie.durban.app.DurbanActivity"
@@ -47,11 +47,18 @@
             android:theme="@style/Album.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 相机跳转页 -->
+        <!--        <activity-->
+        <!--            android:name="com.yanzhenjie.album.app.camera.CameraActivity"-->
+        <!--            android:configChanges="orientation|screenSize"-->
+        <!--            android:theme="@style/Album.Theme.Activity.Transparent"-->
+        <!--            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />-->
         <activity
             android:name="com.yanzhenjie.album.app.camera.CameraActivity"
-            android:configChanges="orientation|screenSize"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait"
             android:theme="@style/Album.Theme.Activity.Transparent"
-            android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 相机文件 FileProvider -->
         <provider
             android:name="com.yanzhenjie.album.provider.CameraFileProvider"
