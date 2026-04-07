@@ -90,7 +90,7 @@ public class FolderDialog extends BottomSheetDialog {
             // 导航栏控件
             ScreenUtilKt.setStatusBarLightMode(getWindow(), false, false);
             ScreenUtilKt.setNavigationBarLightMode(getWindow(), true, false);
-            ScreenUtilKt.setNavigationBarDrawable(getWindow(), R.color.albumPageLight, windowInsetsCompat -> Unit.INSTANCE);
+            ScreenUtilKt.setNavigationBarDrawable(getWindow(), R.color.albumPage, windowInsetsCompat -> Unit.INSTANCE);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                 Activity activity = getOwnerActivity();
                 if (null != activity) {

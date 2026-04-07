@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
  * 系统状态栏/导航栏工具类
  * 功能：设置状态栏颜色、导航栏颜色、沉浸式、深色状态栏文字（兼容小米、魅族、原生安卓）
  */
+@Deprecated()
 public class SystemBar {
 
     /**

@@ -56,7 +56,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
         setContentView(R.layout.album_activity_gallery);
         // 导航栏
-        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        initImmersionBar(false, false, R.color.albumGalleryPrimary);
         // 绑定 MVP
         mView = new GalleryView<>(this, this);
         mView.setupViews(mWidget, true);

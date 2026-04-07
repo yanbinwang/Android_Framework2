@@ -13,6 +13,7 @@ import com.yanzhenjie.album.app.camera.CameraActivity;
  * 继承自：BasicCameraWrapper
  * 功能：打开相机 → 录制视频 → 支持质量、时长、大小限制
  */
+@Deprecated()
 public class VideoCameraWrapper extends BasicCameraWrapper<VideoCameraWrapper> {
     // 视频质量：0低质量 1高质量（默认1）
     private int mQuality = 1;

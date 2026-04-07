@@ -11,6 +11,7 @@ import com.yanzhenjie.album.app.camera.CameraActivity;
  * 继承自：BasicCameraWrapper（相机顶层抽象类）
  * 功能：只做一件事 —— 打开相机拍照 → 返回图片路径
  */
+@Deprecated()
 public class ImageCameraWrapper extends BasicCameraWrapper<ImageCameraWrapper> {
 
     public ImageCameraWrapper(Context context) {

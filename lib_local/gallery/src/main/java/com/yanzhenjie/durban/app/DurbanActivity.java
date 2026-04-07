@@ -37,8 +37,8 @@ import java.util.ArrayList;
  */
 public class DurbanActivity extends BaseActivity {
     // 状态栏/导航栏颜色
-    private int mStatusColor;
-    private int mNavigationColor;
+    private int mStatusBarColor;
+    private int mNavigationBarColor;
     // 手势类型：旋转/缩放
     private int mGesture;
     // 压缩质量
@@ -100,8 +100,8 @@ public class DurbanActivity extends BaseActivity {
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
             // 状态栏/导航栏颜色
-            mStatusColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.durbanColorPrimaryDark);
-            mNavigationColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.durbanColorPrimaryBlack);
+            mStatusBarColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar);
+            mNavigationBarColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar);
             // 标题
             mTitle = argument.getString(Durban.KEY_INPUT_TITLE);
             if (TextUtils.isEmpty(mTitle)) {
@@ -159,23 +159,23 @@ public class DurbanActivity extends BaseActivity {
         }
         // 设置Toolbar样式
         setSupportToolbar(toolbar);
-        toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusColor));
+        toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusBarColor));
         // 设置图标样式
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusColor);
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationColor);
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationColor);
+        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusBarColor);
+        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationBarColor);
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationBarColor);
         // 设置标题
         final TextView tvTitle = findViewById(R.id.tv_title);
         tvTitle.setText(mTitle);
         if (statusBarBattery) {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textWhite));
+            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontLight));
         } else {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.textBlack));
+            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontDark));
         }
         // 设置返回按钮
-        Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.durban_ic_back_white);
+        Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_done);
         if (!statusBarBattery && null != navigationIcon) {
-            navigationIcon.setTint(ContextCompat.getColor(this, R.color.durbanIconDark));
+            navigationIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark));
         }
         toolbar.setNavigationIcon(navigationIcon);
     }
@@ -352,10 +352,10 @@ public class DurbanActivity extends BaseActivity {
         // 去除长按的文字提示
         okItem.setTitle("");
         // 根据导航栏颜色定义对应的图片
-        if (!shouldUseWhiteSystemBarsForRes(mStatusColor)) {
-            Drawable doneIcon = ContextCompat.getDrawable(this, R.mipmap.durban_ic_done_white);
+        if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
+            Drawable doneIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_done);
             if (null != doneIcon) {
-                doneIcon.setTint(ContextCompat.getColor(this, R.color.bgBlack));
+                doneIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark));
                 // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
                 View okView = okItem.getActionView();
                 if (okView != null) {
@@ -364,7 +364,7 @@ public class DurbanActivity extends BaseActivity {
             }
         }
         // 设置额外添加的按钮外层间距
-        setSupportMenuView(findViewById(R.id.toolbar), mStatusColor);
+        setSupportMenuView(findViewById(R.id.toolbar), mStatusBarColor);
         return true;
     }
 

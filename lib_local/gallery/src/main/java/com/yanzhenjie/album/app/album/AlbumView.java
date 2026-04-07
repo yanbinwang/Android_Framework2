@@ -109,20 +109,20 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
         // 设置返回箭头
-        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+        Drawable navigationIcon = getDrawable(R.mipmap.gallery_ic_back);
         // 浅色 / 深色主题 -> 影响图标
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.albumFontDark));
+            mTitle.setTextColor(getColor(R.color.galleryFontDark));
             // 暗色返回 / 完成
-            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark));
             Drawable completeIcon = mCompleteMenu.getIcon();
             if (null != completeIcon) {
-                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.galleryIconDark));
                 mCompleteMenu.setIcon(completeIcon);
             }
-            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
+            mProgressBar.setColorFilter(getColor(R.color.albumLoading));
         } else {
-            mTitle.setTextColor(getColor(R.color.albumFontLight));
+            mTitle.setTextColor(getColor(R.color.galleryFontLight));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
         }
         // 设置返回按钮

@@ -2,13 +2,13 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
-    android:background="@color/albumPageLight">
+    android:background="@color/albumPage">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Album.Toolbar"
-        tools:background="@color/albumColorPrimary"
-        tools:navigationIcon="@mipmap/album_ic_back_white">
+        tools:background="@color/galleryColorPrimary"
+        tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
             android:id="@+id/tv_title"
@@ -20,7 +20,7 @@
             android:textSize="@dimen/album_sp_18"
             android:textStyle="bold"
             tools:text="@string/albumTitle"
-            tools:textColor="@color/albumFontLight" />
+            tools:textColor="@color/galleryFontLight" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -39,21 +39,21 @@
             android:id="@+id/btn_camera_image"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@mipmap/album_ic_image_camera_white"
+            android:drawableStart="@mipmap/album_ic_image_camera"
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_image_capture"
-            android:textColor="@color/albumFontLight" />
+            android:textColor="@color/galleryFontLight" />
 
         <Button
             android:id="@+id/btn_camera_video"
             style="@style/Album.Button.WrapContent"
             android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@mipmap/album_ic_video_camera_white"
+            android:drawableStart="@mipmap/album_ic_video_camera"
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_video_capture"
-            android:textColor="@color/albumFontLight" />
+            android:textColor="@color/galleryFontLight" />
 
     </LinearLayout>
 

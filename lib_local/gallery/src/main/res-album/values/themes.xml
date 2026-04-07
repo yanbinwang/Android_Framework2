@@ -38,7 +38,7 @@
 
     <!-- 文件夹对话框：全屏、透明背景 -->
     <style name="Album.Dialog.Folder">
-        <item name="android:windowBackground">@color/albumTransparent</item>
+        <item name="android:windowBackground">@color/galleryTransparent</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowFullscreen">true</item>
         <!-- 底部弹出动画 -->
@@ -103,7 +103,7 @@
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
         <item name="android:maxWidth">@dimen/album_dp_200</item>
-        <item name="android:textColor">@color/albumFontLight</item>
+        <item name="android:textColor">@color/galleryFontLight</item>
     </style>
 
     <!-- ====================== 主题样式 ====================== -->
@@ -116,7 +116,7 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowBackground">@color/albumTransparent</item>
+        <item name="android:windowBackground">@color/galleryTransparent</item>
         <item name="android:textAllCaps">false</item>
     </style>
 

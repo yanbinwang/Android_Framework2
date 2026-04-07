@@ -3,14 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
-    android:background="@color/albumPageLight">
+    android:background="@color/albumPage">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Album.Toolbar"
         app:layout_constraintTop_toTopOf="parent"
-        tools:background="@color/albumColorPrimary"
-        tools:navigationIcon="@mipmap/album_ic_back_white">
+        tools:background="@color/galleryColorPrimary"
+        tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
             android:id="@+id/tv_title"
@@ -22,7 +22,7 @@
             android:textSize="@dimen/album_sp_18"
             android:textStyle="bold"
             tools:text="@string/albumTitle"
-            tools:textColor="@color/albumFontLight" />
+            tools:textColor="@color/galleryFontLight" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -44,13 +44,13 @@
             android:id="@+id/btn_switch_dir"
             style="@style/Album.TextButton.WrapContent.SheetBottom"
             android:layout_gravity="start"
-            android:drawableEnd="@mipmap/album_abc_spinner_white" />
+            android:drawableEnd="@mipmap/album_abc_spinner" />
 
         <Button
             android:id="@+id/btn_preview"
             style="@style/Album.TextButton.WrapContent.SheetBottom"
             android:layout_gravity="end"
-            android:drawableStart="@mipmap/album_ic_eye_white" />
+            android:drawableStart="@mipmap/album_ic_eye" />
 
     </FrameLayout>
 
@@ -58,7 +58,7 @@
         android:id="@+id/layout_loading"
         style="@style/Album.MatchParent"
         android:layout_below="@+id/toolbar"
-        android:background="@color/albumPageLight"
+        android:background="@color/albumPage"
         android:gravity="center"
         android:visibility="gone">
 

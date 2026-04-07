@@ -316,7 +316,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
             filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }
-//        String filePath = StorageUtil.getOutputFile(StorageUtil.StorageType.IMAGE).getPath();
         Album.camera(this)
                 .image()
                 .filePath(filePath)

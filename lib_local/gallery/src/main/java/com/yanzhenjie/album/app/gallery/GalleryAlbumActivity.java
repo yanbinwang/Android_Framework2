@@ -60,7 +60,7 @@ public class GalleryAlbumActivity extends BaseActivity implements Contract.Galle
         }
         setContentView(R.layout.album_activity_gallery);
         // 导航栏
-        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        initImmersionBar(false, false, R.color.albumGalleryPrimary);
         // 绑定 MVP：自己是 Presenter，GalleryView 是 View
         mView = new GalleryView<>(this, this);
         mView.setupViews(mWidget, mCheckable);

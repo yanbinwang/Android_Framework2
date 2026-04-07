@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rv_content_list"
     style="@style/Album.WrapContent.WidthMatchParent"
-    android:background="@color/albumPageLight"
+    android:background="@color/albumPage"
     android:overScrollMode="never"
     android:scrollbars="none"
     app:behavior_hideable="true" />

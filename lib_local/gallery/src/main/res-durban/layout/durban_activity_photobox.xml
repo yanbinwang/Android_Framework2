@@ -6,8 +6,8 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Durban.Toolbar"
-        tools:background="@color/durbanColorPrimary"
-        tools:navigationIcon="@mipmap/durban_ic_back_white">
+        tools:background="@color/galleryColorPrimary"
+        tools:navigationIcon="@mipmap/gallery_ic_done">
 
         <TextView
             android:id="@+id/tv_title"
@@ -17,7 +17,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:textSize="@dimen/album_sp_18"
-            tools:text="@string/durbanTitle"
+            tools:text="@string/durban_title_crop"
             tools:textColor="@color/textWhite" />
 
     </androidx.appcompat.widget.Toolbar>
@@ -69,7 +69,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_rotation_left"
                     style="@style/Durban.WrapContent.ControllerButton"
-                    android:src="@mipmap/durban_ic_rotation_90_left_white" />
+                    android:src="@mipmap/durban_ic_rotation_90_left" />
 
             </FrameLayout>
 
@@ -80,7 +80,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_rotation_right"
                     style="@style/Durban.WrapContent.ControllerButton"
-                    android:src="@mipmap/durban_ic_rotation_90_right_white" />
+                    android:src="@mipmap/durban_ic_rotation_90_right" />
 
             </FrameLayout>
 
@@ -91,7 +91,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_scale_big"
                     style="@style/Durban.WrapContent.ControllerButton"
-                    android:src="@mipmap/durban_ic_scale_out_white" />
+                    android:src="@mipmap/durban_ic_scale_out" />
 
             </FrameLayout>
 
@@ -102,7 +102,7 @@
                 <ImageView
                     android:id="@+id/iv_controller_scale_small"
                     style="@style/Durban.WrapContent.ControllerButton"
-                    android:src="@mipmap/durban_ic_scale_in_white" />
+                    android:src="@mipmap/durban_ic_scale_in" />
 
             </FrameLayout>
 
