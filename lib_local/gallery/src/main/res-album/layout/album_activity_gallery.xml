@@ -15,7 +15,6 @@
             android:id="@+id/toolbar"
             style="@style/Album.Toolbar" />
 
-
         <FrameLayout
             style="@style/Album.WrapContent.WidthMatchParent"
             android:layout_alignParentBottom="true">

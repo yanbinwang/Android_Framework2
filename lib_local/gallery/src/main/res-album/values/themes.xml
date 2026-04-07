@@ -41,6 +41,8 @@
         <item name="android:windowBackground">@color/albumTransparent</item>
         <item name="android:windowIsFloating">false</item>
         <item name="android:windowFullscreen">true</item>
+        <!-- 底部弹出动画 -->
+        <item name="android:windowAnimationStyle">@style/PopupTranslateAnimStyle</item>
     </style>
 
     <!-- ====================== 列表条目样式 ====================== -->
@@ -119,19 +121,42 @@
     </style>
 
     <!-- 透明 Activity：无遮罩、无背景 -->
-    <style name="Album.Theme.Activity.Transparent">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:colorBackgroundCacheHint">@null</item>
-        <item name="android:backgroundDimEnabled">false</item>
+    <!--    <style name="Album.Theme.Activity.Transparent">-->
+    <!--        <item name="android:windowFrame">@null</item>-->
+    <!--        <item name="android:windowIsTranslucent">true</item>-->
+    <!--        <item name="android:colorBackgroundCacheHint">@null</item>-->
+    <!--        <item name="android:backgroundDimEnabled">false</item>-->
+    <!--    </style>-->
+    <style name="Album.Theme.Activity.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
     <!-- ====================== Toolbar 样式 ====================== -->
+    <!--    <style name="Album.Toolbar">-->
+    <!--        <item name="android:layout_width">match_parent</item>-->
+    <!--        <item name="android:layout_height">wrap_content</item>-->
+    <!--        <item name="android:background">@android:color/transparent</item>-->
+    <!--        <item name="elevation">@dimen/album_dp_0</item>-->
+    <!--    </style>-->
     <style name="Album.Toolbar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
+        <!-- 全透明 -->
         <item name="android:background">@android:color/transparent</item>
-        <item name="elevation">@dimen/album_dp_0</item>
+        <!-- 去掉阴影 -->
+        <item name="android:elevation">0dp</item>
+        <!-- 去掉Toolbar左边默认的16dp留白 -->
+        <item name="android:contentInsetStart">0dp</item>
+        <!-- 彻底隐藏标题 -->
+        <item name="android:title">@null</item>
     </style>
 
     <!-- ====================== 通用布局 ====================== -->

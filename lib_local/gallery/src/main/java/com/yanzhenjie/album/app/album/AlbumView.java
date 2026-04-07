@@ -20,6 +20,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.framework.utils.function.view.FunctionsViewKt;
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.api.widget.Widget;
@@ -159,7 +160,12 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      */
     @Override
     public void setLoadingDisplay(boolean display) {
-        mLayoutLoading.setVisibility(display ? View.VISIBLE : View.GONE);
+//        mLayoutLoading.setVisibility(display ? View.VISIBLE : View.GONE);
+        if (display) {
+            mLayoutLoading.setVisibility(View.VISIBLE);
+        } else {
+            FunctionsViewKt.fade(mLayoutLoading, 500, true);
+        }
     }
 
     /**

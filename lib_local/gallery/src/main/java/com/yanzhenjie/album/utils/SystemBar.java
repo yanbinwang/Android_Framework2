@@ -143,7 +143,7 @@ public class SystemBar {
     private static boolean setMIUIStatusBarFont(Window window, boolean dark) {
         Class<?> clazz = window.getClass();
         try {
-            Class layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
+            Class<?> layoutParams = Class.forName("android.view.MiuiWindowManager$LayoutParams");
             Field field = layoutParams.getField("EXTRA_FLAG_STATUS_BAR_DARK_MODE");
             int darkModeFlag = field.getInt(layoutParams);
             Method extraFlagField = clazz.getMethod("setExtraFlags", int.class, int.class);
