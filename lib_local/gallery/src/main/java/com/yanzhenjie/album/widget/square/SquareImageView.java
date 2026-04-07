@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.widget;
+package com.yanzhenjie.album.widget.square;
 
 import android.content.Context;
 import android.content.res.Configuration;

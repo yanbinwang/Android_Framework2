@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.utils.BitmapLoadUtil;
-import com.yanzhenjie.loading.dialog.LoadingDialog;
+import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog;
 
 /**
  * 图片加载异步任务

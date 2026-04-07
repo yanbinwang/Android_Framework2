@@ -1,4 +1,4 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,6 +14,8 @@ import android.view.animation.Interpolator;
 import android.view.animation.LinearInterpolator;
 
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+
+import com.yanzhenjie.durban.utils.DensityUtils;
 
 /**
  * 仿Android 官方 Material Design 风格的三级渐变转圈加载动画

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="center">
 
-    <com.yanzhenjie.loading.LoadingView
+    <com.yanzhenjie.durban.widget.dialog.loading.LoadingView
         android:id="@+id/loading_view"
         android:layout_width="100dp"
         android:layout_height="100dp" />
@@ -15,6 +16,8 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@android:color/white" />
+        android:textColor="@android:color/white"
+        tools:text="@string/durban_loading_message"
+        tools:textColor="@android:color/black" />
 
 </LinearLayout>

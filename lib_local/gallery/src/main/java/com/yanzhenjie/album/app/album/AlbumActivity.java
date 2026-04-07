@@ -29,7 +29,7 @@ import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.widget.LoadingDialog;
-import com.yanzhenjie.mediascanner.MediaScanner;
+import com.yanzhenjie.album.utils.MediaScanner;
 
 import java.io.File;
 import java.util.ArrayList;

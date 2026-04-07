@@ -1,4 +1,4 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.content.Context;
 import android.util.AttributeSet;

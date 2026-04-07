@@ -1,4 +1,4 @@
-package com.yanzhenjie.mediascanner;
+package com.yanzhenjie.album.utils;
 
 import android.content.Context;
 import android.media.MediaScannerConnection;
@@ -60,13 +60,6 @@ public class MediaScanner implements MediaScannerConnection.MediaScannerConnecti
     }
 
     /**
-     * 是否正在扫描
-     */
-    public boolean isRunning() {
-        return mediaScanConnection.isConnected();
-    }
-
-    /**
      * 扫描单个文件
      */
     public void scan(String filePath) {
@@ -109,6 +102,13 @@ public class MediaScanner implements MediaScannerConnection.MediaScannerConnecti
         if (currentScanPaths != null && currentScanPaths.length > 0) {
             mediaScanConnection.connect();
         }
+    }
+
+    /**
+     * 是否正在扫描
+     */
+    public boolean isRunning() {
+        return mediaScanConnection.isConnected();
     }
 
 }
