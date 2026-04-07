@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.transition.Fade;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -28,6 +29,8 @@ import com.yanzhenjie.durban.widget.CropView;
 import com.yanzhenjie.durban.widget.GestureCropImageView;
 import com.yanzhenjie.durban.widget.OverlayView;
 import com.yanzhenjie.durban.widget.TransformImageView;
+
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -70,6 +73,8 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setActivityAnimations();
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         // 读取所有配置
         initArgument();
         // 设置布局
@@ -82,6 +87,24 @@ public class DurbanActivity extends BaseActivity {
         initControllerViews();
         // 开始裁剪第一张图
         cropNextImage();
+    }
+
+    @Override
+    protected void onNewIntent(@Nullable Intent intent) {
+        super.onNewIntent(intent);
+        setActivityAnimations();
+    }
+
+    private void setActivityAnimations() {
+        Fade fadeEnter = new Fade();
+        fadeEnter.setDuration(500);
+        fadeEnter.setMode(Fade.MODE_IN);
+        getWindow().setExitTransition(fadeEnter);
+
+        Fade fadeExit = new Fade();
+        fadeExit.setDuration(500);
+        fadeExit.setMode(Fade.MODE_IN);
+        getWindow().setReturnTransition(fadeExit);
     }
 
     @Override
@@ -423,6 +446,12 @@ public class DurbanActivity extends BaseActivity {
         intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
         setResult(RESULT_CANCELED, intent);
         finish();
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none);
     }
 
 }
