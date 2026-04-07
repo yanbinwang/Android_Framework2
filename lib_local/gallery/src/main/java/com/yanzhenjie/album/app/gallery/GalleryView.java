@@ -100,7 +100,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.gallery_ic_back);
         // 等 Toolbar 布局结束右侧强行撑满
-        setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
+        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryPrimary);
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu.setVisible(false);

@@ -12,7 +12,6 @@ import com.yanzhenjie.album.callback.Action;
  * 专门给：拍照、录像 功能用的
  * 功能：统一相机的 路径、回调、启动
  */
-@Deprecated()
 public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
     // 拍照/录像 保存的文件路径
     protected String mFilePath;

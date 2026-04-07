@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
@@ -30,8 +31,8 @@ import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.api.widget.Widget
-import com.yanzhenjie.durban.model.Controller
 import com.yanzhenjie.durban.Durban
+import com.yanzhenjie.durban.model.Controller
 
 /**
  * author: wyb
@@ -48,6 +49,16 @@ class MediaPicker {
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
     companion object {
+        /**
+         * 状态栏
+         */
+        private val statusBarColorRes get() = R.color.appStatusBar
+
+        /**
+         * 导航栏
+         */
+        private val navigationBarColor get() = R.color.appNavigationBar
+
         /**
          * 计算适合第三方库aspectRatio(x: Float, y: Float)方法的浮点参数
          * @return Pair<Float, Float> 宽比例和高比例的浮点形式（如16:9返回(16f, 9f)）
@@ -97,15 +108,17 @@ class MediaPicker {
     /**
      * 创建相册统一配置
      */
-    private fun Context?.getAlbumWidget(barColor: Int = R.color.bgBlack): Widget? {
+    private fun Context?.getAlbumWidget(): Widget? {
         this ?: return null
         context = this
+        // 根据状态栏颜色区分主题
+        val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
         // 参考Widget -> getDefaultWidget()方法
-        return Widget.newDarkBuilder(this)
+        return Widget.newBuilder(this, style)
             // 状态栏颜色
-            .statusBarColor(barColor)
+            .statusBarColor(statusBarColorRes)
             // 导航栏颜色
-            .navigationBarColor(barColor)
+            .navigationBarColor(navigationBarColor)
             // 标题 --- 标题文字颜色只有黑色白色
             .title(string(R.string.albumTitle))
             // 媒体条目选择框颜色
@@ -303,9 +316,9 @@ class MediaPicker {
             // 裁剪界面的标题
             ?.title(string(R.string.durbanTitle))
             // 状态栏颜色
-            ?.statusBarColor(R.color.bgBlack)
+            ?.statusBarColor(statusBarColorRes)
             // 导航栏颜色
-            ?.navigationBarColor(R.color.bgBlack)
+            ?.navigationBarColor(navigationBarColor)
             // 图片路径list或者数组
             ?.inputImagePaths(*imagePathArray)
             // 图片输出文件夹路径
