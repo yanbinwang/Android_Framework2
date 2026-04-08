@@ -5,10 +5,18 @@ import java.math.RoundingMode
 
 //------------------------------------计算工具类------------------------------------
 /**
- * 数值安全转换
- * 泛型T需要判断 T 的具体类型时 , 需使用inline + reified这对组合 , 防止类型擦除节省调用的内存
+ * 数值安全转换 (泛型T需要判断 T 的具体类型时 , 需使用inline + reified这对组合 , 防止类型擦除节省调用的内存)
+ * 1) 判断 泛型 T 的类型（reified 的作用） -> 使用
+ *  when(T::class.java) {
+ *      Float::class.java -> ...
+ *  }
+ * 2) 泛型类型强转 -> 必须 inline + reified
+ * 3) 判断泛型T的值 -> 不使用
+ *  when(this) {
+ *      is Float -> ...
+ *  }
  */
-inline val <reified T : Number> T?.orZero: T
+val <T : Number> T?.orZero: T
     get() {
         return this ?: (when (this) {
             is Short -> 0.toShort()
