@@ -30,6 +30,7 @@ import com.yanzhenjie.album.api.ImageSingleWrapper
 import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
+import com.yanzhenjie.album.api.widget.ButtonStyle
 import com.yanzhenjie.album.api.widget.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
@@ -126,7 +127,7 @@ class MediaPicker {
             // 文件夹条目选择框颜色
             .bucketItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
             // 按钮样式
-            .buttonStyle(Widget.ButtonStyle
+            .buttonStyle(ButtonStyle
                 .newDarkBuilder(this)
                 .setButtonSelector(color(R.color.btnMain), color(R.color.btnMain)).build())
             // 构建配置

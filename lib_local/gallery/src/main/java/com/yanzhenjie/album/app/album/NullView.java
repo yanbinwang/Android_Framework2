@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
+import com.yanzhenjie.album.api.widget.ButtonStyle;
 import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.utils.AlbumUtil;
@@ -76,7 +77,7 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
             mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark));
         } else {
             mTitle.setTextColor(getColor(R.color.galleryFontLight));
-            Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
+            ButtonStyle buttonStyle = widget.getButtonStyle();
             ColorStateList buttonSelector = buttonStyle.getButtonSelector();
             mBtnTakeImage.setBackgroundTintList(buttonSelector);
             mBtnTakeVideo.setBackgroundTintList(buttonSelector);

@@ -180,6 +180,9 @@ public class Widget implements Parcelable {
         return new Builder(context, style);
     }
 
+    /**
+     * 类构建器
+     */
     public static class Builder {
         private int mStatusBarColor;
         private int mNavigationBarColor;
@@ -252,90 +255,6 @@ public class Widget implements Parcelable {
          */
         public Widget build() {
             return new Widget(this);
-        }
-    }
-
-    /**
-     * 按钮样式内部类
-     */
-    public static class ButtonStyle implements Parcelable {
-        private final int mUiStyle;
-        private final ColorStateList mButtonSelector;
-
-        private ButtonStyle(Builder builder) {
-            Context mContext = builder.mContext;
-            this.mUiStyle = builder.mUiStyle;
-            this.mButtonSelector = builder.mButtonSelector == null ? AlbumUtil.getColorStateList(ContextCompat.getColor(mContext, R.color.galleryColorPrimary), ContextCompat.getColor(mContext, R.color.galleryColorPrimaryDark)) : builder.mButtonSelector;
-        }
-
-        public int getUiStyle() {
-            return mUiStyle;
-        }
-
-        public ColorStateList getButtonSelector() {
-            return mButtonSelector;
-        }
-
-        protected ButtonStyle(Parcel in) {
-            mUiStyle = in.readInt();
-            mButtonSelector = in.readParcelable(ColorStateList.class.getClassLoader());
-        }
-
-        @Override
-        public void writeToParcel(Parcel dest, int flags) {
-            dest.writeInt(mUiStyle);
-            dest.writeParcelable(mButtonSelector, flags);
-        }
-
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        public static final Creator<ButtonStyle> CREATOR = new Creator<>() {
-            @Override
-            public ButtonStyle createFromParcel(Parcel in) {
-                return new ButtonStyle(in);
-            }
-
-            @Override
-            public ButtonStyle[] newArray(int size) {
-                return new ButtonStyle[size];
-            }
-        };
-
-        public static Builder newDarkBuilder(Context context) {
-            return new Builder(context, STYLE_DARK);
-        }
-
-        public static Builder newLightBuilder(Context context) {
-            return new Builder(context, STYLE_LIGHT);
-        }
-
-        /**
-         * 按钮 Builder
-         */
-        public static class Builder {
-            private ColorStateList mButtonSelector;
-            private final int mUiStyle;
-            private final Context mContext;
-
-            private Builder(Context context, @UiStyle int style) {
-                this.mContext = context;
-                this.mUiStyle = style;
-            }
-
-            /**
-             * 设置按钮点击效果
-             */
-            public Builder setButtonSelector(@ColorInt int normalColor, @ColorInt int highLightColor) {
-                mButtonSelector = AlbumUtil.getColorStateList(normalColor, highLightColor);
-                return this;
-            }
-
-            public ButtonStyle build() {
-                return new ButtonStyle(this);
-            }
         }
     }
 

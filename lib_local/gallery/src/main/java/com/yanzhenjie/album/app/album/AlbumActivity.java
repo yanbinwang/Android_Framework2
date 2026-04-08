@@ -28,8 +28,8 @@ import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.model.AlbumFolder;
 import com.yanzhenjie.album.utils.AlbumUtil;
-import com.yanzhenjie.album.widget.LoadingDialog;
 import com.yanzhenjie.album.utils.MediaScanner;
+import com.yanzhenjie.album.widget.LoadingDialog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -182,21 +182,22 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                     throw new AssertionError("This should not be the case.");
                 }
             }
+            // 没有图片 → 打开空页面
+            if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
+                Intent intent = new Intent(this, NullActivity.class);
+                intent.putExtras(getIntent());
+                startActivityForResult(intent, CODE_ACTIVITY_NULL);
+                overridePendingTransition(0, 0);
+                // 显示全部图片
+            } else {
+                showFolderAlbumFiles(0);
+                int count = mCheckedList.size();
+                mView.setCheckedCount(count);
+            }
+            // 隐藏整体遮罩
             mView.setLoadingDisplay(false);
             return Unit.INSTANCE;
         }, 500);
-        // 没有图片 → 打开空页面
-        if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
-            Intent intent = new Intent(this, NullActivity.class);
-            intent.putExtras(getIntent());
-            startActivityForResult(intent, CODE_ACTIVITY_NULL);
-            overridePendingTransition(0, 0);
-            // 显示全部图片
-        } else {
-            showFolderAlbumFiles(0);
-            int count = mCheckedList.size();
-            mView.setCheckedCount(count);
-        }
     }
 
     /**
