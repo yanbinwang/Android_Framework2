@@ -85,16 +85,16 @@ class MediaPicker {
         when (any) {
             is AppCompatActivity, is FragmentActivity -> {
 //                imageCamera = Album.camera(any)
+                widget = any.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
-                widget = any.getAlbumWidget()
                 durban = Durban.with(any)
             }
             is Fragment -> {
 //                imageCamera = Album.camera(any)
+                widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
-                widget = any.context.getAlbumWidget()
                 durban = Durban.with(any)
             }
         }
