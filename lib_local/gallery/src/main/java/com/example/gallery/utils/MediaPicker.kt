@@ -1,7 +1,6 @@
 package com.example.gallery.utils
 
 import android.content.Context
-import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -16,14 +15,9 @@ import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
 import com.example.gallery.R
-import com.example.gallery.activity.CameraActivity
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_BYTES
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_DURATION
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_ALBUM
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_IMAGE
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_FUNCTION_VIDEO
-import com.example.gallery.activity.CameraActivity.Companion.CAMERA_QUALITY
+import com.example.gallery.activity.CameraActivity.Companion.pickImage
+import com.example.gallery.activity.CameraActivity.Companion.recordVideo
+import com.example.gallery.activity.CameraActivity.Companion.takePicture
 import com.yanzhenjie.album.Album
 import com.yanzhenjie.album.api.ImageMultipleWrapper
 import com.yanzhenjie.album.api.ImageSingleWrapper
@@ -148,17 +142,13 @@ class MediaPicker {
 //                }
 //            }
 //            ?.start()
-        CameraActivity.onResult = {
+        context.takePicture { albumPath ->
             if (hasDurban) {
-                toDurban(it)
+                toDurban(albumPath)
             } else {
-                listener.invoke(it)
+                listener.invoke(albumPath)
             }
         }
-        val intent = Intent(context, CameraActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
-        context?.startActivity(intent)
     }
 
     /**
@@ -179,33 +169,22 @@ class MediaPicker {
 //                listener.invoke(it)
 //            }
 //            ?.start()
-        CameraActivity.onResult = {
-            listener.invoke(it)
+        context.recordVideo(maxDurationMs, maxSizeMb, quality) { albumPath ->
+            listener.invoke(albumPath)
         }
-        val intent = Intent(context, CameraActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
-        intent.putExtra(CAMERA_QUALITY, quality)
-        intent.putExtra(CAMERA_DURATION, maxDurationMs)
-        intent.putExtra(CAMERA_BYTES, maxSizeMb)
-        context?.startActivity(intent)
     }
 
     /**
      * 选择图片-系统相册
      */
     fun pickImage(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
-        CameraActivity.onResult = {
+        context.pickImage { albumPath ->
             if (hasDurban) {
-                toDurban(it)
+                toDurban(albumPath)
             } else {
-                listener.invoke(it)
+                listener.invoke(albumPath)
             }
         }
-        val intent = Intent(context, CameraActivity::class.java)
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
-        context?.startActivity(intent)
     }
 
     /**
