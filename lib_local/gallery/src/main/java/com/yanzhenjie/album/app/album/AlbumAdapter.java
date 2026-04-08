@@ -16,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.callback.OnCheckedClickListener;
-import com.yanzhenjie.album.callback.OnItemClickListener;
+import com.yanzhenjie.album.widget.recyclerview.OnCheckedClickListener;
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.List;

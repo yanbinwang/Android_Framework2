@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.Nullable;
 
 import com.yanzhenjie.album.callback.Action;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.Widget;
 
 /**
  * 顶级抽象父类

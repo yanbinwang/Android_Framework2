@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.callback;
+package com.yanzhenjie.album.widget.recyclerview;
 
 import android.widget.CompoundButton;
 

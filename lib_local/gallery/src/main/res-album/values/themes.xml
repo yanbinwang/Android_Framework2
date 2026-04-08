@@ -121,12 +121,6 @@
     </style>
 
     <!-- 透明 Activity：无遮罩、无背景 -->
-    <!--    <style name="Album.Theme.Activity.Transparent">-->
-    <!--        <item name="android:windowFrame">@null</item>-->
-    <!--        <item name="android:windowIsTranslucent">true</item>-->
-    <!--        <item name="android:colorBackgroundCacheHint">@null</item>-->
-    <!--        <item name="android:backgroundDimEnabled">false</item>-->
-    <!--    </style>-->
     <style name="Album.Theme.Activity.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>

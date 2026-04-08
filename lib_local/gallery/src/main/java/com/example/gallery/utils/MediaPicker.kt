@@ -24,8 +24,8 @@ import com.yanzhenjie.album.api.ImageSingleWrapper
 import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
-import com.yanzhenjie.album.api.widget.ButtonStyle
-import com.yanzhenjie.album.api.widget.Widget
+import com.yanzhenjie.album.model.ButtonStyle
+import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
 

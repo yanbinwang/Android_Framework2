@@ -19,7 +19,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.model.AlbumFile;
 
@@ -92,11 +92,6 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      */
     @Override
     public void setupViews(Widget widget, boolean checkable) {
-//        // 沉浸式状态栏 + 导航栏
-//        SystemBar.invasionStatusBar(mActivity);
-//        SystemBar.invasionNavigationBar(mActivity);
-//        SystemBar.setStatusBarColor(mActivity, Color.TRANSPARENT);
-//        SystemBar.setNavigationBarColor(mActivity, getColor(R.color.albumSheetBottom));
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.gallery_ic_back);
         // 等 Toolbar 布局结束右侧强行撑满

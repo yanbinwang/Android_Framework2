@@ -1,7 +1,7 @@
-package com.yanzhenjie.album.api.widget;
+package com.yanzhenjie.album.model;
 
-import static com.yanzhenjie.album.api.widget.Widget.STYLE_DARK;
-import static com.yanzhenjie.album.api.widget.Widget.STYLE_LIGHT;
+import static com.yanzhenjie.album.model.Widget.STYLE_DARK;
+import static com.yanzhenjie.album.model.Widget.STYLE_LIGHT;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

@@ -22,8 +22,8 @@ import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.divider.ItemDivider;
-import com.yanzhenjie.album.widget.divider.Divider;
+import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
+import com.yanzhenjie.album.widget.recyclerview.divider.Divider;
 
 import java.io.File;
 import java.security.MessageDigest;

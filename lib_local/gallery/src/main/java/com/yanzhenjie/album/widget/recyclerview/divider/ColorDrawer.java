@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.widget.divider;
+package com.yanzhenjie.album.widget.recyclerview.divider;
 
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;

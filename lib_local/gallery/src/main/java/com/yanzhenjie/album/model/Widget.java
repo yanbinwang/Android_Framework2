@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.api.widget;
+package com.yanzhenjie.album.model;
 
 import android.content.Context;
 import android.content.res.ColorStateList;

@@ -104,9 +104,6 @@ public class DurbanActivity extends BaseActivity {
             mNavigationBarColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar);
             // 标题
             mTitle = argument.getString(Durban.KEY_INPUT_TITLE);
-            if (TextUtils.isEmpty(mTitle)) {
-                mTitle = getString(R.string.durban_title_crop);
-            }
             // 手势：旋转 / 缩放
             mGesture = argument.getInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
             // 裁剪比例
@@ -166,7 +163,9 @@ public class DurbanActivity extends BaseActivity {
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationBarColor);
         // 设置标题
         final TextView tvTitle = findViewById(R.id.tv_title);
-        tvTitle.setText(mTitle);
+        if (!TextUtils.isEmpty(mTitle)) {
+            tvTitle.setText(mTitle);
+        }
         if (statusBarBattery) {
             tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontLight));
         } else {

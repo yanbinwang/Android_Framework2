@@ -3,7 +3,6 @@ package com.yanzhenjie.album.app.album;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,7 +15,6 @@ import com.example.framework.utils.builder.TimerBuilder;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.album.data.MediaReadTask;
 import com.yanzhenjie.album.app.album.data.MediaReader;
@@ -27,6 +25,7 @@ import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.model.AlbumFolder;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.utils.MediaScanner;
 import com.yanzhenjie.album.widget.LoadingDialog;
@@ -147,16 +146,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         } else {
             finish();
         }
-    }
-
-    /**
-     * 屏幕旋转
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mView.onConfigurationChanged(newConfig);
-        if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
     }
 
     /**

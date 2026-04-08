@@ -179,9 +179,9 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     itemView.gravity = Gravity.CENTER
                     // 颜色调整
                     if (!shouldUseWhiteSystemBarsForRes(colorRes)) {
-                        itemView.textColor(R.color.textBlack)
+                        itemView.textColor(R.color.galleryFontDark)
                     } else {
-                        itemView.textColor(R.color.textWhite)
+                        itemView.textColor(R.color.galleryFontLight)
                     }
                     // 字体大小
                     itemView.textSize(R.dimen.textSize14)

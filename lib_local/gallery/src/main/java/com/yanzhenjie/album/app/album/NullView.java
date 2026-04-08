@@ -10,8 +10,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.api.widget.ButtonStyle;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.ButtonStyle;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
