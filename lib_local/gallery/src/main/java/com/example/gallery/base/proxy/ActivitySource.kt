@@ -10,6 +10,7 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
 import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
@@ -23,7 +24,7 @@ import com.example.gallery.base.bridge.BaseSource
 @SuppressLint("RestrictedApi")
 class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
     // 页面标题栏 Toolbar
-    private var mActionBar: Toolbar? = null
+    private lateinit var mActionBar: Toolbar
     // 导航返回图标
     private var mActionBarIcon: Drawable? = null
     // 菜单/返回按钮点击监听
@@ -36,9 +37,9 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
      */
     override fun setDisplayHomeAsUpEnabled(showHome: Boolean) {
         if (showHome) {
-            mActionBar?.setNavigationIcon(mActionBarIcon)
+            mActionBar.setNavigationIcon(mActionBarIcon)
         } else {
-            mActionBar?.setNavigationIcon(null)
+            mActionBar.setNavigationIcon(null)
         }
     }
 
@@ -51,7 +52,7 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
 
     override fun setHomeAsUpIndicator(icon: Drawable) {
         mActionBarIcon = icon
-        mActionBar?.setNavigationIcon(icon)
+        mActionBar.setNavigationIcon(icon)
     }
 
     /**
@@ -85,61 +86,46 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
     /**
      * 获取 Toolbar 菜单
      */
-    override fun getMenu(): Menu? {
-        return mActionBar?.getMenu()
+    override fun getMenu(): Menu {
+        return mActionBar.menu
     }
 
     /**
      * 初始化：自动查找并绑定 Toolbar
-     * 1) BaseView层在构造方法的实现里先调取prepare()再调取mSource.getMenu()
-     * 2) mSource.getMenu()获取的是Toolbar的菜单,Toolbar并未走系统的setSupportActionBar()方法,属于自己创建菜单
-     * 3) 由于并未调取系统方法,故而页面的onCreateOptionsMenu()是不会执行的
+     * 1) BaseView 层在构造方法的实现里先调取 prepare() 再调取 mSource.getMenu()
+     * 2) mSource.getMenu() 获取的是 Toolbar 的菜单 , Toolbar 并未走系统的 setSupportActionBar() 方法,属于自己创建菜单
+     * 3) 由于未调取系统 setSupportActionBar() 方法,故而页面的 onCreateOptionsMenu() 是不会执行的 , 由 BaseView 层的构造方法内执行
      */
     override fun prepare() {
-//        setActionBar(mHost.findViewById(R.id.toolbar))
+        // 全局 Toolbar 使用了 lateinit 此处必定赋值,对应页面也必须写 Toolbar
         val toolbar = mHost.findViewById<Toolbar>(R.id.toolbar)
         setSupportToolbar(toolbar)
         mActionBar = toolbar
         // 菜单点击
-        mActionBar?.setOnMenuItemClickListener {
+        mActionBar.setOnMenuItemClickListener {
             mMenuItemSelectedListener?.onMenuClick(it)
             true
         }
         // 返回按钮点击
-        mActionBar?.setNavigationOnClickListener {
+        mActionBar.setNavigationOnClickListener {
             mMenuItemSelectedListener?.onHomeClick()
         }
         // 保存默认返回图标
-        mActionBarIcon = mActionBar?.navigationIcon
+        mActionBarIcon = mActionBar.navigationIcon
     }
-
-//    /**
-//     * 设置 Toolbar 并绑定点击事件
-//     * prepare() 完成后会主动调取
-//     */
-//    override fun setActionBar(toolbar: Toolbar) {
-//        setSupportToolbar(toolbar)
-//        mActionBar = toolbar
-//        // 菜单点击
-//        mActionBar?.setOnMenuItemClickListener {
-//            mMenuItemSelectedListener?.onMenuClick(it)
-//            true
-//        }
-//        // 返回按钮点击
-//        mActionBar?.setNavigationOnClickListener {
-//            mMenuItemSelectedListener?.onHomeClick()
-//        }
-//        // 保存默认返回图标
-//        mActionBarIcon = mActionBar?.navigationIcon
-//    }
 
     /**
      * 关闭输入法
      */
+    override fun openInputMethod(view: View) {
+        view.requestFocus()
+        val manager = ContextCompat.getSystemService(view.context, InputMethodManager::class.java)
+        manager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
     override fun closeInputMethod() {
-        val focusView = mHost.currentFocus
-        val manager = mHost.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        manager?.hideSoftInputFromWindow(focusView?.windowToken, 0)
+        val manager = ContextCompat.getSystemService(mHost, InputMethodManager::class.java)
+        manager?.hideSoftInputFromWindow(mHost.currentFocus?.windowToken, 0)
     }
 
 }

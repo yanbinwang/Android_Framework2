@@ -8,8 +8,6 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.inputmethod.InputMethodManager
-import androidx.annotation.ArrayRes
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
@@ -51,10 +49,8 @@ abstract class BaseView<Presenter : BasePresenter> {
         mPresenter = presenter
         // 初始化载体
         mSource.prepare()
-        // 初始化菜单
-        mSource.getMenu()?.let {
-            onCreateOptionsMenu(it)
-        }
+        // 初始化载体右侧菜单
+        onCreateOptionsMenu(mSource.getMenu())
         // 设置菜单点击事件
         mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
             override fun onHomeClick() {
@@ -115,9 +111,7 @@ abstract class BaseView<Presenter : BasePresenter> {
      * 打开/关闭输入法
      */
     protected fun openInputMethod(view: View) {
-        view.requestFocus()
-        val manager = view.context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
-        manager?.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        mSource.openInputMethod(view)
     }
 
     protected fun closeInputMethod() {
@@ -149,6 +143,9 @@ abstract class BaseView<Presenter : BasePresenter> {
         return mSource.getMenuInflater()
     }
 
+    /**
+     * 获取基础类型
+     */
     protected fun getContext(): Context {
         return mSource.getContext()
     }
@@ -193,14 +190,6 @@ abstract class BaseView<Presenter : BasePresenter> {
 
     fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
         return getContext().getString(resId, *formatArgs)
-    }
-
-    fun getStringArray(@ArrayRes resId: Int): Array<String> {
-        return getResources().getStringArray(resId)
-    }
-
-    fun getIntArray(@ArrayRes resId: Int): IntArray {
-        return getResources().getIntArray(resId)
     }
 
     @ColorInt
