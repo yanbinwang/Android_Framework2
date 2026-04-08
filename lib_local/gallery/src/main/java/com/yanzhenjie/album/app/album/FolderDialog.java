@@ -16,8 +16,8 @@ import com.example.gallery.R;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.gyf.immersionbar.ImmersionBar;
 import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.api.widget.Widget;
-import com.yanzhenjie.album.callback.OnItemClickListener;
+import com.yanzhenjie.album.model.Widget;
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener;
 
 import java.util.List;
 
@@ -90,7 +90,7 @@ public class FolderDialog extends BottomSheetDialog {
             // 导航栏控件
             ScreenUtilKt.setStatusBarLightMode(getWindow(), false, false);
             ScreenUtilKt.setNavigationBarLightMode(getWindow(), true, false);
-            ScreenUtilKt.setNavigationBarDrawable(getWindow(), R.color.albumPageLight, windowInsetsCompat -> Unit.INSTANCE);
+            ScreenUtilKt.setNavigationBarDrawable(getWindow(), R.color.albumPage, windowInsetsCompat -> Unit.INSTANCE);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
                 Activity activity = getOwnerActivity();
                 if (null != activity) {

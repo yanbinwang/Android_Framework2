@@ -108,6 +108,7 @@ public final class Album {
     /**
      * 打开相机
      */
+    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Context context) {
         return new AlbumCamera(context);
     }
@@ -148,6 +149,7 @@ public final class Album {
     }
 
     // -------------------- Activity 调用 --------------------
+    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Activity activity) {
         return new AlbumCamera(activity);
     }
@@ -173,6 +175,7 @@ public final class Album {
     }
 
     // -------------------- AndroidX Fragment 调用 --------------------
+    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
         return new AlbumCamera(fragment.getActivity());
     }
@@ -198,6 +201,7 @@ public final class Album {
     }
 
     // -------------------- 系统原生 Fragment 调用 --------------------
+    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(android.app.Fragment fragment) {
         return new AlbumCamera(fragment.getContext());
     }

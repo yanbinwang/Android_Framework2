@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 主题色 -->
+    <color name="galleryColorPrimary">#2196F3</color>
+    <color name="galleryColorPrimaryDark">#1E88E5</color>
+    <!-- 状态栏/导航栏 -->
+    <color name="galleryStatusBar">#ffffff</color>
+    <color name="galleryNavigationBar">#ffffff</color>
+    <!-- 纯白/纯黑/透明 -->
+    <color name="galleryWhite">#ffffff</color>
+    <color name="galleryBlack">#000000</color>
+    <color name="galleryTransparent">#0000</color>
+    <!-- 字体深浅 -->
+    <color name="galleryFontDark">#333</color>
+    <color name="galleryFontLight">#FFF</color>
+    <!-- 图标深浅 -->
+    <color name="galleryIconDark">#333</color>
+    <color name="galleryIconLight">#FFF</color>
+</resources>

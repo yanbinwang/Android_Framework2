@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.yanzhenjie.album.widget.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.yanzhenjie.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Album.Item.Card.MatchParent"
-    app:cardBackgroundColor="@color/albumColorPrimaryBlack">
+    app:cardBackgroundColor="@color/albumCardContent">
 
-    <com.yanzhenjie.album.widget.SquareImageView
+    <com.yanzhenjie.album.widget.square.SquareImageView
         android:id="@+id/iv_album_content_button"
         style="@style/Album.MatchParent"
         android:background="?selectableItemBackground"
         android:contentDescription="@string/album_title"
         android:scaleType="center"
-        android:src="@mipmap/album_ic_add_photo_white" />
+        android:src="@mipmap/album_ic_add_photo" />
 
-</com.yanzhenjie.album.widget.SquareCardView>
+</com.yanzhenjie.album.widget.square.SquareCardView>

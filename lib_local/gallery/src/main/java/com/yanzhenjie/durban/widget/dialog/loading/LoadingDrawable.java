@@ -1,4 +1,4 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;

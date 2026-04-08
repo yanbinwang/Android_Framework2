@@ -19,8 +19,7 @@ android {
                 srcDirs(
                     "src/main/res",
                     "src/main/res-album",
-                    "src/main/res-durban",
-                    "src/main/res-loading"
+                    "src/main/res-durban"
                 )
             }
         }

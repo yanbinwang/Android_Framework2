@@ -23,12 +23,10 @@
     <string name="album_all_videos">所有视频</string>
     <string name="album_camera_image_capture">拍照片</string>
     <string name="album_camera_video_capture">录视频</string>
-    <string name="album_cancel">取消</string>
     <string name="album_check">选择</string>
     <string name="album_check_album_little">请选择一个媒体文件</string>
     <string name="album_check_image_little">请选择一个图片文件</string>
     <string name="album_check_video_little">请选择一个视频文件</string>
-    <string name="album_confirm">确定</string>
     <string name="album_converting">加载中…</string>
     <string name="album_item_unavailable">不可用</string>
     <string name="album_loading">加载中…</string>
@@ -36,12 +34,7 @@
     <string name="album_not_found_album">没有发现媒体文件</string>
     <string name="album_not_found_image">没有发现图片文件</string>
     <string name="album_not_found_video">没有发现视频文件</string>
-    <string name="album_ok">好的</string>
-    <string name="album_permission_camera_image_failed_hint">没有相机或者存储权限，请在使用前授权。</string>
-    <string name="album_permission_camera_video_failed_hint">没有相机、存储或者录音权限，请在使用前授权。</string>
-    <string name="album_permission_storage_failed_hint">没有存储权限，请在使用之前授权。</string>
     <string name="album_take_file_unavailable">不可用的文件，请重试</string>
     <string name="album_thumbnail">正在创建缩略图…</string>
     <string name="album_title">媒体专辑</string>
-    <string name="album_title_permission_failed">没有权限</string>
 </resources>

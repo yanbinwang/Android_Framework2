@@ -16,7 +16,7 @@ import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.FileUtil;
 import com.yanzhenjie.durban.utils.ImageHeaderParser;
-import com.yanzhenjie.loading.dialog.LoadingDialog;
+import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;

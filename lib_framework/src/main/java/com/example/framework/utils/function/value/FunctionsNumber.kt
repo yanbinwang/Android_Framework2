@@ -6,17 +6,18 @@ import java.math.RoundingMode
 //------------------------------------计算工具类------------------------------------
 /**
  * 数值安全转换
+ * 泛型T需要判断 T 的具体类型时 , 需使用inline + reified这对组合 , 防止类型擦除节省调用的内存
  */
-val <T : Number> T?.orZero: T
+inline val <reified T : Number> T?.orZero: T
     get() {
         return this ?: (when (this) {
-            is Short? -> 0.toShort()
-            is Byte? -> 0.toByte()
-            is Int? -> 0
-            is Long? -> 0L
-            is Double? -> 0.0
-            is Float? -> 0f
-            is BigDecimal? -> BigDecimal.ZERO
+            is Short -> 0.toShort()
+            is Byte -> 0.toByte()
+            is Int -> 0
+            is Long -> 0L
+            is Double -> 0.0
+            is Float -> 0f
+            is BigDecimal -> BigDecimal.ZERO
             else -> 0
         } as T)
     }

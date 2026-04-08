@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isNotEmpty
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
@@ -36,11 +37,10 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.gallery.R
+import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
-import androidx.core.view.isNotEmpty
-import com.example.gallery.base.bridge.Bye
 
 /**
  * 针对所有相册页面的基类
@@ -150,7 +150,8 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     if (found) {
                         toolbar.removeCallbacks(this)
                     } else {
-                        retry++ // 正确计数
+                        // 正确计数
+                        retry++
                         toolbar.postDelayed(this, interval)
                     }
                 }
@@ -178,9 +179,9 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     itemView.gravity = Gravity.CENTER
                     // 颜色调整
                     if (!shouldUseWhiteSystemBarsForRes(colorRes)) {
-                        itemView.textColor(R.color.textBlack)
+                        itemView.textColor(R.color.galleryFontDark)
                     } else {
-                        itemView.textColor(R.color.textWhite)
+                        itemView.textColor(R.color.galleryFontLight)
                     }
                     // 字体大小
                     itemView.textSize(R.dimen.textSize14)

@@ -4,7 +4,6 @@ import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.view.Menu;
@@ -23,13 +22,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.framework.utils.function.view.FunctionsViewKt;
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.callback.DoubleClickWrapper;
 import com.yanzhenjie.album.model.AlbumFolder;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
+import com.yanzhenjie.album.utils.DoubleClickWrapper;
 import com.yanzhenjie.album.widget.ColorProgressBar;
-import com.yanzhenjie.album.widget.divider.ItemDivider;
+import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
 
 /**
  * 相册主页面 View 层
@@ -109,20 +108,20 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
     @Override
     public void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode) {
         // 设置返回箭头
-        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+        Drawable navigationIcon = getDrawable(R.mipmap.gallery_ic_back);
         // 浅色 / 深色主题 -> 影响图标
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.albumFontDark));
+            mTitle.setTextColor(getColor(R.color.galleryFontDark));
             // 暗色返回 / 完成
-            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark));
             Drawable completeIcon = mCompleteMenu.getIcon();
             if (null != completeIcon) {
-                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.albumIconDark));
+                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.galleryIconDark));
                 mCompleteMenu.setIcon(completeIcon);
             }
-            mProgressBar.setColorFilter(getColor(R.color.albumLoadingDark));
+            mProgressBar.setColorFilter(getColor(R.color.albumLoading));
         } else {
-            mTitle.setTextColor(getColor(R.color.albumFontLight));
+            mTitle.setTextColor(getColor(R.color.galleryFontLight));
             mProgressBar.setColorFilter(getColor(widget.getStatusBarColor()));
         }
         // 设置返回按钮
@@ -138,8 +137,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         }
         // 配置网格布局（横竖屏切换）
-        Configuration config = mActivity.getResources().getConfiguration();
-        mLayoutManager = new GridLayoutManager(getContext(), column, getOrientation(config), false);
+        mLayoutManager = new GridLayoutManager(getContext(), column, LinearLayoutManager.VERTICAL, false);
         mRecyclerView.setLayoutManager(mLayoutManager);
         // 设置列表间隔
         int dividerSize = getResources().getDimensionPixelSize(R.dimen.album_dp_4);
@@ -165,35 +163,6 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
             mLayoutLoading.setVisibility(View.VISIBLE);
         } else {
             FunctionsViewKt.fade(mLayoutLoading, 500, true);
-        }
-    }
-
-    /**
-     * 屏幕旋转：重新配置布局方向
-     */
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        int position = mLayoutManager.findFirstVisibleItemPosition();
-        mLayoutManager.setOrientation(getOrientation(newConfig));
-        mRecyclerView.setAdapter(mAdapter);
-        mLayoutManager.scrollToPosition(position);
-    }
-
-    /**
-     * 获取列表方向：竖屏VERTICAL / 横屏HORIZONTAL
-     */
-    @RecyclerView.Orientation
-    private int getOrientation(Configuration config) {
-        switch (config.orientation) {
-            case Configuration.ORIENTATION_PORTRAIT: {
-                return LinearLayoutManager.VERTICAL;
-            }
-            case Configuration.ORIENTATION_LANDSCAPE: {
-                return LinearLayoutManager.HORIZONTAL;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
         }
     }
 

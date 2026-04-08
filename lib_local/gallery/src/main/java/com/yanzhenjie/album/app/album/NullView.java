@@ -10,7 +10,8 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.ButtonStyle;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
@@ -53,11 +54,11 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
     @Override
     public void setupViews(Widget widget) {
         // 设置返回箭头
-        Drawable navigationIcon = getDrawable(R.mipmap.album_ic_back_white);
+        Drawable navigationIcon = getDrawable(R.mipmap.gallery_ic_back);
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.albumFontDark));
-            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.albumIconDark));
+            mTitle.setTextColor(getColor(R.color.galleryFontDark));
+            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark));
             /**
              * 按钮样式：颜色、背景
              * .buttonStyle(Widget.ButtonStyle.newDarkBuilder(context)
@@ -66,17 +67,17 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
              */
             Drawable[] takeImageDraws = mBtnTakeImage.getCompoundDrawablesRelative();
             Drawable takeImageIcon = takeImageDraws[0];
-            AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark));
             mBtnTakeImage.setCompoundDrawables(takeImageIcon, null, null, null);
-            mBtnTakeImage.setTextColor(getColor(R.color.albumFontDark));
+            mBtnTakeImage.setTextColor(getColor(R.color.galleryFontDark));
             Drawable[] takeVideoDraws = mBtnTakeVideo.getCompoundDrawablesRelative();
             Drawable takeVideoIcon = takeVideoDraws[0];
-            AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.albumIconDark));
+            AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark));
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null);
-            mBtnTakeVideo.setTextColor(getColor(R.color.albumFontDark));
+            mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark));
         } else {
-            mTitle.setTextColor(getColor(R.color.albumFontLight));
-            Widget.ButtonStyle buttonStyle = widget.getButtonStyle();
+            mTitle.setTextColor(getColor(R.color.galleryFontLight));
+            ButtonStyle buttonStyle = widget.getButtonStyle();
             ColorStateList buttonSelector = buttonStyle.getButtonSelector();
             mBtnTakeImage.setBackgroundTintList(buttonSelector);
             mBtnTakeVideo.setBackgroundTintList(buttonSelector);

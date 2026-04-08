@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <dimen name="durban_dp_0">0dp</dimen>
     <dimen name="durban_dp_1">1dp</dimen>
     <dimen name="durban_dp_10">10dp</dimen>
     <dimen name="durban_dp_16">16dp</dimen>

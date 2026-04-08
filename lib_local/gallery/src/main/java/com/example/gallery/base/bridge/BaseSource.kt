@@ -17,12 +17,6 @@ import androidx.appcompat.widget.Toolbar
  */
 abstract class BaseSource<Host>(protected val mHost: Host) {
 
-//    /**
-//     * 设置 ActionBar / Toolbar
-//     * prepare() 完成后会主动调取
-//     */
-//    abstract fun setActionBar(toolbar: Toolbar)
-
     /**
      * 设置是否显示返回按钮
      */
@@ -61,12 +55,17 @@ abstract class BaseSource<Host>(protected val mHost: Host) {
     /**
      * 获取菜单对象 (可空)
      */
-    abstract fun getMenu(): Menu?
+    abstract fun getMenu(): Menu
 
     /**
      * 初始化准备工作（如：绑定Toolbar、初始化视图）
      */
     abstract fun prepare()
+
+    /**
+     * 打开输入法
+     */
+    abstract fun openInputMethod(view: View)
 
     /**
      * 关闭输入法

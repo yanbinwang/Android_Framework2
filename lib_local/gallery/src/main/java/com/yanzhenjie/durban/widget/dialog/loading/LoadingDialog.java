@@ -1,11 +1,10 @@
-package com.yanzhenjie.loading.dialog;
+package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.app.Dialog;
 import android.content.Context;
 import android.widget.TextView;
 
 import com.example.gallery.R;
-import com.yanzhenjie.loading.LoadingView;
 
 /**
  * 通用加载对话框
@@ -21,10 +20,10 @@ public class LoadingDialog extends Dialog {
      * 构造方法
      */
     public LoadingDialog(Context context) {
-        super(context, R.style.loadingDialog_Loading);
+        super(context, R.style.Durban_Dialog_Loading);
         setCancelable(false);
         setCanceledOnTouchOutside(false);
-        setContentView(R.layout.loading_wait_dialog);
+        setContentView(R.layout.durban_dialog_loading);
         mLoadingView = findViewById(R.id.loading_view);
         mTvMessage = findViewById(R.id.loading_tv_message);
     }

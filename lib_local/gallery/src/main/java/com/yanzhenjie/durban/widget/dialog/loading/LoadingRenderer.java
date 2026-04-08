@@ -1,4 +1,4 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.animation.Animator;
 import android.animation.ValueAnimator;
@@ -8,6 +8,8 @@ import android.graphics.ColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.animation.LinearInterpolator;
+
+import com.yanzhenjie.durban.utils.DensityUtils;
 
 /**
  * 加载动画的抽象基类

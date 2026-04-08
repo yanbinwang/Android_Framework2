@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.widget;
+package com.yanzhenjie.album.widget.square;
 
 import android.content.Context;
 import android.content.res.Configuration;
@@ -9,7 +9,9 @@ import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
 
 /**
- * Created by YanZhenjie on 2018/4/18.
+ * 正方形 CardView
+ * 根据屏幕方向自动把自身设置为正方形
+ * 用于相册里的图片缩略图，保证图片显示为正方形、不拉伸、不变形
  */
 public class SquareCardView extends CardView {
     private final Configuration mConfig;

@@ -9,7 +9,7 @@ import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.Widget;
 
 /**
  * 相册专用加载对话框
@@ -40,7 +40,7 @@ public class LoadingDialog extends Dialog {
         int color;
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             // 浅色模式 → 深色加载条
-            color = ContextCompat.getColor(getContext(), R.color.albumLoadingDark);
+            color = ContextCompat.getColor(getContext(), R.color.albumLoading);
         } else {
             // 深色模式 → 用主题色
             color = ContextCompat.getColor(getContext(), widget.getStatusBarColor());

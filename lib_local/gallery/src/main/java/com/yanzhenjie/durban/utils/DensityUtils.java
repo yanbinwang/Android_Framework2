@@ -1,4 +1,4 @@
-package com.yanzhenjie.loading;
+package com.yanzhenjie.durban.utils;
 
 import android.content.Context;
 import android.util.TypedValue;

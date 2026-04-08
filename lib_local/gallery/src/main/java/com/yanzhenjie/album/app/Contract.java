@@ -1,14 +1,13 @@
 package com.yanzhenjie.album.app;
 
 import android.app.Activity;
-import android.content.res.Configuration;
 import android.view.View;
 import android.widget.CompoundButton;
 
 import com.example.gallery.base.bridge.BasePresenter;
 import com.example.gallery.base.bridge.BaseView;
 import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.Widget;
 
 import java.util.List;
 
@@ -79,11 +78,6 @@ public final class Contract {
          * 设置加载状态是否显示
          */
         public abstract void setLoadingDisplay(boolean display);
-
-        /**
-         * 屏幕旋转时重新布局
-         */
-        public abstract void onConfigurationChanged(Configuration newConfig);
 
         /**
          * 设置完成按钮是否显示

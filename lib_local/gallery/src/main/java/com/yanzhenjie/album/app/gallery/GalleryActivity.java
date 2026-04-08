@@ -9,7 +9,7 @@ import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.callback.ItemAction;
-import com.yanzhenjie.album.api.widget.Widget;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 
 import java.util.ArrayList;
@@ -62,7 +62,7 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
         }
         setContentView(R.layout.album_activity_gallery);
         // 导航栏
-        initImmersionBar(false, false, R.color.albumColorPrimaryBlack);
+        initImmersionBar(false, false, R.color.albumGalleryPrimary);
         // 初始化 MVP
         mView = new GalleryView<>(this, this);
         mView.setupViews(mWidget, mCheckable);

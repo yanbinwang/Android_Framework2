@@ -20,13 +20,13 @@
     </style>
 
     <style name="Durban.WrapContent.WidthWeight">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">@dimen/durban_dp_0</item>
         <item name="android:layout_weight">1</item>
     </style>
 
     <style name="Durban.WrapContent.WidthWeight.ControllerTitle">
         <item name="android:gravity">center</item>
-        <item name="android:textColor">@color/durbanWhite</item>
+        <item name="android:textColor">@color/galleryWhite</item>
     </style>
 
     <style name="Durban.MatchParent">
@@ -40,7 +40,7 @@
     </style>
 
     <style name="Durban.MatchParent.WidthWeight">
-        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_width">@dimen/durban_dp_0</item>
         <item name="android:layout_weight">1</item>
     </style>
 
@@ -50,23 +50,44 @@
     </style>
 
     <!-- ====================== Toolbar 样式 ====================== -->
-<!--    <style name="Durban.Toolbar">-->
-<!--        <item name="android:layout_width">match_parent</item>-->
-<!--        <item name="android:layout_height">wrap_content</item>-->
-<!--        <item name="android:background">@android:color/transparent</item>-->
-<!--        <item name="elevation">@dimen/album_dp_0</item>-->
-<!--    </style>-->
     <style name="Durban.Toolbar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <!-- 全透明 -->
         <item name="android:background">@android:color/transparent</item>
         <!-- 去掉阴影 -->
-        <item name="android:elevation">0dp</item>
+        <item name="android:elevation">@dimen/durban_dp_0</item>
         <!-- 去掉Toolbar左边默认的16dp留白 -->
-        <item name="android:contentInsetStart">0dp</item>
+        <item name="android:contentInsetStart">@dimen/durban_dp_0</item>
         <!-- 彻底隐藏标题 -->
         <item name="android:title">@null</item>
+    </style>
+
+    <!-- ====================== 对话框样式 ====================== -->
+    <!-- 基础对话框样式 -->
+    <style name="Durban.Dialog" parent="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
+
+    <!--
+        加载对话框专用样式
+        功能：无边框、半透明背景、浮层效果、无标题、居中显示
+    -->
+    <style name="Durban.Dialog.Loading">
+        <!-- 无标题 -->
+        <item name="android:windowNoTitle">true</item>
+        <!-- 无ActionBar -->
+        <item name="android:windowActionBar">false</item>
+        <!-- 无边框 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- 悬浮在Activity之上 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 半透明 -->
+        <item name="android:windowIsTranslucent">true</item>
+        <!-- 背景半透明变暗 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 窗口背景透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <!-- 对话框弹出/关闭动画 -->
+        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
     </style>
 
 </resources>

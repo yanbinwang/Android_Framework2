@@ -56,7 +56,6 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var onDrawReady: Boolean? = null
     private var imageRenderedAtLeastOnce: Boolean? = null
     private var m: FloatArray? = null
-    private var context: Context? = null
     private var matrix: Matrix? = null
     private var prevMatrix: Matrix? = null
     private var mScaleType: ScaleType? = null
@@ -77,7 +76,6 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     init {
         super.setClickable(true)
-        this.context = context
         mScaleDetector = ScaleGestureDetector(context, ScaleListener())
         mGestureDetector = GestureDetector(context, GestureListener())
         matrix = Matrix()
@@ -98,15 +96,15 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         super.setOnTouchListener(PrivateOnTouchListener())
     }
 
-    override fun setOnTouchListener(l: OnTouchListener?) {
+    override fun setOnTouchListener(l: OnTouchListener) {
         userTouchListener = l
     }
 
-    fun setOnTouchImageViewListener(l: OnTouchImageViewListener?) {
+    fun setOnTouchImageViewListener(l: OnTouchImageViewListener) {
         touchImageViewListener = l
     }
 
-    fun setOnDoubleTapListener(l: GestureDetector.OnDoubleTapListener?) {
+    fun setOnDoubleTapListener(l: GestureDetector.OnDoubleTapListener) {
         doubleTapListener = l
     }
 
@@ -178,7 +176,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    override fun onSaveInstanceState(): Parcelable? {
+    override fun onSaveInstanceState(): Parcelable {
         val bundle = Bundle()
         bundle.putParcelable("instanceState", super.onSaveInstanceState())
         bundle.putFloat("saveScale", normalizedScale.orZero)
@@ -194,16 +192,15 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     override fun onRestoreInstanceState(state: Parcelable?) {
         if (state is Bundle) {
-            val bundle = state
-            normalizedScale = bundle.getFloat("saveScale")
-            m = bundle.getFloatArray("matrix")
+            normalizedScale = state.getFloat("saveScale")
+            m = state.getFloatArray("matrix")
             prevMatrix?.setValues(m)
-            prevMatchViewHeight = bundle.getFloat("matchViewHeight")
-            prevMatchViewWidth = bundle.getFloat("matchViewWidth")
-            prevViewHeight = bundle.getInt("viewHeight")
-            prevViewWidth = bundle.getInt("viewWidth")
-            imageRenderedAtLeastOnce = bundle.getBoolean("imageRendered")
-            super.onRestoreInstanceState(bundle.getParcelable("instanceState"))
+            prevMatchViewHeight = state.getFloat("matchViewHeight")
+            prevMatchViewWidth = state.getFloat("matchViewWidth")
+            prevViewHeight = state.getInt("viewHeight")
+            prevViewWidth = state.getInt("viewWidth")
+            imageRenderedAtLeastOnce = state.getBoolean("imageRendered")
+            super.onRestoreInstanceState(state.getParcelable("instanceState"))
             return
         }
         super.onRestoreInstanceState(state)
@@ -270,8 +267,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         resetZoom()
         scaleImage(scale?.toSafeDouble(), (viewWidth.orZero / 2).toSafeFloat(), (viewHeight.orZero / 2).toSafeFloat(), true)
         matrix?.getValues(m)
-        m?.set(Matrix.MTRANS_X, -((focusX.orZero * getImageWidth().orZero) - (viewWidth.orZero * 0.5f)))
-        m?.set(Matrix.MTRANS_Y, -((focusY.orZero * getImageHeight().orZero) - (viewHeight.orZero * 0.5f)))
+        m?.set(Matrix.MTRANS_X, -((focusX.orZero * getImageWidth()) - (viewWidth.orZero * 0.5f)))
+        m?.set(Matrix.MTRANS_Y, -((focusY.orZero * getImageHeight()) - (viewHeight.orZero * 0.5f)))
         matrix?.setValues(m)
         fixTrans()
         setImageMatrix(matrix)
@@ -283,10 +280,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     fun getScrollPosition(): PointF? {
-        val drawable = getDrawable()
-        if (drawable == null) {
-            return null
-        }
+        val drawable = getDrawable() ?: return null
         val drawableWidth = drawable.intrinsicWidth
         val drawableHeight = drawable.intrinsicHeight
         val point = transformCoordTouchToBitmap((viewWidth.orZero / 2).toSafeFloat(), (viewHeight.orZero / 2).toSafeFloat(), true)
@@ -313,11 +307,11 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     private fun fixScaleTrans() {
         fixTrans()
         matrix?.getValues(m)
-        if (getImageWidth().orZero < viewWidth.orZero) {
-            m?.set(Matrix.MTRANS_X, (viewWidth.orZero - getImageWidth().orZero) / 2)
+        if (getImageWidth() < viewWidth.orZero) {
+            m?.set(Matrix.MTRANS_X, (viewWidth.orZero - getImageWidth()) / 2)
         }
-        if (getImageHeight().orZero < viewHeight.orZero) {
-            m?.set(Matrix.MTRANS_Y, (viewHeight.orZero - getImageHeight().orZero) / 2)
+        if (getImageHeight() < viewHeight.orZero) {
+            m?.set(Matrix.MTRANS_Y, (viewHeight.orZero - getImageHeight()) / 2)
         }
         matrix?.setValues(m)
     }
@@ -344,11 +338,11 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         return delta
     }
 
-    private fun getImageWidth(): Float? {
+    private fun getImageWidth(): Float {
         return matchViewWidth.orZero * normalizedScale.orZero
     }
 
-    private fun getImageHeight(): Float? {
+    private fun getImageHeight(): Float {
         return matchViewHeight.orZero * normalizedScale.orZero
     }
 
@@ -464,12 +458,12 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     override fun canScrollHorizontally(direction: Int): Boolean {
         matrix?.getValues(m)
         val x = m?.get(Matrix.MTRANS_X).orZero
-        return if (getImageWidth().orZero < viewWidth.orZero) {
+        return if (getImageWidth() < viewWidth.orZero) {
             false
         } else if (x >= -1 && direction < 0) {
             false
         } else {
-            !(abs(x) + viewWidth.orZero + 1 >= getImageWidth().orZero) || direction <= 0
+            !(abs(x) + viewWidth.orZero + 1 >= getImageWidth()) || direction <= 0
         }
     }
 
@@ -518,7 +512,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     }
 
-    private inner class PrivateOnTouchListener() : OnTouchListener {
+    private inner class PrivateOnTouchListener : OnTouchListener {
         private val last = PointF()
 
         override fun onTouch(v: View?, event: MotionEvent): Boolean {
@@ -535,8 +529,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                     MotionEvent.ACTION_MOVE -> if (state == State.DRAG) {
                         val deltaX = curr.x - last.x
                         val deltaY = curr.y - last.y
-                        val fixTransX = getFixDragTrans(deltaX, viewWidth?.toSafeFloat().orZero, getImageWidth().orZero)
-                        val fixTransY = getFixDragTrans(deltaY, viewHeight?.toSafeFloat().orZero, getImageHeight().orZero)
+                        val fixTransX = getFixDragTrans(deltaX, viewWidth?.toSafeFloat().orZero, getImageWidth())
+                        val fixTransY = getFixDragTrans(deltaY, viewHeight?.toSafeFloat().orZero, getImageHeight())
                         matrix?.postTranslate(fixTransX, fixTransY)
                         fixTrans()
                         last.set(curr.x, curr.y)
@@ -547,12 +541,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                 }
             }
             setImageMatrix(matrix)
-            if (userTouchListener != null) {
-                userTouchListener?.onTouch(v, event)
-            }
-            if (touchImageViewListener != null) {
-                touchImageViewListener?.onMove()
-            }
+            userTouchListener?.onTouch(v, event)
+            touchImageViewListener?.onMove()
             return true
         }
 
@@ -567,9 +557,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             scaleImage(detector.getScaleFactor().toDouble(), detector.focusX, detector.focusY, true)
-            if (touchImageViewListener != null) {
-                touchImageViewListener?.onMove()
-            }
+            touchImageViewListener?.onMove()
             return true
         }
 
@@ -644,9 +632,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             translateImageToCenterTouchPosition(t)
             fixScaleTrans()
             setImageMatrix(matrix)
-            if (touchImageViewListener != null) {
-                touchImageViewListener?.onMove()
-            }
+            touchImageViewListener?.onMove()
             if (t < 1f) {
                 compatPostOnAnimation(this)
             } else {
@@ -680,8 +666,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         val origH = getDrawable().intrinsicHeight.toSafeFloat()
         val transX = m?.get(Matrix.MTRANS_X).orZero
         val transY = m?.get(Matrix.MTRANS_Y).orZero
-        var finalX = ((x.orZero - transX) * origW) / getImageWidth().orZero
-        var finalY = ((y.orZero - transY) * origH) / getImageHeight().orZero
+        var finalX = ((x.orZero - transX) * origW) / getImageWidth()
+        var finalY = ((y.orZero - transY) * origH) / getImageHeight()
         if (clipToBitmap.orFalse) {
             finalX = min(max(finalX, 0f), origW)
             finalY = min(max(finalY, 0f), origH)
@@ -695,8 +681,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         val origH = getDrawable().intrinsicHeight.toSafeFloat()
         val px = bx.orZero / origW
         val py = by.orZero / origH
-        val finalX = m?.get(Matrix.MTRANS_X).orZero + getImageWidth().orZero * px
-        val finalY = m?.get(Matrix.MTRANS_Y).orZero + getImageHeight().orZero * py
+        val finalX = m?.get(Matrix.MTRANS_X).orZero + getImageWidth() * px
+        val finalY = m?.get(Matrix.MTRANS_Y).orZero + getImageHeight() * py
         return PointF(finalX, finalY)
     }
 
@@ -715,14 +701,14 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             val maxX: Int
             val minY: Int
             val maxY: Int
-            if (getImageWidth().orZero > viewWidth.orZero) {
+            if (getImageWidth() > viewWidth.orZero) {
                 minX = viewWidth.orZero - getImageWidth().toSafeInt()
                 maxX = 0
             } else {
                 maxX = startX
                 minX = maxX
             }
-            if (getImageHeight().orZero > viewHeight.orZero) {
+            if (getImageHeight() > viewHeight.orZero) {
                 minY = viewHeight.orZero - getImageHeight().toSafeInt()
                 maxY = 0
             } else {
@@ -742,9 +728,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
 
         override fun run() {
-            if (touchImageViewListener != null) {
-                touchImageViewListener?.onMove()
-            }
+            touchImageViewListener?.onMove()
             if (scroller?.isFinished().orFalse) {
                 scroller = null
                 return
@@ -783,7 +767,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         var overScroller: OverScroller? = null
         var isPreGingerbread: Boolean = false
 
-        constructor(context: Context?) {
+        constructor(context: Context) {
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.GINGERBREAD) {
                 isPreGingerbread = true
                 scroller = Scroller(context)

@@ -3,7 +3,6 @@ package com.yanzhenjie.album.app.album;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -16,7 +15,6 @@ import com.example.framework.utils.builder.TimerBuilder;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.api.widget.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.album.data.MediaReadTask;
 import com.yanzhenjie.album.app.album.data.MediaReader;
@@ -27,9 +25,10 @@ import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.model.AlbumFolder;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
+import com.yanzhenjie.album.utils.MediaScanner;
 import com.yanzhenjie.album.widget.LoadingDialog;
-import com.yanzhenjie.mediascanner.MediaScanner;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -150,16 +149,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * 屏幕旋转
-     */
-    @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) {
-        super.onConfigurationChanged(newConfig);
-        mView.onConfigurationChanged(newConfig);
-        if (mFolderDialog != null && !mFolderDialog.isShowing()) mFolderDialog = null;
-    }
-
-    /**
      * 媒体扫描完成回调
      */
     @Override
@@ -182,21 +171,22 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                     throw new AssertionError("This should not be the case.");
                 }
             }
+            // 没有图片 → 打开空页面
+            if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
+                Intent intent = new Intent(this, NullActivity.class);
+                intent.putExtras(getIntent());
+                startActivityForResult(intent, CODE_ACTIVITY_NULL);
+                overridePendingTransition(0, 0);
+                // 显示全部图片
+            } else {
+                showFolderAlbumFiles(0);
+                int count = mCheckedList.size();
+                mView.setCheckedCount(count);
+            }
+            // 隐藏整体遮罩
             mView.setLoadingDisplay(false);
             return Unit.INSTANCE;
         }, 500);
-        // 没有图片 → 打开空页面
-        if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
-            Intent intent = new Intent(this, NullActivity.class);
-            intent.putExtras(getIntent());
-            startActivityForResult(intent, CODE_ACTIVITY_NULL);
-            overridePendingTransition(0, 0);
-            // 显示全部图片
-        } else {
-            showFolderAlbumFiles(0);
-            int count = mCheckedList.size();
-            mView.setCheckedCount(count);
-        }
     }
 
     /**
@@ -316,7 +306,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
             filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }
-//        String filePath = StorageUtil.getOutputFile(StorageUtil.StorageType.IMAGE).getPath();
         Album.camera(this)
                 .image()
                 .filePath(filePath)

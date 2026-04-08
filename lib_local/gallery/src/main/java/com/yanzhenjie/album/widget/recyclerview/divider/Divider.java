@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.widget.divider;
+package com.yanzhenjie.album.widget.recyclerview.divider;
 
 import androidx.recyclerview.widget.RecyclerView;
 
