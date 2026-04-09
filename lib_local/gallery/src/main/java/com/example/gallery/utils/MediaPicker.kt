@@ -4,12 +4,14 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
@@ -28,6 +30,7 @@ import com.yanzhenjie.album.model.ButtonStyle
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
+import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog
 
 /**
  * author: wyb
@@ -64,7 +67,8 @@ import com.yanzhenjie.durban.model.Controller
  *       ?.start()
  */
 class MediaPicker {
-//    private var observer: LifecycleOwner? = null
+    private lateinit var dialog: LoadingDialog
+    private var observer: LifecycleOwner? = null
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
@@ -114,7 +118,7 @@ class MediaPicker {
         when (any) {
             // Activity（兼容所有现代 Activity）
             is AppCompatActivity, is FragmentActivity -> {
-//                observer = any
+                observer = any
                 widget = any.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -122,7 +126,7 @@ class MediaPicker {
             }
             // AndroidX Fragment
             is Fragment -> {
-//                observer = any
+                observer = any
                 widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -144,6 +148,7 @@ class MediaPicker {
      */
     private fun Context?.getAlbumWidget(): Widget? {
         this ?: return null
+        dialog = LoadingDialog(this).also { it.setMessage(R.string.album_thumbnail) }
         context = this
         // 根据状态栏颜色区分主题
         val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
@@ -154,7 +159,7 @@ class MediaPicker {
             // 导航栏颜色
             .navigationBarColor(navigationBarColor)
             // 标题 --- 标题文字颜色只有黑色白色
-            .title(string(R.string.albumTitle))
+            .title(string(R.string.gallery_album_title))
             // 媒体条目选择框颜色
             .mediaItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
             // 文件夹条目选择框颜色
@@ -223,11 +228,15 @@ class MediaPicker {
             ?.onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {
-                        string(R.string.albumImageError, megabyte.mb.toString()).shortToast()
+                        string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
                     if (hasDurban) {
-                        toDurban(path)
+                        dialog.show()
+                        schedule(observer,{
+                            dialog.hide()
+                            toDurban(path)
+                        })
                     } else {
                         listener.invoke(path)
                     }
@@ -268,7 +277,7 @@ class MediaPicker {
             ?.onResult {
                 it.safeGet(0)?.apply {
                     if (size > megabyte.mb) {
-                        string(R.string.albumVideoError, megabyte.mb.toString()).shortToast()
+                        string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
                     listener.invoke(path)
@@ -309,7 +318,7 @@ class MediaPicker {
     fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, @Durban.FormatTypes format: Int = Durban.COMPRESS_JPEG, @Durban.GestureTypes gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
         durban
             // 裁剪界面的标题
-            ?.title(string(R.string.durbanTitle))
+            ?.title(string(R.string.gallery_durban_title))
             // 状态栏颜色
             ?.statusBarColor(statusBarColorRes)
             // 导航栏颜色

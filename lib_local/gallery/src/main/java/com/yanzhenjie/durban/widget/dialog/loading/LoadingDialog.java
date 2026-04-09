@@ -23,6 +23,7 @@ public class LoadingDialog extends Dialog {
         super(context, R.style.Durban_Dialog_Loading);
         setCancelable(false);
         setCanceledOnTouchOutside(false);
+        setOnKeyListener((dialog, keyCode, event) -> true);
         setContentView(R.layout.durban_dialog_loading);
         mLoadingView = findViewById(R.id.loading_view);
         mTvMessage = findViewById(R.id.loading_tv_message);

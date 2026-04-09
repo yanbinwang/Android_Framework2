@@ -17,7 +17,7 @@
             android:ellipsize="end"
             android:lines="1"
             android:textSize="@dimen/album_sp_18"
-            tools:text="@string/durbanTitle"
+            tools:text="@string/gallery_durban_title"
             tools:textColor="@color/galleryFontLight" />
 
     </androidx.appcompat.widget.Toolbar>

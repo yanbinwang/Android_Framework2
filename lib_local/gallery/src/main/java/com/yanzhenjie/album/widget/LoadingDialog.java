@@ -22,12 +22,10 @@ public class LoadingDialog extends Dialog {
     private final TextView mTvMessage;
 
     public LoadingDialog(@NonNull Context context) {
-        // 用相册的Dialog样式
         super(context, R.style.Album_Dialog);
-        // 不能返回键取消
         setCancelable(false);
-        // 点击外部不消失
         setCanceledOnTouchOutside(false);
+        setOnKeyListener((dialog, keyCode, event) -> true);
         setContentView(R.layout.album_dialog_loading);
         mProgressBar = findViewById(R.id.progress_bar);
         mTvMessage = findViewById(R.id.tv_message);
