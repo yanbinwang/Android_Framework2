@@ -32,14 +32,42 @@ import com.yanzhenjie.durban.model.Controller
 /**
  * author: wyb
  * date: 2017/9/29.
- * 调用该类之前需检测权限，activity属性设为
- * android:configChanges="orientation|keyboardHidden|screenSize"
+ * 1) 调用该类之前需检测权限，Activity属性设为
+ *   android:configChanges="orientation|keyboardHidden|screenSize"
+ * 2) 相机跳转在相册内部任务栈共享一个窗体所以不会出问题,外部直接调取是会污染window类的
+ *   private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>
+ *   imageCamera = Album.camera(any)
+ *   imageCamera?.image()
+ *       ?.filePath(root)
+ *       ?.onResult {
+ *           if (hasDurban) {
+ *               toDurban(it)
+ *           } else {
+ *               listener.invoke(it)
+ *           }
+ *       }
+ *       ?.start()
+ *
+ *   imageCamera?.video()
+ *       // 视频输出路径
+ *       ?.filePath(root)
+ *       // 视频质量, [0, 1].
+ *       ?.quality(1)
+ *       // 视频的最长持续时间以毫秒为单位
+ *       ?.limitDuration(duration)
+ *       // 视频的最大大小，以字节为单位
+ *       .limitBytes(Long.MAX_VALUE)
+ *       // 完成回调
+ *       ?.onResult {
+ *           listener.invoke(it)
+ *       }
+ *       ?.start()
  */
 class MediaPicker {
+//    private var observer: LifecycleOwner? = null
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
-    //    private var imageCamera: Camera<ImageCameraWrapper, VideoCameraWrapper>? = null
     private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
     private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
 
@@ -86,7 +114,7 @@ class MediaPicker {
         when (any) {
             // Activity（兼容所有现代 Activity）
             is AppCompatActivity, is FragmentActivity -> {
-//                imageCamera = Album.camera(any)
+//                observer = any
                 widget = any.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -94,7 +122,7 @@ class MediaPicker {
             }
             // AndroidX Fragment
             is Fragment -> {
-//                imageCamera = Album.camera(any)
+//                observer = any
                 widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -143,16 +171,6 @@ class MediaPicker {
      * 跳转至相机-拍照
      */
     fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
-//        imageCamera?.image()
-//            ?.filePath(root)
-//            ?.onResult {
-//                if (hasDurban) {
-//                    toDurban(it)
-//                } else {
-//                    listener.invoke(it)
-//                }
-//            }
-//            ?.start()
         context.takePicture { albumPath ->
             if (hasDurban) {
                 toDurban(albumPath)
@@ -166,20 +184,6 @@ class MediaPicker {
      * 跳转至相机-录像
      */
     fun recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
-//        imageCamera?.video()
-//            // 视频输出路径
-//            ?.filePath(root)
-//            // 视频质量, [0, 1].
-//            ?.quality(1)
-//            // 视频的最长持续时间以毫秒为单位
-//            ?.limitDuration(duration)
-////            // 视频的最大大小，以字节为单位
-////            .limitBytes(Long.MAX_VALUE)
-//            // 完成回调
-//            ?.onResult {
-//                listener.invoke(it)
-//            }
-//            ?.start()
         context.recordVideo(maxDurationMs, maxSizeMb, quality) { albumPath ->
             listener.invoke(albumPath)
         }
