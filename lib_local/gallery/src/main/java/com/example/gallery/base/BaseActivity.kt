@@ -3,6 +3,7 @@ package com.example.gallery.base
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.transition.Slide
@@ -201,14 +202,18 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         setActivityAnimations()
+        // 强制补动画（外部跳转生效）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out, Color.TRANSPARENT)
+        } else {
+            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+        }
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
-        // 强制补动画（外部跳转生效）
-        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
     }
 
     /**
@@ -333,7 +338,11 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out, Color.TRANSPARENT)
+        } else {
+            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
+        }
     }
 
     override fun onDestroy() {

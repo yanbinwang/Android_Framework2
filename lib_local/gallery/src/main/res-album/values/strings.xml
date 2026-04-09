@@ -1,23 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <plurals name="album_check_album_limit">
-        <item quantity="other">您只能选择%1$d个媒体文件</item>
-    </plurals>
-    <plurals name="album_check_album_limit_camera">
-        <item quantity="other">您只能选择%1$d个媒体文件，不能使用相机</item>
-    </plurals>
-    <plurals name="album_check_image_limit">
-        <item quantity="other">您只能选择%1$d个图片文件</item>
-    </plurals>
-    <plurals name="album_check_image_limit_camera">
-        <item quantity="other">您只能选择%1$d个图片文件，不能使用相机</item>
-    </plurals>
-    <plurals name="album_check_video_limit">
-        <item quantity="other">您只能选择%1$d个视频文件</item>
-    </plurals>
-    <plurals name="album_check_video_limit_camera">
-        <item quantity="other">您只能选择%1$d个视频文件，不能使用相机</item>
-    </plurals>
+    <string name="album_check_album_limit">您只能选择%1$d个媒体文件</string>
+    <string name="album_check_album_limit_camera">您只能选择%1$d个媒体文件，不能使用相机</string>
+    <string name="album_check_image_limit">您只能选择%1$d个图片文件</string>
+    <string name="album_check_image_limit_camera">您只能选择%1$d个图片文件，不能使用相机</string>
+    <string name="album_check_video_limit">您只能选择%1$d个视频文件</string>
+    <string name="album_check_video_limit_camera">您只能选择%1$d个视频文件，不能使用相机</string>
     <string name="album_all_images">所有图片</string>
     <string name="album_all_images_videos">所有图片/视频</string>
     <string name="album_all_videos">所有视频</string>

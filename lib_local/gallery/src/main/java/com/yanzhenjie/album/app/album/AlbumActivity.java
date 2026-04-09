@@ -244,22 +244,22 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             int messageRes;
             switch (mFunction) {
                 case Album.FUNCTION_CHOICE_IMAGE: {
-                    messageRes = R.plurals.album_check_image_limit_camera;
+                    messageRes = R.string.album_check_image_limit_camera;
                     break;
                 }
                 case Album.FUNCTION_CHOICE_VIDEO: {
-                    messageRes = R.plurals.album_check_video_limit_camera;
+                    messageRes = R.string.album_check_video_limit_camera;
                     break;
                 }
                 case Album.FUNCTION_CHOICE_ALBUM: {
-                    messageRes = R.plurals.album_check_album_limit_camera;
+                    messageRes = R.string.album_check_album_limit_camera;
                     break;
                 }
                 default: {
                     throw new AssertionError("This should not be the case.");
                 }
             }
-            mView.toast(getResources().getQuantityString(messageRes, mLimitCount, mLimitCount));
+            mView.toast(getString(messageRes, mLimitCount));
             // 根据功能类型拍照/录像/选择
         } else {
             switch (mFunction) {
@@ -424,22 +424,22 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 int messageRes;
                 switch (mFunction) {
                     case Album.FUNCTION_CHOICE_IMAGE: {
-                        messageRes = R.plurals.album_check_image_limit;
+                        messageRes = R.string.album_check_image_limit;
                         break;
                     }
                     case Album.FUNCTION_CHOICE_VIDEO: {
-                        messageRes = R.plurals.album_check_video_limit;
+                        messageRes = R.string.album_check_video_limit;
                         break;
                     }
                     case Album.FUNCTION_CHOICE_ALBUM: {
-                        messageRes = R.plurals.album_check_album_limit;
+                        messageRes = R.string.album_check_album_limit;
                         break;
                     }
                     default: {
                         throw new AssertionError("This should not be the case.");
                     }
                 }
-                mView.toast(getResources().getQuantityString(messageRes, mLimitCount, mLimitCount));
+                mView.toast(getString(messageRes, mLimitCount));
                 button.setChecked(false);
             } else {
                 albumFile.setChecked(true);

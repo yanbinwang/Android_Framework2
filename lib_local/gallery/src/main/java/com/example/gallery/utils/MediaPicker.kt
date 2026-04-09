@@ -4,14 +4,12 @@ import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.hour
 import com.example.framework.utils.function.value.safeGet
@@ -30,7 +28,6 @@ import com.yanzhenjie.album.model.ButtonStyle
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
-import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog
 
 /**
  * author: wyb
@@ -67,8 +64,7 @@ import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog
  *       ?.start()
  */
 class MediaPicker {
-    private lateinit var dialog: LoadingDialog
-    private var observer: LifecycleOwner? = null
+//    private var observer: LifecycleOwner? = null
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
@@ -118,7 +114,7 @@ class MediaPicker {
         when (any) {
             // Activity（兼容所有现代 Activity）
             is AppCompatActivity, is FragmentActivity -> {
-                observer = any
+//                observer = any
                 widget = any.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -126,7 +122,7 @@ class MediaPicker {
             }
             // AndroidX Fragment
             is Fragment -> {
-                observer = any
+//                observer = any
                 widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -148,7 +144,6 @@ class MediaPicker {
      */
     private fun Context?.getAlbumWidget(): Widget? {
         this ?: return null
-        dialog = LoadingDialog(this).also { it.setMessage(R.string.album_thumbnail) }
         context = this
         // 根据状态栏颜色区分主题
         val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
@@ -232,11 +227,7 @@ class MediaPicker {
                         return@onResult
                     }
                     if (hasDurban) {
-                        dialog.show()
-                        schedule(observer,{
-                            dialog.dismiss()
-                            toDurban(path)
-                        })
+                        toDurban(path)
                     } else {
                         listener.invoke(path)
                     }
