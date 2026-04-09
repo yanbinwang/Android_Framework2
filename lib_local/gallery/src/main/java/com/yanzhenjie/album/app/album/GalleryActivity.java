@@ -7,10 +7,10 @@ import androidx.annotation.Nullable;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.app.gallery.GalleryView;
+import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.ArrayList;
@@ -138,22 +138,22 @@ public class GalleryActivity extends BaseActivity implements Contract.GalleryPre
                 int messageRes;
                 switch (mFunction) {
                     case Album.FUNCTION_CHOICE_IMAGE: {
-                        messageRes = R.plurals.album_check_image_limit;
+                        messageRes = R.string.album_check_image_limit;
                         break;
                     }
                     case Album.FUNCTION_CHOICE_VIDEO: {
-                        messageRes = R.plurals.album_check_video_limit;
+                        messageRes = R.string.album_check_video_limit;
                         break;
                     }
                     case Album.FUNCTION_CHOICE_ALBUM: {
-                        messageRes = R.plurals.album_check_album_limit;
+                        messageRes = R.string.album_check_album_limit;
                         break;
                     }
                     default: {
                         throw new AssertionError("This should not be the case.");
                     }
                 }
-                mView.toast(getResources().getQuantityString(messageRes, mAllowSelectCount, mAllowSelectCount));
+                mView.toast(getString(messageRes, mAllowSelectCount));
                 mView.setChecked(false);
                 // 没超数量 → 选中
             } else {
