@@ -46,7 +46,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     init {
         setOwnerActivity(activity)
-        initView(null)
+        initView()
         initEvent()
         initData()
     }

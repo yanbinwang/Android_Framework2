@@ -34,7 +34,7 @@ internal interface BaseImpl {
      * 初始化控件
      * savedInstanceState->activity/fragment具备,其余为null
      */
-    fun initView(savedInstanceState: Bundle?)
+    fun initView(savedInstanceState: Bundle? = null)
 
     /**
      * 初始化事件
