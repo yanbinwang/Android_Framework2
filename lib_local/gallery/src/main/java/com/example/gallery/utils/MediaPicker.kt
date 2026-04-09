@@ -234,7 +234,7 @@ class MediaPicker {
                     if (hasDurban) {
                         dialog.show()
                         schedule(observer,{
-                            dialog.hide()
+                            dialog.dismiss()
                             toDurban(path)
                         })
                     } else {
