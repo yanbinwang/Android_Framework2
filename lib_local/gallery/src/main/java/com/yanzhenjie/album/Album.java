@@ -149,7 +149,6 @@ public final class Album {
     }
 
     // -------------------- Activity 调用 --------------------
-    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Activity activity) {
         return new AlbumCamera(activity);
     }
@@ -175,7 +174,6 @@ public final class Album {
     }
 
     // -------------------- AndroidX Fragment 调用 --------------------
-    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
         return new AlbumCamera(fragment.getActivity());
     }
@@ -200,8 +198,7 @@ public final class Album {
         return new GalleryAlbumWrapper(fragment.getActivity());
     }
 
-    // -------------------- 系统原生 Fragment 调用 --------------------
-    @Deprecated()
+    // -------------------- 旧 Fragment 调用 (旧 getContext() = 新 getActivity()) --------------------
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(android.app.Fragment fragment) {
         return new AlbumCamera(fragment.getContext());
     }

@@ -80,9 +80,11 @@ class MediaPicker {
     /**
      * 1) AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
      * 2) FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
+     * 3) 不支持旧android.app.Fragment
      */
     constructor(any: Any) {
         when (any) {
+            // Activity（兼容所有现代 Activity）
             is AppCompatActivity, is FragmentActivity -> {
 //                imageCamera = Album.camera(any)
                 widget = any.getAlbumWidget()
@@ -90,12 +92,21 @@ class MediaPicker {
                 imageMultiple = Album.image(any)
                 durban = Durban.with(any)
             }
+            // AndroidX Fragment
             is Fragment -> {
 //                imageCamera = Album.camera(any)
                 widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
                 durban = Durban.with(any)
+            }
+            // 旧系统Fragment
+            is android.app.Fragment -> {
+                throw RuntimeException("android.app.Fragment is deprecated and not supported!")
+            }
+            // 不认识的类型
+            else -> {
+                throw IllegalArgumentException("Unsupported host type: ${any::class.java.name}")
             }
         }
     }
