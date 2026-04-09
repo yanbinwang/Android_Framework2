@@ -108,7 +108,6 @@ public final class Album {
     /**
      * 打开相机
      */
-    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Context context) {
         return new AlbumCamera(context);
     }
@@ -149,7 +148,6 @@ public final class Album {
     }
 
     // -------------------- Activity 调用 --------------------
-    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Activity activity) {
         return new AlbumCamera(activity);
     }
@@ -175,7 +173,6 @@ public final class Album {
     }
 
     // -------------------- AndroidX Fragment 调用 --------------------
-    @Deprecated()
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(Fragment fragment) {
         return new AlbumCamera(fragment.getActivity());
     }
@@ -200,28 +197,33 @@ public final class Album {
         return new GalleryAlbumWrapper(fragment.getActivity());
     }
 
-    // -------------------- 系统原生 Fragment 调用 --------------------
-    @Deprecated()
+    // -------------------- 旧 Fragment 调用 (旧 getContext() = 新 getActivity()) --------------------
+    @Deprecated
     public static Camera<ImageCameraWrapper, VideoCameraWrapper> camera(android.app.Fragment fragment) {
         return new AlbumCamera(fragment.getContext());
     }
 
+    @Deprecated
     public static Choice<ImageMultipleWrapper, ImageSingleWrapper> image(android.app.Fragment fragment) {
         return new ImageChoice(fragment.getContext());
     }
 
+    @Deprecated
     public static Choice<VideoMultipleWrapper, VideoSingleWrapper> video(android.app.Fragment fragment) {
         return new VideoChoice(fragment.getContext());
     }
 
+    @Deprecated
     public static Choice<AlbumMultipleWrapper, AlbumSingleWrapper> album(android.app.Fragment fragment) {
         return new AlbumChoice(fragment.getContext());
     }
 
+    @Deprecated
     public static BasicGalleryWrapper<GalleryWrapper, String, String, String> gallery(android.app.Fragment fragment) {
         return new GalleryWrapper(fragment.getContext());
     }
 
+    @Deprecated
     public static BasicGalleryWrapper<GalleryAlbumWrapper, AlbumFile, String, AlbumFile> galleryAlbum(android.app.Fragment fragment) {
         return new GalleryAlbumWrapper(fragment.getContext());
     }

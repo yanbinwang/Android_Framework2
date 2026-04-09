@@ -46,7 +46,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     init {
         setOwnerActivity(activity)
-        initView(null)
+        initView()
         initEvent()
         initData()
     }
@@ -116,6 +116,11 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         }
     }
 
+    /**
+     * dismiss ()
+     * 1) 只销毁：Window 窗口 / 从屏幕上移除
+     * 2) 完全不销毁：Dialog 对象本身 Binding 对象 / 所有 View（EditText、TextView、状态） / 设置的数据
+     */
     override fun dismiss() {
         if (!isShowing) return
         if (ownerActivity?.isFinishing.orFalse) return

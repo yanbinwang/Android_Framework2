@@ -112,7 +112,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     init {
-        initView(null)
+        initView()
         initEvent()
         initData()
     }
