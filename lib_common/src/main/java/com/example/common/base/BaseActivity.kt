@@ -50,6 +50,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -70,7 +71,6 @@ import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
@@ -163,6 +163,15 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun onCreate(savedInstanceState: Bundle?) {
         // 先检测大屏设备，再执行父类的onCreate，避免布局加载
         if (checkLargeScreen()) {
+            // 关闭所有Activity
+            finishAffinity()
+            // 终止进程（兼容所有安卓版本，捕获异常）
+            try {
+                killProcess(myPid())
+                exitProcess(0)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
             // 如果检测到大屏设备，直接return，不执行后续逻辑
             return
         }
@@ -241,29 +250,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
         val isPhysicalTablet = config.smallestScreenWidthDp >= 600
         // 只要是物理平板 → 直接拦截，不管是不是分屏
-        return if (isPhysicalTablet) {
-            // 确保在UI线程执行弹窗操作
-            launch(Main.immediate) {
-                mDialog
-                    .setPositive(message = "当前设备为平板/大屏设备，暂不支持使用")
-                    .setDialogListener({
-                        // 关闭所有Activity
-                        finishAffinity()
-                        // 终止进程（兼容所有安卓版本，捕获异常）
-                        try {
-                            killProcess(myPid())
-                            exitProcess(0)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    })
-                    .show()
-            }
-            true
-        } else {
-            // 只有手机才会走到这里，分屏无所谓
-            false
+        if (isPhysicalTablet) {
+            "当前设备为平板/大屏设备，暂不支持使用".shortToast()
         }
+        return isPhysicalTablet
     }
 
     /**
