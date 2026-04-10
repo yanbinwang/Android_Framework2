@@ -27,6 +27,7 @@
     <style name="Durban.WrapContent.WidthWeight.ControllerTitle">
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/galleryWhite</item>
+        <item name="android:textSize">@dimen/album_sp_14</item>
     </style>
 
     <style name="Durban.MatchParent">

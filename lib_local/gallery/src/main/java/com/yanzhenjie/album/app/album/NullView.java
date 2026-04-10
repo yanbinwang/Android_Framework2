@@ -92,6 +92,9 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
             AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark));
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null);
             mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark));
+        } else {
+            mBtnTakeImage.setTextColor(getColor(R.color.galleryFontLight));
+            mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontLight));
         }
     }
 

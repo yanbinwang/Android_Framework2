@@ -16,6 +16,11 @@
     <style name="Album.Button.WrapContent">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
+        <item name="android:minWidth">88dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:paddingStart">12dp</item>
+        <item name="android:paddingEnd">12dp</item>
+        <item name="android:textSize">@dimen/album_sp_14</item>
     </style>
 
     <!-- ====================== 复选框样式 ====================== -->
@@ -104,6 +109,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:maxWidth">@dimen/album_dp_200</item>
         <item name="android:textColor">@color/galleryFontLight</item>
+        <item name="android:textSize">@dimen/album_sp_14</item>
     </style>
 
     <!-- ====================== 主题样式 ====================== -->

@@ -33,7 +33,8 @@
         <TextView
             android:id="@+id/tv_message"
             style="@style/Album.WrapContent"
-            android:textColor="@color/albumFontHint" />
+            android:textColor="@color/albumFontHint"
+            android:textSize="@dimen/album_sp_14" />
 
         <Button
             android:id="@+id/btn_camera_image"
@@ -43,7 +44,7 @@
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_image_capture"
-            android:textColor="@color/galleryFontLight" />
+            tools:textColor="@color/galleryFontLight" />
 
         <Button
             android:id="@+id/btn_camera_video"
@@ -53,7 +54,7 @@
             android:drawablePadding="@dimen/album_dp_6"
             android:gravity="center"
             android:text="@string/album_camera_video_capture"
-            android:textColor="@color/galleryFontLight" />
+            tools:textColor="@color/galleryFontLight" />
 
     </LinearLayout>
 
