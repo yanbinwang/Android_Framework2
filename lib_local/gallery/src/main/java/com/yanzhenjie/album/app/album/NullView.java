@@ -1,5 +1,7 @@
 package com.yanzhenjie.album.app.album;
 
+import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor;
+
 import android.app.Activity;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
@@ -10,9 +12,9 @@ import android.widget.TextView;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
+import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.model.ButtonStyle;
 import com.yanzhenjie.album.model.Widget;
-import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
 /**
@@ -50,6 +52,10 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
 
     /**
      * 初始化页面样式（颜色、主题、图标）
+     * 按钮样式：颜色、背景
+     * .buttonStyle(Widget.ButtonStyle.newDarkBuilder(context)
+     *       .setButtonSelector(normalColor, highlightColor)
+     *       .build())
      */
     @Override
     public void setupViews(Widget widget) {
@@ -57,14 +63,25 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         Drawable navigationIcon = getDrawable(R.mipmap.gallery_ic_back);
         // 浅色 / 深色 主题切换
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
-            mTitle.setTextColor(getColor(R.color.galleryFontDark));
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark));
-            /**
-             * 按钮样式：颜色、背景
-             * .buttonStyle(Widget.ButtonStyle.newDarkBuilder(context)
-             *       .setButtonSelector(normalColor, highlightColor)
-             *       .build())
-             */
+            mTitle.setTextColor(getColor(R.color.galleryFontDark));
+        } else {
+            mTitle.setTextColor(getColor(R.color.galleryFontLight));
+        }
+        // 设置返回按钮
+        setHomeAsUpIndicator(navigationIcon);
+        // 标题同步状态栏颜色
+        mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
+        mTitle.setText(widget.getTitle());
+        // 设置按钮颜色
+        ButtonStyle buttonStyle = widget.getButtonStyle();
+        ColorStateList buttonSelector = buttonStyle.getButtonSelector();
+        mBtnTakeImage.setBackgroundTintList(buttonSelector);
+        mBtnTakeVideo.setBackgroundTintList(buttonSelector);
+        // 获取按钮主题色
+        boolean isLight = shouldUseWhiteSystemBarsForColor(buttonSelector.getDefaultColor());
+        // 如果需要深色主题,提取出绘制的图标并渲染成深色
+        if (!isLight) {
             Drawable[] takeImageDraws = mBtnTakeImage.getCompoundDrawablesRelative();
             Drawable takeImageIcon = takeImageDraws[0];
             AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark));
@@ -76,17 +93,9 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null);
             mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark));
         } else {
-            mTitle.setTextColor(getColor(R.color.galleryFontLight));
-            ButtonStyle buttonStyle = widget.getButtonStyle();
-            ColorStateList buttonSelector = buttonStyle.getButtonSelector();
-            mBtnTakeImage.setBackgroundTintList(buttonSelector);
-            mBtnTakeVideo.setBackgroundTintList(buttonSelector);
+            mBtnTakeImage.setTextColor(getColor(R.color.galleryFontLight));
+            mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontLight));
         }
-        // 设置返回按钮
-        setHomeAsUpIndicator(navigationIcon);
-        // 标题同步状态栏颜色
-        mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
-        mTitle.setText(widget.getTitle());
     }
 
     /**

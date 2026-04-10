@@ -156,8 +156,21 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mMediaReadTask = null;
         mAlbumFolders = albumFolders;
         mCheckedList = checkedFiles;
+        // 没有图片 → 打开空页面
+        if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
+            Intent intent = new Intent(this, NullActivity.class);
+            intent.putExtras(getIntent());
+            startActivityForResult(intent, CODE_ACTIVITY_NULL);
+            overridePendingTransition(0, 0);
+            // 显示全部图片
+        } else {
+            showFolderAlbumFiles(0);
+            int count = mCheckedList.size();
+            mView.setCheckedCount(count);
+        }
         // 延迟半秒关闭 loading，过渡更自然
         TimerBuilder.schedule(this, () -> {
+            // 完成按钮是否显示
             switch (mChoiceMode) {
                 case Album.MODE_MULTIPLE: {
                     mView.setCompleteDisplay(true);
@@ -170,18 +183,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 default: {
                     throw new AssertionError("This should not be the case.");
                 }
-            }
-            // 没有图片 → 打开空页面
-            if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
-                Intent intent = new Intent(this, NullActivity.class);
-                intent.putExtras(getIntent());
-                startActivityForResult(intent, CODE_ACTIVITY_NULL);
-                overridePendingTransition(0, 0);
-                // 显示全部图片
-            } else {
-                showFolderAlbumFiles(0);
-                int count = mCheckedList.size();
-                mView.setCheckedCount(count);
             }
             // 隐藏整体遮罩
             mView.setLoadingDisplay(false);

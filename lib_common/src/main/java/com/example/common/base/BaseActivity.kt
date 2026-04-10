@@ -121,8 +121,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        var onFinishListener: OnFinishListener? = null
+        @Volatile
         var isAnyActivityStarting = false
+        var onFinishListener: OnFinishListener? = null
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
             startActivity(getIntent(cls, *pairs).apply {
@@ -157,7 +158,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         slideExit.setDuration(300)
         // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
         window.setReturnTransition(slideExit)
-//        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -215,11 +215,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) {
-            EventBus.instance.collect(this) {
-                this@BaseActivity.onCollect()
-            }
-        }
+//        if (isCollectEnabled()) {
+//            EventBus.instance.collect(this) {
+//                this@BaseActivity.onCollect()
+//            }
+//        }
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
@@ -234,19 +234,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private fun checkLargeScreen(): Boolean {
         if (checkedLargeScreen) return false
         checkedLargeScreen = true
-        // Activity状态校验，防止异常场景下的崩溃
-        if (isFinishing || isDestroyed) {
-            return false
-        }
+        // 页面销毁直接返回
+        if (isFinishing || isDestroyed) return false
         // 判断是否为大屏设备（宽度≥600dp）
         val config = resources.configuration
-        val isLargeScreen = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            // 安卓7.0+ 检测是否为分屏/多窗口模式
-            !isInMultiWindowMode && config.screenWidthDp >= 600
-        } else {
-            config.screenWidthDp >= 600
-        }
-        if (isLargeScreen) {
+        // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
+        val isPhysicalTablet = config.smallestScreenWidthDp >= 600
+        // 只要是物理平板 → 直接拦截，不管是不是分屏
+        return if (isPhysicalTablet) {
             // 确保在UI线程执行弹窗操作
             launch(Main.immediate) {
                 mDialog
@@ -264,9 +259,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                     })
                     .show()
             }
-            return true
+            true
+        } else {
+            // 只有手机才会走到这里，分屏无所谓
+            false
         }
-        return false
     }
 
     /**
@@ -443,7 +440,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel() // 之后再起的job无法工作
-//        coroutineContext.cancelChildren()//之后再起的可以工作
+//        coroutineContext.cancelChildren() // 之后再起的可以工作
     }
     // </editor-fold>
 
@@ -671,12 +668,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return false
     }
 
-    protected open suspend fun CoroutineScope.onCollect() {
-    }
-
-    protected open fun isCollectEnabled(): Boolean {
-        return false
-    }
+//    protected open suspend fun CoroutineScope.onCollect() {
+//    }
+//
+//    protected open fun isCollectEnabled(): Boolean {
+//        return false
+//    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
@@ -723,8 +720,4 @@ val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner:
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
-}
-
-interface OnCreateListener {
-    fun onCreate(act: BaseActivity<*>)
 }

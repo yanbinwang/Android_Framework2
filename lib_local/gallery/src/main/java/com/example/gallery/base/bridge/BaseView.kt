@@ -154,6 +154,33 @@ abstract class BaseView<Presenter : BasePresenter> {
         return getContext().resources
     }
 
+    @ColorInt
+    protected fun getColor(@ColorRes resId: Int): Int {
+        return getContext().color(resId)
+    }
+
+    protected fun getDrawable(@DrawableRes resId: Int): Drawable {
+        return getContext().drawable(resId).orEmpty()
+    }
+
+    /**
+     * 返回纯文本，不带任何样式
+     */
+    protected fun getString(@StringRes resId: Int): String {
+        return getContext().getString(resId)
+    }
+
+    protected fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
+        return getContext().getString(resId, *formatArgs)
+    }
+
+    /**
+     * 获取P层
+     */
+    protected fun getPresenter(): Presenter {
+        return mPresenter
+    }
+
     /**
      * 菜单点击事件（子类可重写）
      */
@@ -175,32 +202,8 @@ abstract class BaseView<Presenter : BasePresenter> {
     }
 
     /**
-     * 获取P层
+     * 全局Toast
      */
-    fun getPresenter(): Presenter {
-        return mPresenter
-    }
-
-    /**
-     * 返回纯文本，不带任何样式
-     */
-    fun getString(@StringRes resId: Int): String {
-        return getContext().getString(resId)
-    }
-
-    fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
-        return getContext().getString(resId, *formatArgs)
-    }
-
-    @ColorInt
-    fun getColor(@ColorRes resId: Int): Int {
-        return getContext().color(resId)
-    }
-
-    fun getDrawable(@DrawableRes resId: Int): Drawable {
-        return getContext().drawable(resId).orEmpty()
-    }
-
     fun toast(@StringRes message: Int) {
         toast(getString(message))
     }

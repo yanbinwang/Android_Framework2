@@ -228,7 +228,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     private fun setActivityAnimations() {
         val (slideEnter, slideExit) = Pair(
             Slide(Gravity.END).apply { duration = 300; mode = Visibility.MODE_IN },
-            Slide(Gravity.START).apply { duration = 500; mode = Visibility.MODE_OUT }
+            Slide(Gravity.START).apply { duration = 300; mode = Visibility.MODE_OUT }
         )
         // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
         window.setExitTransition(slideEnter)

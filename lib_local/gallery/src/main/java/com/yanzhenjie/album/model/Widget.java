@@ -153,9 +153,7 @@ public class Widget implements Parcelable {
                 .title(R.string.album_title)
                 .mediaItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.galleryColorPrimary))
                 .bucketItemCheckSelector(ContextCompat.getColor(context, R.color.albumSelectorNormal), ContextCompat.getColor(context, R.color.galleryColorPrimary))
-                .buttonStyle(ButtonStyle
-                        .newDarkBuilder(context)
-                        .setButtonSelector(ContextCompat.getColor(context, R.color.galleryColorPrimary), ContextCompat.getColor(context, R.color.galleryColorPrimaryDark)).build())
+                .buttonStyle(ButtonStyle.getDefaultButtonStyle(context))
                 .build();
     }
 

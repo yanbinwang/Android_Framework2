@@ -27,6 +27,7 @@
         android:layout_toStartOf="@id/rb_gallery_preview_check"
         android:layout_toEndOf="@id/iv_gallery_preview_image"
         android:ellipsize="end"
-        android:maxLines="1" />
+        android:maxLines="1"
+        android:textSize="@dimen/album_sp_14" />
 
 </RelativeLayout>

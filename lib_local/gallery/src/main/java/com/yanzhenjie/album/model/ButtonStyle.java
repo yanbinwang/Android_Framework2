@@ -69,12 +69,22 @@ public class ButtonStyle implements Parcelable {
         }
     };
 
+    public static ButtonStyle getDefaultButtonStyle(Context context) {
+        return ButtonStyle.newDarkBuilder(context)
+                .setButtonSelector(ContextCompat.getColor(context, R.color.galleryColorPrimary), ContextCompat.getColor(context, R.color.galleryColorPrimaryDark))
+                .build();
+    }
+
     public static Builder newDarkBuilder(Context context) {
         return new Builder(context, STYLE_DARK);
     }
 
     public static Builder newLightBuilder(Context context) {
         return new Builder(context, STYLE_LIGHT);
+    }
+
+    public static Builder newBuilder(Context context, @Widget.UiStyle int style) {
+        return new Builder(context, style);
     }
 
     /**

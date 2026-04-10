@@ -9,10 +9,10 @@ import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
+import com.yanzhenjie.album.callback.Action;
+import com.yanzhenjie.album.model.Widget;
 
 /**
  * 空页面
@@ -43,7 +43,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // 空页面实际是由相册页跳转的,去除过渡动画
         overridePendingTransition(0, 0);
         // 获取参数
         Bundle argument = getIntent().getExtras();
@@ -135,6 +134,12 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
      */
     public static String parsePath(Intent intent) {
         return intent.getStringExtra(KEY_OUTPUT_IMAGE_PATH);
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(0, 0);
     }
 
 }
