@@ -88,7 +88,8 @@ class MediaPicker {
         @JvmStatic
         fun calculateFloatAspectRatio(width: Int, height: Int): Pair<Float, Float> {
             if (width == 0 || height == 0) {
-                return 0f to 0f // 处理无效值
+                // 处理无效值
+                return 0f to 0f
             }
             // 计算最大公约数简化比例
             val gcd = gcd(width, height)
