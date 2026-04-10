@@ -64,7 +64,6 @@ import com.yanzhenjie.durban.model.Controller
  *       ?.start()
  */
 class MediaPicker {
-//    private var observer: LifecycleOwner? = null
     private var context: Context? = null
     private var widget: Widget? = null
     private var durban: Durban? = null
@@ -114,7 +113,6 @@ class MediaPicker {
         when (any) {
             // Activity（兼容所有现代 Activity）
             is AppCompatActivity, is FragmentActivity -> {
-//                observer = any
                 widget = any.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
@@ -122,7 +120,6 @@ class MediaPicker {
             }
             // AndroidX Fragment
             is Fragment -> {
-//                observer = any
                 widget = any.context.getAlbumWidget()
                 videoMultiple = Album.video(any)
                 imageMultiple = Album.image(any)
