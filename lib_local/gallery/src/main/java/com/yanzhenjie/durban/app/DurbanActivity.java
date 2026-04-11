@@ -68,6 +68,30 @@ public class DurbanActivity extends BaseActivity {
     // 裁剪视图
     private CropView mCropView;
     private GestureCropImageView mCropImageView;
+    // 操作盘回调
+    private final View.OnClickListener mControllerClick = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            int id = v.getId();
+            if (id == R.id.layout_controller_rotation_left) {
+                // 左转 90
+                mCropImageView.postRotate(-90);
+                mCropImageView.setImageToWrapCropBounds();
+            } else if (id == R.id.layout_controller_rotation_right) {
+                // 右转 90
+                mCropImageView.postRotate(90);
+                mCropImageView.setImageToWrapCropBounds();
+            } else if (id == R.id.layout_controller_scale_big) {
+                // 放大
+                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
+                mCropImageView.setImageToWrapCropBounds();
+            } else if (id == R.id.layout_controller_scale_small) {
+                // 缩小
+                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
+                mCropImageView.setImageToWrapCropBounds();
+            }
+        }
+    };
 
     @Override
     protected boolean isImmersionBarEnabled() {
@@ -77,6 +101,7 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 覆盖基类动画
         setActivityAnimations();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
@@ -89,9 +114,9 @@ public class DurbanActivity extends BaseActivity {
         setContentView(R.layout.durban_activity_photobox);
         // 初始化状态栏、标题栏
         initFrameViews();
-        // 初始化裁剪图片视图
+        // 初始化裁剪页面视图
         initContentViews();
-        // 初始化底部旋转/缩放按钮
+        // 初始化底部操作按钮视图
         initControllerViews();
         // 开始裁剪第一张图
         cropNextImage();
@@ -112,18 +137,6 @@ public class DurbanActivity extends BaseActivity {
         getWindow().setReturnTransition(fadeExit);
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // 页面不可见时，取消所有动画，防止内存泄漏
-        if (mCropImageView != null) {
-            mCropImageView.cancelAllAnimations();
-        }
-    }
-
-    /**
-     * 处理页面传输而来的参数
-     */
     private void initArgument() {
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
@@ -168,9 +181,6 @@ public class DurbanActivity extends BaseActivity {
         }
     }
 
-    /**
-     * 初始化窗体(状态栏/导航栏)
-     */
     private void initFrameViews() {
         // 获取自定义Toolbar并设置为ActionBar替代品
         final Toolbar toolbar = findViewById(R.id.toolbar);
@@ -193,11 +203,11 @@ public class DurbanActivity extends BaseActivity {
         final TextView tvTitle = findViewById(R.id.tv_title);
         if (!TextUtils.isEmpty(mTitle)) {
             tvTitle.setText(mTitle);
-        }
-        if (statusBarBattery) {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontLight));
-        } else {
-            tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontDark));
+            if (statusBarBattery) {
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontLight));
+            } else {
+                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontDark));
+            }
         }
         // 设置返回按钮
         Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_back);
@@ -212,8 +222,6 @@ public class DurbanActivity extends BaseActivity {
         mCropImageView = mCropView.getCropImageView();
         // 设置输出目录
         mCropImageView.setOutputDirectory(mOutputDirectory);
-        // 图片加载监听
-        mCropImageView.setTransformImageListener(mImageListener);
         // 是否允许缩放
         mCropImageView.setScaleEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE);
         // 是否允许旋转
@@ -221,6 +229,30 @@ public class DurbanActivity extends BaseActivity {
         mCropImageView.setMaxBitmapSize(GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE);
         mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER);
         mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION);
+        // 图片加载监听
+        mCropImageView.setTransformImageListener(new TransformImageView.TransformImageListener() {
+            @Override
+            public void onRotate(float currentAngle) {
+            }
+
+            @Override
+            public void onScale(float currentScale) {
+            }
+
+            @Override
+            public void onLoadComplete() {
+                mCropView.animate()
+                        .alpha(1f)
+                        .setDuration(300)
+                        .setInterpolator(new AccelerateInterpolator())
+                        .start();
+            }
+
+            @Override
+            public void onLoadFailure() {
+                cropNextImage();
+            }
+        });
         // 裁剪视图样式
         OverlayView overlayView = mCropView.getOverlayView();
         overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE);
@@ -246,30 +278,6 @@ public class DurbanActivity extends BaseActivity {
             mCropImageView.setMaxResultImageSizeY(mMaxWidthHeight[1]);
         }
     }
-
-    private final TransformImageView.TransformImageListener mImageListener = new TransformImageView.TransformImageListener() {
-        @Override
-        public void onRotate(float currentAngle) {
-        }
-
-        @Override
-        public void onScale(float currentScale) {
-        }
-
-        @Override
-        public void onLoadComplete() {
-            mCropView.animate()
-                    .alpha(1f)
-                    .setDuration(300)
-                    .setInterpolator(new AccelerateInterpolator())
-                    .start();
-        }
-
-        @Override
-        public void onLoadFailure() {
-            cropNextImage();
-        }
-    };
 
     private void initControllerViews() {
         View controllerRoot = findViewById(R.id.iv_controller_root);
@@ -304,73 +312,6 @@ public class DurbanActivity extends BaseActivity {
         scaleSmall.setOnClickListener(mControllerClick);
     }
 
-    private final View.OnClickListener mControllerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int id = v.getId();
-            if (id == R.id.layout_controller_rotation_left) {
-                // 左转 90
-                mCropImageView.postRotate(-90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_rotation_right) {
-                // 右转 90
-                mCropImageView.postRotate(90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_big) {
-                // 放大
-                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_small) {
-                // 缩小
-                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
-            }
-        }
-    };
-
-    /**
-     * 开始裁剪下一张
-     */
-    private void cropNextImage() {
-        resetRotation();
-        cropNextImageWithPermission();
-    }
-
-    /**
-     * 重置图片旋转角度
-     */
-    private void resetRotation() {
-        mCropImageView.postRotate(-mCropImageView.getCurrentAngle());
-        mCropImageView.setImageToWrapCropBounds();
-    }
-
-    /**
-     * 加载图片并裁剪
-     */
-    private void cropNextImageWithPermission() {
-        if (mInputPathList != null) {
-            if (!mInputPathList.isEmpty()) {
-                String currentPath = mInputPathList.remove(0);
-                try {
-                    mCropImageView.setImagePath(currentPath);
-                } catch (Exception e) {
-                    // 加载失败直接下一张
-                    cropNextImage();
-                }
-            } else {
-                // 全部裁剪完成
-                if (!mOutputPathList.isEmpty()) {
-                    setResultSuccessful();
-                } else {
-                    setResultFailure();
-                }
-            }
-        } else {
-            Log.e("Durban", "The file list is empty.");
-            setResultFailure();
-        }
-    }
-
     @Override
     public boolean onCreateOptionsMenu(final Menu menu) {
         getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
@@ -395,9 +336,6 @@ public class DurbanActivity extends BaseActivity {
         return true;
     }
 
-    /**
-     * 菜单点击：确定 / 返回
-     */
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_action_ok) {
@@ -411,30 +349,56 @@ public class DurbanActivity extends BaseActivity {
     }
 
     /**
-     * 执行裁剪并保存
+     * 开始裁剪下一张
      */
-    private void cropAndSaveImage() {
-        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, cropCallback);
+    private void cropNextImage() {
+        // 重置图片旋转角度
+        mCropImageView.postRotate(-mCropImageView.getCurrentAngle());
+        mCropImageView.setImageToWrapCropBounds();
+        // 加载图片并裁剪
+        if (mInputPathList != null) {
+            if (!mInputPathList.isEmpty()) {
+                String currentPath = mInputPathList.remove(0);
+                try {
+                    mCropImageView.setImagePath(currentPath);
+                } catch (Exception e) {
+                    // 加载失败直接下一张
+                    cropNextImage();
+                }
+            } else {
+                // 全部裁剪完成
+                if (!mOutputPathList.isEmpty()) {
+                    setResultSuccessful();
+                } else {
+                    setResultFailure();
+                }
+            }
+        } else {
+            Log.e("Durban", "The file list is empty.");
+            setResultFailure();
+        }
     }
 
     /**
-     * 保存回调
+     * 执行裁剪并保存
      */
-    private final BitmapCropCallback cropCallback = new BitmapCropCallback() {
-        @Override
-        public void onBitmapCropped(@NonNull String imagePath, int imageWidth, int imageHeight) {
-            mOutputPathList.add(imagePath);
-            cropNextImage();
-        }
+    private void cropAndSaveImage() {
+        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
+            @Override
+            public void onBitmapCropped(@NonNull String imagePath, int imageWidth, int imageHeight) {
+                mOutputPathList.add(imagePath);
+                cropNextImage();
+            }
 
-        @Override
-        public void onCropFailure(@NonNull Throwable t) {
-            cropNextImage();
-        }
-    };
+            @Override
+            public void onCropFailure(@NonNull Throwable t) {
+                cropNextImage();
+            }
+        });
+    }
 
     /**
-     * 返回结果给上一页
+     * 返回成功/失败结果
      */
     private void setResultSuccessful() {
         Intent intent = new Intent();
@@ -450,6 +414,15 @@ public class DurbanActivity extends BaseActivity {
         intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
         setResult(RESULT_CANCELED, intent);
         finish();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // 页面不可见时，取消所有动画，防止内存泄漏
+        if (mCropImageView != null) {
+            mCropImageView.cancelAllAnimations();
+        }
     }
 
     @Override
