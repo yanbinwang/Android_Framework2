@@ -52,22 +52,13 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     companion object {
 
         /**
-         * 启动相册页面就拿一次系统默认状态栏高度（由于第一个界面一定是相册库而不是裁剪,故而该值几乎是启动相册库后就不变的）
-         */
-        private val defaultStatusBarHeight = getStatusBarHeight()
-
-        /**
          * 兼容控件内toolbar
          */
         @JvmStatic
         fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout { tb ->
                 // 取当前页面状态栏高度
-                var statusBarHeight = getStatusBarHeight()
-                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用"一开始就存好的默认高度"
-                if (statusBarHeight != defaultStatusBarHeight) {
-                    statusBarHeight = defaultStatusBarHeight
-                }
+                val statusBarHeight = getStatusBarHeight()
                 // 设置高度
                 tb.size(height = tb.measuredHeight + statusBarHeight)
                 // 设置左、右内边距全为0
@@ -189,7 +180,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     // 大小修正 -> 判断这个按钮有没有 ICON
                     val hasIcon = itemView.itemData?.icon != null
                     if (hasIcon) {
-                        val adjustHeight = toolbar.measuredHeight - defaultStatusBarHeight
+                        val adjustHeight = toolbar.measuredHeight - getStatusBarHeight()
                         itemView.size(width = adjustHeight)
                     }
                 }
