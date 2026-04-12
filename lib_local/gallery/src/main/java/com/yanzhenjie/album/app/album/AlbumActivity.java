@@ -586,14 +586,30 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         task.execute();
     }
 
+    private long mTaskStart;
     @Override
     public void onThumbnailStart() {
+        // 开始记录时间
+        mTaskStart = System.currentTimeMillis();
         showLoadingDialog();
         mLoadingDialog.setMessage(R.string.album_thumbnail);
     }
 
     @Override
     public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
+        // 结束计算任务耗时
+        long costTime = System.currentTimeMillis() - mTaskStart;
+        if (costTime < 1000L) {
+            TimerBuilder.schedule(this, () -> {
+                setResult(albumFiles);
+                return Unit.INSTANCE;
+            }, 1000);
+        } else {
+            setResult(albumFiles);
+        }
+    }
+
+    private void setResult(ArrayList<AlbumFile> albumFiles) {
         if (sResult != null) {
             sResult.onAction(albumFiles);
         }
@@ -641,6 +657,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         sResult = null;
         sCancel = null;
         super.finish();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
+        } else {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+        }
     }
 
 }
