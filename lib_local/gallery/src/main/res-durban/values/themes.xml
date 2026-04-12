@@ -50,6 +50,20 @@
         <item name="android:clickable">true</item>
     </style>
 
+    <!-- ====================== 主题样式 ====================== -->
+    <style name="Durban.Theme" />
+
+    <!-- Activity 基础主题：无标题栏、透明背景 -->
+    <style name="Durban.Theme.Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@color/galleryTransparent</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <!-- ====================== Toolbar 样式 ====================== -->
     <style name="Durban.Toolbar">
         <item name="android:layout_width">match_parent</item>

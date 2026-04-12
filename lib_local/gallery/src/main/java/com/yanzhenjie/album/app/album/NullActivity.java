@@ -1,9 +1,14 @@
 package com.yanzhenjie.album.app.album;
 
+import static android.transition.Visibility.MODE_IN;
+import static android.transition.Visibility.MODE_OUT;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
+import android.transition.Fade;
 
 import androidx.annotation.Nullable;
 
@@ -43,7 +48,6 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        overridePendingTransition(0, 0);
         // 获取参数
         Bundle argument = getIntent().getExtras();
         if (null != argument) {
@@ -55,6 +59,13 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             mHasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
         } else {
             finish();
+        }
+        // 覆盖基类动画
+        setActivityAnimations();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
+        } else {
+            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         }
         setContentView(R.layout.album_activity_null);
         // 初始化状态栏/导航栏颜色（黑白字体自适应）
@@ -92,6 +103,21 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
             mView.setMakeImageDisplay(false);
             mView.setMakeVideoDisplay(false);
         }
+    }
+
+    @Override
+    protected void onNewIntent(@Nullable Intent intent) {
+        super.onNewIntent(intent);
+        setActivityAnimations();
+    }
+
+    private void setActivityAnimations() {
+        Fade fadeEnter = new Fade(MODE_IN);
+        fadeEnter.setDuration(300);
+        getWindow().setExitTransition(fadeEnter);
+        Fade fadeExit = new Fade(MODE_OUT);
+        fadeEnter.setDuration(300);
+        getWindow().setReturnTransition(fadeExit);
     }
 
     /**
@@ -139,7 +165,7 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(0, 0);
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none);
     }
 
 }

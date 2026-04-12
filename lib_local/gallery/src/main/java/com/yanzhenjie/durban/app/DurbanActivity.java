@@ -101,6 +101,8 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // 读取所有配置
+        initArgument();
         // 覆盖基类动画
         setActivityAnimations();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -108,8 +110,6 @@ public class DurbanActivity extends BaseActivity {
         } else {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         }
-        // 读取所有配置
-        initArgument();
         // 设置布局
         setContentView(R.layout.durban_activity_photobox);
         // 初始化状态栏、标题栏

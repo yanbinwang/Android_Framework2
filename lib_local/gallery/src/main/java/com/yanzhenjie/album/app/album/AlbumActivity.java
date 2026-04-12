@@ -3,6 +3,8 @@ package com.yanzhenjie.album.app.album;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -158,36 +160,51 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mCheckedList = checkedFiles;
         // 没有图片 → 打开空页面
         if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
-            Intent intent = new Intent(this, NullActivity.class);
-            intent.putExtras(getIntent());
-            startActivityForResult(intent, CODE_ACTIVITY_NULL);
-            overridePendingTransition(0, 0);
-            // 显示全部图片
+            // 延迟1秒关闭 loading，过渡更自然
+            TimerBuilder.schedule(this, () -> {
+                Intent intent = new Intent(this, NullActivity.class);
+                intent.putExtras(getIntent());
+                startActivityForResult(intent, CODE_ACTIVITY_NULL);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
+                } else {
+                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+                }
+                TimerBuilder.schedule(this, () -> {
+                    hideLoading();
+                    return Unit.INSTANCE;
+                }, 1000);
+                return Unit.INSTANCE;
+            }, 1000);
         } else {
+            // 显示全部图片
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
             mView.setCheckedCount(count);
+            hideLoading();
         }
-        // 延迟半秒关闭 loading，过渡更自然
-        TimerBuilder.schedule(this, () -> {
-            // 完成按钮是否显示
-            switch (mChoiceMode) {
-                case Album.MODE_MULTIPLE: {
-                    mView.setCompleteDisplay(true);
-                    break;
-                }
-                case Album.MODE_SINGLE: {
-                    mView.setCompleteDisplay(false);
-                    break;
-                }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
+    }
+
+    /**
+     * 隐藏遮罩
+     */
+    private void hideLoading() {
+        // 完成按钮是否显示
+        switch (mChoiceMode) {
+            case Album.MODE_MULTIPLE: {
+                mView.setCompleteDisplay(true);
+                break;
             }
-            // 隐藏整体遮罩
-            mView.setLoadingDisplay(false);
-            return Unit.INSTANCE;
-        }, 500);
+            case Album.MODE_SINGLE: {
+                mView.setCompleteDisplay(false);
+                break;
+            }
+            default: {
+                throw new AssertionError("This should not be the case.");
+            }
+        }
+        // 隐藏整体遮罩
+        mView.setLoadingDisplay(false);
     }
 
     /**

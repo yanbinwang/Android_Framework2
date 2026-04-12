@@ -43,8 +43,8 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
     private GridLayoutManager mLayoutManager;
     // 右上角完成菜单
     private MenuItem mCompleteMenu;
-    // 宿主 Activity
-    private final Activity mActivity;
+//    // 宿主 Activity
+//    private final Activity mActivity;
     // 标题栏
     private final Toolbar mToolbar;
     // 标题文字
@@ -65,7 +65,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
      */
     public AlbumView(Activity activity, Contract.AlbumPresenter presenter) {
         super(activity, presenter);
-        this.mActivity = activity;
+//        this.mActivity = activity;
         // 绑定所有控件
         this.mToolbar = activity.findViewById(R.id.toolbar);
         this.mTitle = activity.findViewById(R.id.tv_title);

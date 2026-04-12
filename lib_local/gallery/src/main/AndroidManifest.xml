@@ -15,7 +15,7 @@
             android:name="com.yanzhenjie.durban.app.DurbanActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+            android:theme="@style/Durban.Theme.Activity"
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <!-- 空页面 -->
         <activity
