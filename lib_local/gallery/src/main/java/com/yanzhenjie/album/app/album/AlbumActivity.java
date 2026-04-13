@@ -1,6 +1,7 @@
 package com.yanzhenjie.album.app.album;
 
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
+import static com.example.common.utils.StorageUtil.getOutputFile;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.widget.CompoundButton;
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 
+import com.example.common.utils.StorageUtil;
 import com.example.framework.utils.builder.TimerBuilder;
 import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
@@ -30,7 +32,6 @@ import com.yanzhenjie.album.utils.AlbumUtil;
 import com.yanzhenjie.album.utils.MediaScanner;
 import com.yanzhenjie.album.widget.LoadingDialog;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -313,13 +314,14 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * 拍照
      */
     private void takePicture() {
-        String filePath;
-        if (mCurrentFolder == 0) {
-            filePath = AlbumUtil.randomJPGPath();
-        } else {
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtil.randomJPGPath(file.getParentFile());
-        }
+//        String filePath;
+//        if (mCurrentFolder == 0) {
+//            filePath = AlbumUtil.randomJPGPath();
+//        } else {
+//            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
+//            filePath = AlbumUtil.randomJPGPath(file.getParentFile());
+//        }
+        String filePath = getOutputFile(StorageUtil.StorageType.IMAGE).getAbsolutePath();
         Album.camera(this)
                 .image()
                 .filePath(filePath)
@@ -331,13 +333,14 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * 录像
      */
     private void takeVideo() {
-        String filePath;
-        if (mCurrentFolder == 0) {
-            filePath = AlbumUtil.randomMP4Path();
-        } else {
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtil.randomMP4Path(file.getParentFile());
-        }
+//        String filePath;
+//        if (mCurrentFolder == 0) {
+//            filePath = AlbumUtil.randomMP4Path();
+//        } else {
+//            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
+//            filePath = AlbumUtil.randomMP4Path(file.getParentFile());
+//        }
+        String filePath = getOutputFile(StorageUtil.StorageType.VIDEO).getAbsolutePath();
         Album.camera(this)
                 .video()
                 .filePath(filePath)
