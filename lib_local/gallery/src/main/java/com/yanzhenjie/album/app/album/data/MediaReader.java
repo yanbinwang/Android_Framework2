@@ -72,7 +72,7 @@ public class MediaReader {
     @WorkerThread
     private void scanImageFile(Map<String, AlbumFolder> albumFolderMap, AlbumFolder allFileFolder) {
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGES, null, null, null);
+        Cursor cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, IMAGES, null, null, MediaStore.Images.Media.DATE_ADDED + " DESC"); // 最新的图片排在最前面
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String path = cursor.getString(0);
@@ -125,7 +125,7 @@ public class MediaReader {
     @WorkerThread
     private void scanVideoFile(Map<String, AlbumFolder> albumFolderMap, AlbumFolder allFileFolder) {
         ContentResolver contentResolver = mContext.getContentResolver();
-        Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEOS, null, null, null);
+        Cursor cursor = contentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, VIDEOS, null, null, MediaStore.Video.Media.DATE_ADDED + " DESC");
         if (cursor != null) {
             while (cursor.moveToNext()) {
                 String path = cursor.getString(0);
