@@ -315,8 +315,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private void takePicture() {
         String filePath;
         if (mCurrentFolder == 0) {
+            // 如果用户现在看的是【所有图片】这个总相册 , 那就把拍的照片，保存到系统默认的公共相册目录（DCIM/Camera）
             filePath = AlbumUtil.randomJPGPath();
         } else {
+            // 如果用户当前正在看某个具体文件夹（比如微信相册）那就把拍的照片，保存到和这个文件夹同一个目录里，让照片直接出现在当前文件夹
             File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
             filePath = AlbumUtil.randomJPGPath(file.getParentFile());
         }

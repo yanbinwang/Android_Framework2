@@ -21,7 +21,6 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 
-import com.example.common.config.Constants;
 import com.yanzhenjie.album.provider.CameraFileProvider;
 import com.yanzhenjie.album.widget.recyclerview.divider.Divider;
 import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
@@ -61,19 +60,19 @@ public class AlbumUtil {
 //            // -> /data/data/你的包名/files/CACHE_DIRECTORY
 //            return new File(context.getFilesDir(), CACHE_DIRECTORY);
 //        }
-        return new File(Constants.getSDCARD_PATH() + "/" + CACHE_DIRECTORY);
+        return new File(context.getCacheDir() + "/" + CACHE_DIRECTORY);
     }
 
-//    /**
-//     * 判断SD卡是否可用
-//     */
-//    public static boolean sdCardIsAvailable() {
-//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//            return Environment.getExternalStorageDirectory().canWrite();
-//        } else {
-//            return false;
-//        }
-//    }
+    /**
+     * 判断SD卡是否可用
+     */
+    public static boolean sdCardIsAvailable() {
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            return Environment.getExternalStorageDirectory().canWrite();
+        } else {
+            return false;
+        }
+    }
 
     /**
      * 调用系统相机拍照
@@ -117,24 +116,25 @@ public class AlbumUtil {
     }
 
     /**
-     * 生成随机 JPG 路径（废弃）
-     */
-    @NonNull
-    @Deprecated
-    public static String randomJPGPath() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        return randomJPGPath(bucket);
-    }
-
-    /**
      * 生成随机 JPG 路径
      */
     @NonNull
     public static String randomJPGPath(Context context) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        // 判断 SD 卡是否正常挂载（手机存储是否可用）
+        if (!sdCardIsAvailable()) {
+            // SD 卡不可用（极少见）→ 存到 APP 自身缓存目录（/data/data/你的应用包名/cache/）
             return randomJPGPath(context.getCacheDir());
         }
         return randomJPGPath();
+    }
+
+    /**
+     * 生成随机 JPG 路径（废弃）
+     */
+    @NonNull
+    public static String randomJPGPath() {
+        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        return randomJPGPath(bucket);
     }
 
     /**
@@ -149,7 +149,6 @@ public class AlbumUtil {
      * 生成随机 MP4 路径（废弃）
      */
     @NonNull
-    @Deprecated
     public static String randomMP4Path() {
         File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
         return randomMP4Path(bucket);
@@ -160,7 +159,7 @@ public class AlbumUtil {
      */
     @NonNull
     public static String randomMP4Path(Context context) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (!sdCardIsAvailable()) {
             return randomMP4Path(context.getCacheDir());
         }
         return randomMP4Path();

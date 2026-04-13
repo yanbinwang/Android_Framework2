@@ -6,15 +6,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Build
 import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -47,7 +49,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -58,7 +59,9 @@ import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.font
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
@@ -205,6 +208,43 @@ fun View?.background(@DrawableRes bg: Int) {
 fun View?.clearBackground() {
     if (this == null) return
     this.background = null
+}
+
+/**
+ * 给 View 设置带圆角、按下、禁用状态的背景
+ * @normalColor 正常颜色
+ * @pressedColor 按下颜色
+ * @disabledColor 禁用颜色
+ * @radius 圆角半径
+ */
+fun View?.selectorRoundBackground(normalColor: Int, pressedColor: Int, disabledColor: Int, radius: Float) {
+    if (this == null) return
+    // 正常状态背景
+    val normalDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(normalColor)
+        cornerRadius = radius
+    }
+    // 按下状态背景
+    val pressedDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(pressedColor)
+        cornerRadius = radius
+    }
+    // 禁用状态背景
+    val disabledDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(disabledColor)
+        cornerRadius = radius
+    }
+    // 状态选择器（StateListDrawable）
+    val stateListDrawable = StateListDrawable()
+    // 添加状态：优先级 禁用 > 按下 > 正常
+    stateListDrawable.addState(intArrayOf(-android.R.attr.state_enabled), disabledDrawable)
+    stateListDrawable.addState(intArrayOf(android.R.attr.state_pressed), pressedDrawable)
+    stateListDrawable.addState(intArrayOf(), normalDrawable)
+    // 设置给 View
+    this.background = stateListDrawable
 }
 
 /**
@@ -521,13 +561,6 @@ fun View?.fade(time: Long = 500L, cancelAnim: Boolean = true) {
     // 设置插入器
     anim.interpolator = AccelerateInterpolator()
     // 设置监听
-//    anim.setAnimationListener(object : Animation.AnimationListener {
-//        override fun onAnimationEnd(animation: Animation?) {
-//            gone()
-//        }
-//        override fun onAnimationStart(animation: Animation?) {}
-//        override fun onAnimationRepeat(animation: Animation?) {}
-//    })
     anim.doOnEnd {
         gone()
     }
@@ -548,17 +581,6 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
     anim.fillAfter = false
     anim.duration = timeMS
     anim.interpolator = AccelerateInterpolator()
-//    anim.setAnimationListener(object : Animation.AnimationListener {
-//        override fun onAnimationEnd(animation: Animation?) {
-//            endListener?.invoke() ?: if (to == 0f) {
-//                gone()
-//            } else {
-//                visible()
-//            }
-//        }
-//        override fun onAnimationStart(animation: Animation?) {}
-//        override fun onAnimationRepeat(animation: Animation?) {}
-//    })
     anim.doOnEnd {
         endListener?.invoke() ?: if (to == 0f) {
             gone()
@@ -591,13 +613,6 @@ fun View?.appear(time: Long = 500L, cancelAnim: Boolean = true) {
     anim.fillAfter = false
     anim.duration = time
     anim.interpolator = AccelerateInterpolator()
-//    anim.setAnimationListener(object : Animation.AnimationListener {
-//        override fun onAnimationEnd(animation: Animation?) {
-//            visible()
-//        }
-//        override fun onAnimationStart(animation: Animation?) {}
-//        override fun onAnimationRepeat(animation: Animation?) {}
-//    })
     anim.doOnEnd {
         visible()
     }
@@ -667,17 +682,6 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
     if (fillAfter) anim.fillAfter = true
     anim.duration = timeMS
     anim.interpolator = interpolator
-//    if (onEnd != null || onStart != null) {
-//        anim.setAnimationListener(object : Animation.AnimationListener {
-//            override fun onAnimationEnd(animation: Animation?) {
-//                onEnd?.invoke()
-//            }
-//            override fun onAnimationStart(animation: Animation?) {
-//                onStart?.invoke()
-//            }
-//            override fun onAnimationRepeat(animation: Animation?) {}
-//        })
-//    }
     anim.addListener(onEnd = {
         onEnd?.invoke()
     }, onStart = {
@@ -720,17 +724,6 @@ fun View?.loopAnimation(anim: Animation) {
             repeatCount = Animation.INFINITE
         }
         startAnimation(anim)
-//        animation?.setAnimationListener(object : Animation.AnimationListener {
-//            override fun onAnimationStart(animation: Animation?) {
-//            }
-//
-//            override fun onAnimationEnd(animation: Animation?) {
-//                startAnimation(anim)
-//            }
-//
-//            override fun onAnimationRepeat(animation: Animation?) {
-//            }
-//        })
         animation.doOnEnd {
             startAnimation(anim)
         }
@@ -826,6 +819,7 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
 /**
  * 反射获取 View 的 OnClickListener
  */
+@SuppressLint("PrivateApi")
 fun View?.clickListener(): View.OnClickListener? {
     return try {
         val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
@@ -843,6 +837,7 @@ fun View?.clickListener(): View.OnClickListener? {
 /**
  * 反射获取 View 的 OnLongClickListener
  */
+@SuppressLint("PrivateApi")
 fun View?.longClickListener(): View.OnLongClickListener? {
     return try {
         val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
@@ -892,27 +887,37 @@ fun ViewGroup?.foreachChild(loop: (View) -> Unit) {
 /**
  * 获取resources中的color
  */
-fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
+fun ViewGroup.color(@ColorRes res: Int): Int {
+    return context.color(res)
+}
 
 /**
  * 获取resources中的drawable
  */
-fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
+fun ViewGroup.drawable(@DrawableRes res: Int): Drawable? {
+    return context.drawable(res)
+}
 
 /**
  * 获取Resources中的font
  */
-fun ViewGroup.font(@FontRes res: Int) = context.font(res)
+fun ViewGroup.font(@FontRes res: Int): Typeface? {
+    return context.font(res)
+}
 
 /**
  * 获取Resources中的Dimes
  */
-fun ViewGroup.dimen(@DimenRes res: Int) = context.dimen(res)
+fun ViewGroup.dimen(@DimenRes res: Int): Float {
+    return context.dimen(res)
+}
 
 /**
  * 获取Resources中的String
  */
-fun ViewGroup.string(@StringRes res: Int) = context.string(res)
+fun ViewGroup.string(@StringRes res: Int): String {
+    return context.string(res)
+}
 
 /**
  * 传入上下文获取绘制的item
@@ -924,7 +929,9 @@ fun ViewGroup.string(@StringRes res: Int) = context.string(res)
  *  view.size(MATCH_PARENT, WRAP_CONTENT)
  *  }
  */
-fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean) = LayoutInflater.from(context).inflate(res, this, attachToRoot)
+fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
+    return context.inflate(res, this, attachToRoot)
+}
 
 /**
  * 防止多次点击, 至少要500毫秒的间隔

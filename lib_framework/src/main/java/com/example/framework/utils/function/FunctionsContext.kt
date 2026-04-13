@@ -95,6 +95,15 @@ fun Context.string(@StringRes res: Int): String {
 
 /**
  * 生成View
+ * @attachToRoot: 加载出来的布局，要不要立刻添加到 root（父容器）中
+ * 1) attachToRoot = true
+ *  把布局添加到 root 里面
+ *  返回值：root 本身
+ *  使用场景：立刻把布局加到父布局里
+ * 2) attachToRoot = false
+ *  不添加到 root 里 , 但会用 root 来计算正确的布局参数（LayoutParams）
+ *  返回值：加载的布局自己
+ *  使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(res, root)
