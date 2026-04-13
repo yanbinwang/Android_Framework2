@@ -21,9 +21,10 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.DrawableCompat;
 
+import com.example.common.config.Constants;
 import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
 import com.yanzhenjie.album.widget.recyclerview.divider.Divider;
+import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
 
 import java.io.File;
 import java.security.MessageDigest;
@@ -35,6 +36,8 @@ import java.util.UUID;
 /**
  * 相册工具类
  * 功能：文件路径、拍照、录视频、时间格式化、MD5、Drawable 着色、时间转换等
+ * Android 从 10 开始，定义了「公共媒体目录」 所有应用都可以自由写入，不需要权限 (/storage/emulated/0/DCIM)
+ * 公共媒体目录 -> DCIM / Pictures / Download / Movies
  */
 public class AlbumUtil {
     // 相册缓存文件夹名称
@@ -51,23 +54,26 @@ public class AlbumUtil {
      */
     @NonNull
     public static File getAlbumRootPath(Context context) {
-        if (sdCardIsAvailable()) {
-            return new File(Environment.getExternalStorageDirectory(), CACHE_DIRECTORY);
-        } else {
-            return new File(context.getFilesDir(), CACHE_DIRECTORY);
-        }
+//        if (sdCardIsAvailable()) {
+//            // -> /storage/emulated/0/AlbumCache
+//            return new File(Environment.getExternalStorageDirectory(), CACHE_DIRECTORY);
+//        } else {
+//            // -> /data/data/你的包名/files/CACHE_DIRECTORY
+//            return new File(context.getFilesDir(), CACHE_DIRECTORY);
+//        }
+        return new File(Constants.getSDCARD_PATH() + "/" + CACHE_DIRECTORY);
     }
 
-    /**
-     * 判断SD卡是否可用
-     */
-    public static boolean sdCardIsAvailable() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            return Environment.getExternalStorageDirectory().canWrite();
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     * 判断SD卡是否可用
+//     */
+//    public static boolean sdCardIsAvailable() {
+//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//            return Environment.getExternalStorageDirectory().canWrite();
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * 调用系统相机拍照

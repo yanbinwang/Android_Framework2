@@ -537,9 +537,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         int notifyPosition = mHasCamera ? position + 1 : position;
         mView.notifyItem(notifyPosition);
         if (albumFile.isChecked()) {
-            if (!mCheckedList.contains(albumFile)) mCheckedList.add(albumFile);
+            if (!mCheckedList.contains(albumFile)) {
+                mCheckedList.add(albumFile);
+            }
         } else {
-            if (mCheckedList.contains(albumFile)) mCheckedList.remove(albumFile);
+            if (mCheckedList.contains(albumFile)) {
+                mCheckedList.remove(albumFile);
+            }
         }
         setCheckedCount();
     }
