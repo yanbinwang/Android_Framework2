@@ -60,7 +60,15 @@ public class AlbumUtil {
 //            // -> /data/data/你的包名/files/CACHE_DIRECTORY
 //            return new File(context.getFilesDir(), CACHE_DIRECTORY);
 //        }
-        return new File(context.getCacheDir() + "/" + CACHE_DIRECTORY);
+//        return new File(context.getCacheDir() + "/" + CACHE_DIRECTORY);
+        // 定义缓存路径
+        File cacheDir = new File(context.getCacheDir(), CACHE_DIRECTORY);
+        // 如果不存在，递归创建文件夹
+        if (!cacheDir.exists()) {
+            // 一定要带 s，多级目录也能创建
+            cacheDir.mkdirs();
+        }
+        return cacheDir;
     }
 
     /**
