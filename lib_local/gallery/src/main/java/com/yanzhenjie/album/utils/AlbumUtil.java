@@ -71,16 +71,16 @@ public class AlbumUtil {
         return cacheDir;
     }
 
-    /**
-     * 判断SD卡是否可用
-     */
-    public static boolean sdCardIsAvailable() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            return Environment.getExternalStorageDirectory().canWrite();
-        } else {
-            return false;
-        }
-    }
+//    /**
+//     * 判断SD卡是否可用
+//     */
+//    public static boolean sdCardIsAvailable() {
+//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+//            return Environment.getExternalStorageDirectory().canWrite();
+//        } else {
+//            return false;
+//        }
+//    }
 
     /**
      * 调用系统相机拍照
@@ -129,7 +129,7 @@ public class AlbumUtil {
     @NonNull
     public static String randomJPGPath(Context context) {
         // 判断 SD 卡是否正常挂载（手机存储是否可用）
-        if (!sdCardIsAvailable()) {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // SD 卡不可用（极少见）→ 存到 APP 自身缓存目录（/data/data/你的应用包名/cache/）
             return randomJPGPath(context.getCacheDir());
         }
@@ -167,7 +167,7 @@ public class AlbumUtil {
      */
     @NonNull
     public static String randomMP4Path(Context context) {
-        if (!sdCardIsAvailable()) {
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             return randomMP4Path(context.getCacheDir());
         }
         return randomMP4Path();
