@@ -6,9 +6,7 @@ import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.transition.Fade;
@@ -105,11 +103,7 @@ public class DurbanActivity extends BaseActivity {
         initArgument();
         // 覆盖基类动画
         setActivityAnimations();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
-        } else {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-        }
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         // 设置布局
         setContentView(R.layout.durban_activity_photobox);
         // 初始化状态栏、标题栏

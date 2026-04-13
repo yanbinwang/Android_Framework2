@@ -194,11 +194,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         super.onCreate(savedInstanceState)
         setActivityAnimations()
         // 强制补动画（外部跳转生效）
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out, Color.TRANSPARENT)
-        } else {
-            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
-        }
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
@@ -329,11 +325,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
 
     override fun finish() {
         super.finish()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out, Color.TRANSPARENT)
-        } else {
-            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
-        }
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
     override fun onDestroy() {

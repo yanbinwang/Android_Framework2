@@ -3,8 +3,6 @@ package com.yanzhenjie.album.app.album;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -67,6 +65,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private boolean mHasCamera;
     // 是否显示不可用文件
     private boolean mFilterVisibility;
+    // 选择进程开始时间 (记录)
+    private long mTaskStart;
     // 所有文件夹
     private List<AlbumFolder> mAlbumFolders;
     // 已选中的图片
@@ -165,11 +165,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 Intent intent = new Intent(this, NullActivity.class);
                 intent.putExtras(getIntent());
                 startActivityForResult(intent, CODE_ACTIVITY_NULL);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
-                } else {
-                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-                }
+                overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
                 TimerBuilder.schedule(this, () -> {
                     hideLoading();
                     return Unit.INSTANCE;
@@ -586,7 +582,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         task.execute();
     }
 
-    private long mTaskStart;
     @Override
     public void onThumbnailStart() {
         // 开始记录时间
@@ -657,11 +652,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         sResult = null;
         sCancel = null;
         super.finish();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
-        } else {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-        }
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
     }
 
 }

@@ -32,7 +32,7 @@ public class ColorProgressBar extends ProgressBar {
     public void setColorFilter(@ColorInt int color) {
         // 获取系统自带的旋转动画条
         Drawable drawable = getIndeterminateDrawable();
-        // 关键：mutate() 让这个 Drawable 独立，不影响其他地方的 ProgressBar
+        // mutate() 让这个 Drawable 独立，不影响其他地方的 ProgressBar
         drawable = drawable.mutate();
         // 着色
         drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);

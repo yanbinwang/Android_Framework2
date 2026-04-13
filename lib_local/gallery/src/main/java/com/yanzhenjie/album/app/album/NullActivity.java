@@ -5,8 +5,6 @@ import static android.transition.Visibility.MODE_OUT;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.transition.Fade;
 
@@ -62,11 +60,7 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         }
         // 覆盖基类动画
         setActivityAnimations();
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out, Color.TRANSPARENT);
-        } else {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-        }
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         setContentView(R.layout.album_activity_null);
         // 初始化状态栏/导航栏颜色（黑白字体自适应）
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
