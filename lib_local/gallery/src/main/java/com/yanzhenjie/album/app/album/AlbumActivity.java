@@ -85,6 +85,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private MediaScanner mMediaScanner;
     // 异步读取媒体
     private MediaReadTask mMediaReadTask;
+    private PathConvertTask mPathConvertTask;
+    private ThumbnailBuildTask mThumbnailBuildTask;
     // 静态常量
     private static final int CODE_ACTIVITY_NULL = 1;
     public static Filter<Long> sSizeFilter;
@@ -121,9 +123,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mMediaReadTask.execute();
         // 返回键 → 取消
         setOnBackPressedListener(() -> {
-            if (mMediaReadTask != null) {
-                mMediaReadTask.cancel(true);
-            }
             callbackCancel();
             return Unit.INSTANCE;
         });
@@ -360,9 +359,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
             }
             mMediaScanner.scan(result);
+            if (mPathConvertTask != null) {
+                mPathConvertTask.cancel(true);
+                mPathConvertTask = null;
+            }
             PathConversion conversion = new PathConversion(sSizeFilter, sMimeFilter, sDurationFilter);
-            PathConvertTask task = new PathConvertTask(conversion, AlbumActivity.this);
-            task.execute(result);
+            mPathConvertTask = new PathConvertTask(conversion, AlbumActivity.this);
+            mPathConvertTask.execute(result);
         }
     };
 
@@ -383,12 +386,12 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 addFileToList(albumFile);
             } else {
                 mView.toast(getString(R.string.album_take_file_unavailable));
+                dismissLoadingDialog();
             }
         } else {
             // 添加到列表
             addFileToList(albumFile);
         }
-        dismissLoadingDialog();
     }
 
     /**
@@ -427,6 +430,10 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 throw new AssertionError("This should not be the case.");
             }
         }
+        TimerBuilder.schedule(this, () -> {
+            dismissLoadingDialog();
+            return Unit.INSTANCE;
+        }, 500);
     }
 
     /**
@@ -584,8 +591,12 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * 最终回调：生成缩略图并返回
      */
     private void callbackResult() {
-        ThumbnailBuildTask task = new ThumbnailBuildTask(this, mCheckedList, this);
-        task.execute();
+        if (mThumbnailBuildTask != null) {
+            mThumbnailBuildTask.cancel(true);
+            mThumbnailBuildTask = null;
+        }
+        mThumbnailBuildTask = new ThumbnailBuildTask(this, mCheckedList, this);
+        mThumbnailBuildTask.execute();
     }
 
     @Override
@@ -652,6 +663,18 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      */
     @Override
     public void finish() {
+        if (mMediaReadTask != null) {
+            mMediaReadTask.cancel(true);
+            mMediaReadTask = null;
+        }
+        if (mPathConvertTask != null) {
+            mPathConvertTask.cancel(true);
+            mPathConvertTask = null;
+        }
+        if (mThumbnailBuildTask != null) {
+            mThumbnailBuildTask.cancel(true);
+            mThumbnailBuildTask = null;
+        }
         sSizeFilter = null;
         sMimeFilter = null;
         sDurationFilter = null;
