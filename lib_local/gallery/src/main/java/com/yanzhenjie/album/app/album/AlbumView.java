@@ -133,6 +133,7 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
         if (choiceMode == Album.MODE_SINGLE) {
             mBtnPreview.setVisibility(View.GONE);
         } else {
+            mBtnPreview.setVisibility(View.VISIBLE);
             // 多选等 Toolbar 布局结束右侧强行撑满
             setSupportMenuViewAsync(mToolbar, widget.getStatusBarColor());
         }

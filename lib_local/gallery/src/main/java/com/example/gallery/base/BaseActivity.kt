@@ -3,7 +3,6 @@ package com.example.gallery.base
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.transition.Slide
