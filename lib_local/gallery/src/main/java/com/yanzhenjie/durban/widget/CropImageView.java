@@ -40,10 +40,12 @@ public class CropImageView extends TransformImageView {
     private float mMaxScaleMultiplier = DEFAULT_MAX_SCALE_MULTIPLIER;
     // 图片自适应裁剪框动画时间
     private long mImageToWrapCropBoundsAnimDuration = DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION;
+    // 动画任务
+    private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable;
+    // 裁剪异步
+    private BitmapCropTask mBitmapCropTask;
     // 裁剪比例变化监听
     private CropBoundsChangeListener mCropBoundsChangeListener;
-    // 动画任务
-    private Runnable mWrapCropBoundsRunnable, mZoomImageToPositionRunnable = null;
     // 裁剪区域矩形
     private final RectF mCropRect = new RectF();
     // 临时矩阵（计算用，避免频繁创建对象）
@@ -65,6 +67,15 @@ public class CropImageView extends TransformImageView {
 
     public CropImageView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mBitmapCropTask != null) {
+            mBitmapCropTask.cancel(true);
+            mBitmapCropTask = null;
+        }
     }
 
     /**
@@ -223,7 +234,12 @@ public class CropImageView extends TransformImageView {
         // 封装裁剪参数
         final CropParameters cropParameters = new CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo());
         // 异步裁剪并保存
-        new BitmapCropTask(getContext(), getViewBitmap(), imageState, cropParameters, cropCallback).execute();
+        if (mBitmapCropTask != null) {
+            mBitmapCropTask.cancel(true);
+            mBitmapCropTask = null;
+        }
+        mBitmapCropTask = new BitmapCropTask(getContext(), getViewBitmap(), imageState, cropParameters, cropCallback);
+        mBitmapCropTask.execute();
     }
 
     /**

@@ -27,19 +27,6 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
     private final LoadingDialog mDialog;
 
     /**
-     * 图片加载结果内部类
-     */
-    public static class BitmapWorkerResult {
-        private final Bitmap bitmap;
-        private final ExifInfo exifInfo;
-
-        public BitmapWorkerResult(Bitmap bitmapResult, ExifInfo exifInfo) {
-            this.bitmap = bitmapResult;
-            this.exifInfo = exifInfo;
-        }
-    }
-
-    /**
      * 构造图片加载任务
      */
     public BitmapLoadTask(Context context, int requiredWidth, int requiredHeight, BitmapLoadCallback loadCallback) {
@@ -116,6 +103,19 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
             return new BitmapWorkerResult(BitmapLoadUtil.transformBitmap(decodeSampledBitmap, matrix), exifInfo);
         }
         return new BitmapWorkerResult(decodeSampledBitmap, exifInfo);
+    }
+
+    /**
+     * 图片加载结果内部类
+     */
+    public static class BitmapWorkerResult {
+        private final Bitmap bitmap;
+        private final ExifInfo exifInfo;
+
+        public BitmapWorkerResult(Bitmap bitmapResult, ExifInfo exifInfo) {
+            this.bitmap = bitmapResult;
+            this.exifInfo = exifInfo;
+        }
     }
 
 }

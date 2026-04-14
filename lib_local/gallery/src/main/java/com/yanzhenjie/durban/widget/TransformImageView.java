@@ -34,6 +34,8 @@ public class TransformImageView extends AppCompatImageView {
     // 图片初始状态：四个角坐标、中心点坐标
     private float[] mInitialImageCorners;
     private float[] mInitialImageCenter;
+    // 加载线程
+    private BitmapLoadTask mBitmapLoadTask;
     // 常量：坐标点数量
     private static final String TAG = "TransformImageView";
     // 常量：坐标点数量
@@ -134,6 +136,18 @@ public class TransformImageView extends AppCompatImageView {
     }
 
     /**
+     * 销毁
+     */
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        if (mBitmapLoadTask != null) {
+            mBitmapLoadTask.cancel(true);
+            mBitmapLoadTask = null;
+        }
+    }
+
+    /**
      * 图片布局完成 → 记录初始坐标
      */
     protected void onImageLaidOut() {
@@ -173,7 +187,11 @@ public class TransformImageView extends AppCompatImageView {
     public void setImagePath(@NonNull String inputImagePath) throws Exception {
         mImagePath = inputImagePath;
         int maxBitmapSize = getMaxBitmapSize();
-        new BitmapLoadTask(getContext(), maxBitmapSize, maxBitmapSize, new BitmapLoadCallback() {
+        if (mBitmapLoadTask != null) {
+            mBitmapLoadTask.cancel(true);
+            mBitmapLoadTask = null;
+        }
+        mBitmapLoadTask = new BitmapLoadTask(getContext(), maxBitmapSize, maxBitmapSize, new BitmapLoadCallback() {
             @Override
             public void onSuccessfully(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo) {
                 mExifInfo = exifInfo;
@@ -187,7 +205,8 @@ public class TransformImageView extends AppCompatImageView {
                     mTransformImageListener.onLoadFailure();
                 }
             }
-        }).execute(inputImagePath);
+        });
+        mBitmapLoadTask.execute(inputImagePath);
     }
 
     public String getImagePath() {

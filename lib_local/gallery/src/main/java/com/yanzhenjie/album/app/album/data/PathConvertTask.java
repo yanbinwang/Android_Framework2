@@ -16,21 +16,6 @@ public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
     private final Callback mCallback;
 
     /**
-     * 转换回调接口
-     */
-    public interface Callback {
-        /**
-         * 任务开始
-         */
-        void onConvertStart();
-
-        /**
-         * 转换完成，返回结果
-         */
-        void onConvertCallback(AlbumFile albumFile);
-    }
-
-    /**
      * 构造任务
      */
     public PathConvertTask(PathConversion conversion, Callback callback) {
@@ -61,6 +46,21 @@ public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
     @Override
     protected void onPostExecute(AlbumFile file) {
         mCallback.onConvertCallback(file);
+    }
+
+    /**
+     * 转换回调接口
+     */
+    public interface Callback {
+        /**
+         * 任务开始
+         */
+        void onConvertStart();
+
+        /**
+         * 转换完成，返回结果
+         */
+        void onConvertCallback(AlbumFile albumFile);
     }
 
 }

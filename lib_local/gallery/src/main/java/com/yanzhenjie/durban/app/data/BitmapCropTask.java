@@ -50,19 +50,6 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
     private final BitmapCropCallback mCallback;
 
     /**
-     * 任务结果内部类
-     */
-    public static class PathWorkerResult {
-        private final String path;
-        private final Exception exception;
-
-        public PathWorkerResult(String path, Exception exception) {
-            this.path = path;
-            this.exception = exception;
-        }
-    }
-
-    /**
      * 构造裁剪任务
      */
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters, @Nullable BitmapCropCallback cropCallback) {
@@ -197,6 +184,19 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
         int pixelError = 1;
         pixelError += Math.round(Math.max(width, height) / 1000f);
         return (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) || Math.abs(mCropRect.left - mCurrentImageRect.left) > pixelError || Math.abs(mCropRect.top - mCurrentImageRect.top) > pixelError || Math.abs(mCropRect.bottom - mCurrentImageRect.bottom) > pixelError || Math.abs(mCropRect.right - mCurrentImageRect.right) > pixelError;
+    }
+
+    /**
+     * 任务结果内部类
+     */
+    public static class PathWorkerResult {
+        private final String path;
+        private final Exception exception;
+
+        public PathWorkerResult(String path, Exception exception) {
+            this.path = path;
+            this.exception = exception;
+        }
     }
 
 }

@@ -21,21 +21,6 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
     private final ThumbnailBuilder mThumbnailBuilder;
 
     /**
-     * 回调接口
-     */
-    public interface Callback {
-        /**
-         * 开始生成
-         */
-        void onThumbnailStart();
-
-        /**
-         * 生成完成，返回带缩略图路径的数据
-         */
-        void onThumbnailCallback(ArrayList<AlbumFile> albumFiles);
-    }
-
-    /**
      * 构造任务
      */
     public ThumbnailBuildTask(Context context, ArrayList<AlbumFile> albumFiles, Callback callback) {
@@ -79,6 +64,21 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
     @Override
     protected void onPostExecute(ArrayList<AlbumFile> albumFiles) {
         mCallback.onThumbnailCallback(albumFiles);
+    }
+
+    /**
+     * 回调接口
+     */
+    public interface Callback {
+        /**
+         * 开始生成
+         */
+        void onThumbnailStart();
+
+        /**
+         * 生成完成，返回带缩略图路径的数据
+         */
+        void onThumbnailCallback(ArrayList<AlbumFile> albumFiles);
     }
 
 }
