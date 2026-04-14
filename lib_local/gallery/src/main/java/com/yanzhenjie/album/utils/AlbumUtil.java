@@ -124,6 +124,15 @@ public class AlbumUtil {
     }
 
     /**
+     * 生成随机 JPG 路径（废弃）
+     */
+    @NonNull
+    public static String randomJPGPath() {
+        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
+        return randomJPGPath(bucket);
+    }
+
+    /**
      * 生成随机 JPG 路径
      */
     @NonNull
@@ -134,15 +143,6 @@ public class AlbumUtil {
             return randomJPGPath(context.getCacheDir());
         }
         return randomJPGPath();
-    }
-
-    /**
-     * 生成随机 JPG 路径（废弃）
-     */
-    @NonNull
-    public static String randomJPGPath() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        return randomJPGPath(bucket);
     }
 
     /**
