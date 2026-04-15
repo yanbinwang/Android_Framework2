@@ -19,8 +19,7 @@ import com.yanzhenjie.album.model.Widget;
 
 /**
  * 空页面
- * 功能：当手机里没有图片/视频时显示
- * 提供：拍照、录像入口，属于 MVP 中的 Presenter 层
+ * 功能：当手机里没有图片/视频时显示 提供拍照、录像入口
  */
 public class NullActivity extends BaseActivity implements Contract.NullPresenter {
     // 功能：图片/视频/全部

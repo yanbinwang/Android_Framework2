@@ -33,7 +33,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 图片/视频 预览页 -->
         <activity
-            android:name="com.yanzhenjie.album.app.album.GalleryActivity"
+            android:name="com.yanzhenjie.album.app.album.AlbumPreviewActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Album.Theme.Activity"

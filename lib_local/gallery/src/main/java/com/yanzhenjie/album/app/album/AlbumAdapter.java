@@ -23,7 +23,7 @@ import com.yanzhenjie.album.utils.AlbumUtil;
 import java.util.List;
 
 /**
- * 相册主列表适配器（终极版）
+ * 相册主列表适配器
  * 三种类型：拍照按钮 / 图片 / 视频
  * 支持：单选、多选、预览、选择、禁用遮罩
  */

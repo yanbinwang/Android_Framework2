@@ -19,9 +19,8 @@ import java.util.ArrayList;
 import kotlin.Unit;
 
 /**
- * 图片/视频 预览页
- * 对应 MVP 中的 Presenter 层
- * 职责：处理所有预览页的业务逻辑（选中、切换、完成、回调）
+ * 外部媒体预览
+ * 功能：处理所有预览页的业务逻辑（选中、切换、完成、回调）
  */
 public class GalleryAlbumActivity extends BaseActivity implements Contract.GalleryPresenter {
     // 当前预览的图片位置

@@ -18,11 +18,10 @@ import java.util.ArrayList;
 import kotlin.Unit;
 
 /**
- * 图片/视频 预览页
- * MVP 中的 Presenter
- * 负责：选择控制、数量限制、预览切换、完成返回
+ * 相册内部选择预览（带勾选）
+ * 功能：选择控制、数量限制、预览切换、完成返回
  */
-public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
+public class AlbumPreviewActivity extends BaseActivity implements Contract.GalleryPresenter {
     // 功能类型：图片 / 视频 / 全部
     private int mFunction;
     // 最大可选数量

@@ -19,9 +19,8 @@ import java.util.Map;
 import kotlin.Unit;
 
 /**
- * 图片路径 预览页
- * 功能：只预览图片路径（String），不处理 AlbumFile
- * 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
+ * 纯图片路径预览
+ * 功能：只预览图片路径（String），不处理 AlbumFile 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
  */
 public class GalleryActivity extends BaseActivity implements Contract.GalleryPresenter {
     // 当前预览位置

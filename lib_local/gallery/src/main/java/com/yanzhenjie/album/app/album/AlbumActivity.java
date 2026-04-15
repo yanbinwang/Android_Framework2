@@ -38,13 +38,13 @@ import kotlin.Unit;
 
 /**
  * 相册主页（总控 Activity）
- * MVP 中的 Presenter —— 掌管：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
- * MediaReadTask.Callback       // 媒体扫描回调
- * GalleryActivity.Callback     // 预览页回调
- * PathConvertTask.Callback     // 路径转换回调
- * ThumbnailBuildTask.Callback  // 缩略图生成回调
+ * 功能：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
+ * MediaReadTask.Callback        // 媒体扫描回调
+ * AlbumPreviewActivity.Callback // 预览页回调
+ * PathConvertTask.Callback      // 路径转换回调
+ * ThumbnailBuildTask.Callback   // 缩略图生成回调
  */
-public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, GalleryActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
+public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, AlbumPreviewActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
     // 当前选中的文件夹
     private int mCurrentFolder;
     // 功能：图片/视频/全部
@@ -500,11 +500,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             }
             // 多选 → 打开预览页
             case Album.MODE_MULTIPLE: {
-                GalleryActivity.sAlbumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
-                GalleryActivity.sCheckedCount = mCheckedList.size();
-                GalleryActivity.sCurrentPosition = position;
-                GalleryActivity.sCallback = this;
-                Intent intent = new Intent(this, GalleryActivity.class);
+                AlbumPreviewActivity.sAlbumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
+                AlbumPreviewActivity.sCheckedCount = mCheckedList.size();
+                AlbumPreviewActivity.sCurrentPosition = position;
+                AlbumPreviewActivity.sCallback = this;
+                Intent intent = new Intent(this, AlbumPreviewActivity.class);
                 intent.putExtras(getIntent());
                 startActivity(intent);
                 break;
@@ -521,11 +521,11 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     @Override
     public void tryPreviewChecked() {
         if (!mCheckedList.isEmpty()) {
-            GalleryActivity.sAlbumFiles = new ArrayList<>(mCheckedList);
-            GalleryActivity.sCheckedCount = mCheckedList.size();
-            GalleryActivity.sCurrentPosition = 0;
-            GalleryActivity.sCallback = this;
-            Intent intent = new Intent(this, GalleryActivity.class);
+            AlbumPreviewActivity.sAlbumFiles = new ArrayList<>(mCheckedList);
+            AlbumPreviewActivity.sCheckedCount = mCheckedList.size();
+            AlbumPreviewActivity.sCurrentPosition = 0;
+            AlbumPreviewActivity.sCallback = this;
+            Intent intent = new Intent(this, AlbumPreviewActivity.class);
             intent.putExtras(getIntent());
             startActivity(intent);
         }
