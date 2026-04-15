@@ -10,7 +10,7 @@ import com.yanzhenjie.album.model.AlbumFile;
  * 防止主线程卡顿（因为视频时长解析耗时）
  */
 public class PathConvertTask extends AsyncTask<String, Void, AlbumFile> {
-    // 路径转换器（真正干活的）
+    // 路径转换器
     private final PathConversion mConversion;
     // 转换回调
     private final Callback mCallback;

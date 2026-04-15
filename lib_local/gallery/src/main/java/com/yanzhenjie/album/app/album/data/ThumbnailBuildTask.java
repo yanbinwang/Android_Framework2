@@ -17,7 +17,7 @@ public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFil
     private final ArrayList<AlbumFile> mAlbumFiles;
     // 回调
     private final Callback mCallback;
-    // 缩略图构建器（真正干活）
+    // 缩略图构建器
     private final ThumbnailBuilder mThumbnailBuilder;
 
     /**

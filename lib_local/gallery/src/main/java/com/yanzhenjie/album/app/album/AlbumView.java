@@ -162,8 +162,10 @@ public class AlbumView extends Contract.AlbumView implements View.OnClickListene
 //        mLayoutLoading.setVisibility(display ? View.VISIBLE : View.GONE);
         if (display) {
             mLayoutLoading.setVisibility(View.VISIBLE);
+            mProgressBar.setIndeterminate(true);
         } else {
             FunctionsViewKt.fade(mLayoutLoading, 500, true);
+            mProgressBar.setIndeterminate(false);
         }
     }
 

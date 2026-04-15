@@ -165,10 +165,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 intent.putExtras(getIntent());
                 startActivityForResult(intent, CODE_ACTIVITY_NULL);
                 overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-                TimerBuilder.schedule(this, () -> {
-                    hideLoading();
-                    return Unit.INSTANCE;
-                }, 1000);
+                hideLoading(true);
                 return Unit.INSTANCE;
             }, 1000);
         } else {
@@ -176,49 +173,35 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
             mView.setCheckedCount(count);
-            hideLoading();
+            hideLoading(false);
         }
     }
 
     /**
      * 隐藏遮罩
      */
-    private void hideLoading() {
-        // 完成按钮是否显示
-        switch (mChoiceMode) {
-            case Album.MODE_MULTIPLE: {
-                mView.setCompleteDisplay(true);
-                break;
-            }
-            case Album.MODE_SINGLE: {
-                mView.setCompleteDisplay(false);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
-        // 隐藏整体遮罩
-        mView.setLoadingDisplay(false);
-    }
-
-    /**
-     * 空页面拍照返回
-     */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == CODE_ACTIVITY_NULL) {
-            if (resultCode == RESULT_OK) {
-                String imagePath = NullActivity.parsePath(data);
-                String mimeType = AlbumUtil.getMimeType(imagePath);
-                if (!TextUtils.isEmpty(mimeType)) {
-                    mCameraAction.onAction(imagePath);
+    private void hideLoading(boolean isNull) {
+        long delayMillis = 500L;
+        if (isNull) delayMillis = 1000L;
+        TimerBuilder.schedule(this, () -> {
+            // 完成按钮是否显示
+            switch (mChoiceMode) {
+                case Album.MODE_MULTIPLE: {
+                    mView.setCompleteDisplay(true);
+                    break;
                 }
-            } else {
-                callbackCancel();
+                case Album.MODE_SINGLE: {
+                    mView.setCompleteDisplay(false);
+                    break;
+                }
+                default: {
+                    throw new AssertionError("This should not be the case.");
+                }
             }
-        }
+            // 隐藏整体遮罩
+            mView.setLoadingDisplay(false);
+            return Unit.INSTANCE;
+        }, delayMillis);
     }
 
     /**
@@ -355,10 +338,19 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private final Action<String> mCameraAction = new Action<>() {
         @Override
         public void onAction(@NonNull String result) {
+            /**
+             * 1) 触发 系统媒体数据库更新
+             * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
+             * 这样相册才能看到新图片。
+             * 2) 触发 文件管理器 / 相册刷新
+             * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
+             * 3) 触发 onScanCompleted 回调
+             */
             if (mMediaScanner == null) {
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
             }
             mMediaScanner.scan(result);
+            // 执行一次路径转换
             if (mPathConvertTask != null) {
                 mPathConvertTask.cancel(true);
                 mPathConvertTask = null;
@@ -613,15 +605,18 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         long costTime = System.currentTimeMillis() - mTaskStart;
         if (costTime < 1000L) {
             TimerBuilder.schedule(this, () -> {
-                setResult(albumFiles);
+                callbackResult(albumFiles);
                 return Unit.INSTANCE;
             }, 1000);
         } else {
-            setResult(albumFiles);
+            callbackResult(albumFiles);
         }
     }
 
-    private void setResult(ArrayList<AlbumFile> albumFiles) {
+    /**
+     * 确定
+     */
+    private void callbackResult(ArrayList<AlbumFile> albumFiles) {
         if (sResult != null) {
             sResult.onAction(albumFiles);
         }
@@ -636,6 +631,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (sCancel != null) {
             sCancel.onAction("User canceled.");
         }
+        dismissLoadingDialog();
         finish();
     }
 
@@ -655,6 +651,25 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     public void dismissLoadingDialog() {
         if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
             mLoadingDialog.dismiss();
+        }
+    }
+
+    /**
+     * 空页面拍照返回
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == CODE_ACTIVITY_NULL) {
+            if (resultCode == RESULT_OK) {
+                String imagePath = NullActivity.parsePath(data);
+                String mimeType = AlbumUtil.getMimeType(imagePath);
+                if (!TextUtils.isEmpty(mimeType)) {
+                    mCameraAction.onAction(imagePath);
+                }
+            } else {
+                callbackCancel();
+            }
         }
     }
 

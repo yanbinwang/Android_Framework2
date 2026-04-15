@@ -60,4 +60,19 @@ public class LoadingDialog extends Dialog {
         mTvMessage.setText(message);
     }
 
+    /**
+     * 转圈开启/停止
+     */
+    @Override
+    public void show() {
+        super.show();
+        mProgressBar.setIndeterminate(true);
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        mProgressBar.setIndeterminate(false);
+    }
+
 }

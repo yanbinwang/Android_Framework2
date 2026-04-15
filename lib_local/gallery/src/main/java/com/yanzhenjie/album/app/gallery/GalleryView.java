@@ -33,8 +33,8 @@ import java.util.List;
 public class GalleryView<Data> extends Contract.GalleryView<Data> implements View.OnClickListener {
     // 右上角完成按钮
     private MenuItem mCompleteMenu;
-    // 上下文
-    private final Activity mActivity;
+//    // 上下文
+//    private final Activity mActivity;
     // 标题栏
     private final Toolbar mToolbar;
     // 预览 ViewPager
@@ -54,7 +54,7 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
     public GalleryView(Activity activity, Contract.GalleryPresenter presenter) {
         super(activity, presenter);
         // 绑定所有控件
-        this.mActivity = activity;
+//        this.mActivity = activity;
         this.mToolbar = activity.findViewById(R.id.toolbar);
         this.mViewPager = activity.findViewById(R.id.view_pager);
         this.mLayoutBottom = activity.findViewById(R.id.layout_bottom);

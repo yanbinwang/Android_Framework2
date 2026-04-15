@@ -19,7 +19,7 @@ public class MediaReadTask extends AsyncTask<Void, Void, MediaReadTask.ResultWra
     private final int mFunction;
     // 已经选中的文件（用于回显勾选状态）
     private final List<AlbumFile> mCheckedFiles;
-    // 媒体扫描器（真正干活的）
+    // 媒体扫描器
     private final MediaReader mMediaReader;
     // 扫描完成回调
     private final Callback mCallback;

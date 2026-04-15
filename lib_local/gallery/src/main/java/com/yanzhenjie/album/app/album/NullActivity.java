@@ -5,8 +5,14 @@ import static android.transition.Visibility.MODE_OUT;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.transition.Fade;
+import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 import androidx.annotation.Nullable;
 
@@ -16,6 +22,8 @@ import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.model.Widget;
+
+import java.util.Collections;
 
 /**
  * 空页面
@@ -60,6 +68,30 @@ public class NullActivity extends BaseActivity implements Contract.NullPresenter
         // 覆盖基类动画
         setActivityAnimations();
         overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+        // 禁止侧滑拖动动画
+        final View decorView = getWindow().getDecorView();
+        decorView.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                decorView.getViewTreeObserver().removeOnPreDrawListener(this);
+                Window window = getWindow();
+                window.getDecorView().setScrollContainer(false);
+                window.getDecorView().setOverScrollMode(View.OVER_SCROLL_NEVER);
+                // Android 13+ 预测性侧滑返回 → 直接关闭，不拖动页面
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    OnBackInvokedDispatcher dispatcher = window.getOnBackInvokedDispatcher();
+                    dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, () -> finish());
+                }
+                // Android 10+ 手势排除
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    try {
+                        window.setSystemGestureExclusionRects(Collections.emptyList());
+                    } catch (Exception ignored) {}
+                }
+                // 允许继续绘制
+                return true;
+            }
+        });
         setContentView(R.layout.album_activity_null);
         // 初始化状态栏/导航栏颜色（黑白字体自适应）
         boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
