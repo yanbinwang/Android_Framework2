@@ -40,11 +40,11 @@ import kotlin.Unit;
  * 相册主页（总控 Activity）
  * 功能：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
  * MediaReadTask.Callback        // 媒体扫描回调
- * AlbumPreviewActivity.Callback // 预览页回调
  * PathConvertTask.Callback      // 路径转换回调
  * ThumbnailBuildTask.Callback   // 缩略图生成回调
+ * AlbumPreviewActivity.Callback // 预览页回调
  */
-public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, AlbumPreviewActivity.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback {
+public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback, AlbumPreviewActivity.Callback {
     // 当前选中的文件夹
     private int mCurrentFolder;
     // 功能：图片/视频/全部
@@ -205,7 +205,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * 切换文件夹
+     * 点击所有图片 -> 切换相册
      */
     @Override
     public void clickFolderSwitch() {
@@ -230,7 +230,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * 点击拍照按钮
+     * 点击列表 -> 拍照/录像
      */
     @Override
     public void clickCamera(View v) {
@@ -541,32 +541,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * 预览页回调
-     */
-    @Override
-    public void onPreviewComplete() {
-        callbackResult();
-    }
-
-    @Override
-    public void onPreviewChanged(AlbumFile albumFile) {
-        ArrayList<AlbumFile> albumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
-        int position = albumFiles.indexOf(albumFile);
-        int notifyPosition = mHasCamera ? position + 1 : position;
-        mView.notifyItem(notifyPosition);
-        if (albumFile.isChecked()) {
-            if (!mCheckedList.contains(albumFile)) {
-                mCheckedList.add(albumFile);
-            }
-        } else {
-            if (mCheckedList.contains(albumFile)) {
-                mCheckedList.remove(albumFile);
-            }
-        }
-        setCheckedCount();
-    }
-
-    /**
      * 点击完成
      */
     @Override
@@ -656,6 +630,32 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         }
         dismissLoadingDialog();
         finish();
+    }
+
+    /**
+     * 预览页回调
+     */
+    @Override
+    public void onPreviewComplete() {
+        callbackResult();
+    }
+
+    @Override
+    public void onPreviewChanged(AlbumFile albumFile) {
+        ArrayList<AlbumFile> albumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
+        int position = albumFiles.indexOf(albumFile);
+        int notifyPosition = mHasCamera ? position + 1 : position;
+        mView.notifyItem(notifyPosition);
+        if (albumFile.isChecked()) {
+            if (!mCheckedList.contains(albumFile)) {
+                mCheckedList.add(albumFile);
+            }
+        } else {
+            if (mCheckedList.contains(albumFile)) {
+                mCheckedList.remove(albumFile);
+            }
+        }
+        setCheckedCount();
     }
 
     /**

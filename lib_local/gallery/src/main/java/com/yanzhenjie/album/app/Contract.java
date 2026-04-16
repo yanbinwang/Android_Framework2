@@ -24,22 +24,22 @@ public final class Contract {
     public interface AlbumPresenter extends BasePresenter {
 
         /**
-         * 点击切换文件夹
+         * 点击所有图片 -> 切换相册
          */
         void clickFolderSwitch();
 
         /**
-         * 点击拍照
+         * 点击列表 -> 拍照/录像
          */
         void clickCamera(View v);
 
         /**
-         * 尝试选中/取消选中某个条目
+         * 点击列表条目 -> 选中/取消选中某个条目
          */
         void tryCheckItem(CompoundButton button, int position);
 
         /**
-         * 尝试预览当前位置的图片/视频
+         * 点击列表条目 -> 预览当前位置的图片/视频
          */
         void tryPreviewItem(int position);
 
