@@ -13,7 +13,6 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.model.ButtonStyle;
 import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
@@ -53,9 +52,6 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
     /**
      * 初始化页面样式（颜色、主题、图标）
      * 按钮样式：颜色、背景
-     * .buttonStyle(Widget.ButtonStyle.newDarkBuilder(context)
-     *       .setButtonSelector(normalColor, highlightColor)
-     *       .build())
      */
     @Override
     public void setupViews(Widget widget) {
@@ -74,8 +70,7 @@ public class NullView extends Contract.NullView implements View.OnClickListener 
         mToolbar.setBackgroundColor(getColor(widget.getStatusBarColor()));
         mTitle.setText(widget.getTitle());
         // 设置按钮颜色
-        ButtonStyle buttonStyle = widget.getButtonStyle();
-        ColorStateList buttonSelector = buttonStyle.getButtonSelector();
+        ColorStateList buttonSelector = widget.getButtonSelector();
         mBtnTakeImage.setBackgroundTintList(buttonSelector);
         mBtnTakeVideo.setBackgroundTintList(buttonSelector);
         // 获取按钮主题色

@@ -28,7 +28,7 @@ data class Widget(
     val title: String, // 标题
     val mediaItemCheckSelector: ColorStateList, // 媒体条目（图片/视频）选择框颜色状态
     val bucketItemCheckSelector: ColorStateList, // 文件夹条目选择框颜色状态
-    val buttonStyle: ButtonStyle // 按钮样式
+    val buttonSelector: ColorStateList // 按钮样式
 ) : Parcelable {
 
     companion object {
@@ -76,7 +76,7 @@ data class Widget(
                 .title(R.string.album_title)
                 .mediaItemCheckSelector(context.color(R.color.albumSelectorNormal), context.color(R.color.galleryColorPrimary))
                 .bucketItemCheckSelector(context.color(R.color.albumSelectorNormal), context.color(R.color.galleryColorPrimary))
-                .buttonStyle(ButtonStyle.getDefaultButtonStyle(context))
+                .buttonSelector(context.color(R.color.galleryColorPrimary), context.color(R.color.galleryColorPrimaryDark))
                 .build()
         }
     }
@@ -91,7 +91,7 @@ data class Widget(
         builder.mTitle.takeIf { !it.isNullOrEmpty() } ?: builder.mContext.getString(R.string.album_title),
         builder.mMediaItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumSelectorNormal), builder.mContext.color(R.color.galleryColorPrimary)),
         builder.mBucketItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumSelectorNormal), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mButtonStyle.takeIf { it != null } ?: ButtonStyle.newDarkBuilder(builder.mContext).build()
+        builder.mButtonSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.galleryColorPrimary), builder.mContext.color(R.color.galleryColorPrimaryDark))
     )
 
     /**
@@ -105,7 +105,7 @@ data class Widget(
         var mTitle: String? = null
         var mMediaItemCheckSelector: ColorStateList? = null
         var mBucketItemCheckSelector: ColorStateList? = null
-        var mButtonStyle: ButtonStyle? = null
+        var mButtonSelector: ColorStateList? = null
 
         /**
          * 设置状态栏颜色
@@ -152,10 +152,10 @@ data class Widget(
         }
 
         /**
-         * 设置按钮样式
+         * 设置按钮点击效果
          */
-        fun buttonStyle(buttonStyle: ButtonStyle?): Builder {
-            this.mButtonStyle = buttonStyle
+        fun buttonSelector(@ColorInt normalColor: Int, @ColorInt highLightColor: Int): Builder {
+            mButtonSelector = AlbumUtil.getColorStateList(normalColor, highLightColor)
             return this
         }
 
