@@ -375,13 +375,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 addFileToList(albumFile);
             } else {
                 mView.toast(getString(R.string.album_take_file_unavailable));
-                dismissLoadingDialog(); // 不可以直接取消弹框
+                // 不可以直接取消弹框
+                dismissLoadingDialog();
             }
         } else {
             // 添加到列表
             addFileToList(albumFile);
         }
-//        dismissLoadingDialog();
     }
 
     /**
@@ -408,18 +408,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-//        switch (mChoiceMode) {
-//            case Album.MODE_SINGLE: {
-//                callbackResult();
-//                break;
-//            }
-//            case Album.MODE_MULTIPLE: {
-//                break;
-//            }
-//            default: {
-//                throw new AssertionError("This should not be the case.");
-//            }
-//        }
         // 插入行为结束,给予1s动画转圈过渡
         TimerBuilder.schedule(this, () -> {
             if (mChoiceMode == Album.MODE_SINGLE) {

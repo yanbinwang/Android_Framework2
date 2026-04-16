@@ -19,9 +19,9 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.example.gallery.R;
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
 import com.yanzhenjie.album.model.AlbumFile;
+import com.yanzhenjie.album.model.Widget;
 
 import java.util.List;
 

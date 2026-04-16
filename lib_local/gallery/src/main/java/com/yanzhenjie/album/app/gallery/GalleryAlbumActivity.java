@@ -10,8 +10,8 @@ import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.callback.ItemAction;
-import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.app.Contract;
+import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
 
 import java.util.ArrayList;

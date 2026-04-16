@@ -1,59 +1,52 @@
-package com.yanzhenjie.album.api;
+package com.yanzhenjie.album.api
 
-import android.content.Context;
-
-import androidx.annotation.Nullable;
-
-import com.yanzhenjie.album.callback.Action;
+import android.content.Context
+import com.yanzhenjie.album.callback.Action
 
 /**
  * 相机功能 顶层抽象父类
- * 地位：和 BasicAlbumWrapper 平级！
- * 专门给：拍照、录像 功能用的
+ * 地位和 BasicAlbumWrapper 平级 专门给拍照、录像 功能用的
  * 功能：统一相机的 路径、回调、启动
  */
-public abstract class BasicCameraWrapper<Returner extends BasicCameraWrapper> {
+abstract class BasicCameraWrapper<Returner : BasicCameraWrapper<Returner>>(@JvmField val mContext: Context) {
     // 拍照/录像 保存的文件路径
-    protected String mFilePath;
-    // 上下文
-    protected Context mContext;
+    @JvmField
+    protected var mFilePath: String? = null
     // 成功回调（返回文件路径）
-    protected Action<String> mResult;
+    @JvmField
+    protected var mResult: Action<String>? = null
     // 取消回调
-    protected Action<String> mCancel;
-
-    public BasicCameraWrapper(Context context) {
-        this.mContext = context;
-    }
+    @JvmField
+    protected var mCancel: Action<String>? = null
 
     /**
      * 设置成功回调
      */
-    public final Returner onResult(Action<String> result) {
-        this.mResult = result;
-        return (Returner) this;
+    fun onResult(result: Action<String>): Returner {
+        this.mResult = result
+        return this as Returner
     }
 
     /**
      * 设置取消回调
      */
-    public final Returner onCancel(Action<String> cancel) {
-        this.mCancel = cancel;
-        return (Returner) this;
+    fun onCancel(cancel: Action<String>): Returner {
+        this.mCancel = cancel
+        return this as Returner
     }
 
     /**
      * 设置自定义保存路径
      */
-    public Returner filePath(@Nullable String filePath) {
-        this.mFilePath = filePath;
-        return (Returner) this;
+    fun filePath(filePath: String?): Returner {
+        this.mFilePath = filePath
+        return this as Returner
     }
 
     /**
      * 抽象启动方法
      * 子类：拍照、录像 各自实现
      */
-    public abstract void start();
+    abstract fun start()
 
 }

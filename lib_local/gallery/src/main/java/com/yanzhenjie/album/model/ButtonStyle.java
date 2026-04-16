@@ -83,7 +83,7 @@ public class ButtonStyle implements Parcelable {
         return new Builder(context, STYLE_LIGHT);
     }
 
-    public static Builder newBuilder(Context context, @Widget.UiStyle int style) {
+    public static Builder newBuilder(Context context, @Widget.Companion.UiStyle int style) {
         return new Builder(context, style);
     }
 
@@ -95,7 +95,7 @@ public class ButtonStyle implements Parcelable {
         private final int mUiStyle;
         private final Context mContext;
 
-        private Builder(Context context, @Widget.UiStyle int style) {
+        private Builder(Context context, @Widget.Companion.UiStyle int style) {
             this.mContext = context;
             this.mUiStyle = style;
         }
