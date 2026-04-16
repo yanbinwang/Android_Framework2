@@ -100,7 +100,7 @@ public class AlbumPreviewActivity extends BaseActivity implements Contract.Galle
     }
 
     /**
-     * 滑动切换图片时更新 UI（核心）
+     * 滑动切换图片时更新 UI
      */
     @Override
     public void onCurrentChanged(int position) {

@@ -44,7 +44,8 @@ import kotlin.Unit;
  * ThumbnailBuildTask.Callback   // 缩略图生成回调
  * AlbumPreviewActivity.Callback // 预览页回调
  */
-public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback, AlbumPreviewActivity.Callback {
+//public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback, AlbumPreviewActivity.Callback {
+public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, AlbumPreviewActivity.Callback {
     // 当前选中的文件夹
     private int mCurrentFolder;
     // 功能：图片/视频/全部
@@ -165,7 +166,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
                 intent.putExtras(getIntent());
                 startActivityForResult(intent, CODE_ACTIVITY_NULL);
                 overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-                hideLoading(true);
+                asyncScanCallback(true);
                 return Unit.INSTANCE;
             }, 1000);
         } else {
@@ -173,14 +174,14 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
             showFolderAlbumFiles(0);
             int count = mCheckedList.size();
             mView.setCheckedCount(count);
-            hideLoading(false);
+            asyncScanCallback(false);
         }
     }
 
     /**
      * 隐藏遮罩
      */
-    private void hideLoading(boolean isNull) {
+    private void asyncScanCallback(boolean isNull) {
         long delayMillis = 500L;
         if (isNull) delayMillis = 1000L;
         TimerBuilder.schedule(this, () -> {
@@ -588,16 +589,16 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         finish();
     }
 
-    @Override
-    public void onThumbnailStart() {
+//    @Override
+//    public void onThumbnailStart() {
 //        // 开始记录时间
 //        mTaskStart = System.currentTimeMillis();
 //        showLoadingDialog();
 //        mLoadingDialog.setMessage(R.string.album_thumbnail);
-    }
-
-    @Override
-    public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
+//    }
+//
+//    @Override
+//    public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
 //        // 结束计算任务耗时
 //        long costTime = System.currentTimeMillis() - mTaskStart;
 //        if (costTime < 1000L) {
@@ -608,8 +609,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 //        } else {
 //            asyncThumbnailCallback(albumFiles);
 //        }
-    }
-
+//    }
+//
 //    /**
 //     * 缩略图生成回调
 //     */

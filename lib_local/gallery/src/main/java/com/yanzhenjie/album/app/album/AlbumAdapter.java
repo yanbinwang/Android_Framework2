@@ -215,9 +215,7 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         public void setData(AlbumFile albumFile) {
             mCheckBox.setChecked(albumFile.isChecked());
             // 加载缩略图
-            Album.getAlbumConfig()
-                    .getAlbumLoader()
-                    .load(mIvImage, albumFile);
+            Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFile);
             // 禁用文件显示遮罩
             mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
         }

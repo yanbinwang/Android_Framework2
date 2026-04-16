@@ -12,6 +12,7 @@ import java.util.ArrayList;
  * 功能：批量给图片/视频生成缩略图，在子线程执行
  * 防止列表加载时卡顿、OOM
  */
+@Deprecated
 public class ThumbnailBuildTask extends AsyncTask<Void, Void, ArrayList<AlbumFile>> {
     // 需要生成缩略图的文件列表
     private final ArrayList<AlbumFile> mAlbumFiles;

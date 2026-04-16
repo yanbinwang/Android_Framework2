@@ -22,10 +22,11 @@ import java.io.FileOutputStream;
 import java.util.HashMap;
 
 /**
- * 缩略图构建工具类（核心）
+ * 缩略图构建工具类
  * 功能：为图片/视频生成压缩、旋转正确的缩略图，并缓存到本地
  * 解决大图卡顿、图片方向错误问题
  */
+@Deprecated
 public class ThumbnailBuilder {
     // 缩略图缓存目录
     private final File mCacheDir;

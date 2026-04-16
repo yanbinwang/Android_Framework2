@@ -51,7 +51,7 @@ public abstract class PreviewAdapter<T> extends PagerAdapter implements PhotoVie
     }
 
     /**
-     * 创建预览页面（核心）
+     * 创建预览页面
      * 1) 创建可缩放的 ImageView
      * 2) 绑定点击/长按
      * 3) 让子类去加载图片

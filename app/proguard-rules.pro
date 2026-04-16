@@ -304,7 +304,7 @@
 # 保留项目中实际的 JS 交互内部类（替换为你的实际类名）
 -keepclassmembers class com.example.home.utils.WebJavaScriptObject { *; }
 
-# 保留所有被 @JavascriptInterface 注解的方法（核心）
+# 保留所有被 @JavascriptInterface 注解的方法
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
