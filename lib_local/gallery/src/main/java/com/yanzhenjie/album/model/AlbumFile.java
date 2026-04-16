@@ -28,8 +28,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
     private long mSize;
     // 视频时长（毫秒），图片为0
     private long mDuration;
-    // 缩略图路径
-    private String mThumbPath;
     // 媒体类型：图片/视频
     private int mMediaType;
     // 是否被选中
@@ -114,14 +112,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
         mDuration = duration;
     }
 
-    public String getThumbPath() {
-        return mThumbPath;
-    }
-
-    public void setThumbPath(String thumbPath) {
-        mThumbPath = thumbPath;
-    }
-
     @MediaType
     public int getMediaType() {
         return mMediaType;
@@ -156,7 +146,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
         mLongitude = in.readFloat();
         mSize = in.readLong();
         mDuration = in.readLong();
-        mThumbPath = in.readString();
         mMediaType = in.readInt();
         isChecked = in.readByte() != 0;
         isDisable = in.readByte() != 0;
@@ -172,7 +161,6 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
         dest.writeFloat(mLongitude);
         dest.writeLong(mSize);
         dest.writeLong(mDuration);
-        dest.writeString(mThumbPath);
         dest.writeInt(mMediaType);
         dest.writeByte((byte) (isChecked ? 1 : 0));
         dest.writeByte((byte) (isDisable ? 1 : 0));

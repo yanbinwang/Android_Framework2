@@ -20,7 +20,6 @@ import com.yanzhenjie.album.app.album.data.MediaReadTask;
 import com.yanzhenjie.album.app.album.data.MediaReader;
 import com.yanzhenjie.album.app.album.data.PathConversion;
 import com.yanzhenjie.album.app.album.data.PathConvertTask;
-import com.yanzhenjie.album.app.album.data.ThumbnailBuildTask;
 import com.yanzhenjie.album.callback.Action;
 import com.yanzhenjie.album.callback.Filter;
 import com.yanzhenjie.album.model.AlbumFile;
@@ -44,7 +43,6 @@ import kotlin.Unit;
  * ThumbnailBuildTask.Callback   // 缩略图生成回调
  * AlbumPreviewActivity.Callback // 预览页回调
  */
-//public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, ThumbnailBuildTask.Callback, AlbumPreviewActivity.Callback {
 public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, AlbumPreviewActivity.Callback {
     // 当前选中的文件夹
     private int mCurrentFolder;
@@ -66,8 +64,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private boolean mHasCamera;
     // 是否显示不可用文件
     private boolean mFilterVisibility;
-//    // 选择进程开始时间 (记录)
-//    private long mTaskStart;
     // 所有文件夹
     private List<AlbumFolder> mAlbumFolders;
     // 已选中的图片
@@ -87,7 +83,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     // 异步读取媒体
     private MediaReadTask mMediaReadTask;
     private PathConvertTask mPathConvertTask;
-    private ThumbnailBuildTask mThumbnailBuildTask;
     // 静态常量
     private static final int CODE_ACTIVITY_NULL = 1;
     public static Filter<Long> sSizeFilter;
@@ -374,30 +369,19 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void onConvertCallback(AlbumFile albumFile) {
-//        albumFile.setChecked(!albumFile.isDisable());
-//        if (albumFile.isDisable()) {
-//            if (mFilterVisibility) {
-//                addFileToList(albumFile);
-//            } else {
-//                mView.toast(getString(R.string.album_take_file_unavailable));
-//            }
-//        } else {
-//            // 添加到列表
-//            addFileToList(albumFile);
-//        }
-//        dismissLoadingDialog();
         albumFile.setChecked(!albumFile.isDisable());
         if (albumFile.isDisable()) {
             if (mFilterVisibility) {
                 addFileToList(albumFile);
             } else {
                 mView.toast(getString(R.string.album_take_file_unavailable));
-                dismissLoadingDialog();
+                dismissLoadingDialog(); // 不可以直接取消弹框
             }
         } else {
             // 添加到列表
             addFileToList(albumFile);
         }
+//        dismissLoadingDialog();
     }
 
     /**
@@ -436,6 +420,7 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 //                throw new AssertionError("This should not be the case.");
 //            }
 //        }
+        // 插入行为结束,给予1s动画转圈过渡
         TimerBuilder.schedule(this, () -> {
             if (mChoiceMode == Album.MODE_SINGLE) {
                 callbackResult();
@@ -572,55 +557,15 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     }
 
     /**
-     * 最终回调：生成缩略图并返回
+     * 返回
      */
     private void callbackResult() {
-//        if (mThumbnailBuildTask != null) {
-//            mThumbnailBuildTask.cancel(true);
-//            mThumbnailBuildTask = null;
-//        }
-//        mThumbnailBuildTask = new ThumbnailBuildTask(this, mCheckedList, this);
-//        mThumbnailBuildTask.execute();
-        // 废除 ThumbnailBuildTask 直接返回路径
         if (sResult != null) {
             sResult.onAction(mCheckedList);
         }
         dismissLoadingDialog();
         finish();
     }
-
-//    @Override
-//    public void onThumbnailStart() {
-//        // 开始记录时间
-//        mTaskStart = System.currentTimeMillis();
-//        showLoadingDialog();
-//        mLoadingDialog.setMessage(R.string.album_thumbnail);
-//    }
-//
-//    @Override
-//    public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
-//        // 结束计算任务耗时
-//        long costTime = System.currentTimeMillis() - mTaskStart;
-//        if (costTime < 1000L) {
-//            TimerBuilder.schedule(this, () -> {
-//                asyncThumbnailCallback(albumFiles);
-//                return Unit.INSTANCE;
-//            }, 1000);
-//        } else {
-//            asyncThumbnailCallback(albumFiles);
-//        }
-//    }
-//
-//    /**
-//     * 缩略图生成回调
-//     */
-//    private void asyncThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
-//        if (sResult != null) {
-//            sResult.onAction(albumFiles);
-//        }
-//        dismissLoadingDialog();
-//        finish();
-//    }
 
     /**
      * 取消
@@ -709,10 +654,6 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         if (mPathConvertTask != null) {
             mPathConvertTask.cancel(true);
             mPathConvertTask = null;
-        }
-        if (mThumbnailBuildTask != null) {
-            mThumbnailBuildTask.cancel(true);
-            mThumbnailBuildTask = null;
         }
         sSizeFilter = null;
         sMimeFilter = null;
