@@ -7,8 +7,8 @@
 
     <com.yanzhenjie.durban.widget.dialog.loading.LoadingView
         android:id="@+id/loading_view"
-        android:layout_width="100dp"
-        android:layout_height="100dp" />
+        android:layout_width="@dimen/durban_dp_100"
+        android:layout_height="@dimen/durban_dp_100" />
 
     <TextView
         android:id="@+id/loading_tv_message"
@@ -16,6 +16,7 @@
         android:layout_height="wrap_content"
         android:ellipsize="end"
         android:maxLines="1"
+        android:layout_marginStart="@dimen/durban_dp_20"
         android:textColor="@color/galleryFontLight"
         android:textSize="@dimen/album_sp_16"
         tools:text="@string/durban_loading_message"

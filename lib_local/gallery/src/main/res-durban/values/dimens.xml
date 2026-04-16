@@ -4,6 +4,7 @@
     <dimen name="durban_dp_1">1dp</dimen>
     <dimen name="durban_dp_10">10dp</dimen>
     <dimen name="durban_dp_16">16dp</dimen>
+    <dimen name="durban_dp_20">20dp</dimen>
     <dimen name="durban_dp_30">30dp</dimen>
     <dimen name="durban_dp_70">70dp</dimen>
     <dimen name="durban_dp_100">100dp</dimen>

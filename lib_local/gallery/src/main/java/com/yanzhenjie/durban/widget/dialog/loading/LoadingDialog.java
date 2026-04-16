@@ -2,6 +2,7 @@ package com.yanzhenjie.durban.widget.dialog.loading;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.view.View;
 import android.widget.TextView;
 
 import com.example.gallery.R;
@@ -48,6 +49,21 @@ public class LoadingDialog extends Dialog {
      */
     public void setCircleColors(int r1, int r2, int r3) {
         mLoadingView.setCircleColors(r1, r2, r3);
+    }
+
+    /**
+     * 转圈开启/停止
+     */
+    @Override
+    public void show() {
+        super.show();
+        mLoadingView.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void dismiss() {
+        super.dismiss();
+        mLoadingView.setVisibility(View.GONE);
     }
 
 }

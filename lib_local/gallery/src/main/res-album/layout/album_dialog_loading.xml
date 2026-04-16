@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Album.WrapContent"
+    android:background="@drawable/shape_default"
     android:gravity="center"
     android:paddingHorizontal="@dimen/album_dp_35"
     android:paddingVertical="@dimen/album_dp_20">
