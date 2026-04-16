@@ -65,8 +65,8 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     private boolean mHasCamera;
     // 是否显示不可用文件
     private boolean mFilterVisibility;
-    // 选择进程开始时间 (记录)
-    private long mTaskStart;
+//    // 选择进程开始时间 (记录)
+//    private long mTaskStart;
     // 所有文件夹
     private List<AlbumFolder> mAlbumFolders;
     // 已选中的图片
@@ -339,12 +339,13 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         @Override
         public void onAction(@NonNull String result) {
             /**
-             * 1) 触发 系统媒体数据库更新
+             * 1) 触发系统媒体数据库更新
              * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
              * 这样相册才能看到新图片。
-             * 2) 触发 文件管理器 / 相册刷新
+             * 2) 触发文件管理器 / 相册刷新
              * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
              * 3) 触发 onScanCompleted 回调
+             * 4) 基本等价于 insertImageResolver (项目扩展函数) 区别在于无法扫描包名文件夹下内部的图片
              */
             if (mMediaScanner == null) {
                 mMediaScanner = new MediaScanner(AlbumActivity.this);
@@ -372,6 +373,18 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
 
     @Override
     public void onConvertCallback(AlbumFile albumFile) {
+//        albumFile.setChecked(!albumFile.isDisable());
+//        if (albumFile.isDisable()) {
+//            if (mFilterVisibility) {
+//                addFileToList(albumFile);
+//            } else {
+//                mView.toast(getString(R.string.album_take_file_unavailable));
+//            }
+//        } else {
+//            // 添加到列表
+//            addFileToList(albumFile);
+//        }
+//        dismissLoadingDialog();
         albumFile.setChecked(!albumFile.isDisable());
         if (albumFile.isDisable()) {
             if (mFilterVisibility) {
@@ -410,22 +423,26 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
         mCheckedList.add(albumFile);
         int count = mCheckedList.size();
         mView.setCheckedCount(count);
-        switch (mChoiceMode) {
-            case Album.MODE_SINGLE: {
-                callbackResult();
-                break;
-            }
-            case Album.MODE_MULTIPLE: {
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
+//        switch (mChoiceMode) {
+//            case Album.MODE_SINGLE: {
+//                callbackResult();
+//                break;
+//            }
+//            case Album.MODE_MULTIPLE: {
+//                break;
+//            }
+//            default: {
+//                throw new AssertionError("This should not be the case.");
+//            }
+//        }
         TimerBuilder.schedule(this, () -> {
-            dismissLoadingDialog();
+            if (mChoiceMode == Album.MODE_SINGLE) {
+                callbackResult();
+            } else {
+                dismissLoadingDialog();
+            }
             return Unit.INSTANCE;
-        }, 500);
+        }, 1000);
     }
 
     /**
@@ -583,46 +600,52 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
      * 最终回调：生成缩略图并返回
      */
     private void callbackResult() {
-        if (mThumbnailBuildTask != null) {
-            mThumbnailBuildTask.cancel(true);
-            mThumbnailBuildTask = null;
-        }
-        mThumbnailBuildTask = new ThumbnailBuildTask(this, mCheckedList, this);
-        mThumbnailBuildTask.execute();
-    }
-
-    @Override
-    public void onThumbnailStart() {
-        // 开始记录时间
-        mTaskStart = System.currentTimeMillis();
-        showLoadingDialog();
-        mLoadingDialog.setMessage(R.string.album_thumbnail);
-    }
-
-    @Override
-    public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
-        // 结束计算任务耗时
-        long costTime = System.currentTimeMillis() - mTaskStart;
-        if (costTime < 1000L) {
-            TimerBuilder.schedule(this, () -> {
-                callbackResult(albumFiles);
-                return Unit.INSTANCE;
-            }, 1000);
-        } else {
-            callbackResult(albumFiles);
-        }
-    }
-
-    /**
-     * 确定
-     */
-    private void callbackResult(ArrayList<AlbumFile> albumFiles) {
+//        if (mThumbnailBuildTask != null) {
+//            mThumbnailBuildTask.cancel(true);
+//            mThumbnailBuildTask = null;
+//        }
+//        mThumbnailBuildTask = new ThumbnailBuildTask(this, mCheckedList, this);
+//        mThumbnailBuildTask.execute();
+        // 废除 ThumbnailBuildTask 直接返回路径
         if (sResult != null) {
-            sResult.onAction(albumFiles);
+            sResult.onAction(mCheckedList);
         }
         dismissLoadingDialog();
         finish();
     }
+
+    @Override
+    public void onThumbnailStart() {
+//        // 开始记录时间
+//        mTaskStart = System.currentTimeMillis();
+//        showLoadingDialog();
+//        mLoadingDialog.setMessage(R.string.album_thumbnail);
+    }
+
+    @Override
+    public void onThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
+//        // 结束计算任务耗时
+//        long costTime = System.currentTimeMillis() - mTaskStart;
+//        if (costTime < 1000L) {
+//            TimerBuilder.schedule(this, () -> {
+//                asyncThumbnailCallback(albumFiles);
+//                return Unit.INSTANCE;
+//            }, 1000);
+//        } else {
+//            asyncThumbnailCallback(albumFiles);
+//        }
+    }
+
+//    /**
+//     * 缩略图生成回调
+//     */
+//    private void asyncThumbnailCallback(ArrayList<AlbumFile> albumFiles) {
+//        if (sResult != null) {
+//            sResult.onAction(albumFiles);
+//        }
+//        dismissLoadingDialog();
+//        finish();
+//    }
 
     /**
      * 取消

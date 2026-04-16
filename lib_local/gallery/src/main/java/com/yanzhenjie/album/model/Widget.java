@@ -40,6 +40,7 @@ public class Widget implements Parcelable {
     private final ColorStateList mBucketItemCheckSelector;
     // 按钮样式
     private final ButtonStyle mButtonStyle;
+
     // 主题样式常量
     public static final int STYLE_LIGHT = 1; // 亮色
     public static final int STYLE_DARK = 2;  // 暗色

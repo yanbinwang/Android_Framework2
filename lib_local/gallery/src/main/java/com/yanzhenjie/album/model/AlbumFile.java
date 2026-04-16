@@ -13,16 +13,6 @@ import java.lang.annotation.RetentionPolicy;
  * 实现序列化、排序、相等判断，是整个相册库的核心数据模型
  */
 public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
-    // 类型：图片/视频
-    public static final int TYPE_IMAGE = 1;
-    public static final int TYPE_VIDEO = 2;
-
-    // 媒体类型限定注解：只能是 TYPE_IMAGE / TYPE_VIDEO
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({TYPE_IMAGE, TYPE_VIDEO})
-    public @interface MediaType {
-    }
-
     // 文件绝对路径
     private String mPath;
     // 所属文件夹名称
@@ -46,6 +36,16 @@ public class AlbumFile implements Parcelable, Comparable<AlbumFile> {
     private boolean isChecked;
     // 是否不可选中（禁用状态）
     private boolean isDisable;
+
+    // 类型：图片/视频
+    public static final int TYPE_IMAGE = 1;
+    public static final int TYPE_VIDEO = 2;
+
+    // 媒体类型限定注解：只能是 TYPE_IMAGE / TYPE_VIDEO
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({TYPE_IMAGE, TYPE_VIDEO})
+    public @interface MediaType {
+    }
 
     public AlbumFile() {
     }
