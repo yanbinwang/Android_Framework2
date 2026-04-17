@@ -1,36 +1,32 @@
-package com.yanzhenjie.album.utils;
+package com.yanzhenjie.album.utils
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.Uri;
-import android.os.Build;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.text.Spannable;
-import android.text.SpannableString;
-import android.text.TextUtils;
-import android.text.style.ForegroundColorSpan;
-import android.webkit.MimeTypeMap;
-
-import androidx.annotation.ColorInt;
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.core.graphics.drawable.DrawableCompat;
-
-import com.yanzhenjie.album.provider.CameraFileProvider;
-import com.yanzhenjie.album.widget.recyclerview.divider.Divider;
-import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider;
-
-import java.io.File;
-import java.security.MessageDigest;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.UUID;
+import android.R
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.content.res.ColorStateList
+import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.net.Uri
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.ForegroundColorSpan
+import android.webkit.MimeTypeMap
+import androidx.annotation.ColorInt
+import androidx.annotation.IntRange
+import androidx.core.graphics.drawable.DrawableCompat
+import com.yanzhenjie.album.provider.CameraFileProvider
+import com.yanzhenjie.album.widget.recyclerview.divider.Divider
+import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider
+import java.io.File
+import java.security.MessageDigest
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.UUID
 
 /**
  * 相册工具类
@@ -38,319 +34,297 @@ import java.util.UUID;
  * Android 从 10 开始，定义了「公共媒体目录」 所有应用都可以自由写入，不需要权限 (/storage/emulated/0/DCIM)
  * 公共媒体目录 -> DCIM / Pictures / Download / Movies
  */
-public class AlbumUtil {
+object AlbumUtil {
     // 相册缓存文件夹名称
-    private static final String CACHE_DIRECTORY = "AlbumCache";
+    private const val CACHE_DIRECTORY = "AlbumCache"
 
     /**
-     * 私有化构造，禁止实例化
+     * 获取本应用的专属缓存目录
      */
-    private AlbumUtil() {
-    }
-
-    /**
-     * 获取相册根目录（优先SD卡，否则内部存储）
-     */
-    @NonNull
-    public static File getAlbumRootPath(Context context) {
-//        if (sdCardIsAvailable()) {
-//            // -> /storage/emulated/0/AlbumCache
-//            return new File(Environment.getExternalStorageDirectory(), CACHE_DIRECTORY);
-//        } else {
-//            // -> /data/data/你的包名/files/CACHE_DIRECTORY
-//            return new File(context.getFilesDir(), CACHE_DIRECTORY);
-//        }
-//        return new File(context.getCacheDir() + "/" + CACHE_DIRECTORY);
+    @JvmStatic
+    fun getAlbumCacheDir(context: Context): File {
         // 定义缓存路径
-        File cacheDir = new File(context.getCacheDir(), CACHE_DIRECTORY);
+        val cacheDir = File(context.cacheDir, CACHE_DIRECTORY)
         // 如果不存在，递归创建文件夹
         if (!cacheDir.exists()) {
             // 一定要带 s，多级目录也能创建
-            cacheDir.mkdirs();
+            cacheDir.mkdirs()
         }
-        return cacheDir;
+        return cacheDir
     }
-
-//    /**
-//     * 判断SD卡是否可用
-//     */
-//    public static boolean sdCardIsAvailable() {
-//        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-//            return Environment.getExternalStorageDirectory().canWrite();
-//        } else {
-//            return false;
-//        }
-//    }
 
     /**
      * 调用系统相机拍照
      */
-    public static void takeImage(@NonNull Activity activity, int requestCode, File outPath) {
-        Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        Uri uri = getUri(activity, outPath);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        activity.startActivityForResult(intent, requestCode);
+    @JvmStatic
+    fun takeImage(activity: Activity, requestCode: Int, outPath: File) {
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val uri = getUri(activity, outPath)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        activity.startActivityForResult(intent, requestCode)
     }
 
     /**
      * 调用系统相机录像
      */
-    public static void takeVideo(@NonNull Activity activity, int requestCode, File outPath, @IntRange(from = 0, to = 1) int quality, @IntRange(from = 1) long duration, @IntRange(from = 1) long limitBytes) {
-        Intent intent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
-        Uri uri = getUri(activity, outPath);
-        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality);
-        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, duration);
-        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, limitBytes);
-        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        activity.startActivityForResult(intent, requestCode);
+    @JvmStatic
+    fun takeVideo(activity: Activity, requestCode: Int, outPath: File, @IntRange(from = 0, to = 1) quality: Int, @IntRange(from = 1) duration: Long, @IntRange(from = 1) limitBytes: Long) {
+        val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+        val uri = getUri(activity, outPath)
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, quality)
+        intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, duration)
+        intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, limitBytes)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        activity.startActivityForResult(intent, requestCode)
     }
 
     /**
      * 根据文件获取 Uri（兼容 7.0 FileProvider）
      */
-    @NonNull
-    public static Uri getUri(@NonNull Context context, @NonNull File outPath) {
-        Uri uri;
+    private fun getUri(context: Context, outPath: File): Uri {
+        val uri: Uri
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            uri = Uri.fromFile(outPath);
+            uri = Uri.fromFile(outPath)
         } else {
-            uri = CameraFileProvider.getUriForFile(context, CameraFileProvider.getProviderName(context), outPath);
+            uri = CameraFileProvider.getUriForFile(context, CameraFileProvider.getProviderName(context), outPath)
         }
-        return uri;
-    }
-
-    /**
-     * 生成随机 JPG 路径（废弃）
-     */
-    @NonNull
-    public static String randomJPGPath() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM);
-        return randomJPGPath(bucket);
+        return uri
     }
 
     /**
      * 生成随机 JPG 路径
      */
-    @NonNull
-    public static String randomJPGPath(Context context) {
+    @JvmStatic
+    fun randomJPGPath(): String {
+        val bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM)
+        return randomJPGPath(bucket)
+    }
+
+    /**
+     * 生成随机 JPG 路径
+     */
+    @JvmStatic
+    fun randomJPGPath(context: Context): String {
         // 判断 SD 卡是否正常挂载（手机存储是否可用）
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
             // SD 卡不可用（极少见）→ 存到 APP 自身缓存目录（/data/data/你的应用包名/cache/）
-            return randomJPGPath(context.getCacheDir());
+            return randomJPGPath(getAlbumCacheDir(context))
         }
-        return randomJPGPath();
+        return randomJPGPath()
     }
 
     /**
      * 在指定目录生成随机 JPG 路径
      */
-    @NonNull
-    public static String randomJPGPath(File bucket) {
-        return randomMediaPath(bucket, ".jpg");
-    }
-
-    /**
-     * 生成随机 MP4 路径（废弃）
-     */
-    @NonNull
-    public static String randomMP4Path() {
-        File bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES);
-        return randomMP4Path(bucket);
+    @JvmStatic
+    fun randomJPGPath(bucket: File): String {
+        return randomMediaPath(bucket, ".jpg")
     }
 
     /**
      * 生成随机 MP4 路径
      */
-    @NonNull
-    public static String randomMP4Path(Context context) {
-        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return randomMP4Path(context.getCacheDir());
+    @JvmStatic
+    fun randomMP4Path(): String {
+        val bucket = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+        return randomMP4Path(bucket)
+    }
+
+    /**
+     * 生成随机 MP4 路径
+     */
+    @JvmStatic
+    fun randomMP4Path(context: Context): String {
+        if (Environment.MEDIA_MOUNTED != Environment.getExternalStorageState()) {
+            return randomMP4Path(getAlbumCacheDir(context))
         }
-        return randomMP4Path();
+        return randomMP4Path()
     }
 
     /**
      * 在指定目录生成随机 MP4 路径
      */
-    @NonNull
-    public static String randomMP4Path(File bucket) {
-        return randomMediaPath(bucket, ".mp4");
+    @JvmStatic
+    fun randomMP4Path(bucket: File): String {
+        return randomMediaPath(bucket, ".mp4")
     }
 
     /**
      * 根据目录和后缀生成随机文件路径
      */
-    @NonNull
-    private static String randomMediaPath(File bucket, String extension) {
+    private fun randomMediaPath(bucket: File, extension: String): String {
         if (bucket.exists() && bucket.isFile()) {
-            bucket.delete();
+            bucket.delete()
         }
         if (!bucket.exists()) {
-            bucket.mkdirs();
+            bucket.mkdirs()
         }
-        String outFilePath = AlbumUtil.getNowDateTime("yyyyMMdd_HHmmssSSS") + "_" + getMD5ForString(UUID.randomUUID().toString()) + extension;
-        File file = new File(bucket, outFilePath);
-        return file.getAbsolutePath();
+        val outFilePath = "${getNowDateTime()}_${getMD5ForString(UUID.randomUUID().toString())}${extension}"
+        val file = File(bucket, outFilePath)
+        return file.absolutePath
     }
 
     /**
      * 获取当前时间格式化字符串
      */
-    @NonNull
-    public static String getNowDateTime(@NonNull String format) {
-        SimpleDateFormat formatter = new SimpleDateFormat(format, Locale.ENGLISH);
-        Date curDate = new Date(System.currentTimeMillis());
-        return formatter.format(curDate);
+    private fun getNowDateTime(): String {
+        val formatter = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.ENGLISH)
+        val curDate = Date(System.currentTimeMillis())
+        return formatter.format(curDate)
+    }
+
+    /**
+     * 获取字符串 MD5
+     */
+    private fun getMD5ForString(content: String): String {
+        val md5Buffer = StringBuilder()
+        try {
+            val digest = MessageDigest.getInstance("MD5")
+            val tempBytes = digest.digest(content.toByteArray())
+            var digital: Int
+            for (tempByte in tempBytes) {
+                digital = tempByte.toInt()
+                if (digital < 0) {
+                    digital += 256
+                }
+                if (digital < 16) {
+                    md5Buffer.append("0")
+                }
+                md5Buffer.append(Integer.toHexString(digital))
+            }
+        } catch (_: Exception) {
+            return content.hashCode().toString()
+        }
+        return md5Buffer.toString()
     }
 
     /**
      * 获取文件 MimeType
      */
-    public static String getMimeType(String url) {
-        String extension = getExtension(url);
-        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return "";
-        String mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension);
-        return TextUtils.isEmpty(mimeType) ? "" : mimeType;
+    @JvmStatic
+    fun getMimeType(url: String?): String {
+        val extension = getExtension(url)
+        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return ""
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+        return if (mimeType.isNullOrEmpty()) "" else mimeType
     }
 
     /**
      * 获取文件后缀
      */
-    public static String getExtension(String url) {
-        url = TextUtils.isEmpty(url) ? "" : url.toLowerCase();
-        String extension = MimeTypeMap.getFileExtensionFromUrl(url);
-        return TextUtils.isEmpty(extension) ? "" : extension;
+    @JvmStatic
+    fun getExtension(url: String?): String {
+        val mUrl = if (url.isNullOrEmpty()) "" else url.lowercase(Locale.getDefault())
+        val extension = MimeTypeMap.getFileExtensionFromUrl(mUrl)
+        return if (extension.isNullOrEmpty()) "" else extension
     }
 
     /**
      * 给 Drawable 设置着色
      */
-    public static void setDrawableTint(@NonNull Drawable drawable, @ColorInt int color) {
-        DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color);
+    @JvmStatic
+    fun setDrawableTint(drawable: Drawable, @ColorInt color: Int) {
+        DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color)
     }
 
     /**
      * 获取着色后的 Drawable
      */
-    @NonNull
-    public static Drawable getTintDrawable(@NonNull Drawable drawable, @ColorInt int color) {
-        drawable = DrawableCompat.wrap(drawable.mutate());
-        DrawableCompat.setTint(drawable, color);
-        return drawable;
+    @JvmStatic
+    fun getTintDrawable(drawable: Drawable, @ColorInt color: Int): Drawable {
+        val mDrawable = DrawableCompat.wrap(drawable.mutate())
+        DrawableCompat.setTint(mDrawable, color)
+        return mDrawable
     }
 
     /**
      * 构建按钮/选择器的颜色状态
      */
-    public static ColorStateList getColorStateList(@ColorInt int normal, @ColorInt int highLight) {
-        int[][] states = new int[6][];
-        states[0] = new int[]{android.R.attr.state_checked};
-        states[1] = new int[]{android.R.attr.state_pressed};
-        states[2] = new int[]{android.R.attr.state_selected};
-        states[3] = new int[]{};
-        states[4] = new int[]{};
-        states[5] = new int[]{};
-        int[] colors = new int[]{highLight, highLight, highLight, normal, normal, normal};
-        return new ColorStateList(states, colors);
+    @JvmStatic
+    fun getColorStateList(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
+        val states = arrayOfNulls<IntArray>(6)
+        states[0] = intArrayOf(R.attr.state_checked)
+        states[1] = intArrayOf(R.attr.state_pressed)
+        states[2] = intArrayOf(R.attr.state_selected)
+        states[3] = intArrayOf()
+        states[4] = intArrayOf()
+        states[5] = intArrayOf()
+        val colors = intArrayOf(highLight, highLight, highLight, normal, normal, normal)
+        return ColorStateList(states, colors)
     }
 
     /**
      * 设置字符串部分文字颜色
      */
-    @NonNull
-    public static SpannableString getColorText(@NonNull CharSequence content, int start, int end, @ColorInt int color) {
-        SpannableString stringSpan = new SpannableString(content);
-        stringSpan.setSpan(new ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return stringSpan;
+    @JvmStatic
+    fun getColorText(content: CharSequence, start: Int, end: Int, @ColorInt color: Int): SpannableString {
+        val stringSpan = SpannableString(content)
+        stringSpan.setSpan(ForegroundColorSpan(color), start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+        return stringSpan
     }
 
     /**
      * 给颜色设置透明度
      */
     @ColorInt
-    public static int getAlphaColor(@ColorInt int color, @IntRange(from = 0, to = 255) int alpha) {
-        int red = Color.red(color);
-        int green = Color.green(color);
-        int blue = Color.blue(color);
-        return Color.argb(alpha, red, green, blue);
+    fun getAlphaColor(@ColorInt color: Int, @IntRange(from = 0, to = 255) alpha: Int): Int {
+        val red = Color.red(color)
+        val green = Color.green(color)
+        val blue = Color.blue(color)
+        return Color.argb(alpha, red, green, blue)
     }
 
     /**
      * 获取列表分割线
      */
-    public static Divider getDivider(@ColorInt int color) {
-        return new ItemDivider(color);
+    @JvmStatic
+    fun getDivider(@ColorInt color: Int): Divider {
+        return ItemDivider(color)
     }
 
     /**
      * 把毫秒时长转换成 00:00 / 00:00:00 格式
      */
-    @NonNull
-    public static String convertDuration(@IntRange(from = 1) long duration) {
-        duration /= 1000;
-        int hour = (int) (duration / 3600);
-        int minute = (int) ((duration - hour * 3600) / 60);
-        int second = (int) (duration - hour * 3600 - minute * 60);
-        String hourValue = "";
-        String minuteValue;
-        String secondValue;
+    @JvmStatic
+    fun convertDuration(@IntRange(from = 1) duration: Long): String {
+        var duration = duration
+        duration /= 1000
+        val hour = (duration / 3600).toInt()
+        val minute = ((duration - hour * 3600) / 60).toInt()
+        val second = (duration - hour * 3600 - minute * 60).toInt()
+        var hourValue = ""
         if (hour > 0) {
-            if (hour >= 10) {
-                hourValue = Integer.toString(hour);
+            hourValue = if (hour >= 10) {
+                hour.toString()
             } else {
-                hourValue = "0" + hour;
+                "0$hour"
             }
-            hourValue += ":";
+            hourValue += ":"
         }
-        if (minute > 0) {
+        var minuteValue = if (minute > 0) {
             if (minute >= 10) {
-                minuteValue = Integer.toString(minute);
+                minute.toString()
             } else {
-                minuteValue = "0" + minute;
+                "0$minute"
             }
         } else {
-            minuteValue = "00";
+            "00"
         }
-        minuteValue += ":";
-        if (second > 0) {
+        minuteValue += ":"
+        val secondValue = if (second > 0) {
             if (second >= 10) {
-                secondValue = Integer.toString(second);
+                second.toString()
             } else {
-                secondValue = "0" + second;
+                "0$second"
             }
         } else {
-            secondValue = "00";
+            "00"
         }
-        return hourValue + minuteValue + secondValue;
-    }
-
-    /**
-     * 获取字符串 MD5
-     */
-    public static String getMD5ForString(String content) {
-        StringBuilder md5Buffer = new StringBuilder();
-        try {
-            MessageDigest digest = MessageDigest.getInstance("MD5");
-            byte[] tempBytes = digest.digest(content.getBytes());
-            int digital;
-            for (byte tempByte : tempBytes) {
-                digital = tempByte;
-                if (digital < 0) {
-                    digital += 256;
-                }
-                if (digital < 16) {
-                    md5Buffer.append("0");
-                }
-                md5Buffer.append(Integer.toHexString(digital));
-            }
-        } catch (Exception ignored) {
-            return Integer.toString(content.hashCode());
-        }
-        return md5Buffer.toString();
+        return hourValue + minuteValue + secondValue
     }
 
 }
