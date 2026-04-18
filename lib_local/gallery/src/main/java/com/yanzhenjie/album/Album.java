@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.annotation.IntDef;
 import androidx.fragment.app.Fragment;
 
 import com.yanzhenjie.album.api.AlbumMultipleWrapper;
@@ -26,9 +25,6 @@ import com.yanzhenjie.album.api.choice.ImageChoice;
 import com.yanzhenjie.album.api.choice.VideoChoice;
 import com.yanzhenjie.album.model.AlbumConfig;
 import com.yanzhenjie.album.model.AlbumFile;
-
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 
 /**
  * 相册库总入口（核心调度类）
@@ -64,23 +60,6 @@ public final class Album {
     public static final String KEY_INPUT_CAMERA_BYTES = "KEY_INPUT_CAMERA_BYTES"; // 视频大小限制
     // 过滤参数 Key
     public static final String KEY_INPUT_FILTER_VISIBILITY = "KEY_INPUT_FILTER_VISIBILITY"; // 文件过滤开关
-
-    // 类型注解（约束参数只能传指定常量）
-    @IntDef({FUNCTION_CHOICE_IMAGE, FUNCTION_CHOICE_VIDEO, FUNCTION_CHOICE_ALBUM})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ChoiceFunction {
-    }
-
-    @IntDef({FUNCTION_CAMERA_IMAGE, FUNCTION_CAMERA_VIDEO})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface CameraFunction {
-    }
-
-    @IntDef({MODE_MULTIPLE, MODE_SINGLE})
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface ChoiceMode {
-    }
-
     // 全局唯一的相册配置实例
     private static AlbumConfig sAlbumConfig;
 
