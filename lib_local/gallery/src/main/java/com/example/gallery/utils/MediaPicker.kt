@@ -1,7 +1,6 @@
 package com.example.gallery.utils
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
@@ -110,30 +109,17 @@ class MediaPicker {
      * 3) 不支持旧android.app.Fragment
      */
     constructor(any: Any) {
-        when (any) {
-            // Activity（兼容所有现代 Activity）
-            is AppCompatActivity, is FragmentActivity -> {
-                widget = any.getAlbumWidget()
-                videoMultiple = Album.video(any)
-                imageMultiple = Album.image(any)
-                durban = Durban.with(any)
-            }
-            // AndroidX Fragment
-            is Fragment -> {
-                widget = any.context.getAlbumWidget()
-                videoMultiple = Album.video(any)
-                imageMultiple = Album.image(any)
-                durban = Durban.with(any)
-            }
-            // 旧系统Fragment
-            is android.app.Fragment -> {
-                throw RuntimeException("android.app.Fragment is deprecated and not supported!")
-            }
-            // 不认识的类型
-            else -> {
-                throw IllegalArgumentException("Unsupported host type: ${any::class.java.name}")
-            }
+        context = when (any) {
+            is FragmentActivity -> any
+            is Fragment -> any.requireActivity()
+            is android.app.Fragment -> throw RuntimeException("android.app.Fragment 已废弃，不支持！")
+            else -> throw IllegalArgumentException("不支持的类型：${any::class.java.name}")
         }
+        // 统一赋值
+        widget = context.getAlbumWidget()
+        videoMultiple = Album.video(any)
+        imageMultiple = Album.image(any)
+        durban = Durban.with(any)
     }
 
     /**
@@ -141,7 +127,6 @@ class MediaPicker {
      */
     private fun Context?.getAlbumWidget(): Widget? {
         this ?: return null
-        context = this
         // 根据状态栏颜色区分主题
         val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
         // 参考Widget -> getDefaultWidget()方法
@@ -301,7 +286,7 @@ class MediaPicker {
      * }
      * }
      */
-    fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, @Durban.FormatTypes format: Int = Durban.COMPRESS_JPEG, @Durban.GestureTypes gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
+    fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, format: Int = Durban.COMPRESS_JPEG, gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
         durban
             // 裁剪界面的标题
             ?.title(string(R.string.gallery_durban_title))
