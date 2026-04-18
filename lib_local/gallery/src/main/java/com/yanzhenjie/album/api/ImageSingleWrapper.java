@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 
 import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.app.album.AlbumActivity;
+import com.yanzhenjie.album.model.AlbumFile;
 
 import java.util.ArrayList;
 

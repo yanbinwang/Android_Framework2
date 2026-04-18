@@ -121,7 +121,7 @@ object AlbumUtil {
      * 在指定目录生成随机 JPG 路径
      */
     @JvmStatic
-    fun randomJPGPath(bucket: File): String {
+    fun randomJPGPath(bucket: File?): String {
         return randomMediaPath(bucket, ".jpg")
     }
 
@@ -149,14 +149,15 @@ object AlbumUtil {
      * 在指定目录生成随机 MP4 路径
      */
     @JvmStatic
-    fun randomMP4Path(bucket: File): String {
+    fun randomMP4Path(bucket: File?): String {
         return randomMediaPath(bucket, ".mp4")
     }
 
     /**
      * 根据目录和后缀生成随机文件路径
      */
-    private fun randomMediaPath(bucket: File, extension: String): String {
+    private fun randomMediaPath(bucket: File?, extension: String): String {
+        bucket ?: return ""
         if (bucket.exists() && bucket.isFile()) {
             bucket.delete()
         }

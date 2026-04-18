@@ -23,7 +23,7 @@ class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
     // 最大可选数量
     private val mAllowSelectCount by lazy { intentInt(Album.KEY_INPUT_LIMIT_COUNT) }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
     // MVP View 层
     private val mView by lazy { GalleryView<AlbumFile>(this, this) }
 
@@ -113,7 +113,7 @@ class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
-                    else -> throw java.lang.AssertionError("This should not be the case.")
+                    else -> throw AssertionError("This should not be the case.")
                 }
                 mView.toast(getString(messageRes, mAllowSelectCount))
                 mView.setChecked(false)

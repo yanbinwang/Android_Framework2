@@ -1,499 +1,331 @@
-package com.yanzhenjie.album.app.album;
+package com.yanzhenjie.album.app.album
 
-import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
-
-import android.content.Intent;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.view.View;
-import android.widget.CompoundButton;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
-
-import com.example.framework.utils.builder.TimerBuilder;
-import com.example.gallery.R;
-import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.app.album.data.MediaReadTask;
-import com.yanzhenjie.album.app.album.data.MediaReader;
-import com.yanzhenjie.album.app.album.data.PathConversion;
-import com.yanzhenjie.album.app.album.data.PathConvertTask;
-import com.yanzhenjie.album.callback.Action;
-import com.yanzhenjie.album.callback.Filter;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.model.Widget;
-import com.yanzhenjie.album.utils.AlbumUtil;
-import com.yanzhenjie.album.utils.MediaScanner;
-import com.yanzhenjie.album.widget.LoadingDialog;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-import kotlin.Unit;
+import android.content.Intent
+import android.os.Bundle
+import android.view.MenuItem
+import android.view.View
+import android.widget.CompoundButton
+import androidx.appcompat.widget.PopupMenu
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.hasExtras
+import com.example.framework.utils.function.intentBoolean
+import com.example.framework.utils.function.intentInt
+import com.example.framework.utils.function.intentLong
+import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.intentParcelableArrayList
+import com.example.framework.utils.function.value.orFalse
+import com.example.gallery.R
+import com.example.gallery.base.BaseActivity
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.app.Contract.AlbumPresenter
+import com.yanzhenjie.album.app.album.data.AlbumTask
+import com.yanzhenjie.album.app.album.data.MediaReader
+import com.yanzhenjie.album.app.album.data.PathConversion
+import com.yanzhenjie.album.callback.Action
+import com.yanzhenjie.album.callback.Filter
+import com.yanzhenjie.album.model.AlbumFile
+import com.yanzhenjie.album.model.AlbumFolder
+import com.yanzhenjie.album.model.Widget
+import com.yanzhenjie.album.utils.AlbumUtil.getMimeType
+import com.yanzhenjie.album.utils.AlbumUtil.randomJPGPath
+import com.yanzhenjie.album.utils.AlbumUtil.randomMP4Path
+import com.yanzhenjie.album.utils.MediaScanner
+import com.yanzhenjie.album.widget.LoadingDialog
+import java.io.File
 
 /**
  * 相册主页（总控 Activity）
  * 功能：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
- * MediaReadTask.Callback        // 媒体扫描回调
- * PathConvertTask.Callback      // 路径转换回调
- * ThumbnailBuildTask.Callback   // 缩略图生成回调
- * AlbumPreviewActivity.Callback // 预览页回调
  */
-public class AlbumActivity extends BaseActivity implements Contract.AlbumPresenter, MediaReadTask.Callback, PathConvertTask.Callback, AlbumPreviewActivity.Callback {
-    // 当前选中的文件夹
-    private int mCurrentFolder;
+class AlbumActivity : BaseActivity(), AlbumPresenter {
     // 功能：图片/视频/全部
-    private int mFunction;
+    private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 单选/多选
-    private int mChoiceMode;
+    private val mChoiceMode by lazy { intentInt(Album.KEY_INPUT_CHOICE_MODE) }
     // 列表列数
-    private int mColumnCount;
+    private val mColumnCount by lazy { intentInt(Album.KEY_INPUT_COLUMN_COUNT) }
     // 最大选择数量
-    private int mLimitCount;
+    private val mLimitCount by lazy { intentInt(Album.KEY_INPUT_LIMIT_COUNT) }
     // 视频质量
-    private int mQuality;
+    private val mQuality by lazy { intentInt(Album.KEY_INPUT_CAMERA_QUALITY) }
     // 视频最大时长
-    private long mLimitDuration;
+    private val mLimitDuration by lazy { intentLong(Album.KEY_INPUT_CAMERA_DURATION) }
     // 视频最大大小
-    private long mLimitBytes;
+    private val mLimitBytes by lazy { intentLong(Album.KEY_INPUT_CAMERA_BYTES) }
     // 是否显示拍照按钮
-    private boolean mHasCamera;
+    private val mHasCamera by lazy { intentBoolean(Album.KEY_INPUT_ALLOW_CAMERA) }
     // 是否显示不可用文件
-    private boolean mFilterVisibility;
-    // 所有文件夹
-    private List<AlbumFolder> mAlbumFolders;
-    // 已选中的图片
-    private ArrayList<AlbumFile> mCheckedList;
+    private val mFilterVisibility by lazy { intentBoolean(Album.KEY_INPUT_FILTER_VISIBILITY) }
     // 主题样式
-    private Widget mWidget;
-    // MVP & UI
-    private Contract.AlbumView mView;
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
+
     // 相机选择弹窗
-    private PopupMenu mCameraPopupMenu;
+    private var mCameraPopupMenu: PopupMenu? = null
     // 文件夹选择弹窗
-    private FolderDialog mFolderDialog;
+    private var mFolderDialog: FolderDialog? = null
+    // 当前选中的文件夹
+    private var mCurrentFolder = 0
+    // 所有文件夹
+    private var mAlbumFolders = ArrayList<AlbumFolder>()
+    // 已选中的图片
+    private var mCheckedList = ArrayList<AlbumFile>()
+    // 相册全局任务
+    private val mTask = AlbumTask(this)
     // 加载对话框
-    private LoadingDialog mLoadingDialog;
+    private val mLoadingDialog by lazy { LoadingDialog(this) }
     // 媒体扫描
-    private MediaScanner mMediaScanner;
-    // 异步读取媒体
-    private MediaReadTask mMediaReadTask;
-    private PathConvertTask mPathConvertTask;
-    // 静态常量
-    private static final int CODE_ACTIVITY_NULL = 1;
-    public static Filter<Long> sSizeFilter;
-    public static Filter<Long> sDurationFilter;
-    public static Filter<String> sMimeFilter;
-    public static Action<String> sCancel;
-    public static Action<ArrayList<AlbumFile>> sResult;
+    private val mMediaScanner by lazy { MediaScanner(this) }
+    // MVP & UI
+    private val mView by lazy { AlbumView(this, this) }
 
-    @Override
-    protected boolean isImmersionBarEnabled() {
-        return false;
+    /**
+     * 拍照/录像完成 → 插入相册
+     */
+    private val mCameraAction = Action<String> { result ->
+        // 开始路径转换
+        showLoadingDialog()
+        /**
+         * 1) 触发系统媒体数据库更新
+         * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
+         * 这样相册才能看到新图片。
+         * 2) 触发文件管理器 / 相册刷新
+         * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
+         * 3) 触发 onScanCompleted 回调
+         * 4) 基本等价于 insertImageResolver (项目扩展函数) 区别在于无法扫描包名文件夹下内部的图片
+         */
+        mMediaScanner.scan(result)
+        // 同步执行路径转换
+        val conversion = PathConversion(sSizeFilter, sMimeFilter, sDurationFilter)
+        mTask.pathConversionExecute(conversion, result)
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 获取参数
-        initArgument();
+    companion object {
+        // 空相册跳转
+        private const val CODE_ACTIVITY_NULL = 1
+
+        @JvmField
+        var sSizeFilter: Filter<Long>? = null
+        @JvmField
+        var sDurationFilter: Filter<Long>? = null
+        @JvmField
+        var sMimeFilter: Filter<String>? = null
+        @JvmField
+        var sCancel: Action<String>? = null
+        @JvmField
+        var sResult: Action<ArrayList<AlbumFile>>? = null
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 校验参数
+        if (!hasExtras()) return finish()
         // 根据主题加载布局
-        setContentView(R.layout.album_activity_album);
+        setContentView(R.layout.album_activity_album)
         // 初始化状态栏
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getStatusBarColor());
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.getNavigationBarColor());
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.getNavigationBarColor());
-        // 绑定 MVP
-        mView = new AlbumView(this, this);
-        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode);
-        mView.setCompleteDisplay(false);
-        mView.setLoadingDisplay(true);
-        // 开始异步扫描相册
-        ArrayList<AlbumFile> checkedList = getIntent().getParcelableArrayListExtra(Album.KEY_INPUT_CHECKED_LIST);
-        MediaReader mediaReader = new MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility);
-        mMediaReadTask = new MediaReadTask(mFunction, checkedList, mediaReader, this);
-        mMediaReadTask.execute();
+        val statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.statusBarColor)
+        val navigationBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.navigationBarColor)
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.navigationBarColor)
+        // MVP设置
+        mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode)
+        mView.setCompleteDisplay(false)
+        mView.setLoadingDisplay(true)
+        // 弹框设置
+        mLoadingDialog.setupViews(mWidget)
+        mLoadingDialog.setMessage(R.string.album_converting)
         // 返回键 → 取消
-        setOnBackPressedListener(() -> {
-            callbackCancel();
-            return Unit.INSTANCE;
-        });
-    }
-
-    /**
-     * 读取外部传递的配置参数
-     */
-    private void initArgument() {
-        Bundle argument = getIntent().getExtras();
-        if (null != argument) {
-            mWidget = argument.getParcelable(Album.KEY_INPUT_WIDGET);
-            mFunction = argument.getInt(Album.KEY_INPUT_FUNCTION);
-            mChoiceMode = argument.getInt(Album.KEY_INPUT_CHOICE_MODE);
-            mColumnCount = argument.getInt(Album.KEY_INPUT_COLUMN_COUNT);
-            mHasCamera = argument.getBoolean(Album.KEY_INPUT_ALLOW_CAMERA);
-            mLimitCount = argument.getInt(Album.KEY_INPUT_LIMIT_COUNT);
-            mQuality = argument.getInt(Album.KEY_INPUT_CAMERA_QUALITY);
-            mLimitDuration = argument.getLong(Album.KEY_INPUT_CAMERA_DURATION);
-            mLimitBytes = argument.getLong(Album.KEY_INPUT_CAMERA_BYTES);
-            mFilterVisibility = argument.getBoolean(Album.KEY_INPUT_FILTER_VISIBILITY);
-        } else {
-            finish();
+        setOnBackPressedListener {
+            callbackCancel()
         }
-    }
-
-    /**
-     * 媒体扫描完成回调
-     */
-    @Override
-    public void onScanCallback(ArrayList<AlbumFolder> albumFolders, ArrayList<AlbumFile> checkedFiles) {
-        mMediaReadTask = null;
-        mAlbumFolders = albumFolders;
-        mCheckedList = checkedFiles;
-        // 没有图片 → 打开空页面
-        if (mAlbumFolders.get(0).getAlbumFiles().isEmpty()) {
-            // 延迟1秒关闭 loading，过渡更自然
-            TimerBuilder.schedule(this, () -> {
-                Intent intent = new Intent(this, NullActivity.class);
-                intent.putExtras(getIntent());
-                startActivityForResult(intent, CODE_ACTIVITY_NULL);
-                overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
-                asyncScanCallback(true);
-                return Unit.INSTANCE;
-            }, 1000);
-        } else {
-            // 显示全部图片
-            showFolderAlbumFiles(0);
-            int count = mCheckedList.size();
-            mView.setCheckedCount(count);
-            asyncScanCallback(false);
-        }
-    }
-
-    /**
-     * 隐藏遮罩
-     */
-    private void asyncScanCallback(boolean isNull) {
-        long delayMillis = 500L;
-        if (isNull) delayMillis = 1000L;
-        TimerBuilder.schedule(this, () -> {
-            // 完成按钮是否显示
-            switch (mChoiceMode) {
-                case Album.MODE_MULTIPLE: {
-                    mView.setCompleteDisplay(true);
-                    break;
-                }
-                case Album.MODE_SINGLE: {
-                    mView.setCompleteDisplay(false);
-                    break;
-                }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
+        // 扫描回调
+        mTask.reader.observe {
+            val (albumFolders, checkedFiles) = this
+            mAlbumFolders = albumFolders
+            mCheckedList = checkedFiles
+            // 扫描完成回调
+            val scanAction = { isNull: Boolean ->
+                var delayMillis = 500L
+                if (isNull) delayMillis = 1000L
+                schedule(this@AlbumActivity, {
+                    // 完成按钮是否显示
+                    when (mChoiceMode) {
+                        Album.MODE_MULTIPLE -> mView.setCompleteDisplay(true)
+                        Album.MODE_SINGLE -> mView.setCompleteDisplay(false)
+                        else -> throw AssertionError("This should not be the case.")
+                    }
+                    // 隐藏整体遮罩
+                    mView.setLoadingDisplay(false)
+                }, delayMillis)
             }
-            // 隐藏整体遮罩
-            mView.setLoadingDisplay(false);
-            return Unit.INSTANCE;
-        }, delayMillis);
+            // 没有图片 → 打开空页面
+            if (mAlbumFolders[0].albumFiles.isEmpty()) {
+                // 延迟1秒关闭 loading，过渡更自然
+                schedule(this@AlbumActivity, {
+                    val intent = Intent(this@AlbumActivity, NullActivity::class.java)
+                    intent.putExtras(getIntent())
+                    startActivityForResult(intent, CODE_ACTIVITY_NULL)
+                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+                    scanAction(true)
+                })
+            } else {
+                // 显示全部图片
+                showFolderAlbumFiles(0)
+                val count = mCheckedList.size
+                mView.setCheckedCount(count)
+                scanAction(false)
+            }
+        }
+        // 路径转换回调
+        mTask.conversion.observe {
+            val addFileToListAction = { file: AlbumFile ->
+                if (mCurrentFolder != 0) {
+                    val albumFiles = mAlbumFolders[0].albumFiles
+                    if (!albumFiles.isEmpty()) {
+                        albumFiles.add(0, file)
+                    } else {
+                        albumFiles.add(file)
+                    }
+                }
+                val albumFolder = mAlbumFolders[mCurrentFolder]
+                val albumFiles = albumFolder.albumFiles
+                if (albumFiles.isEmpty()) {
+                    albumFiles.add(file)
+                    mView.bindAlbumFolder(albumFolder)
+                } else {
+                    albumFiles.add(0, file)
+                    mView.notifyInsertItem(if (mHasCamera) 1 else 0)
+                }
+                mCheckedList.add(file)
+                val count = mCheckedList.size
+                mView.setCheckedCount(count)
+                // 插入行为结束,给予1s动画转圈过渡
+                schedule(this@AlbumActivity, {
+                    if (mChoiceMode == Album.MODE_SINGLE) {
+                        callbackResult()
+                    } else {
+                        dismissLoadingDialog()
+                    }
+                })
+            }
+            val albumFile = this
+            albumFile.isChecked = !albumFile.isDisable
+            if (albumFile.isDisable) {
+                if (mFilterVisibility) {
+                    addFileToListAction(albumFile)
+                } else {
+                    mView.toast(getString(R.string.album_take_file_unavailable))
+                    // 不可以直接取消弹框
+                    dismissLoadingDialog()
+                }
+            } else {
+                // 添加到列表
+                addFileToListAction(albumFile)
+            }
+        }
+        // 开始扫描相册
+        val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST)
+        val mediaReader = MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
+        mTask.mediaReaderExecute(mFunction, checkedFiles, mediaReader)
     }
 
     /**
      * 点击所有图片 -> 切换相册
      */
-    @Override
-    public void clickFolderSwitch() {
+    override fun clickFolderSwitch() {
         if (mFolderDialog == null) {
-            mFolderDialog = new FolderDialog(this, mWidget, mAlbumFolders, (view, position) -> {
-                mCurrentFolder = position;
-                showFolderAlbumFiles(mCurrentFolder);
-            });
+            mFolderDialog = FolderDialog(this, mWidget, mAlbumFolders) { position: Int ->
+                mCurrentFolder = position
+                showFolderAlbumFiles(mCurrentFolder)
+            }
         }
-        if (!mFolderDialog.isShowing()) {
-            mFolderDialog.show();
+        if (!mFolderDialog?.isShowing.orFalse) {
+            mFolderDialog?.show()
         }
-    }
-
-    /**
-     * 显示某个文件夹下的图片
-     */
-    private void showFolderAlbumFiles(int position) {
-        this.mCurrentFolder = position;
-        AlbumFolder albumFolder = mAlbumFolders.get(position);
-        mView.bindAlbumFolder(albumFolder);
     }
 
     /**
      * 点击列表 -> 拍照/录像
      */
-    @Override
-    public void clickCamera(View v) {
-        int hasCheckSize = mCheckedList.size();
+    override fun clickCamera(v: View?) {
+        val hasCheckSize = mCheckedList.size
         // 超过最大选择数量 → 提示
         if (hasCheckSize >= mLimitCount) {
-            int messageRes;
-            switch (mFunction) {
-                case Album.FUNCTION_CHOICE_IMAGE: {
-                    messageRes = R.string.album_check_image_limit_camera;
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_VIDEO: {
-                    messageRes = R.string.album_check_video_limit_camera;
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_ALBUM: {
-                    messageRes = R.string.album_check_album_limit_camera;
-                    break;
-                }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
+            val messageRes = when (mFunction) {
+                Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit_camera
+                Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit_camera
+                Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit_camera
+                else -> throw AssertionError("This should not be the case.")
             }
-            mView.toast(getString(messageRes, mLimitCount));
+            mView.toast(getString(messageRes, mLimitCount))
             // 根据功能类型拍照/录像/选择
         } else {
-            switch (mFunction) {
-                case Album.FUNCTION_CHOICE_IMAGE: {
-                    takePicture();
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_VIDEO: {
-                    takeVideo();
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_ALBUM: {
+            when (mFunction) {
+                Album.FUNCTION_CHOICE_IMAGE -> takePicture()
+                Album.FUNCTION_CHOICE_VIDEO -> takeVideo()
+                Album.FUNCTION_CHOICE_ALBUM -> {
                     if (mCameraPopupMenu == null) {
-                        mCameraPopupMenu = new PopupMenu(this, v);
-                        mCameraPopupMenu.getMenuInflater().inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.getMenu());
-                        mCameraPopupMenu.setOnMenuItemClickListener(item -> {
-                            int id = item.getItemId();
+                        mCameraPopupMenu = PopupMenu(this, v!!)
+                        mCameraPopupMenu?.menuInflater?.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu?.menu)
+                        mCameraPopupMenu!!.setOnMenuItemClickListener { item: MenuItem? ->
+                            val id = item?.itemId
                             if (id == R.id.album_menu_camera_image) {
-                                takePicture();
+                                takePicture()
                             } else if (id == R.id.album_menu_camera_video) {
-                                takeVideo();
+                                takeVideo()
                             }
-                            return true;
-                        });
+                            true
+                        }
                     }
-                    mCameraPopupMenu.show();
-                    break;
+                    mCameraPopupMenu?.show()
                 }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
+                else -> throw AssertionError("This should not be the case.")
             }
         }
-    }
-
-    /**
-     * 拍照
-     */
-    private void takePicture() {
-        String filePath;
-        if (mCurrentFolder == 0) {
-            // 如果用户现在看的是【所有图片】这个总相册 , 那就把拍的照片，保存到系统默认的公共相册目录（DCIM/Camera）
-            filePath = AlbumUtil.randomJPGPath();
-        } else {
-            // 如果用户当前正在看某个具体文件夹（比如微信相册）那就把拍的照片，保存到和这个文件夹同一个目录里，让照片直接出现在当前文件夹
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtil.randomJPGPath(file.getParentFile());
-        }
-        Album.camera(this)
-                .image()
-                .filePath(filePath)
-                .onResult(mCameraAction)
-                .start();
-    }
-
-    /**
-     * 录像
-     */
-    private void takeVideo() {
-        String filePath;
-        if (mCurrentFolder == 0) {
-            filePath = AlbumUtil.randomMP4Path();
-        } else {
-            File file = new File(mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(0).getPath());
-            filePath = AlbumUtil.randomMP4Path(file.getParentFile());
-        }
-        Album.camera(this)
-                .video()
-                .filePath(filePath)
-                .quality(mQuality)
-                .limitDuration(mLimitDuration)
-                .limitBytes(mLimitBytes)
-                .onResult(mCameraAction)
-                .start();
-    }
-
-    /**
-     * 拍照/录像完成 → 插入相册
-     */
-    private final Action<String> mCameraAction = new Action<>() {
-        @Override
-        public void onAction(@NonNull String result) {
-            /**
-             * 1) 触发系统媒体数据库更新
-             * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
-             * 这样相册才能看到新图片。
-             * 2) 触发文件管理器 / 相册刷新
-             * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
-             * 3) 触发 onScanCompleted 回调
-             * 4) 基本等价于 insertImageResolver (项目扩展函数) 区别在于无法扫描包名文件夹下内部的图片
-             */
-            if (mMediaScanner == null) {
-                mMediaScanner = new MediaScanner(AlbumActivity.this);
-            }
-            mMediaScanner.scan(result);
-            // 执行一次路径转换
-            if (mPathConvertTask != null) {
-                mPathConvertTask.cancel(true);
-                mPathConvertTask = null;
-            }
-            PathConversion conversion = new PathConversion(sSizeFilter, sMimeFilter, sDurationFilter);
-            mPathConvertTask = new PathConvertTask(conversion, AlbumActivity.this);
-            mPathConvertTask.execute(result);
-        }
-    };
-
-    /**
-     * 路径转换回调
-     */
-    @Override
-    public void onConvertStart() {
-        showLoadingDialog();
-        mLoadingDialog.setMessage(R.string.album_converting);
-    }
-
-    @Override
-    public void onConvertCallback(AlbumFile albumFile) {
-        albumFile.setChecked(!albumFile.isDisable());
-        if (albumFile.isDisable()) {
-            if (mFilterVisibility) {
-                addFileToList(albumFile);
-            } else {
-                mView.toast(getString(R.string.album_take_file_unavailable));
-                // 不可以直接取消弹框
-                dismissLoadingDialog();
-            }
-        } else {
-            // 添加到列表
-            addFileToList(albumFile);
-        }
-    }
-
-    /**
-     * 将新拍摄的图片插入列表
-     */
-    private void addFileToList(AlbumFile albumFile) {
-        if (mCurrentFolder != 0) {
-            List<AlbumFile> albumFiles = mAlbumFolders.get(0).getAlbumFiles();
-            if (!albumFiles.isEmpty()) {
-                albumFiles.add(0, albumFile);
-            } else {
-                albumFiles.add(albumFile);
-            }
-        }
-        AlbumFolder albumFolder = mAlbumFolders.get(mCurrentFolder);
-        List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
-        if (albumFiles.isEmpty()) {
-            albumFiles.add(albumFile);
-            mView.bindAlbumFolder(albumFolder);
-        } else {
-            albumFiles.add(0, albumFile);
-            mView.notifyInsertItem(mHasCamera ? 1 : 0);
-        }
-        mCheckedList.add(albumFile);
-        int count = mCheckedList.size();
-        mView.setCheckedCount(count);
-        // 插入行为结束,给予1s动画转圈过渡
-        TimerBuilder.schedule(this, () -> {
-            if (mChoiceMode == Album.MODE_SINGLE) {
-                callbackResult();
-            } else {
-                dismissLoadingDialog();
-            }
-            return Unit.INSTANCE;
-        }, 1000);
     }
 
     /**
      * 选择/取消选择图片
      */
-    @Override
-    public void tryCheckItem(CompoundButton button, int position) {
-        AlbumFile albumFile = mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(position);
-        if (button.isChecked()) {
-            if (mCheckedList.size() >= mLimitCount) {
-                int messageRes;
-                switch (mFunction) {
-                    case Album.FUNCTION_CHOICE_IMAGE: {
-                        messageRes = R.string.album_check_image_limit;
-                        break;
-                    }
-                    case Album.FUNCTION_CHOICE_VIDEO: {
-                        messageRes = R.string.album_check_video_limit;
-                        break;
-                    }
-                    case Album.FUNCTION_CHOICE_ALBUM: {
-                        messageRes = R.string.album_check_album_limit;
-                        break;
-                    }
-                    default: {
-                        throw new AssertionError("This should not be the case.");
-                    }
+    override fun tryCheckItem(button: CompoundButton?, position: Int) {
+        val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
+        if (button?.isChecked.orFalse) {
+            if (mCheckedList.size >= mLimitCount) {
+                val messageRes = when (mFunction) {
+                    Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
+                    Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
+                    Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
+                    else -> throw AssertionError("This should not be the case.")
                 }
-                mView.toast(getString(messageRes, mLimitCount));
-                button.setChecked(false);
+                mView.toast(getString(messageRes, mLimitCount))
+                button?.setChecked(false)
             } else {
-                albumFile.setChecked(true);
-                mCheckedList.add(albumFile);
-                setCheckedCount();
+                albumFile.isChecked = true
+                mCheckedList.add(albumFile)
+                setCheckedCount()
             }
         } else {
-            albumFile.setChecked(false);
-            mCheckedList.remove(albumFile);
-            setCheckedCount();
+            albumFile.isChecked = false
+            mCheckedList.remove(albumFile)
+            setCheckedCount()
         }
-    }
-
-    /**
-     * 更新已选数量
-     */
-    private void setCheckedCount() {
-        int count = mCheckedList.size();
-        mView.setCheckedCount(count);
     }
 
     /**
      * 预览图片
      */
-    @Override
-    public void tryPreviewItem(int position) {
-        switch (mChoiceMode) {
-            // 单选 → 直接返回
-            case Album.MODE_SINGLE: {
-                AlbumFile albumFile = mAlbumFolders.get(mCurrentFolder).getAlbumFiles().get(position);
-                mCheckedList.add(albumFile);
-                setCheckedCount();
-                callbackResult();
-                break;
+    override fun tryPreviewItem(position: Int) {
+        when (mChoiceMode) {
+            Album.MODE_SINGLE -> {
+                val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
+                mCheckedList.add(albumFile)
+                setCheckedCount()
+                callbackResult()
             }
-            // 多选 → 打开预览页
-            case Album.MODE_MULTIPLE: {
-                AlbumPreviewActivity.sAlbumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
-                AlbumPreviewActivity.sCheckedCount = mCheckedList.size();
-                AlbumPreviewActivity.sCurrentPosition = position;
-                AlbumPreviewActivity.sCallback = this;
-                Intent intent = new Intent(this, AlbumPreviewActivity.class);
-                intent.putExtras(getIntent());
-                startActivity(intent);
-                break;
+            Album.MODE_MULTIPLE -> {
+                setPreview(mAlbumFolders[mCurrentFolder].albumFiles, position)
             }
-            default: {
-                throw new AssertionError("This should not be the case.");
+            else -> {
+                throw AssertionError("This should not be the case.")
             }
         }
     }
@@ -501,131 +333,168 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     /**
      * 预览已选中的图片
      */
-    @Override
-    public void tryPreviewChecked() {
+    override fun tryPreviewChecked() {
         if (!mCheckedList.isEmpty()) {
-            AlbumPreviewActivity.sAlbumFiles = new ArrayList<>(mCheckedList);
-            AlbumPreviewActivity.sCheckedCount = mCheckedList.size();
-            AlbumPreviewActivity.sCurrentPosition = 0;
-            AlbumPreviewActivity.sCallback = this;
-            Intent intent = new Intent(this, AlbumPreviewActivity.class);
-            intent.putExtras(getIntent());
-            startActivity(intent);
+            setPreview(mCheckedList, 0)
         }
     }
 
     /**
      * 点击完成
      */
-    @Override
-    public void complete() {
+    override fun complete() {
         if (mCheckedList.isEmpty()) {
-            int messageRes;
-            switch (mFunction) {
-                case Album.FUNCTION_CHOICE_IMAGE: {
-                    messageRes = R.string.album_check_image_little;
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_VIDEO: {
-                    messageRes = R.string.album_check_video_little;
-                    break;
-                }
-                case Album.FUNCTION_CHOICE_ALBUM: {
-                    messageRes = R.string.album_check_album_little;
-                    break;
-                }
-                default: {
-                    throw new AssertionError("This should not be the case.");
-                }
+            val messageRes = when (mFunction) {
+                Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_little
+                Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
+                Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
+                else -> throw AssertionError("This should not be the case.")
             }
-            mView.toast(messageRes);
+            mView.toast(messageRes)
         } else {
-            callbackResult();
+            callbackResult()
         }
+    }
+
+    /**
+     * 浏览页跳转
+     */
+    private fun setPreview(albumFiles: ArrayList<AlbumFile>, currentPosition: Int) {
+        AlbumPreviewActivity.sAlbumFiles = albumFiles
+        AlbumPreviewActivity.sCheckedCount = mCheckedList.size
+        AlbumPreviewActivity.sCurrentPosition = currentPosition
+        AlbumPreviewActivity.sCallback = object : AlbumPreviewActivity.Callback {
+            override fun onPreviewComplete() {
+                callbackResult()
+            }
+
+            override fun onPreviewChanged(albumFile: AlbumFile) {
+                val albumFiles = mAlbumFolders[mCurrentFolder].albumFiles
+                val position = albumFiles.indexOf(albumFile)
+                val notifyPosition = if (mHasCamera) position + 1 else position
+                mView.notifyItem(notifyPosition)
+                if (albumFile.isChecked) {
+                    if (!mCheckedList.contains(albumFile)) {
+                        mCheckedList.add(albumFile)
+                    }
+                } else {
+                    if (mCheckedList.contains(albumFile)) {
+                        mCheckedList.remove(albumFile)
+                    }
+                }
+                setCheckedCount()
+            }
+        }
+        val intent = Intent(this, AlbumPreviewActivity::class.java)
+        intent.putExtras(getIntent())
+        startActivity(intent)
+    }
+
+    /**
+     * 更新已选数量
+     */
+    private fun setCheckedCount() {
+        val count = mCheckedList.size
+        mView.setCheckedCount(count)
+    }
+
+    /**
+     * 拍照
+     */
+    private fun takePicture() {
+        val filePath: String?
+        if (mCurrentFolder == 0) {
+            // 如果用户现在看的是【所有图片】这个总相册 , 那就把拍的照片，保存到系统默认的公共相册目录（DCIM/Camera）
+            filePath = randomJPGPath()
+        } else {
+            // 如果用户当前正在看某个具体文件夹（比如微信相册）那就把拍的照片，保存到和这个文件夹同一个目录里，让照片直接出现在当前文件夹
+            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path)
+            filePath = randomJPGPath(file.getParentFile())
+        }
+        Album.camera(this)
+            .image()
+            .filePath(filePath)
+            .onResult(mCameraAction)
+            .start()
+    }
+
+    /**
+     * 录像
+     */
+    private fun takeVideo() {
+        val filePath: String?
+        if (mCurrentFolder == 0) {
+            filePath = randomMP4Path()
+        } else {
+            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path)
+            filePath = randomMP4Path(file.getParentFile())
+        }
+        Album.camera(this)
+            .video()
+            .filePath(filePath)
+            .quality(mQuality)
+            .limitDuration(mLimitDuration)
+            .limitBytes(mLimitBytes)
+            .onResult(mCameraAction)
+            .start()
+    }
+
+    /**
+     * 显示某个文件夹下的图片
+     */
+    private fun showFolderAlbumFiles(position: Int) {
+        mCurrentFolder = position
+        val albumFolder = mAlbumFolders[position]
+        mView.bindAlbumFolder(albumFolder)
     }
 
     /**
      * 返回
      */
-    private void callbackResult() {
-        if (sResult != null) {
-            sResult.onAction(mCheckedList);
-        }
-        dismissLoadingDialog();
-        finish();
+    private fun callbackResult() {
+        sResult?.onAction(mCheckedList)
+        dismissLoadingDialog()
+        finish()
     }
 
     /**
      * 取消
      */
-    private void callbackCancel() {
-        if (sCancel != null) {
-            sCancel.onAction("User canceled.");
-        }
-        dismissLoadingDialog();
-        finish();
+    private fun callbackCancel() {
+        sCancel?.onAction("User canceled.")
+        dismissLoadingDialog()
+        finish()
     }
 
     /**
-     * 预览页回调
+     * 加载/隐藏对话框
      */
-    @Override
-    public void onPreviewComplete() {
-        callbackResult();
-    }
-
-    @Override
-    public void onPreviewChanged(AlbumFile albumFile) {
-        ArrayList<AlbumFile> albumFiles = mAlbumFolders.get(mCurrentFolder).getAlbumFiles();
-        int position = albumFiles.indexOf(albumFile);
-        int notifyPosition = mHasCamera ? position + 1 : position;
-        mView.notifyItem(notifyPosition);
-        if (albumFile.isChecked()) {
-            if (!mCheckedList.contains(albumFile)) {
-                mCheckedList.add(albumFile);
-            }
-        } else {
-            if (mCheckedList.contains(albumFile)) {
-                mCheckedList.remove(albumFile);
-            }
-        }
-        setCheckedCount();
-    }
-
-    /**
-     * 加载对话框
-     */
-    private void showLoadingDialog() {
-        if (mLoadingDialog == null) {
-            mLoadingDialog = new LoadingDialog(this);
-            mLoadingDialog.setupViews(mWidget);
-        }
-        if (!mLoadingDialog.isShowing()) {
-            mLoadingDialog.show();
+    private fun showLoadingDialog() {
+        if (!mLoadingDialog.isShowing) {
+            mLoadingDialog.show()
         }
     }
 
-    public void dismissLoadingDialog() {
-        if (mLoadingDialog != null && mLoadingDialog.isShowing()) {
-            mLoadingDialog.dismiss();
+    private fun dismissLoadingDialog() {
+        if (mLoadingDialog.isShowing) {
+            mLoadingDialog.dismiss()
         }
     }
 
     /**
      * 空页面拍照返回
      */
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == CODE_ACTIVITY_NULL) {
             if (resultCode == RESULT_OK) {
-                String imagePath = NullActivity.parsePath(data);
-                String mimeType = AlbumUtil.getMimeType(imagePath);
-                if (!TextUtils.isEmpty(mimeType)) {
-                    mCameraAction.onAction(imagePath);
+                val imagePath = NullActivity.parsePath(data)
+                val mimeType = getMimeType(imagePath)
+                if (mimeType.isNotEmpty()) {
+                    mCameraAction.onAction(imagePath)
                 }
             } else {
-                callbackCancel();
+                callbackCancel()
             }
         }
     }
@@ -633,23 +502,14 @@ public class AlbumActivity extends BaseActivity implements Contract.AlbumPresent
     /**
      * 销毁
      */
-    @Override
-    public void finish() {
-        if (mMediaReadTask != null) {
-            mMediaReadTask.cancel(true);
-            mMediaReadTask = null;
-        }
-        if (mPathConvertTask != null) {
-            mPathConvertTask.cancel(true);
-            mPathConvertTask = null;
-        }
-        sSizeFilter = null;
-        sMimeFilter = null;
-        sDurationFilter = null;
-        sResult = null;
-        sCancel = null;
-        super.finish();
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+    override fun finish() {
+        sSizeFilter = null
+        sMimeFilter = null
+        sDurationFilter = null
+        sResult = null
+        sCancel = null
+        super.finish()
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
     }
 
 }
