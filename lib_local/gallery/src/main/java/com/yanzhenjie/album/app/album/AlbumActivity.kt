@@ -262,8 +262,8 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
                 Album.FUNCTION_CHOICE_IMAGE -> takePicture()
                 Album.FUNCTION_CHOICE_VIDEO -> takeVideo()
                 Album.FUNCTION_CHOICE_ALBUM -> {
-                    if (!::mCameraPopupMenu.isInitialized) {
-                        mCameraPopupMenu = PopupMenu(this, v!!)
+                    if (!::mCameraPopupMenu.isInitialized && null != v) {
+                        mCameraPopupMenu = PopupMenu(this, v)
                         mCameraPopupMenu.menuInflater.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.menu)
                         mCameraPopupMenu.setOnMenuItemClickListener { item: MenuItem? ->
                             when (item?.itemId) {
