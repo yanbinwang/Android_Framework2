@@ -1,53 +1,37 @@
-package com.yanzhenjie.album.app.gallery;
+package com.yanzhenjie.album.app.gallery
 
-import android.content.Context;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import androidx.annotation.NonNull;
-import androidx.viewpager.widget.PagerAdapter;
-
-import com.yanzhenjie.album.widget.photoview.AttacherImageView;
-import com.yanzhenjie.album.widget.photoview.PhotoViewAttacher;
-
-import java.util.List;
+import android.view.View
+import android.view.View.OnLongClickListener
+import android.view.ViewGroup
+import android.widget.ImageView
+import androidx.viewpager.widget.PagerAdapter
+import com.yanzhenjie.album.widget.photoview.AttacherImageView
+import com.yanzhenjie.album.widget.photoview.PhotoViewAttacher
+import com.yanzhenjie.album.widget.photoview.PhotoViewAttacher.OnViewTapListener
 
 /**
  * 图片预览适配器（给 ViewPager 用）
  * 基类适配器，专门用于预览大图，支持：
- * 点击、长按、缩放（PhotoView）
- * 子类只需要实现图片加载逻辑即可
+ * 点击、长按、缩放（PhotoView）子类只需要实现图片加载逻辑即可
  */
-public abstract class PreviewAdapter<T> extends PagerAdapter implements PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
+abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), OnViewTapListener, OnLongClickListener {
     // 单击监听
-    private View.OnClickListener mItemClickListener;
+    private var mItemClickListener: View.OnClickListener? = null
     // 长按监听
-    private View.OnClickListener mItemLongClickListener;
-    // 上下文
-    private final Context mContext;
-    // 预览数据集合
-    private final List<T> mPreviewList;
-
-    public PreviewAdapter(Context context, List<T> previewList) {
-        mContext = context;
-        mPreviewList = previewList;
-    }
+    private var mItemLongClickListener: View.OnClickListener? = null
 
     /**
      * 条目数量
      */
-    @Override
-    public int getCount() {
-        return mPreviewList == null ? 0 : mPreviewList.size();
+    override fun getCount(): Int {
+        return previewList.size
     }
 
     /**
      * View 是否对应对象（固定写法）
      */
-    @Override
-    public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
-        return view == object;
+    override fun isViewFromObject(view: View, any: Any): Boolean {
+        return view == any
     }
 
     /**
@@ -56,72 +40,67 @@ public abstract class PreviewAdapter<T> extends PagerAdapter implements PhotoVie
      * 2) 绑定点击/长按
      * 3) 让子类去加载图片
      */
-    @NonNull
-    @Override
-    public Object instantiateItem(@NonNull ViewGroup container, int position) {
+    override fun instantiateItem(container: ViewGroup, position: Int): Any {
         // 创建支持 PhotoView 的 ImageView
-        AttacherImageView imageView = new AttacherImageView(mContext);
-        imageView.setLayoutParams(new ViewGroup.LayoutParams(-1, -1));
+        val imageView = AttacherImageView(container.context)
+        imageView.setLayoutParams(ViewGroup.LayoutParams(-1, -1))
         // 子类实现：加载图片
-        loadPreview(imageView, mPreviewList.get(position), position);
+        loadPreview(imageView, previewList[position], position)
         // 添加到 ViewPager
-        container.addView(imageView);
+        container.addView(imageView)
         // 绑定 PhotoView 缩放能力
-        final PhotoViewAttacher attacher = new PhotoViewAttacher(imageView);
+        val attacher = PhotoViewAttacher(imageView)
         // 设置单击
         if (mItemClickListener != null) {
-            attacher.setOnViewTapListener(this);
+            attacher.setOnViewTapListener(this)
         }
         // 设置长按
         if (mItemLongClickListener != null) {
-            attacher.setOnLongClickListener(this);
+            attacher.setOnLongClickListener(this)
         }
-        imageView.setAttacher(attacher);
-        return imageView;
+        imageView.setAttacher(attacher)
+        return imageView
     }
 
     /**
      * 销毁页面
      */
-    @Override
-    public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        container.removeView(((View) object));
+    override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
+        container.removeView(any as View)
     }
 
     /**
      * 单击回调
      */
-    @Override
-    public void onViewTap(View v, float x, float y) {
-        mItemClickListener.onClick(v);
+    override fun onViewTap(v: View?, x: Float, y: Float) {
+        mItemClickListener?.onClick(v)
     }
 
     /**
      * 长按回调
      */
-    @Override
-    public boolean onLongClick(View v) {
-        mItemLongClickListener.onClick(v);
-        return true;
+    override fun onLongClick(v: View?): Boolean {
+        mItemLongClickListener?.onClick(v)
+        return true
     }
 
     /**
      * 设置单击监听
      */
-    public void setItemClickListener(View.OnClickListener onClickListener) {
-        mItemClickListener = onClickListener;
+    fun setItemClickListener(onClickListener: View.OnClickListener) {
+        mItemClickListener = onClickListener
     }
 
     /**
      * 设置长按监听
      */
-    public void setItemLongClickListener(View.OnClickListener longClickListener) {
-        mItemLongClickListener = longClickListener;
+    fun setItemLongClickListener(longClickListener: View.OnClickListener) {
+        mItemLongClickListener = longClickListener
     }
 
     /**
      * 子类必须实现：加载图片
      */
-    protected abstract void loadPreview(ImageView imageView, T item, int position);
+    protected abstract fun loadPreview(imageView: ImageView, item: T, position: Int)
 
 }

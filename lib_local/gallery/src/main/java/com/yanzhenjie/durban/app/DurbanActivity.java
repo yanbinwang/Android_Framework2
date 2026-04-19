@@ -422,7 +422,8 @@ public class DurbanActivity extends BaseActivity {
     @Override
     public void finish() {
         super.finish();
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none);
+//        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none);
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
     }
 
 }

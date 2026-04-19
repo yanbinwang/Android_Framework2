@@ -121,9 +121,9 @@ public class GalleryView<Data> extends Contract.GalleryView<Data> implements Vie
      */
     @Override
     public void bindData(List<Data> dataList) {
-        PreviewAdapter<Data> adapter = new PreviewAdapter<>(getContext(), dataList) {
+        PreviewAdapter<Data> adapter = new PreviewAdapter<>(dataList) {
             @Override
-            protected void loadPreview(ImageView imageView, Data item, int position) {
+            protected void loadPreview(@NonNull ImageView imageView, Data item, int position) {
                 // 加载图片：支持 String 路径 或 AlbumFile
                 if (item instanceof String) {
                     Album.getAlbumConfig().getAlbumLoader().load(imageView, (String) item);
