@@ -70,12 +70,12 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
     private var mAlbumFolders = ArrayList<AlbumFolder>()
     // 已选中的图片
     private var mCheckedList = ArrayList<AlbumFile>()
-    // 相册全局任务
-    private val mTask = AlbumTask(this)
     // 加载对话框
     private val mLoadingDialog by lazy { LoadingDialog(this) }
     // 媒体扫描
     private val mMediaScanner by lazy { MediaScanner(this) }
+    // 相册全局任务
+    private val mTask by lazy { AlbumTask(this) }
     // MVP & UI
     private val mView by lazy { AlbumView(this, this) }
 
