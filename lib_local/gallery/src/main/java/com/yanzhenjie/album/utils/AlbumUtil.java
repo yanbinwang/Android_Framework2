@@ -140,7 +140,8 @@ public class AlbumUtil {
         // 判断 SD 卡是否正常挂载（手机存储是否可用）
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
             // SD 卡不可用（极少见）→ 存到 APP 自身缓存目录（/data/data/你的应用包名/cache/）
-            return randomJPGPath(context.getCacheDir());
+//            return randomJPGPath(context.getCacheDir());
+            return randomJPGPath(getAlbumRootPath(context));
         }
         return randomJPGPath();
     }
@@ -168,7 +169,8 @@ public class AlbumUtil {
     @NonNull
     public static String randomMP4Path(Context context) {
         if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
-            return randomMP4Path(context.getCacheDir());
+//            return randomMP4Path(context.getCacheDir());
+            return randomMP4Path(getAlbumRootPath(context));
         }
         return randomMP4Path();
     }
