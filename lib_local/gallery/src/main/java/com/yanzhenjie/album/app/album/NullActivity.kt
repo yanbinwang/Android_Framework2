@@ -27,7 +27,7 @@ import com.yanzhenjie.album.model.Widget
  * 空页面
  * 功能：当手机里没有图片/视频时显示 提供拍照、录像入口
  */
-class NullActivity : BaseActivity(), NullPresenter {
+internal class NullActivity : BaseActivity(), NullPresenter {
     // 功能：图片/视频/全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 视频质量
@@ -46,11 +46,13 @@ class NullActivity : BaseActivity(), NullPresenter {
     /**
      * 相机拍摄完成的回调：返回路径
      */
-    private val mCameraAction = Action<String> { result ->
-        val intent = Intent()
-        intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result)
-        setResult(RESULT_OK, intent)
-        finish()
+    private val mCameraAction = object : Action<String> {
+        override fun onAction(result: String) {
+            val intent = Intent()
+            intent.putExtra(KEY_OUTPUT_IMAGE_PATH, result)
+            setResult(RESULT_OK, intent)
+            finish()
+        }
     }
 
     companion object {

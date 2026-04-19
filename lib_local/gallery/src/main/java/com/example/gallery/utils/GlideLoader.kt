@@ -12,11 +12,11 @@ import com.yanzhenjie.album.callback.AlbumLoader
  */
 class GlideLoader : AlbumLoader {
 
-    override fun load(imageView: ImageView, albumFile: AlbumFile) {
+    override fun load(imageView: ImageView?, albumFile: AlbumFile) {
         load(imageView, albumFile.path)
     }
 
-    override fun load(imageView: ImageView, url: String?) {
+    override fun load(imageView: ImageView?, url: String?) {
         ImageLoader.instance.loadImageFromUrl(imageView, url)
     }
 

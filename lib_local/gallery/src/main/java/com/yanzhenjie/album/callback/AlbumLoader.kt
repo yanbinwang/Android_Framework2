@@ -14,10 +14,10 @@ interface AlbumLoader {
          * 默认空实现（无加载能力，必须自定义）
          */
         val DEFAULT = object : AlbumLoader {
-            override fun load(imageView: ImageView, albumFile: AlbumFile) {
+            override fun load(imageView: ImageView?, albumFile: AlbumFile) {
             }
 
-            override fun load(imageView: ImageView, url: String?) {
+            override fun load(imageView: ImageView?, url: String?) {
             }
         }
     }
@@ -28,7 +28,7 @@ interface AlbumLoader {
      * @param imageView  显示图片的View
      * @param albumFile  相册文件实体（图片/视频）
      */
-    fun load(imageView: ImageView, albumFile: AlbumFile)
+    fun load(imageView: ImageView?, albumFile: AlbumFile)
 
     /**
      * 根据路径加载图片（本地路径 / 网络地址）
@@ -36,6 +36,6 @@ interface AlbumLoader {
      * @param imageView  显示图片的View
      * @param url        文件路径（本地路径或远程URL）
      */
-    fun load(imageView: ImageView, url: String?)
+    fun load(imageView: ImageView?, url: String?)
 
 }

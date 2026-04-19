@@ -101,9 +101,9 @@ public class DurbanActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         // 读取所有配置
         initArgument();
-        // 覆盖基类动画
-        setActivityAnimations();
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+//        // 覆盖基类动画
+//        setActivityAnimations();
+//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
         // 设置布局
         setContentView(R.layout.durban_activity_photobox);
         // 初始化状态栏、标题栏
@@ -116,20 +116,20 @@ public class DurbanActivity extends BaseActivity {
         cropNextImage();
     }
 
-    @Override
-    protected void onNewIntent(@Nullable Intent intent) {
-        super.onNewIntent(intent);
-        setActivityAnimations();
-    }
-
-    private void setActivityAnimations() {
-        Fade fadeEnter = new Fade(MODE_IN);
-        fadeEnter.setDuration(300);
-        getWindow().setExitTransition(fadeEnter);
-        Fade fadeExit = new Fade(MODE_OUT);
-        fadeEnter.setDuration(300);
-        getWindow().setReturnTransition(fadeExit);
-    }
+//    @Override
+//    protected void onNewIntent(@Nullable Intent intent) {
+//        super.onNewIntent(intent);
+//        setActivityAnimations();
+//    }
+//
+//    private void setActivityAnimations() {
+//        Fade fadeEnter = new Fade(MODE_IN);
+//        fadeEnter.setDuration(300);
+//        getWindow().setExitTransition(fadeEnter);
+//        Fade fadeExit = new Fade(MODE_OUT);
+//        fadeEnter.setDuration(300);
+//        getWindow().setReturnTransition(fadeExit);
+//    }
 
     private void initArgument() {
         Bundle argument = getIntent().getExtras();

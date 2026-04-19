@@ -23,6 +23,8 @@ import com.yanzhenjie.album.api.ImageSingleWrapper
 import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
+import com.yanzhenjie.album.callback.Action
+import com.yanzhenjie.album.model.AlbumFile
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
@@ -200,22 +202,26 @@ class MediaPicker {
             // 筛选文件的可见性
             ?.afterFilterVisibility(false)
             // 选择后回调
-            ?.onResult {
-                it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
-                        string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
-                        return@onResult
-                    }
-                    path?.let { albumPath ->
-                        if (hasDurban) {
-                            toDurban(albumPath)
-                        } else {
-                            listener.invoke(albumPath)
+            ?.onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    result.safeGet(0)?.also { file ->
+                        if (file.size > megabyte.mb) {
+                            string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
+                            return@also
+                        }
+                        file.path?.let { albumPath ->
+                            if (hasDurban) {
+                                toDurban(albumPath)
+                            } else {
+                                listener.invoke(albumPath)
+                            }
                         }
                     }
                 }
-            }
+            })
             ?.start()
+
+
     }
 
     /**
@@ -230,9 +236,11 @@ class MediaPicker {
             ?.columnCount(3)
             ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
-            ?.onResult { result ->
-                listener.invoke(result.toNewList { it.path })
-            }
+            ?.onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    listener.invoke(result.toNewList { it.path })
+                }
+            })
             ?.start()
     }
 
@@ -247,17 +255,19 @@ class MediaPicker {
             ?.columnCount(3)
             ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
-            ?.onResult {
-                it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
-                        string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
-                        return@onResult
-                    }
-                    path?.let { albumPath ->
-                        listener.invoke(albumPath)
+            ?.onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    result.safeGet(0)?.also { file ->
+                        if (file.size > megabyte.mb) {
+                            string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
+                            return@also
+                        }
+                        file.path?.let { albumPath ->
+                            listener.invoke(albumPath)
+                        }
                     }
                 }
-            }
+            })
             ?.start()
     }
 
@@ -273,9 +283,11 @@ class MediaPicker {
             ?.columnCount(3)
             ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
-            ?.onResult { result ->
-                listener.invoke(result.toNewList { it.path })
-            }
+            ?.onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    listener.invoke(result.toNewList { it.path })
+                }
+            })
             ?.start()
     }
 

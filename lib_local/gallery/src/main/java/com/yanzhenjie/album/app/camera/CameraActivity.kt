@@ -24,7 +24,7 @@ import java.io.File
  * 功能：调用系统相机拍照 / 录制视频
  * 拍完后把文件路径回调给外部
  */
-class CameraActivity : BaseActivity() {
+internal class CameraActivity : BaseActivity() {
     // 相机功能类型：拍照 / 录像
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 视频质量

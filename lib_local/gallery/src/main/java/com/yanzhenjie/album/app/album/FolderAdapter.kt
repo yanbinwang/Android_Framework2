@@ -1,148 +1,114 @@
-package com.yanzhenjie.album.app.album;
+package com.yanzhenjie.album.app.album
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.gallery.R;
-import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener;
-
-import java.util.List;
+import android.annotation.SuppressLint
+import android.content.res.ColorStateList
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.RadioButton
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.framework.utils.function.view.clicks
+import com.example.gallery.R
+import com.yanzhenjie.album.Album.getAlbumConfig
+import com.yanzhenjie.album.model.AlbumFolder
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener
 
 /**
  * 文件夹选择弹窗 列表适配器
  * 功能：展示所有图片/视频文件夹，带单选、封面图、数量显示
  */
 @SuppressLint("SetTextI18n")
-public class FolderAdapter extends RecyclerView.Adapter<FolderAdapter.FolderViewHolder> {
+class FolderAdapter(private val albumFolders: List<AlbumFolder>, private val colorStates: ColorStateList) : RecyclerView.Adapter<FolderAdapter.FolderViewHolder>() {
     // 条目点击回调
-    private OnItemClickListener mItemClickListener;
-    // 文件夹列表
-    private final List<AlbumFolder> mAlbumFolders;
-    // 单选按钮颜色选择器
-    private final ColorStateList mSelector;
-    // 布局加载器
-    private final LayoutInflater mInflater;
-
-    public FolderAdapter(Context context, List<AlbumFolder> mAlbumFolders, ColorStateList buttonTint) {
-        this.mInflater = LayoutInflater.from(context);
-        this.mSelector = buttonTint;
-        this.mAlbumFolders = mAlbumFolders;
-    }
+    private var mItemClickListener: OnItemClickListener? = null
 
     /**
      * 创建 ViewHolder
      */
-    @NonNull
-    @Override
-    public FolderViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         // 内部处理单选逻辑（自动切换上一个/当前选中状态）
-        return new FolderViewHolder(mInflater.inflate(R.layout.album_item_dialog_folder, parent, false), mSelector, new OnItemClickListener() {
-            private int oldPosition = 0;
+        return FolderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_dialog_folder, parent, false), colorStates, object : OnItemClickListener {
+            private var oldPosition = 0
 
-            @Override
-            public void onItemClick(View view, int position) {
+            override fun onItemClick(view: View?, position: Int) {
                 // 回调外部点击
-                if (mItemClickListener != null) {
-                    mItemClickListener.onItemClick(view, position);
-                }
+                mItemClickListener?.onItemClick(view, position)
                 // 内部单选逻辑：取消上一个，选中当前
-                AlbumFolder albumFolder = mAlbumFolders.get(position);
-                if (!albumFolder.isChecked()) {
-                    albumFolder.setChecked(true);
-                    mAlbumFolders.get(oldPosition).setChecked(false);
+                val albumFolder = albumFolders[position]
+                if (!albumFolder.isChecked) {
+                    albumFolder.isChecked = true
+                    albumFolders[oldPosition].isChecked = false
                     // 局部刷新，避免整个列表刷新
-                    notifyItemChanged(oldPosition);
-                    notifyItemChanged(position);
-                    oldPosition = position;
+                    notifyItemChanged(oldPosition)
+                    notifyItemChanged(position)
+                    oldPosition = position
                 }
             }
-        });
+        })
     }
 
     /**
      * 绑定数据
      */
-    @Override
-    public void onBindViewHolder(FolderViewHolder holder, int position) {
-        final int newPosition = holder.getAbsoluteAdapterPosition();
-        holder.setData(mAlbumFolders.get(newPosition));
+    override fun onBindViewHolder(holder: FolderViewHolder, position: Int) {
+        val newPosition = holder.getBindingAdapterPosition()
+        holder.setData(albumFolders[newPosition])
     }
 
     /**
      * 条目数量
      */
-    @Override
-    public int getItemCount() {
-        return mAlbumFolders == null ? 0 : mAlbumFolders.size();
+    override fun getItemCount(): Int {
+        return albumFolders.size
     }
 
     /**
      * 设置外部点击回调
      */
-    public void setItemClickListener(OnItemClickListener itemClickListener) {
-        this.mItemClickListener = itemClickListener;
+    fun setItemClickListener(itemClickListener: OnItemClickListener) {
+        this.mItemClickListener = itemClickListener
     }
 
     /**
      * ViewHolder 缓存
      */
-    public static class FolderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    class FolderViewHolder(itemView: View, selector: ColorStateList, private val itemClickListener: OnItemClickListener?) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
         // 文件夹封面图
-        private final ImageView mIvImage;
+        private var mIvImage = itemView.findViewById<ImageView>(R.id.iv_gallery_preview_image)
         // 文件夹名称 + 文件数量
-        private final TextView mTvTitle;
+        private var mTvTitle = itemView.findViewById<TextView>(R.id.tv_gallery_preview_title)
         // 单选按钮
-        private final RadioButton mCheckBox;
-        private final OnItemClickListener mItemClickListener;
+        private var mCheckBox = itemView.findViewById<RadioButton>(R.id.rb_gallery_preview_check)
 
-        private FolderViewHolder(View itemView, ColorStateList selector, OnItemClickListener itemClickListener) {
-            super(itemView);
-            this.mItemClickListener = itemClickListener;
-            // 绑定控件
-            mIvImage = itemView.findViewById(R.id.iv_gallery_preview_image);
-            mTvTitle = itemView.findViewById(R.id.tv_gallery_preview_title);
-            mCheckBox = itemView.findViewById(R.id.rb_gallery_preview_check);
-            // 设置点击事件
-            itemView.setOnClickListener(this);
+        init {
             // 设置单选按钮颜色
-            mCheckBox.setButtonTintList(selector);
+            mCheckBox?.setButtonTintList(selector)
+            // 设置点击事件
+            clicks(itemView)
         }
 
         /**
          * 给控件设置数据
          */
-        public void setData(AlbumFolder albumFolder) {
-            List<AlbumFile> albumFiles = albumFolder.getAlbumFiles();
+        fun setData(albumFolder: AlbumFolder) {
+            val albumFiles = albumFolder.albumFiles
             // 显示：(数量) 文件夹名称
-            mTvTitle.setText("(" + albumFiles.size() + ") " + albumFolder.getName());
+            mTvTitle?.text = "(" + albumFiles.size + ") " + albumFolder.name
             // 选中状态
-            mCheckBox.setChecked(albumFolder.isChecked());
+            mCheckBox?.setChecked(albumFolder.isChecked)
             // 加载文件夹第一张图作为封面
-            Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFiles.get(0));
+            getAlbumConfig().albumLoader.load(mIvImage, albumFiles[0])
         }
 
         /**
          * 条目点击
          */
-        @Override
-        public void onClick(View v) {
-            if (mItemClickListener != null) {
-                mItemClickListener.onItemClick(v, getAdapterPosition());
-            }
+        override fun onClick(v: View?) {
+            itemClickListener?.onItemClick(v, getBindingAdapterPosition())
         }
+
     }
 
 }

@@ -38,7 +38,7 @@ import java.io.File
  * 相册主页（总控 Activity）
  * 功能：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
  */
-class AlbumActivity : BaseActivity(), AlbumPresenter {
+internal class AlbumActivity : BaseActivity(), AlbumPresenter {
     // 功能：图片/视频/全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 单选/多选
@@ -82,22 +82,24 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
     /**
      * 拍照/录像完成 → 插入相册
      */
-    private val mCameraAction = Action<String> { result ->
-        // 开始路径转换
-        showLoadingDialog()
-        /**
-         * 1) 触发系统媒体数据库更新
-         * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
-         * 这样相册才能看到新图片。
-         * 2) 触发文件管理器 / 相册刷新
-         * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
-         * 3) 触发 onScanCompleted 回调
-         * 4) 基本等价于 insertImageResolver (项目扩展函数) 区别在于无法扫描包名文件夹下内部的图片
-         */
-        mMediaScanner.scan(result)
-        // 同步执行路径转换
-        val conversion = PathConversion(sSizeFilter, sMimeFilter, sDurationFilter)
-        mTask.pathConversionExecute(conversion, result)
+    private val mCameraAction = object : Action<String> {
+        override fun onAction(result: String) {
+            // 开始路径转换
+            showLoadingDialog()
+            /**
+             * 1) 触发系统媒体数据库更新
+             * Android 系统有个内置数据库，记录所有图片、视频、音频。你调用 scan() →系统把这个文件路径插入 / 更新到数据库里。
+             * 这样相册才能看到新图片。
+             * 2) 触发文件管理器 / 相册刷新
+             * 扫描完成后 → 系统相册、文件管理器都会立刻看到新文件不用等重启、不用等多久。
+             * 3) 触发 onScanCompleted 回调
+             * 4) 基本等价于 insertImageResolver (项目扩展函数) 区别在于无法扫描包名文件夹下内部的图片
+             */
+            mMediaScanner.scan(result)
+            // 同步执行路径转换
+            val conversion = PathConversion(sSizeFilter, sMimeFilter, sDurationFilter)
+            mTask.pathConversionExecute(conversion, result)
+        }
     }
 
     companion object {
@@ -204,11 +206,10 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
                     }
                 })
             }
-            val albumFile = this
-            albumFile.isChecked = !albumFile.isDisable
-            if (albumFile.isDisable) {
+            isChecked = !isDisable
+            if (isDisable) {
                 if (mFilterVisibility) {
-                    addFileToListAction(albumFile)
+                    addFileToListAction(this)
                 } else {
                     mView.toast(getString(R.string.album_take_file_unavailable))
                     // 不可以直接取消弹框
@@ -216,7 +217,7 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
                 }
             } else {
                 // 添加到列表
-                addFileToListAction(albumFile)
+                addFileToListAction(this)
             }
         }
         // 开始扫描相册

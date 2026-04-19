@@ -17,7 +17,7 @@ import com.yanzhenjie.album.utils.AlbumUtil
  * 相册内部选择预览（带勾选）
  * 功能：选择控制、数量限制、预览切换、完成返回
  */
-class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
+internal class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
     // 功能类型：图片 / 视频 / 全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 最大可选数量

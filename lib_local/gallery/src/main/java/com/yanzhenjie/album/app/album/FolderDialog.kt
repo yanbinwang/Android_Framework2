@@ -35,7 +35,7 @@ class FolderDialog(context: Context, widget: Widget, albumFolders: List<AlbumFol
         val recyclerView = getDelegate().findViewById<RecyclerView>(R.id.rv_content_list)
         recyclerView?.setLayoutManager(LinearLayoutManager(getContext()))
         // 创建适配器
-        val mFolderAdapter = FolderAdapter(context, albumFolders, widget.bucketItemCheckSelector)
+        val mFolderAdapter = FolderAdapter(albumFolders, widget.bucketItemCheckSelector)
         // 条目点击事件
         mFolderAdapter.setItemClickListener { _: View?, position: Int ->
             // 如果点击的不是当前选中项
