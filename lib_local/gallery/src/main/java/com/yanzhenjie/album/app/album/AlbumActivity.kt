@@ -61,9 +61,9 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
     private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
 
     // 相机选择弹窗
-    private var mCameraPopupMenu: PopupMenu? = null
+    private lateinit var mCameraPopupMenu: PopupMenu
     // 文件夹选择弹窗
-    private var mFolderDialog: FolderDialog? = null
+    private lateinit var mFolderDialog: FolderDialog
     // 当前选中的文件夹
     private var mCurrentFolder = 0
     // 所有文件夹
@@ -231,14 +231,14 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
      * 点击所有图片 -> 切换相册
      */
     override fun clickFolderSwitch() {
-        if (mFolderDialog == null) {
+        if (!::mFolderDialog.isInitialized) {
             mFolderDialog = FolderDialog(this, mWidget, mAlbumFolders) { position: Int ->
                 mCurrentFolder = position
                 showFolderAlbumFiles(mCurrentFolder)
             }
         }
-        if (!mFolderDialog?.isShowing.orFalse) {
-            mFolderDialog?.show()
+        if (!mFolderDialog.isShowing) {
+            mFolderDialog.show()
         }
     }
 
@@ -262,20 +262,18 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
                 Album.FUNCTION_CHOICE_IMAGE -> takePicture()
                 Album.FUNCTION_CHOICE_VIDEO -> takeVideo()
                 Album.FUNCTION_CHOICE_ALBUM -> {
-                    if (mCameraPopupMenu == null) {
+                    if (!::mCameraPopupMenu.isInitialized) {
                         mCameraPopupMenu = PopupMenu(this, v!!)
-                        mCameraPopupMenu?.menuInflater?.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu?.menu)
-                        mCameraPopupMenu!!.setOnMenuItemClickListener { item: MenuItem? ->
-                            val id = item?.itemId
-                            if (id == R.id.album_menu_camera_image) {
-                                takePicture()
-                            } else if (id == R.id.album_menu_camera_video) {
-                                takeVideo()
+                        mCameraPopupMenu.menuInflater.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.menu)
+                        mCameraPopupMenu.setOnMenuItemClickListener { item: MenuItem? ->
+                            when (item?.itemId) {
+                                R.id.album_menu_camera_image -> takePicture()
+                                R.id.album_menu_camera_video -> takeVideo()
                             }
                             true
                         }
                     }
-                    mCameraPopupMenu?.show()
+                    mCameraPopupMenu.show()
                 }
                 else -> throw AssertionError("This should not be the case.")
             }
