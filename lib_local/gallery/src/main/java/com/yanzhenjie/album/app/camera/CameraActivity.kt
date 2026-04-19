@@ -42,9 +42,7 @@ internal class CameraActivity : BaseActivity() {
         private const val CODE_ACTIVITY_TAKE_VIDEO = 2 // 录像
 
         // 外部回调监听
-        @JvmField
         var sResult: Action<String>? = null // 成功
-        @JvmField
         var sCancel: Action<String>? = null // 取消
     }
 
