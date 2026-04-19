@@ -182,6 +182,12 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                         val adjustHeight = toolbar.measuredHeight - getStatusBarHeight()
                         itemView.size(width = adjustHeight)
                     }
+                    // 干掉菜单按钮水波纹
+                    itemView.background = null
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        itemView.tooltipText = null
+                    }
+                    itemView.setOnLongClickListener { true }
                 }
             }
         }
