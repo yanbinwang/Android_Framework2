@@ -34,7 +34,7 @@ public class LoadingDialog extends Dialog {
     /**
      * 根据主题配置 加载条颜色（亮色/暗色模式）
      */
-    public void setupViews(Widget widget) {
+    public void setupViews(Widget widget, @StringRes int message) {
         int color;
         if (widget.getUiStyle() == Widget.STYLE_LIGHT) {
             // 浅色模式 → 深色加载条
@@ -44,6 +44,7 @@ public class LoadingDialog extends Dialog {
             color = ContextCompat.getColor(getContext(), widget.getStatusBarColor());
         }
         mProgressBar.setColorFilter(color);
+        setMessage(message);
     }
 
     /**

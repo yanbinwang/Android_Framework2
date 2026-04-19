@@ -60,7 +60,8 @@
         android:layout_below="@+id/toolbar"
         android:background="@color/albumPage"
         android:gravity="center"
-        android:visibility="gone">
+        android:visibility="visible"
+        tools:visibility="gone">
 
         <com.yanzhenjie.album.widget.ColorProgressBar
             android:id="@+id/progress_bar"

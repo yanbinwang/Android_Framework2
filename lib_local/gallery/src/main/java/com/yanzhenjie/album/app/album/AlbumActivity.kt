@@ -128,11 +128,8 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mWidget.navigationBarColor)
         // MVP设置
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode)
-        mView.setCompleteDisplay(false)
-        mView.setLoadingDisplay(true)
         // 弹框设置
-        mLoadingDialog.setupViews(mWidget)
-        mLoadingDialog.setMessage(R.string.album_converting)
+        mLoadingDialog.setupViews(mWidget, R.string.album_converting)
         // 返回键 → 取消
         setOnBackPressedListener {
             callbackCancel()
@@ -223,6 +220,8 @@ class AlbumActivity : BaseActivity(), AlbumPresenter {
             }
         }
         // 开始扫描相册
+        mView.setCompleteDisplay(false)
+        mView.setLoadingDisplay(true)
         val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST)
         val mediaReader = MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
         mTask.mediaReaderExecute(mFunction, checkedFiles, mediaReader)
