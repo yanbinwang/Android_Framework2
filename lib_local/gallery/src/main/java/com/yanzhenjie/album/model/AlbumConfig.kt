@@ -1,58 +1,49 @@
-package com.yanzhenjie.album.model;
+package com.yanzhenjie.album.model
 
-import com.yanzhenjie.album.callback.AlbumLoader;
+import com.yanzhenjie.album.callback.AlbumLoader
 
 /**
  * 相册全局配置类
  * 用于统一配置相册的图片加载器（AlbumLoader），采用 Builder 构建模式
  */
-public class AlbumConfig {
-    // 图片加载器（Glide/Picasso等）
-    private final AlbumLoader mLoader;
+data class AlbumConfig(
+    var albumLoader: AlbumLoader // 图片加载器（Glide/Picasso等）
+) {
+
+    companion object {
+        /**
+         * 获取构建器实例
+         */
+        @JvmStatic
+        fun newBuilder(): Builder {
+            return Builder()
+        }
+    }
 
     /**
      * 私有构造，通过 Builder 创建实例
      */
-    private AlbumConfig(Builder builder) {
-        this.mLoader = builder.mLoader == null ? AlbumLoader.DEFAULT : builder.mLoader;
-    }
+    constructor(builder: Builder) : this(builder.mLoader ?: AlbumLoader.DEFAULT)
 
     /**
-     * 获取配置好的图片加载器
+     * 类构建器
      */
-    public AlbumLoader getAlbumLoader() {
-        return mLoader;
-    }
-
-    /**
-     * 获取构建器实例
-     */
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    /**
-     * 构建器内部类
-     */
-    public static final class Builder {
-        private AlbumLoader mLoader;
-
-        private Builder() {
-        }
+    class Builder {
+        var mLoader: AlbumLoader? = null
 
         /**
          * 设置自定义图片加载器
          */
-        public Builder setAlbumLoader(AlbumLoader loader) {
-            this.mLoader = loader;
-            return this;
+        fun setAlbumLoader(loader: AlbumLoader): Builder {
+            this.mLoader = loader
+            return this
         }
 
         /**
          * 构建最终配置对象
          */
-        public AlbumConfig build() {
-            return new AlbumConfig(this);
+        fun build(): AlbumConfig {
+            return AlbumConfig(this)
         }
     }
 

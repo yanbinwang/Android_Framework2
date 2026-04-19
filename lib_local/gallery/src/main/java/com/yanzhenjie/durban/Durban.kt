@@ -1,5 +1,6 @@
 package com.yanzhenjie.durban
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import androidx.annotation.ColorRes
@@ -14,9 +15,9 @@ import com.yanzhenjie.durban.model.Controller
  * 图片裁剪入口类（链式调用裁剪配置）
  * 作用：外部调用裁剪功能，统一配置、跳转、接收结果 -> Builder 链式调用
  */
-class Durban(private val any: Any) {
+class Durban(private val host: Any) {
     // 跳转裁剪页的 Intent
-    private val mCropIntent = Intent(applyContext(any), DurbanActivity::class.java)
+    private val mCropIntent = Intent(applyActivity(host), DurbanActivity::class.java)
 
     companion object {
         // 跳转 KEY 常量
@@ -204,28 +205,31 @@ class Durban(private val any: Any) {
      * 通过反射跳转执行startActivityForResult,
      */
     fun start() {
-        try {
-            val method = any.javaClass.getMethod("startActivityForResult", Intent::class.java, Int::class.javaPrimitiveType)
-            if (!method.isAccessible) method.isAccessible = true
-            method.invoke(any, mCropIntent, mCropIntent.getIntExtra("requestCode", 1))
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+//        try {
+//            val method = any.javaClass.getMethod("startActivityForResult", Intent::class.java, Int::class.javaPrimitiveType)
+//            if (!method.isAccessible) method.isAccessible = true
+//            method.invoke(any, mCropIntent, mCropIntent.getIntExtra("requestCode", 1))
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//        }
+        val activity = applyActivity(host)
+        val requestCode = mCropIntent.getIntExtra("requestCode", 1)
+        activity.startActivityForResult(mCropIntent, requestCode)
     }
 
     /**
      * 内部拿取上下文方法
      */
-    private fun applyContext(any: Any): Context {
-        return when (any) {
+    private fun applyActivity(host: Any): Activity {
+        return when (host) {
             // Activity（兼容所有现代 Activity）
-            is FragmentActivity -> any
+            is FragmentActivity -> host
             // AndroidX Fragment
-            is Fragment -> any.requireActivity()
+            is Fragment -> host.requireActivity()
             // 旧系统Fragment
             is android.app.Fragment -> throw RuntimeException("android.app.Fragment is deprecated and not supported!")
             // 不认识的类型
-            else -> throw IllegalArgumentException("Unsupported host type: ${any::class.java.name}")
+            else -> throw IllegalArgumentException("Unsupported host type: ${host::class.java.name}")
         }
     }
 

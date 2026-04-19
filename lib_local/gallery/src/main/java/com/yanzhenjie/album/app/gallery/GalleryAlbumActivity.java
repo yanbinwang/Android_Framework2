@@ -8,9 +8,9 @@ import com.example.gallery.R;
 import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.album.Album;
 import com.yanzhenjie.album.callback.Action;
-import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.callback.ItemAction;
 import com.yanzhenjie.album.app.Contract;
+import com.yanzhenjie.album.model.AlbumFile;
 import com.yanzhenjie.album.model.Widget;
 import com.yanzhenjie.album.utils.AlbumUtil;
 

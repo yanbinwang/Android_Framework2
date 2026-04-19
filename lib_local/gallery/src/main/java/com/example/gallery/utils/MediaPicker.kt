@@ -108,18 +108,18 @@ class MediaPicker {
      * 2) FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
      * 3) 不支持旧android.app.Fragment
      */
-    constructor(any: Any) {
-        context = when (any) {
-            is FragmentActivity -> any
-            is Fragment -> any.requireActivity()
+    constructor(host: Any) {
+        context = when (host) {
+            is FragmentActivity -> host
+            is Fragment -> host.requireActivity()
             is android.app.Fragment -> throw RuntimeException("android.app.Fragment 已废弃，不支持！")
-            else -> throw IllegalArgumentException("不支持的类型：${any::class.java.name}")
+            else -> throw IllegalArgumentException("不支持的类型：${host::class.java.name}")
         }
         // 统一赋值
         widget = context.getAlbumWidget()
-        videoMultiple = Album.video(any)
-        imageMultiple = Album.image(any)
-        durban = Durban.with(any)
+        videoMultiple = Album.video(host)
+        imageMultiple = Album.image(host)
+        durban = Durban.with(host)
     }
 
     /**
@@ -206,10 +206,12 @@ class MediaPicker {
                         string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    if (hasDurban) {
-                        toDurban(path)
-                    } else {
-                        listener.invoke(path)
+                    path?.let { albumPath ->
+                        if (hasDurban) {
+                            toDurban(albumPath)
+                        } else {
+                            listener.invoke(albumPath)
+                        }
                     }
                 }
             }
@@ -251,7 +253,9 @@ class MediaPicker {
                         string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
                         return@onResult
                     }
-                    listener.invoke(path)
+                    path?.let { albumPath ->
+                        listener.invoke(albumPath)
+                    }
                 }
             }
             ?.start()

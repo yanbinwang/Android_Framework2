@@ -89,63 +89,63 @@ object Album {
      * 打开相机
      */
     @JvmStatic
-    fun camera(any: Any): Camera<ImageCameraWrapper, VideoCameraWrapper> {
-        return AlbumCamera(applyContext(any))
+    fun camera(host: Any): Camera<ImageCameraWrapper, VideoCameraWrapper> {
+        return AlbumCamera(applyContext(host))
     }
 
     /**
      * 选择图片
      */
     @JvmStatic
-    fun image(any: Any): Choice<ImageMultipleWrapper, ImageSingleWrapper> {
-        return ImageChoice(applyContext(any))
+    fun image(host: Any): Choice<ImageMultipleWrapper, ImageSingleWrapper> {
+        return ImageChoice(applyContext(host))
     }
 
     /**
      * 选择视频
      */
     @JvmStatic
-    fun video(any: Any): Choice<VideoMultipleWrapper, VideoSingleWrapper> {
-        return VideoChoice(applyContext(any))
+    fun video(host: Any): Choice<VideoMultipleWrapper, VideoSingleWrapper> {
+        return VideoChoice(applyContext(host))
     }
 
     /**
      * 选择图片+视频
      */
     @JvmStatic
-    fun album(any: Any): Choice<AlbumMultipleWrapper, AlbumSingleWrapper> {
-        return AlbumChoice(applyContext(any))
+    fun album(host: Any): Choice<AlbumMultipleWrapper, AlbumSingleWrapper> {
+        return AlbumChoice(applyContext(host))
     }
 
     /**
      * 预览图片
      */
     @JvmStatic
-    fun gallery(any: Any): GalleryWrapper {
-        return GalleryWrapper(applyContext(any))
+    fun gallery(host: Any): GalleryWrapper {
+        return GalleryWrapper(applyContext(host))
     }
 
     /**
      * 预览相册文件
      */
     @JvmStatic
-    fun galleryAlbum(any: Any): GalleryAlbumWrapper {
-        return GalleryAlbumWrapper(applyContext(any))
+    fun galleryAlbum(host: Any): GalleryAlbumWrapper {
+        return GalleryAlbumWrapper(applyContext(host))
     }
 
     /**
      * 获取上下文
      */
-    private fun applyContext(any: Any): Context {
-        return when (any) {
+    private fun applyContext(host: Any): Context {
+        return when (host) {
             // Activity（兼容所有现代 Activity）
-            is FragmentActivity -> any
+            is FragmentActivity -> host
             // AndroidX Fragment
-            is Fragment -> any.requireActivity()
+            is Fragment -> host.requireActivity()
             // 旧系统Fragment
             is android.app.Fragment -> throw RuntimeException("android.app.Fragment is deprecated and not supported!")
             // 不认识的类型
-            else -> throw IllegalArgumentException("Unsupported host type: ${any::class.java.name}")
+            else -> throw IllegalArgumentException("Unsupported host type: ${host::class.java.name}")
         }
     }
 

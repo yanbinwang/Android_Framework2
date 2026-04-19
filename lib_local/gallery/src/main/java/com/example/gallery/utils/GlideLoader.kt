@@ -16,7 +16,7 @@ class GlideLoader : AlbumLoader {
         load(imageView, albumFile.path)
     }
 
-    override fun load(imageView: ImageView, url: String) {
+    override fun load(imageView: ImageView, url: String?) {
         ImageLoader.instance.loadImageFromUrl(imageView, url)
     }
 
