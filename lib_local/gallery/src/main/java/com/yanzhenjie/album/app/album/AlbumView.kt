@@ -128,7 +128,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         val dividerSize = getResources().getDimensionPixelSize(R.dimen.album_dp_4)
         mRecyclerView?.addItemDecoration(ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize))
         // 初始化适配器
-        mAdapter = AlbumAdapter(getContext(), hasCamera, choiceMode, widget.mediaItemCheckSelector)
+        mAdapter = AlbumAdapter(hasCamera, choiceMode, widget.mediaItemCheckSelector)
         // 点击拍照
         mAdapter?.setAddClickListener { view: View?, _: Int ->
             getPresenter().clickCamera(view)

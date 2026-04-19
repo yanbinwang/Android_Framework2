@@ -1,88 +1,102 @@
-package com.yanzhenjie.album.app.album;
+package com.yanzhenjie.album.app.album
 
-import android.content.Context;
-import android.content.res.ColorStateList;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.gallery.R;
-import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.utils.AlbumUtil;
-import com.yanzhenjie.album.widget.recyclerview.OnCheckedClickListener;
-import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener;
-
-import java.util.List;
+import android.content.res.ColorStateList
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.CheckBox
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import com.example.framework.utils.function.view.clicks
+import com.example.gallery.R
+import com.yanzhenjie.album.Album
+import com.yanzhenjie.album.Album.getAlbumConfig
+import com.yanzhenjie.album.model.AlbumFile
+import com.yanzhenjie.album.utils.AlbumUtil.convertDuration
+import com.yanzhenjie.album.widget.recyclerview.OnCheckedClickListener
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener
 
 /**
  * 相册主列表适配器
  * 三种类型：拍照按钮 / 图片 / 视频
  * 支持：单选、多选、预览、选择、禁用遮罩
  */
-public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, private val selector: ColorStateList) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     // 媒体文件列表
-    private List<AlbumFile> mAlbumFiles;
+    private var mAlbumFiles = ArrayList<AlbumFile>()
     // 三种点击回调
-    private OnItemClickListener mAddPhotoClickListener;   // 点击拍照
-    private OnItemClickListener mItemClickListener;       // 点击预览
-    private OnCheckedClickListener mCheckedClickListener; // 点击选择框
-    // 三种条目类型
-    private static final int TYPE_BUTTON = 1;  // 拍照按钮
-    private static final int TYPE_IMAGE = 2;   // 图片
-    private static final int TYPE_VIDEO = 3;   // 视频
-    // 选择模式：单选/多选
-    private final int mChoiceMode;
-    // 是否显示拍照按钮
-    private final boolean hasCamera;
-    // 布局加载器
-    private final LayoutInflater mInflater;
-    // 选择框颜色
-    private final ColorStateList mSelector;
+    private var mAddPhotoClickListener: OnItemClickListener? = null // 点击拍照
+    private var mItemClickListener: OnItemClickListener? = null // 点击预览
+    private var mCheckedClickListener: OnCheckedClickListener? = null // 点击选择框
+    // 相机下标需要重新计算
+    private val cameraOffset get() = if (hasCamera) 1 else 0
 
-    public AlbumAdapter(Context context, boolean hasCamera, int choiceMode, ColorStateList selector) {
-        this.mInflater = LayoutInflater.from(context);
-        this.hasCamera = hasCamera;
-        this.mChoiceMode = choiceMode;
-        this.mSelector = selector;
+    companion object {
+        // 三种条目类型
+        private const val TYPE_BUTTON = 1 // 拍照按钮
+        private const val TYPE_IMAGE = 2 // 图片
+        private const val TYPE_VIDEO = 3 // 视频
     }
 
     /**
-     * 设置数据
+     * 创建三种不同的 ViewHolder
      */
-    public void setAlbumFiles(List<AlbumFile> albumFiles) {
-        this.mAlbumFiles = albumFiles;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            TYPE_BUTTON -> {
+                ButtonViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_content_button, parent, false), mAddPhotoClickListener)
+            }
+            TYPE_IMAGE -> {
+                ImageHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_content_image, parent, false), hasCamera, mItemClickListener, mCheckedClickListener).also {
+                    // 多选模式显示选择框
+                    if (choiceMode == Album.MODE_MULTIPLE) {
+                        it.mCheckBox.visibility = View.VISIBLE
+                        it.mCheckBox.setButtonTintList(selector)
+                        it.mCheckBox.setTextColor(selector)
+                    } else {
+                        it.mCheckBox.visibility = View.GONE
+                    }
+                }
+            }
+            TYPE_VIDEO -> {
+                VideoHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_content_video, parent, false), hasCamera, mItemClickListener, mCheckedClickListener).also {
+                    if (choiceMode == Album.MODE_MULTIPLE) {
+                        it.mCheckBox.visibility = View.VISIBLE
+                        it.mCheckBox.setButtonTintList(selector)
+                        it.mCheckBox.setTextColor(selector)
+                    } else {
+                        it.mCheckBox.visibility = View.GONE
+                    }
+                }
+            }
+            else -> throw AssertionError("This should not be the case.")
+        }
     }
 
     /**
-     * 各种点击事件
+     * 绑定数据
      */
-    public void setAddClickListener(OnItemClickListener addPhotoClickListener) {
-        this.mAddPhotoClickListener = addPhotoClickListener;
-    }
-
-    public void setItemClickListener(OnItemClickListener itemClickListener) {
-        this.mItemClickListener = itemClickListener;
-    }
-
-    public void setCheckedClickListener(OnCheckedClickListener checkedClickListener) {
-        this.mCheckedClickListener = checkedClickListener;
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        when (getItemViewType(position)) {
+            TYPE_BUTTON -> {}
+            // 图片/视频统一处理
+            TYPE_IMAGE, TYPE_VIDEO -> {
+                val mediaHolder = holder as? MediaViewHolder
+                val mPosition = holder.getBindingAdapterPosition() - cameraOffset
+                val albumFile = mAlbumFiles[mPosition]
+                mediaHolder?.setData(albumFile)
+            }
+            else -> throw AssertionError("This should not be the case.")
+        }
     }
 
     /**
      * 条目总数 = 拍照(1) + 媒体数量
      */
-    @Override
-    public int getItemCount() {
-        int camera = hasCamera ? 1 : 0;
-        return mAlbumFiles == null ? camera : mAlbumFiles.size() + camera;
+    override fun getItemCount(): Int {
+        return mAlbumFiles.size + cameraOffset
     }
 
     /**
@@ -90,99 +104,46 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
      * 0号位置：拍照按钮（如果开启）
      * 其他位置：图片/视频
      */
-    @Override
-    public int getItemViewType(int position) {
-        if (position == 0) {
-            return hasCamera ? TYPE_BUTTON : TYPE_IMAGE;
-        }
-        position = hasCamera ? position - 1 : position;
-        AlbumFile albumFile = mAlbumFiles.get(position);
-        return albumFile.getMediaType() == AlbumFile.TYPE_VIDEO ? TYPE_VIDEO : TYPE_IMAGE;
+    override fun getItemViewType(position: Int): Int {
+        if (position == 0) return if (hasCamera) TYPE_BUTTON else TYPE_IMAGE
+        val pos = position - if (hasCamera) 1 else 0
+        return if (mAlbumFiles[pos].mediaType == AlbumFile.TYPE_VIDEO) TYPE_VIDEO else TYPE_IMAGE
     }
 
     /**
-     * 创建三种不同的 ViewHolder
+     * 设置数据
      */
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (viewType) {
-            // 拍照按钮
-            case TYPE_BUTTON: {
-                return new ButtonViewHolder(mInflater.inflate(R.layout.album_item_content_button, parent, false), mAddPhotoClickListener);
-            }
-            // 图片
-            case TYPE_IMAGE: {
-                ImageHolder imageViewHolder = new ImageHolder(mInflater.inflate(R.layout.album_item_content_image, parent, false), hasCamera, mItemClickListener, mCheckedClickListener);
-                // 多选模式显示选择框
-                if (mChoiceMode == Album.MODE_MULTIPLE) {
-                    imageViewHolder.mCheckBox.setVisibility(View.VISIBLE);
-                    imageViewHolder.mCheckBox.setButtonTintList(mSelector);
-                    imageViewHolder.mCheckBox.setTextColor(mSelector);
-                } else {
-                    imageViewHolder.mCheckBox.setVisibility(View.GONE);
-                }
-                return imageViewHolder;
-            }
-            // 视频
-            case TYPE_VIDEO: {
-                VideoHolder videoViewHolder = new VideoHolder(mInflater.inflate(R.layout.album_item_content_video, parent, false), hasCamera, mItemClickListener, mCheckedClickListener);
-                if (mChoiceMode == Album.MODE_MULTIPLE) {
-                    videoViewHolder.mCheckBox.setVisibility(View.VISIBLE);
-                    videoViewHolder.mCheckBox.setButtonTintList(mSelector);
-                    videoViewHolder.mCheckBox.setTextColor(mSelector);
-                } else {
-                    videoViewHolder.mCheckBox.setVisibility(View.GONE);
-                }
-                return videoViewHolder;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
+    fun setAlbumFiles(albumFiles: ArrayList<AlbumFile>) {
+        this.mAlbumFiles = albumFiles
     }
 
     /**
-     * 绑定数据
+     * 各种点击事件
      */
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        switch (getItemViewType(position)) {
-            case TYPE_BUTTON: {
-                break;
-            }
-            // 图片/视频统一处理
-            case TYPE_IMAGE:
-            case TYPE_VIDEO: {
-                MediaViewHolder mediaHolder = (MediaViewHolder) holder;
-                int camera = hasCamera ? 1 : 0;
-                position = holder.getAdapterPosition() - camera;
-                AlbumFile albumFile = mAlbumFiles.get(position);
-                mediaHolder.setData(albumFile);
-                break;
-            }
-            default: {
-                throw new AssertionError("This should not be the case.");
-            }
-        }
+    fun setAddClickListener(addPhotoClickListener: OnItemClickListener) {
+        this.mAddPhotoClickListener = addPhotoClickListener
+    }
+
+    fun setItemClickListener(itemClickListener: OnItemClickListener) {
+        this.mItemClickListener = itemClickListener
+    }
+
+    fun setCheckedClickListener(checkedClickListener: OnCheckedClickListener) {
+        this.mCheckedClickListener = checkedClickListener
     }
 
     /**
      * 拍照按钮
      */
-    private static class ButtonViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        private final OnItemClickListener mItemClickListener;
+    class ButtonViewHolder(itemView: View, private val mItemClickListener: OnItemClickListener?) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
 
-        private ButtonViewHolder(View itemView, OnItemClickListener itemClickListener) {
-            super(itemView);
-            this.mItemClickListener = itemClickListener;
-            itemView.setOnClickListener(this);
+        init {
+            clicks(itemView)
         }
 
-        @Override
-        public void onClick(View v) {
-            if (mItemClickListener != null && v == itemView) {
-                mItemClickListener.onItemClick(v, 0);
+        override fun onClick(v: View?) {
+            if (v == itemView) {
+                mItemClickListener?.onItemClick(v, 0)
             }
         }
     }
@@ -190,47 +151,29 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     /**
      * 图片条目
      */
-    private static class ImageHolder extends MediaViewHolder implements View.OnClickListener {
-        private final boolean hasCamera;
-        private final ImageView mIvImage;
-        private final CheckBox mCheckBox;
-        private final FrameLayout mLayoutLayer;
-        private final OnItemClickListener mItemClickListener;
-        private final OnCheckedClickListener mCheckedClickListener;
+    class ImageHolder(itemView: View, private val hasCamera: Boolean, private val mItemClickListener: OnItemClickListener?, private val mCheckedClickListener: OnCheckedClickListener?) : MediaViewHolder(itemView), View.OnClickListener {
+        val mIvImage = itemView.findViewById<ImageView>(R.id.iv_album_content_image)
+        val mCheckBox = itemView.findViewById<CheckBox>(R.id.check_box)
+        val mLayoutLayer = itemView.findViewById<FrameLayout>(R.id.layout_layer)
 
-        private ImageHolder(View itemView, boolean hasCamera, OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
-            super(itemView);
-            this.hasCamera = hasCamera;
-            this.mItemClickListener = itemClickListener;
-            this.mCheckedClickListener = checkedClickListener;
-            mIvImage = itemView.findViewById(R.id.iv_album_content_image);
-            mCheckBox = itemView.findViewById(R.id.check_box);
-            mLayoutLayer = itemView.findViewById(R.id.layout_layer);
-            itemView.setOnClickListener(this);
-            mCheckBox.setOnClickListener(this);
-            mLayoutLayer.setOnClickListener(this);
+        init {
+            clicks(itemView, mCheckBox, mLayoutLayer)
         }
 
-        @Override
-        public void setData(AlbumFile albumFile) {
-            mCheckBox.setChecked(albumFile.isChecked());
+        override fun setData(albumFile: AlbumFile) {
+            mCheckBox.isChecked = albumFile.isChecked
             // 加载缩略图
-            Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFile);
+            getAlbumConfig().albumLoader.load(mIvImage, albumFile)
             // 禁用文件显示遮罩
-            mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
+            mLayoutLayer.visibility = if (albumFile.isDisable) View.VISIBLE else View.GONE
         }
 
-        @Override
-        public void onClick(View v) {
-            if (v == itemView) {
-                int camera = hasCamera ? 1 : 0;
-                mItemClickListener.onItemClick(v, getAdapterPosition() - camera);
-            } else if (v == mCheckBox) {
-                int camera = hasCamera ? 1 : 0;
-                mCheckedClickListener.onCheckedClick(mCheckBox, getAdapterPosition() - camera);
-            } else if (v == mLayoutLayer) {
-                int camera = hasCamera ? 1 : 0;
-                mItemClickListener.onItemClick(v, getAdapterPosition() - camera);
+        override fun onClick(v: View?) {
+            val pos = getBindingAdapterPosition() - (if (hasCamera) 1 else 0)
+            when (v) {
+                itemView -> mItemClickListener?.onItemClick(v, pos)
+                mCheckBox -> mCheckedClickListener?.onCheckedClick(mCheckBox, pos)
+                mLayoutLayer -> mItemClickListener?.onItemClick(v, pos)
             }
         }
     }
@@ -238,50 +181,29 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     /**
      * 视频条目（带时长）
      */
-    private static class VideoHolder extends MediaViewHolder implements View.OnClickListener {
-        private final boolean hasCamera;
-        private final ImageView mIvImage;
-        private final CheckBox mCheckBox;
-        private final TextView mTvDuration;
-        private final FrameLayout mLayoutLayer;
-        private final OnItemClickListener mItemClickListener;
-        private final OnCheckedClickListener mCheckedClickListener;
+    class VideoHolder(itemView: View, private val hasCamera: Boolean, private val mItemClickListener: OnItemClickListener?, private val mCheckedClickListener: OnCheckedClickListener?) : MediaViewHolder(itemView), View.OnClickListener {
+        val mIvImage = itemView.findViewById<ImageView>(R.id.iv_album_content_image)
+        val mCheckBox = itemView.findViewById<CheckBox>(R.id.check_box)
+        val mTvDuration = itemView.findViewById<TextView>(R.id.tv_duration)
+        val mLayoutLayer = itemView.findViewById<FrameLayout>(R.id.layout_layer)
 
-        private VideoHolder(View itemView, boolean hasCamera, OnItemClickListener itemClickListener, OnCheckedClickListener checkedClickListener) {
-            super(itemView);
-            this.hasCamera = hasCamera;
-            this.mItemClickListener = itemClickListener;
-            this.mCheckedClickListener = checkedClickListener;
-            mIvImage = itemView.findViewById(R.id.iv_album_content_image);
-            mCheckBox = itemView.findViewById(R.id.check_box);
-            mTvDuration = itemView.findViewById(R.id.tv_duration);
-            mLayoutLayer = itemView.findViewById(R.id.layout_layer);
-            itemView.setOnClickListener(this);
-            mCheckBox.setOnClickListener(this);
-            mLayoutLayer.setOnClickListener(this);
+        init {
+            clicks(itemView, mCheckBox, mLayoutLayer)
         }
 
-        @Override
-        public void setData(AlbumFile albumFile) {
-            Album.getAlbumConfig().getAlbumLoader().load(mIvImage, albumFile);
-            mCheckBox.setChecked(albumFile.isChecked());
-            mTvDuration.setText(AlbumUtil.convertDuration(albumFile.getDuration()));
-            mLayoutLayer.setVisibility(albumFile.isDisable() ? View.VISIBLE : View.GONE);
+        override fun setData(albumFile: AlbumFile) {
+            getAlbumConfig().albumLoader.load(mIvImage, albumFile)
+            mCheckBox.isChecked = albumFile.isChecked
+            mTvDuration.text = convertDuration(albumFile.duration)
+            mLayoutLayer.visibility = if (albumFile.isDisable) View.VISIBLE else View.GONE
         }
 
-        @Override
-        public void onClick(View v) {
-            if (v == itemView) {
-                int camera = hasCamera ? 1 : 0;
-                mItemClickListener.onItemClick(v, getAdapterPosition() - camera);
-            } else if (v == mCheckBox) {
-                int camera = hasCamera ? 1 : 0;
-                mCheckedClickListener.onCheckedClick(mCheckBox, getAdapterPosition() - camera);
-            } else if (v == mLayoutLayer) {
-                if (mItemClickListener != null) {
-                    int camera = hasCamera ? 1 : 0;
-                    mItemClickListener.onItemClick(v, getAdapterPosition() - camera);
-                }
+        override fun onClick(v: View?) {
+            val pos = getBindingAdapterPosition() - (if (hasCamera) 1 else 0)
+            when (v) {
+                itemView -> mItemClickListener?.onItemClick(v, pos)
+                mCheckBox -> mCheckedClickListener?.onCheckedClick(mCheckBox, pos)
+                mLayoutLayer -> mItemClickListener?.onItemClick(v, pos)
             }
         }
     }
@@ -289,14 +211,8 @@ public class AlbumAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     /**
      * 抽象基类：统一图片/视频
      */
-    private abstract static class MediaViewHolder extends RecyclerView.ViewHolder {
-
-        public MediaViewHolder(View itemView) {
-            super(itemView);
-        }
-
-        public abstract void setData(AlbumFile albumFile);
-
+    abstract class MediaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        abstract fun setData(albumFile: AlbumFile)
     }
 
 }
