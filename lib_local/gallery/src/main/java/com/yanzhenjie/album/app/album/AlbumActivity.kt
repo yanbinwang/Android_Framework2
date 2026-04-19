@@ -406,7 +406,7 @@ internal class AlbumActivity : BaseActivity(), AlbumPresenter {
             filePath = randomJPGPath()
         } else {
             // 如果用户当前正在看某个具体文件夹（比如微信相册）那就把拍的照片，保存到和这个文件夹同一个目录里，让照片直接出现在当前文件夹
-            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path)
+            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path.orEmpty())
             filePath = randomJPGPath(file.getParentFile())
         }
         Album.camera(this)
@@ -424,7 +424,7 @@ internal class AlbumActivity : BaseActivity(), AlbumPresenter {
         if (mCurrentFolder == 0) {
             filePath = randomMP4Path()
         } else {
-            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path)
+            val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path.orEmpty())
             filePath = randomMP4Path(file.getParentFile())
         }
         Album.camera(this)
