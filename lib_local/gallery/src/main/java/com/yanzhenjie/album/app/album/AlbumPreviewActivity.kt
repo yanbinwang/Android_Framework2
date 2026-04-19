@@ -49,7 +49,7 @@ internal class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
         initImmersionBar(false, false, R.color.albumGalleryPrimary)
         // 绑定 MVP
         mView.setupViews(mWidget, true)
-        mView.bindData(sAlbumFiles)
+        mView.bindData(sAlbumFiles ?: arrayListOf())
         // 定位到当前预览位置
         if (sCurrentPosition == 0) {
             onCurrentChanged(sCurrentPosition)

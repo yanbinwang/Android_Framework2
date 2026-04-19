@@ -90,7 +90,7 @@ object AlbumUtil {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             uri = Uri.fromFile(outPath)
         } else {
-            uri = CameraFileProvider.getUriForFile(context, CameraFileProvider.getProviderName(context), outPath)
+            uri = CameraFileProvider.getUriForFile(context, outPath)
         }
         return uri
     }

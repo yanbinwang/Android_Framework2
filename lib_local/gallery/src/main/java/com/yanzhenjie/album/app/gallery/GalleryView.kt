@@ -1,215 +1,184 @@
-package com.yanzhenjie.album.app.gallery;
+package com.yanzhenjie.album.app.gallery
 
-import static com.example.gallery.base.BaseActivity.setSupportMenuViewAsync;
-
-import android.app.Activity;
-import android.content.res.ColorStateList;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.CheckBox;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.Toolbar;
-import androidx.viewpager.widget.ViewPager;
-
-import com.example.gallery.R;
-import com.yanzhenjie.album.Album;
-import com.yanzhenjie.album.app.Contract;
-import com.yanzhenjie.album.model.AlbumFile;
-import com.yanzhenjie.album.model.Widget;
-
-import java.util.List;
+import android.app.Activity
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.widget.CheckBox
+import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.viewpager.widget.ViewPager
+import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
+import com.example.framework.utils.function.view.clicks
+import com.example.gallery.R
+import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
+import com.yanzhenjie.album.Album.getAlbumConfig
+import com.yanzhenjie.album.app.Contract
+import com.yanzhenjie.album.model.AlbumFile
+import com.yanzhenjie.album.model.Widget
 
 /**
  * 图片/视频 预览页面 View 层
- * 对应 MVP 中的 View，负责：UI展示、事件分发
  * 功能：大图预览、选中/取消、视频时长显示、状态栏沉浸
  */
-public class GalleryView<Data> extends Contract.GalleryView<Data> implements View.OnClickListener {
+class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter) : Contract.GalleryView<Data>(activity, presenter), View.OnClickListener {
     // 右上角完成按钮
-    private MenuItem mCompleteMenu;
-//    // 上下文
-//    private final Activity mActivity;
+    private var mCompleteMenu: MenuItem? = null
     // 标题栏
-    private final Toolbar mToolbar;
+    private val mToolbar = activity.findViewById<Toolbar>(R.id.toolbar)
     // 预览 ViewPager
-    private final ViewPager mViewPager;
+    private val mViewPager = activity.findViewById<ViewPager>(R.id.view_pager)
     // 底部操作栏
-    private final RelativeLayout mLayoutBottom;
+    private val mLayoutBottom = activity.findViewById<RelativeLayout>(R.id.layout_bottom)
     // 视频时长文字
-    private final TextView mTvDuration;
+    private val mTvDuration = activity.findViewById<TextView>(R.id.tv_duration)
     // 选择框
-    private final CheckBox mCheckBox;
+    private val mCheckBox = activity.findViewById<CheckBox>(R.id.check_box)
     // 顶层遮罩层（拦截点击事件）
-    private final FrameLayout mLayoutLayer;
+    private val mLayoutLayer = activity.findViewById<FrameLayout>(R.id.layout_layer)
 
-    /**
-     * 构造方法：绑定控件
-     */
-    public GalleryView(Activity activity, Contract.GalleryPresenter presenter) {
-        super(activity, presenter);
-        // 绑定所有控件
-//        this.mActivity = activity;
-        this.mToolbar = activity.findViewById(R.id.toolbar);
-        this.mViewPager = activity.findViewById(R.id.view_pager);
-        this.mLayoutBottom = activity.findViewById(R.id.layout_bottom);
-        this.mTvDuration = activity.findViewById(R.id.tv_duration);
-        this.mCheckBox = activity.findViewById(R.id.check_box);
-        this.mLayoutLayer = activity.findViewById(R.id.layout_layer);
-        // 设置选择框点击监听
-        this.mCheckBox.setOnClickListener(this);
-        // 遮罩层点击（拦截事件，不做处理）
-        this.mLayoutLayer.setOnClickListener(this);
+    init {
+        // 设置选择框点击监听 / 遮罩层点击（拦截事件，不做处理）
+        clicks(mCheckBox, mLayoutLayer)
     }
 
     /**
      * 创建菜单（完成按钮）
      */
-    @Override
-    protected void onCreateOptionsMenu(@NonNull Menu menu) {
-        getMenuInflater().inflate(R.menu.album_menu_gallery, menu);
-        mCompleteMenu = menu.findItem(R.id.album_menu_finish);
+    override fun onCreateOptionsMenu(menu: Menu) {
+        super.onCreateOptionsMenu(menu)
+        getMenuInflater().inflate(R.menu.album_menu_gallery, menu)
+        mCompleteMenu = menu.findItem(R.id.album_menu_finish)
     }
 
     /**
      * 菜单点击：完成选择
      */
-    @Override
-    protected void onOptionsItemSelected(@NonNull MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.album_menu_finish) {
-            getPresenter().complete();
+    override fun onOptionsItemSelected(item: MenuItem) {
+        super.onOptionsItemSelected(item)
+        if (item.itemId == R.id.album_menu_finish) {
+            getPresenter().complete()
         }
     }
 
     /**
      * 初始化页面样式：状态栏、导航栏、选择框样式
      */
-    @Override
-    public void setupViews(Widget widget, boolean checkable) {
+    override fun setupViews(widget: Widget, checkable: Boolean) {
         // 返回箭头
-        setHomeAsUpIndicator(R.mipmap.gallery_ic_back);
+        setHomeAsUpIndicator(R.mipmap.gallery_ic_back)
         // 等 Toolbar 布局结束右侧强行撑满
-        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryPrimary);
+        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryPrimary)
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
-            mCompleteMenu.setVisible(false);
-            mCheckBox.setVisibility(View.GONE);
+            mCompleteMenu?.isVisible = false
+            mCheckBox.visibility = View.GONE
         } else {
             // 设置选择框样式
-            ColorStateList itemSelector = widget.getMediaItemCheckSelector();
-            mCheckBox.setButtonTintList(itemSelector);
-            mCheckBox.setTextColor(itemSelector);
+            val itemSelector = widget.mediaItemCheckSelector
+            mCheckBox.setButtonTintList(itemSelector)
+            mCheckBox.setTextColor(itemSelector)
         }
         // 页面滑动监听
-        mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                getPresenter().onCurrentChanged(position);
+        mViewPager.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
+            override fun onPageSelected(position: Int) {
+                getPresenter().onCurrentChanged(position)
             }
-        });
+        })
     }
 
     /**
      * 绑定预览数据
      * 内部类实现 PreviewAdapter，加载图片
      */
-    @Override
-    public void bindData(List<Data> dataList) {
-        PreviewAdapter<Data> adapter = new PreviewAdapter<>(dataList) {
-            @Override
-            protected void loadPreview(@NonNull ImageView imageView, Data item, int position) {
+    override fun bindData(dataList: List<Data>) {
+        val adapter = object : PreviewAdapter<Data>(dataList) {
+            override fun loadPreview(imageView: ImageView, item: Data, position: Int) {
                 // 加载图片：支持 String 路径 或 AlbumFile
-                if (item instanceof String) {
-                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (String) item);
-                } else if (item instanceof AlbumFile) {
-                    Album.getAlbumConfig().getAlbumLoader().load(imageView, (AlbumFile) item);
+                if (item is String) {
+                    getAlbumConfig().albumLoader.load(imageView, item as String)
+                } else if (item is AlbumFile) {
+                    getAlbumConfig().albumLoader.load(imageView, item as AlbumFile)
                 }
             }
-        };
-        // 点击 -> 通知 Presenter
-        adapter.setItemClickListener(v -> getPresenter().clickItem(mViewPager.getCurrentItem()));
-        // 长按 -> 通知 Presenter
-        adapter.setItemLongClickListener(v -> getPresenter().longClickItem(mViewPager.getCurrentItem()));
-        // 设置预加载数量
-        if (adapter.getCount() > 3) {
-            mViewPager.setOffscreenPageLimit(3);
-        } else if (adapter.getCount() > 2) {
-            mViewPager.setOffscreenPageLimit(2);
         }
-        mViewPager.setAdapter(adapter);
+        // 点击 -> 通知 Presenter
+        adapter.setItemClickListener { _: View? ->
+            getPresenter().clickItem(mViewPager.currentItem)
+        }
+        // 长按 -> 通知 Presenter
+        adapter.setItemLongClickListener { _: View? ->
+            getPresenter().longClickItem(mViewPager.currentItem)
+        }
+        // 设置预加载数量
+        if (adapter.count > 3) {
+            mViewPager.setOffscreenPageLimit(3)
+        } else if (adapter.count > 2) {
+            mViewPager.setOffscreenPageLimit(2)
+        }
+        mViewPager.setAdapter(adapter)
     }
 
     /**
      * 切换到指定位置的图片
      */
-    @Override
-    public void setCurrentItem(int position) {
-        mViewPager.setCurrentItem(position);
+    override fun setCurrentItem(position: Int) {
+        mViewPager.setCurrentItem(position)
     }
 
     /**
      * 显示/隐藏视频时长
      */
-    @Override
-    public void setDurationDisplay(boolean display) {
-        mTvDuration.setVisibility(display ? View.VISIBLE : View.GONE);
+    override fun setDurationDisplay(display: Boolean) {
+        mTvDuration.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**
      * 设置视频时长
      */
-    @Override
-    public void setDuration(String duration) {
-        mTvDuration.setText(duration);
+    override fun setDuration(duration: String) {
+        mTvDuration.text = duration
     }
 
     /**
      * 设置选择框状态
      */
-    @Override
-    public void setChecked(boolean checked) {
-        mCheckBox.setChecked(checked);
+    override fun setChecked(checked: Boolean) {
+        mCheckBox.isChecked = checked
     }
 
     /**
      * 显示/隐藏底部栏
      */
-    @Override
-    public void setBottomDisplay(boolean display) {
-        mLayoutBottom.setVisibility(display ? View.VISIBLE : View.GONE);
+    override fun setBottomDisplay(display: Boolean) {
+        mLayoutBottom.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**
      * 显示/隐藏遮罩层
      */
-    @Override
-    public void setLayerDisplay(boolean display) {
-        mLayoutLayer.setVisibility(display ? View.VISIBLE : View.GONE);
+    override fun setLayerDisplay(display: Boolean) {
+        mLayoutLayer.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**
      * 设置完成按钮文字
      */
-    @Override
-    public void setCompleteText(String text) {
-        mCompleteMenu.setTitle(text);
+    override fun setCompleteText(text: String) {
+        mCompleteMenu?.title = text
     }
 
     /**
      * 点击事件：选择框
      */
-    @Override
-    public void onClick(View v) {
-        if (v == mCheckBox) {
-            getPresenter().onCheckedChanged();
-        } else if (v == mLayoutLayer) {
+    override fun onClick(v: View?) {
+        when (v) {
+            mCheckBox -> getPresenter().onCheckedChanged()
             // 遮罩层只拦截事件，不做处理
+            mLayoutLayer -> {}
         }
     }
 

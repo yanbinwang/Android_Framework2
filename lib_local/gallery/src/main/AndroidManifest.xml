@@ -67,6 +67,7 @@
             android:exported="false"
             android:grantUriPermissions="true"
             android:multiprocess="true">
+            <!-- android:multiprocess="true" 允许 FileProvider 在多进程下正常工作 没有这个，相机在子进程打开时可能崩溃 / 拿不到照片-->
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/album_camera_provider" />
