@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gyf.immersionbar.ImmersionBar
 import com.yanzhenjie.album.model.AlbumFolder
 import com.yanzhenjie.album.model.Widget
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener
 import kotlin.math.min
 
 /**
@@ -37,21 +38,23 @@ class FolderDialog(context: Context, widget: Widget, albumFolders: List<AlbumFol
         // 创建适配器
         val mFolderAdapter = FolderAdapter(albumFolders, widget.bucketItemCheckSelector)
         // 条目点击事件
-        mFolderAdapter.setItemClickListener { _: View?, position: Int ->
-            // 如果点击的不是当前选中项
-            if (mCurrentPosition != position) {
-                // 取消上一个选中状态
-                albumFolders[mCurrentPosition].isChecked = false
-                mFolderAdapter.notifyItemChanged(mCurrentPosition)
-                // 记录新位置并设置选中
-                mCurrentPosition = position
-                albumFolders[mCurrentPosition].isChecked = true
-                mFolderAdapter.notifyItemChanged(mCurrentPosition)
-                // 回调外部
-                itemClickListener.invoke(position)
+        mFolderAdapter.setItemClickListener(object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                // 如果点击的不是当前选中项
+                if (mCurrentPosition != position) {
+                    // 取消上一个选中状态
+                    albumFolders[mCurrentPosition].isChecked = false
+                    mFolderAdapter.notifyItemChanged(mCurrentPosition)
+                    // 记录新位置并设置选中
+                    mCurrentPosition = position
+                    albumFolders[mCurrentPosition].isChecked = true
+                    mFolderAdapter.notifyItemChanged(mCurrentPosition)
+                    // 回调外部
+                    itemClickListener.invoke(position)
+                }
+                dismiss()
             }
-            dismiss()
-        }
+        })
         recyclerView?.setAdapter(mFolderAdapter)
     }
 

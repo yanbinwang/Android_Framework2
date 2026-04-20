@@ -26,6 +26,8 @@ import com.yanzhenjie.album.model.AlbumFolder
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.album.utils.AlbumUtil.setDrawableTint
 import com.yanzhenjie.album.widget.ColorProgressBar
+import com.yanzhenjie.album.widget.recyclerview.OnCheckedClickListener
+import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener
 import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider
 
 /**
@@ -122,17 +124,23 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         // 初始化适配器
         mAdapter = AlbumAdapter(hasCamera, choiceMode, widget.mediaItemCheckSelector)
         // 点击拍照
-        mAdapter?.setAddClickListener { view: View?, _: Int ->
-            getPresenter().clickCamera(view)
-        }
+        mAdapter?.setAddClickListener(object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                getPresenter().clickCamera(view)
+            }
+        })
         // 点击选择框
-        mAdapter?.setCheckedClickListener { button: CompoundButton?, position: Int ->
-            getPresenter().tryCheckItem(button, position)
-        }
+        mAdapter?.setCheckedClickListener(object : OnCheckedClickListener {
+            override fun onCheckedClick(button: CompoundButton?, position: Int) {
+                getPresenter().tryCheckItem(button, position)
+            }
+        })
         // 点击预览图片
-        mAdapter?.setItemClickListener { _: View?, position: Int ->
-            getPresenter().tryPreviewItem(position)
-        }
+        mAdapter?.setItemClickListener(object : OnItemClickListener {
+            override fun onItemClick(view: View?, position: Int) {
+                getPresenter().tryPreviewItem(position)
+            }
+        })
         mRecyclerView.setAdapter(mAdapter)
     }
 
