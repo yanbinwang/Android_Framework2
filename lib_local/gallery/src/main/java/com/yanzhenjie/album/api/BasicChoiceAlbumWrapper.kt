@@ -11,13 +11,10 @@ import androidx.annotation.IntRange
  */
 abstract class BasicChoiceAlbumWrapper<Returner : BasicChoiceAlbumWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(context: Context) : BasicChoiceWrapper<Returner, Result, Cancel, Checked>(context) {
     // 相机录制视频的质量：0低质量 / 1高质量（默认1）
-    @JvmField
     protected var mQuality = 1
     // 相机录制视频最大时长（秒）
-    @JvmField
     protected var mLimitDuration = Long.MAX_VALUE
     // 相机录制视频最大文件大小（字节）
-    @JvmField
     protected var mLimitBytes = Long.MAX_VALUE
 
     /**

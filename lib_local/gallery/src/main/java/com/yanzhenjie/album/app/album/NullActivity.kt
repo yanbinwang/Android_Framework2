@@ -19,7 +19,7 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.app.Contract.NullPresenter
+import com.yanzhenjie.album.app.Contract
 import com.yanzhenjie.album.callback.Action
 import com.yanzhenjie.album.model.Widget
 
@@ -27,7 +27,7 @@ import com.yanzhenjie.album.model.Widget
  * 空页面
  * 功能：当手机里没有图片/视频时显示 提供拍照、录像入口
  */
-internal class NullActivity : BaseActivity(), NullPresenter {
+internal class NullActivity : BaseActivity(), Contract.NullPresenter {
     // 功能：图片/视频/全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 视频质量

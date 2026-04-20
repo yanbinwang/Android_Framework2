@@ -8,15 +8,12 @@ import com.yanzhenjie.album.callback.Action
  * 地位和 BasicAlbumWrapper 平级 专门给拍照、录像 功能用的
  * 功能：统一相机的 路径、回调、启动
  */
-abstract class BasicCameraWrapper<Returner : BasicCameraWrapper<Returner>>(@JvmField val mContext: Context) {
+abstract class BasicCameraWrapper<Returner : BasicCameraWrapper<Returner>>(val mContext: Context) {
     // 拍照/录像 保存的文件路径
-    @JvmField
     protected var mFilePath: String? = null
     // 成功回调（返回文件路径）
-    @JvmField
     protected var mResult: Action<String>? = null
     // 取消回调
-    @JvmField
     protected var mCancel: Action<String>? = null
 
     /**

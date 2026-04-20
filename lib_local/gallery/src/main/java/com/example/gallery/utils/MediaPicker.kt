@@ -24,6 +24,7 @@ import com.yanzhenjie.album.api.VideoMultipleWrapper
 import com.yanzhenjie.album.api.VideoSingleWrapper
 import com.yanzhenjie.album.api.choice.Choice
 import com.yanzhenjie.album.callback.Action
+import com.yanzhenjie.album.callback.Filter
 import com.yanzhenjie.album.model.AlbumFile
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.durban.Durban
@@ -197,10 +198,14 @@ class MediaPicker {
             ?.camera(hasCamera)
             // 页面列表的列数
             ?.columnCount(3)
-            // 防止加载系统缓存图片
-            ?.filterSize { it == 0L }
             // 筛选文件的可见性
             ?.afterFilterVisibility(false)
+            // 防止加载系统缓存图片
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             // 选择后回调
             ?.onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
@@ -234,8 +239,12 @@ class MediaPicker {
             ?.widget(widget)
             ?.camera(hasCamera)
             ?.columnCount(3)
-            ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             ?.onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     listener.invoke(result.toNewList { it.path })
@@ -253,8 +262,12 @@ class MediaPicker {
             ?.widget(widget)
             ?.camera(true)
             ?.columnCount(3)
-            ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             ?.onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     result.safeGet(0)?.also { file ->
@@ -281,8 +294,12 @@ class MediaPicker {
             ?.widget(widget)
             ?.camera(true)
             ?.columnCount(3)
-            ?.filterSize { it == 0L }
             ?.afterFilterVisibility(false)
+            ?.filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             ?.onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     listener.invoke(result.toNewList { it.path })

@@ -1,69 +1,58 @@
-package com.yanzhenjie.album.app;
+package com.yanzhenjie.album.app
 
-import android.app.Activity;
-import android.view.View;
-import android.widget.CompoundButton;
-
-import com.example.gallery.base.bridge.BasePresenter;
-import com.example.gallery.base.bridge.BaseView;
-import com.yanzhenjie.album.model.AlbumFolder;
-import com.yanzhenjie.album.model.Widget;
-
-import java.util.List;
+import android.app.Activity
+import android.view.View
+import android.widget.CompoundButton
+import com.example.gallery.base.bridge.BasePresenter
+import com.example.gallery.base.bridge.BaseView
+import com.yanzhenjie.album.model.AlbumFolder
+import com.yanzhenjie.album.model.Widget
 
 /**
  * MVP 架构契约类
  * 统一定义：相册页面、空页面、预览页面 的 Presenter 和 View 接口
  * 作用：规范页面行为，解耦 P 层和 V 层
  */
-public final class Contract {
-
+object Contract {
     /**
      * 相册主页（图片列表页）-> Presenter 接口
      */
-    public interface AlbumPresenter extends BasePresenter {
-
+    interface AlbumPresenter : BasePresenter {
         /**
          * 点击所有图片 -> 切换相册
          */
-        void clickFolderSwitch();
+        fun clickFolderSwitch()
 
         /**
          * 点击列表 -> 拍照/录像
          */
-        void clickCamera(View v);
+        fun clickCamera(v: View?)
 
         /**
          * 点击列表条目 -> 选中/取消选中某个条目
          */
-        void tryCheckItem(CompoundButton button, int position);
+        fun tryCheckItem(button: CompoundButton?, position: Int)
 
         /**
          * 点击列表条目 -> 预览当前位置的图片/视频
          */
-        void tryPreviewItem(int position);
+        fun tryPreviewItem(position: Int)
 
         /**
          * 预览已选中的所有图片
          */
-        void tryPreviewChecked();
+        fun tryPreviewChecked()
 
         /**
          * 完成选择（确定）
          */
-        void complete();
-
+        fun complete()
     }
 
     /**
      * 相册主页（图片列表页）-> View 接口
      */
-    public static abstract class AlbumView extends BaseView<AlbumPresenter> {
-
-        public AlbumView(Activity activity, AlbumPresenter presenter) {
-            super(activity, presenter);
-        }
-
+    abstract class AlbumView(activity: Activity, presenter: AlbumPresenter) : BaseView<AlbumPresenter>(activity, presenter) {
         /**
          * 初始化页面控件
          *
@@ -72,174 +61,157 @@ public final class Contract {
          * @param hasCamera  是否显示相机
          * @param choiceMode 选择模式：图片/视频/全部
          */
-        public abstract void setupViews(Widget widget, int column, boolean hasCamera, int choiceMode);
+        abstract fun setupViews(widget: Widget, column: Int, hasCamera: Boolean, choiceMode: Int)
 
         /**
          * 设置加载状态是否显示
          */
-        public abstract void setLoadingDisplay(boolean display);
+        abstract fun setLoadingDisplay(display: Boolean)
 
         /**
          * 设置完成按钮是否显示
          */
-        public abstract void setCompleteDisplay(boolean display);
+        abstract fun setCompleteDisplay(display: Boolean)
 
         /**
          * 绑定当前文件夹
          */
-        public abstract void bindAlbumFolder(AlbumFolder albumFolder);
+        abstract fun bindAlbumFolder(albumFolder: AlbumFolder)
 
         /**
          * 通知条目插入
          */
-        public abstract void notifyInsertItem(int position);
+        abstract fun notifyInsertItem(position: Int)
 
         /**
          * 通知条目更新
          */
-        public abstract void notifyItem(int position);
+        abstract fun notifyItem(position: Int)
 
         /**
          * 设置已选中数量
          */
-        public abstract void setCheckedCount(int count);
-
+        abstract fun setCheckedCount(count: Int)
     }
 
     /**
      * 空页面 -> Presenter 接口
      */
-    public interface NullPresenter extends BasePresenter {
-
+    interface NullPresenter : BasePresenter {
         /**
          * 拍照
          */
-        void takePicture();
+        fun takePicture()
 
         /**
          * 录像
          */
-        void takeVideo();
-
+        fun takeVideo()
     }
 
     /**
      * 空页面 -> View 接口
      */
-    public static abstract class NullView extends BaseView<NullPresenter> {
-
-        public NullView(Activity activity, NullPresenter presenter) {
-            super(activity, presenter);
-        }
-
+    abstract class NullView(activity: Activity, presenter: NullPresenter) : BaseView<NullPresenter>(activity, presenter) {
         /**
          * 初始化控件
          */
-        public abstract void setupViews(Widget widget);
+        abstract fun setupViews(widget: Widget)
 
         /**
          * 设置空页面提示文字
          */
-        public abstract void setMessage(int message);
+        abstract fun setMessage(message: Int)
 
         /**
          * 设置拍照按钮显示/隐藏
          */
-        public abstract void setMakeImageDisplay(boolean display);
+        abstract fun setMakeImageDisplay(display: Boolean)
 
         /**
          * 设置录像按钮显示/隐藏
          */
-        public abstract void setMakeVideoDisplay(boolean display);
-
+        abstract fun setMakeVideoDisplay(display: Boolean)
     }
 
     /**
      * 预览页（大图预览）-> Presenter 接口
      */
-    public interface GalleryPresenter extends BasePresenter {
-
+    interface GalleryPresenter : BasePresenter {
         /**
          * 点击预览页条目
          */
-        void clickItem(int position);
+        fun clickItem(position: Int)
 
         /**
          * 长按预览页条目
          */
-        void longClickItem(int position);
+        fun longClickItem(position: Int)
 
         /**
          * 预览页滑动切换时回调
          */
-        void onCurrentChanged(int position);
+        fun onCurrentChanged(position: Int)
 
         /**
          * 切换当前条目的选中状态
          */
-        void onCheckedChanged();
+        fun onCheckedChanged()
 
         /**
          * 完成选择
          */
-        void complete();
-
+        fun complete()
     }
 
     /**
      * 预览页（大图预览）-> View 接口
      */
-    public static abstract class GalleryView<Data> extends BaseView<GalleryPresenter> {
-
-        public GalleryView(Activity activity, GalleryPresenter presenter) {
-            super(activity, presenter);
-        }
-
+    abstract class GalleryView<Data>(activity: Activity, presenter: GalleryPresenter) : BaseView<GalleryPresenter>(activity, presenter) {
         /**
          * 初始化预览页控件
          */
-        public abstract void setupViews(Widget widget, boolean checkable);
+        abstract fun setupViews(widget: Widget, checkable: Boolean)
 
         /**
          * 绑定预览数据
          */
-        public abstract void bindData(List<Data> dataList);
+        abstract fun bindData(dataList: List<Data>)
 
         /**
          * 切换到指定位置预览
          */
-        public abstract void setCurrentItem(int position);
+        abstract fun setCurrentItem(position: Int)
 
         /**
          * 设置视频时长显示/隐藏
          */
-        public abstract void setDurationDisplay(boolean display);
+        abstract fun setDurationDisplay(display: Boolean)
 
         /**
          * 设置视频时长文字
          */
-        public abstract void setDuration(String duration);
+        abstract fun setDuration(duration: String)
 
         /**
          * 设置当前条目选中状态
          */
-        public abstract void setChecked(boolean checked);
+        abstract fun setChecked(checked: Boolean)
 
         /**
          * 设置底部栏显示/隐藏
          */
-        public abstract void setBottomDisplay(boolean display);
+        abstract fun setBottomDisplay(display: Boolean)
 
         /**
          * 设置遮罩层显示/隐藏
          */
-        public abstract void setLayerDisplay(boolean display);
+        abstract fun setLayerDisplay(display: Boolean)
 
         /**
          * 设置完成按钮文字
          */
-        public abstract void setCompleteText(String text);
-
+        abstract fun setCompleteText(text: String)
     }
 
 }

@@ -18,7 +18,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.app.Contract.AlbumPresenter
+import com.yanzhenjie.album.app.Contract
 import com.yanzhenjie.album.app.album.data.AlbumTask
 import com.yanzhenjie.album.app.album.data.MediaReader
 import com.yanzhenjie.album.app.album.data.PathConversion
@@ -38,7 +38,7 @@ import java.io.File
  * 相册主页（总控 Activity）
  * 功能：扫描、选择、拍照、预览、文件夹、回调、所有逻辑
  */
-internal class AlbumActivity : BaseActivity(), AlbumPresenter {
+internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     // 功能：图片/视频/全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 单选/多选

@@ -25,7 +25,6 @@ import java.io.OutputStream;
 /**
  * 图片裁剪异步任务
  * 作用：在子线程执行 图片缩放 → 旋转 → 裁剪 → 保存 → 回调结果
- * 并自动显示/隐藏 LoadingDialog
  */
 public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWorkerResult> {
     // 裁剪后图片宽高

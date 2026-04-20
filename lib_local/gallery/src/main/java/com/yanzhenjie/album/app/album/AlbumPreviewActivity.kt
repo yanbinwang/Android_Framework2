@@ -7,7 +7,7 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.app.Contract.GalleryPresenter
+import com.yanzhenjie.album.app.Contract
 import com.yanzhenjie.album.app.gallery.GalleryView
 import com.yanzhenjie.album.model.AlbumFile
 import com.yanzhenjie.album.model.Widget
@@ -17,7 +17,7 @@ import com.yanzhenjie.album.utils.AlbumUtil
  * 相册内部选择预览（带勾选）
  * 功能：选择控制、数量限制、预览切换、完成返回
  */
-internal class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
+internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter {
     // 功能类型：图片 / 视频 / 全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 最大可选数量
@@ -29,13 +29,9 @@ internal class AlbumPreviewActivity : BaseActivity(), GalleryPresenter {
 
     companion object {
         // 静态全局数据（跨页面传递）
-        @JvmField
         var sCheckedCount = 0 // 已选数量
-        @JvmField
         var sCurrentPosition = 0 // 当前预览位置
-        @JvmField
         var sAlbumFiles: ArrayList<AlbumFile>? = null // 预览列表
-        @JvmField
         var sCallback: Callback? = null // 预览回调
     }
 

@@ -10,13 +10,10 @@ import androidx.annotation.IntRange
  */
 abstract class BasicChoiceVideoWrapper<Returner : BasicChoiceVideoWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(context: Context) : BasicChoiceWrapper<Returner, Result, Cancel, Checked>(context) {
     // 视频录制质量：0=低质量，1=高质量（默认1）
-    @JvmField
     protected var mQuality = 1
     // 视频最大录制时长（默认无限制）
-    @JvmField
     protected var mLimitDuration = Long.MAX_VALUE
     // 视频最大文件大小（默认无限制）
-    @JvmField
     protected var mLimitBytes = Long.MAX_VALUE
 
     /**

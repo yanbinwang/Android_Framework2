@@ -12,19 +12,14 @@ import com.yanzhenjie.album.callback.Filter
  */
 abstract class BasicChoiceWrapper<Returner : BasicChoiceWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(context: Context) : BasicAlbumWrapper<Returner, Result, Cancel, Checked>(context) {
     // 列表网格列数，默认 2 列
-    @JvmField
     protected var mColumnCount = 2
     // 是否显示拍照按钮，默认开启
-    @JvmField
     protected var mHasCamera = true
     // 过滤后的文件是否显示（置灰）
-    @JvmField
     protected var mFilterVisibility = true
     // 文件大小过滤器
-    @JvmField
     protected var mSizeFilter: Filter<Long>? = null
     // 文件类型（MimeType）过滤器
-    @JvmField
     protected var mMimeTypeFilter: Filter<String>? = null
 
     /**

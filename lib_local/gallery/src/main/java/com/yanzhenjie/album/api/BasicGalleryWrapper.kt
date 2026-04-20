@@ -12,16 +12,12 @@ import com.yanzhenjie.album.callback.ItemAction
  */
 abstract class BasicGalleryWrapper<Returner : BasicGalleryWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(context: Context) : BasicAlbumWrapper<Returner, ArrayList<Result>, Cancel, ArrayList<Checked>>(context) {
     // 当前预览的位置
-    @JvmField
     protected var mCurrentPosition = 0
     // 预览时是否可勾选（选择）
-    @JvmField
     protected var mCheckable = false
     // 预览图片点击事件
-    @JvmField
     protected var mItemClick: ItemAction<Checked>? = null
     // 预览图片长按事件
-    @JvmField
     protected var mItemLongClick: ItemAction<Checked>? = null
 
     /**

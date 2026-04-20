@@ -9,7 +9,7 @@ import com.example.framework.utils.function.intentStringArrayList
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.app.Contract.GalleryPresenter
+import com.yanzhenjie.album.app.Contract
 import com.yanzhenjie.album.callback.Action
 import com.yanzhenjie.album.callback.ItemAction
 import com.yanzhenjie.album.model.Widget
@@ -18,7 +18,7 @@ import com.yanzhenjie.album.model.Widget
  * 纯图片路径预览
  * 功能：只预览图片路径（String），不处理 AlbumFile 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
  */
-class GalleryActivity : BaseActivity(), GalleryPresenter {
+class GalleryActivity : BaseActivity(), Contract.GalleryPresenter {
     // 当前预览位置
     private var mCurrentPosition = 0
     // 是否可选中
@@ -34,13 +34,9 @@ class GalleryActivity : BaseActivity(), GalleryPresenter {
 
     companion object {
         // 外部回调监听
-        @JvmField
         var sClick: ItemAction<String>? = null
-        @JvmField
         var sLongClick: ItemAction<String>? = null
-        @JvmField
         var sCancel: Action<String>? = null
-        @JvmField
         var sResult: Action<ArrayList<String>>? = null
     }
 

@@ -1,43 +1,34 @@
-package com.yanzhenjie.album.widget;
+package com.yanzhenjie.album.widget
 
-import android.content.Context;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.widget.ProgressBar;
-
-import androidx.annotation.ColorInt;
+import android.content.Context
+import android.graphics.PorterDuff
+import android.util.AttributeSet
+import android.widget.ProgressBar
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
+import com.example.gallery.R
 
 /**
  * 可自定义颜色的 ProgressBar
- * 专门给 LoadingDialog 加载弹窗使用
  */
-public class ColorProgressBar extends ProgressBar {
+class ColorProgressBar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ProgressBar(context, attrs, defStyleAttr) {
 
-    public ColorProgressBar(Context context) {
-        super(context);
-    }
-
-    public ColorProgressBar(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    public ColorProgressBar(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+    init {
+        // 强制使用项目自带的无锯齿圆形加载图
+        val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.layer_list_loading)
+        indeterminateDrawable = loadingDrawable?.mutate()
     }
 
     /**
      * 给加载条设置颜色
      */
-    public void setColorFilter(@ColorInt int color) {
-        // 获取系统自带的旋转动画条
-        Drawable drawable = getIndeterminateDrawable();
-        // mutate() 让这个 Drawable 独立，不影响其他地方的 ProgressBar
-        drawable = drawable.mutate();
+    fun setColorFilter(@ColorInt color: Int) {
+        // 获取系统自带的旋转动画条 / mutate() 让这个 Drawable 独立，不影响其他地方的 ProgressBar
+        val drawable = indeterminateDrawable.mutate()
         // 着色
-        drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        drawable.setColorFilter(color, PorterDuff.Mode.SRC_IN)
         // 设置回去
-        setIndeterminateDrawable(drawable);
+        indeterminateDrawable = drawable
     }
 
 }

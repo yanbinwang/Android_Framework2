@@ -12,18 +12,14 @@ import com.yanzhenjie.album.model.Widget
  * @param Cancel     取消回调类型
  * @param Checked    已选数据类型
  */
-abstract class BasicAlbumWrapper<Returner : BasicAlbumWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(@JvmField val mContext: Context) {
+abstract class BasicAlbumWrapper<Returner : BasicAlbumWrapper<Returner, Result, Cancel, Checked>, Result, Cancel, Checked>(val mContext: Context) {
     // 成功回调
-    @JvmField
     protected var mResult: Action<Result>? = null
     // 取消回调
-    @JvmField
     protected var mCancel: Action<Cancel>? = null
     // 已选中的文件
-    @JvmField
     protected var mChecked: Checked? = null
     // 界面样式（主题、状态栏、导航栏、颜色等）
-    @JvmField
     protected var mWidget: Widget? = Widget.getDefaultWidget(mContext)
 
     /**

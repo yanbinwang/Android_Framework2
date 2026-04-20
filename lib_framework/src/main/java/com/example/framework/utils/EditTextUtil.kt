@@ -326,7 +326,7 @@ class SpaceTextWatcher @JvmOverloads constructor(private val view: WeakReference
     override fun afterTextChanged(s: Editable) {
         if (!isChanged || mDesTxt == null) return
         // 记录光标位置（空安全兜底）
-        mLocation = mDesTxt!!.selectionEnd ?: 0
+        mLocation = mDesTxt?.selectionEnd ?: 0
         // 移除所有类型的空格，只保留数字
         mBuffer.append(removeAllSpaces(s.toString()))
         // 按offset位数插入【标准半角空格】格式化
