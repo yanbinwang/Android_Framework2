@@ -28,6 +28,7 @@ import androidx.core.view.MotionEventCompat;
 
 import com.yanzhenjie.album.widget.photoview.gestures.FroyoGestureDetector;
 import com.yanzhenjie.album.widget.photoview.gestures.OnGestureListener;
+import com.yanzhenjie.album.widget.photoview.gestures.OnScaleDragListener;
 import com.yanzhenjie.album.widget.photoview.scrollerproxy.GingerScroller;
 import com.yanzhenjie.album.widget.photoview.scrollerproxy.ScrollerProxy;
 
@@ -63,7 +64,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     private OnSingleFlingListener mSingleFlingListener;
     // 手势检测器
     private GestureDetector mGestureDetector;
-    private com.yanzhenjie.album.widget.photoview.gestures.GestureDetector mScaleDragDetector;
+    private OnScaleDragListener mScaleDragDetector;
     // 矩阵对象（复用，避免频繁创建）
     private final Matrix mBaseMatrix = new Matrix(); // 基础矩阵（居中、适应屏幕）
     private final Matrix mDrawMatrix = new Matrix(); // 最终绘制矩阵
@@ -211,7 +212,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
      * 设置缩放变化监听
      */
     @Override
-    public void setOnScaleChangeListener(OnScaleChangeListener onScaleChangeListener) {
+    public void setOnScaleChangeListener(@NonNull OnScaleChangeListener onScaleChangeListener) {
         mScaleChangeListener = onScaleChangeListener;
     }
 
@@ -219,7 +220,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
      * 设置单指快速滑动监听
      */
     @Override
-    public void setOnSingleFlingListener(OnSingleFlingListener onSingleFlingListener) {
+    public void setOnSingleFlingListener(@NonNull OnSingleFlingListener onSingleFlingListener) {
         mSingleFlingListener = onSingleFlingListener;
     }
 
@@ -352,6 +353,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         return (float) Math.sqrt((float) Math.pow(getValue(mSuppMatrix, Matrix.MSCALE_X), 2) + (float) Math.pow(getValue(mSuppMatrix, Matrix.MSKEW_Y), 2));
     }
 
+    @NonNull
     @Override
     public ScaleType getScaleType() {
         return mScaleType;
@@ -514,32 +516,32 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     }
 
     @Override
-    public void setOnLongClickListener(OnLongClickListener listener) {
+    public void setOnLongClickListener(@NonNull OnLongClickListener listener) {
         mLongClickListener = listener;
     }
 
     @Override
-    public void setOnMatrixChangeListener(OnMatrixChangedListener listener) {
+    public void setOnMatrixChangeListener(@NonNull OnMatrixChangedListener listener) {
         mMatrixChangeListener = listener;
     }
 
     @Override
-    public void setOnPhotoTapListener(OnPhotoTapListener listener) {
+    public void setOnPhotoTapListener(@NonNull OnPhotoTapListener listener) {
         mPhotoTapListener = listener;
     }
 
     @Nullable
-    OnPhotoTapListener getOnPhotoTapListener() {
+    public OnPhotoTapListener getOnPhotoTapListener() {
         return mPhotoTapListener;
     }
 
     @Override
-    public void setOnViewTapListener(OnViewTapListener listener) {
+    public void setOnViewTapListener(@NonNull OnViewTapListener listener) {
         mViewTapListener = listener;
     }
 
     @Nullable
-    OnViewTapListener getOnViewTapListener() {
+    public OnViewTapListener getOnViewTapListener() {
         return mViewTapListener;
     }
 
@@ -552,7 +554,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
     public void setScale(float scale, boolean animate) {
         ImageView imageView = getImageView();
         if (null != imageView) {
-            setScale(scale, (imageView.getRight()) / 2, (imageView.getBottom()) / 2, animate);
+            setScale(scale, (float) (imageView.getRight()) / 2, (float) (imageView.getBottom()) / 2, animate);
         }
     }
 
@@ -759,6 +761,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         ZOOM_DURATION = milliseconds;
     }
 
+    @NonNull
     @Override
     public IPhotoView getIPhotoViewImplementation() {
         return this;
@@ -828,7 +831,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
             RectF mTempSrc = new RectF(0, 0, drawableWidth, drawableHeight);
             RectF mTempDst = new RectF(0, 0, viewWidth, viewHeight);
             if ((int) mBaseRotation % 180 != 0) {
-                mTempSrc = new RectF(0, 0, drawableHeight, drawableWidth);
+                mTempSrc = new RectF(0, 0, (float) drawableHeight, (float) drawableWidth);
             }
             switch (mScaleType) {
                 case FIT_CENTER:

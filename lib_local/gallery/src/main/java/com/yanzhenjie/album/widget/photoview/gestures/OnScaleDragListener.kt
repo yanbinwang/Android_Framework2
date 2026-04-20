@@ -6,7 +6,7 @@ import android.view.MotionEvent
  * 手势检测器顶层接口
  * 定义所有手势检测器的统一行为
  */
-interface GestureDetector {
+interface OnScaleDragListener {
 
     /**
      * 处理触摸事件（分发拖动、缩放、滑动）

@@ -192,7 +192,7 @@ interface IPhotoView {
     /**
      * 设置自定义双击事件监听，传null则恢复默认行为
      */
-    fun setOnDoubleTapListener(newOnDoubleTapListener: GestureDetector.OnDoubleTapListener)
+    fun setOnDoubleTapListener(newOnDoubleTapListener: GestureDetector.OnDoubleTapListener?)
 
     /**
      * 设置缩放比例变化监听

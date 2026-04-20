@@ -15,7 +15,7 @@ import kotlin.math.sqrt
  * 不支持：双指缩放（isScaling固定返回false）
  * 所有老版本手势类的基类
  */
-abstract class CupcakeGestureDetector(context: Context) : GestureDetector {
+abstract class CupcakeGestureDetector(context: Context) : OnScaleDragListener {
     // 是否正在拖动图片
     private var mIsDragging = false
     // 速度追踪器（计算滑动速度，用于惯性）
