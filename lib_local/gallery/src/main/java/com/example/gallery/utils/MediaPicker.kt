@@ -136,7 +136,7 @@ class MediaPicker(private val host: Any) {
         /**
          * 开启裁剪
          */
-        fun Durban.toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, format: Int = Durban.COMPRESS_JPEG, gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
+        fun Durban.cropImage(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, format: Int = Durban.COMPRESS_JPEG, gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
             // 裁剪界面的标题
             title(string(R.string.gallery_durban_title))
             // 状态栏颜色
@@ -184,7 +184,7 @@ class MediaPicker(private val host: Any) {
     fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
         context.takePicture { albumPath ->
             if (hasDurban) {
-                durban.toDurban(albumPath)
+                durban.cropImage(albumPath)
             } else {
                 listener.invoke(albumPath)
             }
@@ -206,7 +206,7 @@ class MediaPicker(private val host: Any) {
     fun pickImage(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
         context.pickImage { albumPath ->
             if (hasDurban) {
-                durban.toDurban(albumPath)
+                durban.cropImage(albumPath)
             } else {
                 listener.invoke(albumPath)
             }
@@ -244,7 +244,7 @@ class MediaPicker(private val host: Any) {
                         }
                         file.path?.let { albumPath ->
                             if (hasDurban) {
-                                durban.toDurban(albumPath)
+                                durban.cropImage(albumPath)
                             } else {
                                 listener.invoke(albumPath)
                             }
