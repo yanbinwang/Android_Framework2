@@ -1,24 +1,22 @@
-package com.yanzhenjie.album.widget.recyclerview.divider;
+package com.yanzhenjie.album.widget.recyclerview.divider
 
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 
 /**
  * 列表分割线抽象基类
  * 继承自 RecyclerView.ItemDecoration
  * 定义：分割线的宽度、高度接口
  */
-public abstract class Divider extends RecyclerView.ItemDecoration {
-
+abstract class Divider : ItemDecoration() {
     /**
      * 获取分割线高度
      * @return 分割线高度
      */
-    public abstract int getHeight();
+    abstract fun getHeight(): Int
 
     /**
      * 获取分割线宽度
      * @return 分割线宽度
      */
-    public abstract int getWidth();
-
+    abstract fun getWidth(): Int
 }
