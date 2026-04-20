@@ -1,40 +1,39 @@
-package com.yanzhenjie.album.widget.photoview.scrollerproxy;
+package com.yanzhenjie.album.widget.photoview.scrollerproxy
 
 /**
  * 滚动计算器代理类
  * 作用：对不同 Android 版本的滚动效果（惯性滑动、回弹）做兼容
- * 属于老式版本兼容层，现代系统可直接简化
  */
-public abstract class ScrollerProxy {
+abstract class ScrollerProxy {
 
     /**
      * 计算滚动偏移（系统滚动时调用）
      */
-    public abstract boolean computeScrollOffset();
+    abstract fun computeScrollOffset(): Boolean
 
     /**
      * 执行惯性滚动（Fling）
      */
-    public abstract void fling(int startX, int startY, int velocityX, int velocityY, int minX, int maxX, int minY, int maxY, int overX, int overY);
+    abstract fun fling(startX: Int, startY: Int, velocityX: Int, velocityY: Int, minX: Int, maxX: Int, minY: Int, maxY: Int, overX: Int, overY: Int)
 
     /**
      * 强制结束滚动
      */
-    public abstract void forceFinished(boolean finished);
+    abstract fun forceFinished(finished: Boolean)
 
     /**
      * 滚动是否已经结束
      */
-    public abstract boolean isFinished();
+    abstract fun isFinished(): Boolean
 
     /**
      * 获取当前滚动到的 X 坐标
      */
-    public abstract int getCurrX();
+    abstract fun getCurrX(): Int
 
     /**
      * 获取当前滚动到的 Y 坐标
      */
-    public abstract int getCurrY();
+    abstract fun getCurrY(): Int
 
 }

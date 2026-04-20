@@ -7,14 +7,13 @@ import android.widget.ImageView
 import androidx.viewpager.widget.PagerAdapter
 import com.yanzhenjie.album.widget.photoview.AttacherImageView
 import com.yanzhenjie.album.widget.photoview.PhotoViewAttacher
-import com.yanzhenjie.album.widget.photoview.PhotoViewAttacher.OnViewTapListener
 
 /**
  * 图片预览适配器（给 ViewPager 用）
  * 基类适配器，专门用于预览大图，支持：
  * 点击、长按、缩放（PhotoView）子类只需要实现图片加载逻辑即可
  */
-abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), OnViewTapListener, OnLongClickListener {
+abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener, OnLongClickListener {
     // 单击监听
     private var mItemClickListener: View.OnClickListener? = null
     // 长按监听

@@ -28,7 +28,7 @@ import androidx.core.view.MotionEventCompat;
 
 import com.yanzhenjie.album.widget.photoview.gestures.FroyoGestureDetector;
 import com.yanzhenjie.album.widget.photoview.gestures.OnGestureListener;
-import com.yanzhenjie.album.widget.photoview.scrollerproxy.IcsScroller;
+import com.yanzhenjie.album.widget.photoview.scrollerproxy.GingerScroller;
 import com.yanzhenjie.album.widget.photoview.scrollerproxy.ScrollerProxy;
 
 import java.lang.ref.WeakReference;
@@ -945,7 +945,7 @@ public class PhotoViewAttacher implements IPhotoView, View.OnTouchListener, OnGe
         private final ScrollerProxy mScroller;
 
         public FlingRunnable(Context context) {
-            mScroller = new IcsScroller(context);
+            mScroller = new GingerScroller(context);
         }
 
         public void cancelFling() {
