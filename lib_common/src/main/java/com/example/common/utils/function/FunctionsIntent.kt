@@ -500,6 +500,11 @@ fun Intent?.intentBoolean(key: String, default: Boolean = false): Boolean {
     return getBooleanExtra(key, default)
 }
 
+fun Intent?.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    this ?: return default
+    return getStringArrayListExtra(key) ?: default
+}
+
 inline fun <reified T : Serializable> Intent?.intentSerializable(key: String): T? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

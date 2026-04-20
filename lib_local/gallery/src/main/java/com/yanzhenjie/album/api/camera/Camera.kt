@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.api.camera;
+package com.yanzhenjie.album.api.camera
 
 /**
  * 相机功能统一接口（契约）
@@ -7,16 +7,14 @@ package com.yanzhenjie.album.api.camera;
  * @param Image   拍照包装类
  * @param Video   录像包装类
  */
-public interface Camera<Image, Video> {
-
+interface Camera<Image, Video> {
     /**
      * 拍照
      */
-    Image image();
+    fun image(): Image
 
     /**
      * 录像
      */
-    Video video();
-
+    fun video(): Video
 }

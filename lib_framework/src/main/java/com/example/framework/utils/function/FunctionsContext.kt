@@ -448,6 +448,10 @@ fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
     return intent.getBooleanExtra(key, default)
 }
 
+fun Activity.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return intent.getStringArrayListExtra(key) ?: default
+}
+
 inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         intent.getSerializableExtra(key, T::class.java)
@@ -505,6 +509,10 @@ fun Fragment.intentDouble(key: String, default: Double = 0.0): Double {
 
 fun Fragment.intentBoolean(key: String, default: Boolean = false): Boolean {
     return arguments?.getBoolean(key, default) ?: default
+}
+
+fun Fragment.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return arguments?.getStringArrayList(key) ?: default
 }
 
 inline fun <reified T : Serializable> Fragment.intentSerializable(key: String): T? {

@@ -106,17 +106,14 @@ internal class AlbumActivity : BaseActivity(), AlbumPresenter {
         // 空相册跳转
         private const val CODE_ACTIVITY_NULL = 1
 
-        @JvmField
         var sSizeFilter: Filter<Long>? = null
-        @JvmField
         var sDurationFilter: Filter<Long>? = null
-        @JvmField
         var sMimeFilter: Filter<String>? = null
-        @JvmField
         var sCancel: Action<String>? = null
-        @JvmField
         var sResult: Action<ArrayList<AlbumFile>>? = null
     }
+
+    override fun isImmersionBarEnabled() = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
