@@ -61,8 +61,8 @@ class Durban(private val host: Any) {
          * 构造方法
          */
         @JvmStatic
-        fun with(any: Any): Durban {
-            return Durban(any)
+        fun with(host: Any): Durban {
+            return Durban(host)
         }
 
         /**

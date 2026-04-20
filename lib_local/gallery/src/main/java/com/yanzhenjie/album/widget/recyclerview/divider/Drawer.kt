@@ -12,7 +12,7 @@ import android.view.View
  * @param width   分割线宽度
  * @param height  分割线高度
  */
-open class Drawer(private val divider: Drawable, private val width: Int, private val height: Int) {
+abstract class Drawer(private val divider: Drawable, private val width: Int, private val height: Int) {
 
     /**
      * 在条目【左侧】绘制分割线
