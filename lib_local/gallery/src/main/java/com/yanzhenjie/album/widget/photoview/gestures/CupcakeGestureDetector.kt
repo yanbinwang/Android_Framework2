@@ -36,7 +36,8 @@ abstract class CupcakeGestureDetector(context: Context) : OnScaleDragListener {
      * 处理所有触摸事件
      * 实现：单指拖动 + 惯性滑动（Fling）
      */
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        ev ?: return false
         when (ev.action) {
             MotionEvent.ACTION_DOWN -> {
                 // 初始化速度追踪器

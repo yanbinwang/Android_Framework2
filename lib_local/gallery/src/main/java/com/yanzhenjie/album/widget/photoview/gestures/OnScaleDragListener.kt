@@ -11,7 +11,7 @@ interface OnScaleDragListener {
     /**
      * 处理触摸事件（分发拖动、缩放、滑动）
      */
-    fun onTouchEvent(ev: MotionEvent): Boolean
+    fun onTouchEvent(ev: MotionEvent?): Boolean
 
     /**
      * 当前是否正在双指缩放中

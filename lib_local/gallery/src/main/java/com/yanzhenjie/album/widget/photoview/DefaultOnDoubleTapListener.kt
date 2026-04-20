@@ -64,15 +64,15 @@ class DefaultOnDoubleTapListener(private val photoViewAttacher: PhotoViewAttache
                 // 计算点击位置相对于图片的百分比坐标
                 val xResult = (x - displayRect.left) / displayRect.width()
                 val yResult = (y - displayRect.top) / displayRect.height()
-                photoViewAttacher.onPhotoTapListener?.onPhotoTap(imageView, xResult, yResult)
+                photoViewAttacher.getOnPhotoTapListener()?.onPhotoTap(imageView, xResult, yResult)
                 return true
             } else {
                 // 点击了图片外部
-                photoViewAttacher.onPhotoTapListener?.onOutsidePhotoTap()
+                photoViewAttacher.getOnPhotoTapListener()?.onOutsidePhotoTap()
             }
         }
         // 处理【点击控件任意区域】监听
-        photoViewAttacher.onViewTapListener?.onViewTap(imageView, e.getX(), e.getY())
+        photoViewAttacher.getOnViewTapListener()?.onViewTap(imageView, e.x, e.y)
         return false
     }
 

@@ -31,7 +31,8 @@ abstract class EclairGestureDetector(context: Context) : CupcakeGestureDetector(
      * 处理触摸事件
      * 处理多指触摸时，抬起一根手指后，自动切换到另一根手指继续拖动
      */
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        ev ?: return false
         when (ev.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> mActivePointerId = ev.getPointerId(0)
             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> mActivePointerId = INVALID_POINTER_ID

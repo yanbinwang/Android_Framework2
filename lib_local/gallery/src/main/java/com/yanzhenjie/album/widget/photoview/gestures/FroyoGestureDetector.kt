@@ -50,7 +50,8 @@ class FroyoGestureDetector(context: Context) : EclairGestureDetector(context) {
      * 先交给缩放检测器，再交给父类处理拖动、滑动
      * 加 try-catch 防止系统库崩溃
      */
-    override fun onTouchEvent(ev: MotionEvent): Boolean {
+    override fun onTouchEvent(ev: MotionEvent?): Boolean {
+        ev ?: return false
         try {
             // 先处理缩放
             mDetector.onTouchEvent(ev)

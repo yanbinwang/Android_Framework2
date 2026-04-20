@@ -18,7 +18,7 @@ import com.yanzhenjie.album.model.Widget
  * 纯图片路径预览
  * 功能：只预览图片路径（String），不处理 AlbumFile 与 GalleryAlbumActivity 逻辑一致，仅数据类型不同
  */
-class GalleryActivity : BaseActivity(), Contract.GalleryPresenter {
+internal class GalleryActivity : BaseActivity(), Contract.GalleryPresenter {
     // 当前预览位置
     private var mCurrentPosition = 0
     // 是否可选中

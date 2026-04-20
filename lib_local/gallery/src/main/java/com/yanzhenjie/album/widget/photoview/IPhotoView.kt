@@ -165,7 +165,7 @@ interface IPhotoView {
     /**
      * 设置图片的缩放模式（ScaleType）
      */
-    fun setScaleType(scaleType: ScaleType?)
+    fun setScaleType(scaleType: ScaleType)
 
     /**
      * 开启/关闭图片缩放功能

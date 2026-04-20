@@ -20,7 +20,7 @@ import com.yanzhenjie.album.utils.AlbumUtil.convertDuration
  * 外部媒体预览
  * 功能：处理所有预览页的业务逻辑（选中、切换、完成、回调）
  */
-class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter {
+internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter {
     // 当前预览位置
     private var mCurrentPosition = 0
     // 是否可以选中（勾选）
