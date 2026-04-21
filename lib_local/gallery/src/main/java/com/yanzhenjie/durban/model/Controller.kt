@@ -1,152 +1,96 @@
-package com.yanzhenjie.durban.model;
+package com.yanzhenjie.durban.model
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 
 /**
  * 裁剪控制器的配置类
  * 作用：配置裁剪界面【是否启用旋转、缩放、对应文字显示】等开关
  * 实现 Parcelable ：可以在 Activity / Fragment 之间传递对象
  */
-public class Controller implements Parcelable {
+@Parcelize
+data class Controller(
     // 总开关：是否启用整个控制器
-    private final boolean enable;
+    val enable: Boolean,
     // 旋转功能开关
-    private final boolean rotation;
+    val rotation: Boolean,
     // 旋转文字标题开关
-    private final boolean rotationTitle;
+    val rotationTitle: Boolean,
     // 缩放功能开关
-    private final boolean scale;
+    val scale: Boolean,
     // 缩放文字标题开关
-    private final boolean scaleTitle;
+    val scaleTitle: Boolean
+) : Parcelable {
 
-    /**
-     * 构造方法：通过 Builder 构建
-     */
-    private Controller(Builder builder) {
-        enable = builder.enable;
-        rotation = builder.rotation;
-        rotationTitle = builder.rotationTitle;
-        scale = builder.scale;
-        scaleTitle = builder.scaleTitle;
-    }
-
-    public boolean isEnable() {
-        return enable;
-    }
-
-    public boolean isRotation() {
-        return rotation;
-    }
-
-    public boolean isRotationTitle() {
-        return rotationTitle;
-    }
-
-    public boolean isScale() {
-        return scale;
-    }
-
-    public boolean isScaleTitle() {
-        return scaleTitle;
-    }
-
-    protected Controller(Parcel in) {
-        this.enable = in.readByte() != 0;
-        this.rotation = in.readByte() != 0;
-        this.rotationTitle = in.readByte() != 0;
-        this.scale = in.readByte() != 0;
-        this.scaleTitle = in.readByte() != 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeByte((byte) (enable ? 1 : 0));
-        dest.writeByte((byte) (rotation ? 1 : 0));
-        dest.writeByte((byte) (rotationTitle ? 1 : 0));
-        dest.writeByte((byte) (scale ? 1 : 0));
-        dest.writeByte((byte) (scaleTitle ? 1 : 0));
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Creator<Controller> CREATOR = new Creator<>() {
-        @Override
-        public Controller createFromParcel(Parcel in) {
-            return new Controller(in);
+    companion object {
+        @JvmStatic
+        fun newBuilder(): Builder {
+            return Builder()
         }
-
-        @Override
-        public Controller[] newArray(int size) {
-            return new Controller[size];
-        }
-    };
-
-    public static Builder newBuilder() {
-        return new Builder();
     }
 
-    public static final class Builder {
+    constructor(builder: Builder) : this(
+        builder.enable,
+        builder.rotation,
+        builder.rotationTitle,
+        builder.scale,
+        builder.scaleTitle
+    )
+
+    class Builder {
         // 默认全部开启
-        private boolean enable = true;
-        private boolean rotation = true;
-        private boolean rotationTitle = true;
-        private boolean scale = true;
-        private boolean scaleTitle = true;
-
-        private Builder() {
-        }
+        var enable = true
+        var rotation = true
+        var rotationTitle = true
+        var scale = true
+        var scaleTitle = true
 
         /**
          * 总开关
          */
-        public Builder enable(boolean enable) {
-            this.enable = enable;
-            return this;
+        fun enable(enable: Boolean): Builder {
+            this.enable = enable
+            return this
         }
 
         /**
          * 旋转开关
          */
-        public Builder rotation(boolean rotation) {
-            this.rotation = rotation;
-            return this;
+        fun rotation(rotation: Boolean): Builder {
+            this.rotation = rotation
+            return this
         }
 
         /**
          * 旋转标题开关
          */
-        public Builder rotationTitle(boolean rotationTitle) {
-            this.rotationTitle = rotationTitle;
-            return this;
+        fun rotationTitle(rotationTitle: Boolean): Builder {
+            this.rotationTitle = rotationTitle
+            return this
         }
 
         /**
          * 缩放开关
          */
-        public Builder scale(boolean scale) {
-            this.scale = scale;
-            return this;
+        fun scale(scale: Boolean): Builder {
+            this.scale = scale
+            return this
         }
 
         /**
          * 缩放标题开关
          */
-        public Builder scaleTitle(boolean scaleTitle) {
-            this.scaleTitle = scaleTitle;
-            return this;
+        fun scaleTitle(scaleTitle: Boolean): Builder {
+            this.scaleTitle = scaleTitle
+            return this
         }
 
         /**
          * 构建最终 Controller 对象
          */
-        public Controller build() {
-            return new Controller(this);
+        fun build(): Controller {
+            return Controller(this)
         }
-
     }
 
 }

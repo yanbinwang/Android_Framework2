@@ -176,21 +176,21 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         val scaleBig = findViewById<View>(R.id.layout_controller_scale_big)
         val scaleSmall = findViewById<View>(R.id.layout_controller_scale_small)
         // 根据配置显示/隐藏按钮
-        controllerRoot.visibility = if (mController.isEnable) View.VISIBLE else View.GONE
-        rotationTitle.visibility = if (mController.isRotationTitle) View.VISIBLE else View.INVISIBLE
-        rotationLeft.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
-        rotationRight.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
-        scaleTitle.visibility = if (mController.isScaleTitle) View.VISIBLE else View.INVISIBLE
-        scaleBig.visibility = if (mController.isScale) View.VISIBLE else View.GONE
-        scaleSmall.visibility = if (mController.isScale) View.VISIBLE else View.GONE
+        controllerRoot.visibility = if (mController.enable) View.VISIBLE else View.GONE
+        rotationTitle.visibility = if (mController.rotationTitle) View.VISIBLE else View.INVISIBLE
+        rotationLeft.visibility = if (mController.rotation) View.VISIBLE else View.GONE
+        rotationRight.visibility = if (mController.rotation) View.VISIBLE else View.GONE
+        scaleTitle.visibility = if (mController.scaleTitle) View.VISIBLE else View.INVISIBLE
+        scaleBig.visibility = if (mController.scale) View.VISIBLE else View.GONE
+        scaleSmall.visibility = if (mController.scale) View.VISIBLE else View.GONE
         // 隐藏所有标题时，隐藏标题栏
-        if (!mController.isRotationTitle && !mController.isScaleTitle) {
+        if (!mController.rotationTitle && !mController.scaleTitle) {
             findViewById<View>(R.id.layout_controller_title_root).visibility = View.GONE
         }
-        if (!mController.isRotation) {
+        if (!mController.rotation) {
             rotationTitle.visibility = View.GONE
         }
-        if (!mController.isScale) {
+        if (!mController.scale) {
             scaleTitle.visibility = View.GONE
         }
         // 点击事件
