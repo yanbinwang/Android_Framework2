@@ -164,7 +164,7 @@ public class GestureCropImageView extends CropImageView {
     /**
      * 旋转手势监听
      */
-    private class RotateListener extends RotationGestureDetector.SimpleOnRotationGestureListener {
+    private class RotateListener implements RotationGestureDetector.OnRotationGestureListener {
         @Override
         public boolean onRotation(RotationGestureDetector rotationDetector) {
             // 执行双指旋转，以双指中心为旋转中心
