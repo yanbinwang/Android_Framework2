@@ -1,86 +1,81 @@
-package com.yanzhenjie.durban.utils;
+package com.yanzhenjie.durban.utils
 
-import android.graphics.Bitmap;
-
-import androidx.annotation.NonNull;
-
-import java.io.Closeable;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.Random;
+import android.graphics.Bitmap.CompressFormat
+import java.io.Closeable
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import java.util.Random
 
 /**
  * 文件操作工具类
  * 作用：目录创建、文件复制、流关闭、生成随机图片文件名
  */
-public class FileUtil {
-    private static final Random random = new Random();
-
-    /**
-     * 私有构造，禁止实例化
-     */
-    private FileUtil() {
-    }
+object FileUtil {
+    private val random = Random()
 
     /**
      * 校验并创建目录（不存在则创建）
      */
-    public static void validateDirectory(String path) {
-        File file = new File(path);
+    @JvmStatic
+    fun validateDirectory(path: String) {
+        val file = File(path)
         try {
             // 如果是文件，先删除
             if (file.isFile()) {
-                file.delete();
+                file.delete()
             }
             // 目录不存在则创建
             if (!file.exists()) {
-                file.mkdirs();
+                file.mkdirs()
             }
-        } catch (Exception e) {
-            throw new AssertionError("Directory creation failed.");
+        } catch (_: Exception) {
+            throw AssertionError("Directory creation failed.")
         }
     }
 
     /**
      * 生成随机图片文件名（时间戳 + 随机数）
      */
-    public static String randomImageName(Bitmap.CompressFormat format) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd_HHmmSSS", Locale.getDefault());
-        Date curDate = new Date(System.currentTimeMillis());
-        return formatter.format(curDate) + random.nextInt(9000) + "." + format;
+    @JvmStatic
+    fun randomImageName(format: CompressFormat): String {
+        val formatter = SimpleDateFormat("yyyyMMdd_HHmmSSS", Locale.getDefault())
+        val curDate = Date(System.currentTimeMillis())
+        return formatter.format(curDate) + random.nextInt(9000) + "." + format
     }
 
     /**
      * 文件复制（无需裁剪时直接复制原图）
      */
-    public static void copyFile(@NonNull String pathFrom, @NonNull String pathTo) {
+    @JvmStatic
+    fun copyFile(pathFrom: String, pathTo: String) {
         try {
-            FileInputStream inputStream = new FileInputStream(pathFrom);
-            FileOutputStream outputStream = new FileOutputStream(pathTo);
-            int len;
-            byte[] buffer = new byte[2048];
-            while ((len = inputStream.read(buffer)) != -1) {
-                outputStream.write(buffer, 0, len);
+            FileInputStream(pathFrom).use { input ->
+                FileOutputStream(pathTo).use { output ->
+                    val buffer = ByteArray(2048)
+                    var len: Int
+                    while ((input.read(buffer).also { len = it }) != -1) {
+                        output.write(buffer, 0, len)
+                    }
+                }
             }
-        } catch (IOException e) {
-            throw new AssertionError(e);
+        } catch (e: IOException) {
+            throw AssertionError(e)
         }
     }
 
     /**
      * 安全关闭流，避免IOException
      */
-    public static void close(Closeable c) {
-        if (c != null) {
-            try {
-                c.close();
-            } catch (IOException ignored) {
-            }
+    @JvmStatic
+    fun close(c: Closeable?) {
+        try {
+            c?.close()
+        } catch (_: IOException) {
         }
     }
 
