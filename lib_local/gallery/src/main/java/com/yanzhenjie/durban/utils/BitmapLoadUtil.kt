@@ -67,7 +67,7 @@ object BitmapLoadUtil {
     }
 
     /**
-     * 将 EXIF 方向 转为 旋转角度
+     * EXIF 旋转角度
      */
     @JvmStatic
     fun exifToDegrees(exifOrientation: Int): Int {
@@ -81,7 +81,8 @@ object BitmapLoadUtil {
     }
 
     /**
-     * 将 EXIF 方向 转为 水平翻转值
+     * EXIF 水平翻转值
+     * 是否需要镜像翻转：0 = 翻转 1 = 不翻转
      */
     @JvmStatic
     fun exifToTranslation(exifOrientation: Int): Int {
