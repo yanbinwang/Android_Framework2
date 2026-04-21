@@ -45,7 +45,7 @@ public class CropImageView extends TransformImageView {
     // 裁剪异步
     private BitmapCropTask mBitmapCropTask;
     // 裁剪比例变化监听
-    private CropBoundsChangeListener mCropBoundsChangeListener;
+    private OnCropBoundsChangeListener mOnCropBoundsChangeListener;
     // 裁剪区域矩形
     private final RectF mCropRect = new RectF();
     // 临时矩阵（计算用，避免频繁创建对象）
@@ -108,8 +108,8 @@ public class CropImageView extends TransformImageView {
         // 初始化图片位置
         setupInitialImagePosition(drawableWidth, drawableHeight);
         // 通知外部
-        if (mCropBoundsChangeListener != null) {
-            mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
+        if (mOnCropBoundsChangeListener != null) {
+            mOnCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
         }
         if (mTransformImageListener != null) {
             mTransformImageListener.onScale(getCurrentScale());
@@ -287,8 +287,8 @@ public class CropImageView extends TransformImageView {
             mTargetAspectRatio = targetAspectRatio;
         }
         // 通知外部：比例已改变
-        if (mCropBoundsChangeListener != null) {
-            mCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
+        if (mOnCropBoundsChangeListener != null) {
+            mOnCropBoundsChangeListener.onCropAspectRatioChanged(mTargetAspectRatio);
         }
     }
 
@@ -424,13 +424,13 @@ public class CropImageView extends TransformImageView {
     /**
      * 设置/获取裁剪框比例变化监听器
      */
-    public void setCropBoundsChangeListener(@Nullable CropBoundsChangeListener cropBoundsChangeListener) {
-        mCropBoundsChangeListener = cropBoundsChangeListener;
+    public void setCropBoundsChangeListener(@Nullable OnCropBoundsChangeListener onCropBoundsChangeListener) {
+        mOnCropBoundsChangeListener = onCropBoundsChangeListener;
     }
 
     @Nullable
-    public CropBoundsChangeListener getCropBoundsChangeListener() {
-        return mCropBoundsChangeListener;
+    public OnCropBoundsChangeListener getCropBoundsChangeListener() {
+        return mOnCropBoundsChangeListener;
     }
 
     /**

@@ -58,7 +58,7 @@ public class OverlayView extends View {
     // 是否需要初始化裁剪边界
     private boolean mShouldSetupCropBounds;
     // 裁剪框变化回调
-    private OverlayViewChangeListener mCallback;
+    private OnOverlayChangeListener mCallback;
     // 圆形裁剪路径
     private final Path mCircularPath = new Path();
     // 半透明背景画笔
@@ -503,7 +503,7 @@ public class OverlayView extends View {
     /**
      * 设置裁剪框变化监听
      */
-    public void setOverlayViewChangeListener(OverlayViewChangeListener callback) {
+    public void setOverlayViewChangeListener(OnOverlayChangeListener callback) {
         mCallback = callback;
     }
 

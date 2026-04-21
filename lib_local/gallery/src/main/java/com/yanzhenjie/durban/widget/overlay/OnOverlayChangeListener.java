@@ -6,7 +6,7 @@ import android.graphics.RectF;
  * 裁剪覆盖视图变化监听器
  * 作用：监听裁剪框（矩形选区）位置、大小发生实时变化时回调
  */
-public interface OverlayViewChangeListener {
+public interface OnOverlayChangeListener {
 
     /**
      * 裁剪框矩形已更新
