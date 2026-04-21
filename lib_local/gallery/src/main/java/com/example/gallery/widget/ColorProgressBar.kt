@@ -1,4 +1,4 @@
-package com.yanzhenjie.album.widget
+package com.example.gallery.widget
 
 import android.content.Context
 import android.graphics.PorterDuff

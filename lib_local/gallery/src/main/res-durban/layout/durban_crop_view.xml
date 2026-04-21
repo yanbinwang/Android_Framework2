@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.yanzhenjie.durban.widget.GestureCropImageView
+    <com.yanzhenjie.durban.widget.crop.GestureCropImageView
         android:id="@+id/image_view_crop"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.yanzhenjie.durban.widget.OverlayView
+    <com.yanzhenjie.durban.widget.overlay.OverlayView
         android:id="@+id/view_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

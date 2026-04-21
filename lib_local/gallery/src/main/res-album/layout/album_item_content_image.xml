@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:text="@string/album_item_unavailable"
             android:textColor="@color/galleryFontLight"
-            android:textSize="@dimen/album_sp_16" />
+            android:textSize="@dimen/gallery_sp_16" />
 
     </FrameLayout>
 

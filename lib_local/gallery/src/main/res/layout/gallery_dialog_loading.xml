@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    style="@style/Album.WrapContent"
+    android:background="@drawable/shape_default"
+    android:gravity="center"
+    android:paddingHorizontal="@dimen/gallery_dp_35"
+    android:paddingVertical="@dimen/gallery_dp_20">
+
+    <com.example.gallery.widget.ColorProgressBar
+        android:id="@+id/progress_bar"
+        style="@style/Gallery.Progress.Loading" />
+
+    <TextView
+        android:id="@+id/tv_message"
+        style="@style/Gallery.WrapContent"
+        android:layout_marginStart="@dimen/gallery_dp_20"
+        android:textColor="@color/galleryFontHint"
+        android:textSize="@dimen/gallery_sp_16" />
+
+</LinearLayout>

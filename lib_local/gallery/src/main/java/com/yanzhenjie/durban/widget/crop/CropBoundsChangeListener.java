@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.callback;
+package com.yanzhenjie.durban.widget.crop;
 
 /**
  * 裁剪框比例变化监听器

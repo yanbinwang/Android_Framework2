@@ -25,7 +25,7 @@ import com.yanzhenjie.album.app.Contract
 import com.yanzhenjie.album.model.AlbumFolder
 import com.yanzhenjie.album.model.Widget
 import com.yanzhenjie.album.utils.AlbumUtil.setDrawableTint
-import com.yanzhenjie.album.widget.ColorProgressBar
+import com.example.gallery.widget.ColorProgressBar
 import com.yanzhenjie.album.widget.recyclerview.OnCheckedClickListener
 import com.yanzhenjie.album.widget.recyclerview.OnItemClickListener
 import com.yanzhenjie.album.widget.recyclerview.divider.ItemDivider
@@ -119,7 +119,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         val mLayoutManager = GridLayoutManager(getContext(), column, LinearLayoutManager.VERTICAL, false)
         mRecyclerView.setLayoutManager(mLayoutManager)
         // 设置列表间隔
-        val dividerSize = getResources().getDimensionPixelSize(R.dimen.album_dp_4)
+        val dividerSize = getResources().getDimensionPixelSize(R.dimen.gallery_dp_4)
         mRecyclerView.addItemDecoration(ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize))
         // 初始化适配器
         mAdapter = AlbumAdapter(hasCamera, choiceMode, widget.mediaItemCheckSelector)

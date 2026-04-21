@@ -1,7 +1,5 @@
 package com.yanzhenjie.durban.app;
 
-import static android.transition.Visibility.MODE_IN;
-import static android.transition.Visibility.MODE_OUT;
 import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
 
 import android.content.Intent;
@@ -9,7 +7,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.transition.Fade;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,12 +24,10 @@ import com.example.gallery.base.BaseActivity;
 import com.yanzhenjie.durban.Durban;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.model.Controller;
-import com.yanzhenjie.durban.widget.CropView;
-import com.yanzhenjie.durban.widget.GestureCropImageView;
-import com.yanzhenjie.durban.widget.OverlayView;
+import com.yanzhenjie.durban.widget.crop.CropView;
+import com.yanzhenjie.durban.widget.crop.GestureCropImageView;
+import com.yanzhenjie.durban.widget.overlay.OverlayView;
 import com.yanzhenjie.durban.widget.TransformImageView;
-
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 
@@ -254,12 +249,12 @@ public class DurbanActivity extends BaseActivity {
         overlayView.setCircleDimmedLayer(false);
         overlayView.setShowCropFrame(true);
         overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durbanCropFrameLine));
-        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
         overlayView.setShowCropGrid(true);
         overlayView.setCropGridRowCount(2);
         overlayView.setCropGridColumnCount(2);
         overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durbanCropGridLine));
-        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);

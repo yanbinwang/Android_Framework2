@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget;
+package com.yanzhenjie.durban.widget.overlay;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -19,7 +19,6 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.OverlayViewChangeListener;
 import com.yanzhenjie.durban.utils.RectUtil;
 
 import java.lang.annotation.Retention;
@@ -102,9 +101,9 @@ public class OverlayView extends View {
      * 初始化：尺寸、系统版本兼容处理
      */
     protected void init() {
-        mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.durban_dp_30);
-        mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.durban_dp_100);
-        mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.durban_dp_10);
+        mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.gallery_dp_30);
+        mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.gallery_dp_100);
+        mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.gallery_dp_10);
     }
 
     /**
@@ -314,7 +313,7 @@ public class OverlayView extends View {
     /**
      * 解析XML自定义属性
      */
-    protected void processStyledAttributes(@NonNull TypedArray a) {
+    public void processStyledAttributes(@NonNull TypedArray a) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false);
         mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(getContext(), R.color.durbanCropDimmed));
         mDimmedStrokePaint.setColor(mDimmedColor);
@@ -330,7 +329,7 @@ public class OverlayView extends View {
      * 初始化裁剪框画笔
      */
     private void initCropFrameStyle(@NonNull TypedArray a) {
-        int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        int cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
         int cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(getContext(), R.color.durbanCropFrameLine));
         mCropFramePaint.setStrokeWidth(cropFrameStrokeSize);
         mCropFramePaint.setColor(cropFrameColor);
@@ -344,7 +343,7 @@ public class OverlayView extends View {
      * 初始化裁剪框画笔
      */
     private void initCropGridStyle(@NonNull TypedArray a) {
-        int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, getResources().getDimensionPixelSize(R.dimen.durban_dp_1));
+        int cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
         int cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(getContext(), R.color.durbanCropGridLine));
         mCropGridPaint.setStrokeWidth(cropGridStrokeSize);
         mCropGridPaint.setColor(cropGridColor);

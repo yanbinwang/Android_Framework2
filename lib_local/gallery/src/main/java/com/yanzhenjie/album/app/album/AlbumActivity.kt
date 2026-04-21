@@ -6,8 +6,10 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.CompoundButton
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.content.ContextCompat
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentBoolean
 import com.example.framework.utils.function.intentInt
@@ -31,7 +33,7 @@ import com.yanzhenjie.album.utils.AlbumUtil.getMimeType
 import com.yanzhenjie.album.utils.AlbumUtil.randomJPGPath
 import com.yanzhenjie.album.utils.AlbumUtil.randomMP4Path
 import com.yanzhenjie.album.utils.MediaScanner
-import com.yanzhenjie.album.widget.LoadingDialog
+import com.example.gallery.widget.LoadingDialog
 import java.io.File
 
 /**
@@ -128,7 +130,14 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         // MVP设置
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode)
         // 弹框设置
-        mLoadingDialog.setupViews(mWidget, R.string.album_converting)
+        val progressColor = color(if (mWidget.uiStyle == Widget.STYLE_LIGHT) {
+            // 浅色模式 → 深色加载条
+            R.color.albumLoading
+        } else {
+            // 深色模式 → 用主题色
+            mWidget.statusBarColor
+        })
+        mLoadingDialog.setupViews(progressColor, R.string.album_converting)
         // 返回键 → 取消
         setOnBackPressedListener {
             callbackCancel()
