@@ -9,14 +9,16 @@ import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
+import com.example.gallery.R;
+import com.example.gallery.widget.LoadingDialog;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.error.StorageError;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.FileUtil;
 import com.yanzhenjie.durban.utils.ImageHeaderParser;
-import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -54,6 +56,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
     public BitmapCropTask(@NonNull Context context, @Nullable Bitmap viewBitmap, @NonNull ImageState imageState, @NonNull CropParameters cropParameters, @Nullable BitmapCropCallback cropCallback) {
         super();
         mDialog = new LoadingDialog(context);
+        mDialog.setupViews(ContextCompat.getColor(context, R.color.galleryIconDark), R.string.durban_loading_message);
         mViewBitmap = viewBitmap;
         mCropRect = imageState.getCropRect();
         mCurrentImageRect = imageState.getCurrentImageRect();

@@ -7,11 +7,13 @@ import android.graphics.Matrix;
 import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 
+import com.example.gallery.R;
+import com.example.gallery.widget.LoadingDialog;
 import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.utils.BitmapLoadUtil;
-import com.yanzhenjie.durban.widget.dialog.loading.LoadingDialog;
 
 /**
  * 图片加载异步任务
@@ -32,6 +34,7 @@ public class BitmapLoadTask extends AsyncTask<String, Void, BitmapLoadTask.Bitma
     public BitmapLoadTask(Context context, int requiredWidth, int requiredHeight, BitmapLoadCallback loadCallback) {
         super();
         mDialog = new LoadingDialog(context);
+        mDialog.setupViews(ContextCompat.getColor(context, R.color.galleryIconDark), R.string.durban_loading_message);
         mRequiredWidth = requiredWidth;
         mRequiredHeight = requiredHeight;
         mCallback = loadCallback;
