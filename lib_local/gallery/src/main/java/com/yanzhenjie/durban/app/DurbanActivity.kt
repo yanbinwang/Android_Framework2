@@ -25,10 +25,10 @@ import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.app.data.BitmapCropCallback
 import com.yanzhenjie.durban.model.Controller
-import com.yanzhenjie.durban.widget.transform.TransformImageView
-import com.yanzhenjie.durban.widget.crop.CropView
-import com.yanzhenjie.durban.widget.crop.GestureCropImageView
-import com.yanzhenjie.durban.widget.overlay.OverlayView
+import com.yanzhenjie.durban.widget.TransformImageView
+import com.yanzhenjie.durban.widget.CropView
+import com.yanzhenjie.durban.widget.GestureCropImageView
+import com.yanzhenjie.durban.widget.OverlayView
 
 /**
  * 图片裁剪页

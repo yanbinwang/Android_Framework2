@@ -30,7 +30,7 @@
         android:layout_below="@id/toolbar"
         android:background="@color/durbanCropBackground">
 
-        <com.yanzhenjie.durban.widget.crop.CropView
+        <com.yanzhenjie.durban.widget.CropView
             android:id="@+id/crop_view"
             style="@style/Durban.MatchParent"
             android:alpha="0" />

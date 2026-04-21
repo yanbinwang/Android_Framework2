@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget.crop;
+package com.yanzhenjie.durban.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

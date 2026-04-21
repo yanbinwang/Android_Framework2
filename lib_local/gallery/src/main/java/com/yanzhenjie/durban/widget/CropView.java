@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget.crop;
+package com.yanzhenjie.durban.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -10,7 +10,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.widget.overlay.OverlayView;
 
 /**
  * 裁剪总布局（核心组合View）

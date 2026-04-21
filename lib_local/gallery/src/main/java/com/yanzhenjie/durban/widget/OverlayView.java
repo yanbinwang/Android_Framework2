@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget.overlay;
+package com.yanzhenjie.durban.widget;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -83,6 +83,14 @@ public class OverlayView extends View {
     public static final int FREESTYLE_CROP_MODE_ENABLE = 1; // 启用自由裁剪
     public static final int FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH = 2; // 启用并支持触摸穿透
     public static final int DEFAULT_FREESTYLE_CROP_MODE = FREESTYLE_CROP_MODE_DISABLE; // 默认模式
+
+    /**
+     * 自由裁剪模式注解
+     */
+    @Retention(RetentionPolicy.SOURCE)
+    @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH})
+    public @interface FreestyleMode {
+    }
 
     public OverlayView(Context context) {
         this(context, null);
@@ -508,11 +516,17 @@ public class OverlayView extends View {
     }
 
     /**
-     * 自由裁剪模式注解
+     * 裁剪覆盖视图变化监听器
+     * 作用：监听裁剪框（矩形选区）位置、大小发生实时变化时回调
      */
-    @Retention(RetentionPolicy.SOURCE)
-    @IntDef({FREESTYLE_CROP_MODE_DISABLE, FREESTYLE_CROP_MODE_ENABLE, FREESTYLE_CROP_MODE_ENABLE_WITH_PASS_THROUGH})
-    public @interface FreestyleMode {
+    public interface OnOverlayChangeListener {
+
+        /**
+         * 裁剪框矩形已更新
+         * @param cropRect 最新的裁剪框矩形坐标（左、上、右、下）
+         */
+        void onCropRectUpdated(RectF cropRect);
+
     }
 
 }
