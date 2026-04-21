@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.yanzhenjie.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Album.Item.Card.MatchParent">
 
     <RelativeLayout style="@style/Album.MatchParent">
@@ -10,7 +10,7 @@
             android:contentDescription="@string/album_title"
             android:scaleType="centerCrop" />
 
-        <com.yanzhenjie.album.widget.TransferLayout
+        <com.example.album.widget.TransferLayout
             style="@style/Album.WrapContent.Transfer"
             android:layout_alignParentEnd="true">
 
@@ -18,7 +18,7 @@
                 android:id="@+id/check_box"
                 style="@style/Album.CheckBox.WrapContent" />
 
-        </com.yanzhenjie.album.widget.TransferLayout>
+        </com.example.album.widget.TransferLayout>
 
     </RelativeLayout>
 
@@ -36,4 +36,4 @@
 
     </FrameLayout>
 
-</com.yanzhenjie.album.widget.square.SquareCardView>
+</com.example.album.widget.square.SquareCardView>

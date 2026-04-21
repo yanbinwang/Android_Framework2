@@ -428,14 +428,13 @@
 -keep class com.tencent.mm.sdk.** {
     *;
 }
-# ---------------------------- 图片裁剪混淆 ----------------------------
+# ---------------------------- 图片相册/裁剪库混淆 ----------------------------
+-dontwarn com.example.gallery.**
+-keep class com.example.gallery.**{*;}
+-dontwarn com.example.album.**
+-keep class com.example.album.**{*;}
 -dontwarn com.yanzhenjie.durban.**
 -keep class com.yanzhenjie.durban.**{*;}
--dontwarn com.yanzhenjie.loading.**
--keep class com.yanzhenjie.loading.**{*;}
-# ---------------------------- 图片库混淆 ----------------------------
--dontwarn com.yanzhenjie.album.**
--keep class com.yanzhenjie.album.**{*;}
 # ---------------------------- 阿里oss混淆 ----------------------------
 -keep class com.alibaba.sdk.android.oss.** { *; }
 -dontwarn okio.**
