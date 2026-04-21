@@ -4,8 +4,6 @@ import android.graphics.Bitmap;
 
 import androidx.annotation.NonNull;
 
-import com.yanzhenjie.durban.error.StorageError;
-
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,7 +30,7 @@ public class FileUtil {
     /**
      * 校验并创建目录（不存在则创建）
      */
-    public static void validateDirectory(String path) throws StorageError {
+    public static void validateDirectory(String path) {
         File file = new File(path);
         try {
             // 如果是文件，先删除
@@ -44,7 +42,7 @@ public class FileUtil {
                 file.mkdirs();
             }
         } catch (Exception e) {
-            throw new StorageError("Directory creation failed.");
+            throw new AssertionError("Directory creation failed.");
         }
     }
 
@@ -60,7 +58,7 @@ public class FileUtil {
     /**
      * 文件复制（无需裁剪时直接复制原图）
      */
-    public static void copyFile(@NonNull String pathFrom, @NonNull String pathTo) throws StorageError {
+    public static void copyFile(@NonNull String pathFrom, @NonNull String pathTo) {
         try {
             FileInputStream inputStream = new FileInputStream(pathFrom);
             FileOutputStream outputStream = new FileOutputStream(pathTo);
@@ -70,7 +68,7 @@ public class FileUtil {
                 outputStream.write(buffer, 0, len);
             }
         } catch (IOException e) {
-            throw new StorageError(e);
+            throw new AssertionError(e);
         }
     }
 

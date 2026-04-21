@@ -14,7 +14,6 @@ import androidx.core.content.ContextCompat;
 import com.example.gallery.R;
 import com.example.gallery.widget.LoadingDialog;
 import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.error.StorageError;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.FileUtil;
@@ -157,7 +156,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
                 outputStream = new FileOutputStream(outputImagePath);
                 croppedBitmap.compress(mCompressFormat, mCompressQuality, outputStream);
             } catch (Exception e) {
-                throw new StorageError("图片保存失败");
+                throw new AssertionError("图片保存失败");
             } finally {
                 croppedBitmap.recycle();
                 FileUtil.close(outputStream);

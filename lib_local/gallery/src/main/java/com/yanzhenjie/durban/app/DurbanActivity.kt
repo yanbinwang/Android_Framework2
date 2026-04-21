@@ -1,424 +1,328 @@
-package com.yanzhenjie.durban.app;
+package com.yanzhenjie.durban.app
 
-import static com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes;
-
-import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.animation.AccelerateInterpolator;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-
-import com.example.gallery.R;
-import com.example.gallery.base.BaseActivity;
-import com.yanzhenjie.durban.Durban;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
-import com.yanzhenjie.durban.model.Controller;
-import com.yanzhenjie.durban.widget.crop.CropView;
-import com.yanzhenjie.durban.widget.crop.GestureCropImageView;
-import com.yanzhenjie.durban.widget.overlay.OverlayView;
-import com.yanzhenjie.durban.widget.TransformImageView;
-
-import java.util.ArrayList;
+import android.content.Intent
+import android.graphics.Bitmap
+import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.animation.AccelerateInterpolator
+import android.widget.TextView
+import androidx.appcompat.widget.Toolbar
+import androidx.core.content.ContextCompat
+import com.example.common.config.Constants.NO_DATA
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.hasExtras
+import com.example.framework.utils.function.intentInt
+import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.intentStringArrayList
+import com.example.framework.utils.function.view.clicks
+import com.example.gallery.R
+import com.example.gallery.base.BaseActivity
+import com.yanzhenjie.durban.Durban
+import com.yanzhenjie.durban.callback.BitmapCropCallback
+import com.yanzhenjie.durban.model.Controller
+import com.yanzhenjie.durban.widget.TransformImageView
+import com.yanzhenjie.durban.widget.crop.CropView
+import com.yanzhenjie.durban.widget.crop.GestureCropImageView
+import com.yanzhenjie.durban.widget.overlay.OverlayView
 
 /**
  * 图片裁剪页
  * 功能：接收配置 → 显示裁剪 → 旋转/缩放 → 保存 → 返回结果
  */
-public class DurbanActivity extends BaseActivity {
+class DurbanActivity : BaseActivity(), View.OnClickListener {
     // 状态栏/导航栏颜色
-    private int mStatusBarColor;
-    private int mNavigationBarColor;
+    private val mStatusBarColor by lazy { intentInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar) }
+    private val mNavigationBarColor by lazy { intentInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar) }
     // 手势类型：旋转/缩放
-    private int mGesture;
+    private val mGesture by lazy { intentInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL) }
     // 压缩质量
-    private int mCompressQuality;
+    private val mCompressQuality by lazy { intentInt(Durban.KEY_INPUT_COMPRESS_QUALITY, 90) }
     // 标题
-    private String mTitle;
-    // 输出目录
-    private String mOutputDirectory;
+    private val mTitle by lazy { intentString(Durban.KEY_INPUT_TITLE, NO_DATA) }
+    // 输出目录 (默认私有目录)
+    private val mOutputDirectory by lazy { intentString(Durban.KEY_INPUT_DIRECTORY, filesDir.absolutePath) }
     // 输出最大宽高
-    private int[] mMaxWidthHeight;
+    private val mMaxWidthHeight by lazy { intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT) ?: intArrayOf(500, 500) }
     // 裁剪比例
-    private float[] mAspectRatio;
+    private val mAspectRatio by lazy { intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO) ?: floatArrayOf(0f, 0f) }
     // 输入/输出图片列表
-    private ArrayList<String> mInputPathList;
-    private ArrayList<String> mOutputPathList;
+    private val mInputPathList by lazy { intentStringArrayList(Durban.KEY_INPUT_PATH_ARRAY) }
+    private val mOutputPathList = ArrayList<String>()
     // 压缩格式
-    private Bitmap.CompressFormat mCompressFormat;
+    private var mCompressFormat = Bitmap.CompressFormat.JPEG
     // 底部按钮控制器
-    private Controller mController;
+    private val mController by lazy { intentParcelable<Controller>(Durban.KEY_INPUT_CONTROLLER) ?: Controller.newBuilder().build() }
+    // 标题头
+    private val mToolbar by lazy { findViewById<Toolbar>(R.id.toolbar) }
     // 裁剪视图
-    private CropView mCropView;
-    private GestureCropImageView mCropImageView;
-    // 操作盘回调
-    private final View.OnClickListener mControllerClick = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int id = v.getId();
-            if (id == R.id.layout_controller_rotation_left) {
-                // 左转 90
-                mCropImageView.postRotate(-90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_rotation_right) {
-                // 右转 90
-                mCropImageView.postRotate(90);
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_big) {
-                // 放大
-                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
-            } else if (id == R.id.layout_controller_scale_small) {
-                // 缩小
-                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10));
-                mCropImageView.setImageToWrapCropBounds();
-            }
-        }
-    };
+    private val mCropView by lazy { findViewById<CropView>(R.id.crop_view) }
+    private val mCropImageView by lazy { mCropView.cropImageView }
 
-    @Override
-    protected boolean isImmersionBarEnabled() {
-        return false;
-    }
+    override fun isImmersionBarEnabled() = false
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        // 读取所有配置
-        initArgument();
-//        // 覆盖基类动画
-//        setActivityAnimations();
-//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        // 校验参数
+        if (!hasExtras()) return finish()
+        // 压缩格式修正
+        val compressFormat = intentInt(Durban.KEY_INPUT_COMPRESS_FORMAT, Durban.COMPRESS_JPEG)
+        mCompressFormat = if (compressFormat == Durban.COMPRESS_PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
         // 设置布局
-        setContentView(R.layout.durban_activity_photobox);
+        setContentView(R.layout.durban_activity_photobox)
         // 初始化状态栏、标题栏
-        initFrameViews();
+        initFrameViews()
         // 初始化裁剪页面视图
-        initContentViews();
+        initContentViews()
         // 初始化底部操作按钮视图
-        initControllerViews();
+        initControllerViews()
         // 开始裁剪第一张图
-        cropNextImage();
+        cropNextImage()
     }
 
-//    @Override
-//    protected void onNewIntent(@Nullable Intent intent) {
-//        super.onNewIntent(intent);
-//        setActivityAnimations();
-//    }
-//
-//    private void setActivityAnimations() {
-//        Fade fadeEnter = new Fade(MODE_IN);
-//        fadeEnter.setDuration(300);
-//        getWindow().setExitTransition(fadeEnter);
-//        Fade fadeExit = new Fade(MODE_OUT);
-//        fadeEnter.setDuration(300);
-//        getWindow().setReturnTransition(fadeExit);
-//    }
-
-    private void initArgument() {
-        Bundle argument = getIntent().getExtras();
-        if (null != argument) {
-            // 状态栏/导航栏颜色
-            mStatusBarColor = argument.getInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar);
-            mNavigationBarColor = argument.getInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar);
-            // 标题
-            mTitle = argument.getString(Durban.KEY_INPUT_TITLE);
-            // 手势：旋转 / 缩放
-            mGesture = argument.getInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL);
-            // 裁剪比例
-            mAspectRatio = argument.getFloatArray(Durban.KEY_INPUT_ASPECT_RATIO);
-            if (mAspectRatio == null) {
-                mAspectRatio = new float[]{0, 0};
-            }
-            // 输出最大尺寸
-            mMaxWidthHeight = argument.getIntArray(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT);
-            if (mMaxWidthHeight == null) {
-                mMaxWidthHeight = new int[]{500, 500};
-            }
-            // 压缩格式
-            int compressFormat = argument.getInt(Durban.KEY_INPUT_COMPRESS_FORMAT, 0);
-            mCompressFormat = compressFormat == Durban.COMPRESS_PNG ? Bitmap.CompressFormat.PNG : Bitmap.CompressFormat.JPEG;
-            // 压缩质量
-            mCompressQuality = argument.getInt(Durban.KEY_INPUT_COMPRESS_QUALITY, 90);
-            // 输出文件夹
-            mOutputDirectory = argument.getString(Durban.KEY_INPUT_DIRECTORY);
-            if (TextUtils.isEmpty(mOutputDirectory)) {
-                mOutputDirectory = getFilesDir().getAbsolutePath();
-            }
-            // 要裁剪的图片列表
-            mInputPathList = argument.getStringArrayList(Durban.KEY_INPUT_PATH_ARRAY);
-            // 底部按钮配置
-            mController = argument.getParcelable(Durban.KEY_INPUT_CONTROLLER);
-            if (mController == null) {
-                mController = Controller.newBuilder().build();
-            }
-            // 输出结果列表
-            mOutputPathList = new ArrayList<>();
-        } else {
-            finish();
-        }
-    }
-
-    private void initFrameViews() {
+    private fun initFrameViews() {
         // 获取自定义Toolbar并设置为ActionBar替代品
-        final Toolbar toolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        // 通过getSupportActionBar()操作这个Toolbar
-        final ActionBar actionBar = getSupportActionBar();
-        // 显示返回键
-        if (null != actionBar) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setTitle("");
-        }
+        setSupportActionBar(mToolbar)
+        // 通过getSupportActionBar()操作这个Toolbar / 显示返回键
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        supportActionBar?.title = ""
         // 设置Toolbar样式
-        setSupportToolbar(toolbar);
-        toolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusBarColor));
+        setSupportToolbar(mToolbar)
+        mToolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusBarColor))
         // 设置图标样式
-        boolean statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusBarColor);
-        boolean navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationBarColor);
-        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationBarColor);
+        val statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusBarColor)
+        val navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationBarColor)
+        initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationBarColor)
         // 设置标题
-        final TextView tvTitle = findViewById(R.id.tv_title);
-        if (!TextUtils.isEmpty(mTitle)) {
-            tvTitle.setText(mTitle);
-            if (statusBarBattery) {
-                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontLight));
-            } else {
-                tvTitle.setTextColor(ContextCompat.getColor(this, R.color.galleryFontDark));
-            }
+        val tvTitle = findViewById<TextView>(R.id.tv_title)
+        if (mTitle.isNotEmpty()) {
+            tvTitle.text = mTitle
+            tvTitle.setTextColor(color(if (statusBarBattery) R.color.galleryFontLight else R.color.galleryFontDark))
         }
         // 设置返回按钮
-        Drawable navigationIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_back);
+        val navigationIcon = drawable(R.mipmap.gallery_ic_back)
         if (!statusBarBattery && null != navigationIcon) {
-            navigationIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark));
+            navigationIcon.setTint(color(R.color.galleryIconDark))
         }
-        toolbar.setNavigationIcon(navigationIcon);
+        mToolbar.setNavigationIcon(navigationIcon)
     }
 
-    private void initContentViews() {
-        mCropView = findViewById(R.id.crop_view);
-        mCropImageView = mCropView.getCropImageView();
+    private fun initContentViews() {
         // 设置输出目录
-        mCropImageView.setOutputDirectory(mOutputDirectory);
+        mCropImageView.outputDirectory = mOutputDirectory
         // 是否允许缩放
-        mCropImageView.setScaleEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE);
+        mCropImageView.isScaleEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE
         // 是否允许旋转
-        mCropImageView.setRotateEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE);
-        mCropImageView.setMaxBitmapSize(GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE);
-        mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER);
-        mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION);
+        mCropImageView.isRotateEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE
+        mCropImageView.maxBitmapSize = GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE
+        mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER)
+        mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
         // 图片加载监听
-        mCropImageView.setTransformImageListener(new TransformImageView.TransformImageListener() {
-            @Override
-            public void onRotate(float currentAngle) {
-            }
-
-            @Override
-            public void onScale(float currentScale) {
-            }
-
-            @Override
-            public void onLoadComplete() {
+        mCropImageView.setTransformImageListener(object : TransformImageView.TransformImageListener {
+            override fun onLoadComplete() {
                 mCropView.animate()
-                        .alpha(1f)
-                        .setDuration(300)
-                        .setInterpolator(new AccelerateInterpolator())
-                        .start();
+                    .alpha(1f)
+                    .setDuration(300)
+                    .setInterpolator(AccelerateInterpolator())
+                    .start()
             }
 
-            @Override
-            public void onLoadFailure() {
-                cropNextImage();
+            override fun onLoadFailure() {
+                cropNextImage()
             }
-        });
+
+            override fun onRotate(currentAngle: Float) {
+            }
+
+            override fun onScale(currentScale: Float) {
+            }
+        })
         // 裁剪视图样式
-        OverlayView overlayView = mCropView.getOverlayView();
-        overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE);
-        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed));
-        overlayView.setCircleDimmedLayer(false);
-        overlayView.setShowCropFrame(true);
-        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durbanCropFrameLine));
-        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
-        overlayView.setShowCropGrid(true);
-        overlayView.setCropGridRowCount(2);
-        overlayView.setCropGridColumnCount(2);
-        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durbanCropGridLine));
-        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1));
+        val overlayView = mCropView.overlayView
+        overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE)
+        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed))
+        overlayView.setCircleDimmedLayer(false)
+        overlayView.setShowCropFrame(true)
+        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durbanCropFrameLine))
+        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
+        overlayView.setShowCropGrid(true)
+        overlayView.setCropGridRowCount(2)
+        overlayView.setCropGridColumnCount(2)
+        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durbanCropGridLine))
+        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
-            mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1]);
+            mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])
         } else {
-            mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO);
+            mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO)
         }
         // 设置输出最大宽高
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
-            mCropImageView.setMaxResultImageSizeX(mMaxWidthHeight[0]);
-            mCropImageView.setMaxResultImageSizeY(mMaxWidthHeight[1]);
+            mCropImageView.setMaxResultImageSizeX(mMaxWidthHeight[0])
+            mCropImageView.setMaxResultImageSizeY(mMaxWidthHeight[1])
         }
     }
 
-    private void initControllerViews() {
-        View controllerRoot = findViewById(R.id.iv_controller_root);
-        View rotationTitle = findViewById(R.id.tv_controller_title_rotation);
-        View rotationLeft = findViewById(R.id.layout_controller_rotation_left);
-        View rotationRight = findViewById(R.id.layout_controller_rotation_right);
-        View scaleTitle = findViewById(R.id.tv_controller_title_scale);
-        View scaleBig = findViewById(R.id.layout_controller_scale_big);
-        View scaleSmall = findViewById(R.id.layout_controller_scale_small);
+    private fun initControllerViews() {
+        val controllerRoot = findViewById<View>(R.id.iv_controller_root)
+        val rotationTitle = findViewById<View>(R.id.tv_controller_title_rotation)
+        val rotationLeft = findViewById<View>(R.id.layout_controller_rotation_left)
+        val rotationRight = findViewById<View>(R.id.layout_controller_rotation_right)
+        val scaleTitle = findViewById<View>(R.id.tv_controller_title_scale)
+        val scaleBig = findViewById<View>(R.id.layout_controller_scale_big)
+        val scaleSmall = findViewById<View>(R.id.layout_controller_scale_small)
         // 根据配置显示/隐藏按钮
-        controllerRoot.setVisibility(mController.isEnable() ? View.VISIBLE : View.GONE);
-        rotationTitle.setVisibility(mController.isRotationTitle() ? View.VISIBLE : View.INVISIBLE);
-        rotationLeft.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
-        rotationRight.setVisibility(mController.isRotation() ? View.VISIBLE : View.GONE);
-        scaleTitle.setVisibility(mController.isScaleTitle() ? View.VISIBLE : View.INVISIBLE);
-        scaleBig.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
-        scaleSmall.setVisibility(mController.isScale() ? View.VISIBLE : View.GONE);
+        controllerRoot.visibility = if (mController.isEnable) View.VISIBLE else View.GONE
+        rotationTitle.visibility = if (mController.isRotationTitle) View.VISIBLE else View.INVISIBLE
+        rotationLeft.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
+        rotationRight.visibility = if (mController.isRotation) View.VISIBLE else View.GONE
+        scaleTitle.visibility = if (mController.isScaleTitle) View.VISIBLE else View.INVISIBLE
+        scaleBig.visibility = if (mController.isScale) View.VISIBLE else View.GONE
+        scaleSmall.visibility = if (mController.isScale) View.VISIBLE else View.GONE
         // 隐藏所有标题时，隐藏标题栏
-        if (!mController.isRotationTitle() && !mController.isScaleTitle()) {
-            findViewById(R.id.layout_controller_title_root).setVisibility(View.GONE);
+        if (!mController.isRotationTitle && !mController.isScaleTitle) {
+            findViewById<View>(R.id.layout_controller_title_root).visibility = View.GONE
         }
-        if (!mController.isRotation()) {
-            rotationTitle.setVisibility(View.GONE);
+        if (!mController.isRotation) {
+            rotationTitle.visibility = View.GONE
         }
-        if (!mController.isScale()) {
-            scaleTitle.setVisibility(View.GONE);
+        if (!mController.isScale) {
+            scaleTitle.visibility = View.GONE
         }
         // 点击事件
-        rotationLeft.setOnClickListener(mControllerClick);
-        rotationRight.setOnClickListener(mControllerClick);
-        scaleBig.setOnClickListener(mControllerClick);
-        scaleSmall.setOnClickListener(mControllerClick);
+        clicks(rotationLeft, rotationRight, scaleBig, scaleSmall)
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.durban_menu_activity, menu);
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.durban_menu_activity, menu)
         // 获取右侧菜单按钮的 MenuItem
-        MenuItem okItem = menu.findItem(R.id.menu_action_ok);
+        val okItem = menu?.findItem(R.id.menu_action_ok)
         // 去除长按的文字提示
-        okItem.setTitle("");
+        okItem?.title = ""
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
-            Drawable doneIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_done);
+            val doneIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_done)
             if (null != doneIcon) {
-                doneIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark));
+                doneIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark))
                 // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
-                View okView = okItem.getActionView();
-                if (okView != null) {
-                    okView.setBackground(doneIcon);
-                }
+                val okView = okItem?.actionView
+                okView?.background = doneIcon
             }
         }
         // 设置额外添加的按钮外层间距
-        setSupportMenuView(findViewById(R.id.toolbar), mStatusBarColor);
-        return true;
+        setSupportMenuView(mToolbar, mStatusBarColor)
+        return true
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.menu_action_ok) {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
             // 保存
-            cropAndSaveImage();
-        } else if (item.getItemId() == android.R.id.home) {
+            R.id.menu_action_ok -> cropAndSaveImage()
             // 取消
-            setResultFailure();
+            android.R.id.home -> setResultFailure()
         }
-        return true;
-    }
-
-    /**
-     * 开始裁剪下一张
-     */
-    private void cropNextImage() {
-        // 重置图片旋转角度
-        mCropImageView.postRotate(-mCropImageView.getCurrentAngle());
-        mCropImageView.setImageToWrapCropBounds();
-        // 加载图片并裁剪
-        if (mInputPathList != null) {
-            if (!mInputPathList.isEmpty()) {
-                String currentPath = mInputPathList.remove(0);
-                try {
-                    mCropImageView.setImagePath(currentPath);
-                } catch (Exception e) {
-                    // 加载失败直接下一张
-                    cropNextImage();
-                }
-            } else {
-                // 全部裁剪完成
-                if (!mOutputPathList.isEmpty()) {
-                    setResultSuccessful();
-                } else {
-                    setResultFailure();
-                }
-            }
-        } else {
-            Log.e("Durban", "The file list is empty.");
-            setResultFailure();
-        }
+        return true
     }
 
     /**
      * 执行裁剪并保存
      */
-    private void cropAndSaveImage() {
-        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, new BitmapCropCallback() {
-            @Override
-            public void onBitmapCropped(@NonNull String imagePath, int imageWidth, int imageHeight) {
-                mOutputPathList.add(imagePath);
-                cropNextImage();
+    private fun cropAndSaveImage() {
+        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, object : BitmapCropCallback {
+            override fun onBitmapCropped(imagePath: String, imageWidth: Int, imageHeight: Int) {
+                mOutputPathList.add(imagePath)
+                cropNextImage()
             }
 
-            @Override
-            public void onCropFailure(@NonNull Throwable t) {
-                cropNextImage();
+            override fun onCropFailure(t: Throwable) {
+                cropNextImage()
             }
-        });
+        })
+    }
+
+    /**
+     * 开始裁剪下一张
+     */
+    private fun cropNextImage() {
+        // 重置图片旋转角度
+        mCropImageView.postRotate(-mCropImageView.currentAngle)
+        mCropImageView.setImageToWrapCropBounds()
+        // 加载图片并裁剪
+        if (!mInputPathList.isEmpty()) {
+            val currentPath = mInputPathList.removeAt(0)
+            try {
+                mCropImageView.setImagePath(currentPath)
+            } catch (_: Exception) {
+                // 加载失败直接下一张
+                cropNextImage()
+            }
+        } else {
+            // 全部裁剪完成
+            if (!mOutputPathList.isEmpty()) {
+                setResultSuccessful()
+            } else {
+                setResultFailure()
+            }
+        }
     }
 
     /**
      * 返回成功/失败结果
      */
-    private void setResultSuccessful() {
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
-        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
-        setResult(RESULT_OK, intent);
-        finish();
+    private fun setResultSuccessful() {
+        val intent = Intent()
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
+        setResult(RESULT_OK, intent)
+        finish()
     }
 
-    private void setResultFailure() {
-        Intent intent = new Intent();
-        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList);
-        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList);
-        setResult(RESULT_CANCELED, intent);
-        finish();
+    private fun setResultFailure() {
+        val intent = Intent()
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
+        setResult(RESULT_CANCELED, intent)
+        finish()
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        // 页面不可见时，取消所有动画，防止内存泄漏
-        if (mCropImageView != null) {
-            mCropImageView.cancelAllAnimations();
+    override fun onClick(v: View?) {
+        when (v?.id) {
+            // 左转 90
+            R.id.layout_controller_rotation_left -> {
+                mCropImageView.postRotate(-90f)
+                mCropImageView.setImageToWrapCropBounds()
+            }
+            // 右转 90
+            R.id.layout_controller_rotation_right -> {
+                mCropImageView.postRotate(90f)
+                mCropImageView.setImageToWrapCropBounds()
+            }
+            // 放大
+            R.id.layout_controller_scale_big -> {
+                mCropImageView.zoomOutImage(mCropImageView.getCurrentScale() + ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10))
+                mCropImageView.setImageToWrapCropBounds()
+            }
+            // 缩小
+            R.id.layout_controller_scale_small -> {
+                mCropImageView.zoomInImage(mCropImageView.getCurrentScale() - ((mCropImageView.getMaxScale() - mCropImageView.getMinScale()) / 10))
+                mCropImageView.setImageToWrapCropBounds()
+            }
         }
     }
 
-    @Override
-    public void finish() {
-        super.finish();
-//        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none);
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out);
+    override fun onStop() {
+        super.onStop()
+        // 页面不可见时，取消所有动画，防止内存泄漏
+        mCropImageView.cancelAllAnimations()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
     }
 
 }
