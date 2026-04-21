@@ -61,7 +61,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     private val mToolbar by lazy { findViewById<Toolbar>(R.id.toolbar) }
     // 裁剪视图
     private val mCropView by lazy { findViewById<CropView>(R.id.crop_view) }
-    private val mCropImageView by lazy { mCropView.cropImageView }
+    private val mCropImageView by lazy { mCropView.getCropImageView() }
 
     override fun isImmersionBarEnabled() = false
 
@@ -142,7 +142,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
             }
         })
         // 裁剪视图样式
-        val overlayView = mCropView.overlayView
+        val overlayView = mCropView.getOverlayView()
         overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE)
         overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed))
         overlayView.setCircleDimmedLayer(false)
