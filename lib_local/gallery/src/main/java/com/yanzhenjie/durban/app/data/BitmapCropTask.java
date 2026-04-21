@@ -15,8 +15,8 @@ import com.example.gallery.R;
 import com.example.gallery.widget.LoadingDialog;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
+import com.yanzhenjie.durban.utils.BitmapLoadUtil;
 import com.yanzhenjie.durban.utils.FileUtil;
-import com.yanzhenjie.durban.utils.ImageHeaderParser;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -163,7 +163,7 @@ public class BitmapCropTask extends AsyncTask<Void, Void, BitmapCropTask.PathWor
             // 如果是JPG，复制EXIF信息
             if (mCompressFormat.equals(Bitmap.CompressFormat.JPEG)) {
                 ExifInterface originalExif = new ExifInterface(mInputImagePath);
-                ImageHeaderParser.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, outputImagePath);
+                BitmapLoadUtil.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, outputImagePath);
             }
         } else {
             // 无需裁剪，直接复制文件

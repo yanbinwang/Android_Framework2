@@ -147,4 +147,52 @@ object BitmapLoadUtil {
         }
     }
 
+    /**
+     * 复制照片的身份证信息
+     * 把【老照片的拍摄信息】复制到【新裁剪的照片】里，不让信息丢失
+     */
+    @JvmStatic
+    fun copyExif(originalExif: ExifInterface, width: Int, height: Int, imageOutputPath: String) {
+        val attributes = arrayOf(
+            ExifInterface.TAG_APERTURE,
+            ExifInterface.TAG_DATETIME,
+            ExifInterface.TAG_DATETIME_DIGITIZED,
+            ExifInterface.TAG_EXPOSURE_TIME,
+            ExifInterface.TAG_FLASH,
+            ExifInterface.TAG_FOCAL_LENGTH,
+            ExifInterface.TAG_GPS_ALTITUDE,
+            ExifInterface.TAG_GPS_ALTITUDE_REF,
+            ExifInterface.TAG_GPS_DATESTAMP,
+            ExifInterface.TAG_GPS_LATITUDE,
+            ExifInterface.TAG_GPS_LATITUDE_REF,
+            ExifInterface.TAG_GPS_LONGITUDE,
+            ExifInterface.TAG_GPS_LONGITUDE_REF,
+            ExifInterface.TAG_GPS_PROCESSING_METHOD,
+            ExifInterface.TAG_GPS_TIMESTAMP,
+            ExifInterface.TAG_ISO,
+            ExifInterface.TAG_MAKE,
+            ExifInterface.TAG_MODEL,
+            ExifInterface.TAG_SUBSEC_TIME,
+            ExifInterface.TAG_SUBSEC_TIME_DIG,
+            ExifInterface.TAG_SUBSEC_TIME_ORIG,
+            ExifInterface.TAG_WHITE_BALANCE
+        )
+        try {
+            val newExif = ExifInterface(imageOutputPath)
+            var value: String?
+            for (attribute in attributes) {
+                value = originalExif.getAttribute(attribute)
+                if (!value.isNullOrEmpty()) {
+                    newExif.setAttribute(attribute, value)
+                }
+            }
+            newExif.setAttribute(ExifInterface.TAG_IMAGE_WIDTH, width.toString())
+            newExif.setAttribute(ExifInterface.TAG_IMAGE_LENGTH, height.toString())
+            newExif.setAttribute(ExifInterface.TAG_ORIENTATION, "0")
+            newExif.saveAttributes()
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
+
 }
