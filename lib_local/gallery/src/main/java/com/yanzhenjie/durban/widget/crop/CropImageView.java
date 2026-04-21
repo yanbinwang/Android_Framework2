@@ -13,10 +13,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.example.gallery.R;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
+import com.yanzhenjie.durban.app.data.BitmapCropCallback;
 import com.yanzhenjie.durban.model.CropParameters;
-import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.app.data.BitmapCropTask;
+import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.CubicEasing;
 import com.yanzhenjie.durban.utils.RectUtil;
 import com.yanzhenjie.durban.widget.TransformImageView;

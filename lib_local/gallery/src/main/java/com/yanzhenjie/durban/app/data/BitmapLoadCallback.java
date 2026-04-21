@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.callback;
+package com.yanzhenjie.durban.app.data;
 
 import android.graphics.Bitmap;
 

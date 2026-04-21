@@ -23,7 +23,7 @@ import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.durban.Durban
-import com.yanzhenjie.durban.callback.BitmapCropCallback
+import com.yanzhenjie.durban.app.data.BitmapCropCallback
 import com.yanzhenjie.durban.model.Controller
 import com.yanzhenjie.durban.widget.TransformImageView
 import com.yanzhenjie.durban.widget.crop.CropView

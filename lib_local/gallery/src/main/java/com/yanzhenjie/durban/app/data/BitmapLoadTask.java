@@ -11,7 +11,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
 import com.example.gallery.widget.LoadingDialog;
-import com.yanzhenjie.durban.callback.BitmapLoadCallback;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.utils.BitmapLoadUtil;
 

@@ -13,7 +13,6 @@ import androidx.core.content.ContextCompat;
 
 import com.example.gallery.R;
 import com.example.gallery.widget.LoadingDialog;
-import com.yanzhenjie.durban.callback.BitmapCropCallback;
 import com.yanzhenjie.durban.model.CropParameters;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.FileUtil;
