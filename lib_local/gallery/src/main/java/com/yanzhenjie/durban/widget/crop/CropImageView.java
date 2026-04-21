@@ -19,7 +19,7 @@ import com.yanzhenjie.durban.app.data.BitmapCropTask;
 import com.yanzhenjie.durban.model.ImageState;
 import com.yanzhenjie.durban.utils.CubicEasing;
 import com.yanzhenjie.durban.utils.RectUtil;
-import com.yanzhenjie.durban.widget.TransformImageView;
+import com.yanzhenjie.durban.widget.transform.TransformImageView;
 
 import java.lang.ref.WeakReference;
 import java.util.Arrays;

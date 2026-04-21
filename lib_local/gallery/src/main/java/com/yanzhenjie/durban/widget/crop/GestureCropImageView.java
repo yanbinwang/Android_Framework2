@@ -7,8 +7,6 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 
-import com.yanzhenjie.durban.utils.RotationGestureDetector;
-
 /**
  * 最终对外使用的裁剪View
  * 具备：单指拖动、双指缩放、双指旋转、双击放大

@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget;
+package com.yanzhenjie.durban.widget.transform;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -17,7 +17,6 @@ import com.yanzhenjie.durban.app.data.BitmapLoadCallback;
 import com.yanzhenjie.durban.app.data.BitmapLoadTask;
 import com.yanzhenjie.durban.model.ExifInfo;
 import com.yanzhenjie.durban.utils.BitmapLoadUtil;
-import com.yanzhenjie.durban.utils.FastBitmapDrawable;
 import com.yanzhenjie.durban.utils.RectUtil;
 
 /**
