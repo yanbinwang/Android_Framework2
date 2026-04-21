@@ -17,11 +17,11 @@ import com.example.gallery.R
 import com.example.gallery.activity.CameraActivity.Companion.pickImage
 import com.example.gallery.activity.CameraActivity.Companion.recordVideo
 import com.example.gallery.activity.CameraActivity.Companion.takePicture
-import com.example.gallery.album.Album
-import com.example.gallery.album.callback.Action
-import com.example.gallery.album.callback.Filter
-import com.example.gallery.album.model.AlbumFile
-import com.example.gallery.album.model.Widget
+import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.callback.Action
+import com.example.gallery.feature.album.callback.Filter
+import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.model.Widget
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.model.Controller
 

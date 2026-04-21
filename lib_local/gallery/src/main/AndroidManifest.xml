@@ -8,7 +8,7 @@
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
-            android:theme="@style/TransparentTheme"
+            android:theme="@style/Gallery.Theme.Activity.Transparent"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
@@ -19,42 +19,42 @@
             android:windowSoftInputMode="stateHidden|stateAlwaysHidden" />
         <!-- 空页面 -->
         <activity
-            android:name="com.example.gallery.album.app.album.NullActivity"
+            android:name="com.example.gallery.feature.album.app.album.NullActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 相册主页 -->
         <activity
-            android:name="com.example.gallery.album.app.album.AlbumActivity"
+            android:name="com.example.gallery.feature.album.app.album.AlbumActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 图片/视频 预览页 -->
         <activity
-            android:name="com.example.gallery.album.app.album.AlbumPreviewActivity"
+            android:name="com.example.gallery.feature.album.app.album.AlbumPreviewActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 图片路径 预览页 -->
         <activity
-            android:name="com.example.gallery.album.app.gallery.GalleryActivity"
+            android:name="com.example.gallery.feature.album.app.gallery.GalleryActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 图片/视频 预览页 -->
         <activity
-            android:name="com.example.gallery.album.app.gallery.GalleryAlbumActivity"
+            android:name="com.example.gallery.feature.album.app.gallery.GalleryAlbumActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 相机跳转页 -->
         <activity
-            android:name="com.example.gallery.album.app.camera.CameraActivity"
+            android:name="com.example.gallery.feature.album.app.camera.CameraActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
@@ -62,7 +62,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 相机文件 FileProvider -->
         <provider
-            android:name="com.example.gallery.album.provider.CameraFileProvider"
+            android:name="com.example.gallery.feature.album.provider.CameraFileProvider"
             android:authorities="${applicationId}.app.file.provider"
             android:exported="false"
             android:grantUriPermissions="true"
