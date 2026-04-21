@@ -13,8 +13,8 @@ import com.example.thirdparty.media.oss.OssDBHelper
 import com.example.thirdparty.media.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
 import com.example.thirdparty.utils.wechat.WXManager
-import com.example.album.Album
-import com.example.album.model.AlbumConfig
+import com.example.gallery.album.Album
+import com.example.gallery.album.model.AlbumConfig
 import io.objectbox.BoxStore
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.system.exitProcess

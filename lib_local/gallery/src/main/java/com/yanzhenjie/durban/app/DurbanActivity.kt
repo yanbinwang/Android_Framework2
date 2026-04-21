@@ -34,7 +34,7 @@ import com.yanzhenjie.durban.widget.overlay.OverlayView
  * 图片裁剪页
  * 功能：接收配置 → 显示裁剪 → 旋转/缩放 → 保存 → 返回结果
  */
-class DurbanActivity : BaseActivity(), View.OnClickListener {
+internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     // 状态栏/导航栏颜色
     private val mStatusBarColor by lazy { intentInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar) }
     private val mNavigationBarColor by lazy { intentInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar) }

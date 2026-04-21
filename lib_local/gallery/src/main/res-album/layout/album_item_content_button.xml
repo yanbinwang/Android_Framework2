@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.example.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.gallery.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Album.Item.Card.MatchParent"
     app:cardBackgroundColor="@color/albumCardContent">
 
-    <com.example.album.widget.square.SquareImageView
+    <com.example.gallery.album.widget.square.SquareImageView
         android:id="@+id/iv_album_content_button"
         style="@style/Album.MatchParent"
         android:background="?selectableItemBackground"
@@ -12,4 +12,4 @@
         android:scaleType="center"
         android:src="@mipmap/album_ic_add_photo" />
 
-</com.example.album.widget.square.SquareCardView>
+</com.example.gallery.album.widget.square.SquareCardView>

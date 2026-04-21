@@ -2,8 +2,8 @@ package com.example.gallery.utils
 
 import android.widget.ImageView
 import com.example.glide.ImageLoader
-import com.example.album.model.AlbumFile
-import com.example.album.callback.AlbumLoader
+import com.example.gallery.album.model.AlbumFile
+import com.example.gallery.album.callback.AlbumLoader
 
 /**
  * author: wyb

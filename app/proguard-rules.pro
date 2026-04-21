@@ -431,8 +431,6 @@
 # ---------------------------- 图片相册/裁剪库混淆 ----------------------------
 -dontwarn com.example.gallery.**
 -keep class com.example.gallery.**{*;}
--dontwarn com.example.album.**
--keep class com.example.album.**{*;}
 -dontwarn com.yanzhenjie.durban.**
 -keep class com.yanzhenjie.durban.**{*;}
 # ---------------------------- 阿里oss混淆 ----------------------------

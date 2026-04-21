@@ -9,7 +9,7 @@ import android.widget.RelativeLayout
  * date: 2017/8/29.
  * 嵌套的外层布局，使view的宽高一致
  * 1) 适用于贴吧底部排版ImageView，套个RecyclerView，配置Manager后再在布局外层套该控件，解决图片大小问题
- * 2) 详细其余不见可参考com.example.album.widget下的SquareXXX
+ * 2) 详细其余不见可参考com.example.gallery.album.widget下的SquareXXX
  */
 class SquareLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr) {
 
