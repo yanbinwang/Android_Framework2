@@ -41,9 +41,6 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
     private val mOutputDirectory = cropParameters.imageOutputPath.orEmpty()
     // 图片压缩格式
     private val mCompressFormat = cropParameters.compressFormat ?: Bitmap.CompressFormat.JPEG
-    // 裁剪后图片宽高
-    private var mCroppedImageWidth = 0
-    private var mCroppedImageHeight = 0
 
     /**
      * 裁剪逻辑：缩放 → 旋转 → 裁剪 → 保存
@@ -63,7 +60,7 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
                     val scaleX = mMaxResultImageSizeX / cropWidth
                     val scaleY = mMaxResultImageSizeY / cropHeight
                     val resizeScale = min(scaleX, scaleY)
-                    val resizedBitmap = mViewBitmap.scale((mViewBitmap.getWidth() * resizeScale).roundToInt(), (mViewBitmap.getHeight() * resizeScale).roundToInt(), false)
+                    val resizedBitmap = mViewBitmap.scale((mViewBitmap.width * resizeScale).roundToInt(), (mViewBitmap.height * resizeScale).roundToInt(), false)
                     if (mViewBitmap != resizedBitmap) {
                         mViewBitmap.recycle()
                     }
@@ -74,8 +71,8 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
             // 如果需要，旋转图片
             if (mCurrentAngle != 0f) {
                 val tempMatrix = Matrix()
-                tempMatrix.setRotate(mCurrentAngle, mViewBitmap.getWidth().toFloat() / 2, mViewBitmap.getHeight().toFloat() / 2)
-                val rotatedBitmap = Bitmap.createBitmap(mViewBitmap, 0, 0, mViewBitmap.getWidth(), mViewBitmap.getHeight(), tempMatrix, true)
+                tempMatrix.setRotate(mCurrentAngle, mViewBitmap.width.toFloat() / 2, mViewBitmap.height.toFloat() / 2)
+                val rotatedBitmap = Bitmap.createBitmap(mViewBitmap, 0, 0, mViewBitmap.width, mViewBitmap.height, tempMatrix, true)
                 if (mViewBitmap != rotatedBitmap) {
                     mViewBitmap.recycle()
                 }
@@ -84,8 +81,9 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
             // 计算裁剪偏移量 & 最终宽高
             val cropOffsetX = ((mCropRect.left - mCurrentImageRect.left) / mCurrentScale).roundToInt()
             val cropOffsetY = ((mCropRect.top - mCurrentImageRect.top) / mCurrentScale).roundToInt()
-            mCroppedImageWidth = (mCropRect.width() / mCurrentScale).roundToInt()
-            mCroppedImageHeight = (mCropRect.height() / mCurrentScale).roundToInt()
+            // 裁剪后图片宽高
+            val mCroppedImageWidth = (mCropRect.width() / mCurrentScale).roundToInt()
+            val mCroppedImageHeight = (mCropRect.height() / mCurrentScale).roundToInt()
             // 判断是否需要真正裁剪
             val shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight)
             if (shouldCrop) {

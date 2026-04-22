@@ -30,8 +30,8 @@ class PathConversion(
             val albumFile = AlbumFile()
             albumFile.path = filePath
             // 获取文件夹名称
-            val parentFile = file.getParentFile()
-            albumFile.bucketName = parentFile?.getName()
+            val parentFile = file.parentFile
+            albumFile.bucketName = parentFile?.name
             // 获取文件类型（image/jpeg、video/mp4...）
             val mimeType = AlbumUtil.getMimeType(filePath)
             albumFile.mimeType = mimeType
