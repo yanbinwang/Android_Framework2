@@ -261,7 +261,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         } else {
             // 全部裁剪完成
             if (!mOutputPathList.isEmpty()) {
-                setResultSuccessful()
+                setResultSuccess()
             } else {
                 setResultFailure()
             }
@@ -271,7 +271,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     /**
      * 返回成功/失败结果
      */
-    private fun setResultSuccessful() {
+    private fun setResultSuccess() {
         val intent = Intent()
         intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
         intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
