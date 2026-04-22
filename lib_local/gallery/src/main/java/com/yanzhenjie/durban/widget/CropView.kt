@@ -42,9 +42,11 @@ class CropView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             }
         })
         // 遮罩层的裁剪框变化 → 通知图片层更新
-        mViewOverlay.setOverlayViewChangeListener {
-            mGestureCropImageView.setCropRect(it)
-        }
+        mViewOverlay.setOverlayViewChangeListener(object : OverlayView.OnOverlayChangeListener {
+            override fun onCropRectUpdated(cropRect: RectF) {
+                mGestureCropImageView.setCropRect(cropRect)
+            }
+        })
     }
 
     /**
