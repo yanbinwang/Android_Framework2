@@ -141,7 +141,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
 
     fun getMaxBitmapSize(): Int {
         if (mMaxBitmapSize <= 0) {
-            mMaxBitmapSize = calculateMaxBitmapSize(getContext())
+            mMaxBitmapSize = calculateMaxBitmapSize(context)
         }
         return mMaxBitmapSize
     }
@@ -170,14 +170,27 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     }
 
     /**
-     * 获取路径、目录、图片信息
+     * 外层协程处理完毕后修改view内部的值
      */
-    fun getImagePath(): String? {
-        return mImagePath
+    fun setImageData(bitmap: Bitmap, exifInfo: ExifInfo) {
+        mExifInfo = exifInfo
+        mBitmapDecoded = true
+        setImageBitmap(bitmap)
     }
 
-    fun setOutputDirectory(outputDirectory: String?) {
+    /**
+     * 获取路径、目录、图片信息
+     */
+//    fun setImagePath(imagePath: String) {
+//        mImagePath = imagePath
+//    }
+
+    fun setOutputDirectory(outputDirectory: String) {
         mOutputDirectory = outputDirectory
+    }
+
+    fun getImagePath(): String? {
+        return mImagePath
     }
 
     fun getOutputDirectory(): String? {
@@ -219,7 +232,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     /**
      * 获取矩阵中某个值
      */
-    private fun getMatrixValue(matrix: Matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT.toLong()) valueIndex: Int): Float {
+    fun getMatrixValue(matrix: Matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT.toLong()) valueIndex: Int): Float {
         matrix.getValues(mMatrixValues)
         return mMatrixValues[valueIndex]
     }
@@ -248,7 +261,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     /**
      * 缩放图片
      */
-    open fun postScale(deltaScale: Float, px: Float, py: Float) {
+    fun postScale(deltaScale: Float, px: Float, py: Float) {
         if (deltaScale != 0f) {
             mCurrentImageMatrix.postScale(deltaScale, deltaScale, px, py)
             setImageMatrix(mCurrentImageMatrix)
@@ -272,6 +285,10 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      */
     fun setTransformImageListener(transformImageListener: TransformImageListener) {
         mTransformImageListener = transformImageListener
+    }
+
+    fun getTransformImageListener(): TransformImageListener? {
+        return mTransformImageListener
     }
 
     /**
