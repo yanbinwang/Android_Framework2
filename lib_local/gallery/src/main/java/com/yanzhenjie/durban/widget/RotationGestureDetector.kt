@@ -12,16 +12,13 @@ class RotationGestureDetector(private val mListener: OnRotationGestureListener?)
     // 第1、第2个手指的索引（Android 多点触摸）
     private var mPointerIndex1 = 0
     private var mPointerIndex2 = 0
-
     // 第一个手指、第二个手指的坐标：f=第一个点，s=第二个点
     private var fX = 0f
     private var fY = 0f
     private var sX = 0f
     private var sY = 0f
-
     // 旋转角度
     private var mAngle = 0f
-
     // 是否是第一次触摸（避免刚按下就跳变）
     private var mIsFirstTouch = false
 

@@ -1,175 +1,164 @@
-package com.yanzhenjie.durban.widget;
+package com.yanzhenjie.durban.widget
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.ScaleGestureDetector;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.util.AttributeSet
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import com.yanzhenjie.durban.widget.RotationGestureDetector.OnRotationGestureListener
+import kotlin.math.pow
 
 /**
- * 最终对外使用的裁剪View
+ * 对外使用的裁剪View
  * 具备：单指拖动、双指缩放、双指旋转、双击放大
  */
 @SuppressLint("ClickableViewAccessibility")
-public class GestureCropImageView extends CropImageView {
+class GestureCropImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : CropImageView(context, attrs, defStyleAttr) {
     // 双击放大分步数（默认从最小到最大需要5次双击）
-    private int mDoubleTapScaleSteps = 5;
+    private var mDoubleTapScaleSteps = 5
     // 双指操作的中心点坐标
-    private float mMidPntX, mMidPntY;
+    private var mMidPntX = 0f
+    private var mMidPntY = 0f
     // 是否允许旋转、缩放
-    private boolean mIsRotateEnabled = true, mIsScaleEnabled = true;
+    private var mIsRotateEnabled = true
+    private var mIsScaleEnabled = true
     // 系统缩放手势检测器
-    private ScaleGestureDetector mScaleDetector;
+    private var mScaleDetector: ScaleGestureDetector? = null
     // 自定义旋转手势检测器
-    private RotationGestureDetector mRotateDetector;
+    private var mRotateDetector: RotationGestureDetector? = null
     // 系统手势检测器（拖动、双击、长按等）
-    private GestureDetector mGestureDetector;
-    // 双击放大动画时长
-    private static final int DOUBLE_TAP_ZOOM_DURATION = 200;
+    private var mGestureDetector: GestureDetector? = null
 
-    public GestureCropImageView(Context context) {
-        super(context);
-    }
-
-    public GestureCropImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public GestureCropImageView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
+    companion object {
+        // 双击放大动画时长
+        private const val DOUBLE_TAP_ZOOM_DURATION = 200
     }
 
     /**
-     * 初始化：调用父类初始化 + 初始化手势
+     * 初始化手势
      */
-    @Override
-    protected void init() {
-        super.init();
-        setupGestureListeners();
-    }
-
-    /**
-     * 初始化所有手势监听器
-     */
-    private void setupGestureListeners() {
-        mGestureDetector = new GestureDetector(getContext(), new GestureListener(), null, true);
-        mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
-        mRotateDetector = new RotationGestureDetector(new RotateListener());
+    init {
+        setupGestureListeners()
     }
 
     /**
      * 触摸事件统一分发入口
      * 处理：按下取消动画、多点计算中心点、手势分发、抬起自动对齐
      */
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         // 手指按下时，取消所有正在执行的动画
-        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
-            cancelAllAnimations();
+        if ((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_DOWN) {
+            cancelAllAnimations()
         }
         // 双指操作时，计算两指中心点
-        if (event.getPointerCount() > 1) {
-            mMidPntX = (event.getX(0) + event.getX(1)) / 2;
-            mMidPntY = (event.getY(0) + event.getY(1)) / 2;
+        if (event.pointerCount > 1) {
+            mMidPntX = (event.getX(0) + event.getX(1)) / 2
+            mMidPntY = (event.getY(0) + event.getY(1)) / 2
         }
         // 分发事件给单击/双击/滑动检测器
-        mGestureDetector.onTouchEvent(event);
+        mGestureDetector?.onTouchEvent(event)
         // 开启缩放时，分发缩放事件
         if (mIsScaleEnabled) {
-            mScaleDetector.onTouchEvent(event);
+            mScaleDetector?.onTouchEvent(event)
         }
         // 开启旋转时，分发旋转事件
         if (mIsRotateEnabled) {
-            mRotateDetector.onTouchEvent(event);
+            mRotateDetector?.onTouchEvent(event)
         }
         // 手指抬起时，让图片自动对齐裁剪框
-        if ((event.getAction() & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
-            setImageToWrapCropBounds();
+        if ((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_UP) {
+            setImageToWrapCropBounds()
         }
-        return true;
-    }
-
-    /**
-     * 计算双击后的目标缩放值
-     */
-    protected float getDoubleTapTargetScale() {
-        return getCurrentScale() * (float) Math.pow(getMaxScale() / getMinScale(), 1.0f / mDoubleTapScaleSteps);
+        return true
     }
 
     /**
      * 是否允许缩放
      */
-    public void setScaleEnabled(boolean scaleEnabled) {
-        mIsScaleEnabled = scaleEnabled;
+    fun setScaleEnabled(scaleEnabled: Boolean) {
+        mIsScaleEnabled = scaleEnabled
     }
 
-    public boolean isScaleEnabled() {
-        return mIsScaleEnabled;
+    fun isScaleEnabled(): Boolean {
+        return mIsScaleEnabled
     }
 
     /**
      * 是否允许旋转
      */
-    public void setRotateEnabled(boolean rotateEnabled) {
-        mIsRotateEnabled = rotateEnabled;
+    fun setRotateEnabled(rotateEnabled: Boolean) {
+        mIsRotateEnabled = rotateEnabled
     }
 
-    public boolean isRotateEnabled() {
-        return mIsRotateEnabled;
+    fun isRotateEnabled(): Boolean {
+        return mIsRotateEnabled
     }
 
     /**
      * 双击放大需要几步达到最大缩放
      */
-    public void setDoubleTapScaleSteps(int doubleTapScaleSteps) {
-        mDoubleTapScaleSteps = doubleTapScaleSteps;
+    fun setDoubleTapScaleSteps(doubleTapScaleSteps: Int) {
+        mDoubleTapScaleSteps = doubleTapScaleSteps
     }
 
-    public int getDoubleTapScaleSteps() {
-        return mDoubleTapScaleSteps;
+    fun getDoubleTapScaleSteps(): Int {
+        return mDoubleTapScaleSteps
+    }
+
+    /**
+     * 初始化所有手势监听器
+     */
+    private fun setupGestureListeners() {
+        mGestureDetector = GestureDetector(context, GestureListener(), null, true)
+        mScaleDetector = ScaleGestureDetector(context, ScaleListener())
+        mRotateDetector = RotationGestureDetector(RotateListener())
+    }
+
+    /**
+     * 计算双击后的目标缩放值
+     */
+    private fun getDoubleTapTargetScale(): Float {
+        return getCurrentScale() * (getMaxScale() / getMinScale()).toDouble().pow((1.0f / mDoubleTapScaleSteps).toDouble()).toFloat()
     }
 
     /**
      * 缩放手势监听
      */
-    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
-        @Override
-        public boolean onScale(ScaleGestureDetector detector) {
+    private inner class ScaleListener: SimpleOnScaleGestureListener(){
+
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
             // 执行双指缩放，以双指中心为中心点
-            postScale(detector.getScaleFactor(), mMidPntX, mMidPntY);
-            return true;
+            postScale(detector.getScaleFactor(), mMidPntX, mMidPntY)
+            return true
         }
     }
 
-    /**
-     * 单击/双击/滑动手势监听
-     */
-    private class GestureListener extends GestureDetector.SimpleOnGestureListener {
-        @Override
-        public boolean onDoubleTap(MotionEvent e) {
+    private inner class GestureListener: SimpleOnGestureListener(){
+
+        override fun onDoubleTap(e: MotionEvent): Boolean {
             // 双击放大
-            zoomImageToPosition(getDoubleTapTargetScale(), e.getX(), e.getY(), DOUBLE_TAP_ZOOM_DURATION);
-            return super.onDoubleTap(e);
+            zoomImageToPosition(getDoubleTapTargetScale(), e.x, e.y, DOUBLE_TAP_ZOOM_DURATION.toLong())
+            return super.onDoubleTap(e)
         }
 
-        @Override
-        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             // 单指滑动拖动图片
-            postTranslate(-distanceX, -distanceY);
-            return true;
+            postTranslate(-distanceX, -distanceY)
+            return true
         }
     }
 
     /**
      * 旋转手势监听
      */
-    private class RotateListener implements RotationGestureDetector.OnRotationGestureListener {
-        @Override
-        public boolean onRotation(RotationGestureDetector rotationDetector) {
+    private inner class RotateListener: OnRotationGestureListener{
+        override fun onRotation(rotationDetector: RotationGestureDetector): Boolean {
             // 执行双指旋转，以双指中心为旋转中心
-            postRotate(rotationDetector.getAngle(), mMidPntX, mMidPntY);
-            return true;
+            postRotate(rotationDetector.getAngle(), mMidPntX, mMidPntY)
+            return true
         }
     }
 

@@ -11,7 +11,7 @@ import android.graphics.drawable.Drawable
  * 高效 Bitmap 绘制 Drawable
  * 作用：裁剪界面中专门用来显示图片的高性能组件
  */
-class FastBitmapDrawable(b: Bitmap) : Drawable() {
+class FastBitmapDrawable(b: Bitmap?) : Drawable() {
     private var mWidth = 0
     private var mHeight = 0
     private var mAlpha = 255

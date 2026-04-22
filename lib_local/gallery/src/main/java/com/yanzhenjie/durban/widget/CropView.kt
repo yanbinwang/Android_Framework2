@@ -36,9 +36,11 @@ class CropView @JvmOverloads constructor(context: Context, attrs: AttributeSet? 
             mGestureCropImageView.processStyledAttributes(this)
         }
         // 图片的裁剪比例变化 → 通知遮罩层更新
-        mGestureCropImageView.setCropBoundsChangeListener {
-            mViewOverlay.setTargetAspectRatio(it)
-        }
+        mGestureCropImageView.setCropBoundsChangeListener(object : CropImageView.OnCropBoundsChangeListener {
+            override fun onCropAspectRatioChanged(cropRatio: Float) {
+                mViewOverlay.setTargetAspectRatio(cropRatio)
+            }
+        })
         // 遮罩层的裁剪框变化 → 通知图片层更新
         mViewOverlay.setOverlayViewChangeListener {
             mGestureCropImageView.setCropRect(it)

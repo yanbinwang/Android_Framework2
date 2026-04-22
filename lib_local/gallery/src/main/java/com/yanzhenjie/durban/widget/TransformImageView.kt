@@ -1,346 +1,302 @@
-package com.yanzhenjie.durban.widget;
+package com.yanzhenjie.durban.widget
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.RectF;
-import android.graphics.drawable.Drawable;
-import android.util.AttributeSet;
-import android.util.Log;
-
-import androidx.annotation.IntRange;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageView;
-
-import com.yanzhenjie.durban.app.data.BitmapLoadCallback;
-import com.yanzhenjie.durban.app.data.BitmapLoadTask;
-import com.yanzhenjie.durban.model.ExifInfo;
-import com.yanzhenjie.durban.utils.BitmapLoadUtil;
-import com.yanzhenjie.durban.utils.RectUtil;
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.graphics.RectF
+import android.util.AttributeSet
+import androidx.annotation.IntRange
+import androidx.appcompat.widget.AppCompatImageView
+import com.yanzhenjie.durban.app.data.BitmapLoadCallback
+import com.yanzhenjie.durban.app.data.BitmapLoadTask
+import com.yanzhenjie.durban.model.ExifInfo
+import com.yanzhenjie.durban.utils.BitmapLoadUtil.calculateMaxBitmapSize
+import com.yanzhenjie.durban.utils.RectUtil.getCenterFromRect
+import com.yanzhenjie.durban.utils.RectUtil.getCornersFromRect
+import kotlin.math.atan2
+import kotlin.math.pow
+import kotlin.math.sqrt
 
 /**
  * 图片变换【基类】
  * 功能：图片加载、矩阵变换（移动/缩放/旋转）、坐标计算
  * 所有裁剪View的父类
  */
-public class TransformImageView extends AppCompatImageView {
+open class TransformImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
     // 图片最大尺寸（防止OOM）
-    private int mMaxBitmapSize = 0;
-    // 图片路径 / 输出目录 / 图片信息（旋转、翻转）
-    private String mImagePath, mOutputDirectory;
-    private ExifInfo mExifInfo;
-    // 图片初始状态：四个角坐标、中心点坐标
-    private float[] mInitialImageCorners;
-    private float[] mInitialImageCenter;
+    private var mMaxBitmapSize = 0
+    // 图片路径
+    private var mImagePath: String? = null
+    // 输出目录
+    private var mOutputDirectory: String? = null
+    // 图片信息（旋转、翻转）
+    private var mExifInfo: ExifInfo? = null
     // 加载线程
-    private BitmapLoadTask mBitmapLoadTask;
-    // 常量：坐标点数量
-    private static final String TAG = "TransformImageView";
-    // 常量：坐标点数量
-    private static final int RECT_CORNER_POINTS_COORDS = 8;
-    // 中心点 → x,y
-    private static final int RECT_CENTER_POINT_COORDS = 2;
-    // 矩阵一共9个值
-    private static final int MATRIX_VALUES_COUNT = 9;
+    private var mBitmapLoadTask: BitmapLoadTask? = null
+    // 图片初始状态：四个角坐标、中心点坐标
+    private var mInitialImageCorners = floatArrayOf()
+    private var mInitialImageCenter = floatArrayOf()
     // 临时存储矩阵数据（避免重复创建对象）
-    private final float[] mMatrixValues = new float[MATRIX_VALUES_COUNT];
+    private val mMatrixValues = FloatArray(MATRIX_VALUES_COUNT)
+
     // View自身宽高
-    protected int mThisWidth, mThisHeight;
+    protected var mThisWidth = 0
+    protected var mThisHeight = 0
     // 状态标记：是否解码完成 / 是否布局完成
-    protected boolean mBitmapDecoded = false;
-    protected boolean mBitmapLaidOut = false;
+    protected var mBitmapDecoded = false
+    protected var mBitmapLaidOut = false
     // 图片变换监听（加载、旋转、缩放）
-    protected TransformImageListener mTransformImageListener;
+    protected var mTransformImageListener: TransformImageListener? = null
     // 当前图片矩阵（核心：所有变换都存在这里）
-    protected Matrix mCurrentImageMatrix = new Matrix();
+    protected var mCurrentImageMatrix = Matrix()
     // 当前图片四个角坐标 / 中心点坐标
-    protected final float[] mCurrentImageCorners = new float[RECT_CORNER_POINTS_COORDS];
-    protected final float[] mCurrentImageCenter = new float[RECT_CENTER_POINT_COORDS];
+    protected val mCurrentImageCorners = FloatArray(RECT_CORNER_POINTS_COORDS)
+    protected val mCurrentImageCenter = FloatArray(RECT_CENTER_POINT_COORDS)
 
-    public TransformImageView(Context context) {
-        this(context, null);
-    }
-
-    public TransformImageView(Context context, AttributeSet attrs) {
-        this(context, attrs, 0);
-    }
-
-    public TransformImageView(Context context, AttributeSet attrs, int defStyle) {
-        super(context, attrs, defStyle);
-        init();
+    companion object {
+        // 常量：坐标点数量
+        private const val RECT_CORNER_POINTS_COORDS = 8
+        // 中心点 → x,y
+        private const val RECT_CENTER_POINT_COORDS = 2
+        // 矩阵一共9个值
+        private const val MATRIX_VALUES_COUNT = 9
     }
 
     /**
      * 初始化设置
      */
-    protected void init() {
-        setScaleType(ScaleType.MATRIX);
+    init {
+        setScaleType(ScaleType.MATRIX)
     }
 
     /**
      * 强制使用 MATRIX 模式
      * 因为只有矩阵才能自由缩放旋转
      */
-    @Override
-    public void setScaleType(ScaleType scaleType) {
+    override fun setScaleType(scaleType: ScaleType?) {
         if (scaleType == ScaleType.MATRIX) {
-            super.setScaleType(scaleType);
-        } else {
-            Log.w(TAG, "Invalid ScaleType. Only ScaleType.MATRIX can be used");
+            super.setScaleType(scaleType)
         }
     }
 
     /**
      * 设置 Bitmap
      */
-    @Override
-    public void setImageBitmap(final Bitmap bitmap) {
-        setImageDrawable(new FastBitmapDrawable(bitmap));
+    override fun setImageBitmap(bm: Bitmap?) {
+        setImageDrawable(FastBitmapDrawable(bm))
     }
 
     /**
      * 设置矩阵，并更新坐标
      */
-    @Override
-    public void setImageMatrix(Matrix matrix) {
-        super.setImageMatrix(matrix);
-        mCurrentImageMatrix.set(matrix);
-        updateCurrentImagePoints();
-    }
-
-    /**
-     * 根据矩阵，实时更新图片四个角和中心点
-     */
-    private void updateCurrentImagePoints() {
-        mCurrentImageMatrix.mapPoints(mCurrentImageCorners, mInitialImageCorners);
-        mCurrentImageMatrix.mapPoints(mCurrentImageCenter, mInitialImageCenter);
+    override fun setImageMatrix(matrix: Matrix?) {
+        super.setImageMatrix(matrix)
+        mCurrentImageMatrix.set(matrix)
+        // 根据矩阵，实时更新图片四个角和中心点
+        mCurrentImageMatrix.mapPoints(mCurrentImageCorners, mInitialImageCorners)
+        mCurrentImageMatrix.mapPoints(mCurrentImageCenter, mInitialImageCenter)
     }
 
     /**
      * View布局完成
      */
-    @Override
-    protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
-        super.onLayout(changed, left, top, right, bottom);
+    override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
+        super.onLayout(changed, left, top, right, bottom)
         if (changed || (mBitmapDecoded && !mBitmapLaidOut)) {
-            left = getPaddingLeft();
-            top = getPaddingTop();
-            right = getWidth() - getPaddingRight();
-            bottom = getHeight() - getPaddingBottom();
-            mThisWidth = right - left;
-            mThisHeight = bottom - top;
-            onImageLaidOut();
+            mThisWidth = (width - getPaddingRight()) - getPaddingLeft()
+            mThisHeight = (height - paddingBottom) - paddingTop
+            onImageLaidOut()
         }
     }
 
     /**
      * 销毁
      */
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        if (mBitmapLoadTask != null) {
-            mBitmapLoadTask.cancel(true);
-            mBitmapLoadTask = null;
-        }
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        mBitmapLoadTask?.cancel(true)
+        mBitmapLoadTask = null
     }
 
     /**
      * 图片布局完成 → 记录初始坐标
      */
-    protected void onImageLaidOut() {
-        final Drawable drawable = getDrawable();
-        if (drawable == null) {
-            return;
-        }
-        float w = drawable.getIntrinsicWidth();
-        float h = drawable.getIntrinsicHeight();
-        Log.d(TAG, String.format("Image size: [%d:%d]", (int) w, (int) h));
-        RectF initialImageRect = new RectF(0, 0, w, h);
-        mInitialImageCorners = RectUtil.getCornersFromRect(initialImageRect);
-        mInitialImageCenter = RectUtil.getCenterFromRect(initialImageRect);
-        mBitmapLaidOut = true;
-        if (mTransformImageListener != null) {
-            mTransformImageListener.onLoadComplete();
-        }
+    protected open fun onImageLaidOut() {
+        val drawable = getDrawable() ?: return
+        val w = drawable.intrinsicWidth.toFloat()
+        val h = drawable.intrinsicHeight.toFloat()
+        val initialImageRect = RectF(0f, 0f, w, h)
+        mInitialImageCorners = getCornersFromRect(initialImageRect)
+        mInitialImageCenter = getCenterFromRect(initialImageRect)
+        mBitmapLaidOut = true
+        mTransformImageListener?.onLoadComplete()
     }
 
     /**
      * 设置/获取 图片最大尺寸
      */
-    public void setMaxBitmapSize(int maxBitmapSize) {
-        mMaxBitmapSize = maxBitmapSize;
+    fun setMaxBitmapSize(maxBitmapSize: Int) {
+        mMaxBitmapSize = maxBitmapSize
     }
 
-    public int getMaxBitmapSize() {
+    fun getMaxBitmapSize(): Int {
         if (mMaxBitmapSize <= 0) {
-            mMaxBitmapSize = BitmapLoadUtil.calculateMaxBitmapSize(getContext());
+            mMaxBitmapSize = calculateMaxBitmapSize(getContext())
         }
-        return mMaxBitmapSize;
+        return mMaxBitmapSize
     }
 
     /**
      * 获取 / 加载 图片路径 (异步)
      */
-    public void setImagePath(@NonNull String inputImagePath) throws Exception {
-        mImagePath = inputImagePath;
-        int maxBitmapSize = getMaxBitmapSize();
-        if (mBitmapLoadTask != null) {
-            mBitmapLoadTask.cancel(true);
-            mBitmapLoadTask = null;
-        }
-        mBitmapLoadTask = new BitmapLoadTask(getContext(), maxBitmapSize, maxBitmapSize, new BitmapLoadCallback() {
-            @Override
-            public void onSuccessfully(@NonNull Bitmap bitmap, @NonNull ExifInfo exifInfo) {
-                mExifInfo = exifInfo;
-                mBitmapDecoded = true;
-                setImageBitmap(bitmap);
+    @Throws(Exception::class)
+    fun setImagePath(inputImagePath: String) {
+        mImagePath = inputImagePath
+        val maxBitmapSize = getMaxBitmapSize()
+        mBitmapLoadTask?.cancel(true)
+        mBitmapLoadTask = null
+        mBitmapLoadTask = BitmapLoadTask(context, maxBitmapSize, maxBitmapSize, object : BitmapLoadCallback {
+            override fun onSuccessfully(bitmap: Bitmap, exifInfo: ExifInfo) {
+                mExifInfo = exifInfo
+                mBitmapDecoded = true
+                setImageBitmap(bitmap)
             }
 
-            @Override
-            public void onFailure() {
-                if (mTransformImageListener != null) {
-                    mTransformImageListener.onLoadFailure();
-                }
+            override fun onFailure() {
+                mTransformImageListener?.onLoadFailure()
             }
-        });
-        mBitmapLoadTask.execute(inputImagePath);
-    }
-
-    public String getImagePath() {
-        return mImagePath;
+        })
+        mBitmapLoadTask?.execute(inputImagePath)
     }
 
     /**
      * 获取路径、目录、图片信息
      */
-    public void setOutputDirectory(String outputDirectory) {
-        mOutputDirectory = outputDirectory;
+    fun getImagePath(): String? {
+        return mImagePath
     }
 
-    public String getOutputDirectory() {
-        return mOutputDirectory;
+    fun setOutputDirectory(outputDirectory: String?) {
+        mOutputDirectory = outputDirectory
     }
 
-    public ExifInfo getExifInfo() {
-        return mExifInfo;
+    fun getOutputDirectory(): String? {
+        return mOutputDirectory
+    }
+
+    fun getExifInfo(): ExifInfo? {
+        return mExifInfo
     }
 
     /**
      * 获取当前缩放倍数
      */
-    public float getCurrentScale() {
-        return getMatrixScale(mCurrentImageMatrix);
+    fun getCurrentScale(): Float {
+        return getMatrixScale(mCurrentImageMatrix)
     }
 
     /**
      * 获取当前旋转角度
      */
-    public float getCurrentAngle() {
-        return getMatrixAngle(mCurrentImageMatrix);
+    fun getCurrentAngle(): Float {
+        return getMatrixAngle(mCurrentImageMatrix)
     }
 
     /**
      * 公式计算：矩阵 → 缩放值
      */
-    public float getMatrixScale(@NonNull Matrix matrix) {
-        return (float) Math.sqrt(Math.pow(getMatrixValue(matrix, Matrix.MSCALE_X), 2) + Math.pow(getMatrixValue(matrix, Matrix.MSKEW_Y), 2));
+    fun getMatrixScale(matrix: Matrix): Float {
+        return sqrt(getMatrixValue(matrix, Matrix.MSCALE_X).toDouble().pow(2.0) + getMatrixValue(matrix, Matrix.MSKEW_Y).toDouble().pow(2.0)).toFloat()
     }
 
     /**
      * 公式计算：矩阵 → 角度
      */
-    public float getMatrixAngle(@NonNull Matrix matrix) {
-        return (float) -(Math.atan2(getMatrixValue(matrix, Matrix.MSKEW_X), getMatrixValue(matrix, Matrix.MSCALE_X)) * (180 / Math.PI));
+    fun getMatrixAngle(matrix: Matrix): Float {
+        return -(atan2(getMatrixValue(matrix, Matrix.MSKEW_X).toDouble(), getMatrixValue(matrix, Matrix.MSCALE_X).toDouble()) * (180 / Math.PI)).toFloat()
     }
 
     /**
      * 获取矩阵中某个值
      */
-    private float getMatrixValue(@NonNull Matrix matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT) int valueIndex) {
-        matrix.getValues(mMatrixValues);
-        return mMatrixValues[valueIndex];
+    private fun getMatrixValue(matrix: Matrix, @IntRange(from = 0, to = MATRIX_VALUES_COUNT.toLong()) valueIndex: Int): Float {
+        matrix.getValues(mMatrixValues)
+        return mMatrixValues[valueIndex]
     }
 
     /**
      * 获取当前显示的Bitmap
      */
-    @Nullable
-    public Bitmap getViewBitmap() {
-        if (getDrawable() == null || !(getDrawable() instanceof FastBitmapDrawable)) {
-            return null;
+    fun getViewBitmap(): Bitmap? {
+        return if (getDrawable() == null || getDrawable() !is FastBitmapDrawable) {
+            null
         } else {
-            return ((FastBitmapDrawable) getDrawable()).getBitmap();
+            (getDrawable() as FastBitmapDrawable).getBitmap()
         }
     }
 
     /**
      * 移动图片
      */
-    public void postTranslate(float deltaX, float deltaY) {
-        if (deltaX != 0 || deltaY != 0) {
-            mCurrentImageMatrix.postTranslate(deltaX, deltaY);
-            setImageMatrix(mCurrentImageMatrix);
+    fun postTranslate(deltaX: Float, deltaY: Float) {
+        if (deltaX != 0f || deltaY != 0f) {
+            mCurrentImageMatrix.postTranslate(deltaX, deltaY)
+            setImageMatrix(mCurrentImageMatrix)
         }
     }
 
     /**
      * 缩放图片
      */
-    public void postScale(float deltaScale, float px, float py) {
-        if (deltaScale != 0) {
-            mCurrentImageMatrix.postScale(deltaScale, deltaScale, px, py);
-            setImageMatrix(mCurrentImageMatrix);
-            if (mTransformImageListener != null) {
-                mTransformImageListener.onScale(getMatrixScale(mCurrentImageMatrix));
-            }
+    open fun postScale(deltaScale: Float, px: Float, py: Float) {
+        if (deltaScale != 0f) {
+            mCurrentImageMatrix.postScale(deltaScale, deltaScale, px, py)
+            setImageMatrix(mCurrentImageMatrix)
+            mTransformImageListener?.onScale(getMatrixScale(mCurrentImageMatrix))
         }
     }
 
     /**
      * 旋转图片
      */
-    public void postRotate(float deltaAngle, float px, float py) {
-        if (deltaAngle != 0) {
-            mCurrentImageMatrix.postRotate(deltaAngle, px, py);
-            setImageMatrix(mCurrentImageMatrix);
-            if (mTransformImageListener != null) {
-                mTransformImageListener.onRotate(getMatrixAngle(mCurrentImageMatrix));
-            }
+    fun postRotate(deltaAngle: Float, px: Float, py: Float) {
+        if (deltaAngle != 0f) {
+            mCurrentImageMatrix.postRotate(deltaAngle, px, py)
+            setImageMatrix(mCurrentImageMatrix)
+            mTransformImageListener?.onRotate(getMatrixAngle(mCurrentImageMatrix))
         }
     }
 
     /**
      * 设置监听
      */
-    public void setTransformImageListener(TransformImageListener transformImageListener) {
-        mTransformImageListener = transformImageListener;
+    fun setTransformImageListener(transformImageListener: TransformImageListener) {
+        mTransformImageListener = transformImageListener
     }
 
     /**
      * 图片状态监听接口
      */
-    public interface TransformImageListener {
+    interface TransformImageListener {
         /**
          * 加载完成
          */
-        void onLoadComplete();
+        fun onLoadComplete()
 
         /**
          * 加载失败
          */
-        void onLoadFailure();
+        fun onLoadFailure()
 
         /**
          * 旋转回调
          */
-        void onRotate(float currentAngle);
+        fun onRotate(currentAngle: Float)
 
         /**
          * 缩放回调
          */
-        void onScale(float currentScale);
+        fun onScale(currentScale: Float)
     }
 
 }

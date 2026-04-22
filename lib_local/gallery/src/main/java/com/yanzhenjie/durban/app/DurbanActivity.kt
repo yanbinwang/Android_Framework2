@@ -25,10 +25,13 @@ import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.app.data.BitmapCropCallback
 import com.yanzhenjie.durban.model.Controller
-import com.yanzhenjie.durban.widget.TransformImageView
+import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION
+import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_MAX_BITMAP_SIZE
+import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_MAX_SCALE_MULTIPLIER
+import com.yanzhenjie.durban.widget.CropImageView.Companion.SOURCE_IMAGE_ASPECT_RATIO
 import com.yanzhenjie.durban.widget.CropView
-import com.yanzhenjie.durban.widget.GestureCropImageView
 import com.yanzhenjie.durban.widget.OverlayView
+import com.yanzhenjie.durban.widget.TransformImageView
 
 /**
  * 图片裁剪页
@@ -113,14 +116,14 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
 
     private fun initContentViews() {
         // 设置输出目录
-        mCropImageView.outputDirectory = mOutputDirectory
+        mCropImageView.setOutputDirectory(mOutputDirectory)
         // 是否允许缩放
-        mCropImageView.isScaleEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE
+        mCropImageView.setScaleEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE)
         // 是否允许旋转
-        mCropImageView.isRotateEnabled = mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE
-        mCropImageView.maxBitmapSize = GestureCropImageView.DEFAULT_MAX_BITMAP_SIZE
-        mCropImageView.setMaxScaleMultiplier(GestureCropImageView.DEFAULT_MAX_SCALE_MULTIPLIER)
-        mCropImageView.setImageToWrapCropBoundsAnimDuration(GestureCropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
+        mCropImageView.setRotateEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE)
+        mCropImageView.setMaxBitmapSize(DEFAULT_MAX_BITMAP_SIZE)
+        mCropImageView.setMaxScaleMultiplier(DEFAULT_MAX_SCALE_MULTIPLIER)
+        mCropImageView.setImageToWrapCropBoundsAnimDuration(DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
         // 图片加载监听
         mCropImageView.setTransformImageListener(object : TransformImageView.TransformImageListener {
             override fun onLoadComplete() {
@@ -158,7 +161,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])
         } else {
-            mCropImageView.setTargetAspectRatio(GestureCropImageView.SOURCE_IMAGE_ASPECT_RATIO)
+            mCropImageView.setTargetAspectRatio(SOURCE_IMAGE_ASPECT_RATIO)
         }
         // 设置输出最大宽高
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
@@ -249,7 +252,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      */
     private fun cropNextImage() {
         // 重置图片旋转角度
-        mCropImageView.postRotate(-mCropImageView.currentAngle)
+        mCropImageView.postRotate(-mCropImageView.getCurrentAngle())
         mCropImageView.setImageToWrapCropBounds()
         // 加载图片并裁剪
         if (!mInputPathList.isEmpty()) {
