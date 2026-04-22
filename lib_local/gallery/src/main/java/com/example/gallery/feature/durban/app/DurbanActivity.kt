@@ -207,9 +207,9 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         okItem?.title = ""
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
-            val doneIcon = ContextCompat.getDrawable(this, R.mipmap.gallery_ic_done)
+            val doneIcon = drawable(R.mipmap.gallery_ic_done)
             if (null != doneIcon) {
-                doneIcon.setTint(ContextCompat.getColor(this, R.color.galleryIconDark))
+                doneIcon.setTint(color(R.color.galleryIconDark))
                 // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
                 val okView = okItem?.actionView
                 okView?.background = doneIcon
