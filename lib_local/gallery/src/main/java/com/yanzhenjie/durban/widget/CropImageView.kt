@@ -155,7 +155,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     /**
      * 裁剪并保存图片
      */
-    fun cropAndSaveImage(compressFormat: CompressFormat, compressQuality: Int, cropCallback: BitmapCropCallback?) {
+    fun cropAndSaveImage(compressFormat: CompressFormat, compressQuality: Int, cropCallback: BitmapCropCallback) {
         // 取消所有动画
         cancelAllAnimations()
         // 让图片适应裁剪框

@@ -24,6 +24,7 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.durban.Durban
 import com.yanzhenjie.durban.app.data.BitmapCropCallback
+import com.yanzhenjie.durban.app.data.DurbanTask
 import com.yanzhenjie.durban.model.Controller
 import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION
 import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_MAX_BITMAP_SIZE
@@ -65,6 +66,8 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     // 裁剪视图
     private val mCropView by lazy { findViewById<CropView>(R.id.crop_view) }
     private val mCropImageView by lazy { mCropView.getCropImageView() }
+    // 裁剪全局任务
+    private val mTask by lazy { DurbanTask(this) }
 
     override fun isImmersionBarEnabled() = false
 
