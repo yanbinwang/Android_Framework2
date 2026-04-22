@@ -12,10 +12,7 @@ import kotlinx.coroutines.withContext
  * 图片加载异步任务
  * 作用：在子线程中按指定大小压缩加载图片，并自动纠正图片旋转方向
  */
-class DurbanLoad(
-    private val requiredWidth: Int,
-    private val requiredHeight: Int
-) {
+class DurbanLoad(private val requiredWidth: Int, private val requiredHeight: Int) {
 
     /**
      * 加载图片
@@ -27,9 +24,7 @@ class DurbanLoad(
             options.inJustDecodeBounds = true
             BitmapFactory.decodeFile(imagePath, options)
             // 图片无效
-            if (options.outWidth == -1 || options.outHeight == -1) {
-                throw AssertionError("图片无效")
-            }
+            if (options.outWidth == -1 || options.outHeight == -1) throw AssertionError("图片无效")
             // 计算缩放比例
             options.inSampleSize = BitmapLoadUtil.calculateInSampleSize(options, requiredWidth, requiredHeight)
             options.inJustDecodeBounds = false
