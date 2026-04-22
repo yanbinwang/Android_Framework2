@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget
+package com.example.gallery.feature.durban.widget
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

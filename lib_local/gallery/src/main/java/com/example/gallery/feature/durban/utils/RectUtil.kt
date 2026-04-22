@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.utils
+package com.example.gallery.feature.durban.utils
 
 import android.graphics.RectF
 import kotlin.math.max

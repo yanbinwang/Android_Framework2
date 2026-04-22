@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget
+package com.example.gallery.feature.durban.widget
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -7,12 +7,12 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import androidx.appcompat.widget.AppCompatImageView
-import com.yanzhenjie.durban.app.data.DurbanLoad
-import com.yanzhenjie.durban.app.data.DurbanTask
-import com.yanzhenjie.durban.model.ExifInfo
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.calculateMaxBitmapSize
-import com.yanzhenjie.durban.utils.RectUtil.getCenterFromRect
-import com.yanzhenjie.durban.utils.RectUtil.getCornersFromRect
+import com.example.gallery.feature.durban.app.data.DurbanLoad
+import com.example.gallery.feature.durban.app.data.DurbanTask
+import com.example.gallery.feature.durban.model.ExifInfo
+import com.example.gallery.feature.durban.utils.BitmapLoadUtil
+import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
+import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -130,7 +130,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
 
     fun getMaxBitmapSize(): Int {
         if (mMaxBitmapSize <= 0) {
-            mMaxBitmapSize = calculateMaxBitmapSize(context)
+            mMaxBitmapSize = BitmapLoadUtil.calculateMaxBitmapSize(context)
         }
         return mMaxBitmapSize
     }

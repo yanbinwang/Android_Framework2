@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget
+package com.example.gallery.feature.durban.widget
 
 import android.content.Context
 import android.content.res.TypedArray
@@ -8,15 +8,14 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import com.example.gallery.R
-import com.yanzhenjie.durban.app.data.DurbanCrop
-import com.yanzhenjie.durban.app.data.DurbanTask
-import com.yanzhenjie.durban.model.CropParameters
-import com.yanzhenjie.durban.model.ImageState
-import com.yanzhenjie.durban.utils.CubicEasing.easeInOut
-import com.yanzhenjie.durban.utils.CubicEasing.easeOut
-import com.yanzhenjie.durban.utils.RectUtil.getCornersFromRect
-import com.yanzhenjie.durban.utils.RectUtil.getRectSidesFromCorners
-import com.yanzhenjie.durban.utils.RectUtil.trapToRect
+import com.example.gallery.feature.durban.app.data.DurbanCrop
+import com.example.gallery.feature.durban.app.data.DurbanTask
+import com.example.gallery.feature.durban.model.CropParameters
+import com.example.gallery.feature.durban.model.ImageState
+import com.example.gallery.feature.durban.utils.CubicEasing
+import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
+import com.example.gallery.feature.durban.utils.RectUtil.getRectSidesFromCorners
+import com.example.gallery.feature.durban.utils.RectUtil.trapToRect
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
@@ -153,9 +152,22 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         // 让图片适应裁剪框
         setImageToWrapCropBounds(false)
         // 封装当前图片状态
-        val imageState = ImageState(mCropRect, trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle())
+        val imageState = ImageState(
+            mCropRect,
+            trapToRect(mCurrentImageCorners),
+            getCurrentScale(),
+            getCurrentAngle()
+        )
         // 封装裁剪参数
-        val cropParameters = CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo())
+        val cropParameters = CropParameters(
+            mMaxResultImageSizeX,
+            mMaxResultImageSizeY,
+            compressFormat,
+            compressQuality,
+            getImagePath(),
+            getOutputDirectory(),
+            getExifInfo()
+        )
         // 异步裁剪并保存
         val bitmap = getViewBitmap()
         if (null != bitmap) {
@@ -422,9 +434,9 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
             val cropImageView = cropImageView.get() ?: return
             val now = System.currentTimeMillis()
             val currentMs = min(durationMs, now - startTime).toFloat()
-            val newX = easeOut(currentMs, 0f, centerDiffX, durationMs.toFloat())
-            val newY = easeOut(currentMs, 0f, centerDiffY, durationMs.toFloat())
-            val newScale = easeInOut(currentMs, 0f, deltaScale, durationMs.toFloat())
+            val newX = CubicEasing.easeOut(currentMs, 0f, centerDiffX, durationMs.toFloat())
+            val newY = CubicEasing.easeOut(currentMs, 0f, centerDiffY, durationMs.toFloat())
+            val newScale = CubicEasing.easeInOut(currentMs, 0f, deltaScale, durationMs.toFloat())
             if (currentMs < durationMs) {
                 cropImageView.postTranslate(
                     newX - (cropImageView.mCurrentImageCenter[0] - oldX),
@@ -462,7 +474,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
             val cropImageView = cropImageView.get() ?: return
             val now = System.currentTimeMillis()
             val currentMs = min(durationMs, now - startTime).toFloat()
-            val newScale = easeInOut(currentMs, 0f, deltaScale, durationMs.toFloat())
+            val newScale = CubicEasing.easeInOut(currentMs, 0f, deltaScale, durationMs.toFloat())
             if (currentMs < durationMs) {
                 cropImageView.zoomInImage(oldScale + newScale, destX, destY)
                 cropImageView.post(this)

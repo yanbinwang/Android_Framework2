@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.utils
+package com.example.gallery.feature.durban.utils
 
 import java.io.IOException
 import java.io.InputStream

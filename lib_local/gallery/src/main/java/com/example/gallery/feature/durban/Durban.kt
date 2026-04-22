@@ -1,15 +1,14 @@
-package com.yanzhenjie.durban
+package com.example.gallery.feature.durban
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import androidx.annotation.ColorRes
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.yanzhenjie.durban.app.DurbanActivity
-import com.yanzhenjie.durban.model.Controller
+import com.example.gallery.feature.durban.app.DurbanActivity
+import com.example.gallery.feature.durban.model.Controller
 
 /**
  * 图片裁剪入口类（链式调用裁剪配置）

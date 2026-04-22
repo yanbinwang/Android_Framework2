@@ -1,15 +1,14 @@
-package com.yanzhenjie.durban.app.data
+package com.example.gallery.feature.durban.app.data
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.graphics.RectF
 import android.media.ExifInterface
 import androidx.core.graphics.scale
-import com.yanzhenjie.durban.model.CropParameters
-import com.yanzhenjie.durban.model.ImageState
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.copyExif
-import com.yanzhenjie.durban.utils.FileUtil
-import com.yanzhenjie.durban.utils.FileUtil.copyFile
+import com.example.gallery.feature.durban.model.CropParameters
+import com.example.gallery.feature.durban.model.ImageState
+import com.example.gallery.feature.durban.utils.BitmapLoadUtil
+import com.example.gallery.feature.durban.utils.FileUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -104,11 +103,16 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
                 // 如果是JPG，复制EXIF信息
                 if (mCompressFormat == Bitmap.CompressFormat.JPEG) {
                     val originalExif = ExifInterface(mInputImagePath)
-                    copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, outputImagePath)
+                    BitmapLoadUtil.copyExif(
+                        originalExif,
+                        mCroppedImageWidth,
+                        mCroppedImageHeight,
+                        outputImagePath
+                    )
                 }
             } else {
                 // 无需裁剪，直接复制文件
-                copyFile(mInputImagePath, outputImagePath)
+                FileUtil.copyFile(mInputImagePath, outputImagePath)
             }
             // 回收图片
             if (!mViewBitmap.isRecycled) {

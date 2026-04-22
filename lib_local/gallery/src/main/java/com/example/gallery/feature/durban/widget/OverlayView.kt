@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget
+package com.example.gallery.feature.durban.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -16,8 +16,8 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
 import com.example.gallery.R
-import com.yanzhenjie.durban.utils.RectUtil.getCenterFromRect
-import com.yanzhenjie.durban.utils.RectUtil.getCornersFromRect
+import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
+import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow

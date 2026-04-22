@@ -1,14 +1,10 @@
-package com.yanzhenjie.durban.app.data
+package com.example.gallery.feature.durban.app.data
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import com.yanzhenjie.durban.model.ExifInfo
-import com.yanzhenjie.durban.utils.BitmapLoadUtil
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.calculateInSampleSize
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.exifToDegrees
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.exifToTranslation
-import com.yanzhenjie.durban.utils.BitmapLoadUtil.getExifOrientation
+import com.example.gallery.feature.durban.model.ExifInfo
+import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 
@@ -35,7 +31,8 @@ class DurbanLoad(
                 throw AssertionError("图片无效")
             }
             // 计算缩放比例
-            options.inSampleSize = calculateInSampleSize(options, requiredWidth, requiredHeight)
+            options.inSampleSize =
+                BitmapLoadUtil.calculateInSampleSize(options, requiredWidth, requiredHeight)
             options.inJustDecodeBounds = false
             var decodeSampledBitmap: Bitmap? = null
             var decodeAttemptSuccess = false
@@ -50,9 +47,9 @@ class DurbanLoad(
             }
             decodeSampledBitmap ?: throw AssertionError("图片加载失败")
             // 读取图片EXIF信息（旋转、方向）
-            val exifOrientation = getExifOrientation(imagePath)
-            val exifDegrees = exifToDegrees(exifOrientation)
-            val exifTranslation = exifToTranslation(exifOrientation)
+            val exifOrientation = BitmapLoadUtil.getExifOrientation(imagePath)
+            val exifDegrees = BitmapLoadUtil.exifToDegrees(exifOrientation)
+            val exifTranslation = BitmapLoadUtil.exifToTranslation(exifOrientation)
             val exifInfo = ExifInfo(exifOrientation, exifDegrees, exifTranslation)
             // 纠正图片旋转
             val matrix = Matrix()

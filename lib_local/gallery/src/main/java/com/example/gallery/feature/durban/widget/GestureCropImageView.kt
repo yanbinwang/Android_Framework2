@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.widget
+package com.example.gallery.feature.durban.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,7 +8,6 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
-import com.yanzhenjie.durban.widget.RotationGestureDetector.OnRotationGestureListener
 import kotlin.math.pow
 
 /**
@@ -154,7 +153,7 @@ class GestureCropImageView @JvmOverloads constructor(context: Context, attrs: At
     /**
      * 旋转手势监听
      */
-    private inner class RotateListener: OnRotationGestureListener{
+    private inner class RotateListener: RotationGestureDetector.OnRotationGestureListener {
         override fun onRotation(rotationDetector: RotationGestureDetector): Boolean {
             // 执行双指旋转，以双指中心为旋转中心
             postRotate(rotationDetector.getAngle(), mMidPntX, mMidPntY)

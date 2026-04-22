@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.model
+package com.example.gallery.feature.durban.model
 
 /**
  * 图片 EXIF 信息实体类

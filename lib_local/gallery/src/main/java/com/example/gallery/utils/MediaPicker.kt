@@ -22,8 +22,8 @@ import com.example.gallery.feature.album.callback.Action
 import com.example.gallery.feature.album.callback.Filter
 import com.example.gallery.feature.album.model.AlbumFile
 import com.example.gallery.feature.album.model.Widget
-import com.yanzhenjie.durban.Durban
-import com.yanzhenjie.durban.model.Controller
+import com.example.gallery.feature.durban.Durban
+import com.example.gallery.feature.durban.model.Controller
 
 /**
  * author: wyb

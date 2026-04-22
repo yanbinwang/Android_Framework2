@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.model
+package com.example.gallery.feature.durban.model
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize

@@ -1,4 +1,4 @@
-package com.yanzhenjie.durban.app.data
+package com.example.gallery.feature.durban.app.data
 
 import android.graphics.Bitmap
 import androidx.core.content.ContextCompat
@@ -8,8 +8,8 @@ import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.framework.utils.function.doOnDestroy
 import com.example.gallery.R
+import com.example.gallery.feature.durban.model.ExifInfo
 import com.example.gallery.widget.LoadingDialog
-import com.yanzhenjie.durban.model.ExifInfo
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flow
