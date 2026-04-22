@@ -23,7 +23,7 @@ data class AlbumConfig(
     /**
      * 私有构造，通过 Builder 创建实例
      */
-    constructor(builder: Builder) : this(builder.mLoader ?: AlbumLoader.Companion.DEFAULT)
+    constructor(builder: Builder) : this(builder.mLoader ?: AlbumLoader.DEFAULT)
 
     /**
      * 类构建器

@@ -106,7 +106,7 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
     override fun getItemViewType(position: Int): Int {
         if (position == 0) return if (hasCamera) TYPE_BUTTON else TYPE_IMAGE
         val pos = position - if (hasCamera) 1 else 0
-        return if (mAlbumFiles[pos].mediaType == AlbumFile.Companion.TYPE_VIDEO) TYPE_VIDEO else TYPE_IMAGE
+        return if (mAlbumFiles[pos].mediaType == AlbumFile.TYPE_VIDEO) TYPE_VIDEO else TYPE_IMAGE
     }
 
     /**

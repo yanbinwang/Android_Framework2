@@ -81,7 +81,7 @@ object Album {
      */
     @JvmStatic
     fun getAlbumConfig(): AlbumConfig {
-        return sAlbumConfig ?: AlbumConfig.Companion.newBuilder().build()
+        return sAlbumConfig ?: AlbumConfig.newBuilder().build()
     }
 
     /**

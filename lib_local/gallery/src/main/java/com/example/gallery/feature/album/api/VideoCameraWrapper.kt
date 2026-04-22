@@ -44,8 +44,8 @@ class VideoCameraWrapper(context: Context) : BasicCameraWrapper<VideoCameraWrapp
      */
     override fun start() {
         // 静态注入回调
-        CameraActivity.Companion.sResult = mResult
-        CameraActivity.Companion.sCancel = mCancel
+        CameraActivity.sResult = mResult
+        CameraActivity.sCancel = mCancel
         val intent = Intent(mContext, CameraActivity::class.java)
         // 功能 = 录像
         intent.putExtra(Album.KEY_INPUT_FUNCTION, Album.FUNCTION_CAMERA_VIDEO)

@@ -63,11 +63,11 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     private val mDisplayRect = RectF() // 图片显示区域
     private val mMatrixValues = FloatArray(9) // 矩阵数值存储
     // 缩放动画时长
-    private var ZOOM_DURATION = IPhotoView.Companion.DEFAULT_ZOOM_DURATION
+    private var ZOOM_DURATION = IPhotoView.DEFAULT_ZOOM_DURATION
     // 缩放级别配置
-    private var mMinScale = IPhotoView.Companion.DEFAULT_MIN_SCALE // 最小缩放
-    private var mMidScale = IPhotoView.Companion.DEFAULT_MID_SCALE // 中等缩放（双击第一级）
-    private var mMaxScale = IPhotoView.Companion.DEFAULT_MAX_SCALE // 最大缩放
+    private var mMinScale = IPhotoView.DEFAULT_MIN_SCALE // 最小缩放
+    private var mMidScale = IPhotoView.DEFAULT_MID_SCALE // 中等缩放（双击第一级）
+    private var mMaxScale = IPhotoView.DEFAULT_MAX_SCALE // 最大缩放
     // 弱引用持有 ImageView，防止内存泄漏
     private var mImageView: WeakReference<ImageView>? = null
     // 惯性滑动任务
@@ -166,7 +166,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
              * 快速滑动回调
              */
             override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-                if (getScale() > IPhotoView.Companion.DEFAULT_MIN_SCALE) {
+                if (getScale() > IPhotoView.DEFAULT_MIN_SCALE) {
                     return false
                 }
                 if (MotionEventCompat.getPointerCount(e1) > SINGLE_TOUCH || MotionEventCompat.getPointerCount(e2) > SINGLE_TOUCH) {
@@ -341,7 +341,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     }
 
     override fun setZoomTransitionDuration(milliseconds: Int) {
-        ZOOM_DURATION = if (milliseconds < 0) IPhotoView.Companion.DEFAULT_ZOOM_DURATION else milliseconds
+        ZOOM_DURATION = if (milliseconds < 0) IPhotoView.DEFAULT_ZOOM_DURATION else milliseconds
     }
 
     override fun getIPhotoViewImplementation(): IPhotoView {

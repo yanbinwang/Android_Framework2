@@ -39,7 +39,7 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
     // 是否显示拍照按钮
     private val mHasCamera by lazy { intentBoolean(Album.KEY_INPUT_ALLOW_CAMERA) }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.Companion.getDefaultWidget(this) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
     // MVP & UI
     private val mView by lazy { NullView(this, this) }
 

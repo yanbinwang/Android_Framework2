@@ -31,8 +31,7 @@ class DurbanLoad(
                 throw AssertionError("图片无效")
             }
             // 计算缩放比例
-            options.inSampleSize =
-                BitmapLoadUtil.calculateInSampleSize(options, requiredWidth, requiredHeight)
+            options.inSampleSize = BitmapLoadUtil.calculateInSampleSize(options, requiredWidth, requiredHeight)
             options.inJustDecodeBounds = false
             var decodeSampledBitmap: Bitmap? = null
             var decodeAttemptSuccess = false

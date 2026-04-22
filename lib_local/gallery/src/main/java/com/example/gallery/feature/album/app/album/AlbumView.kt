@@ -89,7 +89,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         // 设置返回箭头
         val navigationIcon = getDrawable(R.mipmap.gallery_ic_back)
         // 浅色 / 深色主题 -> 影响图标
-        if (widget.uiStyle == Widget.Companion.STYLE_LIGHT) {
+        if (widget.uiStyle == Widget.STYLE_LIGHT) {
             // 暗色返回 / 完成
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
             val completeIcon = mCompleteMenu?.icon

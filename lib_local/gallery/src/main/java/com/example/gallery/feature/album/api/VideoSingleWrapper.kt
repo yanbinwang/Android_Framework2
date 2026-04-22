@@ -29,11 +29,11 @@ class VideoSingleWrapper(context: Context) : BasicChoiceVideoWrapper<VideoSingle
      */
     override fun start() {
         // 传递过滤器 + 回调
-        AlbumActivity.Companion.sSizeFilter = mSizeFilter
-        AlbumActivity.Companion.sMimeFilter = mMimeTypeFilter
-        AlbumActivity.Companion.sDurationFilter = mDurationFilter
-        AlbumActivity.Companion.sResult = mResult
-        AlbumActivity.Companion.sCancel = mCancel
+        AlbumActivity.sSizeFilter = mSizeFilter
+        AlbumActivity.sMimeFilter = mMimeTypeFilter
+        AlbumActivity.sDurationFilter = mDurationFilter
+        AlbumActivity.sResult = mResult
+        AlbumActivity.sCancel = mCancel
         val intent = Intent(mContext, AlbumActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)
         // 功能 = 只选视频

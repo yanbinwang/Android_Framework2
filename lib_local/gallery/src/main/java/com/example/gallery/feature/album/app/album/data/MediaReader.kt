@@ -124,7 +124,7 @@ class MediaReader(
                     val size = cursor.getLong(6)
                     // 封装成 AlbumFile
                     val imageFile = AlbumFile()
-                    imageFile.mediaType = AlbumFile.Companion.TYPE_IMAGE
+                    imageFile.mediaType = AlbumFile.TYPE_IMAGE
                     imageFile.path = path
                     imageFile.bucketName = bucketName
                     imageFile.mimeType = mimeType
@@ -171,7 +171,7 @@ class MediaReader(
                     val duration = cursor.getLong(7)
                     // 封装成 AlbumFile
                     val videoFile = AlbumFile()
-                    videoFile.mediaType = AlbumFile.Companion.TYPE_VIDEO
+                    videoFile.mediaType = AlbumFile.TYPE_VIDEO
                     videoFile.path = path
                     videoFile.bucketName = bucketName
                     videoFile.mimeType = mimeType

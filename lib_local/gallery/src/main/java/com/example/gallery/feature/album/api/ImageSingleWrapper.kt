@@ -18,10 +18,10 @@ class ImageSingleWrapper(context: Context) : BasicChoiceWrapper<ImageSingleWrapp
      */
     override fun start() {
         // 把过滤、回调交给 AlbumActivity
-        AlbumActivity.Companion.sSizeFilter = mSizeFilter
-        AlbumActivity.Companion.sMimeFilter = mMimeTypeFilter
-        AlbumActivity.Companion.sResult = mResult
-        AlbumActivity.Companion.sCancel = mCancel
+        AlbumActivity.sSizeFilter = mSizeFilter
+        AlbumActivity.sMimeFilter = mMimeTypeFilter
+        AlbumActivity.sResult = mResult
+        AlbumActivity.sCancel = mCancel
         val intent = Intent(mContext, AlbumActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)
         // 功能 = 纯图片选择

@@ -49,11 +49,11 @@ class AlbumMultipleWrapper(context: Context) : BasicChoiceAlbumWrapper<AlbumMult
      */
     override fun start() {
         // 把过滤器、回调 赋值给静态变量，让 AlbumActivity 可以拿到
-        AlbumActivity.Companion.sSizeFilter = mSizeFilter
-        AlbumActivity.Companion.sMimeFilter = mMimeTypeFilter
-        AlbumActivity.Companion.sDurationFilter = mDurationFilter
-        AlbumActivity.Companion.sResult = mResult
-        AlbumActivity.Companion.sCancel = mCancel
+        AlbumActivity.sSizeFilter = mSizeFilter
+        AlbumActivity.sMimeFilter = mMimeTypeFilter
+        AlbumActivity.sDurationFilter = mDurationFilter
+        AlbumActivity.sResult = mResult
+        AlbumActivity.sCancel = mCancel
         // 跳转到相册主页面
         val intent = Intent(mContext, AlbumActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)

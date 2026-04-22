@@ -36,27 +36,27 @@ import com.example.gallery.feature.durban.widget.TransformImageView
  */
 internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     // 状态栏/导航栏颜色
-    private val mStatusBarColor by lazy { intentInt(Durban.Companion.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar) }
-    private val mNavigationBarColor by lazy { intentInt(Durban.Companion.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar) }
+    private val mStatusBarColor by lazy { intentInt(Durban.KEY_INPUT_STATUS_COLOR, R.color.galleryStatusBar) }
+    private val mNavigationBarColor by lazy { intentInt(Durban.KEY_INPUT_NAVIGATION_COLOR, R.color.galleryNavigationBar) }
     // 手势类型：旋转/缩放
-    private val mGesture by lazy { intentInt(Durban.Companion.KEY_INPUT_GESTURE, Durban.Companion.GESTURE_ALL) }
+    private val mGesture by lazy { intentInt(Durban.KEY_INPUT_GESTURE, Durban.GESTURE_ALL) }
     // 压缩质量
-    private val mCompressQuality by lazy { intentInt(Durban.Companion.KEY_INPUT_COMPRESS_QUALITY, 90) }
+    private val mCompressQuality by lazy { intentInt(Durban.KEY_INPUT_COMPRESS_QUALITY, 90) }
     // 标题
-    private val mTitle by lazy { intentString(Durban.Companion.KEY_INPUT_TITLE, NO_DATA) }
+    private val mTitle by lazy { intentString(Durban.KEY_INPUT_TITLE, NO_DATA) }
     // 输出目录 (默认私有目录)
-    private val mOutputDirectory by lazy { intentString(Durban.Companion.KEY_INPUT_DIRECTORY, filesDir.absolutePath) }
+    private val mOutputDirectory by lazy { intentString(Durban.KEY_INPUT_DIRECTORY, filesDir.absolutePath) }
     // 输出最大宽高
-    private val mMaxWidthHeight by lazy { intent.getIntArrayExtra(Durban.Companion.KEY_INPUT_MAX_WIDTH_HEIGHT) ?: intArrayOf(500, 500) }
+    private val mMaxWidthHeight by lazy { intent.getIntArrayExtra(Durban.KEY_INPUT_MAX_WIDTH_HEIGHT) ?: intArrayOf(500, 500) }
     // 裁剪比例
-    private val mAspectRatio by lazy { intent.getFloatArrayExtra(Durban.Companion.KEY_INPUT_ASPECT_RATIO) ?: floatArrayOf(0f, 0f) }
+    private val mAspectRatio by lazy { intent.getFloatArrayExtra(Durban.KEY_INPUT_ASPECT_RATIO) ?: floatArrayOf(0f, 0f) }
     // 输入/输出图片列表
-    private val mInputPathList by lazy { intentStringArrayList(Durban.Companion.KEY_INPUT_PATH_ARRAY) }
+    private val mInputPathList by lazy { intentStringArrayList(Durban.KEY_INPUT_PATH_ARRAY) }
     private val mOutputPathList = ArrayList<String>()
     // 压缩格式
     private var mCompressFormat = Bitmap.CompressFormat.JPEG
     // 底部按钮控制器
-    private val mController by lazy { intentParcelable<Controller>(Durban.Companion.KEY_INPUT_CONTROLLER) ?: Controller.Companion.newBuilder().build() }
+    private val mController by lazy { intentParcelable<Controller>(Durban.KEY_INPUT_CONTROLLER) ?: Controller.newBuilder().build() }
     // 标题头
     private val mToolbar by lazy { findViewById<Toolbar>(R.id.toolbar) }
     // 裁剪视图
@@ -72,8 +72,8 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         // 校验参数
         if (!hasExtras()) return finish()
         // 压缩格式修正
-        val compressFormat = intentInt(Durban.Companion.KEY_INPUT_COMPRESS_FORMAT, Durban.Companion.COMPRESS_JPEG)
-        mCompressFormat = if (compressFormat == Durban.Companion.COMPRESS_PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+        val compressFormat = intentInt(Durban.KEY_INPUT_COMPRESS_FORMAT, Durban.COMPRESS_JPEG)
+        mCompressFormat = if (compressFormat == Durban.COMPRESS_PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
         // 设置布局
         setContentView(R.layout.durban_activity_photobox)
         // 初始化状态栏、标题栏
@@ -117,12 +117,12 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         // 设置输出目录
         mCropImageView.setOutputDirectory(mOutputDirectory)
         // 是否允许缩放
-        mCropImageView.setScaleEnabled(mGesture == Durban.Companion.GESTURE_ALL || mGesture == Durban.Companion.GESTURE_SCALE)
+        mCropImageView.setScaleEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_SCALE)
         // 是否允许旋转
-        mCropImageView.setRotateEnabled(mGesture == Durban.Companion.GESTURE_ALL || mGesture == Durban.Companion.GESTURE_ROTATE)
-        mCropImageView.setMaxBitmapSize(CropImageView.Companion.DEFAULT_MAX_BITMAP_SIZE)
-        mCropImageView.setMaxScaleMultiplier(CropImageView.Companion.DEFAULT_MAX_SCALE_MULTIPLIER)
-        mCropImageView.setImageToWrapCropBoundsAnimDuration(CropImageView.Companion.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
+        mCropImageView.setRotateEnabled(mGesture == Durban.GESTURE_ALL || mGesture == Durban.GESTURE_ROTATE)
+        mCropImageView.setMaxBitmapSize(CropImageView.DEFAULT_MAX_BITMAP_SIZE)
+        mCropImageView.setMaxScaleMultiplier(CropImageView.DEFAULT_MAX_SCALE_MULTIPLIER)
+        mCropImageView.setImageToWrapCropBoundsAnimDuration(CropImageView.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION.toLong())
         // 图片加载监听
         mCropImageView.setTransformImageListener(object : TransformImageView.TransformImageListener {
             override fun onLoadComplete() {
@@ -145,7 +145,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         })
         // 裁剪视图样式
         val overlayView = mCropView.getOverlayView()
-        overlayView.setFreestyleCropMode(OverlayView.Companion.FREESTYLE_CROP_MODE_DISABLE)
+        overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE)
         overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed))
         overlayView.setCircleDimmedLayer(false)
         overlayView.setShowCropFrame(true)
@@ -160,7 +160,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])
         } else {
-            mCropImageView.setTargetAspectRatio(CropImageView.Companion.SOURCE_IMAGE_ASPECT_RATIO)
+            mCropImageView.setTargetAspectRatio(CropImageView.SOURCE_IMAGE_ASPECT_RATIO)
         }
         // 设置输出最大宽高
         if (mMaxWidthHeight[0] > 0 && mMaxWidthHeight[1] > 0) {
@@ -273,16 +273,16 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      */
     private fun setResultSuccessful() {
         val intent = Intent()
-        intent.putStringArrayListExtra(Durban.Companion.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
-        intent.putStringArrayListExtra(Durban.Companion.KEY_ORIGINAL_PATH_LIST, mInputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
         setResult(RESULT_OK, intent)
         finish()
     }
 
     private fun setResultFailure() {
         val intent = Intent()
-        intent.putStringArrayListExtra(Durban.Companion.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
-        intent.putStringArrayListExtra(Durban.Companion.KEY_ORIGINAL_PATH_LIST, mInputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
+        intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
         setResult(RESULT_CANCELED, intent)
         finish()
     }

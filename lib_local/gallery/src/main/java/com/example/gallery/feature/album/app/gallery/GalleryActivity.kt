@@ -26,7 +26,7 @@ internal class GalleryActivity : BaseActivity(), Contract.GalleryPresenter {
     // 图片路径列表
     private val mPathList by lazy { intentStringArrayList(Album.KEY_INPUT_CHECKED_LIST) }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.Companion.getDefaultWidget(this) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
     // 记录选中状态（路径 -> 是否选中）
     private val mCheckedMap by lazy { HashMap<String, Boolean>() }
     // MVP View 层

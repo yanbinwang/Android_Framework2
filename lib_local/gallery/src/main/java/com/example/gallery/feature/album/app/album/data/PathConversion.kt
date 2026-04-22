@@ -45,11 +45,11 @@ class PathConversion(
             if (mimeType.isNotEmpty()) {
                 // 视频
                 if (mimeType.contains("video")) {
-                    mediaType = AlbumFile.Companion.TYPE_VIDEO
+                    mediaType = AlbumFile.TYPE_VIDEO
                 }
                 // 图片
                 if (mimeType.contains("image")) {
-                    mediaType = AlbumFile.Companion.TYPE_IMAGE
+                    mediaType = AlbumFile.TYPE_IMAGE
                 }
             }
             albumFile.mediaType = mediaType
@@ -61,7 +61,7 @@ class PathConversion(
                 albumFile.isDisable = true
             }
             // 如果是视频，获取时长
-            if (mediaType == AlbumFile.Companion.TYPE_VIDEO) {
+            if (mediaType == AlbumFile.TYPE_VIDEO) {
                 var player: MediaPlayer? = null
                 try {
                     player = MediaPlayer()

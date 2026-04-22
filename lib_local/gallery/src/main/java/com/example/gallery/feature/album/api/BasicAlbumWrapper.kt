@@ -20,7 +20,7 @@ abstract class BasicAlbumWrapper<Returner : BasicAlbumWrapper<Returner, Result, 
     // 已选中的文件
     protected var mChecked: Checked? = null
     // 界面样式（主题、状态栏、导航栏、颜色等）
-    protected var mWidget: Widget? = Widget.Companion.getDefaultWidget(mContext)
+    protected var mWidget: Widget? = Widget.getDefaultWidget(mContext)
 
     /**
      * 设置成功回调

@@ -19,10 +19,10 @@ class GalleryAlbumWrapper(context: Context) : BasicGalleryWrapper<GalleryAlbumWr
      */
     override fun start() {
         // 静态赋值，让预览页面接收回调
-        GalleryAlbumActivity.Companion.sResult = mResult
-        GalleryAlbumActivity.Companion.sCancel = mCancel
-        GalleryAlbumActivity.Companion.sClick = mItemClick
-        GalleryAlbumActivity.Companion.sLongClick = mItemLongClick
+        GalleryAlbumActivity.sResult = mResult
+        GalleryAlbumActivity.sCancel = mCancel
+        GalleryAlbumActivity.sClick = mItemClick
+        GalleryAlbumActivity.sLongClick = mItemLongClick
         // 跳转到预览页面
         val intent = Intent(mContext, GalleryAlbumActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)

@@ -28,7 +28,7 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
     // 要预览的图片/视频列表
     private val mAlbumFiles by lazy { intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST) ?: arrayListOf() }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.Companion.getDefaultWidget(this) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
     // MVP 的 View 层（负责UI）
     private val mView by lazy { GalleryView<AlbumFile>(this, this) }
 
@@ -96,7 +96,7 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
         // 如果是不可用的文件，显示遮罩
         mView.setLayerDisplay(albumFile.isDisable)
         // 如果是视频 → 显示时长
-        if (albumFile.mediaType == AlbumFile.Companion.TYPE_VIDEO) {
+        if (albumFile.mediaType == AlbumFile.TYPE_VIDEO) {
             if (!mCheckable) {
                 mView.setBottomDisplay(true)
             }

@@ -26,11 +26,11 @@ class AlbumSingleWrapper(context: Context) : BasicChoiceAlbumWrapper<AlbumSingle
 
     override fun start() {
         // 静态赋值，让 AlbumActivity 接收
-        AlbumActivity.Companion.sSizeFilter = mSizeFilter
-        AlbumActivity.Companion.sMimeFilter = mMimeTypeFilter
-        AlbumActivity.Companion.sDurationFilter = mDurationFilter
-        AlbumActivity.Companion.sResult = mResult
-        AlbumActivity.Companion.sCancel = mCancel
+        AlbumActivity.sSizeFilter = mSizeFilter
+        AlbumActivity.sMimeFilter = mMimeTypeFilter
+        AlbumActivity.sDurationFilter = mDurationFilter
+        AlbumActivity.sResult = mResult
+        AlbumActivity.sCancel = mCancel
         // 跳转相册
         val intent = Intent(mContext, AlbumActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)

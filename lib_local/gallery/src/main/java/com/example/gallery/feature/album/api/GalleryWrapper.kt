@@ -17,10 +17,10 @@ class GalleryWrapper(context: Context) : BasicGalleryWrapper<GalleryWrapper, Str
      */
     override fun start() {
         // 给 GalleryActivity 设置静态回调
-        GalleryActivity.Companion.sResult = mResult
-        GalleryActivity.Companion.sCancel = mCancel
-        GalleryActivity.Companion.sClick = mItemClick
-        GalleryActivity.Companion.sLongClick = mItemLongClick
+        GalleryActivity.sResult = mResult
+        GalleryActivity.sCancel = mCancel
+        GalleryActivity.sClick = mItemClick
+        GalleryActivity.sLongClick = mItemLongClick
         // 跳转预览
         val intent = Intent(mContext, GalleryActivity::class.java)
         intent.putExtra(Album.KEY_INPUT_WIDGET, mWidget)

@@ -57,7 +57,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     // 是否显示不可用文件
     private val mFilterVisibility by lazy { intentBoolean(Album.KEY_INPUT_FILTER_VISIBILITY) }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.Companion.getDefaultWidget(this) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
 
     // 相机选择弹窗
     private lateinit var mCameraPopupMenu: PopupMenu
@@ -127,7 +127,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         // MVP设置
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode)
         // 弹框设置
-        val progressColor = color(if (mWidget.uiStyle == Widget.Companion.STYLE_LIGHT) {
+        val progressColor = color(if (mWidget.uiStyle == Widget.STYLE_LIGHT) {
             // 浅色模式 → 深色加载条
             R.color.albumLoading
         } else {

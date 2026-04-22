@@ -23,7 +23,7 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
     // 最大可选数量
     private val mAllowSelectCount by lazy { intentInt(Album.KEY_INPUT_LIMIT_COUNT) }
     // 主题样式
-    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.Companion.getDefaultWidget(this) }
+    private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
     // MVP View 层
     private val mView by lazy { GalleryView<AlbumFile>(this, this) }
 
@@ -83,7 +83,7 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         // 不可用文件显示遮罩
         mView.setLayerDisplay(albumFile.isDisable)
         // 视频 → 显示时长
-        if (albumFile.mediaType == AlbumFile.Companion.TYPE_VIDEO) {
+        if (albumFile.mediaType == AlbumFile.TYPE_VIDEO) {
             mView.setDuration(AlbumUtil.convertDuration(albumFile.duration))
             mView.setDurationDisplay(true)
         } else {

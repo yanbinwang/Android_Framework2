@@ -44,7 +44,7 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         // 设置返回箭头
         val navigationIcon = getDrawable(R.mipmap.gallery_ic_back)
         // 浅色 / 深色 主题切换
-        if (widget.uiStyle == Widget.Companion.STYLE_LIGHT) {
+        if (widget.uiStyle == Widget.STYLE_LIGHT) {
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
             mTitle.setTextColor(getColor(R.color.galleryFontDark))
         } else {

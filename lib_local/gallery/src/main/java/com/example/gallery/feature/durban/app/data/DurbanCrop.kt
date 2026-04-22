@@ -87,7 +87,7 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
             mCroppedImageWidth = (mCropRect.width() / mCurrentScale).roundToInt()
             mCroppedImageHeight = (mCropRect.height() / mCurrentScale).roundToInt()
             // 判断是否需要真正裁剪
-            val shouldCrop: Boolean = shouldCrop(mCroppedImageWidth, mCroppedImageHeight)
+            val shouldCrop = shouldCrop(mCroppedImageWidth, mCroppedImageHeight)
             if (shouldCrop) {
                 // 执行裁剪
                 val croppedBitmap = Bitmap.createBitmap(mViewBitmap, cropOffsetX, cropOffsetY, mCroppedImageWidth, mCroppedImageHeight)
@@ -103,12 +103,7 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
                 // 如果是JPG，复制EXIF信息
                 if (mCompressFormat == Bitmap.CompressFormat.JPEG) {
                     val originalExif = ExifInterface(mInputImagePath)
-                    BitmapLoadUtil.copyExif(
-                        originalExif,
-                        mCroppedImageWidth,
-                        mCroppedImageHeight,
-                        outputImagePath
-                    )
+                    BitmapLoadUtil.copyExif(originalExif, mCroppedImageWidth, mCroppedImageHeight, outputImagePath)
                 }
             } else {
                 // 无需裁剪，直接复制文件
