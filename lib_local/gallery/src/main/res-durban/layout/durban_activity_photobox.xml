@@ -5,7 +5,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Durban.Toolbar"
+        style="@style/Gallery.Toolbar"
         tools:background="@color/galleryColorPrimary"
         tools:navigationIcon="@mipmap/gallery_ic_back">
 
@@ -16,7 +16,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:textSize="@dimen/album_sp_18"
+            android:textSize="@dimen/gallery_sp_18"
             android:textStyle="bold"
             tools:text="@string/gallery_durban_title"
             tools:textColor="@color/galleryFontLight" />
@@ -30,7 +30,7 @@
         android:layout_below="@id/toolbar"
         android:background="@color/durbanCropBackground">
 
-        <com.yanzhenjie.durban.widget.CropView
+        <com.example.gallery.feature.durban.widget.CropView
             android:id="@+id/crop_view"
             style="@style/Durban.MatchParent"
             android:alpha="0" />
@@ -43,7 +43,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/durbanControllerBackground"
         android:orientation="vertical"
-        android:paddingTop="@dimen/durban_dp_10">
+        android:paddingTop="@dimen/gallery_dp_10">
 
         <LinearLayout
             android:id="@+id/layout_controller_title_root"

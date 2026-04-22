@@ -497,7 +497,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     }
 
-    private inner class PrivateOnTouchListener() : OnTouchListener {
+    private inner class PrivateOnTouchListener : OnTouchListener {
         private val last = PointF()
 
         override fun onTouch(v: View?, event: MotionEvent): Boolean {

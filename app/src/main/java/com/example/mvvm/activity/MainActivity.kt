@@ -49,7 +49,7 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.therouter.router.Route
-import com.yanzhenjie.durban.Durban
+import com.example.gallery.feature.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
@@ -531,8 +531,8 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                    gallery.takePicture(true){
 //                        it.shortToast()
 //                    }
-//                    gallery.imageSelection(hasDurban = true)
-                    gallery.imageMultipleSelection(true)
+                    gallery.imageSelection(hasDurban = true)
+//                    gallery.imageMultipleSelection(true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }

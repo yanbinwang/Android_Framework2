@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
+
+    <!-- ====================== 相册基础样式 ====================== -->
+    <style name="Gallery" />
+
+    <!-- 基础对话框：悬浮、半透明背景 -->
+    <style name="Gallery.Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 去掉系统背景 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- ====================== 主题样式 ====================== -->
+    <style name="Gallery.Theme" />
+
+    <!-- Activity 基础主题：无标题栏、透明背景 -->
+    <style name="Gallery.Theme.Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowDisablePreview">true</item>
+        <item name="android:windowBackground">@color/galleryTransparent</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+
+    <!-- 透明 Activity：无遮罩、无背景 -->
+    <style name="Gallery.Theme.Activity.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowContentTransitions">false</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="colorPrimaryDark">@android:color/transparent</item>
+    </style>
+
+    <!-- ====================== 进度条样式 ====================== -->
+    <style name="Gallery.Progress" parent="Widget.AppCompat.ProgressBar" />
+
+    <!-- 加载进度条：固定大小 -->
+    <style name="Gallery.Progress.Loading">
+        <item name="android:minWidth">@dimen/gallery_dp_40</item>
+        <item name="android:maxWidth">@dimen/gallery_dp_40</item>
+        <item name="android:minHeight">@dimen/gallery_dp_40</item>
+        <item name="android:maxHeight">@dimen/gallery_dp_40</item>
+        <item name="android:layout_width">@dimen/gallery_dp_40</item>
+        <item name="android:layout_height">@dimen/gallery_dp_40</item>
+    </style>
+
+    <!-- ====================== Toolbar 样式 ====================== -->
+    <style name="Gallery.Toolbar">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">?attr/actionBarSize</item>
+        <!-- 全透明 -->
+        <item name="android:background">@android:color/transparent</item>
+        <!-- 去掉阴影 -->
+        <item name="android:elevation">@dimen/gallery_dp_0</item>
+        <!-- 去掉Toolbar左边默认的16dp留白 -->
+        <item name="android:contentInsetStart">@dimen/gallery_dp_0</item>
+        <!-- 彻底隐藏标题 -->
+        <item name="android:title">@null</item>
+    </style>
+
+    <!-- ====================== 通用布局样式 ====================== -->
+    <style name="Gallery.WrapContent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+</resources>

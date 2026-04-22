@@ -1,7 +1,6 @@
 package com.example.gallery.utils
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
@@ -18,16 +17,13 @@ import com.example.gallery.R
 import com.example.gallery.activity.CameraActivity.Companion.pickImage
 import com.example.gallery.activity.CameraActivity.Companion.recordVideo
 import com.example.gallery.activity.CameraActivity.Companion.takePicture
-import com.yanzhenjie.album.Album
-import com.yanzhenjie.album.api.ImageMultipleWrapper
-import com.yanzhenjie.album.api.ImageSingleWrapper
-import com.yanzhenjie.album.api.VideoMultipleWrapper
-import com.yanzhenjie.album.api.VideoSingleWrapper
-import com.yanzhenjie.album.api.choice.Choice
-import com.yanzhenjie.album.model.ButtonStyle
-import com.yanzhenjie.album.model.Widget
-import com.yanzhenjie.durban.Durban
-import com.yanzhenjie.durban.model.Controller
+import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.callback.Action
+import com.example.gallery.feature.album.callback.Filter
+import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.durban.Durban
+import com.example.gallery.feature.durban.model.Controller
 
 /**
  * author: wyb
@@ -62,13 +58,21 @@ import com.yanzhenjie.durban.model.Controller
  *           listener.invoke(it)
  *       }
  *       ?.start()
+ * 3) AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
+ * 4) FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
+ * 5) 不支持旧android.app.Fragment
  */
-class MediaPicker {
-    private var context: Context? = null
-    private var widget: Widget? = null
-    private var durban: Durban? = null
-    private var imageMultiple: Choice<ImageMultipleWrapper, ImageSingleWrapper>? = null
-    private var videoMultiple: Choice<VideoMultipleWrapper, VideoSingleWrapper>? = null
+class MediaPicker(private val host: Any) {
+    private val context: Context get() = when (host) {
+        is FragmentActivity -> host
+        is Fragment -> host.requireActivity()
+        is android.app.Fragment -> throw RuntimeException("android.app.Fragment 已废弃，不支持！")
+        else -> throw IllegalArgumentException("不支持的类型：${host::class.java.name}")
+    }
+    private val widget by lazy { context.getAlbumWidget() }
+    private val imageMultiple by lazy { Album.image(host) }
+    private val videoMultiple by lazy { Album.video(host) }
+    private val durban by lazy { Durban.with(host) }
 
     companion object {
         /**
@@ -103,66 +107,75 @@ class MediaPicker {
         private fun gcd(a: Int, b: Int): Int {
             return if (b == 0) a else gcd(b, a % b)
         }
-    }
 
-    /**
-     * 1) AppCompatActivity和Fragment在裁剪或者OnActivityResult时是必须指明的，不然返回会错误
-     * 2) FragmentActivity无需指明,在Activity中传this,在Fragment传getActivity(),系统会做发起判断
-     * 3) 不支持旧android.app.Fragment
-     */
-    constructor(any: Any) {
-        when (any) {
-            // Activity（兼容所有现代 Activity）
-            is AppCompatActivity, is FragmentActivity -> {
-                widget = any.getAlbumWidget()
-                videoMultiple = Album.video(any)
-                imageMultiple = Album.image(any)
-                durban = Durban.with(any)
-            }
-            // AndroidX Fragment
-            is Fragment -> {
-                widget = any.context.getAlbumWidget()
-                videoMultiple = Album.video(any)
-                imageMultiple = Album.image(any)
-                durban = Durban.with(any)
-            }
-            // 旧系统Fragment
-            is android.app.Fragment -> {
-                throw RuntimeException("android.app.Fragment is deprecated and not supported!")
-            }
-            // 不认识的类型
-            else -> {
-                throw IllegalArgumentException("Unsupported host type: ${any::class.java.name}")
-            }
+        /**
+         * 创建相册统一配置
+         */
+        private fun Context?.getAlbumWidget(): Widget? {
+            this ?: return null
+            // 根据状态栏颜色区分主题
+            val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
+            // 参考Widget -> getDefaultWidget()方法
+            return Widget.newBuilder(this, style)
+                // 状态栏颜色
+                .statusBarColor(statusBarColorRes)
+                // 导航栏颜色
+                .navigationBarColor(navigationBarColor)
+                // 标题 --- 标题文字颜色只有黑色白色
+                .title(string(R.string.gallery_album_title))
+                // 媒体条目选择框颜色
+                .mediaItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
+                // 文件夹条目选择框颜色
+                .bucketItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
+                // 按钮样式
+                .buttonSelector(color(R.color.btnMain), color(R.color.btnMain))
+                // 构建配置
+                .build()
         }
-    }
 
-    /**
-     * 创建相册统一配置
-     */
-    private fun Context?.getAlbumWidget(): Widget? {
-        this ?: return null
-        context = this
-        // 根据状态栏颜色区分主题
-        val style = if (shouldUseWhiteSystemBarsForRes(statusBarColorRes)) Widget.STYLE_DARK else Widget.STYLE_LIGHT
-        // 参考Widget -> getDefaultWidget()方法
-        return Widget.newBuilder(this, style)
+        /**
+         * 开启裁剪
+         */
+        fun Durban.cropImage(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, format: Int = Durban.COMPRESS_JPEG, gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
+            // 裁剪界面的标题
+            title(string(R.string.gallery_durban_title))
             // 状态栏颜色
-            .statusBarColor(statusBarColorRes)
+            statusBarColor(statusBarColorRes)
             // 导航栏颜色
-            .navigationBarColor(navigationBarColor)
-            // 标题 --- 标题文字颜色只有黑色白色
-            .title(string(R.string.gallery_album_title))
-            // 媒体条目选择框颜色
-            .mediaItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
-            // 文件夹条目选择框颜色
-            .bucketItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
-            // 按钮样式
-            .buttonStyle(ButtonStyle
-                .newDarkBuilder(this)
-                .setButtonSelector(color(R.color.btnMain), color(R.color.btnMain)).build())
-            // 构建配置
-            .build()
+            navigationBarColor(navigationBarColor)
+            // 图片路径list或者数组
+            inputImagePaths(*imagePathArray)
+            // 图片输出文件夹路径
+            outputDirectory(getStoragePath("裁剪图片"))
+            // 裁剪图片输出的最大宽高
+            maxWidthHeight(width, height)
+            // 裁剪时的宽高比
+            aspectRatio(x, y)
+            // 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
+            compressQuality(quality)
+            // 图片压缩格式：JPEG、PNG
+            compressFormat(format)
+            // 裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
+            gesture(gesture)
+            // 底部操作栏配置
+            controller(Controller.newBuilder()
+                // 是否开启控制面板
+                .enable(controller)
+                // 是否有旋转按钮
+                .rotation(true)
+                // 旋转控制按钮上面的标题
+                .rotationTitle(true)
+                // 是否有缩放按钮
+                .scale(true)
+                // 缩放控制按钮上面的标题
+                .scaleTitle(true)
+                // 构建配置
+                .build())
+            // 创建控制面板配置
+            requestCode(RESULT_ALBUM)
+            // 开始跳转
+            start()
+        }
     }
 
     /**
@@ -171,7 +184,7 @@ class MediaPicker {
     fun takePicture(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
         context.takePicture { albumPath ->
             if (hasDurban) {
-                toDurban(albumPath)
+                durban.cropImage(albumPath)
             } else {
                 listener.invoke(albumPath)
             }
@@ -193,7 +206,7 @@ class MediaPicker {
     fun pickImage(hasDurban: Boolean = false, listener: (albumPath: String) -> Unit = {}) {
         context.pickImage { albumPath ->
             if (hasDurban) {
-                toDurban(albumPath)
+                durban.cropImage(albumPath)
             } else {
                 listener.invoke(albumPath)
             }
@@ -206,32 +219,42 @@ class MediaPicker {
     fun imageSelection(hasCamera: Boolean = true, hasDurban: Boolean = false, megabyte: Long = 10L, listener: (albumPath: String) -> Unit = {}) {
         imageMultiple
             // 多选模式为：multipleChoice(同时添加?.apply { multipleChoice()?.selectCount(100) }设定上限),单选模式为：singleChoice()
-            ?.singleChoice()
+            .singleChoice()
             // 状态栏是深色背景时的构建newDarkBuilder ，状态栏是白色背景时的构建newLightBuilder
-            ?.widget(widget)
+            .widget(widget)
             // 是否具备相机
-            ?.camera(hasCamera)
+            .camera(hasCamera)
             // 页面列表的列数
-            ?.columnCount(3)
-            // 防止加载系统缓存图片
-            ?.filterSize { it == 0L }
+            .columnCount(3)
             // 筛选文件的可见性
-            ?.afterFilterVisibility(false)
+            .afterFilterVisibility(false)
+            // 防止加载系统缓存图片
+            .filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
             // 选择后回调
-            ?.onResult {
-                it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
-                        string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
-                        return@onResult
-                    }
-                    if (hasDurban) {
-                        toDurban(path)
-                    } else {
-                        listener.invoke(path)
+            .onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    result.safeGet(0)?.also { file ->
+                        if (file.size > megabyte.mb) {
+                            string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
+                            return@also
+                        }
+                        file.path?.let { albumPath ->
+                            if (hasDurban) {
+                                durban.cropImage(albumPath)
+                            } else {
+                                listener.invoke(albumPath)
+                            }
+                        }
                     }
                 }
-            }
-            ?.start()
+            })
+            .start()
+
+
     }
 
     /**
@@ -239,17 +262,23 @@ class MediaPicker {
      */
     fun imageMultipleSelection(hasCamera: Boolean = true, selectCount: Int = 100, listener: (list: ArrayList<String>) -> Unit = {}) {
         imageMultiple
-            ?.multipleChoice()
-            ?.selectCount(selectCount)
-            ?.widget(widget)
-            ?.camera(hasCamera)
-            ?.columnCount(3)
-            ?.filterSize { it == 0L }
-            ?.afterFilterVisibility(false)
-            ?.onResult { result ->
-                listener.invoke(result.toNewList { it.path })
-            }
-            ?.start()
+            .multipleChoice()
+            .selectCount(selectCount)
+            .widget(widget)
+            .camera(hasCamera)
+            .columnCount(3)
+            .afterFilterVisibility(false)
+            .filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
+            .onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    listener.invoke(result.toNewList { it.path })
+                }
+            })
+            .start()
     }
 
     /**
@@ -257,22 +286,30 @@ class MediaPicker {
      */
     fun videoSelection(megabyte: Long = 100L, listener: (albumPath: String) -> Unit = {}) {
         videoMultiple
-            ?.singleChoice()
-            ?.widget(widget)
-            ?.camera(true)
-            ?.columnCount(3)
-            ?.filterSize { it == 0L }
-            ?.afterFilterVisibility(false)
-            ?.onResult {
-                it.safeGet(0)?.apply {
-                    if (size > megabyte.mb) {
-                        string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
-                        return@onResult
-                    }
-                    listener.invoke(path)
+            .singleChoice()
+            .widget(widget)
+            .camera(true)
+            .columnCount(3)
+            .afterFilterVisibility(false)
+            .filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
                 }
-            }
-            ?.start()
+            })
+            .onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    result.safeGet(0)?.also { file ->
+                        if (file.size > megabyte.mb) {
+                            string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
+                            return@also
+                        }
+                        file.path?.let { albumPath ->
+                            listener.invoke(albumPath)
+                        }
+                    }
+                }
+            })
+            .start()
     }
 
     /**
@@ -280,70 +317,23 @@ class MediaPicker {
      */
     fun videoMultipleSelection(selectCount: Int = 100, listener: (list: ArrayList<String>) -> Unit = {}) {
         videoMultiple
-            ?.multipleChoice()
-            ?.selectCount(selectCount)
-            ?.widget(widget)
-            ?.camera(true)
-            ?.columnCount(3)
-            ?.filterSize { it == 0L }
-            ?.afterFilterVisibility(false)
-            ?.onResult { result ->
-                listener.invoke(result.toNewList { it.path })
-            }
-            ?.start()
-    }
-
-    /**
-     * 开始裁剪
-     * override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-     * super.onActivityResult(requestCode, resultCode, data)
-     * if (requestCode == RESULT_ALBUM) {
-     * data ?: return
-     * val mImageList = Durban.parseResult(data)
-     * mImageList.safeGet(0).shortToast()
-     * }
-     * }
-     */
-    fun toDurban(vararg imagePathArray: String, width: Int = 500, height: Int = 500, x: Float = 1f, y: Float = 1f, quality: Int = 80, @Durban.FormatTypes format: Int = Durban.COMPRESS_JPEG, @Durban.GestureTypes gesture: Int = Durban.GESTURE_SCALE, controller: Boolean = false) {
-        durban
-            // 裁剪界面的标题
-            ?.title(string(R.string.gallery_durban_title))
-            // 状态栏颜色
-            ?.statusBarColor(statusBarColorRes)
-            // 导航栏颜色
-            ?.navigationBarColor(navigationBarColor)
-            // 图片路径list或者数组
-            ?.inputImagePaths(*imagePathArray)
-            // 图片输出文件夹路径
-            ?.outputDirectory(getStoragePath("裁剪图片"))
-            // 裁剪图片输出的最大宽高
-            ?.maxWidthHeight(width, height)
-            // 裁剪时的宽高比
-            ?.aspectRatio(x, y)
-            // 图片压缩质量，请参考：Bitmap#compress(Bitmap.CompressFormat, int, OutputStream)
-            ?.compressQuality(quality)
-            // 图片压缩格式：JPEG、PNG
-            ?.compressFormat(format)
-            // 裁剪时的手势支持：ROTATE, SCALE, ALL, NONE.
-            ?.gesture(gesture)
-            // 底部操作栏配置
-            ?.controller(Controller.newBuilder()
-                // 是否开启控制面板
-                .enable(controller)
-                // 是否有旋转按钮
-                .rotation(true)
-                // 旋转控制按钮上面的标题
-                .rotationTitle(true)
-                // 是否有缩放按钮
-                .scale(true)
-                // 缩放控制按钮上面的标题
-                .scaleTitle(true)
-                // 构建配置
-                .build())
-            // 创建控制面板配置
-            ?.requestCode(RESULT_ALBUM)
-            // 开始跳转
-            ?.start()
+            .multipleChoice()
+            .selectCount(selectCount)
+            .widget(widget)
+            .camera(true)
+            .columnCount(3)
+            .afterFilterVisibility(false)
+            .filterSize(object : Filter<Long> {
+                override fun filter(attributes: Long): Boolean {
+                    return attributes == 0L
+                }
+            })
+            .onResult(object : Action<ArrayList<AlbumFile>> {
+                override fun onAction(result: ArrayList<AlbumFile>) {
+                    listener.invoke(result.toNewList { it.path })
+                }
+            })
+            .start()
     }
 
 }

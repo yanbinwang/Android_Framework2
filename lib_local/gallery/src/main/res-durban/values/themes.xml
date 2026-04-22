@@ -10,9 +10,9 @@
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <style name="Durban.WrapContent.ControllerButton">
-        <item name="android:layout_gravity">center</item>
-        <item name="android:scaleType">fitCenter</item>
+    <style name="Durban.MatchParent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
     <style name="Durban.WrapContent.WidthMatchParent">
@@ -20,29 +20,24 @@
     </style>
 
     <style name="Durban.WrapContent.WidthWeight">
-        <item name="android:layout_width">@dimen/durban_dp_0</item>
+        <item name="android:layout_width">@dimen/gallery_dp_0</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="Durban.MatchParent.WidthWeight">
+        <item name="android:layout_width">@dimen/gallery_dp_0</item>
         <item name="android:layout_weight">1</item>
     </style>
 
     <style name="Durban.WrapContent.WidthWeight.ControllerTitle">
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/galleryWhite</item>
-        <item name="android:textSize">@dimen/album_sp_14</item>
+        <item name="android:textSize">@dimen/gallery_sp_14</item>
     </style>
 
-    <style name="Durban.MatchParent">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <style name="Durban.MatchParent.ItemRoot">
-        <item name="android:layout_height">@dimen/durban_dp_70</item>
-        <item name="android:gravity">center</item>
-    </style>
-
-    <style name="Durban.MatchParent.WidthWeight">
-        <item name="android:layout_width">@dimen/durban_dp_0</item>
-        <item name="android:layout_weight">1</item>
+    <style name="Durban.WrapContent.ControllerButton">
+        <item name="android:layout_gravity">center</item>
+        <item name="android:scaleType">fitCenter</item>
     </style>
 
     <style name="Durban.MatchParent.WidthWeight.ControllerItem">
@@ -50,59 +45,9 @@
         <item name="android:clickable">true</item>
     </style>
 
-    <!-- ====================== 主题样式 ====================== -->
-    <style name="Durban.Theme" />
-
-    <!-- Activity 基础主题：无标题栏、透明背景 -->
-    <style name="Durban.Theme.Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowBackground">@color/galleryTransparent</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <!-- ====================== Toolbar 样式 ====================== -->
-    <style name="Durban.Toolbar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">?attr/actionBarSize</item>
-        <!-- 全透明 -->
-        <item name="android:background">@android:color/transparent</item>
-        <!-- 去掉阴影 -->
-        <item name="android:elevation">@dimen/durban_dp_0</item>
-        <!-- 去掉Toolbar左边默认的16dp留白 -->
-        <item name="android:contentInsetStart">@dimen/durban_dp_0</item>
-        <!-- 彻底隐藏标题 -->
-        <item name="android:title">@null</item>
-    </style>
-
-    <!-- ====================== 对话框样式 ====================== -->
-    <!-- 基础对话框样式 -->
-    <style name="Durban.Dialog" parent="@android:style/Theme.Holo.Light.Dialog.NoActionBar" />
-
-    <!--
-        加载对话框专用样式
-        功能：无边框、半透明背景、浮层效果、无标题、居中显示
-    -->
-    <style name="Durban.Dialog.Loading">
-        <!-- 无标题 -->
-        <item name="android:windowNoTitle">true</item>
-        <!-- 无ActionBar -->
-        <item name="android:windowActionBar">false</item>
-        <!-- 无边框 -->
-        <item name="android:windowFrame">@null</item>
-        <!-- 悬浮在Activity之上 -->
-        <item name="android:windowIsFloating">true</item>
-        <!-- 半透明 -->
-        <item name="android:windowIsTranslucent">true</item>
-        <!-- 背景半透明变暗 -->
-        <item name="android:backgroundDimEnabled">true</item>
-        <!-- 窗口背景透明 -->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <!-- 对话框弹出/关闭动画 -->
-        <item name="android:windowAnimationStyle">@android:style/Animation.Dialog</item>
+    <style name="Durban.MatchParent.ItemRoot">
+        <item name="android:layout_height">@dimen/gallery_dp_70</item>
+        <item name="android:gravity">center</item>
     </style>
 
 </resources>

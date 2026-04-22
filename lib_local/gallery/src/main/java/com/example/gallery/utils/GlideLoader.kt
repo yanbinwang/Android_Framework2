@@ -2,8 +2,8 @@ package com.example.gallery.utils
 
 import android.widget.ImageView
 import com.example.glide.ImageLoader
-import com.yanzhenjie.album.model.AlbumFile
-import com.yanzhenjie.album.callback.AlbumLoader
+import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.callback.AlbumLoader
 
 /**
  * author: wyb
@@ -12,11 +12,11 @@ import com.yanzhenjie.album.callback.AlbumLoader
  */
 class GlideLoader : AlbumLoader {
 
-    override fun load(imageView: ImageView, albumFile: AlbumFile) {
+    override fun load(imageView: ImageView?, albumFile: AlbumFile) {
         load(imageView, albumFile.path)
     }
 
-    override fun load(imageView: ImageView, url: String) {
+    override fun load(imageView: ImageView?, url: String?) {
         ImageLoader.instance.loadImageFromUrl(imageView, url)
     }
 

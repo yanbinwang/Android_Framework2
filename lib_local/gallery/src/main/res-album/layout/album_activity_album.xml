@@ -7,7 +7,7 @@
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
-        style="@style/Album.Toolbar"
+        style="@style/Gallery.Toolbar"
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@color/galleryColorPrimary"
         tools:navigationIcon="@mipmap/gallery_ic_back">
@@ -19,7 +19,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:textSize="@dimen/album_sp_18"
+            android:textSize="@dimen/gallery_sp_18"
             android:textStyle="bold"
             tools:text="@string/gallery_album_title"
             tools:textColor="@color/galleryFontLight" />
@@ -60,18 +60,19 @@
         android:layout_below="@+id/toolbar"
         android:background="@color/albumPage"
         android:gravity="center"
-        android:visibility="gone">
+        android:visibility="visible"
+        tools:visibility="gone">
 
-        <com.yanzhenjie.album.widget.ColorProgressBar
+        <com.example.gallery.widget.ColorProgressBar
             android:id="@+id/progress_bar"
-            style="@style/Album.Progress.Loading" />
+            style="@style/Gallery.Progress.Loading" />
 
         <TextView
             style="@style/Album.WrapContent"
-            android:layout_marginStart="@dimen/album_dp_20"
+            android:layout_marginStart="@dimen/gallery_dp_20"
             android:text="@string/album_loading"
             android:textColor="@color/albumFontHint"
-            android:textSize="@dimen/album_sp_16" />
+            android:textSize="@dimen/gallery_sp_16" />
 
     </LinearLayout>
 

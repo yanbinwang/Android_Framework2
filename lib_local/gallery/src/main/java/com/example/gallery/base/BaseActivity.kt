@@ -21,6 +21,8 @@ import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isNotEmpty
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
@@ -41,12 +43,14 @@ import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 针对所有相册页面的基类
  */
 abstract class BaseActivity : AppCompatActivity(), Bye {
     private val immersionBar by lazy { ImmersionBar.with(this) }
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
     companion object {
 
@@ -115,7 +119,8 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 2) 大多数手机 60fps → 16ms 刷新一次 , 低一点 30fps → 32ms 刷新一次 , 32ms 就是「等下一帧渲染完」
          */
         @JvmStatic
-        fun setSupportMenuViewAsync(toolbar: Toolbar, @ColorRes colorRes: Int) {
+        fun setSupportMenuViewAsync(toolbar: Toolbar?, @ColorRes colorRes: Int) {
+            toolbar ?: return
             val interval = 32L   // 每帧检查一次
             val maxRetry = 30    // 最多重试30次 ≈ 1秒超时
             var retry = 0        // 正确计数
@@ -197,6 +202,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // 设置相册整体动画
         setActivityAnimations()
         // 强制补动画（外部跳转生效）
         overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
@@ -246,6 +252,22 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 init()
             }
         }
+    }
+
+    /**
+     * ViewModel 中定义无值事件（用 Unit 替代 Any）
+     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     */
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseActivity, observer)
     }
 
     /**
@@ -338,6 +360,10 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         window?.removeNavigationBarDrawable()
         clearOnBackPressedListener()
         AppManager.removeActivity(this)
+        for ((key, value) in dataManager) {
+            key.removeObserver(value)
+        }
+        dataManager.clear()
     }
 
 }
