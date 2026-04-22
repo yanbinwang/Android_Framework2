@@ -101,7 +101,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (changed || (mBitmapDecoded && !mBitmapLaidOut)) {
-            mThisWidth = (width - getPaddingRight()) - getPaddingLeft()
+            mThisWidth = (width - paddingRight) - paddingLeft
             mThisHeight = (height - paddingBottom) - paddingTop
             onImageLaidOut()
         }
@@ -111,7 +111,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      * 图片布局完成 → 记录初始坐标
      */
     protected open fun onImageLaidOut() {
-        val drawable = getDrawable() ?: return
+        drawable ?: return
         val w = drawable.intrinsicWidth.toFloat()
         val h = drawable.intrinsicHeight.toFloat()
         val initialImageRect = RectF(0f, 0f, w, h)
@@ -214,10 +214,10 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      * 获取当前显示的Bitmap
      */
     fun getViewBitmap(): Bitmap? {
-        return if (getDrawable() == null || getDrawable() !is FastBitmapDrawable) {
+        return if (drawable == null || drawable !is FastBitmapDrawable) {
             null
         } else {
-            (getDrawable() as FastBitmapDrawable).getBitmap()
+            (drawable as FastBitmapDrawable).getBitmap()
         }
     }
 

@@ -15,6 +15,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.withSave
 import com.example.gallery.R
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
 import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
@@ -22,7 +23,6 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
-import androidx.core.graphics.withSave
 
 /**
  * 裁剪遮罩层View
@@ -104,7 +104,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
         if (changed) {
-            mThisWidth = (width - getPaddingRight()) - getPaddingLeft()
+            mThisWidth = (width - paddingRight) - paddingLeft
             mThisHeight = (height - paddingBottom) - paddingTop
             if (mShouldSetupCropBounds) {
                 mShouldSetupCropBounds = false
@@ -148,7 +148,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if ((event.action and MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
             if (event.pointerCount == 1 && mCurrentTouchCornerIndex != -1) {
                 // 限制触摸范围在View内
-                x = min(max(x, getPaddingLeft().toFloat()), (width - getPaddingRight()).toFloat())
+                x = min(max(x, paddingLeft.toFloat()), (width - paddingRight).toFloat())
                 y = min(max(y, paddingTop.toFloat()), (height - paddingBottom).toFloat())
                 updateCropViewRect(x, y)
                 mPreviousTouchX = x
@@ -292,7 +292,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     fun processStyledAttributes(a: TypedArray) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false)
         mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(context, R.color.durbanCropDimmed))
-        mDimmedStrokePaint.setColor(mDimmedColor)
+        mDimmedStrokePaint.color = mDimmedColor
         mDimmedStrokePaint.style = Paint.Style.STROKE
         mDimmedStrokePaint.strokeWidth = 1f
         initCropFrameStyle(a)
@@ -308,10 +308,10 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
         val cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(context, R.color.durbanCropFrameLine))
         mCropFramePaint.strokeWidth = cropFrameStrokeSize.toFloat()
-        mCropFramePaint.setColor(cropFrameColor)
+        mCropFramePaint.color = cropFrameColor
         mCropFramePaint.style = Paint.Style.STROKE
         mCropFrameCornersPaint.strokeWidth = (cropFrameStrokeSize * 3).toFloat()
-        mCropFrameCornersPaint.setColor(cropFrameColor)
+        mCropFrameCornersPaint.color = cropFrameColor
         mCropFrameCornersPaint.style = Paint.Style.STROKE
     }
 
@@ -322,7 +322,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         val cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
         val cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(context, R.color.durbanCropGridLine))
         mCropGridPaint.strokeWidth = cropGridStrokeSize.toFloat()
-        mCropGridPaint.setColor(cropGridColor)
+        mCropGridPaint.color = cropGridColor
         mCropGridRowCount = a.getInt(R.styleable.durban_CropView_durban_grid_row_count, 2)
         mCropGridColumnCount = a.getInt(R.styleable.durban_CropView_durban_grid_column_count, 2)
     }
@@ -334,12 +334,10 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         return mCropViewRect
     }
 
-    @Deprecated("已废弃，使用getFreestyleCropMode")
     fun isFreestyleCropEnabled(): Boolean {
         return mFreestyleCropMode == FREESTYLE_CROP_MODE_ENABLE
     }
 
-    @Deprecated("")
     fun setFreestyleCropEnabled(freestyleCropEnabled: Boolean) {
         mFreestyleCropMode = if (freestyleCropEnabled) FREESTYLE_CROP_MODE_ENABLE else FREESTYLE_CROP_MODE_DISABLE
     }
@@ -450,10 +448,10 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
         if (height > mThisHeight) {
             val width = (mThisHeight * mTargetAspectRatio).toInt()
             val halfDiff = (mThisWidth - width) / 2
-            mCropViewRect.set((getPaddingLeft() + halfDiff).toFloat(), paddingTop.toFloat(), (getPaddingLeft() + width + halfDiff).toFloat(), (paddingTop + mThisHeight).toFloat())
+            mCropViewRect.set((paddingLeft + halfDiff).toFloat(), paddingTop.toFloat(), (paddingLeft + width + halfDiff).toFloat(), (paddingTop + mThisHeight).toFloat())
         } else {
             val halfDiff = (mThisHeight - height) / 2
-            mCropViewRect.set(getPaddingLeft().toFloat(), (paddingTop + halfDiff).toFloat(), (getPaddingLeft() + mThisWidth).toFloat(), (paddingTop + height + halfDiff).toFloat())
+            mCropViewRect.set(paddingLeft.toFloat(), (paddingTop + halfDiff).toFloat(), (paddingLeft + mThisWidth).toFloat(), (paddingTop + height + halfDiff).toFloat())
         }
         mCallback?.onCropRectUpdated(mCropViewRect)
         updateGridPoints()

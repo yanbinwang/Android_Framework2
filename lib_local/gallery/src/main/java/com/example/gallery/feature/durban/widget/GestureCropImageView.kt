@@ -130,7 +130,7 @@ class GestureCropImageView @JvmOverloads constructor(context: Context, attrs: At
 
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             // 执行双指缩放，以双指中心为中心点
-            postScale(detector.getScaleFactor(), mMidPntX, mMidPntY)
+            postScale(detector.scaleFactor, mMidPntX, mMidPntY)
             return true
         }
     }

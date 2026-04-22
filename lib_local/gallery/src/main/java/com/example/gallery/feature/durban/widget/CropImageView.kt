@@ -63,7 +63,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
      */
     override fun onImageLaidOut() {
         super.onImageLaidOut()
-        val drawable = getDrawable() ?: return
+        drawable ?: return
         val drawableWidth = drawable.intrinsicWidth.toFloat()
         val drawableHeight = drawable.intrinsicHeight.toFloat()
         if (mTargetAspectRatio == SOURCE_IMAGE_ASPECT_RATIO) {
@@ -152,22 +152,9 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         // 让图片适应裁剪框
         setImageToWrapCropBounds(false)
         // 封装当前图片状态
-        val imageState = ImageState(
-            mCropRect,
-            trapToRect(mCurrentImageCorners),
-            getCurrentScale(),
-            getCurrentAngle()
-        )
+        val imageState = ImageState(mCropRect, trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle())
         // 封装裁剪参数
-        val cropParameters = CropParameters(
-            mMaxResultImageSizeX,
-            mMaxResultImageSizeY,
-            compressFormat,
-            compressQuality,
-            getImagePath(),
-            getOutputDirectory(),
-            getExifInfo()
-        )
+        val cropParameters = CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo())
         // 异步裁剪并保存
         val bitmap = getViewBitmap()
         if (null != bitmap) {
@@ -200,7 +187,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         // 计算比例
         mTargetAspectRatio = cropRect.width() / cropRect.height()
         // 设置裁剪区域（减去内边距）
-        mCropRect.set(cropRect.left - getPaddingLeft(), cropRect.top - paddingTop, cropRect.right - getPaddingRight(), cropRect.bottom - paddingBottom)
+        mCropRect.set(cropRect.left - paddingLeft, cropRect.top - paddingTop, cropRect.right - paddingRight, cropRect.bottom - paddingBottom)
         // 重新计算缩放范围
         calculateImageScaleBounds()
         // 让图片适应新裁剪框
@@ -386,7 +373,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
      * 计算最小/最大缩放
      */
     private fun calculateImageScaleBounds() {
-        val drawable = getDrawable() ?: return
+        drawable ?: return
         calculateImageScaleBounds(drawable.intrinsicWidth.toFloat(), drawable.intrinsicHeight.toFloat())
     }
 
@@ -438,16 +425,9 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
             val newY = CubicEasing.easeOut(currentMs, 0f, centerDiffY, durationMs.toFloat())
             val newScale = CubicEasing.easeInOut(currentMs, 0f, deltaScale, durationMs.toFloat())
             if (currentMs < durationMs) {
-                cropImageView.postTranslate(
-                    newX - (cropImageView.mCurrentImageCenter[0] - oldX),
-                    newY - (cropImageView.mCurrentImageCenter[1] - oldY)
-                )
+                cropImageView.postTranslate(newX - (cropImageView.mCurrentImageCenter[0] - oldX), newY - (cropImageView.mCurrentImageCenter[1] - oldY))
                 if (!willBeImageInBoundsAfterTranslate) {
-                    cropImageView.zoomInImage(
-                        oldScale + newScale,
-                        cropImageView.mCropRect.centerX(),
-                        cropImageView.mCropRect.centerY()
-                    )
+                    cropImageView.zoomInImage(oldScale + newScale, cropImageView.mCropRect.centerX(), cropImageView.mCropRect.centerY())
                 }
                 if (!cropImageView.isImageWrapCropBounds()) {
                     cropImageView.post(this)

@@ -283,11 +283,11 @@ class ItemDecorationHelper(private val mCallback: BaseGestureCallback) : ItemDec
         }
         if (lm?.canScrollHorizontally().orFalse) {
             val curX = (mSelectedStartX + mDx).toSafeInt()
-            val leftDiff = curX - mTmpRect?.left.orZero - mRecyclerView?.getPaddingLeft().orZero
+            val leftDiff = curX - mTmpRect?.left.orZero - mRecyclerView?.paddingLeft.orZero
             if (mDx < 0 && leftDiff < 0) {
                 scrollX = leftDiff
             } else if (mDx > 0) {
-                val rightDiff = curX + mSelected?.itemView?.width.orZero + mTmpRect?.right.orZero - (mRecyclerView?.width.orZero - mRecyclerView?.getPaddingRight().orZero)
+                val rightDiff = curX + mSelected?.itemView?.width.orZero + mTmpRect?.right.orZero - (mRecyclerView?.width.orZero - mRecyclerView?.paddingRight.orZero)
                 if (rightDiff > 0) {
                     scrollX = rightDiff
                 }
@@ -802,7 +802,7 @@ class ItemDecorationHelper(private val mCallback: BaseGestureCallback) : ItemDec
         stopGestureDetection()
     }
 
-    private inner class ItemGestureListener() : SimpleOnGestureListener() {
+    private inner class ItemGestureListener : SimpleOnGestureListener() {
         private var mShouldReactToLongPress = true
 
         fun doNotReactToLongPress() {
@@ -987,7 +987,7 @@ class ItemDecorationHelper(private val mCallback: BaseGestureCallback) : ItemDec
         }
 
         fun setDuration(duration: Long) {
-            mValueAnimator?.setDuration(duration)
+            mValueAnimator?.duration = duration
         }
 
         fun start() {

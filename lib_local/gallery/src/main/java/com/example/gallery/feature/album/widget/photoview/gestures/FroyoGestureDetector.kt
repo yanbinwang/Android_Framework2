@@ -21,7 +21,7 @@ class FroyoGestureDetector(context: Context) : EclairGestureDetector(context) {
          */
         override fun onScale(detector: ScaleGestureDetector): Boolean {
             // 获取缩放系数
-            val scaleFactor = detector.getScaleFactor()
+            val scaleFactor = detector.scaleFactor
             // 防止非法数值（异常保护）
             if (Float.isNaN(scaleFactor) || Float.isInfinite(scaleFactor)) {
                 return false

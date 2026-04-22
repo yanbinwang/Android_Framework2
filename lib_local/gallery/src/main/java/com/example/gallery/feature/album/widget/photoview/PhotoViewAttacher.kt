@@ -103,7 +103,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
          * 判断 ImageView 是否有图片
          */
         private fun hasDrawable(imageView: ImageView?): Boolean {
-            return null != imageView && null != imageView.getDrawable()
+            return null != imageView && null != imageView.drawable
         }
 
         /**
@@ -123,7 +123,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
         private fun setImageViewScaleTypeMatrix(imageView: ImageView?) {
             if (null != imageView && imageView !is IPhotoView) {
                 if (ScaleType.MATRIX != imageView.scaleType) {
-                    imageView.setScaleType(ScaleType.MATRIX)
+                    imageView.scaleType = ScaleType.MATRIX
                 }
             }
         }
@@ -139,11 +139,11 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     constructor(imageView: ImageView, zoomable: Boolean) {
         mImageView = WeakReference(imageView)
         // 开启绘制缓存
-        imageView.setDrawingCacheEnabled(true)
+        imageView.isDrawingCacheEnabled = true
         // 设置触摸监听
         imageView.setOnTouchListener(this)
         // 监听布局完成
-        val observer = imageView.getViewTreeObserver()
+        val observer = imageView.viewTreeObserver
         if (null != observer) observer.addOnGlobalLayoutListener(this)
         // 强制使用矩阵模式
         setImageViewScaleTypeMatrix(imageView)
@@ -203,7 +203,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     override fun setDisplayMatrix(finalMatrix: Matrix?): Boolean {
         requireNotNull(finalMatrix) { "Matrix cannot be null" }
         val imageView = getImageView() ?: return false
-        if (null == imageView.getDrawable()) return false
+        if (null == imageView.drawable) return false
         mSuppMatrix.set(finalMatrix)
         setImageViewMatrix(getDrawMatrix())
         checkMatrixBounds()
@@ -380,7 +380,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
         var handled = false
         if (mZoomEnabled && hasDrawable(v as ImageView?)) {
             val parent = v?.parent
-            when (ev?.action) {
+            when (ev.action) {
                 // 按下时禁止父控件拦截，保证图片能拖动
                 MotionEvent.ACTION_DOWN -> {
                     parent?.requestDisallowInterceptTouchEvent(true)
@@ -469,14 +469,14 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
             val left = imageView.left
             // 位置发生变化，重新更新矩阵
             if (top != mIvTop || bottom != mIvBottom || left != mIvLeft || right != mIvRight) {
-                updateBaseMatrix(imageView.getDrawable())
+                updateBaseMatrix(imageView.drawable)
                 mIvTop = top
                 mIvRight = right
                 mIvBottom = bottom
                 mIvLeft = left
             }
         } else {
-            updateBaseMatrix(imageView.getDrawable())
+            updateBaseMatrix(imageView.drawable)
         }
     }
 
@@ -488,7 +488,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
         if (null == mImageView) return
         val imageView = mImageView?.get()
         if (null != imageView) {
-            val observer = imageView.getViewTreeObserver()
+            val observer = imageView.viewTreeObserver
             if (null != observer && observer.isAlive) {
                 observer.removeGlobalOnLayoutListener(this)
             }
@@ -548,7 +548,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
         val imageView = getImageView() ?: return
         if (mZoomEnabled) {
             setImageViewScaleTypeMatrix(imageView)
-            updateBaseMatrix(imageView.getDrawable())
+            updateBaseMatrix(imageView.drawable)
         } else {
             resetMatrix()
         }
@@ -600,7 +600,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     private fun checkImageViewScaleType() {
         val imageView = getImageView()
         if (null != imageView && imageView !is IPhotoView) {
-            check(ScaleType.MATRIX == imageView.getScaleType()) { "The ImageView's ScaleType has been changed since attaching a PhotoViewAttacher. You should call " + "setScaleType on the PhotoViewAttacher instead of on the ImageView" }
+            check(ScaleType.MATRIX == imageView.scaleType) { "The ImageView's ScaleType has been changed since attaching a PhotoViewAttacher. You should call " + "setScaleType on the PhotoViewAttacher instead of on the ImageView" }
         }
     }
 
@@ -653,7 +653,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     private fun getDisplayRect(matrix: Matrix): RectF? {
         val imageView = getImageView()
         if (null != imageView) {
-            val d = imageView.getDrawable()
+            val d = imageView.drawable
             if (null != d) {
                 mDisplayRect.set(0f, 0f, d.intrinsicWidth.toFloat(), d.intrinsicHeight.toFloat())
                 matrix.mapRect(mDisplayRect)
@@ -687,7 +687,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
     private fun setImageViewMatrix(matrix: Matrix) {
         val imageView = getImageView() ?: return
         checkImageViewScaleType()
-        imageView.setImageMatrix(matrix)
+        imageView.imageMatrix = matrix
         val displayRect = getDisplayRect(matrix)
         if (null != displayRect) {
             mMatrixChangeListener?.onMatrixChanged(displayRect)
@@ -746,7 +746,7 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
      */
     private fun getImageViewWidth(imageView: ImageView?): Int {
         if (null == imageView) return 0
-        return imageView.width - imageView.getPaddingLeft() - imageView.getPaddingRight()
+        return imageView.width - imageView.paddingLeft - imageView.paddingRight
     }
 
     private fun getImageViewHeight(imageView: ImageView?): Int {

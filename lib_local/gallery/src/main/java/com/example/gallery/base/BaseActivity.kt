@@ -170,7 +170,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     lp.height = ViewGroup.LayoutParams.MATCH_PARENT
                     itemView.setLayoutParams(lp)
                     // 清除 ActionMenuItemView 自身的 padding
-                    itemView.setPadding(itemView.getPaddingLeft(), 0, itemView.getPaddingRight(), 0)
+                    itemView.setPadding(itemView.paddingLeft, 0, itemView.paddingRight, 0)
                     // 内容居中
                     itemView.gravity = Gravity.CENTER
                     // 颜色调整
@@ -229,9 +229,9 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             Slide(Gravity.START).apply { duration = 300; mode = Visibility.MODE_OUT }
         )
         // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-        window.setExitTransition(slideEnter)
+        window.exitTransition = slideEnter
         // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-        window.setReturnTransition(slideExit)
+        window.returnTransition = slideExit
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {

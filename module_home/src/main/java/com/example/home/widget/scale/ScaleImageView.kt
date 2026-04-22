@@ -80,7 +80,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         if (mScaleType == null) {
             mScaleType = ScaleType.FIT_CENTER
         }
-        setImageMatrix(matrix)
+        imageMatrix = matrix
         setScaleType(ScaleType.MATRIX)
         setState(State.NONE)
         onDrawReady = false
@@ -151,8 +151,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
         val topLeft = transformCoordTouchToBitmap(0f, 0f, true)
         val bottomRight = transformCoordTouchToBitmap(viewWidth?.toSafeFloat(), viewHeight?.toSafeFloat(), true)
-        val w = getDrawable().intrinsicWidth.toSafeFloat()
-        val h = getDrawable().intrinsicHeight.toSafeFloat()
+        val w = drawable.intrinsicWidth.toSafeFloat()
+        val h = drawable.intrinsicHeight.toSafeFloat()
         return RectF(topLeft.x / w, topLeft.y / h, bottomRight.x / w, bottomRight.y / h)
     }
 
@@ -262,7 +262,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
         m[Matrix.MTRANS_Y] = -((focusY.orZero * getImageHeight()) - (viewHeight.orZero * 0.5f))
         matrix.setValues(m)
         fixTrans()
-        setImageMatrix(matrix)
+        imageMatrix = matrix
     }
 
     fun setZoom(img: ScaleImageView) {
@@ -337,7 +337,6 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        val drawable = getDrawable()
         if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) {
             setMeasuredDimension(0, 0)
             return
@@ -355,7 +354,6 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     private fun fitImageToView() {
-        val drawable = getDrawable()
         if (drawable == null || drawable.intrinsicWidth == 0 || drawable.intrinsicHeight == 0) {
             return
         }
@@ -410,7 +408,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             matrix.setValues(m)
         }
         fixTrans()
-        setImageMatrix(matrix)
+        imageMatrix = matrix
     }
 
     private fun setViewSize(mode: Int, size: Int, drawableWidth: Int): Int {
@@ -525,7 +523,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                     }
                 }
             }
-            setImageMatrix(matrix)
+            imageMatrix = matrix
             userTouchListener?.onTouch(v, event)
             touchImageViewListener?.onMove()
             return true
@@ -616,7 +614,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
             scaleImage(deltaScale, bitmapX, bitmapY, stretchImageToSuper)
             translateImageToCenterTouchPosition(t)
             fixScaleTrans()
-            setImageMatrix(matrix)
+            imageMatrix = matrix
             touchImageViewListener?.onMove()
             if (t < 1f) {
                 compatPostOnAnimation(this)
@@ -647,8 +645,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private fun transformCoordTouchToBitmap(x: Float?, y: Float?, clipToBitmap: Boolean?): PointF {
         matrix.getValues(m)
-        val origW = getDrawable().intrinsicWidth.toSafeFloat()
-        val origH = getDrawable().intrinsicHeight.toSafeFloat()
+        val origW = drawable.intrinsicWidth.toSafeFloat()
+        val origH = drawable.intrinsicHeight.toSafeFloat()
         val transX = m[Matrix.MTRANS_X]
         val transY = m[Matrix.MTRANS_Y]
         var finalX = ((x.orZero - transX) * origW) / getImageWidth()
@@ -662,8 +660,8 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     private fun transformCoordBitmapToTouch(bx: Float?, by: Float?): PointF {
         matrix.getValues(m)
-        val origW = getDrawable().intrinsicWidth.toSafeFloat()
-        val origH = getDrawable().intrinsicHeight.toSafeFloat()
+        val origW = drawable.intrinsicWidth.toSafeFloat()
+        val origH = drawable.intrinsicHeight.toSafeFloat()
         val px = bx.orZero / origW
         val py = by.orZero / origH
         val finalX = m[Matrix.MTRANS_X] + getImageWidth() * px
@@ -727,7 +725,7 @@ class ScaleImageView @JvmOverloads constructor(context: Context, attrs: Attribut
                 currY = newY
                 matrix.postTranslate(transX.toSafeFloat(), transY.toSafeFloat())
                 fixTrans()
-                setImageMatrix(matrix)
+                imageMatrix = matrix
                 compatPostOnAnimation(this)
             }
         }
