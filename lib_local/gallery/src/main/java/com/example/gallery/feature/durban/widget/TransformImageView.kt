@@ -21,6 +21,15 @@ import kotlin.math.sqrt
  * 图片变换【基类】
  * 功能：图片加载、矩阵变换（移动/缩放/旋转）、坐标计算
  * 所有裁剪View的父类
+ * ImageView
+ *   ↓
+ * TransformImageView （基础变换）
+ *   ↓
+ * CropImageView      （裁剪功能）
+ *   ↓
+ * GestureCropImageView（手势操作）
+ *   ↓
+ * CropView（容器） =  GestureCropImageView + OverlayView
  */
 open class TransformImageView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatImageView(context, attrs, defStyleAttr) {
     // 图片最大尺寸（防止OOM）
@@ -139,6 +148,10 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      * 获取 / 加载 图片路径 (异步)
      */
     fun setImageLoad(inputImagePath: String, task: DurbanTask) {
+        // 复位调整 *
+        mBitmapDecoded = false
+        mBitmapLaidOut = false
+        // 赋值路径
         mImagePath = inputImagePath
         val maxBitmapSize = getMaxBitmapSize()
         val loadData = DurbanLoad(maxBitmapSize, maxBitmapSize)
@@ -146,6 +159,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
             override fun onSuccess(bitmap: Bitmap, exifInfo: ExifInfo) {
                 mExifInfo = exifInfo
                 mBitmapDecoded = true
+                // 触发 requestLayout() 从而回调 onLayout()
                 setImageBitmap(bitmap)
             }
 
