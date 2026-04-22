@@ -6,15 +6,20 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.view.appear
+import com.example.framework.utils.function.view.gone
 import com.example.gallery.R
 import com.example.gallery.feature.durban.model.ExifInfo
+import com.example.gallery.feature.durban.widget.TransformImageView
 import com.example.gallery.widget.LoadingDialog
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 /**
  * 裁剪库整体执行
@@ -38,39 +43,39 @@ class DurbanTask(private val activity: FragmentActivity) {
      * 裁剪图片 → 保存到文件 → 返回路径
      */
     fun cropExecute(mCrop: DurbanCrop, listener: BitmapCropCallback) {
+        val dialogShowTime = System.currentTimeMillis()
         cropJob?.cancel()
         cropJob = activity.lifecycleScope.launch(Main.immediate) {
             flow {
                 emit(requestAffair { mCrop.crop() })
             }.withHandling(err = {
-                listener.onFailure(it)
-            }, end = {
-                dismissDialog()
+                cropComplete(dialogShowTime) {
+                    dismissDialog()
+                    listener.onFailure(it)
+                }
             }).onStart {
                 showDialog()
             }.collect { (imagePath, imageWidth, imageHeight) ->
-                listener.onSuccess(imagePath, imageWidth, imageHeight)
+                cropComplete(dialogShowTime) {
+                    dismissDialog()
+                    listener.onSuccess(imagePath, imageWidth, imageHeight)
+                }
             }
         }
     }
 
     /**
-     * 从文件加载图片 → 纠正旋转 → 返回 Bitmap
+     * 完成回调
      */
-    fun loadExecute(mLoad: DurbanLoad, imagePath: String, listener: BitmapLoadCallback) {
-        loadJob?.cancel()
-        loadJob = activity.lifecycleScope.launch(Main.immediate) {
-            flow {
-                emit(requestAffair { mLoad.load(imagePath) })
-            }.withHandling(err = {
-                listener.onFailure(it)
-            }, end = {
-                dismissDialog()
-            }).onStart {
-                showDialog()
-            }.collect { (bitmap, exifInfo) ->
-                listener.onSuccess(bitmap, exifInfo)
-            }
+    private fun cropComplete(dialogShowTime: Long, listener: () -> Unit) {
+        val duration = System.currentTimeMillis() - dialogShowTime
+        if (duration < 1000) {
+            // 不足1000ms，延迟到1000ms再消失
+            schedule(activity, {
+                listener.invoke()
+            }, 1000 - duration)
+        } else {
+            listener.invoke()
         }
     }
 
@@ -86,6 +91,26 @@ class DurbanTask(private val activity: FragmentActivity) {
     private fun dismissDialog() {
         if (dialog.isShowing) {
             dialog.dismiss()
+        }
+    }
+
+    /**
+     * 从文件加载图片 → 纠正旋转 → 返回 Bitmap
+     */
+    fun loadExecute(imageView: WeakReference<TransformImageView>, mLoad: DurbanLoad, imagePath: String, listener: BitmapLoadCallback) {
+        loadJob?.cancel()
+        loadJob = activity.lifecycleScope.launch(Main.immediate) {
+            flow {
+                emit(requestAffair { mLoad.load(imagePath) })
+            }.withHandling(err = {
+                listener.onFailure(it)
+            }, end = {
+                imageView.get().appear()
+            }).onStart {
+                imageView.get().gone()
+            }.collect { (bitmap, exifInfo) ->
+                listener.onSuccess(bitmap, exifInfo)
+            }
         }
     }
 

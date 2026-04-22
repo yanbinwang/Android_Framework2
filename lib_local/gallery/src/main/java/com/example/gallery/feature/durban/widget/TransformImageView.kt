@@ -13,6 +13,7 @@ import com.example.gallery.feature.durban.model.ExifInfo
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
 import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
+import java.lang.ref.WeakReference
 import kotlin.math.atan2
 import kotlin.math.pow
 import kotlin.math.sqrt
@@ -148,14 +149,14 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      * 获取 / 加载 图片路径 (异步)
      */
     fun setImageLoad(inputImagePath: String, task: DurbanTask) {
-        // 复位调整 *
+        // 复位调整
         mBitmapDecoded = false
         mBitmapLaidOut = false
         // 赋值路径
         mImagePath = inputImagePath
         val maxBitmapSize = getMaxBitmapSize()
         val loadData = DurbanLoad(maxBitmapSize, maxBitmapSize)
-        task.loadExecute(loadData, inputImagePath, object : DurbanTask.BitmapLoadCallback {
+        task.loadExecute(WeakReference(this), loadData, inputImagePath, object : DurbanTask.BitmapLoadCallback {
             override fun onSuccess(bitmap: Bitmap, exifInfo: ExifInfo) {
                 mExifInfo = exifInfo
                 mBitmapDecoded = true

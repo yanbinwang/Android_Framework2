@@ -43,6 +43,7 @@ object BitmapLoadUtil {
         val width = options.outWidth
         var inSampleSize = 1
         if (height > reqHeight || width > reqWidth) {
+            // 图片比控件大 → 就一直 2倍、4倍、8倍、16倍 压缩
             while ((height / inSampleSize) > reqHeight || (width / inSampleSize) > reqWidth) {
                 inSampleSize *= 2
             }

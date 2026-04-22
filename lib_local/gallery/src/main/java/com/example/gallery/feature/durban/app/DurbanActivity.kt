@@ -234,7 +234,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      * 执行裁剪并保存
      */
     private fun cropAndSaveImage() {
-        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, mTask, object : DurbanTask.BitmapCropCallback {
+        mCropImageView.setImageCrop(mCompressFormat, mCompressQuality, mTask, object : DurbanTask.BitmapCropCallback {
             override fun onSuccess(imagePath: String, imageWidth: Int, imageHeight: Int) {
                 mOutputPathList.add(imagePath)
                 cropNextImage()
