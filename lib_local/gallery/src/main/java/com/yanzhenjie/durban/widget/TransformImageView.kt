@@ -249,9 +249,20 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     }
 
     /**
+     * 设置监听
+     */
+    fun setTransformImageListener(transformImageListener: TransformImageListener) {
+        mTransformImageListener = transformImageListener
+    }
+
+    fun getTransformImageListener(): TransformImageListener? {
+        return mTransformImageListener
+    }
+
+    /**
      * 移动图片
      */
-    fun postTranslate(deltaX: Float, deltaY: Float) {
+    open fun postTranslate(deltaX: Float, deltaY: Float) {
         if (deltaX != 0f || deltaY != 0f) {
             mCurrentImageMatrix.postTranslate(deltaX, deltaY)
             setImageMatrix(mCurrentImageMatrix)
@@ -261,7 +272,7 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     /**
      * 缩放图片
      */
-    fun postScale(deltaScale: Float, px: Float, py: Float) {
+    open fun postScale(deltaScale: Float, px: Float, py: Float) {
         if (deltaScale != 0f) {
             mCurrentImageMatrix.postScale(deltaScale, deltaScale, px, py)
             setImageMatrix(mCurrentImageMatrix)
@@ -272,23 +283,12 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     /**
      * 旋转图片
      */
-    fun postRotate(deltaAngle: Float, px: Float, py: Float) {
+    open fun postRotate(deltaAngle: Float, px: Float, py: Float) {
         if (deltaAngle != 0f) {
             mCurrentImageMatrix.postRotate(deltaAngle, px, py)
             setImageMatrix(mCurrentImageMatrix)
             mTransformImageListener?.onRotate(getMatrixAngle(mCurrentImageMatrix))
         }
-    }
-
-    /**
-     * 设置监听
-     */
-    fun setTransformImageListener(transformImageListener: TransformImageListener) {
-        mTransformImageListener = transformImageListener
-    }
-
-    fun getTransformImageListener(): TransformImageListener? {
-        return mTransformImageListener
     }
 
     /**
