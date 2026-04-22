@@ -82,7 +82,6 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
                 }
                 mViewBitmap = rotatedBitmap
             }
-
             // 计算裁剪偏移量 & 最终宽高
             val cropOffsetX = ((mCropRect.left - mCurrentImageRect.left) / mCurrentScale).roundToInt()
             val cropOffsetY = ((mCropRect.top - mCurrentImageRect.top) / mCurrentScale).roundToInt()

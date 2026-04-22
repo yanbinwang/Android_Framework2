@@ -8,8 +8,8 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import com.example.gallery.R
-import com.yanzhenjie.durban.app.data.BitmapCropCallback
-import com.yanzhenjie.durban.app.data.BitmapCropTask
+import com.yanzhenjie.durban.app.data.DurbanCrop
+import com.yanzhenjie.durban.app.data.DurbanTask
 import com.yanzhenjie.durban.model.CropParameters
 import com.yanzhenjie.durban.model.ImageState
 import com.yanzhenjie.durban.utils.CubicEasing.easeInOut
@@ -43,8 +43,6 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     // 动画任务
     private var mWrapCropBoundsRunnable: Runnable? = null
     private var mZoomImageToPositionRunnable: Runnable? = null
-    // 裁剪异步
-    private var mBitmapCropTask: BitmapCropTask? = null
     // 裁剪比例变化监听
     private var mOnCropBoundsChangeListener: OnCropBoundsChangeListener? = null
     // 裁剪区域矩形
@@ -59,12 +57,6 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         const val SOURCE_IMAGE_ASPECT_RATIO = 0f
         const val DEFAULT_ASPECT_RATIO = SOURCE_IMAGE_ASPECT_RATIO
         const val DEFAULT_MAX_SCALE_MULTIPLIER = 10.0f
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        mBitmapCropTask?.cancel(true)
-        mBitmapCropTask = null
     }
 
     /**
@@ -155,7 +147,7 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     /**
      * 裁剪并保存图片
      */
-    fun cropAndSaveImage(compressFormat: CompressFormat, compressQuality: Int, cropCallback: BitmapCropCallback) {
+    fun cropAndSaveImage(compressFormat: CompressFormat, compressQuality: Int, task: DurbanTask, listener: DurbanTask.BitmapCropCallback) {
         // 取消所有动画
         cancelAllAnimations()
         // 让图片适应裁剪框
@@ -165,10 +157,13 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         // 封装裁剪参数
         val cropParameters = CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo())
         // 异步裁剪并保存
-        mBitmapCropTask?.cancel(true)
-        mBitmapCropTask = null
-        mBitmapCropTask = BitmapCropTask(context, getViewBitmap(), imageState, cropParameters, cropCallback)
-        mBitmapCropTask?.execute()
+        val bitmap = getViewBitmap()
+        if (null != bitmap) {
+            val cropData = DurbanCrop(bitmap, imageState, cropParameters)
+            task.cropExecute(cropData, listener)
+        } else {
+            listener.onFailure(AssertionError("图片保存失败"))
+        }
     }
 
     /**

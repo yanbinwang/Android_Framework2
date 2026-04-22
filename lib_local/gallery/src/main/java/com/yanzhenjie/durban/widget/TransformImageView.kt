@@ -7,8 +7,8 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import androidx.appcompat.widget.AppCompatImageView
-import com.yanzhenjie.durban.app.data.BitmapLoadCallback
-import com.yanzhenjie.durban.app.data.BitmapLoadTask
+import com.yanzhenjie.durban.app.data.DurbanLoad
+import com.yanzhenjie.durban.app.data.DurbanTask
 import com.yanzhenjie.durban.model.ExifInfo
 import com.yanzhenjie.durban.utils.BitmapLoadUtil.calculateMaxBitmapSize
 import com.yanzhenjie.durban.utils.RectUtil.getCenterFromRect
@@ -31,8 +31,6 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     private var mOutputDirectory: String? = null
     // 图片信息（旋转、翻转）
     private var mExifInfo: ExifInfo? = null
-    // 加载线程
-    private var mBitmapLoadTask: BitmapLoadTask? = null
     // 图片初始状态：四个角坐标、中心点坐标
     private var mInitialImageCorners = floatArrayOf()
     private var mInitialImageCenter = floatArrayOf()
@@ -110,15 +108,6 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     }
 
     /**
-     * 销毁
-     */
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        mBitmapLoadTask?.cancel(true)
-        mBitmapLoadTask = null
-    }
-
-    /**
      * 图片布局完成 → 记录初始坐标
      */
     protected open fun onImageLaidOut() {
@@ -149,42 +138,26 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     /**
      * 获取 / 加载 图片路径 (异步)
      */
-    @Throws(Exception::class)
-    fun setImagePath(inputImagePath: String) {
+    fun setImageLoad(inputImagePath: String, task: DurbanTask) {
         mImagePath = inputImagePath
         val maxBitmapSize = getMaxBitmapSize()
-        mBitmapLoadTask?.cancel(true)
-        mBitmapLoadTask = null
-        mBitmapLoadTask = BitmapLoadTask(context, maxBitmapSize, maxBitmapSize, object : BitmapLoadCallback {
-            override fun onSuccessfully(bitmap: Bitmap, exifInfo: ExifInfo) {
+        val loadData = DurbanLoad(maxBitmapSize, maxBitmapSize)
+        task.loadExecute(loadData, inputImagePath, object : DurbanTask.BitmapLoadCallback {
+            override fun onSuccess(bitmap: Bitmap, exifInfo: ExifInfo) {
                 mExifInfo = exifInfo
                 mBitmapDecoded = true
                 setImageBitmap(bitmap)
             }
 
-            override fun onFailure() {
+            override fun onFailure(t: Throwable) {
                 mTransformImageListener?.onLoadFailure()
             }
         })
-        mBitmapLoadTask?.execute(inputImagePath)
-    }
-
-    /**
-     * 外层协程处理完毕后修改view内部的值
-     */
-    fun setImageData(bitmap: Bitmap, exifInfo: ExifInfo) {
-        mExifInfo = exifInfo
-        mBitmapDecoded = true
-        setImageBitmap(bitmap)
     }
 
     /**
      * 获取路径、目录、图片信息
      */
-//    fun setImagePath(imagePath: String) {
-//        mImagePath = imagePath
-//    }
-
     fun setOutputDirectory(outputDirectory: String) {
         mOutputDirectory = outputDirectory
     }
@@ -253,10 +226,6 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
      */
     fun setTransformImageListener(transformImageListener: TransformImageListener) {
         mTransformImageListener = transformImageListener
-    }
-
-    fun getTransformImageListener(): TransformImageListener? {
-        return mTransformImageListener
     }
 
     /**

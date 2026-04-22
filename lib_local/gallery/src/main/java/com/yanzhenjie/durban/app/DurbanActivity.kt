@@ -23,7 +23,6 @@ import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.yanzhenjie.durban.Durban
-import com.yanzhenjie.durban.app.data.BitmapCropCallback
 import com.yanzhenjie.durban.app.data.DurbanTask
 import com.yanzhenjie.durban.model.Controller
 import com.yanzhenjie.durban.widget.CropImageView.Companion.DEFAULT_IMAGE_TO_CROP_BOUNDS_ANIM_DURATION
@@ -238,13 +237,13 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      * 执行裁剪并保存
      */
     private fun cropAndSaveImage() {
-        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, object : BitmapCropCallback {
-            override fun onBitmapCropped(imagePath: String, imageWidth: Int, imageHeight: Int) {
+        mCropImageView.cropAndSaveImage(mCompressFormat, mCompressQuality, mTask, object : DurbanTask.BitmapCropCallback {
+            override fun onSuccess(imagePath: String, imageWidth: Int, imageHeight: Int) {
                 mOutputPathList.add(imagePath)
                 cropNextImage()
             }
 
-            override fun onCropFailure(t: Throwable) {
+            override fun onFailure(t: Throwable) {
                 cropNextImage()
             }
         })
@@ -260,12 +259,8 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         // 加载图片并裁剪
         if (!mInputPathList.isEmpty()) {
             val currentPath = mInputPathList.removeAt(0)
-            try {
-                mCropImageView.setImagePath(currentPath)
-            } catch (_: Exception) {
-                // 加载失败直接下一张
-                cropNextImage()
-            }
+            // 加载失败直接下一张 -> 监听回调
+            mCropImageView.setImageLoad(currentPath, mTask)
         } else {
             // 全部裁剪完成
             if (!mOutputPathList.isEmpty()) {

@@ -27,10 +27,7 @@ class DurbanTask(private val activity: FragmentActivity) {
     private val dialog by lazy { LoadingDialog(activity) }
 
     init {
-        dialog.setupViews(
-            ContextCompat.getColor(activity, R.color.galleryIconDark),
-            R.string.durban_loading_message
-        )
+        dialog.setupViews(ContextCompat.getColor(activity, R.color.galleryIconDark), R.string.durban_loading_message)
         activity.doOnDestroy {
             cropJob?.cancel()
             loadJob?.cancel()
@@ -60,8 +57,21 @@ class DurbanTask(private val activity: FragmentActivity) {
     /**
      * 从文件加载图片 → 纠正旋转 → 返回 Bitmap
      */
-    fun loadExecute() {
-
+    fun loadExecute(mLoad: DurbanLoad, imagePath: String, listener: BitmapLoadCallback) {
+        loadJob?.cancel()
+        loadJob = activity.lifecycleScope.launch(Main.immediate) {
+            flow {
+                emit(requestAffair { mLoad.load(imagePath) })
+            }.withHandling(err = {
+                listener.onFailure(it)
+            }, end = {
+                dismissDialog()
+            }).onStart {
+                showDialog()
+            }.collect { (bitmap, exifInfo) ->
+                listener.onSuccess(bitmap, exifInfo)
+            }
+        }
     }
 
     /**
@@ -113,7 +123,7 @@ class DurbanTask(private val activity: FragmentActivity) {
         /**
          * 加载失败（文件不存在、图片损坏、内存不足等）
          */
-        fun onFailure()
+        fun onFailure(t: Throwable)
     }
 
 }
