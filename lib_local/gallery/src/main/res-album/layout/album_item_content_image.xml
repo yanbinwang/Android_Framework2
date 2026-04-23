@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.yanzhenjie.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<com.example.gallery.feature.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Album.Item.Card.MatchParent">
 
     <RelativeLayout style="@style/Album.MatchParent">
@@ -10,7 +10,7 @@
             android:contentDescription="@string/album_title"
             android:scaleType="centerCrop" />
 
-        <com.yanzhenjie.album.widget.TransferLayout
+        <com.example.gallery.feature.album.widget.TransferLayout
             style="@style/Album.WrapContent.Transfer"
             android:layout_alignParentEnd="true">
 
@@ -18,22 +18,22 @@
                 android:id="@+id/check_box"
                 style="@style/Album.CheckBox.WrapContent" />
 
-        </com.yanzhenjie.album.widget.TransferLayout>
+        </com.example.gallery.feature.album.widget.TransferLayout>
 
     </RelativeLayout>
 
     <FrameLayout
         android:id="@+id/layout_layer"
         style="@style/Album.MatchParent"
-        android:background="@color/albumSheetLayer">
+        android:background="@color/albumLayerDisabled">
 
         <TextView
             style="@style/Album.WrapContent"
             android:layout_gravity="center"
             android:text="@string/album_item_unavailable"
             android:textColor="@color/galleryFontLight"
-            android:textSize="@dimen/album_sp_16" />
+            android:textSize="@dimen/textSize14" />
 
     </FrameLayout>
 
-</com.yanzhenjie.album.widget.square.SquareCardView>
+</com.example.gallery.feature.album.widget.square.SquareCardView>

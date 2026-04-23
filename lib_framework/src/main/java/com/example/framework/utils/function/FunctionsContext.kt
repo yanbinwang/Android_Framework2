@@ -95,6 +95,15 @@ fun Context.string(@StringRes res: Int): String {
 
 /**
  * 生成View
+ * @attachToRoot: 加载出来的布局，要不要立刻添加到 root（父容器）中
+ * 1) attachToRoot = true
+ *  把布局添加到 root 里面
+ *  返回值：root 本身
+ *  使用场景：立刻把布局加到父布局里
+ * 2) attachToRoot = false
+ *  不添加到 root 里 , 但会用 root 来计算正确的布局参数（LayoutParams）
+ *  返回值：加载的布局自己
+ *  使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(res, root)
@@ -439,6 +448,10 @@ fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
     return intent.getBooleanExtra(key, default)
 }
 
+fun Activity.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return intent.getStringArrayListExtra(key) ?: default
+}
+
 inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
         intent.getSerializableExtra(key, T::class.java)
@@ -496,6 +509,10 @@ fun Fragment.intentDouble(key: String, default: Double = 0.0): Double {
 
 fun Fragment.intentBoolean(key: String, default: Boolean = false): Boolean {
     return arguments?.getBoolean(key, default) ?: default
+}
+
+fun Fragment.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return arguments?.getStringArrayList(key) ?: default
 }
 
 inline fun <reified T : Serializable> Fragment.intentSerializable(key: String): T? {

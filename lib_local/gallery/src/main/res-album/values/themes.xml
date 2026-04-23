@@ -4,6 +4,36 @@
     <!-- ====================== 相册基础样式 ====================== -->
     <style name="Album" />
 
+    <!-- ====================== 通用布局样式 ====================== -->
+    <!-- 宽高充满父布局 -->
+    <style name="Album.MatchParent">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+    </style>
+
+    <!-- 包裹内容 -->
+    <style name="Album.WrapContent">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <!-- 可点击、带内边距的布局 -->
+    <style name="Album.WrapContent.Transfer">
+        <item name="android:clickable">true</item>
+        <item name="android:padding">@dimen/gallery_dp_10</item>
+    </style>
+
+    <!-- 宽充满、高包裹 -->
+    <style name="Album.WrapContent.WidthMatchParent">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+
+    <!-- 底部栏：宽充满、固定高度 -->
+    <style name="Album.MatchParent.SheetBottom">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">@dimen/gallery_dp_45</item>
+    </style>
+
     <!-- ====================== 按钮样式 ====================== -->
     <style name="Album.Button" parent="Widget.AppCompat.Button">
         <item name="android:theme">@style/Album.Theme.Button</item>
@@ -20,77 +50,7 @@
         <item name="android:minHeight">48dp</item>
         <item name="android:paddingStart">12dp</item>
         <item name="android:paddingEnd">12dp</item>
-        <item name="android:textSize">@dimen/album_sp_14</item>
-    </style>
-
-    <!-- ====================== 复选框样式 ====================== -->
-    <style name="Album.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox" />
-
-    <!-- 复选框：包裹内容 -->
-    <style name="Album.CheckBox.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <!-- ====================== 对话框样式 ====================== -->
-    <!-- 基础对话框：悬浮、半透明背景 -->
-    <style name="Album.Dialog" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-    </style>
-
-    <!-- 文件夹对话框：全屏、透明背景 -->
-    <style name="Album.Dialog.Folder">
-        <item name="android:windowBackground">@color/galleryTransparent</item>
-        <item name="android:windowIsFloating">false</item>
-        <item name="android:windowFullscreen">true</item>
-        <!-- 底部弹出动画 -->
-        <item name="android:windowAnimationStyle">@style/PopupTranslateAnimStyle</item>
-    </style>
-
-    <!-- ====================== 列表条目样式 ====================== -->
-    <style name="Album.Item" />
-
-    <!-- 卡片条目：带按压效果、圆角、阴影 -->
-    <style name="Album.Item.Card">
-        <item name="android:foreground">?selectableItemBackground</item>
-        <item name="cardCornerRadius">@dimen/album_dp_2</item>
-        <item name="cardElevation">@dimen/album_dp_2</item>
-        <item name="cardPreventCornerOverlap">false</item>
-    </style>
-
-    <!-- 卡片条目：宽高充满 -->
-    <style name="Album.Item.Card.MatchParent">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <!-- ====================== 通用布局样式 ====================== -->
-    <!-- 宽高充满父布局 -->
-    <style name="Album.MatchParent">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <!-- 底部栏：宽充满、固定高度 -->
-    <style name="Album.MatchParent.SheetBottom">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/album_dp_45</item>
-    </style>
-
-    <!-- ====================== 进度条样式 ====================== -->
-    <style name="Album.Progress" parent="Widget.AppCompat.ProgressBar" />
-
-    <!-- 加载进度条：固定大小 -->
-    <style name="Album.Progress.Loading">
-        <item name="android:minWidth">@dimen/album_dp_40</item>
-        <item name="android:maxWidth">@dimen/album_dp_40</item>
-        <item name="android:minHeight">@dimen/album_dp_40</item>
-        <item name="android:maxHeight">@dimen/album_dp_40</item>
-        <item name="android:layout_width">@dimen/album_dp_40</item>
-        <item name="android:layout_height">@dimen/album_dp_40</item>
+        <item name="android:textSize">@dimen/textSize12</item>
     </style>
 
     <!-- ====================== 文字按钮 ====================== -->
@@ -107,68 +67,48 @@
         <item name="android:layout_gravity">center_vertical</item>
         <item name="android:ellipsize">end</item>
         <item name="android:maxLines">1</item>
-        <item name="android:maxWidth">@dimen/album_dp_200</item>
+        <item name="android:maxWidth">@dimen/gallery_dp_200</item>
         <item name="android:textColor">@color/galleryFontLight</item>
-        <item name="android:textSize">@dimen/album_sp_14</item>
+        <item name="android:textSize">@dimen/textSize12</item>
     </style>
 
-    <!-- ====================== 主题样式 ====================== -->
-    <style name="Album.Theme" />
+    <!-- ====================== 复选框样式 ====================== -->
+    <style name="Album.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox" />
 
-    <!-- Activity 基础主题：无标题栏、透明背景 -->
-    <style name="Album.Theme.Activity" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowDisablePreview">true</item>
-        <item name="android:windowBackground">@color/galleryTransparent</item>
-        <item name="android:textAllCaps">false</item>
-    </style>
-
-    <!-- 透明 Activity：无遮罩、无背景 -->
-    <style name="Album.Theme.Activity.Transparent" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="android:windowActionBar">false</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="android:windowAnimationStyle">@null</item>
-        <item name="android:windowContentTransitions">false</item>
-        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:navigationBarColor">@android:color/transparent</item>
-        <item name="colorPrimaryDark">@android:color/transparent</item>
-    </style>
-
-    <!-- ====================== Toolbar 样式 ====================== -->
-    <style name="Album.Toolbar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">wrap_content</item>
-        <!-- 全透明 -->
-        <item name="android:background">@android:color/transparent</item>
-        <!-- 去掉阴影 -->
-        <item name="android:elevation">@dimen/album_dp_0</item>
-        <!-- 去掉Toolbar左边默认的16dp留白 -->
-        <item name="android:contentInsetStart">@dimen/album_dp_0</item>
-        <!-- 彻底隐藏标题 -->
-        <item name="android:title">@null</item>
-    </style>
-
-    <!-- ====================== 通用布局 ====================== -->
-    <!-- 包裹内容 -->
-    <style name="Album.WrapContent">
+    <!-- 复选框：包裹内容 -->
+    <style name="Album.CheckBox.WrapContent">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
     </style>
 
-    <!-- 可点击、带内边距的布局 -->
-    <style name="Album.WrapContent.Transfer">
-        <item name="android:clickable">true</item>
-        <item name="android:padding">@dimen/album_dp_10</item>
+    <!-- ====================== 对话框样式 ====================== -->
+    <!-- 基础对话框：悬浮、半透明背景 -->
+    <style name="Album.Dialog" parent="Gallery.Dialog" />
+
+    <!-- 文件夹对话框：全屏、透明背景 -->
+    <style name="Album.Dialog.Folder">
+        <item name="android:windowBackground">@color/galleryTransparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- 底部弹出动画 -->
+        <item name="android:windowAnimationStyle">@style/PopupTranslateAnimStyle</item>
     </style>
 
-    <!-- 宽充满、高包裹 -->
-    <style name="Album.WrapContent.WidthMatchParent">
+    <!-- ====================== 列表条目样式 ====================== -->
+    <style name="Album.Item" />
+
+    <!-- 卡片条目：带按压效果、圆角、阴影 -->
+    <style name="Album.Item.Card">
+        <item name="android:foreground">?selectableItemBackground</item>
+        <item name="cardCornerRadius">@dimen/gallery_dp_2</item>
+        <item name="cardElevation">@dimen/gallery_dp_2</item>
+        <item name="cardPreventCornerOverlap">false</item>
+    </style>
+
+    <!-- 卡片条目：宽高充满 -->
+    <style name="Album.Item.Card.MatchParent">
         <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
     </style>
 
 </resources>

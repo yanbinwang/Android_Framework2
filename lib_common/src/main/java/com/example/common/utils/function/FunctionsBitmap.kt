@@ -292,6 +292,8 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
 }
 
 fun Drawable.toBitmap(): Bitmap {
+    // 让 Drawable 拥有独立的状态，不会影响到其他使用同一个资源的 Drawable
+    mutate()
     // 若本身是 BitmapDrawable，直接返回其 Bitmap（避免重复绘制）
     if (this is BitmapDrawable) {
         val config = bitmap.config ?: Bitmap.Config.ARGB_8888

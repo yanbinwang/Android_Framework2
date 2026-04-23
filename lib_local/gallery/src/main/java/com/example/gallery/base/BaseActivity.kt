@@ -3,7 +3,6 @@ package com.example.gallery.base
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.Resources
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.transition.Slide
@@ -22,6 +21,8 @@ import androidx.appcompat.view.menu.ActionMenuItemView
 import androidx.appcompat.widget.ActionMenuView
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isNotEmpty
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
@@ -42,19 +43,16 @@ import com.example.gallery.base.bridge.Bye
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 针对所有相册页面的基类
  */
 abstract class BaseActivity : AppCompatActivity(), Bye {
     private val immersionBar by lazy { ImmersionBar.with(this) }
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
     companion object {
-
-        /**
-         * 启动相册页面就拿一次系统默认状态栏高度（由于第一个界面一定是相册库而不是裁剪,故而该值几乎是启动相册库后就不变的）
-         */
-        private val defaultStatusBarHeight = getStatusBarHeight()
 
         /**
          * 兼容控件内toolbar
@@ -63,11 +61,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         fun setSupportToolbar(toolbar: Toolbar?) {
             toolbar.doOnceAfterLayout { tb ->
                 // 取当前页面状态栏高度
-                var statusBarHeight = getStatusBarHeight()
-                // 如果当前高度不对（比如从系统相机跳过来变成 0）就直接用"一开始就存好的默认高度"
-                if (statusBarHeight != defaultStatusBarHeight) {
-                    statusBarHeight = defaultStatusBarHeight
-                }
+                val statusBarHeight = getStatusBarHeight()
                 // 设置高度
                 tb.size(height = tb.measuredHeight + statusBarHeight)
                 // 设置左、右内边距全为0
@@ -125,7 +119,8 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
          * 2) 大多数手机 60fps → 16ms 刷新一次 , 低一点 30fps → 32ms 刷新一次 , 32ms 就是「等下一帧渲染完」
          */
         @JvmStatic
-        fun setSupportMenuViewAsync(toolbar: Toolbar, @ColorRes colorRes: Int) {
+        fun setSupportMenuViewAsync(toolbar: Toolbar?, @ColorRes colorRes: Int) {
+            toolbar ?: return
             val interval = 32L   // 每帧检查一次
             val maxRetry = 30    // 最多重试30次 ≈ 1秒超时
             var retry = 0        // 正确计数
@@ -167,15 +162,15 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 // 打破 ActionMenuItemView 的高度限制
                 if (itemView is ActionMenuItemView) {
                     // 取消最小高度限制
-                    itemView.setMinHeight(0)
+                    itemView.minHeight = 0
                     // 取消最大高度限制
-                    itemView.setMaxHeight(Int.MAX_VALUE)
+                    itemView.maxHeight = Int.MAX_VALUE
                     // 强制 ActionMenuItemView 高度占满父容器（ActionMenuView）
                     val lp = itemView.layoutParams
                     lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-                    itemView.setLayoutParams(lp)
+                    itemView.layoutParams = lp
                     // 清除 ActionMenuItemView 自身的 padding
-                    itemView.setPadding(itemView.getPaddingLeft(), 0, itemView.getPaddingRight(), 0)
+                    itemView.setPadding(itemView.paddingLeft, 0, itemView.paddingRight, 0)
                     // 内容居中
                     itemView.gravity = Gravity.CENTER
                     // 颜色调整
@@ -189,9 +184,15 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     // 大小修正 -> 判断这个按钮有没有 ICON
                     val hasIcon = itemView.itemData?.icon != null
                     if (hasIcon) {
-                        val adjustHeight = toolbar.measuredHeight - defaultStatusBarHeight
+                        val adjustHeight = toolbar.measuredHeight - getStatusBarHeight()
                         itemView.size(width = adjustHeight)
                     }
+                    // 干掉菜单按钮水波纹
+                    itemView.background = null
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        itemView.tooltipText = null
+                    }
+                    itemView.setOnLongClickListener { true }
                 }
             }
         }
@@ -201,13 +202,10 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // 设置相册整体动画
         setActivityAnimations()
         // 强制补动画（外部跳转生效）
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out, Color.TRANSPARENT)
-        } else {
-            overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
-        }
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 添加至统一页面管理类
@@ -231,9 +229,9 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
             Slide(Gravity.START).apply { duration = 300; mode = Visibility.MODE_OUT }
         )
         // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-        window.setExitTransition(slideEnter)
+        window.exitTransition = slideEnter
         // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-        window.setReturnTransition(slideExit)
+        window.returnTransition = slideExit
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {
@@ -254,6 +252,22 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 init()
             }
         }
+    }
+
+    /**
+     * ViewModel 中定义无值事件（用 Unit 替代 Any）
+     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     */
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseActivity, observer)
     }
 
     /**
@@ -338,11 +352,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
 
     override fun finish() {
         super.finish()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out, Color.TRANSPARENT)
-        } else {
-            overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
-        }
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
     override fun onDestroy() {
@@ -350,6 +360,10 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
         window?.removeNavigationBarDrawable()
         clearOnBackPressedListener()
         AppManager.removeActivity(this)
+        for ((key, value) in dataManager) {
+            key.removeObserver(value)
+        }
+        dataManager.clear()
     }
 
 }

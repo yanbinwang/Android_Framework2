@@ -150,14 +150,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onNewIntent(intent)
         // 自定义滑入动画（从右侧进入）
         val slideEnter = Slide(Gravity.END)
-        slideEnter.setDuration(300)
+        slideEnter.duration = 300
         // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
-        window.setExitTransition(slideEnter)
+        window.exitTransition = slideEnter
         // 自定义滑出动画（向右侧退出）
         val slideExit = Slide(Gravity.START)
-        slideExit.setDuration(300)
+        slideExit.duration = 300
         // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
-        window.setReturnTransition(slideExit)
+        window.returnTransition = slideExit
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

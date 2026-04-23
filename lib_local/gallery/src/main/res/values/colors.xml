@@ -13,6 +13,7 @@
     <!-- 字体深浅 -->
     <color name="galleryFontDark">#333</color>
     <color name="galleryFontLight">#FFF</color>
+    <color name="galleryFontHint">#808080</color>
     <!-- 图标深浅 -->
     <color name="galleryIconDark">#333</color>
     <color name="galleryIconLight">#FFF</color>

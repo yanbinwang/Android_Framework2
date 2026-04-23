@@ -304,7 +304,7 @@
 # 保留项目中实际的 JS 交互内部类（替换为你的实际类名）
 -keepclassmembers class com.example.home.utils.WebJavaScriptObject { *; }
 
-# 保留所有被 @JavascriptInterface 注解的方法（核心）
+# 保留所有被 @JavascriptInterface 注解的方法
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
@@ -428,14 +428,9 @@
 -keep class com.tencent.mm.sdk.** {
     *;
 }
-# ---------------------------- 图片裁剪混淆 ----------------------------
--dontwarn com.yanzhenjie.durban.**
--keep class com.yanzhenjie.durban.**{*;}
--dontwarn com.yanzhenjie.loading.**
--keep class com.yanzhenjie.loading.**{*;}
-# ---------------------------- 图片库混淆 ----------------------------
--dontwarn com.yanzhenjie.album.**
--keep class com.yanzhenjie.album.**{*;}
+# ---------------------------- 图片相册/裁剪库混淆 ----------------------------
+-dontwarn com.example.gallery.**
+-keep class com.example.gallery.**{*;}
 # ---------------------------- 阿里oss混淆 ----------------------------
 -keep class com.alibaba.sdk.android.oss.** { *; }
 -dontwarn okio.**

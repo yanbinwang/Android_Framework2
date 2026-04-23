@@ -228,13 +228,13 @@ abstract class BaseGestureCallback {
             val minLeft = target?.itemView?.let { child ->
                 layoutManager?.getDecoratedLeft(child)
             }.orZero
-            if (minLeft <= recyclerView?.getPaddingLeft().orZero) {
+            if (minLeft <= recyclerView?.paddingLeft.orZero) {
                 recyclerView?.scrollToPosition(toPos)
             }
             val maxRight = target?.itemView?.let { child ->
                 layoutManager?.getDecoratedRight(child)
             }.orZero
-            if (maxRight >= recyclerView?.width.orZero - recyclerView?.getPaddingRight().orZero) {
+            if (maxRight >= recyclerView?.width.orZero - recyclerView?.paddingRight.orZero) {
                 recyclerView?.scrollToPosition(toPos)
             }
         }

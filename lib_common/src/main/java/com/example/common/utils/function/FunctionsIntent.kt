@@ -126,11 +126,11 @@ fun Activity?.pullUpAlbum() {
  * 2) 调起后获取源文件创建路径
  * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  */
-fun Activity?.pullUpImage(): String? {
+fun Activity?.pullUpImage(requestCode: Int = RESULT_IMAGE): String? {
     this ?: return null
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    return startActivityForResult(file, intent, RESULT_IMAGE)
+    return startActivityForResult(file, intent, requestCode)
 }
 
 /**
@@ -143,7 +143,7 @@ fun Activity?.pullUpImage(): String? {
  * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  * 4) 三个参数基本失效, 国产 ROM 深度定制相机忽略了对应参数的兼容, Google 自家相机（Pixel）也在 2019 年移除了支持, 传输参数是没有任何意义的, 定制化相机需自行依赖三方库做限制
  */
-fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0): String? {
+fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, requestCode: Int = RESULT_VIDEO): String? {
     this ?: return null
     val file = getOutputFile(StorageType.VIDEO)
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
@@ -157,20 +157,19 @@ fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, q
     val safeQuality = if (quality == 0) 0 else 1
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, safeQuality)
     // 正式开启录制视频
-    return startActivityForResult(file, intent, RESULT_VIDEO)
+    return startActivityForResult(file, intent, requestCode)
 }
 
 private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int): String? {
     if (null == file || null == this) return null
     try {
-        val uri: Uri?
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            uri = FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
+        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
         } else {
-            uri = Uri.fromFile(file)
+            Uri.fromFile(file)
         }
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
         startActivityForResult(intent, requestCode)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -189,9 +188,7 @@ fun Context?.pullUpManageStorageSetting() {
             // 通过Uri定向到当前应用的设置项
             data = "package:${packageName}".toUri()
             // 避免创建新任务栈，返回时能回到应用
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY)
-            addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS)
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
         }
         startActivity(intent)
     } catch (e: Exception) {
@@ -419,13 +416,12 @@ fun Context?.openFile(filePath: String, type: String) {
         try {
             startActivity(Intent(Intent.ACTION_VIEW).apply {
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    // FLAG_ACTIVITY_NEW_TASK -> 系统创建一个全新任务栈 (返回时 → 回到文件管理器 / 系统页面，而不是应用，任何上下文都能调用（Activity / Application / View）)
-                    flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
                     setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
                 } else {
                     setDataAndType("file://$filePath".toUri(), type)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                 }
+                // FLAG_ACTIVITY_NEW_TASK -> 系统创建一个全新任务栈 (返回时 → 回到文件管理器 / 系统页面，而不是应用，任何上下文都能调用（Activity / Application / View）)
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
             })
         } catch (e: Exception) {
             e.printStackTrace()
@@ -502,6 +498,11 @@ fun Intent?.intentDouble(key: String, default: Double = 0.0): Double {
 fun Intent?.intentBoolean(key: String, default: Boolean = false): Boolean {
     this ?: return default
     return getBooleanExtra(key, default)
+}
+
+fun Intent?.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    this ?: return default
+    return getStringArrayListExtra(key) ?: default
 }
 
 inline fun <reified T : Serializable> Intent?.intentSerializable(key: String): T? {
