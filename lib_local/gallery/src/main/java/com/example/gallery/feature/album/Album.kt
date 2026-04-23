@@ -64,14 +64,14 @@ object Album {
     const val KEY_INPUT_FILTER_VISIBILITY = "KEY_INPUT_FILTER_VISIBILITY" // 文件过滤开关
 
     // 全局唯一的相册配置实例
-    private var sAlbumConfig: AlbumConfig? = null
+    private lateinit var sAlbumConfig: AlbumConfig
 
     /**
      * 初始化相册库（全局只调用一次 -> Application）
      */
     @JvmStatic
     fun initialize(albumConfig: AlbumConfig) {
-        if (sAlbumConfig == null) {
+        if (!::sAlbumConfig.isInitialized) {
             sAlbumConfig = albumConfig
         }
     }
@@ -81,7 +81,7 @@ object Album {
      */
     @JvmStatic
     fun getAlbumConfig(): AlbumConfig {
-        return sAlbumConfig ?: AlbumConfig.newBuilder().build()
+        return sAlbumConfig
     }
 
     /**
