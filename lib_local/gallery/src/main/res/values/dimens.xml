@@ -7,13 +7,11 @@
     <dimen name="gallery_dp_6">6dp</dimen>
     <dimen name="gallery_dp_10">10dp</dimen>
     <dimen name="gallery_dp_15">15dp</dimen>
-    <dimen name="gallery_dp_16">16dp</dimen>
     <dimen name="gallery_dp_20">20dp</dimen>
     <dimen name="gallery_dp_30">30dp</dimen>
     <dimen name="gallery_dp_35">35dp</dimen>
     <dimen name="gallery_dp_40">35dp</dimen>
     <dimen name="gallery_dp_45">45dp</dimen>
-    <dimen name="gallery_dp_50">50dp</dimen>
     <dimen name="gallery_dp_70">70dp</dimen>
     <dimen name="gallery_dp_80">80dp</dimen>
     <dimen name="gallery_dp_100">100dp</dimen>
