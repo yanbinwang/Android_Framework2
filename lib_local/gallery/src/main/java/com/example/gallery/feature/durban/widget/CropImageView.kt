@@ -332,14 +332,10 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     /**
-     * 设置/获取裁剪框比例变化监听器
+     * 设置裁剪框比例变化监听器
      */
     fun setCropBoundsChangeListener(onCropBoundsChangeListener: OnCropBoundsChangeListener) {
         mOnCropBoundsChangeListener = onCropBoundsChangeListener
-    }
-
-    fun getCropBoundsChangeListener(): OnCropBoundsChangeListener? {
-        return mOnCropBoundsChangeListener
     }
 
     /**
