@@ -32,7 +32,7 @@
     <style name="Durban.WrapContent.WidthWeight.ControllerTitle">
         <item name="android:gravity">center</item>
         <item name="android:textColor">@color/galleryWhite</item>
-        <item name="android:textSize">@dimen/gallery_sp_14</item>
+        <item name="android:textSize">@dimen/textSize12</item>
     </style>
 
     <style name="Durban.WrapContent.ControllerButton">

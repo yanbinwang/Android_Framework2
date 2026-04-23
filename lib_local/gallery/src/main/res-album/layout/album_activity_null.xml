@@ -17,7 +17,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:textSize="@dimen/gallery_sp_18"
+            android:textSize="@dimen/textSize18"
             android:textStyle="bold"
             tools:text="@string/gallery_album_title"
             tools:textColor="@color/galleryFontLight" />
@@ -34,7 +34,7 @@
             android:id="@+id/tv_message"
             style="@style/Album.WrapContent"
             android:textColor="@color/albumFontHint"
-            android:textSize="@dimen/gallery_sp_14" />
+            android:textSize="@dimen/textSize12" />
 
         <Button
             android:id="@+id/btn_camera_image"

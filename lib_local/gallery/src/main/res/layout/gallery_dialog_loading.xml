@@ -15,6 +15,6 @@
         style="@style/Gallery.WrapContent"
         android:layout_marginStart="@dimen/gallery_dp_20"
         android:textColor="@color/galleryFontHint"
-        android:textSize="@dimen/gallery_sp_16" />
+        android:textSize="@dimen/textSize14" />
 
 </LinearLayout>

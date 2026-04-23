@@ -16,7 +16,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:textSize="@dimen/gallery_sp_18"
+            android:textSize="@dimen/textSize18"
             android:textStyle="bold"
             tools:text="@string/gallery_durban_title"
             tools:textColor="@color/galleryFontLight" />

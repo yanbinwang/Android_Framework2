@@ -44,7 +44,7 @@
                     android:layout_marginEnd="@dimen/gallery_dp_10"
                     android:text="@string/album_check"
                     android:textColor="@color/galleryFontLight"
-                    android:textSize="@dimen/gallery_sp_16" />
+                    android:textSize="@dimen/textSize14" />
 
             </RelativeLayout>
 
@@ -58,7 +58,7 @@
                     android:layout_gravity="center"
                     android:text="@string/album_item_unavailable"
                     android:textColor="@color/galleryFontLight"
-                    android:textSize="@dimen/gallery_sp_18" />
+                    android:textSize="@dimen/textSize14" />
 
             </FrameLayout>
 

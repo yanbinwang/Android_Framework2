@@ -28,6 +28,6 @@
         android:layout_toEndOf="@id/iv_gallery_preview_image"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textSize="@dimen/gallery_sp_14" />
+        android:textSize="@dimen/textSize12" />
 
 </RelativeLayout>

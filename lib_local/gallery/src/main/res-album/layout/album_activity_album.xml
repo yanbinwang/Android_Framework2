@@ -19,7 +19,7 @@
             android:layout_gravity="center"
             android:ellipsize="end"
             android:lines="1"
-            android:textSize="@dimen/gallery_sp_18"
+            android:textSize="@dimen/textSize18"
             android:textStyle="bold"
             tools:text="@string/gallery_album_title"
             tools:textColor="@color/galleryFontLight" />
@@ -72,7 +72,7 @@
             android:layout_marginStart="@dimen/gallery_dp_20"
             android:text="@string/album_loading"
             android:textColor="@color/albumFontHint"
-            android:textSize="@dimen/gallery_sp_16" />
+            android:textSize="@dimen/textSize14" />
 
     </LinearLayout>
 

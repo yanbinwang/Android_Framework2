@@ -162,13 +162,13 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 // 打破 ActionMenuItemView 的高度限制
                 if (itemView is ActionMenuItemView) {
                     // 取消最小高度限制
-                    itemView.setMinHeight(0)
+                    itemView.minHeight = 0
                     // 取消最大高度限制
-                    itemView.setMaxHeight(Int.MAX_VALUE)
+                    itemView.maxHeight = Int.MAX_VALUE
                     // 强制 ActionMenuItemView 高度占满父容器（ActionMenuView）
                     val lp = itemView.layoutParams
                     lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-                    itemView.setLayoutParams(lp)
+                    itemView.layoutParams = lp
                     // 清除 ActionMenuItemView 自身的 padding
                     itemView.setPadding(itemView.paddingLeft, 0, itemView.paddingRight, 0)
                     // 内容居中

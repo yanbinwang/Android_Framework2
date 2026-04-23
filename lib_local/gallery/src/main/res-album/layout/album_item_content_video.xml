@@ -32,7 +32,7 @@
             android:gravity="center"
             android:maxLines="1"
             android:textColor="@color/galleryFontLight"
-            android:textSize="@dimen/gallery_sp_14" />
+            android:textSize="@dimen/textSize12" />
 
     </RelativeLayout>
 
@@ -46,7 +46,7 @@
             android:layout_gravity="center"
             android:text="@string/album_item_unavailable"
             android:textColor="@color/galleryFontLight"
-            android:textSize="@dimen/gallery_sp_16" />
+            android:textSize="@dimen/textSize14" />
 
     </FrameLayout>
 
