@@ -201,7 +201,7 @@ object Contract {
         /**
          * 设置底部栏显示/隐藏
          */
-        abstract fun setBottomDisplay(display: Boolean)
+        abstract fun setMenuDisplay(display: Boolean)
 
         /**
          * 设置遮罩层显示/隐藏

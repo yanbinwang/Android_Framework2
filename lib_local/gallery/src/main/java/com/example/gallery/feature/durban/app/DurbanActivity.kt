@@ -94,7 +94,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         supportActionBar?.title = ""
         // 设置Toolbar样式
         setSupportToolbar(mToolbar)
-        mToolbar.setBackgroundColor(ContextCompat.getColor(this, mStatusBarColor))
+        mToolbar.setBackgroundColor(color(mStatusBarColor))
         // 设置图标样式
         val statusBarBattery = shouldUseWhiteSystemBarsForRes(mStatusBarColor)
         val navigationBarBattery = shouldUseWhiteSystemBarsForRes(mNavigationBarColor)
@@ -146,15 +146,15 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         // 裁剪视图样式
         val overlayView = mCropView.getOverlayView()
         overlayView.setFreestyleCropMode(OverlayView.FREESTYLE_CROP_MODE_DISABLE)
-        overlayView.setDimmedColor(ContextCompat.getColor(this, R.color.durbanCropDimmed))
+        overlayView.setDimmedColor(color(R.color.durbanCropDimmed))
         overlayView.setCircleDimmedLayer(false)
         overlayView.setShowCropFrame(true)
-        overlayView.setCropFrameColor(ContextCompat.getColor(this, R.color.durbanCropFrameLine))
+        overlayView.setCropFrameColor(color(R.color.durbanCropFrameLine))
         overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
         overlayView.setShowCropGrid(true)
         overlayView.setCropGridRowCount(2)
         overlayView.setCropGridColumnCount(2)
-        overlayView.setCropGridColor(ContextCompat.getColor(this, R.color.durbanCropGridLine))
+        overlayView.setCropGridColor(color(R.color.durbanCropGridLine))
         overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {

@@ -5,12 +5,12 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
+import androidx.appcompat.app.AppCompatActivity
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentString
 import com.example.gallery.R
-import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.callback.Action
 import com.example.gallery.feature.album.utils.AlbumUtil
@@ -21,7 +21,7 @@ import java.io.File
  * 功能：调用系统相机拍照 / 录制视频
  * 拍完后把文件路径回调给外部
  */
-internal class CameraActivity : BaseActivity() {
+internal class CameraActivity : AppCompatActivity() {
     // 相机功能类型：拍照 / 录像
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 视频质量
@@ -51,9 +51,9 @@ internal class CameraActivity : BaseActivity() {
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
-            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         // 拿取默认传递的路径
         mCameraFilePath = intentString(Album.KEY_INPUT_FILE_PATH)
@@ -73,14 +73,7 @@ internal class CameraActivity : BaseActivity() {
                     mCameraFilePath = AlbumUtil.randomMP4Path(this)
                 }
                 // 调用系统录像
-                AlbumUtil.takeVideo(
-                    this,
-                    CODE_ACTIVITY_TAKE_VIDEO,
-                    File(mCameraFilePath),
-                    mQuality,
-                    mLimitDuration,
-                    mLimitBytes
-                )
+                AlbumUtil.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes)
             }
             else -> throw AssertionError("This should not be the case.")
         }

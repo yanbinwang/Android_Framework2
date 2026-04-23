@@ -59,7 +59,7 @@ internal class GalleryActivity : BaseActivity(), Contract.GalleryPresenter {
         }
         // 不可选时隐藏底部栏
         if (!mCheckable) {
-            mView.setBottomDisplay(false)
+            mView.setMenuDisplay(false)
         }
         mView.setLayerDisplay(false)
         mView.setDurationDisplay(false)

@@ -78,11 +78,11 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
         overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
         // 禁止侧滑拖动动画
         val decorView = window.decorView
-        decorView.getViewTreeObserver().addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                decorView.getViewTreeObserver().removeOnPreDrawListener(this)
+                decorView.viewTreeObserver.removeOnPreDrawListener(this)
                 window.decorView.isScrollContainer = false
-                window.decorView.setOverScrollMode(View.OVER_SCROLL_NEVER)
+                window.decorView.overScrollMode = View.OVER_SCROLL_NEVER
                 // Android 13+ 预测性侧滑返回 → 直接关闭，不拖动页面
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     val dispatcher = window.onBackInvokedDispatcher
@@ -137,11 +137,11 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
 
     private fun setActivityAnimations() {
         val fadeEnter = Fade(Visibility.MODE_IN)
-        fadeEnter.setDuration(300)
-        window.setExitTransition(fadeEnter)
+        fadeEnter.duration = 300
+        window.exitTransition = fadeEnter
         val fadeExit = Fade(Visibility.MODE_OUT)
-        fadeEnter.setDuration(300)
-        window.setReturnTransition(fadeExit)
+        fadeEnter.duration = 300
+        window.returnTransition = fadeExit
     }
 
     /**

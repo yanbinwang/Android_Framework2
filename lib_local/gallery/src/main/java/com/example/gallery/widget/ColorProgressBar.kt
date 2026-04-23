@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.widget.ProgressBar
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 
 /**
@@ -15,7 +16,7 @@ class ColorProgressBar @JvmOverloads constructor(context: Context, attrs: Attrib
 
     init {
         // 强制使用项目自带的无锯齿圆形加载图
-        val loadingDrawable = ContextCompat.getDrawable(context, R.drawable.layer_list_loading)
+        val loadingDrawable = context.drawable(R.drawable.layer_list_loading)
         indeterminateDrawable = loadingDrawable?.mutate()
     }
 

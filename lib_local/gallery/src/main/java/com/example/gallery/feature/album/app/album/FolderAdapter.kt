@@ -98,7 +98,7 @@ class FolderAdapter(private val albumFolders: List<AlbumFolder>, private val col
             // 显示：(数量) 文件夹名称
             mTvTitle?.text = "(" + albumFiles.size + ") " + albumFolder.name
             // 选中状态
-            mCheckBox?.setChecked(albumFolder.isChecked)
+            mCheckBox?.isChecked = albumFolder.isChecked
             // 加载文件夹第一张图作为封面
             Album.getAlbumConfig().albumLoader.load(mIvImage, albumFiles[0])
         }

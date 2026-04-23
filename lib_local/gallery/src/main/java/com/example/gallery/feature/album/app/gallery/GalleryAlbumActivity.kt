@@ -98,14 +98,14 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
         // 如果是视频 → 显示时长
         if (albumFile.mediaType == AlbumFile.TYPE_VIDEO) {
             if (!mCheckable) {
-                mView.setBottomDisplay(true)
+                mView.setMenuDisplay(true)
             }
             mView.setDuration(AlbumUtil.convertDuration(albumFile.duration))
             mView.setDurationDisplay(true)
             // 图片 → 隐藏视频时长
         } else {
             if (!mCheckable) {
-                mView.setBottomDisplay(false)
+                mView.setMenuDisplay(false)
             }
             mView.setDurationDisplay(false)
         }

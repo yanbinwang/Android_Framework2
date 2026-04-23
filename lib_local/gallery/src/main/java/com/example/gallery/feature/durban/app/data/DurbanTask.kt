@@ -7,6 +7,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.gone
@@ -32,7 +33,7 @@ class DurbanTask(private val activity: FragmentActivity) {
     private val dialog by lazy { LoadingDialog(activity) }
 
     init {
-        dialog.setupViews(ContextCompat.getColor(activity, R.color.galleryIconDark), R.string.durban_loading_message)
+        dialog.setupViews(activity.color(R.color.galleryIconDark), R.string.durban_loading_message)
         activity.doOnDestroy {
             cropJob?.cancel()
             loadJob?.cancel()

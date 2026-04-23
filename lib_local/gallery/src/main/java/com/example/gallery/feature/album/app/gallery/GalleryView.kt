@@ -153,7 +153,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
     /**
      * 显示/隐藏底部栏
      */
-    override fun setBottomDisplay(display: Boolean) {
+    override fun setMenuDisplay(display: Boolean) {
         mLayoutMenu.visibility = if (display) View.VISIBLE else View.GONE
     }
 

@@ -16,6 +16,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
+import com.example.framework.utils.function.color
 import com.example.gallery.R
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
 import com.example.gallery.feature.durban.utils.RectUtil.getCornersFromRect
@@ -291,7 +292,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun processStyledAttributes(a: TypedArray) {
         mCircleDimmedLayer = a.getBoolean(R.styleable.durban_CropView_durban_circle_dimmed_layer, false)
-        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, ContextCompat.getColor(context, R.color.durbanCropDimmed))
+        mDimmedColor = a.getColor(R.styleable.durban_CropView_durban_dimmed_color, context.color(R.color.durbanCropDimmed))
         mDimmedStrokePaint.color = mDimmedColor
         mDimmedStrokePaint.style = Paint.Style.STROKE
         mDimmedStrokePaint.strokeWidth = 1f
@@ -306,7 +307,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     private fun initCropFrameStyle(a: TypedArray) {
         val cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
-        val cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, ContextCompat.getColor(context, R.color.durbanCropFrameLine))
+        val cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, context.color(R.color.durbanCropFrameLine))
         mCropFramePaint.strokeWidth = cropFrameStrokeSize.toFloat()
         mCropFramePaint.color = cropFrameColor
         mCropFramePaint.style = Paint.Style.STROKE
@@ -320,7 +321,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     private fun initCropGridStyle(a: TypedArray) {
         val cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
-        val cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, ContextCompat.getColor(context, R.color.durbanCropGridLine))
+        val cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, context.color(R.color.durbanCropGridLine))
         mCropGridPaint.strokeWidth = cropGridStrokeSize.toFloat()
         mCropGridPaint.color = cropGridColor
         mCropGridRowCount = a.getInt(R.styleable.durban_CropView_durban_grid_row_count, 2)

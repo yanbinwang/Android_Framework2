@@ -299,7 +299,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                     else -> throw AssertionError("This should not be the case.")
                 }
                 mView.toast(getString(messageRes, mLimitCount))
-                button?.setChecked(false)
+                button?.isChecked = false
             } else {
                 albumFile.isChecked = true
                 mCheckedList.add(albumFile)
@@ -326,9 +326,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             Album.MODE_MULTIPLE -> {
                 setPreview(mAlbumFolders[mCurrentFolder].albumFiles, position)
             }
-            else -> {
-                throw AssertionError("This should not be the case.")
-            }
+            else -> throw AssertionError("This should not be the case.")
         }
     }
 
@@ -411,7 +409,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         } else {
             // 如果用户当前正在看某个具体文件夹（比如微信相册）那就把拍的照片，保存到和这个文件夹同一个目录里，让照片直接出现在当前文件夹
             val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path.orEmpty())
-            filePath = AlbumUtil.randomJPGPath(file.getParentFile())
+            filePath = AlbumUtil.randomJPGPath(file.parentFile)
         }
         Album.camera(this)
             .image()
@@ -429,7 +427,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             filePath = AlbumUtil.randomMP4Path()
         } else {
             val file = File(mAlbumFolders[mCurrentFolder].albumFiles[0].path.orEmpty())
-            filePath = AlbumUtil.randomMP4Path(file.getParentFile())
+            filePath = AlbumUtil.randomMP4Path(file.parentFile)
         }
         Album.camera(this)
             .video()

@@ -55,22 +55,19 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         // 标题同步状态栏颜色
         mToolbar.setBackgroundColor(getColor(widget.statusBarColor))
         mTitle.text = widget.title
-        // 设置按钮颜色
+        // 设置按钮样式
         val buttonSelector = widget.buttonSelector
-        mBtnTakeImage.setBackgroundTintList(buttonSelector)
-        mBtnTakeVideo.setBackgroundTintList(buttonSelector)
-        // 获取按钮主题色
-        val isLight = shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)
-        // 如果需要深色主题,提取出绘制的图标并渲染成深色
-        if (!isLight) {
-            val takeImageDraws = mBtnTakeImage.getCompoundDrawablesRelative()
-            val takeImageIcon = takeImageDraws[0]
+        mBtnTakeImage.backgroundTintList = buttonSelector
+        mBtnTakeVideo.backgroundTintList = buttonSelector
+        // 获取按钮主题色 , 如果需要深色主题,提取出绘制的图标并渲染成深色
+        if (!shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)) {
+            // 拍照片
+            val takeImageIcon = mBtnTakeImage.compoundDrawablesRelative[0]
             AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark))
             mBtnTakeImage.setCompoundDrawables(takeImageIcon, null, null, null)
             mBtnTakeImage.setTextColor(getColor(R.color.galleryFontDark))
-
-            val takeVideoDraws = mBtnTakeVideo.getCompoundDrawablesRelative()
-            val takeVideoIcon = takeVideoDraws[0]
+            // 录视频
+            val takeVideoIcon = mBtnTakeVideo.compoundDrawablesRelative[0]
             AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark))
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null)
             mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark))
