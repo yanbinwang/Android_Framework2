@@ -2,7 +2,7 @@
 <com.example.gallery.feature.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/Album.Item.Card.MatchParent"
-    app:cardBackgroundColor="@color/albumCardContent">
+    app:cardBackgroundColor="@color/albumBtn">
 
     <com.example.gallery.feature.album.widget.square.SquareImageView
         android:id="@+id/iv_album_content_button"

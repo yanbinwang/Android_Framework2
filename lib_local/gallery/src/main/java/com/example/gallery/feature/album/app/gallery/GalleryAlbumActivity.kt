@@ -48,7 +48,7 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
         if (!hasExtras()) return finish()
         setContentView(R.layout.album_activity_gallery)
         // 导航栏
-        initImmersionBar(false, false, R.color.albumGalleryPrimary)
+        initImmersionBar(false, false, R.color.albumPrimary)
         // 获取一次默认选中状态
         mCurrentPosition = intentInt(Album.KEY_INPUT_CURRENT_POSITION)
         // 绑定 MVP

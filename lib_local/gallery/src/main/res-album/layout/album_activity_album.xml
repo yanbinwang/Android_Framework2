@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     style="@style/Album.MatchParent"
-    android:background="@color/albumPage">
+    android:background="@color/albumBackground">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -38,7 +38,7 @@
         android:id="@+id/layout_menu"
         style="@style/Album.MatchParent.SheetBottom"
         android:layout_alignParentBottom="true"
-        android:background="@color/albumSheetBottom">
+        android:background="@color/albumMenu">
 
         <Button
             android:id="@+id/btn_switch_dir"
@@ -58,7 +58,7 @@
         android:id="@+id/layout_loading"
         style="@style/Album.MatchParent"
         android:layout_below="@+id/toolbar"
-        android:background="@color/albumPage"
+        android:background="@color/albumBackground"
         android:gravity="center"
         android:visibility="visible"
         tools:visibility="gone">

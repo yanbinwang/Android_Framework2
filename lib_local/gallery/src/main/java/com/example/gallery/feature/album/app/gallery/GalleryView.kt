@@ -32,7 +32,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
     // 预览 ViewPager
     private val mViewPager = activity.findViewById<ViewPager>(R.id.view_pager)
     // 底部操作栏
-    private val mLayoutBottom = activity.findViewById<RelativeLayout>(R.id.layout_bottom)
+    private val mLayoutMenu = activity.findViewById<RelativeLayout>(R.id.layout_menu)
     // 视频时长文字
     private val mTvDuration = activity.findViewById<TextView>(R.id.tv_duration)
     // 选择框
@@ -71,7 +71,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.gallery_ic_back)
         // 等 Toolbar 布局结束右侧强行撑满
-        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryPrimary)
+        setSupportMenuViewAsync(mToolbar, R.color.albumPrimary)
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu?.isVisible = false
@@ -79,7 +79,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
         } else {
             // 设置选择框样式
             val itemSelector = widget.mediaItemCheckSelector
-            mCheckBox.setButtonTintList(itemSelector)
+            mCheckBox.buttonTintList = itemSelector
             mCheckBox.setTextColor(itemSelector)
         }
         // 页面滑动监听
@@ -154,7 +154,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
      * 显示/隐藏底部栏
      */
     override fun setBottomDisplay(display: Boolean) {
-        mLayoutBottom.visibility = if (display) View.VISIBLE else View.GONE
+        mLayoutMenu.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**

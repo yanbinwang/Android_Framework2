@@ -74,8 +74,8 @@ data class Widget(
                 .statusBarColor(R.color.galleryStatusBar)
                 .navigationBarColor(R.color.galleryNavigationBar)
                 .title(R.string.album_title)
-                .mediaItemCheckSelector(context.color(R.color.albumSelectorNormal), context.color(R.color.galleryColorPrimary))
-                .bucketItemCheckSelector(context.color(R.color.albumSelectorNormal), context.color(R.color.galleryColorPrimary))
+                .mediaItemCheckSelector(context.color(R.color.albumPrimaryDark), context.color(R.color.galleryColorPrimary))
+                .bucketItemCheckSelector(context.color(R.color.albumPrimaryDark), context.color(R.color.galleryColorPrimary))
                 .buttonSelector(context.color(R.color.galleryColorPrimary), context.color(R.color.galleryColorPrimaryDark))
                 .build()
         }
@@ -89,8 +89,8 @@ data class Widget(
         builder.mStatusBarColor.takeIf { it != 0 } ?: R.color.galleryStatusBar,
         builder.mNavigationBarColor.takeIf { it != 0 } ?: R.color.galleryNavigationBar,
         builder.mTitle.takeIf { !it.isNullOrEmpty() } ?: builder.mContext.getString(R.string.album_title),
-        builder.mMediaItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumSelectorNormal), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mBucketItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumSelectorNormal), builder.mContext.color(R.color.galleryColorPrimary)),
+        builder.mMediaItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
+        builder.mBucketItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
         builder.mButtonSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.galleryColorPrimary), builder.mContext.color(R.color.galleryColorPrimaryDark))
     )
 

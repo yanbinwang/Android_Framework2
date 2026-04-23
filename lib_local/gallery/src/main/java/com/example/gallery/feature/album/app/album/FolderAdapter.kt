@@ -85,7 +85,7 @@ class FolderAdapter(private val albumFolders: List<AlbumFolder>, private val col
 
         init {
             // 设置单选按钮颜色
-            mCheckBox?.setButtonTintList(selector)
+            mCheckBox?.buttonTintList = selector
             // 设置点击事件
             clicks(itemView)
         }

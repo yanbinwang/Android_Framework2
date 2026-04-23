@@ -52,7 +52,7 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
                     // 多选模式显示选择框
                     if (choiceMode == Album.MODE_MULTIPLE) {
                         it.mCheckBox.visibility = View.VISIBLE
-                        it.mCheckBox.setButtonTintList(selector)
+                        it.mCheckBox.buttonTintList = selector
                         it.mCheckBox.setTextColor(selector)
                     } else {
                         it.mCheckBox.visibility = View.GONE
@@ -63,7 +63,7 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
                 VideoHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_content_video, parent, false), hasCamera, mItemClickListener, mCheckedClickListener).also {
                     if (choiceMode == Album.MODE_MULTIPLE) {
                         it.mCheckBox.visibility = View.VISIBLE
-                        it.mCheckBox.setButtonTintList(selector)
+                        it.mCheckBox.buttonTintList = selector
                         it.mCheckBox.setTextColor(selector)
                     } else {
                         it.mCheckBox.visibility = View.GONE

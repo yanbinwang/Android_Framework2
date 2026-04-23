@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Album.WrapContent"
+    style="@style/Gallery.WrapContent"
     android:background="@drawable/shape_default"
     android:gravity="center"
     android:paddingHorizontal="@dimen/gallery_dp_35"

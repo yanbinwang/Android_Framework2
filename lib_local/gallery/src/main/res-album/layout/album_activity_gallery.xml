@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     style="@style/Album.MatchParent"
-    android:background="@color/albumGalleryPrimary">
+    android:background="@color/albumPrimary">
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager"
@@ -20,9 +20,9 @@
             android:layout_alignParentBottom="true">
 
             <RelativeLayout
-                android:id="@+id/layout_bottom"
+                android:id="@+id/layout_menu"
                 style="@style/Album.MatchParent.SheetBottom"
-                android:background="@color/albumSheetBottom">
+                android:background="@color/albumMenu">
 
                 <TextView
                     android:id="@+id/tv_duration"
@@ -51,7 +51,7 @@
             <FrameLayout
                 android:id="@+id/layout_layer"
                 style="@style/Album.MatchParent.SheetBottom"
-                android:background="@color/albumSheetLayer">
+                android:background="@color/albumLayerDisabled">
 
                 <TextView
                     style="@style/Album.WrapContent"
