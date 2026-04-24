@@ -1,6 +1,5 @@
 package com.example.gallery.feature.album.utils
 
-import android.R
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -248,9 +247,9 @@ object AlbumUtil {
     @JvmStatic
     fun getColorStateList(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
         val states = arrayOfNulls<IntArray>(6)
-        states[0] = intArrayOf(R.attr.state_checked)
-        states[1] = intArrayOf(R.attr.state_pressed)
-        states[2] = intArrayOf(R.attr.state_selected)
+        states[0] = intArrayOf(android.R.attr.state_checked)
+        states[1] = intArrayOf(android.R.attr.state_pressed)
+        states[2] = intArrayOf(android.R.attr.state_selected)
         states[3] = intArrayOf()
         states[4] = intArrayOf()
         states[5] = intArrayOf()
