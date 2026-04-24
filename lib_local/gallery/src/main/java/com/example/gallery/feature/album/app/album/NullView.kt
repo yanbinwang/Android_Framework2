@@ -59,7 +59,7 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         val buttonSelector = widget.buttonSelector
         mBtnTakeImage.backgroundTintList = buttonSelector
         mBtnTakeVideo.backgroundTintList = buttonSelector
-        // 获取按钮主题色 , 如果需要深色主题,提取出绘制的图标并渲染成深色
+        // 获取按钮主题色 , 如果需要深色主题则提取出绘制的图标并渲染成深色 -> 此处拿取的是normal
         if (!shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)) {
             // 拍照片
             val takeImageIcon = mBtnTakeImage.compoundDrawablesRelative[0]

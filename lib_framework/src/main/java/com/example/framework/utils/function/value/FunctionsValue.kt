@@ -109,6 +109,22 @@ fun Class<*>.getSimpleName(name: String? = null): String {
 }
 
 /**
+ * 获取正常颜色
+ */
+@ColorInt
+fun ColorStateList.getNormalColor(): Int {
+    return defaultColor
+}
+
+/**
+ * 获取高亮颜色（按下/选中/勾选 都一样）
+ */
+@ColorInt
+fun ColorStateList.getHighLightColor(): Int {
+    return getColorForState(intArrayOf(android.R.attr.state_pressed), defaultColor)
+}
+
+/**
  * 创建按钮/文本/背景的颜色状态选择器
  * 统一处理：按下、选中、勾选 = 高亮色 | 默认 = 正常色
  */
