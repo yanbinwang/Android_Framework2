@@ -195,6 +195,7 @@ fun TextView?.spTextSize(value: Float) {
 
 /**
  * 给 View 设置上下左右图片
+ * drawables集合内引用drawable()扩展函数,加了mutate()安全隔离
  */
 fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, width: Int?, height: Int?, tintColor: Int?) {
     if (this == null || drawables.size != 4) return

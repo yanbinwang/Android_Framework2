@@ -58,7 +58,7 @@ fun Context.color(@ColorRes res: Int): Int {
  * 获取resources中的drawable
  */
 fun Context.drawable(@DrawableRes res: Int): Drawable? {
-    return ContextCompat.getDrawable(this, res)
+    return ContextCompat.getDrawable(this, res)?.mutate()
 }
 
 /**

@@ -197,10 +197,15 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
  * @return 缩放后的 Bitmap，若原 Bitmap 为空或参数无效则返回 null
  */
 fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
-    this ?: return null
-    if (scale <= 0) {
+    // 本身不为空且缩放值大于0
+    if (this == null || scale <= 0) {
         return null
     }
+    // 不创建、不回收，直接返回，不创建新图
+    if (scale == 1f) {
+        return this
+    }
+    // 开始缩放
     val matrix = Matrix().apply {
         postScale(scale, scale)
     }
@@ -255,6 +260,17 @@ fun Drawable?.getBitmap(): Bitmap? {
  */
 fun Drawable?.orEmpty(): Drawable {
     return this ?: Color.TRANSPARENT.toDrawable()
+}
+
+/**
+ * Android 系统在加载同一个图片资源（比如 R.drawable.ic_back）时，默认会共享同一个 Drawable 状态（ConstantState） 调用mutate() → 让这个 Drawable 脱离共享状态，变成独立实例
+ * 1) 大多数时候，ImageView 会自动 mutate ()
+ * 2) 设置染色时,嵌套 mutate() 避免出现极端情况
+ */
+fun Drawable?.tintWithMutate(@ColorInt tintColor: Int) {
+    this ?: return
+    mutate()
+    setTint(tintColor)
 }
 
 /**
