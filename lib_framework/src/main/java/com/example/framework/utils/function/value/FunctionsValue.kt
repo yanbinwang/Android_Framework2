@@ -1,5 +1,6 @@
 package com.example.framework.utils.function.value
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
@@ -9,6 +10,7 @@ import android.os.Looper
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
+import com.example.framework.R
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -104,6 +106,25 @@ fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
  */
 fun Class<*>.getSimpleName(name: String? = null): String {
     return name ?: this.simpleName.lowercase(Locale.getDefault())
+}
+
+/**
+ * 创建按钮/文本/背景的颜色状态选择器
+ * 统一处理：按下、选中、勾选 = 高亮色 | 默认 = 正常色
+ */
+fun createColorSelector(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
+    val states = arrayOf(
+        // 勾选
+        intArrayOf(android.R.attr.state_checked),
+        // 按下
+        intArrayOf(android.R.attr.state_pressed),
+        // 选中
+        intArrayOf(android.R.attr.state_selected),
+        // 默认（所有其他情况）
+        intArrayOf()
+    )
+    val colors = intArrayOf(highLight, highLight, highLight, normal)
+    return ColorStateList(states, colors)
 }
 
 /**

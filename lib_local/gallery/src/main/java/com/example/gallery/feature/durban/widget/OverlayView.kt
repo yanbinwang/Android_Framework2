@@ -14,7 +14,6 @@ import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.withSave
 import com.example.framework.utils.function.color
 import com.example.gallery.R

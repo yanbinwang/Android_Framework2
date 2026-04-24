@@ -54,10 +54,6 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         }
         // 设置右上角完成按钮文字
         setCheckedCount()
-        // 返回逻辑
-        setOnBackPressedListener {
-            finish()
-        }
     }
 
     /**

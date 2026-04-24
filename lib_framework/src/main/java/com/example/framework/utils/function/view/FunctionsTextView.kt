@@ -7,6 +7,7 @@ import android.graphics.LinearGradient
 import android.graphics.Paint
 import android.graphics.Shader
 import android.graphics.Typeface
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.text.Editable
 import android.text.InputFilter
@@ -190,6 +191,35 @@ fun TextView?.spTextSize(value: Float) {
     val pxValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, context.resources.displayMetrics)
     // 显式指定单位为 PX，避免二次转换
     this.setTextSize(TypedValue.COMPLEX_UNIT_PX, pxValue)
+}
+
+/**
+ * 给 View 设置上下左右图片
+ */
+fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, width: Int?, height: Int?, tintColor: Int?) {
+    if (this == null || drawables.size != 4) return
+    // 图片间距
+    drawablePadding?.let {
+        compoundDrawablePadding = it
+    }
+    // 图片大小
+    val configAction = { drawable: Drawable? ->
+        if (width != null && height != null) {
+            drawable?.setBounds(0, 0, width, height)
+        }
+        if (tintColor != null) {
+            drawable?.setTint(tintColor)
+        }
+    }
+    val left = drawables[0]
+    val top = drawables[1]
+    val right = drawables[2]
+    val bottom = drawables[3]
+    configAction(left)
+    configAction(top)
+    configAction(right)
+    configAction(bottom)
+    setCompoundDrawables(left, top, right, bottom)
 }
 
 /**

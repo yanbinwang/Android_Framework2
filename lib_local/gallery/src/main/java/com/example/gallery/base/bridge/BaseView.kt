@@ -54,13 +54,13 @@ abstract class BaseView<Presenter : BasePresenter> {
         // 设置菜单点击事件
         mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
             override fun onHomeClick() {
-                getPresenter().bye()
+                getPresenter().navigateBack()
             }
 
             override fun onMenuClick(item: MenuItem) {
                 if (item.itemId == R.id.home) {
                     if (!onInterceptToolbarBack()) {
-                        getPresenter().bye()
+                        getPresenter().navigateBack()
                     }
                 } else {
                     onOptionsItemSelected(item)
