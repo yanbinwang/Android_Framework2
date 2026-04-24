@@ -16,7 +16,6 @@ import android.text.style.ForegroundColorSpan
 import android.webkit.MimeTypeMap
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
-import androidx.core.graphics.drawable.DrawableCompat
 import com.example.gallery.feature.album.provider.CameraFileProvider
 import com.example.gallery.feature.album.widget.recyclerview.divider.Divider
 import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider
@@ -225,20 +224,12 @@ object AlbumUtil {
 
     /**
      * 给 Drawable 设置着色
+     * DrawableCompat.setTint -> 淘汰
+     * DrawableCompat.wrap(drawable.mutate()) -> 给旧系统的drawable套一个兼容壳,高版本直接删
      */
     @JvmStatic
-    fun setDrawableTint(drawable: Drawable, @ColorInt color: Int) {
-        DrawableCompat.setTint(DrawableCompat.wrap(drawable.mutate()), color)
-    }
-
-    /**
-     * 获取着色后的 Drawable
-     */
-    @JvmStatic
-    fun getTintDrawable(drawable: Drawable, @ColorInt color: Int): Drawable {
-        val mDrawable = DrawableCompat.wrap(drawable.mutate())
-        DrawableCompat.setTint(mDrawable, color)
-        return mDrawable
+    fun setDrawableTint(drawable: Drawable, @ColorInt color: Int): Drawable  {
+        return drawable.mutate().apply { setTint(color) }
     }
 
     /**

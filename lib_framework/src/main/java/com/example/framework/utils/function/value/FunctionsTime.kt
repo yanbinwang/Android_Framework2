@@ -1,5 +1,6 @@
 package com.example.framework.utils.function.value
 
+import android.annotation.SuppressLint
 import com.example.framework.utils.function.value.DateFormat.EN_YMD
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.getDateFormat
@@ -117,6 +118,23 @@ private fun Long.padZero(cap: Boolean = true): String {
         this < 10 -> "0$this"
         this > 99 && cap -> "99"
         else -> this.toString()
+    }
+}
+
+/**
+ * 把毫秒时长转换成 00:00 / 00:00:00 格式
+ */
+@SuppressLint("DefaultLocale")
+fun Long?.convertDuration(): String {
+    this ?: return "00"
+    val totalSeconds = this / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return if (hours > 0) {
+        String.format("%02d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d", minutes, seconds)
     }
 }
 

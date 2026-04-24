@@ -21,6 +21,7 @@ import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.tintWithMutate
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
@@ -290,7 +291,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    drawable.setTint(context.color(labelColor))
+                    drawable.tintWithMutate(context.color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
