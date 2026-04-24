@@ -227,8 +227,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         mView.setCompleteDisplay(false)
         mView.setLoadingDisplay(true)
         val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST)
-        val mediaReader =
-            MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
+        val mediaReader = MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
         mTask.mediaReaderExecute(mFunction, checkedFiles, mediaReader)
     }
 
