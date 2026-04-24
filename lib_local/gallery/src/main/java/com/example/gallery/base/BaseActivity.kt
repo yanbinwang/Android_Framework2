@@ -39,7 +39,7 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.gallery.R
-import com.example.gallery.base.bridge.Bye
+import com.example.gallery.base.bridge.BackHandler
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 针对所有相册页面的基类
  */
-abstract class BaseActivity : AppCompatActivity(), Bye {
+abstract class BaseActivity : AppCompatActivity(), BackHandler {
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
@@ -325,7 +325,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
      * 2) 在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
      * 3) 系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
      */
-    override fun bye() {
+    override fun navigateBack() {
 //        onBackPressed()
         finish()
     }

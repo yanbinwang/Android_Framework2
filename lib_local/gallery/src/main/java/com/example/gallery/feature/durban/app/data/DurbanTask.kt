@@ -1,7 +1,6 @@
 package com.example.gallery.feature.durban.app.data
 
 import android.graphics.Bitmap
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.common.network.repository.requestAffair

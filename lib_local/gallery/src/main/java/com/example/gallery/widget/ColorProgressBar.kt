@@ -5,7 +5,6 @@ import android.graphics.PorterDuff
 import android.util.AttributeSet
 import android.widget.ProgressBar
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 

@@ -9,7 +9,6 @@ import android.view.View
 import android.view.animation.AccelerateInterpolator
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
-import androidx.core.content.ContextCompat
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.framework.utils.function.color
