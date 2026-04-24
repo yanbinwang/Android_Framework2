@@ -22,6 +22,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setI18nTheme
 import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.tintWithMutate
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
@@ -295,7 +296,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    drawable.setTint(color(labelColor))
+                    drawable.tintWithMutate(color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
