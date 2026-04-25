@@ -201,17 +201,15 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.durban_menu_activity, menu)
         // 获取右侧菜单按钮的 MenuItem
-        val okItem = menu?.findItem(R.id.menu_action_ok)
+        val mDoneMenu = menu?.findItem(R.id.menu_action_ok)
         // 去除长按的文字提示
-        okItem?.title = ""
+        mDoneMenu?.title = ""
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
-            val doneIcon = drawable(R.mipmap.gallery_ic_done)
+            val doneIcon = mDoneMenu?.icon?.mutate()
             if (null != doneIcon) {
                 doneIcon.setTint(color(R.color.galleryIconDark))
-                // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
-                val okView = okItem?.actionView
-                okView?.background = doneIcon
+                mDoneMenu.icon = doneIcon
             }
         }
         // 设置额外添加的按钮外层间距

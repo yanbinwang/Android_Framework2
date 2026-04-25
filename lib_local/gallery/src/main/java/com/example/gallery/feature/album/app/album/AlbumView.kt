@@ -70,6 +70,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         super.onCreateOptionsMenu(menu)
         getMenuInflater().inflate(R.menu.album_menu_album, menu)
         mCompleteMenu = menu.findItem(R.id.album_menu_finish)
+        mCompleteMenu?.title = ""
     }
 
     /**
@@ -92,7 +93,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         if (widget.uiStyle == Widget.STYLE_LIGHT) {
             // 暗色返回 / 完成
             AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
-            val completeIcon = mCompleteMenu?.icon
+            val completeIcon = mCompleteMenu?.icon?.mutate()
             if (null != completeIcon) {
                 AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.galleryIconDark))
                 mCompleteMenu?.icon = completeIcon
