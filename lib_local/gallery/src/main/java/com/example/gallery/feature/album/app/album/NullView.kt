@@ -6,7 +6,11 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor
+import com.example.common.utils.function.ptFloat
+import com.example.framework.utils.function.value.getHighLightColor
+import com.example.framework.utils.function.value.getNormalColor
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.selectorRoundBackground
 import com.example.gallery.R
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.model.Widget
@@ -57,8 +61,12 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         mTitle.text = widget.title
         // 设置按钮样式
         val buttonSelector = widget.buttonSelector
-        mBtnTakeImage.backgroundTintList = buttonSelector
-        mBtnTakeVideo.backgroundTintList = buttonSelector
+//        mBtnTakeImage.backgroundTintList = buttonSelector
+//        mBtnTakeVideo.backgroundTintList = buttonSelector
+        val normalColor = buttonSelector.getNormalColor()
+        val pressedColor = buttonSelector.getHighLightColor()
+        mBtnTakeImage.selectorRoundBackground(normalColor, pressedColor, normalColor, 5.ptFloat)
+        mBtnTakeVideo.selectorRoundBackground(normalColor, pressedColor, normalColor, 5.ptFloat)
         // 获取按钮主题色 , 如果需要深色主题则提取出绘制的图标并渲染成深色 -> 此处拿取的是normal
         if (!shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)) {
             // 拍照片

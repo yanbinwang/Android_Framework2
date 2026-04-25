@@ -39,6 +39,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.AnimRes
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
@@ -217,7 +218,7 @@ fun View?.clearBackground() {
  * @disabledColor 禁用颜色
  * @radius 圆角半径
  */
-fun View?.selectorRoundBackground(normalColor: Int, pressedColor: Int, disabledColor: Int, radius: Float) {
+fun View?.selectorRoundBackground(@ColorInt normalColor: Int, @ColorInt pressedColor: Int, @ColorInt disabledColor: Int, radius: Float) {
     if (this == null) return
     // 正常状态背景
     val normalDrawable = GradientDrawable().apply {
