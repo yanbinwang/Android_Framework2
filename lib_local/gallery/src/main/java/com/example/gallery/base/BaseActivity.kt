@@ -189,6 +189,8 @@ abstract class BaseActivity : AppCompatActivity(), BackHandler {
                     }
                     // 干掉菜单按钮水波纹
                     itemView.background = null
+                    itemView.foreground = null
+                    itemView.setBackgroundResource(0)
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         itemView.tooltipText = null
                     }
