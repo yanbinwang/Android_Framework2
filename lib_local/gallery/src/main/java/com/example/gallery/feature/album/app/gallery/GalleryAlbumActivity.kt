@@ -6,6 +6,7 @@ import com.example.framework.utils.function.intentBoolean
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.intentParcelableArrayList
+import com.example.framework.utils.function.value.convertDuration
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
@@ -14,7 +15,6 @@ import com.example.gallery.feature.album.callback.Action
 import com.example.gallery.feature.album.callback.ItemAction
 import com.example.gallery.feature.album.model.AlbumFile
 import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.feature.album.utils.AlbumUtil
 
 /**
  * 外部媒体预览
@@ -100,7 +100,7 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
             if (!mCheckable) {
                 mView.setMenuDisplay(true)
             }
-            mView.setDuration(AlbumUtil.convertDuration(albumFile.duration))
+            mView.setDuration(albumFile.duration.convertDuration())
             mView.setDurationDisplay(true)
             // 图片 → 隐藏视频时长
         } else {

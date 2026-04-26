@@ -24,6 +24,7 @@ import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.durban.Durban
 import com.example.gallery.feature.durban.app.data.DurbanTask
 import com.example.gallery.feature.durban.model.Controller
+import com.example.gallery.feature.durban.utils.DurbanUtil
 import com.example.gallery.feature.durban.widget.CropImageView
 import com.example.gallery.feature.durban.widget.CropView
 import com.example.gallery.feature.durban.widget.OverlayView
@@ -208,7 +209,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
             val doneIcon = mDoneMenu?.icon?.mutate()
             if (null != doneIcon) {
-                doneIcon.setTint(color(R.color.galleryIconDark))
+                DurbanUtil.setDrawableTint(doneIcon, color(R.color.galleryIconDark))
                 mDoneMenu.icon = doneIcon
             }
         }

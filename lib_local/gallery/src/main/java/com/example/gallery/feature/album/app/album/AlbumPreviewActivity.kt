@@ -4,6 +4,7 @@ import android.os.Bundle
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.value.convertDuration
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
@@ -11,7 +12,6 @@ import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.app.gallery.GalleryView
 import com.example.gallery.feature.album.model.AlbumFile
 import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.feature.album.utils.AlbumUtil
 
 /**
  * 相册内部选择预览（带勾选）
@@ -80,7 +80,7 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         mView.setLayerDisplay(albumFile.isDisable)
         // 视频 → 显示时长
         if (albumFile.mediaType == AlbumFile.TYPE_VIDEO) {
-            mView.setDuration(AlbumUtil.convertDuration(albumFile.duration))
+            mView.setDuration(albumFile.duration.convertDuration())
             mView.setDurationDisplay(true)
         } else {
             mView.setDurationDisplay(false)

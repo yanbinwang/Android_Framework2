@@ -17,8 +17,6 @@ import android.webkit.MimeTypeMap
 import androidx.annotation.ColorInt
 import androidx.annotation.IntRange
 import com.example.gallery.feature.album.provider.CameraFileProvider
-import com.example.gallery.feature.album.widget.recyclerview.divider.Divider
-import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider
 import java.io.File
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -156,7 +154,7 @@ object AlbumUtil {
      */
     private fun randomMediaPath(bucket: File?, extension: String): String {
         bucket ?: return ""
-        if (bucket.exists() && bucket.isFile()) {
+        if (bucket.exists() && bucket.isFile) {
             bucket.delete()
         }
         if (!bucket.exists()) {
@@ -171,7 +169,7 @@ object AlbumUtil {
      * 获取当前时间格式化字符串
      */
     private fun getNowDateTime(): String {
-        val formatter = SimpleDateFormat("yyyyMMdd_HHmmssSSS", Locale.ENGLISH)
+        val formatter = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault())
         val curDate = Date(System.currentTimeMillis())
         return formatter.format(curDate)
     }
@@ -267,55 +265,6 @@ object AlbumUtil {
         val green = Color.green(color)
         val blue = Color.blue(color)
         return Color.argb(alpha, red, green, blue)
-    }
-
-    /**
-     * 获取列表分割线
-     */
-    @JvmStatic
-    fun getDivider(@ColorInt color: Int): Divider {
-        return ItemDivider(color)
-    }
-
-    /**
-     * 把毫秒时长转换成 00:00 / 00:00:00 格式
-     */
-    @JvmStatic
-    fun convertDuration(@IntRange(from = 1) duration: Long): String {
-        var duration = duration
-        duration /= 1000
-        val hour = (duration / 3600).toInt()
-        val minute = ((duration - hour * 3600) / 60).toInt()
-        val second = (duration - hour * 3600 - minute * 60).toInt()
-        var hourValue = ""
-        if (hour > 0) {
-            hourValue = if (hour >= 10) {
-                hour.toString()
-            } else {
-                "0$hour"
-            }
-            hourValue += ":"
-        }
-        var minuteValue = if (minute > 0) {
-            if (minute >= 10) {
-                minute.toString()
-            } else {
-                "0$minute"
-            }
-        } else {
-            "00"
-        }
-        minuteValue += ":"
-        val secondValue = if (second > 0) {
-            if (second >= 10) {
-                second.toString()
-            } else {
-                "0$second"
-            }
-        } else {
-            "00"
-        }
-        return hourValue + minuteValue + secondValue
     }
 
 }
