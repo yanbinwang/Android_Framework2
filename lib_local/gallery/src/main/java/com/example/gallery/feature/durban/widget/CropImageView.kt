@@ -9,7 +9,6 @@ import android.util.AttributeSet
 import androidx.annotation.IntRange
 import com.example.gallery.R
 import com.example.gallery.feature.durban.app.data.DurbanCrop
-import com.example.gallery.feature.durban.app.data.DurbanTask
 import com.example.gallery.feature.durban.model.CropParameters
 import com.example.gallery.feature.durban.model.ImageState
 import com.example.gallery.feature.durban.utils.CubicEasing
@@ -101,33 +100,10 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     /**
-     * 判断图片是否填满裁剪框
+     * 旋转（以裁剪框中心为中心）
      */
-    fun isImageWrapCropBounds(): Boolean {
-        return isImageWrapCropBounds(mCurrentImageCorners)
-    }
-
-    fun isImageWrapCropBounds(imageCorners: FloatArray): Boolean {
-        mTempMatrix.reset()
-        mTempMatrix.setRotate(-getCurrentAngle())
-        val unRotatedImageCorners = imageCorners.copyOf(imageCorners.size)
-        mTempMatrix.mapPoints(unRotatedImageCorners)
-        val unRotatedCropBoundsCorners = getCornersFromRect(mCropRect)
-        mTempMatrix.mapPoints(unRotatedCropBoundsCorners)
-        return trapToRect(unRotatedImageCorners).contains(trapToRect(unRotatedCropBoundsCorners))
-    }
-
-    /**
-     * 缩放动画
-     */
-    fun zoomImageToPosition(scale: Float, centerX: Float, centerY: Float, durationMs: Long) {
-        var scale = scale
-        if (scale > getMaxScale()) {
-            scale = getMaxScale()
-        }
-        val oldScale = getCurrentScale()
-        val deltaScale = scale - oldScale
-        post(ZoomImageToPosition(WeakReference(this), durationMs, oldScale, deltaScale, centerX, centerY).also { mZoomImageToPositionRunnable = it })
+    fun postRotate(deltaAngle: Float) {
+        postRotate(deltaAngle, mCropRect.centerX(), mCropRect.centerY())
     }
 
     /**
@@ -144,25 +120,29 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     /**
-     * 裁剪并保存图片
+     * 获取裁剪数据
      */
-    fun setImageCrop(compressFormat: CompressFormat, compressQuality: Int, task: DurbanTask, listener: DurbanTask.BitmapCropCallback) {
+    fun buildImageCropData(compressFormat: CompressFormat, compressQuality: Int): DurbanCrop? {
         // 取消所有动画
         cancelAllAnimations()
         // 让图片适应裁剪框
         setImageToWrapCropBounds(false)
+        // 异步裁剪并保存
+        val bitmap = getViewBitmap() ?: return null
         // 封装当前图片状态
         val imageState = ImageState(mCropRect, trapToRect(mCurrentImageCorners), getCurrentScale(), getCurrentAngle())
         // 封装裁剪参数
         val cropParameters = CropParameters(mMaxResultImageSizeX, mMaxResultImageSizeY, compressFormat, compressQuality, getImagePath(), getOutputDirectory(), getExifInfo())
-        // 异步裁剪并保存
-        val bitmap = getViewBitmap()
-        if (null != bitmap) {
-            val cropData = DurbanCrop(bitmap, imageState, cropParameters)
-            task.cropExecute(cropData, listener)
-        } else {
-            listener.onFailure(AssertionError("图片保存失败"))
-        }
+        // 返回裁剪数据
+        return DurbanCrop(bitmap, imageState, cropParameters)
+    }
+
+    /**
+     * 取消所有动画
+     */
+    fun cancelAllAnimations() {
+        removeCallbacks(mWrapCropBoundsRunnable)
+        removeCallbacks(mZoomImageToPositionRunnable)
     }
 
     /**
@@ -266,18 +246,16 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
     }
 
     /**
-     * 旋转（以裁剪框中心为中心）
+     * 缩放动画
      */
-    fun postRotate(deltaAngle: Float) {
-        postRotate(deltaAngle, mCropRect.centerX(), mCropRect.centerY())
-    }
-
-    /**
-     * 取消所有动画
-     */
-    fun cancelAllAnimations() {
-        removeCallbacks(mWrapCropBoundsRunnable)
-        removeCallbacks(mZoomImageToPositionRunnable)
+    fun zoomImageToPosition(scale: Float, centerX: Float, centerY: Float, durationMs: Long) {
+        var scale = scale
+        if (scale > getMaxScale()) {
+            scale = getMaxScale()
+        }
+        val oldScale = getCurrentScale()
+        val deltaScale = scale - oldScale
+        post(ZoomImageToPosition(WeakReference(this), durationMs, oldScale, deltaScale, centerX, centerY).also { mZoomImageToPositionRunnable = it })
     }
 
     /**
@@ -395,6 +373,23 @@ open class CropImageView @JvmOverloads constructor(context: Context, attrs: Attr
         mCurrentImageMatrix.postScale(initialMinScale, initialMinScale)
         mCurrentImageMatrix.postTranslate(tw, th)
         setImageMatrix(mCurrentImageMatrix)
+    }
+
+    /**
+     * 判断图片是否填满裁剪框
+     */
+    fun isImageWrapCropBounds(): Boolean {
+        return isImageWrapCropBounds(mCurrentImageCorners)
+    }
+
+    fun isImageWrapCropBounds(imageCorners: FloatArray): Boolean {
+        mTempMatrix.reset()
+        mTempMatrix.setRotate(-getCurrentAngle())
+        val unRotatedImageCorners = imageCorners.copyOf(imageCorners.size)
+        mTempMatrix.mapPoints(unRotatedImageCorners)
+        val unRotatedCropBoundsCorners = getCornersFromRect(mCropRect)
+        mTempMatrix.mapPoints(unRotatedCropBoundsCorners)
+        return trapToRect(unRotatedImageCorners).contains(trapToRect(unRotatedCropBoundsCorners))
     }
 
     /**

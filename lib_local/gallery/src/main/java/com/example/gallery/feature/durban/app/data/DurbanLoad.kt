@@ -16,6 +16,8 @@ class DurbanLoad(private val requiredWidth: Int, private val requiredHeight: Int
 
     /**
      * 加载图片
+     * 成功 -> bitmap 加载完成的图片对象 / exifInfo 图片的EXIF信息（旋转角度、宽高、方向等）
+     * 失败 -> 文件不存在、图片损坏、内存不足等
      */
     suspend fun load(imagePath: String): Pair<Bitmap, ExifInfo> {
         return withContext(IO) {

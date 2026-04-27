@@ -44,6 +44,8 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
 
     /**
      * 裁剪逻辑：缩放 → 旋转 → 裁剪 → 保存
+     * 成功 -> imagePath  裁剪后的图片保存路径 / imageWidth 裁剪后的图片宽度 / imageHeight 裁剪后的图片高度
+     * 失败 -> 权限不足、内存不足、图片损坏
      */
     suspend fun crop(): Triple<String, Int, Int> {
         return withContext(IO) {

@@ -82,6 +82,17 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         initContentViews()
         // 初始化底部操作按钮视图
         initControllerViews()
+        // 建立页面数据订阅
+        mTask.load.observe {
+            val (bitmap, exifInfo) = this
+            mCropImageView.setImageLoad(bitmap, exifInfo)
+        }
+        mTask.crop.observe {
+            if (!isNullOrEmpty()) {
+                mOutputPathList.add(this)
+            }
+            cropNextImage()
+        }
         // 开始裁剪第一张图
         cropNextImage()
     }
@@ -232,16 +243,12 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      * 执行裁剪并保存
      */
     private fun cropAndSaveImage() {
-        mCropImageView.setImageCrop(mCompressFormat, mCompressQuality, mTask, object : DurbanTask.BitmapCropCallback {
-            override fun onSuccess(imagePath: String, imageWidth: Int, imageHeight: Int) {
-                mOutputPathList.add(imagePath)
-                cropNextImage()
-            }
-
-            override fun onFailure(t: Throwable) {
-                cropNextImage()
-            }
-        })
+        val cropData = mCropImageView.buildImageCropData(mCompressFormat, mCompressQuality)
+        if (null != cropData) {
+            mTask.cropExecute(cropData)
+        } else {
+            cropNextImage()
+        }
     }
 
     /**
@@ -255,7 +262,8 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (!mInputPathList.isEmpty()) {
             val currentPath = mInputPathList.removeAt(0)
             // 加载失败直接下一张 -> 监听回调
-            mCropImageView.setImageLoad(currentPath, mTask)
+            val (viewRef, loadData) = mCropImageView.buildImageLoadData(currentPath)
+            mTask.loadExecute(viewRef, loadData, currentPath)
         } else {
             // 全部裁剪完成
             if (!mOutputPathList.isEmpty()) {
