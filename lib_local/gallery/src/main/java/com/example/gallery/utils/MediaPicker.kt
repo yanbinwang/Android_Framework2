@@ -7,6 +7,7 @@ import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.color
@@ -73,6 +74,9 @@ class MediaPicker(private val host: Any) {
     private val imageMultiple by lazy { Album.image(host) }
     private val videoMultiple by lazy { Album.video(host) }
     private val durban by lazy { Durban.with(host) }
+    private val emptyFileFilter = object : Filter<Long> {
+        override fun filter(attributes: Long): Boolean = attributes == 0L
+    }
 
     companion object {
         /**
@@ -86,27 +90,9 @@ class MediaPicker(private val host: Any) {
         private val navigationBarColor get() = R.color.appNavigationBar
 
         /**
-         * 计算适合第三方库aspectRatio(x: Float, y: Float)方法的浮点参数
-         * @return Pair<Float, Float> 宽比例和高比例的浮点形式（如16:9返回(16f, 9f)）
+         * 裁剪类图片路径
          */
-        @JvmStatic
-        fun calculateFloatAspectRatio(width: Int, height: Int): Pair<Float, Float> {
-            if (width == 0 || height == 0) {
-                // 处理无效值
-                return 0f to 0f
-            }
-            // 计算最大公约数简化比例
-            val gcd = gcd(width, height)
-            val simplifiedWidth = width / gcd
-            val simplifiedHeight = height / gcd
-            // 转换为浮点型返回
-            return simplifiedWidth.toFloat() to simplifiedHeight.toFloat()
-        }
-
-        // 最大公约数计算（复用之前的实现）
-        private fun gcd(a: Int, b: Int): Int {
-            return if (b == 0) a else gcd(b, a % b)
-        }
+        private val durbanPath get() = getStoragePath("裁剪图片")
 
         /**
          * 创建相册统一配置
@@ -146,7 +132,7 @@ class MediaPicker(private val host: Any) {
             // 图片路径list或者数组
             inputImagePaths(*imagePathArray)
             // 图片输出文件夹路径
-            outputDirectory(getStoragePath("裁剪图片"))
+            outputDirectory(durbanPath)
             // 裁剪图片输出的最大宽高
             maxWidthHeight(width, height)
             // 裁剪时的宽高比
@@ -175,6 +161,36 @@ class MediaPicker(private val host: Any) {
             requestCode(RESULT_ALBUM)
             // 开始跳转
             start()
+        }
+
+        /**
+         * 清空裁剪图片目录（全局专用，业务层直接调用）
+         */
+        fun clearCropDirectory() {
+            durbanPath.deleteDirectory()
+        }
+
+        /**
+         * 计算适合第三方库aspectRatio(x: Float, y: Float)方法的浮点参数
+         * @return Pair<Float, Float> 宽比例和高比例的浮点形式（如16:9返回(16f, 9f)）
+         */
+        @JvmStatic
+        fun calculateFloatAspectRatio(width: Int, height: Int): Pair<Float, Float> {
+            if (width == 0 || height == 0) {
+                // 处理无效值
+                return 0f to 0f
+            }
+            // 计算最大公约数简化比例
+            val gcd = gcd(width, height)
+            val simplifiedWidth = width / gcd
+            val simplifiedHeight = height / gcd
+            // 转换为浮点型返回
+            return simplifiedWidth.toFloat() to simplifiedHeight.toFloat()
+        }
+
+        // 最大公约数计算（复用之前的实现）
+        private fun gcd(a: Int, b: Int): Int {
+            return if (b == 0) a else gcd(b, a % b)
         }
     }
 
@@ -229,11 +245,7 @@ class MediaPicker(private val host: Any) {
             // 筛选文件的可见性
             .afterFilterVisibility(false)
             // 防止加载系统缓存图片
-            .filterSize(object : Filter<Long> {
-                override fun filter(attributes: Long): Boolean {
-                    return attributes == 0L
-                }
-            })
+            .filterSize(emptyFileFilter)
             // 选择后回调
             .onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
@@ -268,11 +280,7 @@ class MediaPicker(private val host: Any) {
             .camera(hasCamera)
             .columnCount(3)
             .afterFilterVisibility(false)
-            .filterSize(object : Filter<Long> {
-                override fun filter(attributes: Long): Boolean {
-                    return attributes == 0L
-                }
-            })
+            .filterSize(emptyFileFilter)
             .onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     listener.invoke(result.toNewList { it.path })
@@ -291,11 +299,7 @@ class MediaPicker(private val host: Any) {
             .camera(true)
             .columnCount(3)
             .afterFilterVisibility(false)
-            .filterSize(object : Filter<Long> {
-                override fun filter(attributes: Long): Boolean {
-                    return attributes == 0L
-                }
-            })
+            .filterSize(emptyFileFilter)
             .onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     result.safeGet(0)?.also { file ->
@@ -323,11 +327,7 @@ class MediaPicker(private val host: Any) {
             .camera(true)
             .columnCount(3)
             .afterFilterVisibility(false)
-            .filterSize(object : Filter<Long> {
-                override fun filter(attributes: Long): Boolean {
-                    return attributes == 0L
-                }
-            })
+            .filterSize(emptyFileFilter)
             .onResult(object : Action<ArrayList<AlbumFile>> {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     listener.invoke(result.toNewList { it.path })

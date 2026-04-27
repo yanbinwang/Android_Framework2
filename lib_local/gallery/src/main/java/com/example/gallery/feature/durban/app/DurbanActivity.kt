@@ -24,11 +24,11 @@ import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.durban.Durban
 import com.example.gallery.feature.durban.app.data.DurbanTask
 import com.example.gallery.feature.durban.model.Controller
-import com.example.gallery.feature.durban.utils.DurbanUtil
 import com.example.gallery.feature.durban.widget.CropImageView
 import com.example.gallery.feature.durban.widget.CropView
 import com.example.gallery.feature.durban.widget.OverlayView
 import com.example.gallery.feature.durban.widget.TransformImageView
+import com.example.gallery.utils.MediaUtil.setDrawableTint
 
 /**
  * 图片裁剪页
@@ -209,7 +209,7 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
             val doneIcon = mDoneMenu?.icon?.mutate()
             if (null != doneIcon) {
-                DurbanUtil.setDrawableTint(doneIcon, color(R.color.galleryIconDark))
+                setDrawableTint(doneIcon, color(R.color.galleryIconDark))
                 mDoneMenu.icon = doneIcon
             }
         }

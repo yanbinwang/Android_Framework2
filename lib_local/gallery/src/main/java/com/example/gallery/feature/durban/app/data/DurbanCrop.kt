@@ -47,11 +47,8 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
      */
     suspend fun crop(): Triple<String, Int, Int> {
         return withContext(IO) {
-            // 检查输出目录是否存在
-            DurbanUtil.ensureFilePath(mOutputDirectory)
-            // 生成随机文件名
-            val fileName = DurbanUtil.randomFileName(mCompressFormat)
-            val outputImagePath = File(mOutputDirectory, fileName).absolutePath
+            // 生成输出文件
+            val outputImagePath = DurbanUtil.randomCropPath(File(mOutputDirectory), mCompressFormat).takeIf { !it.isEmpty() } ?: throw AssertionError("图片保存失败")
             // 如果需要，先缩小图片
             if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
                 val cropWidth = mCropRect.width() / mCurrentScale

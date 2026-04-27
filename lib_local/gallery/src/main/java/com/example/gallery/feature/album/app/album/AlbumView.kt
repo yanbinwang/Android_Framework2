@@ -24,11 +24,11 @@ import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.model.AlbumFolder
 import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.widget.ColorProgressBar
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider
-import com.example.gallery.feature.album.utils.AlbumUtil
+import com.example.gallery.utils.MediaUtil.setDrawableTint
+import com.example.gallery.widget.ColorProgressBar
 
 /**
  * 相册主页面 View 层
@@ -92,10 +92,10 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         // 浅色 / 深色主题 -> 影响图标
         if (widget.uiStyle == Widget.STYLE_LIGHT) {
             // 暗色返回 / 完成
-            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
+            setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
             val completeIcon = mCompleteMenu?.icon?.mutate()
             if (null != completeIcon) {
-                AlbumUtil.setDrawableTint(completeIcon, getColor(R.color.galleryIconDark))
+                setDrawableTint(completeIcon, getColor(R.color.galleryIconDark))
                 mCompleteMenu?.icon = completeIcon
             }
             mTitle.setTextColor(getColor(R.color.galleryFontDark))

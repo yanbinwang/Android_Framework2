@@ -14,7 +14,7 @@ import com.example.framework.utils.function.view.selectorRoundBackground
 import com.example.gallery.R
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.feature.album.utils.AlbumUtil
+import com.example.gallery.utils.MediaUtil.setDrawableTint
 
 /**
  * 空页面 View 层
@@ -49,7 +49,7 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         val navigationIcon = getDrawable(R.mipmap.gallery_ic_back)
         // 浅色 / 深色 主题切换
         if (widget.uiStyle == Widget.STYLE_LIGHT) {
-            AlbumUtil.setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
+            setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
             mTitle.setTextColor(getColor(R.color.galleryFontDark))
         } else {
             mTitle.setTextColor(getColor(R.color.galleryFontLight))
@@ -71,12 +71,12 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         if (!shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)) {
             // 拍照片
             val takeImageIcon = mBtnTakeImage.compoundDrawablesRelative[0]
-            AlbumUtil.setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark))
+            setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark))
             mBtnTakeImage.setCompoundDrawables(takeImageIcon, null, null, null)
             mBtnTakeImage.setTextColor(getColor(R.color.galleryFontDark))
             // 录视频
             val takeVideoIcon = mBtnTakeVideo.compoundDrawablesRelative[0]
-            AlbumUtil.setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark))
+            setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark))
             mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null)
             mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark))
         } else {
