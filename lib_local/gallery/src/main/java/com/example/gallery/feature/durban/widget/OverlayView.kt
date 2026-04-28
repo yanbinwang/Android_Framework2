@@ -15,6 +15,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.core.graphics.withSave
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.color
 import com.example.gallery.R
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
@@ -41,11 +42,11 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // 当前触摸的裁剪框角点索引
     private var mCurrentTouchCornerIndex = -1
     // 触摸识别阈值
-    private var mTouchPointThreshold = getResources().getDimensionPixelSize(R.dimen.gallery_dp_30);
+    private var mTouchPointThreshold = resources.getDimensionPixelSize(R.dimen.durban_touch_threshold)
     // 裁剪框最小尺寸
-    private var mCropRectMinSize = getResources().getDimensionPixelSize(R.dimen.gallery_dp_100)
+    private var mCropRectMinSize = resources.getDimensionPixelSize(R.dimen.durban_crop_min_size)
     // 裁剪框角点触摸区域长度
-    private var mCropRectCornerTouchAreaLineLength = getResources().getDimensionPixelSize(R.dimen.gallery_dp_10)
+    private var mCropRectCornerTouchAreaLineLength = resources.getDimensionPixelSize(R.dimen.durban_corner_touch_area)
     // 目标宽高比
     private var mTargetAspectRatio = 0f
     // 上一次触摸坐标
@@ -305,7 +306,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 初始化裁剪框画笔
      */
     private fun initCropFrameStyle(a: TypedArray) {
-        val cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
+        val cropFrameStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_frame_stroke_size, 1.pt)
         val cropFrameColor = a.getColor(R.styleable.durban_CropView_durban_frame_color, context.color(R.color.durbanCropFrameLine))
         mCropFramePaint.strokeWidth = cropFrameStrokeSize.toFloat()
         mCropFramePaint.color = cropFrameColor
@@ -319,7 +320,7 @@ class OverlayView @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 初始化裁剪框画笔
      */
     private fun initCropGridStyle(a: TypedArray) {
-        val cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, resources.getDimensionPixelSize(R.dimen.gallery_dp_1))
+        val cropGridStrokeSize = a.getDimensionPixelSize(R.styleable.durban_CropView_durban_grid_stroke_size, 1.pt)
         val cropGridColor = a.getColor(R.styleable.durban_CropView_durban_grid_color, context.color(R.color.durbanCropGridLine))
         mCropGridPaint.strokeWidth = cropGridStrokeSize.toFloat()
         mCropGridPaint.color = cropGridColor

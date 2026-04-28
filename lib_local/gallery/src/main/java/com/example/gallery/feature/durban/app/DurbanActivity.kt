@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.hasExtras
@@ -161,12 +162,12 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         overlayView.setCircleDimmedLayer(false)
         overlayView.setShowCropFrame(true)
         overlayView.setCropFrameColor(color(R.color.durbanCropFrameLine))
-        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
+        overlayView.setCropFrameStrokeWidth(1.pt)
         overlayView.setShowCropGrid(true)
         overlayView.setCropGridRowCount(2)
         overlayView.setCropGridColumnCount(2)
         overlayView.setCropGridColor(color(R.color.durbanCropGridLine))
-        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
+        overlayView.setCropGridStrokeWidth(1.pt)
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])

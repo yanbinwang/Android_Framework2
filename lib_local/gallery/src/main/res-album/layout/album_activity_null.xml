@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Album.MatchParent"
-    android:background="@color/albumBackground">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/albumBackground"
+    android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -25,37 +28,62 @@
     </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
-        style="@style/Album.MatchParent"
-        android:layout_below="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_message"
-            style="@style/Album.WrapContent"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:textColor="@color/albumFontHint"
-            android:textSize="@dimen/textSize12" />
+            android:textSize="@dimen/textSize12"
+            tools:text="没有发现媒体文件" />
 
-        <Button
-            android:id="@+id/btn_camera_image"
-            style="@style/Album.Button.WrapContent"
-            android:layout_marginTop="@dimen/gallery_dp_15"
-            android:drawableStart="@mipmap/album_ic_image_camera"
-            android:drawablePadding="@dimen/gallery_dp_6"
+        <LinearLayout
+            android:id="@+id/layout_camera_image"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
             android:gravity="center"
-            android:text="@string/album_camera_image_capture"
-            tools:textColor="@color/galleryFontLight" />
+            tools:background="@drawable/selector_r5_main">
 
-        <Button
-            android:id="@+id/btn_camera_video"
-            style="@style/Album.Button.WrapContent"
-            android:layout_marginTop="@dimen/gallery_dp_15"
-            android:drawableStart="@mipmap/album_ic_video_camera"
-            android:drawablePadding="@dimen/gallery_dp_6"
+            <TextView
+                android:id="@+id/tv_camera_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_image_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_image_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_camera_video"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
             android:gravity="center"
-            android:text="@string/album_camera_video_capture"
-            tools:textColor="@color/galleryFontLight" />
+            tools:background="@drawable/selector_r5_main">
+
+            <TextView
+                android:id="@+id/tv_camera_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_video_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_video_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

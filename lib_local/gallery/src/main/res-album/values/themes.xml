@@ -1,87 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
 
-    <!-- ====================== 相册基础样式 ====================== -->
+    <!-- 基础样式 -->
     <style name="Album" />
 
-    <!-- ====================== 通用布局样式 ====================== -->
-    <!-- 宽高充满父布局 -->
-    <style name="Album.MatchParent">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-    </style>
-
-    <!-- 包裹内容 -->
-    <style name="Album.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <!-- 可点击、带内边距的布局 -->
-    <style name="Album.WrapContent.Transfer">
-        <item name="android:clickable">true</item>
-        <item name="android:padding">@dimen/gallery_dp_10</item>
-    </style>
-
-    <!-- 宽充满、高包裹 -->
-    <style name="Album.WrapContent.WidthMatchParent">
-        <item name="android:layout_width">match_parent</item>
-    </style>
-
-    <!-- 底部栏：宽充满、固定高度 -->
-    <style name="Album.MatchParent.SheetBottom">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">@dimen/gallery_dp_45</item>
-    </style>
-
-    <!-- ====================== 按钮样式 ====================== -->
-    <style name="Album.Button" parent="Widget.AppCompat.Button">
-        <item name="android:theme">@style/Album.Theme.Button</item>
-    </style>
-
-    <!-- 按钮主题 -->
-    <style name="Album.Theme.Button" parent="@style/Theme.AppCompat.Light" />
-
-    <!-- 按钮：包裹内容 -->
-    <style name="Album.Button.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-        <item name="android:minWidth">88dp</item>
-        <item name="android:minHeight">48dp</item>
-        <item name="android:paddingStart">12dp</item>
-        <item name="android:paddingEnd">12dp</item>
-        <item name="android:textSize">@dimen/textSize12</item>
-    </style>
-
-    <!-- ====================== 文字按钮 ====================== -->
-    <style name="Album.TextButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog" />
-
-    <!-- 文字按钮：包裹内容 -->
-    <style name="Album.TextButton.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <!-- 底部文字按钮：居中、亮色、单行 -->
-    <style name="Album.TextButton.WrapContent.SheetBottom">
-        <item name="android:layout_gravity">center_vertical</item>
-        <item name="android:ellipsize">end</item>
-        <item name="android:maxLines">1</item>
-        <item name="android:maxWidth">@dimen/gallery_dp_200</item>
-        <item name="android:textColor">@color/galleryFontLight</item>
-        <item name="android:textSize">@dimen/textSize12</item>
-    </style>
-
-    <!-- ====================== 复选框样式 ====================== -->
-    <style name="Album.CheckBox" parent="Widget.AppCompat.CompoundButton.CheckBox" />
-
-    <!-- 复选框：包裹内容 -->
-    <style name="Album.CheckBox.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
-    </style>
-
-    <!-- ====================== 对话框样式 ====================== -->
     <!-- 基础对话框：悬浮、半透明背景 -->
     <style name="Album.Dialog" parent="Gallery.Dialog" />
 
@@ -92,23 +14,6 @@
         <item name="android:windowFullscreen">true</item>
         <!-- 底部弹出动画 -->
         <item name="android:windowAnimationStyle">@style/PopupTranslateAnimStyle</item>
-    </style>
-
-    <!-- ====================== 列表条目样式 ====================== -->
-    <style name="Album.Item" />
-
-    <!-- 卡片条目：带按压效果、圆角、阴影 -->
-    <style name="Album.Item.Card">
-        <item name="android:foreground">?selectableItemBackground</item>
-        <item name="cardCornerRadius">@dimen/gallery_dp_2</item>
-        <item name="cardElevation">@dimen/gallery_dp_2</item>
-        <item name="cardPreventCornerOverlap">false</item>
-    </style>
-
-    <!-- 卡片条目：宽高充满 -->
-    <style name="Album.Item.Card.MatchParent">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
     </style>
 
 </resources>

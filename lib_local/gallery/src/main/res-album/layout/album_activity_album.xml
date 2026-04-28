@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Album.MatchParent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     android:background="@color/albumBackground">
 
     <androidx.appcompat.widget.Toolbar
@@ -28,7 +29,8 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
-        style="@style/Album.WrapContent.WidthMatchParent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_above="@+id/layout_menu"
         android:layout_below="@+id/toolbar"
         android:overScrollMode="never"
@@ -36,27 +38,57 @@
 
     <FrameLayout
         android:id="@+id/layout_menu"
-        style="@style/Album.MatchParent.SheetBottom"
+        android:layout_width="match_parent"
+        android:layout_height="34pt"
         android:layout_alignParentBottom="true"
         android:background="@color/albumMenu">
 
-        <Button
-            android:id="@+id/btn_switch_dir"
-            style="@style/Album.TextButton.WrapContent.SheetBottom"
+        <LinearLayout
+            android:id="@+id/layout_switch_dir"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="start"
-            android:drawableEnd="@mipmap/album_abc_spinner" />
+            android:gravity="center"
+            android:paddingHorizontal="10pt">
 
-        <Button
-            android:id="@+id/btn_preview"
-            style="@style/Album.TextButton.WrapContent.SheetBottom"
+            <TextView
+                android:id="@+id/tv_switch_dir"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:textColor="@color/galleryFontLight"
+                android:textSize="@dimen/textSize12"
+                app:drawableEndCompat="@mipmap/album_abc_spinner" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_preview"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:layout_gravity="end"
-            android:drawableStart="@mipmap/album_ic_eye" />
+            android:gravity="center"
+            android:paddingHorizontal="10pt">
+
+            <TextView
+                android:id="@+id/tv_preview"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:textColor="@color/galleryFontLight"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_eye" />
+
+        </LinearLayout>
 
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/layout_loading"
-        style="@style/Album.MatchParent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
         android:background="@color/albumBackground"
         android:gravity="center"
@@ -65,11 +97,13 @@
 
         <com.example.gallery.widget.ColorProgressBar
             android:id="@+id/progress_bar"
-            style="@style/Gallery.Progress.Loading" />
+            android:layout_width="30pt"
+            android:layout_height="30pt" />
 
         <TextView
-            style="@style/Album.WrapContent"
-            android:layout_marginStart="@dimen/gallery_dp_20"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10pt"
             android:text="@string/album_loading"
             android:textColor="@color/albumFontHint"
             android:textSize="@dimen/textSize14" />

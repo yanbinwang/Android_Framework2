@@ -6,7 +6,6 @@ import android.graphics.Color
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Button
 import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -14,9 +13,11 @@ import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.visible
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
@@ -46,10 +47,12 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
     private val mTitle = activity.findViewById<TextView>(R.id.tv_title)
     // 相册列表
     private val mRecyclerView = activity.findViewById<RecyclerView>(R.id.recycler_view)
-    // 预览按钮
-    private val mBtnPreview = activity.findViewById<Button>(R.id.btn_preview)
     // 切换文件夹按钮
-    private val mBtnSwitchFolder = activity.findViewById<Button>(R.id.btn_switch_dir)
+    private val mSwitchFolder = activity.findViewById<LinearLayout>(R.id.layout_switch_dir)
+    private val mTvSwitchFolder = activity.findViewById<TextView>(R.id.tv_switch_dir)
+    // 预览按钮
+    private val mPreview = activity.findViewById<LinearLayout>(R.id.layout_preview)
+    private val mTvPreview = activity.findViewById<TextView>(R.id.tv_preview)
     // 加载中布局
     private val mLayoutLoading = activity.findViewById<LinearLayout>(R.id.layout_loading)
     // 加载进度条
@@ -60,7 +63,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
      */
     init {
         // 点击标题栏 → 回到顶部 / 切换文件夹 / 预览已选图片
-        clicks(mToolbar, mBtnSwitchFolder, mBtnPreview)
+        clicks(mToolbar, mSwitchFolder, mPreview)
     }
 
     /**
@@ -110,9 +113,9 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         mTitle.text = widget.title
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
-            mBtnPreview.gone()
+            mPreview.gone()
         } else {
-            mBtnPreview.visible()
+            mPreview.visible()
             // 多选等 Toolbar 布局结束右侧强行撑满
             setSupportMenuViewAsync(mToolbar, widget.statusBarColor)
         }
@@ -120,8 +123,9 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         val mLayoutManager = GridLayoutManager(getContext(), column, LinearLayoutManager.VERTICAL, false)
         mRecyclerView.setLayoutManager(mLayoutManager)
         // 设置列表间隔
-        val dividerSize = getResources().getDimensionPixelSize(R.dimen.gallery_dp_4)
+        val dividerSize = 4.pt
         mRecyclerView.addItemDecoration(ItemDivider(Color.TRANSPARENT, dividerSize, dividerSize))
+        mRecyclerView.paddingAll(2.pt)
         // 初始化适配器
         mAdapter = AlbumAdapter(hasCamera, choiceMode, widget.mediaItemCheckSelector)
         // 点击拍照
@@ -153,8 +157,9 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
             mLayoutLoading.visible()
             mProgressBar.isIndeterminate = true
         } else {
-            mLayoutLoading.fade()
-            mProgressBar.isIndeterminate = false
+            mLayoutLoading.fade {
+                mProgressBar.isIndeterminate = false
+            }
         }
     }
 
@@ -169,7 +174,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
      * 绑定文件夹数据：刷新列表
      */
     override fun bindAlbumFolder(albumFolder: AlbumFolder) {
-        mBtnSwitchFolder.text = albumFolder.name
+        mTvSwitchFolder.text = albumFolder.name
         mAdapter?.setAlbumFiles(albumFolder.albumFiles)
         mAdapter?.notifyDataSetChanged()
         mRecyclerView.scrollToPosition(0)
@@ -193,7 +198,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
      * 更新预览按钮上的选中数量 (5)
      */
     override fun setCheckedCount(count: Int) {
-        mBtnPreview.text = " ($count)"
+        mTvPreview.text = " ($count)"
     }
 
     /**
@@ -202,8 +207,8 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
     override fun onClick(v: View?) {
         when (v) {
             mToolbar -> mRecyclerView.smoothScrollToPosition(0)
-            mBtnSwitchFolder -> getPresenter().clickFolderSwitch()
-            mBtnPreview -> getPresenter().tryPreviewChecked()
+            mSwitchFolder -> getPresenter().clickFolderSwitch()
+            mPreview -> getPresenter().tryPreviewChecked()
         }
     }
 

@@ -405,6 +405,11 @@ fun Context?.openWorld(filePath: String) = openFile(filePath, "application/mswor
 fun Context?.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
 
 /**
+ * 打开系统默认视频播放器
+ */
+fun Context?.openVideo(filePath: String) = openFile(filePath, "video/*")
+
+/**
  * 统一开启文件
  * https://zhuanlan.zhihu.com/p/260340912
  * @filePath 完整绝对路径 -> /storage/emulated/0/Android/data/xxx/files/test.zip

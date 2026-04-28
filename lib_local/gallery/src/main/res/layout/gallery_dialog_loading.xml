@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    style="@style/Gallery.WrapContent"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
     android:background="@drawable/shape_default"
     android:gravity="center"
-    android:paddingHorizontal="@dimen/gallery_dp_35"
-    android:paddingVertical="@dimen/gallery_dp_20">
+    android:paddingHorizontal="20pt"
+    android:paddingVertical="15pt">
 
     <com.example.gallery.widget.ColorProgressBar
         android:id="@+id/progress_bar"
-        style="@style/Gallery.Progress.Loading" />
+        android:layout_width="30pt"
+        android:layout_height="30pt" />
 
     <TextView
         android:id="@+id/tv_message"
-        style="@style/Gallery.WrapContent"
-        android:layout_marginStart="@dimen/gallery_dp_20"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10pt"
         android:textColor="@color/galleryFontHint"
         android:textSize="@dimen/textSize14" />
 

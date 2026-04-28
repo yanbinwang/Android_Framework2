@@ -50,6 +50,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -538,12 +539,37 @@ fun View?.vibrate(milliseconds: Long) {
 }
 
 /**
- * 动画隐藏view
+ * 透明度
+ * @param fromAlpha 0f-1f
+ * @param to 0f-1f
  */
-fun View?.fade(time: Long = 500L, cancelAnim: Boolean = true) {
+fun View?.alpha(fromAlpha: Float, toAlpha: Float, timeMS: Long, block: () -> Unit = {}) {
     if (this == null) return
-    if (!this.isVisible) return
-    if (time <= 0) {
+    cancelAnim()
+    val anim = AlphaAnimation(fromAlpha, toAlpha)
+    // 最终是不透明的,执行前保证显示
+    if (toAlpha == 1f) visible()
+    anim.fillAfter = false
+    anim.duration = timeMS
+    anim.interpolator = AccelerateInterpolator()
+    anim.doOnEnd {
+        if (toAlpha == 0f) {
+            gone()
+        } else {
+            visible()
+        }
+        block.invoke()
+    }
+    startAnimation(anim)
+}
+
+/**
+ * 动画隐藏View (动画完成后透明度回滚显示)
+ */
+fun View?.fade(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
+    if (this == null) return
+    if (!isVisible) return
+    if (timeMS <= 0) {
         gone()
         return
     }
@@ -555,39 +581,16 @@ fun View?.fade(time: Long = 500L, cancelAnim: Boolean = true) {
         }
     }
     val anim = AlphaAnimation(1f, 0f)
-    // 设置保持动画最后的状态
+    // 设置保持动画最后的状态 (回滚1f不做透明)
     anim.fillAfter = false
     // 设置动画时间
-    anim.duration = time
+    anim.duration = timeMS
     // 设置插入器
     anim.interpolator = AccelerateInterpolator()
     // 设置监听
     anim.doOnEnd {
         gone()
-    }
-    startAnimation(anim)
-}
-
-/**
- * 透明度
- * @param from 0f-1f
- * @param to 0f-1f
- */
-fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
-    this ?: return
-    animation?.setAnimationListener(null)
-    animation?.cancel()
-    val anim = AlphaAnimation(from, to)
-    if (to == 1f) visible()
-    anim.fillAfter = false
-    anim.duration = timeMS
-    anim.interpolator = AccelerateInterpolator()
-    anim.doOnEnd {
-        endListener?.invoke() ?: if (to == 0f) {
-            gone()
-        } else {
-            visible()
-        }
+        block.invoke()
     }
     startAnimation(anim)
 }
@@ -595,10 +598,10 @@ fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)?
 /**
  * 动画显示view
  */
-fun View?.appear(time: Long = 500L, cancelAnim: Boolean = true) {
+fun View?.appear(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
     if (this == null) return
-    if (this.isVisible) return
-    if (time <= 0) {
+    if (isVisible) return
+    if (timeMS <= 0) {
         visible()
         return
     }
@@ -612,37 +615,19 @@ fun View?.appear(time: Long = 500L, cancelAnim: Boolean = true) {
     visible()
     val anim = AlphaAnimation(0f, 1f)
     anim.fillAfter = false
-    anim.duration = time
+    anim.duration = timeMS
     anim.interpolator = AccelerateInterpolator()
     anim.doOnEnd {
         visible()
+        block.invoke()
     }
     startAnimation(anim)
 }
 
 /**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(default: Boolean = true): Boolean {
-    if (this == null) return false
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return false
-    }
-    val isRotate = tag as? Boolean ?: default
-    val startRot = if (isRotate) 180f else 0f
-    val endRot = if (isRotate) 0f else 180f
-    tag = !isRotate
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return isRotate
-}
-
-/**
  * 旋轉
  */
-fun View?.rotate(time: Long = 500L, cancelAnim: Boolean = true) {
+fun View?.rotate(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
     if (this == null) return
     if (cancelAnim) {
         cancelAnim()
@@ -653,8 +638,30 @@ fun View?.rotate(time: Long = 500L, cancelAnim: Boolean = true) {
     }
     val anim = AnimatorSet()
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
-    anim.duration = time
+    anim.duration = timeMS
+    anim.doOnEnd {
+        block.invoke()
+    }
     anim.start()
+}
+
+/**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+fun View?.rotate(defaultState: Boolean = true): Boolean {
+    if (this == null) return false
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return false
+    }
+    val currentRotated = tag as? Boolean ?: defaultState
+    val startDegree = if (currentRotated) 180f else 0f
+    val endDegree = if (currentRotated) 0f else 180f
+    tag = !currentRotated
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startDegree, endDegree))
+    anim.duration = 500
+    anim.start()
+    return currentRotated
 }
 
 /**

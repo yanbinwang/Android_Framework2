@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Durban.MatchParent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -25,84 +26,125 @@
 
     <FrameLayout
         android:id="@+id/content_frame"
-        style="@style/Durban.MatchParent"
-        android:layout_above="@id/iv_controller_root"
-        android:layout_below="@id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/iv_controller_root"
+        android:layout_below="@+id/toolbar"
         android:background="@color/durbanCropBackground">
 
         <com.example.gallery.feature.durban.widget.CropView
             android:id="@+id/crop_view"
-            style="@style/Durban.MatchParent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:alpha="0" />
 
     </FrameLayout>
 
     <LinearLayout
         android:id="@+id/iv_controller_root"
-        style="@style/Durban.WrapContent.WidthMatchParent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:background="@color/durbanControllerBackground"
         android:orientation="vertical"
-        android:paddingTop="@dimen/gallery_dp_10">
+        android:paddingTop="5pt">
 
         <LinearLayout
             android:id="@+id/layout_controller_title_root"
-            style="@style/Durban.WrapContent.WidthMatchParent">
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tv_controller_title_rotation"
-                style="@style/Durban.WrapContent.WidthWeight.ControllerTitle"
-                android:text="@string/durban_controller_title_rotation" />
+                android:layout_width="0pt"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/durban_controller_title_rotation"
+                android:textColor="@color/galleryWhite"
+                android:textSize="@dimen/textSize12" />
 
             <TextView
                 android:id="@+id/tv_controller_title_scale"
-                style="@style/Durban.WrapContent.WidthWeight.ControllerTitle"
-                android:text="@string/durban_controller_title_scale" />
+                android:layout_width="0pt"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:text="@string/durban_controller_title_scale"
+                android:textColor="@color/galleryWhite"
+                android:textSize="@dimen/textSize12" />
 
         </LinearLayout>
 
-        <LinearLayout style="@style/Durban.MatchParent.ItemRoot">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="50pt"
+            android:gravity="center">
 
             <FrameLayout
                 android:id="@+id/layout_controller_rotation_left"
-                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless">
 
                 <ImageView
                     android:id="@+id/iv_controller_rotation_left"
-                    style="@style/Durban.WrapContent.ControllerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
                     android:src="@mipmap/durban_ic_rotation_90_left" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_rotation_right"
-                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless">
 
                 <ImageView
                     android:id="@+id/iv_controller_rotation_right"
-                    style="@style/Durban.WrapContent.ControllerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
                     android:src="@mipmap/durban_ic_rotation_90_right" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_scale_big"
-                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless">
 
                 <ImageView
                     android:id="@+id/iv_controller_scale_big"
-                    style="@style/Durban.WrapContent.ControllerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
                     android:src="@mipmap/durban_ic_scale_out" />
 
             </FrameLayout>
 
             <FrameLayout
                 android:id="@+id/layout_controller_scale_small"
-                style="@style/Durban.MatchParent.WidthWeight.ControllerItem">
+                android:layout_width="0pt"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?selectableItemBackgroundBorderless">
 
                 <ImageView
                     android:id="@+id/iv_controller_scale_small"
-                    style="@style/Durban.WrapContent.ControllerButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
                     android:src="@mipmap/durban_ic_scale_in" />
 
             </FrameLayout>

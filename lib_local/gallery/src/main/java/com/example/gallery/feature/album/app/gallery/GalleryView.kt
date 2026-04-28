@@ -12,12 +12,14 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
+import com.example.common.utils.function.openVideo
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
 import com.example.gallery.feature.album.model.Widget
 
 /**
@@ -105,13 +107,26 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
                 }
             }
         }
+        val itemClickAction = { isLongClick: Boolean ->
+            val position = mViewPager.currentItem
+            val item = dataList[position]
+            if (item is AlbumFile && item.mediaType == TYPE_VIDEO) {
+                getContext().openVideo(item.path.orEmpty())
+            } else {
+                if (isLongClick) {
+                    getPresenter().longClickItem(position)
+                } else {
+                    getPresenter().clickItem(position)
+                }
+            }
+        }
         // 点击 -> 通知 Presenter
         adapter.setItemClickListener {
-            getPresenter().clickItem(mViewPager.currentItem)
+            itemClickAction(false)
         }
         // 长按 -> 通知 Presenter
         adapter.setItemLongClickListener {
-            getPresenter().longClickItem(mViewPager.currentItem)
+            itemClickAction(true)
         }
         // 设置预加载数量
         if (adapter.count > 3) {

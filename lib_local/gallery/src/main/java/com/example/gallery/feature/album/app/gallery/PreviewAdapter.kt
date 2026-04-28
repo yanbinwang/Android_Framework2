@@ -5,6 +5,11 @@ import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.viewpager.widget.PagerAdapter
+import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.view.click
+import com.example.gallery.R
+import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
 import com.example.gallery.feature.album.widget.photoview.AttacherImageView
 import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
 
@@ -40,24 +45,45 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
      * 3) 让子类去加载图片
      */
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
+        // 获取此次加载使用的数据体
+        val item = previewList[position]
         // 创建支持 PhotoView 的 ImageView
         val imageView = AttacherImageView(container.context)
-        imageView.setLayoutParams(ViewGroup.LayoutParams(-1, -1))
+        imageView.layoutParams = ViewGroup.LayoutParams(-1, -1)
         // 子类实现：加载图片
-        loadPreview(imageView, previewList[position], position)
+        loadPreview(imageView, item, position)
         // 添加到 ViewPager
         container.addView(imageView)
-        // 绑定 PhotoView 缩放能力
-        val attacher = PhotoViewAttacher(imageView)
-        // 设置单击
-        if (mItemClickListener != null) {
-            attacher.setOnViewTapListener(this)
+        // 视频单独处理
+        if (item is AlbumFile && item.mediaType == TYPE_VIDEO) {
+            imageView.showPlayIcon(R.mipmap.album_ic_video_gallery)
+            if (mItemClickListener != null) {
+                imageView.setOnClickListener { v ->
+                    mItemClickListener?.onClick(v)
+                }
+            }
+            if (mItemLongClickListener != null) {
+                imageView.setOnLongClickListener { v ->
+                    mItemLongClickListener?.onClick(v)
+                    true
+                }
+            }
+        } else {
+            // 避免缓存误加载
+            imageView.hidePlayIcon()
+            // 绑定 PhotoView 缩放能力
+            val attacher = PhotoViewAttacher(imageView)
+            // 设置单击
+            if (mItemClickListener != null) {
+                attacher.setOnViewTapListener(this)
+            }
+            // 设置长按
+            if (mItemLongClickListener != null) {
+                attacher.setOnLongClickListener(this)
+            }
+            // 设置手势控制器
+            imageView.setAttacher(attacher)
         }
-        // 设置长按
-        if (mItemLongClickListener != null) {
-            attacher.setOnLongClickListener(this)
-        }
-        imageView.setAttacher(attacher)
         return imageView
     }
 

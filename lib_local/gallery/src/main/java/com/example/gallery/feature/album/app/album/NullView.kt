@@ -2,7 +2,7 @@ package com.example.gallery.feature.album.app.album
 
 import android.app.Activity
 import android.view.View
-import android.widget.Button
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor
@@ -26,18 +26,20 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
     // 标题文字
     private val mTitle = activity.findViewById<TextView>(R.id.tv_title)
     // 空页面提示文字
-    private val mTvMessage = activity.findViewById<TextView>(R.id.tv_message)
+    private val mMessage = activity.findViewById<TextView>(R.id.tv_message)
     // 拍照按钮
-    private val mBtnTakeImage = activity.findViewById<Button>(R.id.btn_camera_image)
+    private val mTakeImage = activity.findViewById<LinearLayout>(R.id.layout_camera_image)
+    private val mTvTakeImage = activity.findViewById<TextView>(R.id.tv_camera_image)
     // 录像按钮
-    private val mBtnTakeVideo = activity.findViewById<Button>(R.id.btn_camera_video)
+    private val mTakeVideo = activity.findViewById<LinearLayout>(R.id.layout_camera_video)
+    private val mTvTakeVideo = activity.findViewById<TextView>(R.id.tv_camera_video)
 
     /**
      * 构造方法：绑定控件
      */
     init {
         // 按钮点击事件
-        clicks(mBtnTakeImage, mBtnTakeVideo)
+        clicks(mTakeImage, mTakeVideo)
     }
 
     /**
@@ -61,27 +63,25 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
         mTitle.text = widget.title
         // 设置按钮样式
         val buttonSelector = widget.buttonSelector
-//        mBtnTakeImage.backgroundTintList = buttonSelector
-//        mBtnTakeVideo.backgroundTintList = buttonSelector
         val normalColor = buttonSelector.getNormalColor()
         val pressedColor = buttonSelector.getHighLightColor()
-        mBtnTakeImage.selectorRoundBackground(normalColor, pressedColor, normalColor, 5.ptFloat)
-        mBtnTakeVideo.selectorRoundBackground(normalColor, pressedColor, normalColor, 5.ptFloat)
+        mTakeImage.selectorRoundBackground(normalColor, pressedColor, normalColor, 2.ptFloat)
+        mTakeVideo.selectorRoundBackground(normalColor, pressedColor, normalColor, 2.ptFloat)
         // 获取按钮主题色 , 如果需要深色主题则提取出绘制的图标并渲染成深色 -> 此处拿取的是normal
         if (!shouldUseWhiteSystemBarsForColor(buttonSelector.defaultColor)) {
             // 拍照片
-            val takeImageIcon = mBtnTakeImage.compoundDrawablesRelative[0]
+            val takeImageIcon = mTvTakeImage.compoundDrawablesRelative[0]
             setDrawableTint(takeImageIcon, getColor(R.color.galleryIconDark))
-            mBtnTakeImage.setCompoundDrawables(takeImageIcon, null, null, null)
-            mBtnTakeImage.setTextColor(getColor(R.color.galleryFontDark))
+            mTvTakeImage.setCompoundDrawables(takeImageIcon, null, null, null)
+            mTvTakeImage.setTextColor(getColor(R.color.galleryFontDark))
             // 录视频
-            val takeVideoIcon = mBtnTakeVideo.compoundDrawablesRelative[0]
+            val takeVideoIcon = mTvTakeVideo.compoundDrawablesRelative[0]
             setDrawableTint(takeVideoIcon, getColor(R.color.galleryIconDark))
-            mBtnTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null)
-            mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontDark))
+            mTvTakeVideo.setCompoundDrawables(takeVideoIcon, null, null, null)
+            mTvTakeVideo.setTextColor(getColor(R.color.galleryFontDark))
         } else {
-            mBtnTakeImage.setTextColor(getColor(R.color.galleryFontLight))
-            mBtnTakeVideo.setTextColor(getColor(R.color.galleryFontLight))
+            mTvTakeImage.setTextColor(getColor(R.color.galleryFontLight))
+            mTvTakeVideo.setTextColor(getColor(R.color.galleryFontLight))
         }
     }
 
@@ -89,21 +89,21 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
      * 设置空页面提示文字
      */
     override fun setMessage(message: Int) {
-        mTvMessage.setText(message)
+        mMessage.setText(message)
     }
 
     /**
      * 显示 / 隐藏 拍照按钮
      */
     override fun setMakeImageDisplay(display: Boolean) {
-        mBtnTakeImage.visibility = if (display) View.VISIBLE else View.GONE
+        mTakeImage.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**
      * 显示 / 隐藏 录像按钮
      */
     override fun setMakeVideoDisplay(display: Boolean) {
-        mBtnTakeVideo.visibility = if (display) View.VISIBLE else View.GONE
+        mTakeVideo.visibility = if (display) View.VISIBLE else View.GONE
     }
 
     /**
@@ -111,8 +111,8 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
      */
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.btn_camera_image -> getPresenter().takePicture()
-            R.id.btn_camera_video -> getPresenter().takeVideo()
+            R.id.layout_camera_image -> getPresenter().takePicture()
+            R.id.layout_camera_video -> getPresenter().takeVideo()
         }
     }
 
