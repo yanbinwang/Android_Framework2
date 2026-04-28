@@ -10,6 +10,7 @@ import androidx.annotation.StringRes
 import com.example.framework.utils.function.color
 import com.example.gallery.R
 import com.example.gallery.feature.album.utils.AlbumUtil
+import com.example.gallery.utils.MediaUtil.getColorStateList
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -89,9 +90,9 @@ data class Widget(
         builder.mStatusBarColor.takeIf { it != 0 } ?: R.color.galleryStatusBar,
         builder.mNavigationBarColor.takeIf { it != 0 } ?: R.color.galleryNavigationBar,
         builder.mTitle.takeIf { !it.isNullOrEmpty() } ?: builder.mContext.getString(R.string.album_title),
-        builder.mMediaItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mBucketItemCheckSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mButtonSelector.takeIf { it != null } ?: AlbumUtil.getColorStateList(builder.mContext.color(R.color.galleryColorPrimary), builder.mContext.color(R.color.galleryColorPrimaryDark))
+        builder.mMediaItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
+        builder.mBucketItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
+        builder.mButtonSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.galleryColorPrimary), builder.mContext.color(R.color.galleryColorPrimaryDark))
     )
 
     /**
@@ -139,7 +140,7 @@ data class Widget(
          * 设置媒体条目选择框颜色
          */
         fun mediaItemCheckSelector(@ColorInt normalColor: Int, @ColorInt highLightColor: Int): Builder {
-            this.mMediaItemCheckSelector = AlbumUtil.getColorStateList(normalColor, highLightColor)
+            this.mMediaItemCheckSelector = getColorStateList(normalColor, highLightColor)
             return this
         }
 
@@ -147,7 +148,7 @@ data class Widget(
          * 设置文件夹条目选择框颜色
          */
         fun bucketItemCheckSelector(@ColorInt normalColor: Int, @ColorInt highLightColor: Int): Builder {
-            this.mBucketItemCheckSelector = AlbumUtil.getColorStateList(normalColor, highLightColor)
+            this.mBucketItemCheckSelector = getColorStateList(normalColor, highLightColor)
             return this
         }
 
@@ -155,7 +156,7 @@ data class Widget(
          * 设置按钮点击效果
          */
         fun buttonSelector(@ColorInt normalColor: Int, @ColorInt highLightColor: Int): Builder {
-            mButtonSelector = AlbumUtil.getColorStateList(normalColor, highLightColor)
+            mButtonSelector = getColorStateList(normalColor, highLightColor)
             return this
         }
 

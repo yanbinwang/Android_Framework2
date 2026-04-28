@@ -59,7 +59,7 @@ object BitmapLoadUtil {
         var orientation = ExifInterface.ORIENTATION_UNDEFINED
         try {
             FileInputStream(imagePath).use { stream ->
-                orientation = ImageHeaderParser(stream).getOrientation()
+                orientation = ExifOrientationParser(stream).getOrientation()
             }
         } catch (e: IOException) {
             e.printStackTrace()

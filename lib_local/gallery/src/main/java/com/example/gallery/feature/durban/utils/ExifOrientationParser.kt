@@ -10,7 +10,7 @@ import java.nio.charset.StandardCharsets
  * 图片 EXIF 信息解析器
  * 解析图片方向、旋转信息，保证裁剪后图片不倒置
  */
-class ImageHeaderParser(input: InputStream) {
+class ExifOrientationParser(input: InputStream) {
     // 读取图片流的工具
     private val reader: Reader = StreamReader(input)
 
@@ -72,7 +72,8 @@ class ImageHeaderParser(input: InputStream) {
                 if (formatCode !in 1..12) continue
                 componentCount = segmentData.getInt32(tagOffset + 4)
                 if (componentCount < 0) continue
-                val byteCount = componentCount + BYTES_PER_FORMAT[formatCode]
+                // 总字节数 = 个数 × 每个的字节数
+                val byteCount = componentCount * BYTES_PER_FORMAT[formatCode]
                 if (byteCount > 4) continue
                 val tagValueOffset = tagOffset + 8
                 if (tagValueOffset < 0 || tagValueOffset > segmentData.length()) continue

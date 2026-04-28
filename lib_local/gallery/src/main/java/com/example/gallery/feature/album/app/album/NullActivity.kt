@@ -119,9 +119,7 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
             Album.FUNCTION_CHOICE_ALBUM -> {
                 mView.setMessage(R.string.album_not_found_album)
             }
-            else -> {
-                throw AssertionError("This should not be the case.")
-            }
+            else -> throw AssertionError("This should not be the case.")
         }
         // 如果不允许使用相机，隐藏两个按钮
         if (!mHasCamera) {

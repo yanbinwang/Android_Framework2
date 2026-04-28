@@ -126,7 +126,7 @@ private fun Long.padZero(cap: Boolean = true): String {
  */
 @SuppressLint("DefaultLocale")
 fun Long?.convertDuration(): String {
-    this ?: return "00"
+    this ?: return "00:00"
     val totalSeconds = this / 1000
     val hours = totalSeconds / 3600
     val minutes = (totalSeconds % 3600) / 60

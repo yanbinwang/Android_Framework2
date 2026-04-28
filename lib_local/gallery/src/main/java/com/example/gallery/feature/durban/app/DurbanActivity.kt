@@ -11,6 +11,7 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.hasExtras
@@ -28,6 +29,7 @@ import com.example.gallery.feature.durban.widget.CropImageView
 import com.example.gallery.feature.durban.widget.CropView
 import com.example.gallery.feature.durban.widget.OverlayView
 import com.example.gallery.feature.durban.widget.TransformImageView
+import com.example.gallery.utils.MediaUtil.setDrawableTint
 
 /**
  * 图片裁剪页
@@ -81,6 +83,17 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         initContentViews()
         // 初始化底部操作按钮视图
         initControllerViews()
+        // 建立页面数据订阅
+        mTask.load.observe {
+            val (bitmap, exifInfo) = this
+            mCropImageView.setImageLoad(bitmap, exifInfo)
+        }
+        mTask.crop.observe {
+            if (!isNullOrEmpty()) {
+                mOutputPathList.add(this)
+            }
+            cropNextImage()
+        }
         // 开始裁剪第一张图
         cropNextImage()
     }
@@ -149,12 +162,12 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         overlayView.setCircleDimmedLayer(false)
         overlayView.setShowCropFrame(true)
         overlayView.setCropFrameColor(color(R.color.durbanCropFrameLine))
-        overlayView.setCropFrameStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
+        overlayView.setCropFrameStrokeWidth(1.pt)
         overlayView.setShowCropGrid(true)
         overlayView.setCropGridRowCount(2)
         overlayView.setCropGridColumnCount(2)
         overlayView.setCropGridColor(color(R.color.durbanCropGridLine))
-        overlayView.setCropGridStrokeWidth(getResources().getDimensionPixelSize(R.dimen.gallery_dp_1))
+        overlayView.setCropGridStrokeWidth(1.pt)
         // 设置裁剪比例
         if (mAspectRatio[0] > 0 && mAspectRatio[1] > 0) {
             mCropImageView.setTargetAspectRatio(mAspectRatio[0] / mAspectRatio[1])
@@ -201,17 +214,15 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.durban_menu_activity, menu)
         // 获取右侧菜单按钮的 MenuItem
-        val okItem = menu?.findItem(R.id.menu_action_ok)
+        val mDoneMenu = menu?.findItem(R.id.menu_action_ok)
         // 去除长按的文字提示
-        okItem?.title = ""
+        mDoneMenu?.title = ""
         // 根据导航栏颜色定义对应的图片
         if (!shouldUseWhiteSystemBarsForRes(mStatusBarColor)) {
-            val doneIcon = drawable(R.mipmap.gallery_ic_done)
+            val doneIcon = mDoneMenu?.icon?.mutate()
             if (null != doneIcon) {
-                doneIcon.setTint(color(R.color.galleryIconDark))
-                // 如果菜单按钮是自定义 View（通过 actionLayout 指定）
-                val okView = okItem?.actionView
-                okView?.background = doneIcon
+                setDrawableTint(doneIcon, color(R.color.galleryIconDark))
+                mDoneMenu.icon = doneIcon
             }
         }
         // 设置额外添加的按钮外层间距
@@ -233,16 +244,12 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
      * 执行裁剪并保存
      */
     private fun cropAndSaveImage() {
-        mCropImageView.setImageCrop(mCompressFormat, mCompressQuality, mTask, object : DurbanTask.BitmapCropCallback {
-            override fun onSuccess(imagePath: String, imageWidth: Int, imageHeight: Int) {
-                mOutputPathList.add(imagePath)
-                cropNextImage()
-            }
-
-            override fun onFailure(t: Throwable) {
-                cropNextImage()
-            }
-        })
+        val cropData = mCropImageView.buildImageCropData(mCompressFormat, mCompressQuality)
+        if (null != cropData) {
+            mTask.cropExecute(cropData)
+        } else {
+            cropNextImage()
+        }
     }
 
     /**
@@ -256,7 +263,8 @@ internal class DurbanActivity : BaseActivity(), View.OnClickListener {
         if (!mInputPathList.isEmpty()) {
             val currentPath = mInputPathList.removeAt(0)
             // 加载失败直接下一张 -> 监听回调
-            mCropImageView.setImageLoad(currentPath, mTask)
+            val (viewRef, loadData) = mCropImageView.buildImageLoadData(currentPath)
+            mTask.loadExecute(viewRef, loadData, currentPath)
         } else {
             // 全部裁剪完成
             if (!mOutputPathList.isEmpty()) {

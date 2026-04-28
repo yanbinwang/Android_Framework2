@@ -4,18 +4,6 @@
     <!-- ====================== 相册基础样式 ====================== -->
     <style name="Gallery" />
 
-    <!-- 基础对话框：悬浮、半透明背景 -->
-    <style name="Gallery.Dialog" parent="Theme.AppCompat.Light.Dialog">
-        <item name="android:windowFrame">@null</item>
-        <item name="android:windowIsFloating">true</item>
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <!-- 去掉系统背景 -->
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowNoTitle">true</item>
-    </style>
-
     <!-- ====================== 主题样式 ====================== -->
     <style name="Gallery.Theme" />
 
@@ -45,37 +33,30 @@
         <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
-    <!-- ====================== 进度条样式 ====================== -->
-    <style name="Gallery.Progress" parent="Widget.AppCompat.ProgressBar" />
-
-    <!-- 加载进度条：固定大小 -->
-    <style name="Gallery.Progress.Loading">
-        <item name="android:minWidth">@dimen/gallery_dp_40</item>
-        <item name="android:maxWidth">@dimen/gallery_dp_40</item>
-        <item name="android:minHeight">@dimen/gallery_dp_40</item>
-        <item name="android:maxHeight">@dimen/gallery_dp_40</item>
-        <item name="android:layout_width">@dimen/gallery_dp_40</item>
-        <item name="android:layout_height">@dimen/gallery_dp_40</item>
-    </style>
-
-    <!-- ====================== Toolbar 样式 ====================== -->
+    <!-- Toolbar 样式 -->
     <style name="Gallery.Toolbar">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">?attr/actionBarSize</item>
         <!-- 全透明 -->
         <item name="android:background">@android:color/transparent</item>
         <!-- 去掉阴影 -->
-        <item name="android:elevation">@dimen/gallery_dp_0</item>
+        <item name="android:elevation">0pt</item>
         <!-- 去掉Toolbar左边默认的16dp留白 -->
-        <item name="android:contentInsetStart">@dimen/gallery_dp_0</item>
+        <item name="android:contentInsetStart">0pt</item>
         <!-- 彻底隐藏标题 -->
         <item name="android:title">@null</item>
     </style>
 
-    <!-- ====================== 通用布局样式 ====================== -->
-    <style name="Gallery.WrapContent">
-        <item name="android:layout_width">wrap_content</item>
-        <item name="android:layout_height">wrap_content</item>
+    <!-- 基础对话框：悬浮、半透明背景 -->
+    <style name="Gallery.Dialog" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 去掉系统背景 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
 </resources>

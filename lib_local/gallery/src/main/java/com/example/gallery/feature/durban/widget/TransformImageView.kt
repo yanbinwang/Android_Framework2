@@ -8,7 +8,6 @@ import android.util.AttributeSet
 import androidx.annotation.IntRange
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.gallery.feature.durban.app.data.DurbanLoad
-import com.example.gallery.feature.durban.app.data.DurbanTask
 import com.example.gallery.feature.durban.model.ExifInfo
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect
@@ -132,6 +131,31 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     }
 
     /**
+     * 获取加载数据
+     */
+    fun buildImageLoadData(imagePath: String): Pair<WeakReference<TransformImageView>, DurbanLoad> {
+        // 复位调整
+        mBitmapDecoded = false
+        mBitmapLaidOut = false
+        // 赋值路径
+        mImagePath = imagePath
+        val maxBitmapSize = getMaxBitmapSize()
+        val loadData = DurbanLoad(maxBitmapSize, maxBitmapSize)
+        // 返回数据体
+        return WeakReference(this) to loadData
+    }
+
+    /**
+     * 设置加载图片路径
+     */
+    fun setImageLoad(bitmap: Bitmap, exifInfo: ExifInfo) {
+        mExifInfo = exifInfo
+        mBitmapDecoded = true
+        // 触发 requestLayout() 从而回调 onLayout()
+        setImageBitmap(bitmap)
+    }
+
+    /**
      * 设置/获取 图片最大尺寸
      */
     fun setMaxBitmapSize(maxBitmapSize: Int) {
@@ -143,31 +167,6 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
             mMaxBitmapSize = BitmapLoadUtil.calculateMaxBitmapSize(context)
         }
         return mMaxBitmapSize
-    }
-
-    /**
-     * 获取 / 加载 图片路径 (异步)
-     */
-    fun setImageLoad(inputImagePath: String, task: DurbanTask) {
-        // 复位调整
-        mBitmapDecoded = false
-        mBitmapLaidOut = false
-        // 赋值路径
-        mImagePath = inputImagePath
-        val maxBitmapSize = getMaxBitmapSize()
-        val loadData = DurbanLoad(maxBitmapSize, maxBitmapSize)
-        task.loadExecute(WeakReference(this), loadData, inputImagePath, object : DurbanTask.BitmapLoadCallback {
-            override fun onSuccess(bitmap: Bitmap, exifInfo: ExifInfo) {
-                mExifInfo = exifInfo
-                mBitmapDecoded = true
-                // 触发 requestLayout() 从而回调 onLayout()
-                setImageBitmap(bitmap)
-            }
-
-            override fun onFailure(t: Throwable) {
-                mTransformImageListener?.onLoadFailure()
-            }
-        })
     }
 
     /**
@@ -237,10 +236,14 @@ open class TransformImageView @JvmOverloads constructor(context: Context, attrs:
     }
 
     /**
-     * 设置监听
+     * 设置 / 获取监听
      */
     fun setTransformImageListener(transformImageListener: TransformImageListener) {
         mTransformImageListener = transformImageListener
+    }
+
+    fun getTransformImageListener(): TransformImageListener? {
+        return mTransformImageListener
     }
 
     /**

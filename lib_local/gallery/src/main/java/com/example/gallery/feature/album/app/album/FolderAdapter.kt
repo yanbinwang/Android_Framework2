@@ -96,7 +96,7 @@ class FolderAdapter(private val albumFolders: List<AlbumFolder>, private val col
         fun setData(albumFolder: AlbumFolder) {
             val albumFiles = albumFolder.albumFiles
             // 显示：(数量) 文件夹名称
-            mTvTitle?.text = "(" + albumFiles.size + ") " + albumFolder.name
+            mTvTitle?.text = "(${albumFiles.size})\u0020" + albumFolder.name
             // 选中状态
             mCheckBox?.isChecked = albumFolder.isChecked
             // 加载文件夹第一张图作为封面

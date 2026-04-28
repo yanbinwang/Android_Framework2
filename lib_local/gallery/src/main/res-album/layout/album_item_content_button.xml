@@ -1,14 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <com.example.gallery.feature.album.widget.square.SquareCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    style="@style/Album.Item.Card.MatchParent"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
     app:cardBackgroundColor="@color/albumBtn">
 
     <com.example.gallery.feature.album.widget.square.SquareImageView
         android:id="@+id/iv_album_content_button"
-        style="@style/Album.MatchParent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="?selectableItemBackground"
-        android:contentDescription="@string/album_title"
         android:scaleType="center"
         android:src="@mipmap/album_ic_add_photo" />
 

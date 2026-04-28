@@ -8,7 +8,7 @@ import androidx.core.graphics.scale
 import com.example.gallery.feature.durban.model.CropParameters
 import com.example.gallery.feature.durban.model.ImageState
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
-import com.example.gallery.feature.durban.utils.FileUtil
+import com.example.gallery.feature.durban.utils.DurbanUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -44,14 +44,13 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
 
     /**
      * 裁剪逻辑：缩放 → 旋转 → 裁剪 → 保存
+     * 成功 -> imagePath  裁剪后的图片保存路径 / imageWidth 裁剪后的图片宽度 / imageHeight 裁剪后的图片高度
+     * 失败 -> 权限不足、内存不足、图片损坏
      */
     suspend fun crop(): Triple<String, Int, Int> {
         return withContext(IO) {
-            // 检查输出目录是否存在
-            FileUtil.validateDirectory(mOutputDirectory)
-            // 生成随机文件名
-            val fileName = FileUtil.randomImageName(mCompressFormat)
-            val outputImagePath = File(mOutputDirectory, fileName).absolutePath
+            // 生成输出文件
+            val outputImagePath = DurbanUtil.randomCropPath(File(mOutputDirectory), mCompressFormat).takeIf { !it.isEmpty() } ?: throw AssertionError("图片保存失败")
             // 如果需要，先缩小图片
             if (mMaxResultImageSizeX > 0 && mMaxResultImageSizeY > 0) {
                 val cropWidth = mCropRect.width() / mCurrentScale
@@ -105,7 +104,7 @@ class DurbanCrop(viewBitmap: Bitmap, imageState: ImageState, cropParameters: Cro
                 }
             } else {
                 // 无需裁剪，直接复制文件
-                FileUtil.copyFile(mInputImagePath, outputImagePath)
+                DurbanUtil.copyFile(mInputImagePath, outputImagePath)
             }
             // 回收图片
             if (!mViewBitmap.isRecycled) {

@@ -9,13 +9,13 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.example.framework.utils.function.value.convertDuration
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.model.AlbumFile
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
-import com.example.gallery.feature.album.utils.AlbumUtil
 
 /**
  * 相册主列表适配器
@@ -193,7 +193,7 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
         override fun setData(albumFile: AlbumFile) {
             Album.getAlbumConfig().albumLoader.load(mIvImage, albumFile)
             mCheckBox.isChecked = albumFile.isChecked
-            mTvDuration.text = AlbumUtil.convertDuration(albumFile.duration)
+            mTvDuration.text = albumFile.duration.convertDuration()
             mLayoutLayer.visibility = if (albumFile.isDisable) View.VISIBLE else View.GONE
         }
 

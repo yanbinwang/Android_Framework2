@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="durban_corner_touch_area">10dp</dimen>
+    <dimen name="durban_touch_threshold">30dp</dimen>
+    <dimen name="durban_crop_min_size">100dp</dimen>
+</resources>
