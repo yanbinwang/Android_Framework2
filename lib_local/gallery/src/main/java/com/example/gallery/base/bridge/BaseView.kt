@@ -1,6 +1,5 @@
 package com.example.gallery.base.bridge
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
@@ -12,6 +11,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
@@ -20,6 +20,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
 import com.example.gallery.base.proxy.ActivitySource
+import java.lang.ref.WeakReference
 
 /**
  * MVP 架构中所有 View 层的基类
@@ -30,14 +31,14 @@ abstract class BaseView<Presenter : BasePresenter> {
     // View 载体（Activity/View 包装类）
     private var mSource: BaseSource<*>
     // 当前 View 绑定的 Presenter
-    private var mPresenter: Presenter
+    private var mPresenter: WeakReference<Presenter>
 
     /**
      * 绑定 Activity 作为载体
      * @param activity 页面
      * @param presenter 绑定的 Presenter
      */
-    constructor(activity: Activity, presenter: Presenter) : this(ActivitySource(activity), presenter)
+    constructor(activity: FragmentActivity, presenter: Presenter) : this(ActivitySource(activity), presenter)
 
     /**
      * 绑定自定义 Source 作为载体
@@ -46,7 +47,7 @@ abstract class BaseView<Presenter : BasePresenter> {
      */
     constructor(source: BaseSource<*>, presenter: Presenter) {
         mSource = source
-        mPresenter = presenter
+        mPresenter = WeakReference(presenter)
         // 初始化载体
         mSource.prepare()
         // 初始化载体右侧菜单
@@ -54,13 +55,13 @@ abstract class BaseView<Presenter : BasePresenter> {
         // 设置菜单点击事件
         mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
             override fun onHomeClick() {
-                getPresenter().navigateBack()
+                getPresenter()?.navigateBack()
             }
 
             override fun onMenuClick(item: MenuItem) {
                 if (item.itemId == R.id.home) {
                     if (!onInterceptToolbarBack()) {
-                        getPresenter().navigateBack()
+                        getPresenter()?.navigateBack()
                     }
                 } else {
                     onOptionsItemSelected(item)
@@ -68,7 +69,7 @@ abstract class BaseView<Presenter : BasePresenter> {
             }
         })
         // 监听 Presenter 生命周期，绑定 View 生命周期
-        getPresenter().lifecycle.addObserver(object : DefaultLifecycleObserver {
+        getPresenter()?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
             override fun onResume(owner: LifecycleOwner) {
                 super.onResume(owner)
                 onResume()
@@ -144,6 +145,13 @@ abstract class BaseView<Presenter : BasePresenter> {
     }
 
     /**
+     * 获取生命周期订阅 Observer
+     */
+    protected fun getObserver(): LifecycleOwner {
+        return mSource.getObserver()
+    }
+
+    /**
      * 获取基础类型
      */
     protected fun getContext(): Context {
@@ -177,8 +185,8 @@ abstract class BaseView<Presenter : BasePresenter> {
     /**
      * 获取P层
      */
-    protected fun getPresenter(): Presenter {
-        return mPresenter
+    protected fun getPresenter(): Presenter? {
+        return mPresenter.get()
     }
 
     /**

@@ -1,6 +1,5 @@
 package com.example.gallery.feature.album.app.gallery
 
-import android.app.Activity
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,6 +9,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
 import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import com.example.common.utils.function.openVideo
@@ -26,7 +26,7 @@ import com.example.gallery.feature.album.model.Widget
  * 图片/视频 预览页面 View 层
  * 功能：大图预览、选中/取消、视频时长显示、状态栏沉浸
  */
-class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter) : Contract.GalleryView<Data>(activity, presenter), View.OnClickListener {
+class GalleryView<Data>(activity: FragmentActivity, presenter: Contract.GalleryPresenter) : Contract.GalleryView<Data>(activity, presenter), View.OnClickListener {
     // 右上角完成按钮
     private var mCompleteMenu: MenuItem? = null
     // 标题栏
@@ -62,7 +62,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
     override fun onOptionsItemSelected(item: MenuItem) {
         super.onOptionsItemSelected(item)
         if (item.itemId == R.id.album_menu_finish) {
-            getPresenter().complete()
+            getPresenter()?.complete()
         }
     }
 
@@ -87,7 +87,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
         // 页面滑动监听
         mViewPager.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
-                getPresenter().onCurrentChanged(position)
+                getPresenter()?.onCurrentChanged(position)
             }
         })
     }
@@ -114,9 +114,9 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
                 getContext().openVideo(item.path.orEmpty())
             } else {
                 if (isLongClick) {
-                    getPresenter().longClickItem(position)
+                    getPresenter()?.longClickItem(position)
                 } else {
-                    getPresenter().clickItem(position)
+                    getPresenter()?.clickItem(position)
                 }
             }
         }
@@ -191,7 +191,7 @@ class GalleryView<Data>(activity: Activity, presenter: Contract.GalleryPresenter
      */
     override fun onClick(v: View?) {
         when (v) {
-            mCheckBox -> getPresenter().onCheckedChanged()
+            mCheckBox -> getPresenter()?.onCheckedChanged()
             // 遮罩层只拦截事件，不做处理
             mLayoutLayer -> {}
         }

@@ -1,10 +1,10 @@
 package com.example.gallery.feature.album.app.album
 
-import android.app.Activity
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentActivity
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.getHighLightColor
@@ -20,7 +20,7 @@ import com.example.gallery.utils.MediaUtil.setDrawableTint
  * 空页面 View 层
  * 功能：当手机里没有图片/视频时，显示这个页面，提供：拍照、录像按钮，纯 UI 展示
  */
-class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract.NullView(activity, presenter), View.OnClickListener {
+class NullView(activity: FragmentActivity, presenter: Contract.NullPresenter) : Contract.NullView(activity, presenter), View.OnClickListener {
     // 标题栏
     private val mToolbar = activity.findViewById<Toolbar>(R.id.toolbar)
     // 标题文字
@@ -111,8 +111,8 @@ class NullView(activity: Activity, presenter: Contract.NullPresenter) : Contract
      */
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.layout_camera_image -> getPresenter().takePicture()
-            R.id.layout_camera_video -> getPresenter().takeVideo()
+            R.id.layout_camera_image -> getPresenter()?.takePicture()
+            R.id.layout_camera_video -> getPresenter()?.takeVideo()
         }
     }
 

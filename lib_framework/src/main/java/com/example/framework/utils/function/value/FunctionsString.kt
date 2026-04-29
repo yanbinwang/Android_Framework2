@@ -127,7 +127,7 @@ fun String?.thousandsFormat(): String {
  * 接取固定长度的字符串
  */
 fun String?.fixLength(size: Int): String {
-    if (this == null) return ""
+    this ?: return ""
     return if (length.orZero > size) {
         substring(0, size)
     } else {

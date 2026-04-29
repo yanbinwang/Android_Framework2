@@ -39,7 +39,7 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.gallery.R
-import com.example.gallery.base.bridge.BackHandler
+import com.example.gallery.base.bridge.PageCloseable
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
@@ -48,7 +48,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 针对所有相册页面的基类
  */
-abstract class BaseActivity : AppCompatActivity(), BackHandler {
+abstract class BaseActivity : AppCompatActivity(), PageCloseable {
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
@@ -352,11 +352,6 @@ abstract class BaseActivity : AppCompatActivity(), BackHandler {
         AutoSizeConfig.getInstance().restart()
     }
 
-    override fun finish() {
-        super.finish()
-        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         window?.removeNavigationBarDrawable()
@@ -366,6 +361,11 @@ abstract class BaseActivity : AppCompatActivity(), BackHandler {
             key.removeObserver(value)
         }
         dataManager.clear()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
 }
