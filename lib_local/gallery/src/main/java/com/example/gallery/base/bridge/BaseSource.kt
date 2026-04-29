@@ -7,7 +7,7 @@ import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import androidx.annotation.DrawableRes
-import androidx.appcompat.widget.Toolbar
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * 视图载体抽象基类
@@ -36,6 +36,11 @@ abstract class BaseSource<Host>(protected val mHost: Host) {
      * 设置菜单/返回按钮点击监听 (代码new监听)
      */
     abstract fun setMenuClickListener(listener: MenuClickListener)
+
+    /**
+     * 获取生命周期订阅 Observer
+     */
+    abstract fun getObserver(): LifecycleOwner
 
     /**
      * 获取上下文 Context

@@ -1,7 +1,6 @@
 package com.example.gallery.feature.album.app.album
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.graphics.Color
 import android.view.Menu
 import android.view.MenuItem
@@ -10,6 +9,7 @@ import android.widget.CompoundButton
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -36,7 +36,7 @@ import com.example.gallery.widget.ColorProgressBar
  * 功能：负责所有 UI 展示、事件点击、列表刷新、主题切换
  */
 @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
-class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contract.AlbumView(activity, presenter), View.OnClickListener {
+class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) : Contract.AlbumView(activity, presenter), View.OnClickListener {
     // 相册列表适配器
     private var mAdapter: AlbumAdapter? = null
     // 右上角完成菜单
@@ -82,7 +82,7 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
     override fun onOptionsItemSelected(item: MenuItem) {
         super.onOptionsItemSelected(item)
         if (item.itemId == R.id.album_menu_finish) {
-            getPresenter().complete()
+            getPresenter()?.complete()
         }
     }
 
@@ -131,19 +131,19 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
         // 点击拍照
         mAdapter?.setAddClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                getPresenter().clickCamera(view)
+                getPresenter()?.clickCamera(view)
             }
         })
         // 点击选择框
         mAdapter?.setCheckedClickListener(object : OnCheckedClickListener {
             override fun onCheckedClick(button: CompoundButton?, position: Int) {
-                getPresenter().tryCheckItem(button, position)
+                getPresenter()?.tryCheckItem(button, position)
             }
         })
         // 点击预览图片
         mAdapter?.setItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                getPresenter().tryPreviewItem(position)
+                getPresenter()?.tryPreviewItem(position)
             }
         })
         mRecyclerView.setAdapter(mAdapter)
@@ -207,8 +207,8 @@ class AlbumView(activity: Activity, presenter: Contract.AlbumPresenter) : Contra
     override fun onClick(v: View?) {
         when (v) {
             mToolbar -> mRecyclerView.smoothScrollToPosition(0)
-            mSwitchFolder -> getPresenter().clickFolderSwitch()
-            mPreview -> getPresenter().tryPreviewChecked()
+            mSwitchFolder -> getPresenter()?.clickFolderSwitch()
+            mPreview -> getPresenter()?.tryPreviewChecked()
         }
     }
 

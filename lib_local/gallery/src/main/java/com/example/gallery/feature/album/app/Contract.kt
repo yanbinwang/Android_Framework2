@@ -1,8 +1,8 @@
 package com.example.gallery.feature.album.app
 
-import android.app.Activity
 import android.view.View
 import android.widget.CompoundButton
+import androidx.fragment.app.FragmentActivity
 import com.example.gallery.base.bridge.BasePresenter
 import com.example.gallery.base.bridge.BaseView
 import com.example.gallery.feature.album.model.AlbumFolder
@@ -52,7 +52,7 @@ object Contract {
     /**
      * 相册主页（图片列表页）-> View 接口
      */
-    abstract class AlbumView(activity: Activity, presenter: AlbumPresenter) : BaseView<AlbumPresenter>(activity, presenter) {
+    abstract class AlbumView(activity: FragmentActivity, presenter: AlbumPresenter) : BaseView<AlbumPresenter>(activity, presenter) {
         /**
          * 初始化页面控件
          *
@@ -112,7 +112,7 @@ object Contract {
     /**
      * 空页面 -> View 接口
      */
-    abstract class NullView(activity: Activity, presenter: NullPresenter) : BaseView<NullPresenter>(activity, presenter) {
+    abstract class NullView(activity: FragmentActivity, presenter: NullPresenter) : BaseView<NullPresenter>(activity, presenter) {
         /**
          * 初始化控件
          */
@@ -167,7 +167,7 @@ object Contract {
     /**
      * 预览页（大图预览）-> View 接口
      */
-    abstract class GalleryView<Data>(activity: Activity, presenter: GalleryPresenter) : BaseView<GalleryPresenter>(activity, presenter) {
+    abstract class GalleryView<Data>(activity: FragmentActivity, presenter: GalleryPresenter) : BaseView<GalleryPresenter>(activity, presenter) {
         /**
          * 初始化预览页控件
          */

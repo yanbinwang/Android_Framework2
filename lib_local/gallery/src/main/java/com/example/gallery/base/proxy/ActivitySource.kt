@@ -11,6 +11,8 @@ import android.view.inputmethod.InputMethodManager
 import androidx.appcompat.view.SupportMenuInflater
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
@@ -22,7 +24,7 @@ import com.example.gallery.base.bridge.BaseSource
  * 用于将 BaseView 与 Activity 绑定，提供页面、Toolbar、菜单、输入法等能力
  */
 @SuppressLint("RestrictedApi")
-class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
+class ActivitySource(activity: FragmentActivity) : BaseSource<FragmentActivity>(activity) {
     // 页面标题栏 Toolbar
     private lateinit var mActionBar: Toolbar
     // 导航返回图标
@@ -60,6 +62,13 @@ class ActivitySource(activity: Activity) : BaseSource<Activity>(activity) {
      */
     override fun setMenuClickListener(listener: MenuClickListener) {
         mMenuItemSelectedListener = listener
+    }
+
+    /**
+     * 获取生命周期订阅 Observer
+     */
+    override fun getObserver(): LifecycleOwner {
+        return mHost
     }
 
     /**
