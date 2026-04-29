@@ -41,7 +41,7 @@ fun <T : List<K>, K> T?.safeGet(position: Int): K? {
  * 返回第一个item，无法返回则返回null
  */
 fun <T> List<T>?.safeGetFirst(): T? {
-    if (isNullOrEmpty()) return null
+    if (this.isNullOrEmpty()) return null
     return try {
         first()
     } catch (e: Exception) {
@@ -54,7 +54,7 @@ fun <T> List<T>?.safeGetFirst(): T? {
  * 返回最后一个item，无法返回则返回null
  */
 fun <T> List<T>?.safeGetLast(): T? {
-    if (isNullOrEmpty()) return null
+    if (this.isNullOrEmpty()) return null
     return try {
         get(size - 1)
     } catch (e: Exception) {
@@ -67,7 +67,7 @@ fun <T> List<T>?.safeGetLast(): T? {
  * 设置item的值，报错不处理
  */
 fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
-    this ?: return
+    if (this.isNullOrEmpty()) return
     if (position in indices) try {
         set(position, value)
     } catch (e: Exception) {
@@ -79,7 +79,7 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
  * 设置最后一个item的值，报错不处理
  */
 fun <T> MutableList<T>?.safeSetLast(t: T) {
-    if (isNullOrEmpty()) return
+    if (this.isNullOrEmpty()) return
     try {
         this[lastIndex] = t
     } catch (e: Exception) {
@@ -189,7 +189,7 @@ fun <T> MutableCollection<T>.findAndRemove(func: ((T) -> Boolean)) {
  * 抽奖/取随机
  */
 val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
+    get() = if (this.isNullOrEmpty()) {
         null
     } else {
         this[Random.nextInt(0, size)]
@@ -199,7 +199,7 @@ val <T> List<T>?.randomItem: T?
  * 返回Array中随机一个值
  */
 val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
+    get() = if (this.isNullOrEmpty()) {
         null
     } else {
         this[Random.nextInt(0, size)]
@@ -400,7 +400,7 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
  * 将Array转换为Bundle
  */
 fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
-    return this.toList().toBundle(func)
+    return toList().toBundle(func)
 }
 
 /**
@@ -491,7 +491,7 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
  */
 fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
-    return this.let { source ->
+    return let { source ->
         // 当前集合
         val sourceSet = source.toSet()
         // 目标集合
@@ -677,7 +677,7 @@ fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem:
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
 fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
-    if (isNullOrEmpty()) return ""
+    if (this.isNullOrEmpty()) return ""
 //    return filter { it.second }.toNewList { it.first }.join(separator)
     return filter { it.second }.toNewList { it.first }.joinToString(separator)
 }
@@ -728,7 +728,7 @@ fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
  * }
  */
 fun <T> ArrayList<T>?.joinToJson(): String {
-    if (isNullOrEmpty()) return ""
+    if (this.isNullOrEmpty()) return ""
 //    val builder = StringBuilder("[")
 //    for (i in indices) {
 //        builder.append(safeGet(i))

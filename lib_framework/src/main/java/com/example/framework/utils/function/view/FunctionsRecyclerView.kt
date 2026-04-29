@@ -40,7 +40,7 @@ fun RecyclerView?.init(hasFixedSize: Boolean = true) {
  */
 @SuppressLint("NotifyDataSetChanged")
 fun RecyclerView?.refresh() {
-    if (this == null) return
+    this ?: return
     this.adapter?.notifyDataSetChanged()
 }
 
@@ -166,7 +166,7 @@ inline fun RecyclerView?.safeUpdate(crossinline func: () -> Unit) {
  * }
  */
 fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView, isScrolled: Boolean) -> Unit = { _, _ -> }) {
-    if (this == null) return
+    this ?: return
     val listener = object : RecyclerView.OnScrollListener() {
         /**
          * 滚动状态变化时（停止/拖拽/惯性滚动）回调
@@ -205,7 +205,7 @@ fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner
  * 适配 LinearLayout/Grid/StaggeredGrid 布局
  */
 fun RecyclerView?.getFirstVisibleItemPosition(): Int {
-    if (this == null) return 0
+    this ?: return 0
     return layoutManager.getFirstVisibleItemPosition()
 }
 
@@ -230,7 +230,7 @@ fun RecyclerView.LayoutManager?.getFirstVisibleItemPosition(): Int {
  * 适配 LinearLayout/Grid 布局，StaggeredGrid 需手动判断
  */
 fun RecyclerView?.getFirstCompletelyVisibleItemPosition(): Int {
-    if (this == null) return 0
+    this ?: return 0
     return layoutManager.getFirstCompletelyVisibleItemPosition()
 }
 
@@ -249,7 +249,7 @@ fun RecyclerView.LayoutManager?.getFirstCompletelyVisibleItemPosition(): Int {
  * 判断是否滑到顶端
  */
 fun RecyclerView?.isTop(): Boolean {
-    if (this == null) return true
+    this ?: return true
     val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findFirstVisibleItemPosition()
     return if (position <= 0) {
@@ -264,7 +264,7 @@ fun RecyclerView?.isTop(): Boolean {
  * 判断是否滑到底端
  */
 fun RecyclerView?.isBottom(): Boolean {
-    if (this == null) return true
+    this ?: return true
     val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findLastVisibleItemPosition()
     return if (position >= adapter?.itemCount.orZero - 1) {
@@ -300,7 +300,7 @@ fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) {
  * scale > 1f（如 1.2f）：滚动距离超过计算值，会额外多滚一段距离。
  */
 fun RecyclerView?.toPositionSmooth(pos: Int, type: Int, scale: Float) {
-    if (this == null) return
+    this ?: return
     (parent as? ViewGroup).actionCancel()
     val layoutManager = layoutManager as? LinearLayoutManager ?: return
     val first = layoutManager.findFirstVisibleItemPosition()
@@ -331,7 +331,7 @@ fun RecyclerView?.toPositionSmooth(pos: Int, type: Int, scale: Float) {
  * offset = -30：目标 Item 的顶部超出 RecyclerView 顶部 30px（部分被遮挡）。
  */
 fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
-    if (this == null) return
+    this ?: return
     // 取消触摸事件
     (parent as? ViewGroup).actionCancel()
     // 滑动到指定位置
@@ -350,7 +350,7 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
  * RecyclerView添加不遮挡item的padding
  */
 fun RecyclerView?.paddingClip(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
-    if (this == null) return
+    this ?: return
     clipToPadding = false
     padding(start, top, end, bottom)
 }

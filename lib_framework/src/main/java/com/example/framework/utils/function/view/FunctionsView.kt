@@ -78,9 +78,9 @@ import kotlin.math.abs
  * 防止重复点击
  * 默认500ms
  */
-fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
+fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
     if (this == null) return
-    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
+    this.setOnClickListener(object : OnMultiClickListener(timeMS, click) {})
 }
 
 /**
@@ -94,8 +94,8 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
+fun ((View) -> Unit).clicks(vararg v: View?, timeMS: Long = 500L) {
+    val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
@@ -105,8 +105,8 @@ fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
     }
 }
 
-fun View.OnClickListener.clicks(vararg v: View?, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
+fun View.OnClickListener.clicks(vararg v: View?, timeMS: Long = 500L) {
+    val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks.onClick(v)
         }
@@ -944,7 +944,7 @@ fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
 /**
  * 防止多次点击, 至少要500毫秒的间隔
  */
-abstract class OnMultiClickListener(private val time: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+abstract class OnMultiClickListener(private val timeMS: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0L
 
     open fun onMultiClick(v: View) {
@@ -955,7 +955,7 @@ abstract class OnMultiClickListener(private val time: Long = 500L, var click: (v
     override fun onClick(v: View) {
         val currentTimeNano = System.nanoTime() / 1000000L
         // 超过点击间隔后再将lastClickTime重置为当前点击时间
-        if (currentTimeNano - lastClickTime >= time) {
+        if (currentTimeNano - lastClickTime >= timeMS) {
             lastClickTime = currentTimeNano
             onMultiClick(v)
         }

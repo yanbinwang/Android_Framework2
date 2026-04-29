@@ -61,7 +61,7 @@ import java.util.Random
  * 直线渐变
  */
 fun TextView?.linearGradient(startColor: String?, endColor: String?) {
-    if (this == null) return
+    this ?: return
     paint.shader = LinearGradient(0f, 0f, paint.textSize * text.length, 0f, startColor.parseColor(), endColor.parseColor(), Shader.TileMode.CLAMP)
     invalidate()
 }
@@ -70,7 +70,7 @@ fun TextView?.linearGradient(startColor: String?, endColor: String?) {
  * 下划线
  */
 fun TextView?.underLine(haveLine: Boolean) {
-    if (this == null) return
+    this ?: return
     paintFlags = if (haveLine) {
         paintFlags or Paint.UNDERLINE_TEXT_FLAG
     } else {
@@ -82,7 +82,7 @@ fun TextView?.underLine(haveLine: Boolean) {
  * 加粗
  */
 fun TextView?.bold(isBold: Boolean) {
-    if (this == null) return
+    this ?: return
     typeface = if (isBold) {
         Typeface.defaultFromStyle(Typeface.BOLD)
     } else {
@@ -103,7 +103,7 @@ fun TextView?.bold(isBold: Boolean) {
  * 900	     Black	         特粗	     品牌名、醒目标题
  */
 fun TextView?.textFontWeight(weight: Int) {
-    if (this == null) return
+    this ?: return
     val validWeight = weight.coerceIn(100, 900)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         // 原生方法，直接设置字重
@@ -139,7 +139,7 @@ fun TextView?.textFontWeight(weight: Int) {
  * 字体颜色
  */
 fun TextView?.textColor(@ColorRes res: Int) {
-    if (this == null) return
+    this ?: return
     this.setTextColor(ContextCompat.getColor(context, res))
 }
 
@@ -147,7 +147,7 @@ fun TextView?.textColor(@ColorRes res: Int) {
  * textview颜色随机
  */
 fun TextView?.randomTextColor() {
-    if (this == null) return
+    this ?: return
     val random = Random()
     val r = random.nextInt(256)
     val g = random.nextInt(256)
@@ -169,7 +169,7 @@ fun TextView?.randomTextColor() {
  * getDimension 会根据当前设备的屏幕密度，把 12pt 转换为对应的像素值（比如在某设备上可能是 24px）。
  */
 fun TextView?.textSize(@DimenRes res: Int) {
-    if (this == null) return
+    this ?: return
     this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(res))
 }
 
@@ -178,7 +178,7 @@ fun TextView?.textSize(@DimenRes res: Int) {
  * 使用扩展函数12.pt传入的话,会以设计图换算后的值为准设置给 TextView 用
  */
 fun TextView?.pxTextSize(size: Float) {
-    if (this == null) return
+    this ?: return
     this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
 }
 
@@ -186,7 +186,7 @@ fun TextView?.pxTextSize(size: Float) {
  * 将 value 按 SP 单位，结合当前页面的屏幕参数，转换为 PX
  */
 fun TextView?.spTextSize(value: Float) {
-    if (this == null) return
+    this ?: return
     // 用当前上下文的 metrics 转换 SP 为 PX
     val pxValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, context.resources.displayMetrics)
     // 显式指定单位为 PX，避免二次转换
@@ -239,7 +239,7 @@ fun TextView?.fixDistance(editText: EditText?) {
  * 设置撑满的文本内容
  */
 fun TextView?.matchText() {
-    if (this == null) return
+    this ?: return
     // 如果已经完成布局，直接处理文本,若未完成布局，监听布局变化，布局完成后处理文本
     doOnceAfterLayout {
         // 获取原始文本
@@ -354,7 +354,7 @@ fun TextView?.enableMarquee() {
  * @return 切换后的状态：true=密码可见，false=密码隐藏
  */
 fun EditText?.togglePasswordVisibility(): Boolean {
-    if (this == null) return false
+    this ?: return false
     var isPasswordVisible = false
     try {
         if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
@@ -379,7 +379,7 @@ fun EditText?.togglePasswordVisibility(): Boolean {
  * 添加回车时的处理
  */
 fun EditText?.onDone(listener: () -> Unit) {
-    if (this == null) return
+    this ?: return
     setOnEditorActionListener { _, id, _ ->
         if (id == EditorInfo.IME_ACTION_SEARCH || id == EditorInfo.IME_ACTION_UNSPECIFIED || id == EditorInfo.IME_ACTION_DONE) {
             listener()
@@ -422,7 +422,7 @@ fun EditText?.onDone(listener: () -> Unit) {
  * </style>
  */
 fun EditText?.showInput(observer: LifecycleOwner) {
-    if (this == null) return
+    this ?: return
     focus()
     TimerBuilder.schedule(observer, {
         showSoftKeyboard(context, this)
@@ -433,7 +433,7 @@ fun EditText?.showInput(observer: LifecycleOwner) {
  * 隐藏软键盘
  */
 fun EditText?.hideKeyboard() {
-    if (this == null) return
+    this ?: return
     hideSoftKeyboard(context, this)
     clearFocus()
 }
@@ -442,7 +442,7 @@ fun EditText?.hideKeyboard() {
  * 清除
  */
 fun EditText?.clear() {
-    if (this == null) return
+    this ?: return
     setText("")
     hideKeyboard()
 }
@@ -505,7 +505,7 @@ fun EditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode
  * 添加EditText的InputFilter
  */
 fun EditText?.addFilter(vararg filterList: InputFilter) {
-    if (this == null) return
+    this ?: return
     val currentFilters = filters ?: emptyArray()
     filters = currentFilters.plus(filterList)
 }
@@ -514,7 +514,7 @@ fun EditText?.addFilter(vararg filterList: InputFilter) {
  * 去除EditText的InputFilter
  */
 fun EditText?.removeFilter(vararg filterClasses: Class<out InputFilter>) {
-    if (this == null) return
+    this ?: return
     // 处理 filters 为 null 的情况，转为空列表
     val currentFilters = filters ?: emptyArray()
     // 过滤掉指定类型的Filter（保留非目标类型的）
@@ -527,7 +527,7 @@ fun EditText?.removeFilter(vararg filterClasses: Class<out InputFilter>) {
 }
 
 internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
-    if (this == null) return
+    this ?: return
     // 安全获取当前筛选器列表（null 兜底为空列表）
     val currentFilters = filters?.toList() ?: emptyList()
     // 过滤掉要移除的 Filter（避免遍历删除的坑）
@@ -540,7 +540,7 @@ internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
  * EditText不允许输入空格
  */
 fun EditText?.spaceLimit() {
-    if (this == null) return
+    this ?: return
     removeFilter { it is SpaceInputFilter }
     addFilter(SpaceInputFilter())
 }
@@ -586,7 +586,7 @@ fun EditText?.chineseLimit() {
  * EditText输入金额小数限制
  */
 fun EditText?.decimalLimit(decimalPoint: Int = 2) {
-    if (this == null) return
+    this ?: return
     // 配置数字输入类型（支持小数、正负号）
     inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
     // 移除已有的 DecimalInputFilter，避免重复添加

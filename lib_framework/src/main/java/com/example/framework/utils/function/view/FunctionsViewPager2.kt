@@ -13,7 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
-    if (this == null) return null
+    this ?: return null
     return try {
         (getChildAt(0) as? RecyclerView)
     } catch (e: Exception) {
@@ -26,7 +26,7 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
  * ViewPager2隐藏fadingEdge
  */
 fun ViewPager2?.hideFadingEdge() {
-    if (this == null) return
+    this ?: return
     try {
         getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
     } catch (e: Exception) {
@@ -39,6 +39,7 @@ fun ViewPager2?.hideFadingEdge() {
  * @param multiplier 灵敏度倍数，默认为 3
  */
 fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
+    this ?: return
     try {
         val recyclerView = getRecyclerView()
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
@@ -54,7 +55,7 @@ fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
  * 设置页面滑动监听
  */
 fun ViewPager2?.setOnPageChangeListener(owner: LifecycleOwner? = getLifecycleOwner(), callback: ViewPager2.OnPageChangeCallback) {
-    if (this == null) return
+    this ?: return
     registerOnPageChangeCallback(callback)
     owner.doOnDestroy {
         unregisterOnPageChangeCallback(callback)
@@ -115,7 +116,7 @@ fun ViewPager2?.setCurrent(item: Int, smoothScroll: Boolean = true) {
  * ViewPager2向后翻页
  */
 fun ViewPager2?.nextPage(isSmooth: Boolean = true) {
-    if (this == null) return
+    this ?: return
     adapter?.let { adapter ->
         if (adapter.itemCount == 0) return
         setCurrentItem(currentItem + 1, isSmooth)
@@ -126,7 +127,7 @@ fun ViewPager2?.nextPage(isSmooth: Boolean = true) {
  * ViewPager2向前翻页
  */
 fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
-    if (this == null) return
+    this ?: return
     adapter?.let { adapter ->
         if (adapter.itemCount == 0) return
         setCurrentItem(currentItem - 1, isSmooth)
@@ -137,7 +138,7 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
  * 设置适配器扩展
  */
 fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
-    if (this == null) return
+    this ?: return
     hideFadingEdge()
     setAdapter(adapter)
     setOrientation(orientation)
@@ -164,12 +165,14 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
  * 绑定vp和tab
  */
 fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
-    return TabLayoutMediator(tab ?: return null, this ?: return null, true, listener).apply { attach() }
+    if (this == null || tab == null) return null
+    return TabLayoutMediator(tab, this, true, listener).apply { attach() }
 }
 
 /**
  * 绑定vp和tab
  */
 fun TabLayout?.bind(vp: ViewPager2?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
-    return TabLayoutMediator(this ?: return null, vp ?: return null, listener).apply { attach() }
+    if (this == null || vp == null) return null
+    return TabLayoutMediator(this, vp, listener).apply { attach() }
 }

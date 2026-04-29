@@ -322,9 +322,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 setCheckedCount()
                 callbackResult()
             }
-            Album.MODE_MULTIPLE -> {
-                setPreview(mAlbumFolders[mCurrentFolder].albumFiles, position)
-            }
+            Album.MODE_MULTIPLE -> setPreview(mAlbumFolders[mCurrentFolder].albumFiles, position)
             else -> throw AssertionError("This should not be the case.")
         }
     }
