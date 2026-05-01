@@ -404,6 +404,18 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 }
 
 /**
+ * Bundle 转为 Pair 列表 (与 toBundle 对称)
+ */
+fun Bundle.toPairs(): List<Pair<String, Any?>> {
+    val pairs = mutableListOf<Pair<String, Any?>>()
+    for (key in keySet()) {
+        val value = get(key)
+        pairs.add(key to value)
+    }
+    return pairs
+}
+
+/**
  * 集合转JSONArray
  */
 fun <T> Collection<T>?.toJsonArray(): JSONArray? {
