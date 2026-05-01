@@ -16,6 +16,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.toBundle
+import com.example.framework.utils.function.value.toPairs
 import com.therouter.TheRouter
 import com.therouter.router.Navigator
 import com.therouter.router.matchRouteMap
@@ -148,6 +149,16 @@ fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thr
         // 捕获其他意外异常（比如 matchRouteMap 失败）
         onInterrupt(e)
     }
+}
+
+/**
+ * 取得当前页面所有获取的传输参数,丢给下个页面
+ * *getIntent().getParams()
+ */
+fun Intent?.getParams(): Array<Pair<String, Any?>> {
+    if (this == null) return emptyArray()
+    val list = extras?.toPairs() ?: emptyList()
+    return list.toTypedArray()
 }
 
 /**
