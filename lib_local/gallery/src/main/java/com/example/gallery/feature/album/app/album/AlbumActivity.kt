@@ -2,11 +2,10 @@ package com.example.gallery.feature.album.app.album
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.View
 import android.widget.CompoundButton
-import androidx.appcompat.widget.PopupMenu
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.hasExtras
@@ -15,6 +14,7 @@ import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.intentParcelableArrayList
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
@@ -28,8 +28,8 @@ import com.example.gallery.feature.album.callback.Filter
 import com.example.gallery.feature.album.model.AlbumFile
 import com.example.gallery.feature.album.model.AlbumFolder
 import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.feature.album.utils.MediaScanner
 import com.example.gallery.feature.album.utils.AlbumUtil
+import com.example.gallery.feature.album.utils.MediaScanner
 import com.example.gallery.widget.LoadingDialog
 import java.io.File
 
@@ -60,7 +60,8 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     private val mWidget by lazy { intentParcelable<Widget>(Album.KEY_INPUT_WIDGET) ?: Widget.getDefaultWidget(this) }
 
     // 相机选择弹窗
-    private lateinit var mCameraPopupMenu: PopupMenu
+//    private lateinit var mCameraPopupMenu: PopupMenu
+    private lateinit var mCameraPopupMenu: SelectLabelPopup<String>
     // 文件夹选择弹窗
     private lateinit var mFolderDialog: FolderDialog
     // 当前选中的文件夹
@@ -266,18 +267,28 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_IMAGE -> takePicture()
                 Album.FUNCTION_CHOICE_VIDEO -> takeVideo()
                 Album.FUNCTION_CHOICE_ALBUM -> {
-                    if (!::mCameraPopupMenu.isInitialized && null != v) {
-                        mCameraPopupMenu = PopupMenu(this, v)
-                        mCameraPopupMenu.menuInflater.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.menu)
-                        mCameraPopupMenu.setOnMenuItemClickListener { item: MenuItem? ->
-                            when (item?.itemId) {
-                                R.id.album_menu_camera_image -> takePicture()
-                                R.id.album_menu_camera_video -> takeVideo()
+//                    if (!::mCameraPopupMenu.isInitialized && null != v) {
+//                        mCameraPopupMenu = PopupMenu(this, v)
+//                        mCameraPopupMenu.menuInflater.inflate(R.menu.album_menu_item_camera, mCameraPopupMenu.menu)
+//                        mCameraPopupMenu.setOnMenuItemClickListener { item: MenuItem? ->
+//                            when (item?.itemId) {
+//                                R.id.album_menu_camera_image -> takePicture()
+//                                R.id.album_menu_camera_video -> takeVideo()
+//                            }
+//                            true
+//                        }
+//                    }
+//                    mCameraPopupMenu.show()
+                    if (!::mCameraPopupMenu.isInitialized) {
+                        mCameraPopupMenu = SelectLabelPopup.create(listOf(string(R.string.album_camera_image_capture), string(R.string.album_camera_video_capture)))
+                        mCameraPopupMenu.setOnItemClickListener { _, index ->
+                            when (index) {
+                                0 -> takePicture()
+                                1 -> takeVideo()
                             }
-                            true
                         }
                     }
-                    mCameraPopupMenu.show()
+                    mCameraPopupMenu.show(supportFragmentManager)
                 }
                 else -> throw AssertionError("This should not be the case.")
             }
@@ -322,7 +333,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 setCheckedCount()
                 callbackResult()
             }
-            Album.MODE_MULTIPLE -> setPreview(mAlbumFolders[mCurrentFolder].albumFiles, position)
+            Album.MODE_MULTIPLE -> preview(mAlbumFolders[mCurrentFolder].albumFiles, position)
             else -> throw AssertionError("This should not be the case.")
         }
     }
@@ -332,7 +343,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
      */
     override fun tryPreviewChecked() {
         if (!mCheckedList.isEmpty()) {
-            setPreview(mCheckedList, 0)
+            preview(mCheckedList, 0)
         }
     }
 
@@ -354,9 +365,26 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     }
 
     /**
+     * 更新已选数量
+     */
+    private fun setCheckedCount() {
+        val count = mCheckedList.size
+        mView.setCheckedCount(count)
+    }
+
+    /**
+     * 显示某个文件夹下的图片
+     */
+    private fun showFolderAlbumFiles(position: Int) {
+        mCurrentFolder = position
+        val albumFolder = mAlbumFolders[position]
+        mView.bindAlbumFolder(albumFolder)
+    }
+
+    /**
      * 浏览页跳转
      */
-    private fun setPreview(albumFiles: ArrayList<AlbumFile>, currentPosition: Int) {
+    private fun preview(albumFiles: ArrayList<AlbumFile>, currentPosition: Int) {
         AlbumPreviewActivity.sAlbumFiles = albumFiles
         AlbumPreviewActivity.sCheckedCount = mCheckedList.size
         AlbumPreviewActivity.sCurrentPosition = currentPosition
@@ -385,14 +413,6 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         val intent = Intent(this, AlbumPreviewActivity::class.java)
         intent.putExtras(getIntent())
         startActivity(intent)
-    }
-
-    /**
-     * 更新已选数量
-     */
-    private fun setCheckedCount() {
-        val count = mCheckedList.size
-        mView.setCheckedCount(count)
     }
 
     /**
@@ -434,15 +454,6 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             .limitBytes(mLimitBytes)
             .onResult(mCameraAction)
             .start()
-    }
-
-    /**
-     * 显示某个文件夹下的图片
-     */
-    private fun showFolderAlbumFiles(position: Int) {
-        mCurrentFolder = position
-        val albumFolder = mAlbumFolders[position]
-        mView.bindAlbumFolder(albumFolder)
     }
 
     /**
