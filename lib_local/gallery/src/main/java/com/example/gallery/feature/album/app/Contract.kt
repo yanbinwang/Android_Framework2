@@ -21,32 +21,32 @@ object Contract {
         /**
          * 点击所有图片 -> 切换相册
          */
-        fun clickFolderSwitch()
+        fun clickFolderSwitch() {}
 
         /**
          * 点击列表 -> 拍照/录像
          */
-        fun clickCamera(v: View?)
+        fun clickCamera(v: View?) {}
 
         /**
          * 点击列表条目 -> 选中/取消选中某个条目
          */
-        fun tryCheckItem(button: CompoundButton?, position: Int)
+        fun tryCheckItem(button: CompoundButton?, position: Int) {}
 
         /**
          * 点击列表条目 -> 预览当前位置的图片/视频
          */
-        fun tryPreviewItem(position: Int)
+        fun tryPreviewItem(position: Int) {}
 
         /**
          * 预览已选中的所有图片
          */
-        fun tryPreviewChecked()
+        fun tryPreviewChecked() {}
 
         /**
          * 完成选择（确定）
          */
-        fun complete()
+        fun complete() {}
     }
 
     /**
@@ -101,12 +101,12 @@ object Contract {
         /**
          * 拍照
          */
-        fun takePicture()
+        fun takePicture() {}
 
         /**
          * 录像
          */
-        fun takeVideo()
+        fun takeVideo() {}
     }
 
     /**
@@ -141,27 +141,27 @@ object Contract {
         /**
          * 点击预览页条目
          */
-        fun clickItem(position: Int)
+        fun clickItem(position: Int) {}
 
         /**
          * 长按预览页条目
          */
-        fun longClickItem(position: Int)
+        fun longClickItem(position: Int) {}
 
         /**
          * 预览页滑动切换时回调
          */
-        fun onCurrentChanged(position: Int)
+        fun onCurrentChanged(position: Int) {}
 
         /**
          * 切换当前条目的选中状态
          */
-        fun onCheckedChanged()
+        fun onCheckedChanged() {}
 
         /**
          * 完成选择
          */
-        fun complete()
+        fun complete() {}
     }
 
     /**

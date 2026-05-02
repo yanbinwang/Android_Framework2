@@ -110,11 +110,11 @@ class MediaPicker(private val host: Any) {
                 // 标题 --- 标题文字颜色只有黑色白色
                 .title(string(R.string.gallery_album_title))
                 // 媒体条目选择框颜色
-                .mediaItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
+                .mediaItemCheckSelector(color(R.color.tabUnselected), color(R.color.tabSelected))
                 // 文件夹条目选择框颜色
-                .bucketItemCheckSelector(color(R.color.btnMainDisabled), color(R.color.btnMain))
+                .bucketItemCheckSelector(color(R.color.tabUnselected), color(R.color.tabSelected))
                 // 按钮样式
-                .buttonSelector(color(R.color.btnMain), color(R.color.btnMain))
+                .buttonSelector(color(R.color.btnMainNormal), color(R.color.btnMainPressed))
                 // 构建配置
                 .build()
         }

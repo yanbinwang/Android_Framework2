@@ -42,7 +42,7 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         if (!hasExtras()) return finish()
         setContentView(R.layout.album_activity_gallery)
         // 导航栏
-        initImmersionBar(false, false, R.color.albumPrimary)
+        initImmersionBar(false, false, R.color.albumGalleryBackground)
         // 绑定 MVP
         mView.setupViews(mWidget, true)
         mView.bindData(sAlbumFiles ?: arrayListOf())
@@ -54,18 +54,6 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         }
         // 设置右上角完成按钮文字
         setCheckedCount()
-    }
-
-    /**
-     * 点击图片（这里空实现，没有使用）
-     */
-    override fun clickItem(position: Int) {
-    }
-
-    /**
-     * 长按图片（这里空实现，没有使用）
-     */
-    override fun longClickItem(position: Int) {
     }
 
     /**

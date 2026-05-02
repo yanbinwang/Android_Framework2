@@ -4,7 +4,7 @@
     android:id="@+id/rv_content_list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/albumBackground"
+    android:background="@color/galleryBackground"
     android:overScrollMode="never"
     android:scrollbars="none"
     app:behavior_hideable="true" />

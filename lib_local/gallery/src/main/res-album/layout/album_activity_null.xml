@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/albumBackground"
+    android:background="@color/galleryBackground"
     android:orientation="vertical">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Gallery.Toolbar"
-        tools:background="@color/galleryColorPrimary"
+        tools:background="@color/bgMain"
         tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
@@ -38,8 +38,9 @@
             android:id="@+id/tv_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/albumFontHint"
+            android:textColor="@color/galleryFontHint"
             android:textSize="@dimen/textSize12"
+            android:textStyle="bold"
             tools:text="没有发现媒体文件" />
 
         <LinearLayout

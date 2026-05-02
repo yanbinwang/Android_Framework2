@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
 import com.example.common.utils.function.openVideo
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.gone
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.adapter.PreviewAdapter
@@ -72,11 +73,11 @@ class GalleryView<Data>(activity: FragmentActivity, presenter: Contract.GalleryP
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.gallery_ic_back)
         // 等 Toolbar 布局结束右侧强行撑满
-        setSupportMenuViewAsync(mToolbar, R.color.albumPrimary)
+        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryBackground)
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu?.isVisible = false
-            mCheckBox.visibility = View.GONE
+            mCheckBox.gone()
         } else {
             // 设置选择框样式
             val itemSelector = widget.mediaItemCheckSelector

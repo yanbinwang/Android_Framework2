@@ -7,7 +7,7 @@
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Gallery.Toolbar"
-        tools:background="@color/galleryColorPrimary"
+        tools:background="@color/bgMain"
         tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
@@ -61,7 +61,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/durban_controller_title_rotation"
-                android:textColor="@color/galleryWhite"
+                android:textColor="@color/galleryFontLight"
                 android:textSize="@dimen/textSize12" />
 
             <TextView
@@ -71,7 +71,7 @@
                 android:layout_weight="1"
                 android:gravity="center"
                 android:text="@string/durban_controller_title_scale"
-                android:textColor="@color/galleryWhite"
+                android:textColor="@color/galleryFontLight"
                 android:textSize="@dimen/textSize12" />
 
         </LinearLayout>

@@ -74,7 +74,7 @@ class FolderDialog(context: Context, widget: Widget, albumFolders: List<AlbumFol
         // 导航栏控件
         window?.setStatusBarLightMode(false)
         window?.setNavigationBarLightMode(true)
-        window?.setNavigationBarDrawable(R.color.albumBackground)
+        window?.setNavigationBarDrawable(R.color.galleryBackground)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             ownerActivity?.let { activity ->
                 ImmersionBar.with(activity)

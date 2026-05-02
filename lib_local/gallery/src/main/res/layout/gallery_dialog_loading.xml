@@ -18,6 +18,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10pt"
         android:textColor="@color/galleryFontHint"
-        android:textSize="@dimen/textSize14" />
+        android:textSize="@dimen/textSize14"
+        android:textStyle="bold" />
 
 </LinearLayout>
