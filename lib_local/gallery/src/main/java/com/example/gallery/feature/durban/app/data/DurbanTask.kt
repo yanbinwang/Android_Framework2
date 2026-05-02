@@ -12,7 +12,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.gone
 import com.example.gallery.R
-import com.example.gallery.feature.durban.model.ExifInfo
+import com.example.gallery.feature.durban.bean.ExifInfo
 import com.example.gallery.feature.durban.widget.TransformImageView
 import com.example.gallery.widget.LoadingDialog
 import kotlinx.coroutines.Dispatchers.Main

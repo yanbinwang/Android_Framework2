@@ -13,7 +13,7 @@ import com.example.framework.utils.function.value.convertDuration
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 

@@ -5,11 +5,9 @@ import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.viewpager.widget.PagerAdapter
-import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.view.click
 import com.example.gallery.R
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile.Companion.TYPE_VIDEO
 import com.example.gallery.feature.album.widget.photoview.AttacherImageView
 import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
 

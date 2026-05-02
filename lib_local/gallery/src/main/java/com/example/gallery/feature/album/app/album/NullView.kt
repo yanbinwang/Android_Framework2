@@ -13,7 +13,7 @@ import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.selectorRoundBackground
 import com.example.gallery.R
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.utils.MediaUtil.setDrawableTint
 
 /**

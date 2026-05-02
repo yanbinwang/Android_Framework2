@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.model
+package com.example.gallery.feature.album.bean
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -9,7 +9,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import com.example.framework.utils.function.color
 import com.example.gallery.R
-import com.example.gallery.feature.album.utils.AlbumUtil
 import com.example.gallery.utils.MediaUtil.getColorStateList
 import kotlinx.parcelize.Parcelize
 

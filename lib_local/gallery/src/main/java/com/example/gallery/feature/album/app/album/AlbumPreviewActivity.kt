@@ -10,8 +10,8 @@ import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.app.gallery.GalleryView
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 相册内部选择预览（带勾选）

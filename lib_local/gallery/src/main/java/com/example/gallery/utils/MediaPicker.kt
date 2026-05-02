@@ -19,12 +19,12 @@ import com.example.gallery.activity.CameraActivity.Companion.pickImage
 import com.example.gallery.activity.CameraActivity.Companion.recordVideo
 import com.example.gallery.activity.CameraActivity.Companion.takePicture
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.callback.Action
-import com.example.gallery.feature.album.callback.Filter
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.api.callback.Action
+import com.example.gallery.feature.album.api.callback.Filter
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.feature.durban.Durban
-import com.example.gallery.feature.durban.model.Controller
+import com.example.gallery.feature.durban.bean.Controller
 
 /**
  * author: wyb

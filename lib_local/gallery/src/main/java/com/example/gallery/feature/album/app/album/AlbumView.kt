@@ -23,8 +23,8 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.AlbumFolder
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFolder
+import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider

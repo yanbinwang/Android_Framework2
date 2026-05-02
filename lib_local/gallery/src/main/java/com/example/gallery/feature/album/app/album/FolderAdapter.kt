@@ -11,7 +11,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
-import com.example.gallery.feature.album.model.AlbumFolder
+import com.example.gallery.feature.album.bean.AlbumFolder
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.Album
 

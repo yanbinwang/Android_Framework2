@@ -1,11 +1,11 @@
-package com.example.gallery.feature.album.app.album.data
+package com.example.gallery.feature.album.viewmodel.data
 
 import android.content.Context
 import android.provider.MediaStore
 import com.example.gallery.R
-import com.example.gallery.feature.album.callback.Filter
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFolder
+import com.example.gallery.feature.album.api.callback.Filter
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFolder
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 

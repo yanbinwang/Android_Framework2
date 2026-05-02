@@ -12,7 +12,7 @@ import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentString
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.callback.Action
+import com.example.gallery.feature.album.api.callback.Action
 import com.example.gallery.feature.album.utils.AlbumUtil
 import java.io.File
 

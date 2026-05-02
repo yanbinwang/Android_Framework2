@@ -18,9 +18,9 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile.Companion.TYPE_VIDEO
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 图片/视频 预览页面 View 层

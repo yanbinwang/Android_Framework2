@@ -31,6 +31,10 @@ android {
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
+    buildFeatures {
+        dataBinding = true
+    }
+
     kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_11)

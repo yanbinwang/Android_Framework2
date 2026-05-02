@@ -24,7 +24,7 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.durban.Durban
 import com.example.gallery.feature.durban.app.data.DurbanTask
-import com.example.gallery.feature.durban.model.Controller
+import com.example.gallery.feature.durban.bean.Controller
 import com.example.gallery.feature.durban.widget.CropImageView
 import com.example.gallery.feature.durban.widget.CropView
 import com.example.gallery.feature.durban.widget.OverlayView
