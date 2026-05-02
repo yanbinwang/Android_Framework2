@@ -24,12 +24,14 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.durban.Durban
 import com.example.gallery.feature.durban.app.data.DurbanTask
-import com.example.gallery.feature.durban.model.Controller
+import com.example.gallery.feature.durban.bean.Controller
 import com.example.gallery.feature.durban.widget.CropImageView
 import com.example.gallery.feature.durban.widget.CropView
 import com.example.gallery.feature.durban.widget.OverlayView
 import com.example.gallery.feature.durban.widget.TransformImageView
 import com.example.gallery.utils.MediaUtil.setDrawableTint
+import com.example.gallery.utils.ToolbarUtil.setSupportMenuView
+import com.example.gallery.utils.ToolbarUtil.setSupportToolbar
 
 /**
  * 图片裁剪页

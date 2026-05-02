@@ -12,7 +12,7 @@ import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentString
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.callback.Action
+import com.example.gallery.feature.album.api.callback.Action
 import com.example.gallery.feature.album.utils.AlbumUtil
 import java.io.File
 
@@ -75,7 +75,6 @@ internal class CameraActivity : AppCompatActivity() {
                 // 调用系统录像
                 AlbumUtil.takeVideo(this, CODE_ACTIVITY_TAKE_VIDEO, File(mCameraFilePath), mQuality, mLimitDuration, mLimitBytes)
             }
-            else -> throw AssertionError("This should not be the case.")
         }
     }
 
@@ -94,7 +93,7 @@ internal class CameraActivity : AppCompatActivity() {
                     callbackCancel()
                 }
             }
-            else -> throw AssertionError("This should not be the case.")
+            else -> callbackCancel()
         }
     }
 

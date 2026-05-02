@@ -1,8 +1,8 @@
 package com.example.gallery.feature.album.app.album.data
 
 import android.media.MediaPlayer
-import com.example.gallery.feature.album.callback.Filter
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.api.callback.Filter
+import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.utils.AlbumUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext

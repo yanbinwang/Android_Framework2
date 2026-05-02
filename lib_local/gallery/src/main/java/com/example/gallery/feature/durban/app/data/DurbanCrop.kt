@@ -5,8 +5,8 @@ import android.graphics.Matrix
 import android.graphics.RectF
 import android.media.ExifInterface
 import androidx.core.graphics.scale
-import com.example.gallery.feature.durban.model.CropParameters
-import com.example.gallery.feature.durban.model.ImageState
+import com.example.gallery.feature.durban.bean.CropParameters
+import com.example.gallery.feature.durban.bean.ImageState
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import com.example.gallery.feature.durban.utils.DurbanUtil
 import kotlinx.coroutines.Dispatchers.IO

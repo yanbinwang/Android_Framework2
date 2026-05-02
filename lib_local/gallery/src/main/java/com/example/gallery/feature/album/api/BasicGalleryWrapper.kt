@@ -2,7 +2,7 @@ package com.example.gallery.feature.album.api
 
 import android.content.Context
 import androidx.annotation.IntRange
-import com.example.gallery.feature.album.callback.ItemAction
+import com.example.gallery.feature.album.api.callback.ItemAction
 
 /**
  * 预览功能 顶层抽象父类

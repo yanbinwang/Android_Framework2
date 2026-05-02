@@ -10,9 +10,10 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.callback.Action
-import com.example.gallery.feature.album.callback.ItemAction
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.api.callback.Action
+import com.example.gallery.feature.album.api.callback.ItemAction
+import com.example.gallery.feature.album.app.gallery.view.GalleryView
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 纯图片路径预览

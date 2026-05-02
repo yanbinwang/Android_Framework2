@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.app.album.view
 
 import android.view.View
 import android.widget.LinearLayout
@@ -11,9 +11,10 @@ import com.example.framework.utils.function.value.getHighLightColor
 import com.example.framework.utils.function.value.getNormalColor
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.selectorRoundBackground
+import com.example.framework.utils.function.view.textColor
 import com.example.gallery.R
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.utils.MediaUtil.setDrawableTint
 
 /**
@@ -52,9 +53,9 @@ class NullView(activity: FragmentActivity, presenter: Contract.NullPresenter) : 
         // 浅色 / 深色 主题切换
         if (widget.uiStyle == Widget.STYLE_LIGHT) {
             setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
-            mTitle.setTextColor(getColor(R.color.galleryFontDark))
+            mTitle.textColor(R.color.galleryFontDark)
         } else {
-            mTitle.setTextColor(getColor(R.color.galleryFontLight))
+            mTitle.textColor(R.color.galleryFontLight)
         }
         // 设置返回按钮
         setHomeAsUpIndicator(navigationIcon)

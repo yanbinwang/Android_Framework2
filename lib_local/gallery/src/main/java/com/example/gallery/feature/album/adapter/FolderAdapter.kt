@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.adapter
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -11,9 +11,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
-import com.example.gallery.feature.album.model.AlbumFolder
-import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.bean.AlbumFolder
+import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 
 /**
  * 文件夹选择弹窗 列表适配器
@@ -29,8 +29,7 @@ class FolderAdapter(private val albumFolders: List<AlbumFolder>, private val col
      */
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FolderViewHolder {
         // 内部处理单选逻辑（自动切换上一个/当前选中状态）
-        return FolderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_dialog_folder, parent, false), colorStates, object :
-            OnItemClickListener {
+        return FolderViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.album_item_dialog_folder, parent, false), colorStates, object : OnItemClickListener {
             private var oldPosition = 0
 
             override fun onItemClick(view: View?, position: Int) {

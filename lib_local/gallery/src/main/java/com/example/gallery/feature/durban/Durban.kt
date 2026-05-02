@@ -8,7 +8,7 @@ import androidx.annotation.IntRange
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.gallery.feature.durban.app.DurbanActivity
-import com.example.gallery.feature.durban.model.Controller
+import com.example.gallery.feature.durban.bean.Controller
 
 /**
  * 图片裁剪入口类（链式调用裁剪配置）

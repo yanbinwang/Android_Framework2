@@ -5,8 +5,8 @@ import android.widget.CompoundButton
 import androidx.fragment.app.FragmentActivity
 import com.example.gallery.base.bridge.BasePresenter
 import com.example.gallery.base.bridge.BaseView
-import com.example.gallery.feature.album.model.AlbumFolder
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFolder
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * MVP 架构契约类

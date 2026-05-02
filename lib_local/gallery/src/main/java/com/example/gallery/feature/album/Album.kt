@@ -19,7 +19,7 @@ import com.example.gallery.feature.album.api.choice.AlbumChoice
 import com.example.gallery.feature.album.api.choice.Choice
 import com.example.gallery.feature.album.api.choice.ImageChoice
 import com.example.gallery.feature.album.api.choice.VideoChoice
-import com.example.gallery.feature.album.model.AlbumConfig
+import com.example.gallery.feature.album.bean.AlbumConfig
 
 /**
  * 相册库总入口

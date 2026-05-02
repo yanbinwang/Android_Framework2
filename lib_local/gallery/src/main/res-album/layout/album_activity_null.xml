@@ -48,7 +48,9 @@
             android:layout_height="34pt"
             android:layout_marginTop="10pt"
             android:gravity="center"
-            tools:background="@drawable/selector_r5_main">
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/tv_camera_image"
@@ -69,7 +71,9 @@
             android:layout_height="34pt"
             android:layout_marginTop="10pt"
             android:gravity="center"
-            tools:background="@drawable/selector_r5_main">
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
 
             <TextView
                 android:id="@+id/tv_camera_video"

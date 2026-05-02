@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.callback
+package com.example.gallery.feature.album.api.callback
 
 /**
  * 通用行为/回调接口

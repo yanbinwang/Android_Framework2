@@ -9,9 +9,9 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.app.gallery.GalleryView
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.app.gallery.view.GalleryView
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 相册内部选择预览（带勾选）
@@ -101,13 +101,12 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         } else {
             // 超过最大数量 → 提示
             if (sCheckedCount >= mAllowSelectCount) {
-                val messageRes = when (mFunction) {
+                mView.toast(getString(when (mFunction) {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
-                    else -> throw AssertionError("This should not be the case.")
-                }
-                mView.toast(getString(messageRes, mAllowSelectCount))
+                    else -> R.string.unitNoData
+                }, mAllowSelectCount))
                 mView.setChecked(false)
                 // 没超数量 → 选中
             } else {
@@ -125,13 +124,12 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
      */
     override fun complete() {
         if (sCheckedCount == 0) {
-            val messageRes = when (mFunction) {
+            mView.toast(when (mFunction) {
                 Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_little
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
-                else -> throw AssertionError("This should not be the case.")
-            }
-            mView.toast(messageRes)
+                else -> R.string.unitNoData
+            })
         } else {
             sCallback?.onPreviewComplete()
             finish()

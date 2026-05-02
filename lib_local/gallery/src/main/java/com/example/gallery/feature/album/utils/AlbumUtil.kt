@@ -152,9 +152,12 @@ object AlbumUtil {
     @JvmStatic
     fun getMimeType(url: String?): String {
         val extension = getExtension(url)
-        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return ""
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-        return if (mimeType.isNullOrEmpty()) "" else mimeType
+        val mimeMap = MimeTypeMap.getSingleton()
+        return when {
+            extension.isEmpty() -> ""
+            !mimeMap.hasExtension(extension) -> ""
+            else -> mimeMap.getMimeTypeFromExtension(extension).orEmpty()
+        }
     }
 
     /**
@@ -162,9 +165,11 @@ object AlbumUtil {
      */
     @JvmStatic
     fun getExtension(url: String?): String {
-        val mUrl = if (url.isNullOrEmpty()) "" else url.lowercase(Locale.getDefault())
-        val extension = MimeTypeMap.getFileExtensionFromUrl(mUrl)
-        return if (extension.isNullOrEmpty()) "" else extension
+        return url
+            ?.lowercase(Locale.getDefault())
+            ?.let { MimeTypeMap.getFileExtensionFromUrl(it) }
+            ?.trim()
+            .orEmpty()
     }
 
 }

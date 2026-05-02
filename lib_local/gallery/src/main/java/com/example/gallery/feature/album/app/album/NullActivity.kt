@@ -19,9 +19,10 @@ import com.example.framework.utils.function.intentParcelable
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.api.callback.Action
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.callback.Action
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.app.album.view.NullView
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 空页面
@@ -110,16 +111,19 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
         when (mFunction) {
             Album.FUNCTION_CHOICE_IMAGE -> {
                 mView.setMessage(R.string.album_not_found_image)
+                mView.setMakeImageDisplay(true)
                 mView.setMakeVideoDisplay(false)
             }
             Album.FUNCTION_CHOICE_VIDEO -> {
                 mView.setMessage(R.string.album_not_found_video)
                 mView.setMakeImageDisplay(false)
+                mView.setMakeVideoDisplay(true)
             }
             Album.FUNCTION_CHOICE_ALBUM -> {
                 mView.setMessage(R.string.album_not_found_album)
+                mView.setMakeImageDisplay(true)
+                mView.setMakeVideoDisplay(true)
             }
-            else -> throw AssertionError("This should not be the case.")
         }
         // 如果不允许使用相机，隐藏两个按钮
         if (!mHasCamera) {

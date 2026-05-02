@@ -1,4 +1,4 @@
-package com.example.gallery.feature.durban.model
+package com.example.gallery.feature.durban.bean
 
 import android.graphics.RectF
 

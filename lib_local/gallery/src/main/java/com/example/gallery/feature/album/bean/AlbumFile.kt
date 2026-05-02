@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.model
+package com.example.gallery.feature.album.bean
 
 import android.os.Parcelable
 import androidx.annotation.IntDef
