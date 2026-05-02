@@ -24,8 +24,8 @@ import java.util.Locale
 /**
  * 相册工具类
  * 功能：文件路径、拍照、录视频、时间格式化、MD5、Drawable 着色、时间转换等
- * Android 从 10 开始，定义了「公共媒体目录」 所有应用都可以自由写入，不需要权限 (/storage/emulated/0/DCIM)
- * 公共媒体目录 -> DCIM / Pictures / Download / Movies
+ * 1) Android 从 10 开始，定义了「公共媒体目录」 所有应用都可以自由写入，不需要权限 (/storage/emulated/0/DCIM)
+ * 2) 公共媒体目录 -> DCIM / Pictures / Download / Movies
  */
 object AlbumUtil {
     // 相册缓存文件夹名称
@@ -79,13 +79,11 @@ object AlbumUtil {
      * 根据文件获取 Uri（兼容 7.0 FileProvider）
      */
     private fun getUri(context: Context, outPath: File): Uri {
-        val uri: Uri
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            uri = Uri.fromFile(outPath)
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Uri.fromFile(outPath)
         } else {
-            uri = CameraFileProvider.getUriForFile(context, outPath)
+            CameraFileProvider.getUriForFile(context, outPath)
         }
-        return uri
     }
 
     /**
@@ -147,24 +145,29 @@ object AlbumUtil {
     }
 
     /**
-     * 获取文件 MimeType
+     * 获取文件 MimeType (文件媒体类型、资源类型、Mine 类型  -> image/jpeg | image/png)
      */
     @JvmStatic
     fun getMimeType(url: String?): String {
         val extension = getExtension(url)
-        if (!MimeTypeMap.getSingleton().hasExtension(extension)) return ""
-        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
-        return if (mimeType.isNullOrEmpty()) "" else mimeType
+        val mimeMap = MimeTypeMap.getSingleton()
+        return when {
+            extension.isEmpty() -> ""
+            !mimeMap.hasExtension(extension) -> ""
+            else -> mimeMap.getMimeTypeFromExtension(extension).orEmpty()
+        }
     }
 
     /**
-     * 获取文件后缀
+     * 获取文件后缀（自动转小写，空安全）
      */
     @JvmStatic
     fun getExtension(url: String?): String {
-        val mUrl = if (url.isNullOrEmpty()) "" else url.lowercase(Locale.getDefault())
-        val extension = MimeTypeMap.getFileExtensionFromUrl(mUrl)
-        return if (extension.isNullOrEmpty()) "" else extension
+        return url
+            ?.lowercase(Locale.getDefault())
+            ?.let { MimeTypeMap.getFileExtensionFromUrl(it) }
+            ?.trim()
+            .orEmpty()
     }
 
 }

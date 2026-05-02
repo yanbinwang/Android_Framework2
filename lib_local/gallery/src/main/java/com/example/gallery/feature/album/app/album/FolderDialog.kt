@@ -11,6 +11,7 @@ import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.gallery.R
+import com.example.gallery.feature.album.adapter.FolderAdapter
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gyf.immersionbar.ImmersionBar
 import com.example.gallery.feature.album.bean.AlbumFolder

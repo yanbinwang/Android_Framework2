@@ -22,7 +22,6 @@
             android:name="com.example.gallery.feature.album.app.album.NullActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
-            android:theme="@style/Gallery.Theme.Activity"
             android:windowSoftInputMode="stateAlwaysHidden|stateHidden" />
         <!-- 相册主页 -->
         <activity

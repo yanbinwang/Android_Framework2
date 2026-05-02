@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.adapter
 
 import android.annotation.SuppressLint
 import android.content.res.ColorStateList
@@ -11,9 +11,9 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
+import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.bean.AlbumFolder
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
-import com.example.gallery.feature.album.Album
 
 /**
  * 文件夹选择弹窗 列表适配器

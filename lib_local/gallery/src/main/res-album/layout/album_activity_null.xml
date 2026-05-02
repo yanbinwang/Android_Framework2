@@ -1,36 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/albumBackground"
-    android:orientation="vertical">
-
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        style="@style/Gallery.Toolbar"
-        tools:background="@color/galleryColorPrimary"
-        tools:navigationIcon="@mipmap/gallery_ic_back">
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:ellipsize="end"
-            android:lines="1"
-            android:textSize="@dimen/textSize18"
-            android:textStyle="bold"
-            tools:text="@string/gallery_album_title"
-            tools:textColor="@color/galleryFontLight" />
-
-    </androidx.appcompat.widget.Toolbar>
+    xmlns:tools="http://schemas.android.com/tools">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="0pt"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:background="@color/bgDefault"
         android:gravity="center"
         android:orientation="vertical">
 
@@ -38,20 +14,23 @@
             android:id="@+id/tv_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/albumFontHint"
+            android:textColor="@color/textHint"
             android:textSize="@dimen/textSize12"
+            android:textStyle="bold"
             tools:text="没有发现媒体文件" />
 
         <LinearLayout
-            android:id="@+id/layout_camera_image"
+            android:id="@+id/ll_image"
             android:layout_width="80pt"
             android:layout_height="34pt"
             android:layout_marginTop="10pt"
             android:gravity="center"
-            tools:background="@drawable/selector_r5_main">
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
 
             <TextView
-                android:id="@+id/tv_camera_image"
+                android:id="@+id/tv_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="2pt"
@@ -59,20 +38,22 @@
                 android:text="@string/album_camera_image_capture"
                 android:textSize="@dimen/textSize12"
                 app:drawableStartCompat="@mipmap/album_ic_image_camera"
-                tools:textColor="@color/galleryFontLight" />
+                tools:textColor="@color/textWhite" />
 
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/layout_camera_video"
+            android:id="@+id/ll_video"
             android:layout_width="80pt"
             android:layout_height="34pt"
             android:layout_marginTop="10pt"
             android:gravity="center"
-            tools:background="@drawable/selector_r5_main">
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
 
             <TextView
-                android:id="@+id/tv_camera_video"
+                android:id="@+id/tv_video"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:drawablePadding="2pt"
@@ -80,10 +61,10 @@
                 android:text="@string/album_camera_video_capture"
                 android:textSize="@dimen/textSize12"
                 app:drawableStartCompat="@mipmap/album_ic_video_camera"
-                tools:textColor="@color/galleryFontLight" />
+                tools:textColor="@color/textWhite" />
 
         </LinearLayout>
 
     </LinearLayout>
 
-</LinearLayout>
+</layout>

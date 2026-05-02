@@ -17,6 +17,7 @@ import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.adapter.PreviewAdapter
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.bean.AlbumFile.Companion.TYPE_VIDEO
