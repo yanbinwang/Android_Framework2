@@ -1,6 +1,7 @@
 package com.example.gallery.feature.album.app.album
 
 import android.os.Bundle
+import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
@@ -89,12 +90,12 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         } else {
             // 超过最大数量 → 提示
             if (sCheckedCount >= mAllowSelectCount) {
-                mView.toast(getString(when (mFunction) {
+                getString(when (mFunction) {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, mAllowSelectCount))
+                }, mAllowSelectCount).shortToast()
                 mView.setChecked(false)
                 // 没超数量 → 选中
             } else {
@@ -112,12 +113,12 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
      */
     override fun complete() {
         if (sCheckedCount == 0) {
-            mView.toast(when (mFunction) {
+            when (mFunction) {
                 Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_little
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
                 else -> R.string.unitNoData
-            })
+            }.shortToast()
         } else {
             sCallback?.onPreviewComplete()
             finish()

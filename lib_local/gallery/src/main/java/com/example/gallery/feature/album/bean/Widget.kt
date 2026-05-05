@@ -95,6 +95,19 @@ data class Widget(
     )
 
     /**
+     * 根据选择的主题,返回对应图标和文字的染色颜色值
+     */
+    @ColorRes
+    fun getIconTintColor(): Int {
+        return if (uiStyle == STYLE_LIGHT) R.color.galleryIconDark else R.color.galleryIconLight
+    }
+
+    @ColorRes
+    fun getTextTintColor(): Int {
+        return if (uiStyle == STYLE_LIGHT) R.color.galleryFontDark else R.color.galleryFontLight
+    }
+
+    /**
      * 类构建器
      */
     class Builder(val mContext: Context, @field:UiStyle val mUiStyle: Int) {

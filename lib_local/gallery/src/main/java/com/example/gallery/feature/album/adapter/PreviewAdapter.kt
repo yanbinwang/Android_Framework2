@@ -52,7 +52,7 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
         // 添加到 ViewPager
         container.addView(imageView)
         // 视频单独处理
-        if (item is AlbumFile && item.mediaType == AlbumFile.Companion.TYPE_VIDEO) {
+        if (item is AlbumFile && item.mediaType == AlbumFile.TYPE_VIDEO) {
             imageView.showPlayIcon(R.mipmap.album_ic_video_gallery)
             if (mItemClickListener != null) {
                 imageView.setOnClickListener { v ->

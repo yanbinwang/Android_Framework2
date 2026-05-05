@@ -2,8 +2,9 @@ package com.example.gallery.feature.album.app
 
 import android.view.View
 import android.widget.CompoundButton
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.example.gallery.base.bridge.BasePresenter
+import com.example.gallery.base.bridge.BaseSource
 import com.example.gallery.base.bridge.BaseView
 import com.example.gallery.feature.album.bean.AlbumFolder
 import com.example.gallery.feature.album.bean.Widget
@@ -52,7 +53,7 @@ object Contract {
     /**
      * 相册主页（图片列表页）-> View 接口
      */
-    abstract class AlbumView(activity: FragmentActivity, presenter: AlbumPresenter) : BaseView<AlbumPresenter>(activity, presenter) {
+    abstract class AlbumView(activity: AppCompatActivity, presenter: AlbumPresenter) : BaseView<AlbumPresenter>(BaseSource(activity), presenter) {
         /**
          * 初始化页面控件
          *
@@ -112,7 +113,7 @@ object Contract {
     /**
      * 空页面 -> View 接口
      */
-    abstract class NullView(activity: FragmentActivity, presenter: NullPresenter) : BaseView<NullPresenter>(activity, presenter) {
+    abstract class NullView(activity: AppCompatActivity, presenter: NullPresenter) : BaseView<NullPresenter>(BaseSource(activity), presenter) {
         /**
          * 初始化控件
          */
@@ -167,7 +168,7 @@ object Contract {
     /**
      * 预览页（大图预览）-> View 接口
      */
-    abstract class GalleryView<Data>(activity: FragmentActivity, presenter: GalleryPresenter) : BaseView<GalleryPresenter>(activity, presenter) {
+    abstract class GalleryView<Data>(activity: AppCompatActivity, presenter: GalleryPresenter) : BaseView<GalleryPresenter>(BaseSource(activity), presenter) {
         /**
          * 初始化预览页控件
          */

@@ -3,15 +3,14 @@ package com.example.gallery.feature.album.app.album.view
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor
 import com.example.common.utils.function.ptFloat
+import com.example.common.widget.AppToolbar
 import com.example.framework.utils.function.value.getHighLightColor
 import com.example.framework.utils.function.value.getNormalColor
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.selectorRoundBackground
-import com.example.framework.utils.function.view.textColor
 import com.example.gallery.R
 import com.example.gallery.feature.album.app.Contract
 import com.example.gallery.feature.album.bean.Widget
@@ -21,11 +20,9 @@ import com.example.gallery.utils.MediaUtil.setDrawableTint
  * 空页面 View 层
  * 功能：当手机里没有图片/视频时，显示这个页面，提供：拍照、录像按钮，纯 UI 展示
  */
-class NullView(activity: FragmentActivity, presenter: Contract.NullPresenter) : Contract.NullView(activity, presenter), View.OnClickListener {
+class NullView(activity: AppCompatActivity, presenter: Contract.NullPresenter) : Contract.NullView(activity, presenter), View.OnClickListener {
     // 标题栏
-    private val mToolbar = activity.findViewById<Toolbar>(R.id.toolbar)
-    // 标题文字
-    private val mTitle = activity.findViewById<TextView>(R.id.tv_title)
+    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
     // 空页面提示文字
     private val mMessage = activity.findViewById<TextView>(R.id.tv_message)
     // 拍照按钮
@@ -48,20 +45,10 @@ class NullView(activity: FragmentActivity, presenter: Contract.NullPresenter) : 
      * 按钮样式：颜色、背景
      */
     override fun setupViews(widget: Widget) {
-        // 设置返回箭头
-        val navigationIcon = getDrawable(R.mipmap.gallery_ic_back)
-        // 浅色 / 深色 主题切换
-        if (widget.uiStyle == Widget.STYLE_LIGHT) {
-            setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
-            mTitle.textColor(R.color.galleryFontDark)
-        } else {
-            mTitle.textColor(R.color.galleryFontLight)
-        }
-        // 设置返回按钮
-        setHomeAsUpIndicator(navigationIcon)
         // 标题同步状态栏颜色
-        mToolbar.setBackgroundColor(getColor(widget.statusBarColor))
-        mTitle.text = widget.title
+        mToolbar.setTitle(widget.title, widget.getTextTintColor(), widget.statusBarColor) {
+            getPresenter().navigateBack()
+        }
         // 设置按钮样式
         val buttonSelector = widget.buttonSelector
         val normalColor = buttonSelector.getNormalColor()
@@ -112,8 +99,8 @@ class NullView(activity: FragmentActivity, presenter: Contract.NullPresenter) : 
      */
     override fun onClick(v: View?) {
         when (v?.id) {
-            R.id.layout_camera_image -> getPresenter()?.takePicture()
-            R.id.layout_camera_video -> getPresenter()?.takeVideo()
+            R.id.layout_camera_image -> getPresenter().takePicture()
+            R.id.layout_camera_video -> getPresenter().takeVideo()
         }
     }
 

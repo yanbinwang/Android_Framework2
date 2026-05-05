@@ -2,23 +2,23 @@ package com.example.gallery.feature.album.app.album.view
 
 import android.annotation.SuppressLint
 import android.graphics.Color
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.CompoundButton
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.Toolbar
-import androidx.fragment.app.FragmentActivity
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.utils.function.pt
+import com.example.common.widget.AppToolbar
+import com.example.common.widget.AppToolbar.Companion.KEY_RIGHT_ICON
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.paddingAll
-import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
@@ -29,8 +29,6 @@ import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider
-import com.example.gallery.utils.MediaUtil.setDrawableTint
-import com.example.gallery.utils.ToolbarUtil.setSupportMenuViewAsync
 import com.example.gallery.widget.ColorProgressBar
 
 /**
@@ -38,15 +36,13 @@ import com.example.gallery.widget.ColorProgressBar
  * 功能：负责所有 UI 展示、事件点击、列表刷新、主题切换
  */
 @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
-class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) : Contract.AlbumView(activity, presenter), View.OnClickListener {
+class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter) : Contract.AlbumView(activity, presenter), View.OnClickListener {
     // 相册列表适配器
     private var mAdapter: AlbumAdapter? = null
     // 右上角完成菜单
-    private var mCompleteMenu: MenuItem? = null
+    private var mCompleteMenu: ImageView? = null
     // 标题栏
-    private val mToolbar = activity.findViewById<Toolbar>(R.id.toolbar)
-    // 标题文字
-    private val mTitle = activity.findViewById<TextView>(R.id.tv_title)
+    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
     // 相册列表
     private val mRecyclerView = activity.findViewById<RecyclerView>(R.id.recycler_view)
     // 切换文件夹按钮
@@ -69,57 +65,31 @@ class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) 
     }
 
     /**
-     * 创建右上角菜单（完成按钮）
-     */
-    override fun onCreateOptionsMenu(menu: Menu) {
-        super.onCreateOptionsMenu(menu)
-        getMenuInflater().inflate(R.menu.album_menu_album, menu)
-        mCompleteMenu = menu.findItem(R.id.album_menu_finish)
-        mCompleteMenu?.title = ""
-    }
-
-    /**
-     * 菜单点击 -> 完成选择
-     */
-    override fun onOptionsItemSelected(item: MenuItem) {
-        super.onOptionsItemSelected(item)
-        if (item.itemId == R.id.album_menu_finish) {
-            getPresenter()?.complete()
-        }
-    }
-
-    /**
      * 初始化页面样式：主题、颜色、列表、适配器
      */
     override fun setupViews(widget: Widget, column: Int, hasCamera: Boolean, choiceMode: Int) {
-        // 设置返回箭头
-        val navigationIcon = getDrawable(R.mipmap.gallery_ic_back)
         // 浅色 / 深色主题 -> 影响图标
         if (widget.uiStyle == Widget.STYLE_LIGHT) {
-            // 暗色返回 / 完成
-            setDrawableTint(navigationIcon, getColor(R.color.galleryIconDark))
-            val completeIcon = mCompleteMenu?.icon?.mutate()
-            if (null != completeIcon) {
-                setDrawableTint(completeIcon, getColor(R.color.galleryIconDark))
-                mCompleteMenu?.icon = completeIcon
-            }
-            mTitle.textColor(R.color.galleryFontDark)
             mProgressBar.setColorFilter(getColor(R.color.albumLoading))
         } else {
-            mTitle.textColor(R.color.galleryFontLight)
             mProgressBar.setColorFilter(getColor(widget.statusBarColor))
         }
-        setHomeAsUpIndicator(navigationIcon)
         // 标题同步状态栏颜色
-        mToolbar.setBackgroundColor(getColor(widget.statusBarColor))
-        mTitle.text = widget.title
+        mToolbar
+            .setTitle(widget.title, widget.getTextTintColor(), widget.statusBarColor)
+            .setLeftButton(tintColor = widget.getIconTintColor()) {
+                getPresenter().navigateBack()
+            }
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mPreview.gone()
         } else {
             mPreview.visible()
-            // 多选等 Toolbar 布局结束右侧强行撑满
-            setSupportMenuViewAsync(mToolbar, widget.statusBarColor)
+            // 创建右上角菜单（完成按钮）
+            mToolbar.setRightButton(R.mipmap.gallery_ic_done, widget.getIconTintColor()) {
+                getPresenter().complete()
+            }
+            mCompleteMenu = mToolbar.findViewByKey<ImageView>(KEY_RIGHT_ICON)
         }
         // 配置网格布局（横竖屏切换）
         val mLayoutManager = GridLayoutManager(getContext(), column, LinearLayoutManager.VERTICAL, false)
@@ -133,19 +103,19 @@ class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) 
         // 点击拍照
         mAdapter?.setAddClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                getPresenter()?.clickCamera(view)
+                getPresenter().clickCamera(view)
             }
         })
         // 点击选择框
         mAdapter?.setCheckedClickListener(object : OnCheckedClickListener {
             override fun onCheckedClick(button: CompoundButton?, position: Int) {
-                getPresenter()?.tryCheckItem(button, position)
+                getPresenter().tryCheckItem(button, position)
             }
         })
         // 点击预览图片
         mAdapter?.setItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                getPresenter()?.tryPreviewItem(position)
+                getPresenter().tryPreviewItem(position)
             }
         })
         mRecyclerView.setAdapter(mAdapter)
@@ -209,8 +179,8 @@ class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) 
     override fun onClick(v: View?) {
         when (v) {
             mToolbar -> mRecyclerView.smoothScrollToPosition(0)
-            mSwitchFolder -> getPresenter()?.clickFolderSwitch()
-            mPreview -> getPresenter()?.tryPreviewChecked()
+            mSwitchFolder -> getPresenter().clickFolderSwitch()
+            mPreview -> getPresenter().tryPreviewChecked()
         }
     }
 

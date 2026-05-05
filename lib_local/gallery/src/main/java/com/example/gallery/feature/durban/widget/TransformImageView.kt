@@ -7,7 +7,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import androidx.appcompat.widget.AppCompatImageView
-import com.example.gallery.feature.durban.app.data.DurbanLoad
+import com.example.gallery.feature.durban.app.photobox.data.DurbanLoad
 import com.example.gallery.feature.durban.bean.ExifInfo
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import com.example.gallery.feature.durban.utils.RectUtil.getCenterFromRect

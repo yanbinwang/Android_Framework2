@@ -6,26 +6,10 @@
     android:layout_height="match_parent"
     android:background="@color/galleryBackground">
 
-    <androidx.appcompat.widget.Toolbar
+    <com.example.common.widget.AppToolbar
         android:id="@+id/toolbar"
-        style="@style/Gallery.Toolbar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:background="@color/bgMain"
-        tools:navigationIcon="@mipmap/gallery_ic_back">
-
-        <TextView
-            android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:ellipsize="end"
-            android:lines="1"
-            android:textSize="@dimen/textSize18"
-            android:textStyle="bold"
-            tools:text="@string/gallery_album_title"
-            tools:textColor="@color/galleryFontLight" />
-
-    </androidx.appcompat.widget.Toolbar>
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"

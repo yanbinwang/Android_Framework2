@@ -3,157 +3,54 @@ package com.example.gallery.base.bridge
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.drawable.Drawable
-import android.view.Menu
-import android.view.MenuInflater
-import android.view.MenuItem
-import android.view.View
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.orEmpty
+import com.example.common.widget.AppToolbar
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
-import com.example.gallery.R
-import com.example.gallery.base.proxy.ActivitySource
-import java.lang.ref.WeakReference
 
 /**
  * MVP 架构中所有 View 层的基类
  * 统一管理生命周期、Toolbar、菜单、对话框、Toast、SnackBar、输入法等通用功能
  * 支持绑定 Activity / View / 自定义 Source 作为载体
+ * @mSource View 载体（Activity/View 包装类）
+ * @mPresenter 当前 View 绑定的 Presenter
  */
-abstract class BaseView<Presenter : BasePresenter> {
-    // View 载体（Activity/View 包装类）
-    private var mSource: BaseSource<*>
-    // 当前 View 绑定的 Presenter
-    private var mPresenter: WeakReference<Presenter>
+abstract class BaseView<Presenter : BasePresenter>(private val mSource: BaseSource, private val mPresenter: Presenter) : DefaultLifecycleObserver {
 
     /**
-     * 绑定 Activity 作为载体
-     * @param activity 页面
-     * @param presenter 绑定的 Presenter
+     * 初始化
      */
-    constructor(activity: FragmentActivity, presenter: Presenter) : this(ActivitySource(activity), presenter)
-
-    /**
-     * 绑定自定义 Source 作为载体
-     * @param source 视图载体包装类
-     * @param presenter 绑定的 Presenter
-     */
-    constructor(source: BaseSource<*>, presenter: Presenter) {
-        mSource = source
-        mPresenter = WeakReference(presenter)
-        // 初始化载体
+    init {
+        // 初始化标题控件载体
         mSource.prepare()
-        // 初始化载体右侧菜单
-        onCreateOptionsMenu(mSource.getMenu())
-        // 设置菜单点击事件
-        mSource.setMenuClickListener(object : BaseSource.MenuClickListener {
-            override fun onHomeClick() {
-                getPresenter()?.navigateBack()
-            }
-
-            override fun onMenuClick(item: MenuItem) {
-                if (item.itemId == R.id.home) {
-                    if (!onInterceptToolbarBack()) {
-                        getPresenter()?.navigateBack()
-                    }
-                } else {
-                    onOptionsItemSelected(item)
-                }
-            }
-        })
         // 监听 Presenter 生命周期，绑定 View 生命周期
-        getPresenter()?.lifecycle?.addObserver(object : DefaultLifecycleObserver {
-            override fun onResume(owner: LifecycleOwner) {
-                super.onResume(owner)
-                onResume()
-            }
-
-            override fun onPause(owner: LifecycleOwner) {
-                super.onPause(owner)
-                onPause()
-            }
-
-            override fun onStop(owner: LifecycleOwner) {
-                super.onStop(owner)
-                onStop()
-            }
-
-            override fun onDestroy(owner: LifecycleOwner) {
-                super.onDestroy(owner)
-                closeInputMethod()
-                onDestroy()
-            }
-        })
+        getPresenter().lifecycle.addObserver(this)
     }
 
     /**
-     * 生命周期（子类重写）
+     * 获取P层
      */
-    protected fun onResume() {
-    }
-
-    protected fun onPause() {
-    }
-
-    protected fun onStop() {
-    }
-
-    protected fun onDestroy() {
-    }
-
-    /**
-     * 打开/关闭输入法
-     */
-    protected fun openInputMethod(view: View) {
-        mSource.openInputMethod(view)
-    }
-
-    protected fun closeInputMethod() {
-        mSource.closeInputMethod()
-    }
-
-    /**
-     * 设置是否显示返回按钮
-     */
-    protected fun setDisplayHomeAsUpEnabled(showHome: Boolean) {
-        mSource.setDisplayHomeAsUpEnabled(showHome)
-    }
-
-    /**
-     * 设置返回按钮图标（资源/Drawable）
-     */
-    protected fun setHomeAsUpIndicator(@DrawableRes id: Int) {
-        mSource.setHomeAsUpIndicator(id)
-    }
-
-    protected fun setHomeAsUpIndicator(icon: Drawable) {
-        mSource.setHomeAsUpIndicator(icon)
-    }
-
-    /**
-     * 获取菜单加载器
-     */
-    protected fun getMenuInflater(): MenuInflater {
-        return mSource.getMenuInflater()
-    }
-
-    /**
-     * 获取生命周期订阅 Observer
-     */
-    protected fun getObserver(): LifecycleOwner {
-        return mSource.getObserver()
+    protected fun getPresenter(): Presenter {
+        return mPresenter
     }
 
     /**
      * 获取基础类型
      */
+    protected fun getToolbar(): AppToolbar {
+        return mSource.getToolbar()
+    }
+
+    protected fun getObserver(): LifecycleOwner {
+        return mSource.getObserver()
+    }
+
     protected fun getContext(): Context {
         return mSource.getContext()
     }
@@ -182,42 +79,31 @@ abstract class BaseView<Presenter : BasePresenter> {
         return getContext().getString(resId, *formatArgs)
     }
 
-    /**
-     * 获取P层
-     */
-    protected fun getPresenter(): Presenter? {
-        return mPresenter.get()
+    // <editor-fold defaultstate="collapsed" desc="生命周期回调">
+    override fun onCreate(owner: LifecycleOwner) {
+        super.onCreate(owner)
     }
 
-    /**
-     * 菜单点击事件（子类可重写）
-     */
-    protected open fun onOptionsItemSelected(item: MenuItem) {
+    override fun onStart(owner: LifecycleOwner) {
+        super.onStart(owner)
     }
 
-    /**
-     * 创建菜单（子类可重写）
-     */
-    protected open fun onCreateOptionsMenu(menu: Menu) {
+    override fun onResume(owner: LifecycleOwner) {
+        super.onResume(owner)
     }
 
-    /**
-     * 拦截 Toolbar 返回按钮点击事件
-     * @return true 表示拦截，false 不拦截
-     */
-    protected open fun onInterceptToolbarBack(): Boolean {
-        return false
+    override fun onPause(owner: LifecycleOwner) {
+        super.onPause(owner)
     }
 
-    /**
-     * 全局Toast
-     */
-    fun toast(@StringRes message: Int) {
-        toast(getString(message))
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
     }
 
-    fun toast(message: CharSequence) {
-        message.toString().shortToast()
+    override fun onDestroy(owner: LifecycleOwner) {
+        super.onDestroy(owner)
+        owner.lifecycle.removeObserver(this)
     }
+    // </editor-fold>
 
 }
