@@ -8,7 +8,7 @@ import android.graphics.RectF
 import android.util.AttributeSet
 import androidx.annotation.IntRange
 import com.example.gallery.R
-import com.example.gallery.feature.durban.app.data.DurbanCrop
+import com.example.gallery.feature.durban.app.photobox.data.DurbanCrop
 import com.example.gallery.feature.durban.bean.CropParameters
 import com.example.gallery.feature.durban.bean.ImageState
 import com.example.gallery.feature.durban.utils.CubicEasing

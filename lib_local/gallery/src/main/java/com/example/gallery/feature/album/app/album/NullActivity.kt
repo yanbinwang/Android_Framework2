@@ -71,8 +71,8 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initBefore() {
+        super.initBefore()
         if (!hasExtras()) return finish()
         // 覆盖基类动画
         setActivityAnimations()
@@ -100,6 +100,10 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
                 return true
             }
         })
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         setContentView(R.layout.album_activity_null)
         // 初始化状态栏/导航栏颜色（黑白字体自适应）
         val statusBarBattery = shouldUseWhiteSystemBarsForRes(mWidget.statusBarColor)

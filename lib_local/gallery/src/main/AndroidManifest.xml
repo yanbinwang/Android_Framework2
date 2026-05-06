@@ -12,7 +12,7 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 图片裁剪页 -->
         <activity
-            android:name="com.example.gallery.feature.durban.app.DurbanActivity"
+            android:name="com.example.gallery.feature.durban.app.photobox.PhotoBoxActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity"

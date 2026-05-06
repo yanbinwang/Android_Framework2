@@ -1,4 +1,4 @@
-package com.example.gallery.utils
+package com.example.mvvm.utils
 
 import android.annotation.SuppressLint
 import android.os.Build

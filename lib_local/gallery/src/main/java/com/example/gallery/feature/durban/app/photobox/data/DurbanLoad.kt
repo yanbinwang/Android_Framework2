@@ -1,4 +1,4 @@
-package com.example.gallery.feature.durban.app.data
+package com.example.gallery.feature.durban.app.photobox.data
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
