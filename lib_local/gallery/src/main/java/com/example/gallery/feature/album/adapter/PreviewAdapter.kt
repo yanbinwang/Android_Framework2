@@ -1,15 +1,11 @@
-package com.example.gallery.feature.album.app.gallery
+package com.example.gallery.feature.album.adapter
 
 import android.view.View
-import android.view.View.OnLongClickListener
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.viewpager.widget.PagerAdapter
-import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.view.click
 import com.example.gallery.R
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
+import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.widget.photoview.AttacherImageView
 import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
 
@@ -18,7 +14,8 @@ import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
  * 基类适配器，专门用于预览大图，支持：
  * 点击、长按、缩放（PhotoView）子类只需要实现图片加载逻辑即可
  */
-abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener, OnLongClickListener {
+abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener,
+    View.OnLongClickListener {
     // 单击监听
     private var mItemClickListener: View.OnClickListener? = null
     // 长按监听
@@ -55,7 +52,7 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
         // 添加到 ViewPager
         container.addView(imageView)
         // 视频单独处理
-        if (item is AlbumFile && item.mediaType == TYPE_VIDEO) {
+        if (item is AlbumFile && item.mediaType == AlbumFile.Companion.TYPE_VIDEO) {
             imageView.showPlayIcon(R.mipmap.album_ic_video_gallery)
             if (mItemClickListener != null) {
                 imageView.setOnClickListener { v ->

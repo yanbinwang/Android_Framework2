@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.gallery
+package com.example.gallery.feature.album.app.gallery.view
 
 import android.view.Menu
 import android.view.MenuItem
@@ -11,16 +11,16 @@ import android.widget.TextView
 import androidx.appcompat.widget.Toolbar
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager.widget.ViewPager
-import androidx.viewpager.widget.ViewPager.SimpleOnPageChangeListener
 import com.example.common.utils.function.openVideo
 import com.example.framework.utils.function.view.clicks
+import com.example.framework.utils.function.view.gone
 import com.example.gallery.R
-import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.adapter.PreviewAdapter
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFile.Companion.TYPE_VIDEO
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.Widget
+import com.example.gallery.utils.ToolbarUtil.setSupportMenuViewAsync
 
 /**
  * 图片/视频 预览页面 View 层
@@ -73,11 +73,11 @@ class GalleryView<Data>(activity: FragmentActivity, presenter: Contract.GalleryP
         // 返回箭头
         setHomeAsUpIndicator(R.mipmap.gallery_ic_back)
         // 等 Toolbar 布局结束右侧强行撑满
-        setSupportMenuViewAsync(mToolbar, R.color.albumPrimary)
+        setSupportMenuViewAsync(mToolbar, R.color.albumGalleryBackground)
         // 如果不可选，隐藏选择按钮和完成按钮
         if (!checkable) {
             mCompleteMenu?.isVisible = false
-            mCheckBox.visibility = View.GONE
+            mCheckBox.gone()
         } else {
             // 设置选择框样式
             val itemSelector = widget.mediaItemCheckSelector
@@ -85,7 +85,7 @@ class GalleryView<Data>(activity: FragmentActivity, presenter: Contract.GalleryP
             mCheckBox.setTextColor(itemSelector)
         }
         // 页面滑动监听
-        mViewPager.addOnPageChangeListener(object : SimpleOnPageChangeListener() {
+        mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
                 getPresenter()?.onCurrentChanged(position)
             }
@@ -110,7 +110,7 @@ class GalleryView<Data>(activity: FragmentActivity, presenter: Contract.GalleryP
         val itemClickAction = { isLongClick: Boolean ->
             val position = mViewPager.currentItem
             val item = dataList[position]
-            if (item is AlbumFile && item.mediaType == TYPE_VIDEO) {
+            if (item is AlbumFile && item.mediaType == AlbumFile.Companion.TYPE_VIDEO) {
                 getContext().openVideo(item.path.orEmpty())
             } else {
                 if (isLongClick) {

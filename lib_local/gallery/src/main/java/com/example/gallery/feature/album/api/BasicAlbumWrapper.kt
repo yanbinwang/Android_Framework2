@@ -1,8 +1,8 @@
 package com.example.gallery.feature.album.api
 
 import android.content.Context
-import com.example.gallery.feature.album.callback.Action
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.api.callback.Action
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 整个库对外调用的统一入口基类

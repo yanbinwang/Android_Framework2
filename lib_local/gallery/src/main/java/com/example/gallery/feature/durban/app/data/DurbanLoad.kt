@@ -3,7 +3,7 @@ package com.example.gallery.feature.durban.app.data
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
-import com.example.gallery.feature.durban.model.ExifInfo
+import com.example.gallery.feature.durban.bean.ExifInfo
 import com.example.gallery.feature.durban.utils.BitmapLoadUtil
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext

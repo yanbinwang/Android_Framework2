@@ -2,7 +2,7 @@ package com.example.gallery.feature.album.api
 
 import android.content.Context
 import androidx.annotation.IntRange
-import com.example.gallery.feature.album.callback.Filter
+import com.example.gallery.feature.album.api.callback.Filter
 
 /**
  * 选择器通用封装

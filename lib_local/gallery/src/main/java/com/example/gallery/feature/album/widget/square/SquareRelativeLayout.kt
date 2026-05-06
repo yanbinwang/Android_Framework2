@@ -30,7 +30,7 @@ class SquareRelativeLayout @JvmOverloads constructor(context: Context, attrs: At
                 super.onMeasure(heightMeasureSpec, heightMeasureSpec)
             }
             else -> {
-                throw AssertionError("This should not be the case.")
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             }
         }
     }

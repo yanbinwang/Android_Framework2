@@ -4,13 +4,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/albumBackground">
+    android:background="@color/galleryBackground">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         style="@style/Gallery.Toolbar"
         app:layout_constraintTop_toTopOf="parent"
-        tools:background="@color/galleryColorPrimary"
+        tools:background="@color/bgMain"
         tools:navigationIcon="@mipmap/gallery_ic_back">
 
         <TextView
@@ -41,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="34pt"
         android:layout_alignParentBottom="true"
-        android:background="@color/albumMenu">
+        android:background="@color/albumMenuBackground">
 
         <LinearLayout
             android:id="@+id/layout_switch_dir"
@@ -90,7 +90,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_below="@+id/toolbar"
-        android:background="@color/albumBackground"
+        android:background="@color/galleryBackground"
         android:gravity="center"
         android:visibility="visible"
         tools:visibility="gone">
@@ -105,8 +105,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10pt"
             android:text="@string/album_loading"
-            android:textColor="@color/albumFontHint"
-            android:textSize="@dimen/textSize14" />
+            android:textColor="@color/galleryFontHint"
+            android:textSize="@dimen/textSize14"
+            android:textStyle="bold" />
 
     </LinearLayout>
 

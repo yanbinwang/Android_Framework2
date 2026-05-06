@@ -1,7 +1,7 @@
-package com.example.gallery.feature.album.callback
+package com.example.gallery.feature.album.api.callback
 
 import android.widget.ImageView
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile
 
 /**
  * 相册图片加载器接口

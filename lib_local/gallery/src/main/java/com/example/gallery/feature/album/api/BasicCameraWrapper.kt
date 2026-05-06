@@ -1,7 +1,7 @@
 package com.example.gallery.feature.album.api
 
 import android.content.Context
-import com.example.gallery.feature.album.callback.Action
+import com.example.gallery.feature.album.api.callback.Action
 
 /**
  * 相机功能 顶层抽象父类

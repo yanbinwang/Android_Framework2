@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.callback
+package com.example.gallery.feature.album.api.callback
 
 import android.content.Context
 

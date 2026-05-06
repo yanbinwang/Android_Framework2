@@ -24,7 +24,7 @@ class SquareFrameLayout @JvmOverloads constructor(context: Context, attrs: Attri
                 super.onMeasure(heightMeasureSpec, heightMeasureSpec)
             }
             else -> {
-                throw AssertionError("This should not be the case.")
+                super.onMeasure(widthMeasureSpec, heightMeasureSpec)
             }
         }
     }

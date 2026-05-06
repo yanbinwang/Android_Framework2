@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.callback
+package com.example.gallery.feature.album.api.callback
 
 /**
  * 通用过滤器接口

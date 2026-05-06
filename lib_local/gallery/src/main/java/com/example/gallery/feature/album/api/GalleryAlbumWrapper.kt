@@ -4,7 +4,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.gallery.GalleryAlbumActivity
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile
 
 /**
  * 相册预览大图包装器

@@ -1,6 +1,6 @@
-package com.example.gallery.feature.album.model
+package com.example.gallery.feature.album.bean
 
-import com.example.gallery.feature.album.callback.AlbumLoader
+import com.example.gallery.feature.album.api.callback.AlbumLoader
 
 /**
  * 相册全局配置类

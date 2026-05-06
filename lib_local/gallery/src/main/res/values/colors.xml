@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主题色 -->
-    <color name="galleryColorPrimary">#2196F3</color>
-    <color name="galleryColorPrimaryDark">#1E88E5</color>
     <!-- 状态栏/导航栏 -->
     <color name="galleryStatusBar">#ffffff</color>
     <color name="galleryNavigationBar">#ffffff</color>
-    <!-- 纯白/纯黑/透明 -->
-    <color name="galleryWhite">#ffffff</color>
-    <color name="galleryBlack">#000000</color>
-    <color name="galleryTransparent">#0000</color>
-    <!-- 字体深浅 -->
-    <color name="galleryFontDark">#333</color>
-    <color name="galleryFontLight">#FFF</color>
-    <color name="galleryFontHint">#808080</color>
+    <!-- 背景色/透明色 -->
+    <color name="galleryBackground">#ffffff</color>
+    <color name="galleryTransparent">#00000000</color>
+    <!-- 样式选中/未选中 -->
+    <color name="gallerySelected">#2196F3</color>
+    <color name="galleryUnselected">#E0E0E0</color>
+    <!-- 按钮选中/未选中 -->
+    <color name="galleryBtnNormal">#2196F3</color>
+    <color name="galleryBtnPressed">#1E88E5</color>
+    <!-- 字体颜色 -->
+    <color name="galleryFontDark">#202630</color> <!-- 同步: textPrimary -->
+    <color name="galleryFontLight">#ffffff</color>
+    <color name="galleryFontHint">#999EA4</color> <!-- 同步: textHint -->
     <!-- 图标深浅 -->
-    <color name="galleryIconDark">#333</color>
-    <color name="galleryIconLight">#FFF</color>
+    <color name="galleryIconDark">#000000</color>
+    <color name="galleryIconLight">#ffffff</color>
 </resources>

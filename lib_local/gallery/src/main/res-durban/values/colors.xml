@@ -1,15 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- 主题色 -->
-    <color name="durbanPrimary">#FF2B2B2B</color>
-    <!-- 操作盘背景 -->
-    <color name="durbanControllerBackground">@color/durbanPrimary</color>
-    <!-- 裁剪页背景 -->
-    <color name="durbanCropBackground">@color/durbanPrimary</color>
     <!-- 裁剪遮罩 -->
     <color name="durbanCropDimmed">#8C000000</color>
     <!-- 裁剪框 -->
     <color name="durbanCropFrameLine">#FFFFFFFF</color>
     <!-- 网格 -->
     <color name="durbanCropGridLine">#80FFFFFF</color>
+    <!-- 裁剪页背景 -->
+    <color name="durbanCropBackground">#FF2B2B2B</color>
+    <!-- 操作盘背景 -->
+    <color name="durbanControllerBackground">#FF2B2B2B</color>
 </resources>

@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.model
+package com.example.gallery.feature.album.bean
 
 import android.content.Context
 import android.content.res.ColorStateList
@@ -9,7 +9,6 @@ import androidx.annotation.IntDef
 import androidx.annotation.StringRes
 import com.example.framework.utils.function.color
 import com.example.gallery.R
-import com.example.gallery.feature.album.utils.AlbumUtil
 import com.example.gallery.utils.MediaUtil.getColorStateList
 import kotlinx.parcelize.Parcelize
 
@@ -75,9 +74,9 @@ data class Widget(
                 .statusBarColor(R.color.galleryStatusBar)
                 .navigationBarColor(R.color.galleryNavigationBar)
                 .title(R.string.album_title)
-                .mediaItemCheckSelector(context.color(R.color.albumPrimaryDark), context.color(R.color.galleryColorPrimary))
-                .bucketItemCheckSelector(context.color(R.color.albumPrimaryDark), context.color(R.color.galleryColorPrimary))
-                .buttonSelector(context.color(R.color.galleryColorPrimary), context.color(R.color.galleryColorPrimaryDark))
+                .mediaItemCheckSelector(context.color(R.color.galleryUnselected), context.color(R.color.gallerySelected))
+                .bucketItemCheckSelector(context.color(R.color.galleryUnselected), context.color(R.color.gallerySelected))
+                .buttonSelector(context.color(R.color.galleryBtnNormal), context.color(R.color.galleryBtnPressed))
                 .build()
         }
     }
@@ -90,9 +89,9 @@ data class Widget(
         builder.mStatusBarColor.takeIf { it != 0 } ?: R.color.galleryStatusBar,
         builder.mNavigationBarColor.takeIf { it != 0 } ?: R.color.galleryNavigationBar,
         builder.mTitle.takeIf { !it.isNullOrEmpty() } ?: builder.mContext.getString(R.string.album_title),
-        builder.mMediaItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mBucketItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.albumPrimaryDark), builder.mContext.color(R.color.galleryColorPrimary)),
-        builder.mButtonSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.galleryColorPrimary), builder.mContext.color(R.color.galleryColorPrimaryDark))
+        builder.mMediaItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.galleryUnselected), builder.mContext.color(R.color.gallerySelected)),
+        builder.mBucketItemCheckSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.galleryUnselected), builder.mContext.color(R.color.gallerySelected)),
+        builder.mButtonSelector.takeIf { it != null } ?: getColorStateList(builder.mContext.color(R.color.galleryBtnNormal), builder.mContext.color(R.color.galleryBtnPressed))
     )
 
     /**

@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.adapter
 
 import android.content.res.ColorStateList
 import android.view.LayoutInflater
@@ -13,7 +13,7 @@ import com.example.framework.utils.function.value.convertDuration
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 
@@ -70,7 +70,12 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
                     }
                 }
             }
-            else -> throw AssertionError("This should not be the case.")
+            else -> {
+                // 异常类型 → 返回一个空的VH，不崩溃
+                val emptyView = View(parent.context)
+                emptyView.layoutParams = RecyclerView.LayoutParams(0, 0)
+                object : RecyclerView.ViewHolder(emptyView) {}
+            }
         }
     }
 
@@ -87,7 +92,7 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
                 val albumFile = mAlbumFiles[mPosition]
                 mediaHolder?.setData(albumFile)
             }
-            else -> throw AssertionError("This should not be the case.")
+            else -> return
         }
     }
 
@@ -106,29 +111,29 @@ class AlbumAdapter(private val hasCamera: Boolean, private val choiceMode: Int, 
     override fun getItemViewType(position: Int): Int {
         if (position == 0) return if (hasCamera) TYPE_BUTTON else TYPE_IMAGE
         val pos = position - if (hasCamera) 1 else 0
-        return if (mAlbumFiles[pos].mediaType == AlbumFile.TYPE_VIDEO) TYPE_VIDEO else TYPE_IMAGE
+        return if (mAlbumFiles[pos].mediaType == AlbumFile.Companion.TYPE_VIDEO) TYPE_VIDEO else TYPE_IMAGE
     }
 
     /**
      * 设置数据
      */
     fun setAlbumFiles(albumFiles: ArrayList<AlbumFile>) {
-        this.mAlbumFiles = albumFiles
+        mAlbumFiles = albumFiles
     }
 
     /**
      * 各种点击事件
      */
     fun setAddClickListener(addPhotoClickListener: OnItemClickListener) {
-        this.mAddPhotoClickListener = addPhotoClickListener
+        mAddPhotoClickListener = addPhotoClickListener
     }
 
     fun setItemClickListener(itemClickListener: OnItemClickListener) {
-        this.mItemClickListener = itemClickListener
+        mItemClickListener = itemClickListener
     }
 
     fun setCheckedClickListener(checkedClickListener: OnCheckedClickListener) {
-        this.mCheckedClickListener = checkedClickListener
+        mCheckedClickListener = checkedClickListener
     }
 
     /**

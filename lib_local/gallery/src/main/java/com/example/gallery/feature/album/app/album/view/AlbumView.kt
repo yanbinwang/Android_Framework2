@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.app.album.view
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -18,17 +18,19 @@ import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.paddingAll
+import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.visible
 import com.example.gallery.R
-import com.example.gallery.base.BaseActivity.Companion.setSupportMenuViewAsync
 import com.example.gallery.feature.album.Album
+import com.example.gallery.feature.album.adapter.AlbumAdapter
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.model.AlbumFolder
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.bean.AlbumFolder
+import com.example.gallery.feature.album.bean.Widget
 import com.example.gallery.feature.album.widget.recyclerview.OnCheckedClickListener
 import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.example.gallery.feature.album.widget.recyclerview.divider.ItemDivider
 import com.example.gallery.utils.MediaUtil.setDrawableTint
+import com.example.gallery.utils.ToolbarUtil.setSupportMenuViewAsync
 import com.example.gallery.widget.ColorProgressBar
 
 /**
@@ -101,10 +103,10 @@ class AlbumView(activity: FragmentActivity, presenter: Contract.AlbumPresenter) 
                 setDrawableTint(completeIcon, getColor(R.color.galleryIconDark))
                 mCompleteMenu?.icon = completeIcon
             }
-            mTitle.setTextColor(getColor(R.color.galleryFontDark))
+            mTitle.textColor(R.color.galleryFontDark)
             mProgressBar.setColorFilter(getColor(R.color.albumLoading))
         } else {
-            mTitle.setTextColor(getColor(R.color.galleryFontLight))
+            mTitle.textColor(R.color.galleryFontLight)
             mProgressBar.setColorFilter(getColor(widget.statusBarColor))
         }
         setHomeAsUpIndicator(navigationIcon)

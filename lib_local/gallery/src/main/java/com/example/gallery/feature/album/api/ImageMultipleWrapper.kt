@@ -5,7 +5,7 @@ import android.content.Intent
 import androidx.annotation.IntRange
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.album.AlbumActivity
-import com.example.gallery.feature.album.model.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFile
 
 /**
  * 图片多选专用包装器

@@ -7,8 +7,8 @@ import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.framework.utils.function.doOnDestroy
 import com.example.gallery.feature.album.Album
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.AlbumFolder
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.AlbumFolder
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.flow

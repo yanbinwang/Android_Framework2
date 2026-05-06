@@ -1,7 +1,6 @@
 package com.example.gallery.base.proxy
 
 import android.annotation.SuppressLint
-import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.view.Menu
@@ -16,8 +15,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.orEmpty
 import com.example.framework.utils.function.drawable
 import com.example.gallery.R
-import com.example.gallery.base.BaseActivity.Companion.setSupportToolbar
 import com.example.gallery.base.bridge.BaseSource
+import com.example.gallery.utils.ToolbarUtil.setSupportToolbar
 
 /**
  * Activity 载体实现类

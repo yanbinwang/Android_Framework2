@@ -11,10 +11,11 @@ import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.app.Contract
-import com.example.gallery.feature.album.callback.Action
-import com.example.gallery.feature.album.callback.ItemAction
-import com.example.gallery.feature.album.model.AlbumFile
-import com.example.gallery.feature.album.model.Widget
+import com.example.gallery.feature.album.api.callback.Action
+import com.example.gallery.feature.album.api.callback.ItemAction
+import com.example.gallery.feature.album.app.gallery.view.GalleryView
+import com.example.gallery.feature.album.bean.AlbumFile
+import com.example.gallery.feature.album.bean.Widget
 
 /**
  * 外部媒体预览
@@ -48,7 +49,7 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
         if (!hasExtras()) return finish()
         setContentView(R.layout.album_activity_gallery)
         // 导航栏
-        initImmersionBar(false, false, R.color.albumPrimary)
+        initImmersionBar(false, false, R.color.albumGalleryBackground)
         // 获取一次默认选中状态
         mCurrentPosition = intentInt(Album.KEY_INPUT_CURRENT_POSITION)
         // 绑定 MVP

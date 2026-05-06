@@ -1,4 +1,4 @@
-package com.example.gallery.feature.album.app.album
+package com.example.gallery.feature.album.widget
 
 import android.content.Context
 import android.os.Build
@@ -11,11 +11,12 @@ import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.gallery.R
+import com.example.gallery.feature.album.adapter.FolderAdapter
+import com.example.gallery.feature.album.bean.AlbumFolder
+import com.example.gallery.feature.album.bean.Widget
+import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.gyf.immersionbar.ImmersionBar
-import com.example.gallery.feature.album.model.AlbumFolder
-import com.example.gallery.feature.album.model.Widget
-import com.example.gallery.feature.album.widget.recyclerview.OnItemClickListener
 import kotlin.math.min
 
 /**
@@ -73,7 +74,7 @@ class FolderDialog(context: Context, widget: Widget, albumFolders: List<AlbumFol
         // 导航栏控件
         window?.setStatusBarLightMode(false)
         window?.setNavigationBarLightMode(true)
-        window?.setNavigationBarDrawable(R.color.albumBackground)
+        window?.setNavigationBarDrawable(R.color.galleryBackground)
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             ownerActivity?.let { activity ->
                 ImmersionBar.with(activity)
