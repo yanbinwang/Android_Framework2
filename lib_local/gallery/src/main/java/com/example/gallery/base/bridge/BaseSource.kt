@@ -1,7 +1,7 @@
 package com.example.gallery.base.bridge
 
 import android.content.Context
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.widget.AppToolbar
 import com.example.gallery.R
@@ -11,7 +11,7 @@ import com.example.gallery.R
  * 用于统一封装 Activity / View 的公共能力，为 BaseView 提供页面支撑
  * @param mHost 载体宿主（Activity / View）
  */
-class BaseSource(private val mHost: AppCompatActivity) {
+class BaseSource(private val mHost: FragmentActivity) {
     // 页面标题栏 Toolbar
     private lateinit var mActionBar: AppToolbar
 

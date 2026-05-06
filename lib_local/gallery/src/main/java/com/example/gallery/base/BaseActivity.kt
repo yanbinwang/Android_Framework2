@@ -13,8 +13,10 @@ import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.manager.AppManager
@@ -33,7 +35,8 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 针对所有相册页面的基类
  */
-abstract class BaseActivity : AppCompatActivity(), PageCloseable {
+abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
+    private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
@@ -47,10 +50,15 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
         overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        // 布局开始之前回调
+        initBefore()
         // 添加至统一页面管理类
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
+        initView(savedInstanceState)
+        initEvent()
+        initData()
     }
 
     /**
@@ -77,11 +85,14 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
         return true
     }
 
-    protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.bgBlack) {
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         window?.apply {
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
-            setNavigationBarDrawable(navigationBarColor)
+            setNavigationBarDrawable(navigationBarColor) {
+                onWindowInsetsChanged?.invoke(it)
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             immersionBar?.apply {
@@ -121,7 +132,10 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
             val callback = OnBackInvokedCallback {
                 onBackPressedListener.invoke()
             }
-            onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_DEFAULT, callback)
+            onBackInvokedDispatcher.registerOnBackInvokedCallback(
+                OnBackInvokedDispatcher.PRIORITY_DEFAULT,
+                callback
+            )
             backCallback = callback
         } else {
             // API <33 使用 OnBackPressedCallback
@@ -145,6 +159,7 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
                     onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
                 }
             }
+
             else -> {
                 (backCallback as? OnBackPressedCallback)?.remove()
             }
@@ -157,6 +172,17 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
      */
     protected fun restoreDefaultBackBehavior() {
         clearOnBackPressedListener()
+    }
+
+    /**
+     * 用于设置自定义Insets处理逻辑
+     */
+    protected fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+        this.onWindowInsetsChanged = onWindowInsetsChanged
+    }
+
+    protected fun clearOnWindowInsetsChanged() {
+        onWindowInsetsChanged = null
     }
 
     /**
@@ -193,6 +219,7 @@ abstract class BaseActivity : AppCompatActivity(), PageCloseable {
         super.onDestroy()
         window?.removeNavigationBarDrawable()
         clearOnBackPressedListener()
+        clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
         for ((key, value) in dataManager) {
             key.removeObserver(value)

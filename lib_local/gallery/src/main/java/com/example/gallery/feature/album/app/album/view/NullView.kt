@@ -6,7 +6,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForColor
 import com.example.common.utils.function.ptFloat
-import com.example.common.widget.AppToolbar
 import com.example.framework.utils.function.value.getHighLightColor
 import com.example.framework.utils.function.value.getNormalColor
 import com.example.framework.utils.function.view.clicks
@@ -21,8 +20,6 @@ import com.example.gallery.utils.MediaUtil.setDrawableTint
  * 功能：当手机里没有图片/视频时，显示这个页面，提供：拍照、录像按钮，纯 UI 展示
  */
 class NullView(activity: AppCompatActivity, presenter: Contract.NullPresenter) : Contract.NullView(activity, presenter), View.OnClickListener {
-    // 标题栏
-    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
     // 空页面提示文字
     private val mMessage = activity.findViewById<TextView>(R.id.tv_message)
     // 拍照按钮
@@ -31,6 +28,8 @@ class NullView(activity: AppCompatActivity, presenter: Contract.NullPresenter) :
     // 录像按钮
     private val mTakeVideo = activity.findViewById<LinearLayout>(R.id.layout_camera_video)
     private val mTvTakeVideo = activity.findViewById<TextView>(R.id.tv_camera_video)
+    // 标题栏
+    private val mToolbar get() = getToolbar()
 
     /**
      * 构造方法：绑定控件

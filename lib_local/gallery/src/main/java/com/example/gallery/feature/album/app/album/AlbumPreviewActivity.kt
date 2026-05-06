@@ -38,9 +38,13 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initBefore() {
+        super.initBefore()
         if (!hasExtras()) return finish()
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         setContentView(R.layout.album_activity_gallery)
         // 导航栏
         initImmersionBar(false, false, R.color.albumGalleryBackground)

@@ -1,6 +1,6 @@
 package com.example.gallery.feature.durban.app
 
-import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.FragmentActivity
 import com.example.gallery.base.bridge.BasePresenter
 import com.example.gallery.base.bridge.BaseSource
 import com.example.gallery.base.bridge.BaseView
@@ -23,19 +23,19 @@ object Contract {
         /**
          * 返回成功结果
          */
-        fun setResultSuccess()
+        fun callbackResult()
 
         /**
          * 返回失败结果
          */
-        fun setResultFailure()
+        fun callbackCancel()
     }
 
-    abstract class PhotoBoxView(activity: AppCompatActivity, presenter: PhotoBoxPresenter) : BaseView<PhotoBoxPresenter>(BaseSource(activity), presenter) {
+    abstract class PhotoBoxView(activity: FragmentActivity, presenter: PhotoBoxPresenter) : BaseView<PhotoBoxPresenter>(BaseSource(activity), presenter) {
 
         abstract fun setupViews(mStatusBarColor: Int, mTitle: String, mOutputDirectory: String, mGesture: Int, mAspectRatio: FloatArray, mMaxWidthHeight: IntArray, mController: Controller)
 
-        abstract fun getGestureCropImageView(): GestureCropImageView
+        abstract fun getGestureCrop(): GestureCropImageView
     }
 
 }

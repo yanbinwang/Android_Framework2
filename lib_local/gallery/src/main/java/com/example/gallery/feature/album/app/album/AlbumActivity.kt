@@ -117,10 +117,14 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initBefore() {
+        super.initBefore()
         // 校验参数
         if (!hasExtras()) return finish()
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         // 根据主题加载布局
         setContentView(R.layout.album_activity_album)
         // 初始化状态栏
@@ -138,6 +142,10 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             mWidget.statusBarColor
         })
         mLoadingDialog.setupViews(progressColor, R.string.album_converting)
+    }
+
+    override fun initEvent() {
+        super.initEvent()
         // 返回键 → 取消
         setOnBackPressedListener {
             callbackCancel()
@@ -225,6 +233,10 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 addFileToListAction(this)
             }
         }
+    }
+
+    override fun initData() {
+        super.initData()
         // 开始扫描相册
         mView.setCompleteDisplay(false)
         mView.setLoadingDisplay(true)
@@ -501,7 +513,8 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         sResult = null
         sCancel = null
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

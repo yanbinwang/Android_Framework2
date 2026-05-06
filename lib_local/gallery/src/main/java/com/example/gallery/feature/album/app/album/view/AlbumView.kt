@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.utils.function.pt
-import com.example.common.widget.AppToolbar
 import com.example.common.widget.AppToolbar.Companion.KEY_RIGHT_ICON
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.fade
@@ -37,12 +36,10 @@ import com.example.gallery.widget.ColorProgressBar
  */
 @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
 class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter) : Contract.AlbumView(activity, presenter), View.OnClickListener {
-    // 相册列表适配器
-    private var mAdapter: AlbumAdapter? = null
     // 右上角完成菜单
     private var mCompleteMenu: ImageView? = null
-    // 标题栏
-    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
+    // 相册列表适配器
+    private var mAdapter: AlbumAdapter? = null
     // 相册列表
     private val mRecyclerView = activity.findViewById<RecyclerView>(R.id.recycler_view)
     // 切换文件夹按钮
@@ -55,6 +52,8 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
     private val mLayoutLoading = activity.findViewById<LinearLayout>(R.id.layout_loading)
     // 加载进度条
     private val mProgressBar = activity.findViewById<ColorProgressBar>(R.id.progress_bar)
+    // 标题栏
+    private val mToolbar get() = getToolbar()
 
     /**
      * 构造方法：绑定控件 + 设置点击事件
@@ -143,6 +142,13 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
     }
 
     /**
+     * 更新预览按钮上的选中数量 (5)
+     */
+    override fun setCheckedCount(count: Int) {
+        mTvPreview.text = " ($count)"
+    }
+
+    /**
      * 绑定文件夹数据：刷新列表
      */
     override fun bindAlbumFolder(albumFolder: AlbumFolder) {
@@ -153,13 +159,6 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
     }
 
     /**
-     * 插入条目（拍照后添加图片）
-     */
-    override fun notifyInsertItem(position: Int) {
-        mAdapter?.notifyItemInserted(position)
-    }
-
-    /**
      * 刷新单个条目
      */
     override fun notifyItem(position: Int) {
@@ -167,20 +166,20 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
     }
 
     /**
-     * 更新预览按钮上的选中数量 (5)
+     * 插入条目（拍照后添加图片）
      */
-    override fun setCheckedCount(count: Int) {
-        mTvPreview.text = " ($count)"
+    override fun notifyInsertItem(position: Int) {
+        mAdapter?.notifyItemInserted(position)
     }
 
     /**
      * 点击事件
      */
     override fun onClick(v: View?) {
-        when (v) {
-            mToolbar -> mRecyclerView.smoothScrollToPosition(0)
-            mSwitchFolder -> getPresenter().clickFolderSwitch()
-            mPreview -> getPresenter().tryPreviewChecked()
+        when (v?.id) {
+            R.id.toolbar -> mRecyclerView.smoothScrollToPosition(0)
+            R.id.layout_switch_dir -> getPresenter().clickFolderSwitch()
+            R.id.layout_preview -> getPresenter().tryPreviewChecked()
         }
     }
 

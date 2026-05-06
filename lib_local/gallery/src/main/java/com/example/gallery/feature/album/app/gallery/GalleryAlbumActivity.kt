@@ -43,10 +43,13 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        // 校验参数
+    override fun initBefore() {
+        super.initBefore()
         if (!hasExtras()) return finish()
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         setContentView(R.layout.album_activity_gallery)
         // 导航栏
         initImmersionBar(false, false, R.color.albumGalleryBackground)
@@ -63,6 +66,10 @@ internal class GalleryAlbumActivity : BaseActivity(), Contract.GalleryPresenter 
         }
         // 设置右上角完成按钮的文字（显示选中数量）
         setCheckedCount()
+    }
+
+    override fun initEvent() {
+        super.initEvent()
         // 返回按钮逻辑
         setOnBackPressedListener {
             sCancel?.onAction("User canceled.")

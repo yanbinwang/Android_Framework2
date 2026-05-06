@@ -9,7 +9,6 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.viewpager.widget.ViewPager
 import com.example.common.utils.function.openVideo
-import com.example.common.widget.AppToolbar
 import com.example.common.widget.AppToolbar.Companion.KEY_RIGHT_TEXT
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.gone
@@ -27,8 +26,6 @@ import com.example.gallery.feature.album.bean.Widget
 class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.GalleryPresenter) : Contract.GalleryView<Data>(activity, presenter), View.OnClickListener {
     // 右上角完成按钮
     private var mCompleteMenu: TextView? = null
-    // 标题栏
-    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
     // 预览 ViewPager
     private val mViewPager = activity.findViewById<ViewPager>(R.id.view_pager)
     // 底部操作栏
@@ -39,6 +36,8 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
     private val mCheckBox = activity.findViewById<CheckBox>(R.id.check_box)
     // 顶层遮罩层（拦截点击事件）
     private val mLayoutLayer = activity.findViewById<FrameLayout>(R.id.layout_layer)
+    // 标题栏
+    private val mToolbar get() = getToolbar()
 
     init {
         // 设置选择框点击监听 / 遮罩层点击（拦截事件，不做处理）
@@ -76,51 +75,6 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
                 getPresenter().onCurrentChanged(position)
             }
         })
-    }
-
-    /**
-     * 绑定预览数据
-     * 内部类实现 PreviewAdapter，加载图片
-     */
-    override fun bindData(dataList: List<Data>) {
-        val adapter = object : PreviewAdapter<Data>(dataList) {
-            override fun loadPreview(imageView: ImageView, item: Data, position: Int) {
-                // 加载图片：支持 String 路径 或 AlbumFile
-                if (item is String) {
-                    Album.getAlbumConfig().albumLoader.load(imageView, item as String)
-                } else if (item is AlbumFile) {
-                    Album.getAlbumConfig().albumLoader.load(imageView, item as AlbumFile)
-                }
-            }
-        }
-        val itemClickAction = { isLongClick: Boolean ->
-            val position = mViewPager.currentItem
-            val item = dataList[position]
-            if (item is AlbumFile && item.mediaType == AlbumFile.TYPE_VIDEO) {
-                getContext().openVideo(item.path.orEmpty())
-            } else {
-                if (isLongClick) {
-                    getPresenter().longClickItem(position)
-                } else {
-                    getPresenter().clickItem(position)
-                }
-            }
-        }
-        // 点击 -> 通知 Presenter
-        adapter.setItemClickListener {
-            itemClickAction(false)
-        }
-        // 长按 -> 通知 Presenter
-        adapter.setItemLongClickListener {
-            itemClickAction(true)
-        }
-        // 设置预加载数量
-        if (adapter.count > 3) {
-            mViewPager.setOffscreenPageLimit(3)
-        } else if (adapter.count > 2) {
-            mViewPager.setOffscreenPageLimit(2)
-        }
-        mViewPager.setAdapter(adapter)
     }
 
     /**
@@ -173,13 +127,58 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
     }
 
     /**
+     * 绑定预览数据
+     * 内部类实现 PreviewAdapter，加载图片
+     */
+    override fun bindData(dataList: List<Data>) {
+        val adapter = object : PreviewAdapter<Data>(dataList) {
+            override fun loadPreview(imageView: ImageView, item: Data, position: Int) {
+                // 加载图片：支持 String 路径 或 AlbumFile
+                if (item is String) {
+                    Album.getAlbumConfig().albumLoader.load(imageView, item as String)
+                } else if (item is AlbumFile) {
+                    Album.getAlbumConfig().albumLoader.load(imageView, item as AlbumFile)
+                }
+            }
+        }
+        val itemClickAction = { isLongClick: Boolean ->
+            val position = mViewPager.currentItem
+            val item = dataList[position]
+            if (item is AlbumFile && item.mediaType == AlbumFile.TYPE_VIDEO) {
+                getContext().openVideo(item.path.orEmpty())
+            } else {
+                if (isLongClick) {
+                    getPresenter().longClickItem(position)
+                } else {
+                    getPresenter().clickItem(position)
+                }
+            }
+        }
+        // 点击 -> 通知 Presenter
+        adapter.setItemClickListener {
+            itemClickAction(false)
+        }
+        // 长按 -> 通知 Presenter
+        adapter.setItemLongClickListener {
+            itemClickAction(true)
+        }
+        // 设置预加载数量
+        if (adapter.count > 3) {
+            mViewPager.setOffscreenPageLimit(3)
+        } else if (adapter.count > 2) {
+            mViewPager.setOffscreenPageLimit(2)
+        }
+        mViewPager.setAdapter(adapter)
+    }
+
+    /**
      * 点击事件：选择框
      */
     override fun onClick(v: View?) {
-        when (v) {
-            mCheckBox -> getPresenter().onCheckedChanged()
+        when (v?.id) {
+            R.id.check_box -> getPresenter().onCheckedChanged()
             // 遮罩层只拦截事件，不做处理
-            mLayoutLayer -> {}
+            R.id.layout_layer -> {}
         }
     }
 

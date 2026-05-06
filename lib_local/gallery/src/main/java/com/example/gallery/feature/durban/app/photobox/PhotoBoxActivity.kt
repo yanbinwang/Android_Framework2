@@ -49,17 +49,21 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
     private val mTask by lazy { DurbanTask(this) }
     // MVP & UI
     private val mView by lazy { PhotoBoxView(this, this) }
-    private val mCropImageView get() = mView.getGestureCropImageView()
+    private val mCropImageView get() = mView.getGestureCrop()
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initBefore() {
+        super.initBefore()
         // 校验参数
         if (!hasExtras()) return finish()
         // 压缩格式修正
         val compressFormat = intentInt(Durban.KEY_INPUT_COMPRESS_FORMAT, Durban.COMPRESS_JPEG)
         mCompressFormat = if (compressFormat == Durban.COMPRESS_PNG) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         // 设置布局
         setContentView(R.layout.durban_activity_photobox)
         // 初始化状态栏
@@ -68,6 +72,10 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
         initImmersionBar(!statusBarBattery, !navigationBarBattery, mNavigationBarColor)
         // MVP设置
         mView.setupViews(mStatusBarColor, mTitle, mOutputDirectory, mGesture, mAspectRatio, mMaxWidthHeight, mController)
+    }
+
+    override fun initEvent() {
+        super.initEvent()
         // 建立页面数据订阅
         mTask.load.observe {
             val (bitmap, exifInfo) = this
@@ -79,6 +87,10 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
             }
             cropNextImage()
         }
+    }
+
+    override fun initData() {
+        super.initData()
         // 开始裁剪第一张图
         cropNextImage()
     }
@@ -111,9 +123,9 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
         } else {
             // 全部裁剪完成
             if (!mOutputPathList.isEmpty()) {
-                setResultSuccess()
+                callbackResult()
             } else {
-                setResultFailure()
+                callbackCancel()
             }
         }
     }
@@ -121,7 +133,7 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
     /**
      * 返回成功/失败结果
      */
-    override fun setResultSuccess() {
+    override fun callbackResult() {
         val intent = Intent()
         intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
         intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
@@ -129,7 +141,7 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
         finish()
     }
 
-    override fun setResultFailure() {
+    override fun callbackCancel() {
         val intent = Intent()
         intent.putStringArrayListExtra(Durban.KEY_OUTPUT_IMAGE_LIST, mOutputPathList)
         intent.putStringArrayListExtra(Durban.KEY_ORIGINAL_PATH_LIST, mInputPathList)
@@ -139,7 +151,8 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

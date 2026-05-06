@@ -42,7 +42,7 @@ class PhotoBoxView(activity: AppCompatActivity, presenter: Contract.PhotoBoxPres
         mToolbar
             .setTitle(mTitle, titleColor, mStatusBarColor)
             .setLeftButton(tintColor = tintColor) {
-                getPresenter().setResultFailure()
+                getPresenter().callbackCancel()
             }
             .setRightButton(R.mipmap.gallery_ic_done, tintColor) {
                 getPresenter().cropAndSaveImage()
@@ -122,7 +122,7 @@ class PhotoBoxView(activity: AppCompatActivity, presenter: Contract.PhotoBoxPres
         clicks(rotationLeft, rotationRight, scaleBig, scaleSmall)
     }
 
-    override fun getGestureCropImageView(): GestureCropImageView {
+    override fun getGestureCrop(): GestureCropImageView {
         return mCropImageView
     }
 
