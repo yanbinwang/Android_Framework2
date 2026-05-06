@@ -33,20 +33,6 @@
         <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
-    <!-- Toolbar 样式 -->
-    <style name="Gallery.Toolbar">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">?attr/actionBarSize</item>
-        <!-- 全透明 -->
-        <item name="android:background">@android:color/transparent</item>
-        <!-- 去掉阴影 -->
-        <item name="android:elevation">0pt</item>
-        <!-- 去掉Toolbar左边默认的16dp留白 -->
-        <item name="android:contentInsetStart">0pt</item>
-        <!-- 彻底隐藏标题 -->
-        <item name="android:title">@null</item>
-    </style>
-
     <!-- 基础对话框：悬浮、半透明背景 -->
     <style name="Gallery.Dialog" parent="Theme.AppCompat.Light.Dialog">
         <item name="android:windowFrame">@null</item>

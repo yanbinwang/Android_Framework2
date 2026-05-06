@@ -531,15 +531,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                    gallery.takePicture(true){
 //                        it.shortToast()
 //                    }
-//                    gallery.videoMultipleSelection()
-                    gallery.imageSelection(hasDurban = true)
+                    gallery.videoMultipleSelection()
+//                    gallery.imageSelection(hasDurban = true)
 //                    gallery.imageMultipleSelection(true)
 //                    navigation(ARouterPath.TestActivity)
                 }
             }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
-//                //透明背景
+//                // 透明背景
 //                snackbar.setBackgroundTint(Color.TRANSPARENT)
 //                // 获取 Snackbar 的根视图
 //                val snackbarView = snackbar.view

@@ -7,7 +7,7 @@ import androidx.annotation.IntDef
 import androidx.annotation.IntRange
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import com.example.gallery.feature.durban.app.DurbanActivity
+import com.example.gallery.feature.durban.app.photobox.PhotoBoxActivity
 import com.example.gallery.feature.durban.bean.Controller
 
 /**
@@ -16,7 +16,7 @@ import com.example.gallery.feature.durban.bean.Controller
  */
 class Durban(private val host: Any) {
     // 跳转裁剪页的 Intent
-    private val mCropIntent = Intent(applyActivity(host), DurbanActivity::class.java)
+    private val mCropIntent = Intent(applyActivity(host), PhotoBoxActivity::class.java)
 
     companion object {
         // 跳转 KEY 常量

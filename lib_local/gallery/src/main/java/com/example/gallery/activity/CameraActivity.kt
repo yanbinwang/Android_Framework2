@@ -25,7 +25,7 @@ import com.example.gallery.R
  * 1) 相册模块单独独立,本身内部调取不会有问题,该页面解决的是外部调取
  * 2) 相机类的所有可配置参数考虑到兼容性问题,实际上都是没有任何意义的,不能限制系统的相机时间.清晰度等,这是厂商忽略谷歌相机采用自家定制的问题
  */
-class CameraActivity : AppCompatActivity() {
+internal class CameraActivity : AppCompatActivity() {
     private var mFilePath: String? = null
     private val mFunction by lazy { intentInt(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE) }
     private val mQuality by lazy { intentInt(CAMERA_QUALITY, 0) }

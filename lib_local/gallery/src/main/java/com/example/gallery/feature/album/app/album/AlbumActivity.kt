@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.CompoundButton
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.utils.builder.shortToast
 import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
@@ -116,10 +117,14 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
 
     override fun isImmersionBarEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initBefore() {
+        super.initBefore()
         // 校验参数
         if (!hasExtras()) return finish()
+    }
+
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
         // 根据主题加载布局
         setContentView(R.layout.album_activity_album)
         // 初始化状态栏
@@ -137,6 +142,10 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             mWidget.statusBarColor
         })
         mLoadingDialog.setupViews(progressColor, R.string.album_converting)
+    }
+
+    override fun initEvent() {
+        super.initEvent()
         // 返回键 → 取消
         setOnBackPressedListener {
             callbackCancel()
@@ -215,7 +224,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 if (mFilterVisibility) {
                     addFileToListAction(this)
                 } else {
-                    mView.toast(getString(R.string.album_take_file_unavailable))
+                    R.string.album_take_file_unavailable.shortToast()
                     // 不可以直接取消弹框
                     dismissLoadingDialog()
                 }
@@ -224,6 +233,10 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 addFileToListAction(this)
             }
         }
+    }
+
+    override fun initData() {
+        super.initData()
         // 开始扫描相册
         mView.setCompleteDisplay(false)
         mView.setLoadingDisplay(true)
@@ -254,12 +267,12 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         val hasCheckSize = mCheckedList.size
         // 超过最大选择数量 → 提示
         if (hasCheckSize >= mLimitCount) {
-            mView.toast(getString(when (mFunction) {
+            getString(when (mFunction) {
                 Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit_camera
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit_camera
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit_camera
                 else -> R.string.unitNoData
-            }, mLimitCount))
+            }, mLimitCount).shortToast()
             // 根据功能类型拍照/录像/选择
         } else {
             when (mFunction) {
@@ -288,12 +301,12 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
         if (button?.isChecked.orFalse) {
             if (mCheckedList.size >= mLimitCount) {
-                mView.toast(getString(when (mFunction) {
+                getString(when (mFunction) {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, mLimitCount))
+                }, mLimitCount).shortToast()
                 button?.isChecked = false
             } else {
                 albumFile.isChecked = true
@@ -336,12 +349,12 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
      */
     override fun complete() {
         if (mCheckedList.isEmpty()) {
-            mView.toast(when (mFunction) {
+            when (mFunction) {
                 Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_little
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
                 else -> R.string.unitNoData
-            })
+            }.shortToast()
         } else {
             callbackResult()
         }
@@ -500,7 +513,8 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         sResult = null
         sCancel = null
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }
