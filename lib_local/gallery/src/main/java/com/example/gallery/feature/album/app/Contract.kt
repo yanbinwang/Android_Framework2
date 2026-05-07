@@ -32,17 +32,17 @@ object Contract {
         /**
          * 点击列表条目 -> 选中/取消选中某个条目
          */
-        fun tryCheckItem(button: CompoundButton?, position: Int) {}
+        fun checkItem(button: CompoundButton?, position: Int) {}
 
         /**
          * 点击列表条目 -> 预览当前位置的图片/视频
          */
-        fun tryPreviewItem(position: Int) {}
+        fun previewItem(position: Int) {}
 
         /**
          * 预览已选中的所有图片
          */
-        fun tryPreviewChecked() {}
+        fun previewCheckedItem() {}
 
         /**
          * 完成选择（确定）

@@ -297,7 +297,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     /**
      * 选择/取消选择图片
      */
-    override fun tryCheckItem(button: CompoundButton?, position: Int) {
+    override fun checkItem(button: CompoundButton?, position: Int) {
         val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
         if (button?.isChecked.orFalse) {
             if (mCheckedList.size >= mLimitCount) {
@@ -323,7 +323,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     /**
      * 预览图片
      */
-    override fun tryPreviewItem(position: Int) {
+    override fun previewItem(position: Int) {
         when (mChoiceMode) {
             Album.MODE_SINGLE -> {
                 val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
@@ -338,7 +338,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
     /**
      * 预览已选中的图片
      */
-    override fun tryPreviewChecked() {
+    override fun previewCheckedItem() {
         if (!mCheckedList.isEmpty()) {
             preview(mCheckedList, 0)
         }
