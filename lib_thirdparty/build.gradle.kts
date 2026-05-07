@@ -61,6 +61,8 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.testing)
     // oss文件传输
     implementation("com.aliyun.dpa:oss-android-sdk:2.9.21")
+    // 文件压缩
+    implementation("id.zelory:compressor:3.0.1")
     // 框架库
     api(project(":lib_common"))
     // 高德三方扩展
@@ -71,8 +73,6 @@ dependencies {
     api(project(":lib_local:gallery"))
     // 扫码
     api("com.github.bingoogolapple.BGAQRCode-Android:zxing:1.3.8")
-    // 文件压缩
-    implementation("id.zelory:compressor:3.0.1")
     // 相机
     api("com.otaliastudios:cameraview:2.7.2")
     // 播放器
