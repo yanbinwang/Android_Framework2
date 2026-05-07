@@ -6,7 +6,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.pt
-import com.example.common.widget.AppToolbar
 import com.example.framework.utils.function.view.clicks
 import com.example.gallery.R
 import com.example.gallery.feature.durban.Durban
@@ -19,8 +18,6 @@ import com.example.gallery.feature.durban.widget.OverlayView
 import com.example.gallery.feature.durban.widget.TransformImageView
 
 class PhotoBoxView(activity: AppCompatActivity, presenter: Contract.PhotoBoxPresenter) : Contract.PhotoBoxView(activity, presenter), View.OnClickListener {
-    // 标题头
-    private val mToolbar = activity.findViewById<AppToolbar>(R.id.toolbar)
     // 裁剪视图
     private val mCropView = activity.findViewById<CropView>(R.id.crop_view)
     private val mCropImageView by lazy { mCropView.getCropImageView() }
@@ -33,6 +30,8 @@ class PhotoBoxView(activity: AppCompatActivity, presenter: Contract.PhotoBoxPres
     private val scaleTitle = activity.findViewById<View>(R.id.tv_controller_title_scale)
     private val scaleBig = activity.findViewById<View>(R.id.layout_controller_scale_big)
     private val scaleSmall = activity.findViewById<View>(R.id.layout_controller_scale_small)
+    // 标题头
+    private val mToolbar get() = getToolbar()
 
     override fun setupViews(mStatusBarColor: Int, mTitle: String, mOutputDirectory: String, mGesture: Int, mAspectRatio: FloatArray, mMaxWidthHeight: IntArray, mController: Controller) {
         // 标题同步状态栏颜色
