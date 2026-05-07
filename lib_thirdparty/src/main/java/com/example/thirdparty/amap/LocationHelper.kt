@@ -9,7 +9,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
@@ -22,20 +21,18 @@ import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.NotificationUtil.builder
 import com.example.thirdparty.utils.NotificationUtil.notificationId
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  *  Created by wangyanbin
- *  定位-必须要有定位权限，否则定位失败，可以不开gps会走网络定位
- *  定位工具类写成class避免每次init都要初始化
- *  1.先实现回调
- *  2.key文件一定要校准
- *  3.选择3d地图定位套件
+ *  定位必须具备定位权限，否则定位失败，可以不开gps会走网络定位
+ *  1) 先实现回调 (页面ActivityResultRegistrar传入)
+ *  2) key文件一定要校准 (https://lbs.amap.com/api/)
+ *  3) 选择3d地图定位套件 (https://lbs.amap.com/api/android-sdk/download)
  */
 class LocationHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : AMapLocationListener, LifecycleEventObserver {
     private var retry = false
@@ -136,16 +133,15 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             return
         }
         retry = true
-        mActivity.lifecycle.coroutineScope.launch {
-            delay(retryTime)
-            clear()
-        }
+        schedule(mActivity, {
+            retry = false
+        }, retryTime)
         try {
             locationClient?.startLocation()
         } catch (e: Exception) {
             e.printStackTrace()
             listener?.onLocationChanged(null, false)
-            clear()
+            retry = false
         }
     }
 
@@ -158,13 +154,6 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         // 结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
         locationClient?.stopLocation()
         // 清空消息
-        clear()
-    }
-
-    /**
-     * 清除消息队列
-     */
-    private fun clear() {
         retry = false
     }
 

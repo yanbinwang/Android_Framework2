@@ -1,5 +1,6 @@
 package com.example.thirdparty.amap
 
+import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
@@ -11,7 +12,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps.AMap
+import com.amap.api.maps.AMapUtils
 import com.amap.api.maps.CameraUpdateFactory
+import com.amap.api.maps.CoordinateConverter
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
@@ -30,7 +33,7 @@ import kotlin.math.roundToInt
 
 /**
  *  Created by wangyanbin
- *  高德地图工具类
+ *  高德地图工具类 (https://lbs.amap.com/api/android-sdk/guide/computing-equipment/coordinate-transformation)
  *  override fun onSaveInstanceState(outState: Bundle) {
  *     super.onSaveInstanceState(outState)
  *     helper.saveInstanceState(outState)
@@ -68,6 +71,42 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      */
     val isSuccessful get() = aMapLocation != null
 
+    companion object {
+        /**
+         * 支持GPS/Mapbar/Baidu等多种类型坐标在高德地图上使用
+         */
+        @JvmStatic
+        fun convert(context: Context, sourceLatLng: LatLng, type: CoordinateConverter.CoordType = CoordinateConverter.CoordType.GPS): LatLng {
+            val converter = CoordinateConverter(context)
+            // CoordType.GPS 待转换坐标类型
+            converter.from(type)
+            // sourceLatLng待转换坐标点 LatLng类型
+            converter.coord(sourceLatLng)
+            // 执行转换操作
+            return converter.convert()
+        }
+
+        /**
+         * 两点间的直线距离计算
+         * 根据用户指定的两个经纬度坐标点，计算这两个点间的直线距离，单位为米
+         */
+        @JvmStatic
+        fun calculateLineDistance(latLng1: LatLng, latLng2: LatLng): Float {
+            return AMapUtils.calculateLineDistance(latLng1,latLng2)
+        }
+
+        /**
+         * 面积计算
+         */
+        @JvmStatic
+        fun calculateArea(leftTopLatlng: LatLng, rightBottomLatlng: LatLng): Float {
+            return AMapUtils.calculateArea(leftTopLatlng,rightBottomLatlng)
+        }
+    }
+
+    /**
+     * 绑定页面生命周期
+     */
     init {
         mActivity.lifecycle.addObserver(this)
     }
@@ -83,9 +122,11 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
         // 更改地图view设置
         mapView?.viewTreeObserver?.addOnGlobalLayoutListener {
             try {
-                val child = mapView.getChildAt(0) as? ViewGroup //地图框架
+                // 地图框架
+                val child = mapView.getChildAt(0) as? ViewGroup
                 val logo = child?.getChildAt(2)
-                logo?.gone() //隐藏logo
+                // 隐藏logo
+                logo?.gone()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
