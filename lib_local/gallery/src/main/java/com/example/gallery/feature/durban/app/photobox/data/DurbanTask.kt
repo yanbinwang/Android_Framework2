@@ -100,17 +100,17 @@ class DurbanTask(private val activity: FragmentActivity) {
     /**
      * 从文件加载图片 → 纠正旋转 → 返回 Bitmap
      */
-    fun loadExecute(imageView: WeakReference<TransformImageView>, mLoad: DurbanLoad, imagePath: String) {
+    fun loadExecute(mImage: WeakReference<TransformImageView>, mLoad: DurbanLoad, mPath: String) {
         loadJob?.cancel()
         loadJob = activity.lifecycleScope.launch(Main.immediate) {
             flow {
-                emit(requestAffair { mLoad.load(imagePath) })
+                emit(requestAffair { mLoad.load(mPath) })
             }.withHandling(err = {
-                imageView.get()?.getTransformImageListener()?.onLoadFailure()
+                mImage.get()?.getTransformImageListener()?.onLoadFailure()
             }, end = {
-                imageView.get().appear()
+                mImage.get().appear()
             }).onStart {
-                imageView.get().gone()
+                mImage.get().gone()
             }.collect { (bitmap, exifInfo) ->
                 load.postValue(bitmap to exifInfo)
             }

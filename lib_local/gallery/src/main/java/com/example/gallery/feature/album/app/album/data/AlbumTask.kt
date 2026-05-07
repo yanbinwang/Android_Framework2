@@ -77,11 +77,11 @@ class AlbumTask(private val owner: LifecycleOwner) {
     /**
      * 拍摄结束,对文件路径做一个转换
      */
-    fun pathConversionExecute(mConversion: PathConversion, result: String) {
+    fun pathConversionExecute(mConversion: PathConversion, mResult: String) {
         conversionJob?.cancel()
         conversionJob = owner.lifecycleScope.launch(Main.immediate) {
             flow {
-                emit(requestAffair { mConversion.convert(result) })
+                emit(requestAffair { mConversion.convert(mResult) })
             }.withHandling(err = {
                 conversion.postValue(AlbumFile())
             }).collect {
