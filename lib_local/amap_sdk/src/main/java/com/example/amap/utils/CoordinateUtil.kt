@@ -1,7 +1,5 @@
 package com.example.amap.utils
 
-import android.content.Context
-import com.amap.api.maps.CoordinateConverter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
 import com.example.framework.utils.function.value.toSafeDouble
@@ -19,7 +17,8 @@ import kotlin.math.sqrt
 
 /**
  *  Created by wangyanbin
- *  提供了百度坐标（BD09）、国测局坐标（火星坐标，GCJ02）、和WGS84坐标系之间的转换
+ *  1) 提供了百度坐标（BD09）、国测局坐标（火星坐标，GCJ02）、和WGS84坐标系之间的转换
+ *  2) 高德地图计算文档 : https://lbs.amap.com/api/android-sdk/guide/computing-equipment/coordinate-transformation
  */
 object CoordinateUtil {
     // 地球物理参数
@@ -105,7 +104,7 @@ object CoordinateUtil {
      */
     @JvmStatic
     fun generateRandomPoint(minLon: Double, maxLon: Double, minLat: Double, maxLat: Double): LatLng {
-        val lon = BigDecimal(Math.random() * (maxLon - minLon) + minLon).setScale(6, RoundingMode.HALF_UP).toSafeDouble() //小数后6位
+        val lon = BigDecimal(Math.random() * (maxLon - minLon) + minLon).setScale(6, RoundingMode.HALF_UP).toSafeDouble()
         val lat = BigDecimal(Math.random() * (maxLat - minLat) + minLat).setScale(6, RoundingMode.HALF_UP).toSafeDouble()
         return LatLng(lat, lon)
     }
@@ -218,7 +217,7 @@ object CoordinateUtil {
      * @return 坐标是否在国内
      */
     private fun isOutOfChina(lng: Double, lat: Double): Boolean {
-        return lng < 72.004 || lng > 137.8347 || lat < 0.8293 || lat > 55.8271
+        return lng !in 72.004..137.8347 || lat < 0.8293 || lat > 55.8271
     }
 
     private fun transformLat(lng: Double, lat: Double): Double {
@@ -235,21 +234,6 @@ object CoordinateUtil {
         ret += (20.0 * sin(lng * Math.PI) + 40.0 * sin(lng / 3.0 * Math.PI)) * 2.0 / 3.0
         ret += (150.0 * sin(lng / 12.0 * Math.PI) + 300.0 * sin(lng / 30.0 * Math.PI)) * 2.0 / 3.0
         return ret
-    }
-
-    /**
-     * 高德自带转换
-     * https://lbs.amap.com/api/android-sdk/guide/computing-equipment/coordinate-transformation
-     */
-    @JvmStatic
-    fun convert(context: Context, sourceLatLng: LatLng, type: CoordinateConverter.CoordType = CoordinateConverter.CoordType.GPS): LatLng {
-        val converter = CoordinateConverter(context)
-        // CoordType.GPS 待转换坐标类型
-        converter.from(type)
-        // sourceLatLng待转换坐标点 LatLng类型
-        converter.coord(sourceLatLng)
-        // 执行转换操作
-        return converter.convert()
     }
 
 }
