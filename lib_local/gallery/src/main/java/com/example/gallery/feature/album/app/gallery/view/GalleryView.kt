@@ -7,11 +7,13 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.viewpager.widget.ViewPager
+import androidx.viewpager2.widget.ViewPager2
 import com.example.common.utils.function.openVideo
 import com.example.common.widget.AppToolbar.Companion.KEY_RIGHT_TEXT
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.hideFadingEdge
+import com.example.framework.utils.function.view.setOnPageChangeListener
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.adapter.PreviewAdapter
@@ -27,7 +29,7 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
     // 右上角完成按钮
     private var mCompleteMenu: TextView? = null
     // 预览 ViewPager
-    private val mViewPager = activity.findViewById<ViewPager>(R.id.view_pager)
+    private val mViewPager = activity.findViewById<ViewPager2>(R.id.view_pager)
     // 底部操作栏
     private val mLayoutMenu = activity.findViewById<RelativeLayout>(R.id.layout_menu)
     // 视频时长文字
@@ -50,8 +52,7 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
     override fun setupViews(widget: Widget, checkable: Boolean) {
         // 标题同步状态栏颜色
         mToolbar
-            .setTitle("", bgColor = R.color.albumGalleryBackground)
-            .setLeftButton(tintColor = R.color.galleryIconLight) {
+            .setSecondaryTitle(tintColor = R.color.galleryIconLight, bgColor = R.color.albumGalleryBackground) {
                 getPresenter().navigateBack()
             }
             .setRightText(getString(R.string.album_menu_finish), widget.getTextTintColor()) {
@@ -70,8 +71,10 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
             mCheckBox.setTextColor(itemSelector)
         }
         // 页面滑动监听
-        mViewPager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
+        mViewPager.hideFadingEdge()
+        mViewPager.setOnPageChangeListener(getObserver(), object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
                 getPresenter().onCurrentChanged(position)
             }
         })
@@ -81,7 +84,7 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
      * 切换到指定位置的图片
      */
     override fun setCurrentItem(position: Int) {
-        mViewPager.setCurrentItem(position)
+        mViewPager.currentItem = position
     }
 
     /**
@@ -163,10 +166,10 @@ class GalleryView<Data>(activity: AppCompatActivity, presenter: Contract.Gallery
             itemClickAction(true)
         }
         // 设置预加载数量
-        if (adapter.count > 3) {
-            mViewPager.setOffscreenPageLimit(3)
-        } else if (adapter.count > 2) {
-            mViewPager.setOffscreenPageLimit(2)
+        if (adapter.itemCount > 3) {
+            mViewPager.offscreenPageLimit = 3
+        } else if (adapter.itemCount > 2) {
+            mViewPager.offscreenPageLimit = 2
         }
         mViewPager.setAdapter(adapter)
     }

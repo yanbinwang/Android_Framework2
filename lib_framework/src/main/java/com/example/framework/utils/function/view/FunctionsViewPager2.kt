@@ -23,7 +23,7 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
 }
 
 /**
- * ViewPager2隐藏fadingEdge
+ * ViewPager2隐藏fadingEdge (剔除左右滑动会有的果冻回弹效果)
  */
 fun ViewPager2?.hideFadingEdge() {
     this ?: return

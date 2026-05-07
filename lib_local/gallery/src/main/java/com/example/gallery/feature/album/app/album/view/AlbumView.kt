@@ -108,13 +108,13 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
         // 点击选择框
         mAdapter?.setCheckedClickListener(object : OnCheckedClickListener {
             override fun onCheckedClick(button: CompoundButton?, position: Int) {
-                getPresenter().tryCheckItem(button, position)
+                getPresenter().checkItem(button, position)
             }
         })
         // 点击预览图片
         mAdapter?.setItemClickListener(object : OnItemClickListener {
             override fun onItemClick(view: View?, position: Int) {
-                getPresenter().tryPreviewItem(position)
+                getPresenter().previewItem(position)
             }
         })
         mRecyclerView.setAdapter(mAdapter)
@@ -179,7 +179,7 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
         when (v?.id) {
             R.id.toolbar -> mRecyclerView.smoothScrollToPosition(0)
             R.id.layout_switch_dir -> getPresenter().clickFolderSwitch()
-            R.id.layout_preview -> getPresenter().tryPreviewChecked()
+            R.id.layout_preview -> getPresenter().previewCheckedItem()
         }
     }
 
