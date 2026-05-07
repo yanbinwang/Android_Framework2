@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit
  * date: 2017/11/15.
  */
 @GlideModule
-open class GlideModule : AppGlideModule() {
+class GlideModule : AppGlideModule() {
     // 加载图片不能做拦截，重新声明请求类
     private val okHttpClient by lazy {
         OkHttpClient.Builder()
