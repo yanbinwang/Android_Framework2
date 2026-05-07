@@ -2,19 +2,20 @@ package com.example.gallery.feature.album.adapter
 
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.ImageView
-import androidx.viewpager.widget.PagerAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.example.gallery.R
 import com.example.gallery.feature.album.bean.AlbumFile
 import com.example.gallery.feature.album.widget.photoview.AttacherImageView
 import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
 
 /**
- * 图片预览适配器（给 ViewPager 用）
+ * 图片预览适配器
  * 基类适配器，专门用于预览大图，支持：
  * 点击、长按、缩放（PhotoView）子类只需要实现图片加载逻辑即可
  */
-abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
+abstract class PreviewAdapter<T>(private val previewList: List<T>) : RecyclerView.Adapter<PreviewAdapter.PreviewViewHolder>(), PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
     // 单击监听
     private var mItemClickListener: View.OnClickListener? = null
     // 长按监听
@@ -23,33 +24,30 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
     /**
      * 条目数量
      */
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return previewList.size
     }
 
     /**
-     * View 是否对应对象（固定写法）
+     * 创建预览页面
      */
-    override fun isViewFromObject(view: View, any: Any): Boolean {
-        return view == any
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PreviewViewHolder {
+        return PreviewViewHolder(AttacherImageView(parent.context))
     }
 
     /**
-     * 创建预览页面
-     * 1) 创建可缩放的 ImageView
-     * 2) 绑定点击/长按
-     * 3) 让子类去加载图片
+     * 帮你预览页数据
      */
-    override fun instantiateItem(container: ViewGroup, position: Int): Any {
+    override fun onBindViewHolder(holder: PreviewViewHolder, position: Int) {
+        // 获取支持 PhotoView 的 ImageView
+        val imageView = holder.itemView as AttacherImageView
         // 获取此次加载使用的数据体
         val item = previewList[position]
-        // 创建支持 PhotoView 的 ImageView
-        val imageView = AttacherImageView(container.context)
-        imageView.layoutParams = ViewGroup.LayoutParams(-1, -1)
+        // 每次复用时先重置点击，防止旧事件干扰
+        imageView.setOnClickListener(null)
+        imageView.setOnLongClickListener(null)
         // 子类实现：加载图片
         loadPreview(imageView, item, position)
-        // 添加到 ViewPager
-        container.addView(imageView)
         // 视频单独处理
         if (item is AlbumFile && item.mediaType == AlbumFile.TYPE_VIDEO) {
             imageView.showPlayIcon(R.mipmap.album_ic_video_gallery)
@@ -80,14 +78,6 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
             // 设置手势控制器
             imageView.setAttacher(attacher)
         }
-        return imageView
-    }
-
-    /**
-     * 销毁页面
-     */
-    override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
-        container.removeView(any as View)
     }
 
     /**
@@ -123,5 +113,14 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
      * 子类必须实现：加载图片
      */
     abstract fun loadPreview(imageView: ImageView, item: T, position: Int)
+
+    /**
+     * 加载holder整体
+     */
+    class PreviewViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        init {
+            itemView.layoutParams = ViewGroup.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+        }
+    }
 
 }
