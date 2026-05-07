@@ -14,8 +14,7 @@ import com.example.gallery.feature.album.widget.photoview.PhotoViewAttacher
  * 基类适配器，专门用于预览大图，支持：
  * 点击、长按、缩放（PhotoView）子类只需要实现图片加载逻辑即可
  */
-abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener,
-    View.OnLongClickListener {
+abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapter(), PhotoViewAttacher.OnViewTapListener, View.OnLongClickListener {
     // 单击监听
     private var mItemClickListener: View.OnClickListener? = null
     // 长按监听
@@ -123,6 +122,6 @@ abstract class PreviewAdapter<T>(private val previewList: List<T>) : PagerAdapte
     /**
      * 子类必须实现：加载图片
      */
-    protected abstract fun loadPreview(imageView: ImageView, item: T, position: Int)
+    abstract fun loadPreview(imageView: ImageView, item: T, position: Int)
 
 }
