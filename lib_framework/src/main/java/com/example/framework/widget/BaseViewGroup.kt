@@ -13,8 +13,8 @@ import com.example.framework.utils.function.view.getLifecycleOwner
 
 /**
  * 自定义控件继承ViewGroup需要清除边距，使用当前类做处理
- * 1) 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
- * 2) 如果嵌套NestedScrollView记得添加属性android:fillViewport="true"保证子布局撑满
+ * 1) 自定义控件如果宽度是手机宽度，则可用当前 BaseViewGroup，否则推荐使用继承FrameLayout
+ * 2) 如果嵌套 NestedScrollView 记得添加属性 android:fillViewport="true" 保证子布局撑满
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     private var isAdded = false
@@ -22,28 +22,21 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     protected val shouldInflate get() = childCount <= 0 // 检测布局绘制 -> 只容许容器内有一个插入的xml
 
     /**
-     * 手动绑定 LifecycleOwner（用于代码创建的 View）
-     */
-    open fun addLifecycleOwner(owner: LifecycleOwner) {
-        if (isAdded || lifecycleOwner != null) return
-        lifecycleOwner = owner
-        isAdded = true
-    }
-
-    /**
-     * 自动绑定 LifecycleOwner（XML 布局或已附加到窗口的情况）
+     * 自动绑定 LifecycleOwner , 分两种触发条件
+     * 1) XML 布局已附加到窗口的情况 (类加载器执行完毕)
+     * 2) 父容器已经在屏幕上显示了（如 Activity 里的布局） 此时父容器调用 addView() 方法 (parentAlreadyOnScreen.addView(yourNewView); )
      */
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (isAdded || lifecycleOwner != null) return
-        lifecycleOwner = getLifecycleOwner()
-        isAdded = true
+        getLifecycleOwner()?.let { addLifecycleOwner(it) }
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        isAdded = false // 解绑后重置标记
-        lifecycleOwner = null // 清空引用
+        // 解绑后重置标记
+        isAdded = false
+        // 清空引用
+        lifecycleOwner = null
     }
 
     /**
@@ -199,6 +192,15 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
     override fun addView(child: View?, index: Int, params: LayoutParams?) {
         require(isEmpty()) { "容器只能包含一个子视图（XML 根布局）" }
         super.addView(child, index, params)
+    }
+
+    /**
+     * 手动绑定 LifecycleOwner（用于代码创建的 View）
+     */
+    open fun addLifecycleOwner(owner: LifecycleOwner) {
+        if (isAdded || lifecycleOwner != null) return
+        lifecycleOwner = owner
+        isAdded = true
     }
 
     /**
