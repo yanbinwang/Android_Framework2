@@ -18,17 +18,17 @@ import com.example.glide.ImageLoader
  *  广告适配器
  */
 @SuppressLint("NotifyDataSetChanged")
-class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.AdvertisingViewHolder>() {
     private var radius = 0
     private var localAsset = false
     private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(CardView(parent.context).also { it.init(radius.ptFloat) })
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdvertisingViewHolder {
+        return AdvertisingViewHolder(CardView(parent.context).also { it.init(radius.ptFloat) })
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: AdvertisingViewHolder, position: Int) {
         (holder.itemView as? CardView)?.let {
             val index = position.mod(list.safeSize)
             val uri = list.safeGet(index) ?: return
@@ -63,7 +63,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         this.onItemClick = onItemClick
     }
 
-    class ViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
+    class AdvertisingViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
         init {
             itemView.layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }

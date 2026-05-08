@@ -11,7 +11,6 @@ import okhttp3.Response
 import okhttp3.internal.http.promisesBody
 import okio.Buffer
 import java.io.IOException
-import java.nio.charset.Charset
 
 /**
  * author: wyb
@@ -21,7 +20,7 @@ import java.nio.charset.Charset
  * 返回日志过长的话，也会打印不完整
  */
 class LoggingInterceptor : Interceptor {
-    private val UTF8 by lazy { Charset.forName("UTF-8") }
+    private val utf8 by lazy { Charsets.UTF_8 }
     private val excludedUrls by lazy { arrayOf("user/uploadImg") }
 
     @Throws(IOException::class)
@@ -66,7 +65,7 @@ class LoggingInterceptor : Interceptor {
         return if (requestBody != null && !bodyEncoded(request.headers)) {
             val buffer = Buffer()
             requestBody.writeTo(buffer)
-            val charset = requestBody.contentType()?.charset(UTF8) ?: UTF8
+            val charset = requestBody.contentType()?.charset(utf8) ?: utf8
             if (isPlaintext(buffer)) buffer.readString(charset) else null
         } else {
             null
@@ -79,7 +78,7 @@ class LoggingInterceptor : Interceptor {
             val source = responseBody.source()
             source.request(Long.MAX_VALUE)
             val buffer = source.buffer
-            val charset = responseBody.contentType()?.charset(UTF8) ?: UTF8
+            val charset = responseBody.contentType()?.charset(utf8) ?: utf8
             if (isPlaintext(buffer) && responseBody.contentLength() != 0L) {
                 return buffer.clone().readString(charset)
             }
