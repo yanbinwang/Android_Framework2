@@ -13,21 +13,21 @@ import com.example.framework.utils.function.view.getLifecycleOwner
 
 /**
  * 自定义控件继承ViewGroup需要清除边距，使用当前类做处理
- * 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
- * 如果嵌套NestedScrollView记得添加属性android:fillViewport="true"保证子布局撑满
+ * 1) 自定义控件如果宽度是手机宽度，则可用当前BaseViewGroup，否则推荐使用继承FrameLayout
+ * 2) 如果嵌套NestedScrollView记得添加属性android:fillViewport="true"保证子布局撑满
  */
 abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ViewGroup(context, attrs, defStyleAttr) {
     private var isAdded = false
     protected var lifecycleOwner: LifecycleOwner? = null
-    protected val isInflate get() = childCount <= 0 //检测布局绘制->只容许容器内有一个插入的xml
+    protected val shouldInflate get() = childCount <= 0 // 检测布局绘制 -> 只容许容器内有一个插入的xml
 
     /**
      * 手动绑定 LifecycleOwner（用于代码创建的 View）
      */
     open fun addLifecycleOwner(owner: LifecycleOwner) {
-        if (isAdded) return
+        if (isAdded || lifecycleOwner != null) return
         lifecycleOwner = owner
-        ensureAdded()
+        isAdded = true
     }
 
     /**
@@ -35,20 +35,15 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
      */
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
-        if (isAdded) return
+        if (isAdded || lifecycleOwner != null) return
         lifecycleOwner = getLifecycleOwner()
-        ensureAdded()
+        isAdded = true
     }
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         isAdded = false // 解绑后重置标记
         lifecycleOwner = null // 清空引用
-    }
-
-    private fun ensureAdded() {
-        if (isAdded) return
-        isAdded = true
     }
 
     /**
@@ -99,17 +94,21 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
                 // 如果子视图宽度为 MATCH_PARENT，使用父容器的精确宽度
                 LayoutParams.MATCH_PARENT -> {
                     if (widthMode == MeasureSpec.UNSPECIFIED) {
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                        // 父容器无限制，子视图也无限制
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED)
                     } else {
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY) // 父容器有确定尺寸，子视图填充
+                        // 父容器有确定尺寸，子视图填充
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.EXACTLY)
                     }
                 }
                 // 如果子视图宽度为 WRAP_CONTENT，使用父容器的 AT_MOST 模式
                 LayoutParams.WRAP_CONTENT -> {
                     if (widthMode == MeasureSpec.UNSPECIFIED) {
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                        // 父容器无限制，子视图也无限制
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.UNSPECIFIED)
                     } else {
-                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.AT_MOST) // 子视图不能超过父容器
+                        // 子视图不能超过父容器
+                        MeasureSpec.makeMeasureSpec(widthSize, MeasureSpec.AT_MOST)
                     }
                 }
                 // 如果子视图有固定宽度，使用精确模式，以子视图为主
@@ -120,16 +119,20 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
             childHeightMeasureSpec = when (childLayoutParams.height) {
                 LayoutParams.MATCH_PARENT -> {
                     if (heightMode == MeasureSpec.UNSPECIFIED) {
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                        // 父容器无限制，子视图也无限制
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED)
                     } else {
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY) // 父容器有确定尺寸，子视图填充
+                        // 父容器有确定尺寸，子视图填充
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.EXACTLY)
                     }
                 }
                 LayoutParams.WRAP_CONTENT -> {
                     if (heightMode == MeasureSpec.UNSPECIFIED) {
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED) // 父容器无限制，子视图也无限制
+                        // 父容器无限制，子视图也无限制
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.UNSPECIFIED)
                     } else {
-                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST) // 子视图不能超过父容器
+                        // 子视图不能超过父容器
+                        MeasureSpec.makeMeasureSpec(heightSize, MeasureSpec.AT_MOST)
                     }
                 }
                 else -> {
@@ -186,7 +189,7 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
         super.onFinishInflate()
         // 确保 onInflate() 在视图完成布局后再执行，避免因布局未就绪导致的测量问题，如Viewpager2缓存导致页面高度为0
         doOnceAfterLayout {
-            if (isInflate) onInflate()
+            if (shouldInflate) onInflate()
         }
     }
 

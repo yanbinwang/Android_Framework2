@@ -93,7 +93,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     override fun onInflate() {
-        if (isInflate) {
+        if (shouldInflate) {
             when (refreshEnable) {
                 false -> {
                     root.addView(recycler)

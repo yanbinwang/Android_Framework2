@@ -94,7 +94,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(mBinding.root)
     }
 
     fun setText(@StringRes resid: Int) {
