@@ -11,17 +11,16 @@ import okhttp3.Response
 import okhttp3.internal.http.promisesBody
 import okio.Buffer
 import java.io.IOException
-import java.nio.charset.Charset
 
 /**
  * author: wyb
  * date: 2019/7/9.
  * 日志输出类
- * 需要注意的是文件流上传不能拦截，会造成闪退（已处理）
- * 返回日志过长的话，也会打印不完整
+ * 1) 文件流/上传等不做拦截，否则会造成应用闪退（需手动在 excludedUrls 中添加过滤名单）
+ * 2) 返回日志过长，会导致打印不完整 (日志上限最高为编译器 3500 字符)
  */
 class LoggingInterceptor : Interceptor {
-    private val UTF8 by lazy { Charset.forName("UTF-8") }
+    private val utf8 by lazy { Charsets.UTF_8 }
     private val excludedUrls by lazy { arrayOf("user/uploadImg") }
 
     @Throws(IOException::class)
@@ -34,7 +33,9 @@ class LoggingInterceptor : Interceptor {
         // 请求地址
         val url = request.url.toString()
         // 不包含服务器地址的属于下载地址或图片加载地址，不做拦截
-        if (!url.contains(ServerConfig.serverUrl())) return chain.proceed(request)
+        if (!url.contains(ServerConfig.serverUrl())) {
+            return chain.proceed(request)
+        }
         // 请求参数(上传文件接口文本量过大，请求参数不做拦截)
         val params = if (excludedUrls.any { url.contains(it) }) {
             "大文本或文件上传"
@@ -62,11 +63,11 @@ class LoggingInterceptor : Interceptor {
     }
 
     private fun getRequestBody(request: Request?): String? {
-        val requestBody = request?.body
-        return if (requestBody != null && !bodyEncoded(request.headers)) {
+        val requestBody = request?.body ?: return null
+        return if (!bodyEncoded(request.headers)) {
             val buffer = Buffer()
             requestBody.writeTo(buffer)
-            val charset = requestBody.contentType()?.charset(UTF8) ?: UTF8
+            val charset = requestBody.contentType()?.charset(utf8) ?: utf8
             if (isPlaintext(buffer)) buffer.readString(charset) else null
         } else {
             null
@@ -74,17 +75,16 @@ class LoggingInterceptor : Interceptor {
     }
 
     private fun getResponseBody(response: Response?): String? {
-        val responseBody = response?.body
-        if (responseBody != null) {
-            val source = responseBody.source()
-            source.request(Long.MAX_VALUE)
-            val buffer = source.buffer
-            val charset = responseBody.contentType()?.charset(UTF8) ?: UTF8
-            if (isPlaintext(buffer) && responseBody.contentLength() != 0L) {
-                return buffer.clone().readString(charset)
-            }
+        val responseBody = response?.body ?: return null
+        val source = responseBody.source()
+        source.request(Long.MAX_VALUE)
+        val buffer = source.buffer
+        val charset = responseBody.contentType()?.charset(utf8) ?: utf8
+        return if (isPlaintext(buffer) && responseBody.contentLength() != 0L) {
+            buffer.clone().readString(charset)
+        } else {
+            null
         }
-        return null
     }
 
     private fun bodyEncoded(headers: Headers?): Boolean {
@@ -97,12 +97,17 @@ class LoggingInterceptor : Interceptor {
         buffer ?: return false
         return try {
             val prefix = Buffer()
+            // 只读取前 64 个字节
             val byteCount = buffer.size.coerceAtMost(64)
             buffer.copyTo(prefix, 0, byteCount)
+            // 循环检查前 16 个字符
             for (i in 0..15) {
                 if (prefix.exhausted()) break
                 val codePoint = prefix.readUtf8CodePoint()
-                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) return false
+                // 如果是【控制字符】且【不是空格】 → 判定为二进制/文件
+                if (Character.isISOControl(codePoint) && !Character.isWhitespace(codePoint)) {
+                    return false
+                }
             }
             true
         } catch (_: Exception) {

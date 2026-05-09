@@ -42,7 +42,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(mBinding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {

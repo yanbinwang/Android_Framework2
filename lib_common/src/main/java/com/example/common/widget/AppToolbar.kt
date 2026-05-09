@@ -79,7 +79,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mRootView)
+        if (shouldInflate) addView(mRootView)
     }
 
     /**

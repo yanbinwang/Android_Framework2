@@ -74,11 +74,9 @@ class AlbumView(activity: AppCompatActivity, presenter: Contract.AlbumPresenter)
             mProgressBar.setColorFilter(getColor(widget.statusBarColor))
         }
         // 标题同步状态栏颜色
-        mToolbar
-            .setTitle(widget.title, widget.getTextTintColor(), widget.statusBarColor)
-            .setLeftButton(tintColor = widget.getIconTintColor()) {
-                getPresenter().navigateBack()
-            }
+        mToolbar.setCustomTitle(widget.title, widget.getTextTintColor(), tintColor = widget.getIconTintColor(), bgColor = widget.statusBarColor) {
+            getPresenter().navigateBack()
+        }
         // 单选模式隐藏预览按钮
         if (choiceMode == Album.MODE_SINGLE) {
             mPreview.gone()
