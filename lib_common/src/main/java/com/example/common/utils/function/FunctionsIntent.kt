@@ -219,7 +219,7 @@ private fun Context?.jumpToManageStorageFallbackSetting() {
 /**
  * 跳应用信息页（所有权限的总入口）
  */
-private fun Context?.jumpToAppInfoSetting() {
+fun Context?.jumpToAppInfoSetting() {
     this ?: return
     val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
         data = "package:${packageName}".toUri()

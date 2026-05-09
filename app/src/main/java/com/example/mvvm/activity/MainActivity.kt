@@ -1,9 +1,13 @@
 package com.example.mvvm.activity
 
 import android.annotation.SuppressLint
+import android.app.AppOpsManager
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.common.BaseApplication.Companion.needOpenHome
 import com.example.common.base.BaseActivity
@@ -43,6 +47,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
+import com.example.gallery.feature.durban.Durban
 import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
@@ -50,13 +55,14 @@ import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.therouter.router.Route
-import com.example.gallery.feature.durban.Durban
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeoutOrNull
+import androidx.core.net.toUri
+import com.example.common.utils.function.jumpToAppInfoSetting
 
 /**
  *  <data>
@@ -400,6 +406,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
 //    private val gsyHelper by lazy { GSYVideoHelper(this) }
 
+    // 检查是否支持并开启了画中画
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun isPipEnabled(): Boolean {
+        val appOps = getSystemService(APP_OPS_SERVICE) as AppOpsManager
+        val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_PICTURE_IN_PICTURE, android.os.Process.myUid(), packageName)
+        return mode == AppOpsManager.MODE_ALLOWED
+    }
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
@@ -468,9 +482,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                navigation(RouterPath.ScreenActivity)
-//            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (isPipEnabled()) {
+                    navigation(RouterPath.ScreenActivity)
+                } else {
+                    jumpToAppInfoSetting()
+                }
+            } else {
+                "当前系统版本不支持画中画".shortToast()
+            }
 //            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
@@ -529,18 +549,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions { isGranted, _ ->
-                if (isGranted) {
-//                    pullUpImage()
-//                    gallery.takePicture(true){
-//                        it.shortToast()
-//                    }
-                    gallery.videoMultipleSelection()
-//                    gallery.imageSelection(hasDurban = true)
-//                    gallery.imageMultipleSelection(true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions { isGranted, _ ->
+//                if (isGranted) {
+////                    pullUpImage()
+////                    gallery.takePicture(true){
+////                        it.shortToast()
+////                    }
+//                    gallery.videoMultipleSelection()
+////                    gallery.imageSelection(hasDurban = true)
+////                    gallery.imageMultipleSelection(true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                // 透明背景
