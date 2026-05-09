@@ -482,15 +482,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                if (isPipEnabled()) {
-                    navigation(RouterPath.ScreenActivity)
-                } else {
-                    jumpToAppInfoSetting()
-                }
-            } else {
-                "当前系统版本不支持画中画".shortToast()
-            }
+//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//                if (isPipEnabled()) {
+//                    navigation(RouterPath.ScreenActivity)
+//                } else {
+//                    jumpToAppInfoSetting()
+//                }
+//            } else {
+//                "当前系统版本不支持画中画".shortToast()
+//            }
 //            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
 //            val trueList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
@@ -549,18 +549,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            navigation(ARouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-//            mPermission.requestPermissions { isGranted, _ ->
-//                if (isGranted) {
-////                    pullUpImage()
-////                    gallery.takePicture(true){
-////                        it.shortToast()
-////                    }
-//                    gallery.videoMultipleSelection()
-////                    gallery.imageSelection(hasDurban = true)
-////                    gallery.imageMultipleSelection(true)
-////                    navigation(ARouterPath.TestActivity)
-//                }
-//            }
+            mPermission.requestPermissions { isGranted, _ ->
+                if (isGranted) {
+//                    pullUpImage()
+//                    gallery.takePicture(true){
+//                        it.shortToast()
+//                    }
+                    gallery.videoMultipleSelection()
+//                    gallery.imageSelection(hasDurban = true)
+//                    gallery.imageMultipleSelection(true)
+//                    navigation(ARouterPath.TestActivity)
+                }
+            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                // 透明背景
