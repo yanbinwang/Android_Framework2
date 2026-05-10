@@ -161,6 +161,9 @@ object ToastBuilder {
 
 }
 
+/**
+ * string地址/文字引用扩展
+ */
 fun Int?.shortToast() {
     this ?: return
     ToastBuilder.short(this)
