@@ -3,10 +3,8 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.common.BaseApplication.Companion.needOpenHome
@@ -61,8 +59,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withTimeoutOrNull
-import androidx.core.net.toUri
-import com.example.common.utils.function.jumpToAppInfoSetting
 
 /**
  *  <data>
@@ -422,12 +418,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
 //        gsyHelper.bind(mBinding?.gsyPlayer, true)
 //        // 竖屏
-////        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
+//        gsyHelper.setUrl("https://sxlp.linan.gov.cn:9082/app/v1/login/show?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0aW1lc3RhbXAiOjE3NjA0MTU0NTQsInJhbmQiOjQzNjk2LCJmaWxlUGF0aCI6InVwbG9hZHMvMjAyNS8wOS8yMi8xMTc2ODIyODE0NTYxMjc1OTA1Lm1wNCJ9.xXRF5pDtSDjZ4dAKzWsUDVNlid_HWI9y6VzdyRGdBSc")
 //        // 横屏
 //        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
-//        gsyHelper.setOnQuitFullscreenListener {
-//            initImmersionBar()
-//        }
+//        gsyHelper.setOnGSYVideoPlayerListener(object : OnGSYVideoPlayerListener {
+//            override fun onQuitFullscreen(url: String?, vararg objects: Any?) {
+//                super.onQuitFullscreen(url, *objects)
+//                initImmersionBar()
+//            }
+//        })
 //
 //
 //        mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
