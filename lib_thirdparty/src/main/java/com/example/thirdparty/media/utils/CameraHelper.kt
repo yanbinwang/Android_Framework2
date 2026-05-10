@@ -325,7 +325,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //                    } catch (_: Exception) {
 //                    }
 //                }
-                sourcePath = null
+                cvFinder?.clearCameraListeners()
                 cvFinder = null
                 source.lifecycle.removeObserver(this)
             }
