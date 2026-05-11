@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseAdapter
 import com.example.common.base.binding.adapter.BaseViewDataBindingHolder
 import com.example.common.utils.function.pt
-import com.example.common.widget.xrecyclerview.RecyclerSpacingDecoration
-import com.example.common.widget.xrecyclerview.RecyclerSpacingDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.SpacingDecoration
+import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
@@ -117,7 +117,7 @@ class VicinityAdapter : BaseAdapter<TestBean?>() {
         val propMap = SparseArray<ItemDecorationProps>()
         val prop1 = ItemDecorationProps(10.pt, 10.pt, true, true)
         propMap.put(TYPE_BODY, prop1)
-        recycler.addItemDecoration(RecyclerSpacingDecoration(propMap))
+        recycler.addItemDecoration(SpacingDecoration(propMap))
     }
 
     /**
