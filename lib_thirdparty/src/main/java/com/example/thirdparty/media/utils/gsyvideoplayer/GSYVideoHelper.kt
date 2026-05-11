@@ -303,7 +303,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         player.initialize(mBinding.root, showTitle, showBack, showFullScreen)
         // 返回处理
         if (showBack) {
-            setCustomBack {
+            player?.backButton.click {
                 mActivity.finish()
             }
         }
