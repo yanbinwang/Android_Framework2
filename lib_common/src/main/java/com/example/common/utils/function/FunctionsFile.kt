@@ -517,14 +517,14 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
  */
 fun File?.getFirstFileInDirectory(): String? {
     // 检查目录是否合法
-    if (this == null || !this.exists() || !this.isDirectory()) {
+    if (this == null || !this.exists() || !this.isDirectory) {
         "目录不存在或不是文件夹".logWTF
         return null
     }
     // 获取目录下所有文件/文件夹（过滤隐藏文件）
     val files = this.listFiles { file ->
         // 仅保留「非隐藏」且「是文件」的项（排除文件夹）
-        !file.isHidden() && file.isFile()
+        !file.isHidden && file.isFile
     }
     // 判断是否有文件，返回第一个文件的路径
     if (files != null && files.size > 0) {
