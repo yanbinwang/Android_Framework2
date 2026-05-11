@@ -1,4 +1,4 @@
-package com.example.common.widget.xrecyclerview.manager
+package com.example.common.widget.xrecyclerview
 
 import android.annotation.SuppressLint
 import android.graphics.Rect
@@ -7,7 +7,6 @@ import android.view.View
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.OrientationHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
@@ -17,7 +16,7 @@ import com.example.framework.utils.function.value.orZero
  * @mPropMap 用于存储「不同 Item 类型」对应的「间距配置」
  */
 @SuppressLint("WrongConstant")
-class SCommonItemDecoration(private val mPropMap: SparseArray<ItemDecorationProps>?) : ItemDecoration() {
+class RecyclerSpacingDecoration(private val mPropMap: SparseArray<ItemDecorationProps>?) : RecyclerView.ItemDecoration() {
 
     /**
      * @outRect 输出参数：存储计算后的 Item 四周间距
