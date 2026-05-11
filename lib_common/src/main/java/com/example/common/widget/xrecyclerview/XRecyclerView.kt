@@ -13,7 +13,7 @@ import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
-import com.example.common.widget.xrecyclerview.RecyclerSpacingDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
@@ -303,7 +303,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         val propMap = SparseArray<ItemDecorationProps>()
         val prop1 = ItemDecorationProps(horizontalSpace.pt, verticalSpace.pt, hasHorizontalEdge, hasVerticalEdge)
         propMap.put(0, prop1)
-        recycler.addItemDecoration(RecyclerSpacingDecoration(propMap))
+        recycler.addItemDecoration(SpacingDecoration(propMap))
     }
 
     /**
