@@ -2,7 +2,9 @@ package com.example.thirdparty.media.utils.gsyvideoplayer
 
 import android.content.res.Configuration
 import android.os.Build
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.Window
 import android.widget.LinearLayout
@@ -234,7 +236,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     restartJob?.cancel()
                     restartJob = mActivity.lifecycleScope.launch {
                         // 允许硬件解码，装载IJK播放器内核
-//                    GSYVideoType.enableMediaCodec()
+//                        GSYVideoType.enableMediaCodec()
                         GSYVideoType.enableMediaCodecTexture()
                         PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                         CacheFactory.setCacheManager(ProxyCacheManager::class.java)
@@ -296,9 +298,16 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 绑定页面-设置基础配资
      */
-    fun <T : StandardGSYVideoPlayer> bind(standardGSYVideoPlayer: T?, showFullScreen: Boolean = false) {
+    fun <T : StandardGSYVideoPlayer> bind(standardGSYVideoPlayer: T?, showTitle: Boolean = false, showBack: Boolean = false, showFullScreen: Boolean = false) {
         player = standardGSYVideoPlayer
-        player.initialize(mBinding.root, showFullScreen = showFullScreen)
+        player.initialize(mBinding.root, showTitle, showBack, showFullScreen)
+        // 返回处理
+        if (showBack) {
+            setCustomBack {
+                mActivity.finish()
+            }
+        }
+        // 全屏处理
         if (showFullScreen) {
             // 外部辅助的旋转，帮助全屏
             orientationUtils = OrientationUtils(mActivity, player)
@@ -310,6 +319,44 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 // 第一个true是否需要隐藏actionbar，第二个true是否需要隐藏 StatusBar
                 player?.startWindowFullscreen(player?.context, true, true)
             }
+        }
+    }
+
+    /**
+     * 设置自定义标题
+     */
+    fun setCustomTitle(layoutRes: Int) {
+        // 获取播放器标题
+        val targetTv = player?.titleTextView
+        // 获取标题父容器
+        val parent = targetTv?.parent
+        if (parent !is ViewGroup) {
+            return
+        }
+        // 移除原来的标题
+        parent.removeView(targetTv)
+        val customView = LayoutInflater.from(targetTv.context).inflate(layoutRes, parent, false)
+//        // 继承原 TextView 的宽高、margin、权重等所有参数
+//        customView.layoutParams = targetTv.layoutParams
+        // 添加 View（自动放在原位置）
+        parent.addView(customView)
+    }
+
+    /**
+     * 设置返回
+     */
+    fun setCustomBack(block: () -> Unit = {}) {
+        player?.backButton.click {
+            block.invoke()
+        }
+    }
+
+    /**
+     * 设置全屏
+     */
+    fun setCustomFullScreen(block: () -> Unit = {}) {
+        player?.fullscreenButton.click {
+            block.invoke()
         }
     }
 
