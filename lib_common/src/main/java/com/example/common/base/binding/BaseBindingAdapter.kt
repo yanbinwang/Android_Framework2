@@ -46,6 +46,8 @@ import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
+import com.example.framework.utils.function.view.initStaggeredHorizontal
+import com.example.framework.utils.function.view.initStaggeredVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
@@ -526,11 +528,19 @@ object BaseBindingAdapter {
      * 传统适配器
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(view: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation", "staggered_enabled"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingRecyclerViewAdapter(view: RecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?, staggeredEnabled: Boolean?) {
         val validSpanCount = spanCount ?: 1
         val validOrientation = orientation ?: RecyclerView.VERTICAL
+        val validStaggeredEnabled = staggeredEnabled.orFalse
         when {
+            validStaggeredEnabled -> {
+                if (orientation == RecyclerView.VERTICAL) {
+                    view.initStaggeredVertical(adapter, validSpanCount)
+                } else {
+                    view.initStaggeredHorizontal(adapter, validSpanCount)
+                }
+            }
             validSpanCount <= 1 && validOrientation == RecyclerView.VERTICAL -> {
                 view.initLinearVertical(adapter)
             }
@@ -551,10 +561,10 @@ object BaseBindingAdapter {
      * requireAll设置是否需要全部设置，true了就和设定属性layout_width和layout_height一样，不写就报错
      */
     @JvmStatic
-    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation"], requireAll = false)
-    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(view: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?) {
+    @BindingAdapter(value = ["adapter", "span_count", "layout_orientation", "staggered_enabled"], requireAll = false)
+    fun <T : RecyclerView.Adapter<*>> bindingXRecyclerViewAdapter(view: XRecyclerView, adapter: T, spanCount: Int?, @RecyclerView.Orientation orientation: Int?, staggeredEnabled: Boolean?) {
         val validOrientation = orientation ?: RecyclerView.VERTICAL
-        view.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation)
+        view.setAdapter(adapter, spanCount.toSafeInt(1), validOrientation, staggeredEnabled.orFalse)
     }
 
     /**
@@ -568,10 +578,10 @@ object BaseBindingAdapter {
      *     app:layout_orientation="@{androidx.recyclerview.widget.RecyclerView.HORIZONTAL}" />
      */
     @JvmStatic
-    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation"], requireAll = false)
-    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(view: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?) {
+    @BindingAdapter(value = ["quick_adapter", "span_count", "horizontal_space", "vertical_space", "layout_orientation", "staggered_enabled"], requireAll = false)
+    fun <T : BaseQuickAdapter<*, *>> bindingXRecyclerViewQuickAdapter(view: XRecyclerView, quickAdapter: T, spanCount: Int?, horizontalSpace: Int?, verticalSpace: Int?, @RecyclerView.Orientation orientation: Int?, staggeredEnabled: Boolean?) {
         val validOrientation = orientation ?: RecyclerView.VERTICAL
-        view.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation)
+        view.setQuickAdapter(quickAdapter, spanCount.toSafeInt(1), horizontalSpace.toSafeInt(), verticalSpace.toSafeInt(), validOrientation, staggeredEnabled.orFalse)
     }
     // </editor-fold>
 

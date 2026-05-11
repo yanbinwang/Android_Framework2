@@ -15,10 +15,10 @@ import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 
-//------------------------------------recyclerview扩展函数类------------------------------------
+//------------------------------------RecyclerView扩展函数类------------------------------------
 
 /**
- * 初始化一个recyclerview
+ * 初始化一个 RecyclerView
  */
 fun RecyclerView?.init(hasFixedSize: Boolean = true) {
     this ?: return
@@ -359,26 +359,57 @@ fun RecyclerView?.initLinearVertical(adapter: RecyclerView.Adapter<*>? = null): 
 /**
  * 设置水平的Grid的GridLayoutManager和adapter
  */
-fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, spanCount: Int): GridLayoutManager? {
     this ?: return null
     this.adapter = adapter
-    return GridLayoutManager(context, columns, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
+    return GridLayoutManager(context, spanCount, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
 }
 
 /**
  * 设置垂直的Grid的GridLayoutManager和adapter
  */
-fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, spanCount: Int): GridLayoutManager? {
     this ?: return null
     this.adapter = adapter
-    return GridLayoutManager(context, columns, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+    return GridLayoutManager(context, spanCount, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 设置垂直方向的瀑布流 LayoutManager
+ */
+fun RecyclerView?.initStaggeredVertical(adapter: RecyclerView.Adapter<*>, spanCount: Int): StaggeredGridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL).apply {
+        layoutManager = this
+        // 解决瀑布流滑动时item乱序、跳动、位置错乱问题
+        gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+    }
+}
+
+/**
+ * 设置水平方向的瀑布流 LayoutManager
+ */
+fun RecyclerView?.initStaggeredHorizontal(adapter: RecyclerView.Adapter<*>, spanCount: Int): StaggeredGridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.HORIZONTAL).apply {
+        layoutManager = this
+        gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+    }
 }
 
 /**
  * 设置复杂的多个adapter直接拼接成一个
+ * GridLayoutManager(spanCount = 2) + ConcatAdapter(AdapterA, AdapterB)
+ * 最终排版是全部揉在一起统一两列流式往下走：
+ * A1  A2
+ * A3  B1
+ * B2  B3
  */
-fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>) {
+fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>, manager: RecyclerView.LayoutManager? = null) {
     this ?: return
-    layoutManager = LinearLayoutManager(context)
+    layoutManager = manager ?: LinearLayoutManager(context)
+    // true：各子 Adapter 的 viewType 互相隔离、互不干扰，不会因为不同 Adapter 用了同一个 int 类型值导致缓存错乱
     adapter = ConcatAdapter(ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(), *adapters)
 }

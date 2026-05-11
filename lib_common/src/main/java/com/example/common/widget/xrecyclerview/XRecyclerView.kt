@@ -13,8 +13,7 @@ import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
-import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
-import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.RecyclerSpacingDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
@@ -28,6 +27,8 @@ import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
+import com.example.framework.utils.function.view.initStaggeredHorizontal
+import com.example.framework.utils.function.view.initStaggeredVertical
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
@@ -237,8 +238,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL, isStaggered: Boolean = false) {
         when {
+            // 瀑布流
+            isStaggered -> {
+                if (orientation == RecyclerView.VERTICAL) {
+                    recycler.initStaggeredVertical(adapter, spanCount)
+                } else {
+                    recycler.initStaggeredHorizontal(adapter, spanCount)
+                }
+            }
             // 单列 + 垂直 → 垂直线性布局
             spanCount <= 1 && orientation == RecyclerView.VERTICAL -> {
                 recycler.initLinearVertical(adapter)
@@ -261,20 +270,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置自定义快速适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
-        setAdapter(adapter, spanCount, orientation)
+    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL, isStaggered: Boolean = false) {
+        setAdapter(adapter, spanCount, orientation, isStaggered)
         val hasHorizontalEdge = horizontalSpace > 0
         val hasVerticalEdge = verticalSpace > 0
         if (horizontalSpace <= 0 && verticalSpace <= 0) return
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
-
-//    /**
-//     * 设置横向左右滑动的adapter
-//     */
-//    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
-//        recycler.initLinearHorizontal(adapter)
-//    }
 
     /**
      * 设置复杂的多个adapter直接拼接成一个
@@ -290,8 +292,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      *     }
      * }
      */
-    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
-        recycler.initConcat(*adapters)
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T, manager: RecyclerView.LayoutManager? = null) {
+        recycler.initConcat(*adapters, manager = manager)
     }
 
     /**
@@ -301,7 +303,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         val propMap = SparseArray<ItemDecorationProps>()
         val prop1 = ItemDecorationProps(horizontalSpace.pt, verticalSpace.pt, hasHorizontalEdge, hasVerticalEdge)
         propMap.put(0, prop1)
-        recycler.addItemDecoration(SCommonItemDecoration(propMap))
+        recycler.addItemDecoration(RecyclerSpacingDecoration(propMap))
     }
 
     /**
