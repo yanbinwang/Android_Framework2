@@ -126,48 +126,48 @@ fun getNavigationBarHeight(): Int {
             0
         }
     } else {
-        val decorView = currentActivity.window.decorView
-        if (decorView.hasNavigationBar()) {
-            val insets = ViewCompat.getRootWindowInsets(decorView)
-            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
-        } else {
-            0
-        }
+//        val decorView = currentActivity.window.decorView
+//        if (decorView.hasNavigationBar()) {
+//            val insets = ViewCompat.getRootWindowInsets(decorView)
+//            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+//        } else {
+//            0
+//        }
+        val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
+        insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
     }
 }
 
 /**
  * 读取layer-list的xml内的图片数据
+ * 代码实例:
+ * 1) 读取layer-list的xml内的图片数据
  * <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
- *
- *     <item android:drawable="@color/bgWhite" />
- *
- *     <item android:top="104dp">
- *         <bitmap
- *             android:antialias="true"
- *             android:gravity="top|center_horizontal"
- *             android:scaleType="fitXY"
- *             android:width="300dp"
- *             android:height="354dp"
- *             android:src="@mipmap/bg_splash"
- *             android:tileMode="disabled" />
- *     </item>
- *
+ *   <item android:drawable="@color/bgWhite" />
+ *   <item android:top="104dp">
+ *      <bitmap
+ *          android:antialias="true"
+ *          android:gravity="top|center_horizontal"
+ *          android:scaleType="fitXY"
+ *          android:width="300dp"
+ *          android:height="354dp"
+ *          android:src="@mipmap/bg_splash"
+ *          android:tileMode="disabled" />
+ *   </item>
  * </layer-list>
- * // 1. 目标 item 下标（这里假设是第二个 item，索引为1）
- *  val targetItemIndex = 1
- *  // ImageView?.adjustLayerDrawable扩展
- *  val drawableInfo = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash, targetItemIndex)
- *  // 2. 解析 layer-list 资源
- *  val layerDrawable = drawableInfo?.first
- *  // 3. 获取目标 item
- *  val bitmapDrawable = drawableInfo?.second
- *  // 4. 获取XML中定义的item偏移（margin），单位是dp，需转为px
- *  val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
+ * 2) 目标 item 下标（假设是第二个 item，索引为1） -> 对于 ImageView 资源获取,可查看 ImageView?.adjustLayerDrawable 扩展
+ * val targetItemIndex = 1
+ * val drawableInfo = context.getTypedDrawable<LayerDrawable>(R.drawable.layout_list_splash, targetItemIndex)
+ * 3) 解析 layer-list 资源
+ * val layerDrawable = drawableInfo?.first
+ * 4) 获取目标 item
+ * val bitmapDrawable = drawableInfo?.second
+ * 5) 获取XML中定义的item偏移（margin），单位是dp，需转为px
+ * val marginTopDp = layerDrawable?.getLayerInsetTop(targetItemIndex)
  * // val marginLeftDp = layerDrawable?.getLayerInsetLeft(targetItemIndex)
  * // val marginRightDp = layerDrawable?.getLayerInsetRight(targetItemIndex)
  * // val marginBottomDp = layerDrawable?.getLayerInsetBottom(targetItemIndex)
- *  // 5. 获取XML中定义的bitmap宽高（android:width/android:height）注意：如果XML中是wrap_content，需用bitmap自身尺寸
+ * 6) 获取XML中定义的bitmap宽高（android:width/android:height）注意：如果XML中是wrap_content，需用bitmap自身尺寸
  *  val xmlWidthPx = try {
  *      // 从drawable的固有宽高中获取XML定义的尺寸（仅对显式设置了宽高的有效）
  *      bitmapDrawable?.intrinsicWidth
