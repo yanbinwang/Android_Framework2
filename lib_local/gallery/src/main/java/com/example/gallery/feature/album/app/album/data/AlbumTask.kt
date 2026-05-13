@@ -36,7 +36,7 @@ class AlbumTask(private val owner: LifecycleOwner) {
      * @mCheckedFiles 已经选中的文件（用于回显勾选状态）
      * @mMediaReader 媒体扫描器
      */
-    fun mediaReaderExecute(mFunction: Int, mCheckedFiles: ArrayList<AlbumFile>?, mMediaReader: MediaReader) {
+    fun mediaReaderExecute(mFunction: Int, mCheckedFiles: ArrayList<AlbumFile>, mMediaReader: MediaReader) {
         readerJob?.cancel()
         readerJob = owner.lifecycleScope.launch(Main.immediate) {
             flow {
@@ -50,7 +50,7 @@ class AlbumTask(private val owner: LifecycleOwner) {
                     }
                     // 已选中的文件 -> 整理
                     val checkedFiles = ArrayList<AlbumFile>()
-                    if (!mCheckedFiles.isNullOrEmpty()) {
+                    if (mCheckedFiles.isNotEmpty()) {
                         // 拿到“全部图片/视频”文件夹里的文件
                         val albumFiles = albumFolders[0].albumFiles
                         // 遍历对比，把之前选中的文件重新勾选

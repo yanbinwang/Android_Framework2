@@ -182,8 +182,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             } else {
                 // 显示全部图片
                 showFolderAlbumFiles(0)
-                val count = mCheckedList.size
-                mView.setCheckedCount(count)
+                setCheckedCount()
                 scanAction(false)
             }
         }
@@ -208,8 +207,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                     mView.notifyInsertItem(if (mHasCamera) 1 else 0)
                 }
                 mCheckedList.add(file)
-                val count = mCheckedList.size
-                mView.setCheckedCount(count)
+                setCheckedCount()
                 // 插入行为结束,给予1s动画转圈过渡
                 schedule(this@AlbumActivity, {
                     if (mChoiceMode == Album.MODE_SINGLE) {
@@ -240,7 +238,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         // 开始扫描相册
         mView.setCompleteDisplay(false)
         mView.setLoadingDisplay(true)
-        val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST)
+        val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST) ?: arrayListOf()
         val mediaReader = MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
         mTask.mediaReaderExecute(mFunction, checkedFiles, mediaReader)
     }
