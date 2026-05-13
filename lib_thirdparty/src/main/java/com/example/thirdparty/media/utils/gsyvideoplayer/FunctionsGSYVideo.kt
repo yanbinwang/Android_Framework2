@@ -28,10 +28,8 @@ import tv.danmaku.ijk.media.exo2.Exo2PlayerManager
 import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 import kotlin.math.max
 
+//------------------------------------播放器扩展函数类------------------------------------
 /**
- * @description 播放器帮助类
- * @author yan
- *
  * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
  *
  * <activity
@@ -42,19 +40,19 @@ import kotlin.math.max
 
 /**
  * 设置列表监听
- * //    /**
- * //     * 全屏时写，写在系统的onBackPressed之前
- * //     * @Override
- * //     * public void onBackPressed() {
- * //     * if (GSYVideoManager.backFromWindowFull(this)) {
- * //     * return;
- * //     * }
- * //     * super.onBackPressed();
- * //     * }
- * //     */
- * //    fun onBackPressed(): Boolean {
- * //        return GSYVideoManager.backFromWindowFull(mActivity)
- * //    }
+ * /**
+ *  * 全屏时写，写在系统的onBackPressed之前
+ *  * @Override
+ *  * public void onBackPressed() {
+ *  * if (GSYVideoManager.backFromWindowFull(this)) {
+ *  * return;
+ *  * }
+ *  * super.onBackPressed();
+ *  * }
+ *  */
+ * fun onBackPressed(): Boolean {
+ *     return GSYVideoManager.backFromWindowFull(mActivity)
+ * }
  */
 fun XRecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: String, listener: ((position: Int) -> Unit)) {
     this ?: return
@@ -100,13 +98,13 @@ fun RecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: Strin
             // 大于0说明有播放
             if (position >= 0) {
                 // 对应的播放列表TAG
-                if (GSYVideoManager.instance().playTag.equals(playTag) && (position < firstVisibleItem || position > lastVisibleItem)) {
+                if (GSYVideoManager.instance().playTag.equals(playTag) && (position !in firstVisibleItem..lastVisibleItem)) {
                     if (GSYVideoManager.isFullState(activity)) {
                         return
                     }
                     // 如果滑出去了上面和下面就是否，和今日头条一样
                     GSYVideoManager.releaseAllVideos()
-//                        adapter.notifyDataSetChanged()
+//                    adapter.notifyDataSetChanged()
                     listener.invoke(position)
                 }
             }
@@ -116,22 +114,27 @@ fun RecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: Strin
 
 /**
  * 列表内部每一个选项都会调取
- * 1.视频列表切记不能带有删除功能,如果有的情况下,部分方法需要重构
- * 2.适配器初始化传入helper，然后内部调取setUpLazy方法
+ * 1) 视频列表切记不能带有删除功能,如果有的情况下,部分方法需要重构
+ * 2) 适配器初始化传入helper，然后内部调取setUpLazy方法 (可不写,方法内初始化)
  *
- * @playTag
- * 在 GSYVideoPlayer 的列表播放场景中，playTag 的核心作用是标识「当前播放所属的列表或播放组」，用于区分不同列表或不同播放场景的视频，避免播放状态混乱。
- * 一个列表（或一个独立的播放场景）使用唯一的 playTag，而不是每个 Item 单独设置不同的 Tag。
+ * @tag
+ * 1) 在 GSYVideoPlayer 的列表播放场景中，playTag 的核心作用是标识「当前播放所属的列表或播放组」，用于区分不同列表或不同播放场景的视频，避免播放状态混乱。
+ * 2) 一个列表（或一个独立的播放场景）使用唯一的 playTag，而不是每个 Item 单独设置不同的 Tag。
  */
 @Synchronized
 fun StandardGSYVideoPlayer?.setUpLazy(url: String, position: Int, tag: String) {
     this ?: return
     // 设置每个列表的url
-    setUpLazy(url, true, null, null, "这是title")
-    // 增加title
-    titleTextView?.gone()
-    // 设置返回键
-    backButton?.gone()
+    setUpLazy(url, true, null, null, null)
+//    // 增加title
+//    titleTextView?.gone()
+//    // 设置返回键
+//    backButton?.gone()
+//    // 设置全屏按键功能
+//    fullscreenButton?.click {
+//        startWindowFullscreen(context, false, true)
+//    }
+    initialize(showFullScreen = true)
     // 设置全屏按键功能
     fullscreenButton?.click {
         startWindowFullscreen(context, false, true)
