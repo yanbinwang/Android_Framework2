@@ -26,13 +26,13 @@ data class OssSts(
         fun objectName(fileType: String, localFilepath: String = ""): String {
             val date = DateFormat.EN_YMDHMS.convert(System.currentTimeMillis())
             return when (fileType) {
-                //拍照
+                // 拍照
                 "1" -> "app/photo/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}.jpg"
-                //录像/录屏
+                // 录像/录屏
                 "2", "4" -> "app/video/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}.mp4"
-                //录音
+                // 录音
                 "3" -> "app/record/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}.wav"
-                //普通文件上传
+                // 普通文件上传
                 else -> "app/file/android/${AccountHelper.getUserId()}_${date}_${UUID.randomUUID()}_${File(localFilepath).name}"
             }
         }

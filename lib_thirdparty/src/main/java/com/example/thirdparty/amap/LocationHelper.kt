@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.os.Build
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -41,7 +42,6 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     private var listener: OnLocationListener? = null
     private val result = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
     private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
-    private val mDialog by lazy { AppDialog(mActivity) }
 
     companion object {
         // 经纬度json->默认杭州
@@ -168,7 +168,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     }
 
     /**
-     * flag->true表示定位成功，当不一定有定位对象，false表示定位失败，一定不会有定位对象
+     * flag -> true表示定位成功，当不一定有定位对象，false表示定位失败，一定不会有定位对象
      */
     fun setOnLocationListener(listener: OnLocationListener) {
         this.listener = listener
@@ -177,17 +177,22 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     /**
      * 跳转设置gps
      */
-    fun settingGps(): Boolean {
+    fun settingGps(mDialog: AppDialog? = null): Boolean {
         // 判断GPS模块是否开启，如果没有则开启
-        return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
-            mDialog
-                .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
-                .setDialogListener({ result.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
-                .show()
-            false
+        val isLocationEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            manager?.isLocationEnabled
         } else {
-            true
+            manager?.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        }.orFalse
+        if (!isLocationEnabled) {
+            mDialog
+                ?.setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
+                ?.setDialogListener({
+                    result.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                })
+                ?.show()
         }
+        return isLocationEnabled
     }
 
     /**

@@ -55,7 +55,7 @@ import kotlin.math.roundToInt
  */
 class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
-    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) }//默认地图经纬度-杭州
+    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) } // 默认地图经纬度-杭州
     private val location by lazy { LocationHelper(mActivity, registrar) }
     /**
      * 地址控件
@@ -173,7 +173,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 地图定位
      */
     fun location() {
-        if (mActivity.checkSelfLocation().orFalse) location.start()
+        if (mActivity.checkSelfLocation()) location.start()
     }
 
     /**
