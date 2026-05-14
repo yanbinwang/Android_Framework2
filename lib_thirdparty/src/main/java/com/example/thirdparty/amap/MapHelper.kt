@@ -12,15 +12,17 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps.AMap
-import com.amap.api.maps.AMapUtils
 import com.amap.api.maps.CameraUpdateFactory
-import com.amap.api.maps.CoordinateConverter
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
+import com.amap.api.services.help.Inputtips
+import com.amap.api.services.help.InputtipsQuery
+import com.amap.api.services.help.Tip
 import com.example.amap.utils.CoordinateUtil
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
@@ -29,6 +31,9 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
 import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 import kotlin.math.roundToInt
 
 /**
@@ -73,34 +78,28 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
 
     companion object {
         /**
-         * 支持GPS/Mapbar/Baidu等多种类型坐标在高德地图上使用
+         * 地图搜索协程
          */
-        @JvmStatic
-        fun convert(context: Context, sourceLatLng: LatLng, type: CoordinateConverter.CoordType = CoordinateConverter.CoordType.GPS): LatLng {
-            val converter = CoordinateConverter(context)
-            // CoordType.GPS 待转换坐标类型
-            converter.from(type)
-            // sourceLatLng待转换坐标点 LatLng类型
-            converter.coord(sourceLatLng)
-            // 执行转换操作
-            return converter.convert()
-        }
-
-        /**
-         * 两点间的直线距离计算
-         * 根据用户指定的两个经纬度坐标点，计算这两个点间的直线距离，单位为米
-         */
-        @JvmStatic
-        fun calculateLineDistance(latLng1: LatLng, latLng2: LatLng): Float {
-            return AMapUtils.calculateLineDistance(latLng1,latLng2)
-        }
-
-        /**
-         * 面积计算
-         */
-        @JvmStatic
-        fun calculateArea(leftTopLatlng: LatLng, rightBottomLatlng: LatLng): Float {
-            return AMapUtils.calculateArea(leftTopLatlng,rightBottomLatlng)
+        suspend fun suspendingMapSearch(context: Context, city: String?, keyword: String?): List<Tip> {
+            return suspendCancellableCoroutine {
+                if (city.isNullOrEmpty() || keyword.isNullOrEmpty()) it.resumeWithException(RuntimeException("未找到相关结果"))
+                // 定义一个输入提示对象，传入当前上下文和搜索对象
+                val query = InputtipsQuery(keyword, city)
+                // 限制在当前城市
+                query.cityLimit = true
+                // 获取在线建议检索结果
+                val tips = Inputtips(context, query)
+                tips.setInputtipsListener { mList, _ ->
+                    if (mList.isNullOrEmpty()) {
+                        "未找到相关结果".shortToast()
+                        it.resumeWithException(RuntimeException("未找到相关结果"))
+                    } else {
+                        it.resume(mList)
+                    }
+                }
+                // 输入查询提示的异步接口实现
+                tips.requestInputtipsAsyn()
+            }
         }
     }
 
@@ -127,6 +126,11 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
                 val logo = child?.getChildAt(2)
                 // 隐藏logo
                 logo?.gone()
+                // 映射内部方法
+                val uiSettings = aMap?.uiSettings
+                val method = uiSettings?.javaClass?.getDeclaredMethod("setLogoEnable", Boolean::class.javaPrimitiveType)
+                method?.isAccessible = true
+                method?.invoke(uiSettings, false)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
