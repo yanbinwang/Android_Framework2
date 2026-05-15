@@ -132,7 +132,8 @@ object NotificationUtil {
         var pendingIntent: PendingIntent? = null
         if (intent != null) {
             // 创建通知栏跳转
-            pendingIntent = getPendingIntent(requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
+//            pendingIntent = getPendingIntent(requestCode, intent, getPendingIntentFlags(PendingIntent.FLAG_UPDATE_CURRENT))
+            pendingIntent = getActivityPendingIntent(intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
         // 创建通知栏构建器
         val notificationBuilder = builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
@@ -271,16 +272,36 @@ object NotificationUtil {
      * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改。
      * 在 Android 12 及以上版本，对于一些特定的 PendingIntent 创建，要求必须使用 FLAG_IMMUTABLE 或 FLAG_MUTABLE 标志
      */
-    @JvmStatic
-    fun Context.getPendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
-        return PendingIntent.getActivity(this, requestCode, intent, flags)
+//    @JvmStatic
+//    fun Context.getPendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
+//        return PendingIntent.getActivity(this, requestCode, intent, flags)
+//    }
+//
+//    /**
+//     * 配置可变性
+//     */
+//    @JvmStatic
+//    fun getPendingIntentFlags(baseFlags: Int): Int {
+//        return when {
+//            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+//                // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
+//                baseFlags or PendingIntent.FLAG_IMMUTABLE
+//            }
+//            else -> baseFlags
+//        }
+//    }
+    fun Context.getActivityPendingIntent(intent: Intent, flags: Int): PendingIntent {
+        return PendingIntent.getActivity(this, requestCode, intent, getPendingIntentFlags(flags))
+    }
+
+    fun Context.getBroadcastPendingIntent(intent: Intent, flags: Int): PendingIntent {
+        return PendingIntent.getBroadcast(this, requestCode, intent, getPendingIntentFlags(flags))
     }
 
     /**
      * 配置可变性
      */
-    @JvmStatic
-    fun getPendingIntentFlags(baseFlags: Int): Int {
+    private fun getPendingIntentFlags(baseFlags: Int): Int {
         return when {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                 // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
