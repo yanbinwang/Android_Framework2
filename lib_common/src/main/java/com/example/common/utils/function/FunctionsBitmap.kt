@@ -8,9 +8,12 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.graphics.drawable.LayerDrawable
 import android.text.Layout
 import android.text.StaticLayout
@@ -55,9 +58,7 @@ fun Context?.decodeAsset(filePath: String, opts: BitmapFactory.Options? = null):
 
 fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
     this ?: return null
-    return BaseApplication.instance.assets.open(this).use {
-        BitmapFactory.decodeStream(it, null, opts)
-    }
+    return BaseApplication.instance.applicationContext.decodeAsset(this, opts)
 }
 
 /**
@@ -128,19 +129,30 @@ fun String?.isValidImage(): Boolean {
 /**
  * 提取Bitmap在x轴中心点颜色
  */
+@ColorInt
 fun Bitmap?.getCenterPixelColor(): Int {
     // 如果bitmap为空，返回默认颜色值
     this ?: return Color.WHITE
     // 计算中心坐标
     val centerX = width / 2
-    // Y轴取第1个像素（索引从0开始，所以是0）
+    // Y轴取第1个像素（索引从0开始）
     val topY = 0
     // 确保坐标在有效范围内
-    return if (width > 0 && height > 0 && centerX in 0 until width && topY in 0 until height) {
+    return if (centerX in 0 until width && topY in 0 until height) {
         getPixel(centerX, topY)
     } else {
         Color.WHITE
     }
+}
+
+/**
+ * 1) decodeResource 读取到本地图片
+ * 2) 通过 X.pt 转换想要的大小,调用该函数,取得特定的Icon
+ */
+fun Bitmap?.getIcon(targetWidth: Int, targetHeight: Int): Icon? {
+    this ?: return null
+    val bits = scaleBitmap(targetWidth, targetHeight)
+    return Icon.createWithBitmap(bits)
 }
 
 /**
@@ -237,6 +249,25 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
 //    }
 //    return scaleBitmap(scale, true)
 //}
+
+/**
+ * Bitmap 安全着色（不修改原图，返回新的着色 Bitmap）
+ */
+fun Bitmap?.tint(@ColorInt tintColor: Int): Bitmap? {
+    this ?: return null
+    // 创建一个和原图一样大的新 Bitmap 不污染原图
+    val resultBitmap = createBitmap(width, height)
+    val paint = Paint().apply {
+        isAntiAlias = true
+        colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+    }
+    val canvas = Canvas(resultBitmap)
+    // 把原图 + 颜色画上去
+    canvas.drawBitmap(this, 0f, 0f, paint)
+    // 本身回收
+    safeRecycle()
+    return resultBitmap
+}
 
 /**
  * 安全回收Bitmap的扩展函数
