@@ -21,11 +21,14 @@ import android.text.TextPaint
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import com.example.common.BaseApplication
+import com.example.common.R
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.font
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -525,14 +528,17 @@ interface PaintImpl {
     /**
      * 获取一个预设的文字画笔
      */
-    fun Context.getTextPaint(textSize: Float, @ColorInt color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT, @FontRes fontId: Int = -1): TextPaint {
+    fun getTextPaint(textSize: Float, @ColorInt color: Int = Color.WHITE, typeface: Typeface? = Typeface.DEFAULT): TextPaint {
         val paint = TextPaint()
         paint.isAntiAlias = true
         paint.textSize = textSize
         paint.color = color
         paint.typeface = typeface
-        if (-1 != fontId) paint.typeface = ResourcesCompat.getFont(this, fontId)
         return paint
+    }
+
+    fun Context.getTextPaint(textSize: Float, @ColorRes colorRes: Int = R.color.textWhite, @FontRes fontRes: Int = -1): TextPaint {
+        return getTextPaint(textSize, color(colorRes), if (-1 != fontRes) font(fontRes) else Typeface.DEFAULT)
     }
 
 }
