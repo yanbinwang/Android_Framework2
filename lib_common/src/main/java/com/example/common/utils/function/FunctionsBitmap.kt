@@ -276,6 +276,26 @@ fun Bitmap?.tint(@ColorInt tintColor: Int): Bitmap? {
 
 /**
  * 安全回收Bitmap的扩展函数
+ * 1) 自己 new / 自己 decode 的图 → 自己负责回收
+ * 比如：
+ * logoBit = decodeAsset(...)
+ * qrBit = 生成二维码 ()
+ * 临时图
+ * 画完 → 立刻回收
+ * 2) 别人传给你的图 → 绝对不回收
+ * 比如：
+ * 函数参数 Bitmap
+ * 扩展函数 this
+ * 谁给你的，谁负责回收
+ * 3) 最后返回出去的成品图 → 绝对不回收
+ * 比如：
+ * shareBit
+ * 合成好的图
+ * 谁拿去用，谁最后回收
+ * 4) 离线 Canvas（自己 new Canvas）
+ * drawBitmap 之后 立刻回收临时图 100% 安全
+ * 5) View.onDraw 里的 Canvas
+ * 绝对不回收任何图
  */
 fun Bitmap?.safeRecycle() {
     this ?: return
