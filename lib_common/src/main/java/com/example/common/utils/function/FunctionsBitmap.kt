@@ -432,27 +432,36 @@ fun View.loadBitmap(targetWidth: Int = measuredWidth, targetHeight: Int = measur
 
 /**
  * 画笔默认取中心点坐标，所以要除2
- * 只有继承了当前画笔接口的类才能使用以下方法
- * private fun Bitmap.drawShareBitMap(info: BitmapInfo, refCode: String?): Bitmap {
- *     val paint = Paint()
- *     val canvasHeight = height + 170
- *     val bitmap = Bitmap.createBitmap(width, canvasHeight, Bitmap.Config.RGB_565)
- *     val canvas = Canvas(bitmap)
- *     canvas.drawColor(Color.WHITE)
- *     canvas.drawBitmap(this, 0f, 0f, paint)
- *     //底部logo
- *     "share/img_order_share_logo.webp".getBitmapFromAsset()?.let { canvas.drawBitmap(it, 30f, 812f, paint) }
- *     //邀請碼標題
- *     val refPaint = getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), fontId = R.font.font_bold)
- *     val refTxt = string(R.string.orderShareRefCode)
- *     val refWidth = refPaint.measureText(refTxt)
- *     refPaint.drawTextLeft(29, 899, refTxt, canvas)
- *     //邀請碼
- *     getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), R.font.font_bold).drawTextLeft(refWidth + 29 + 15, 899, refCode.orNoData, canvas)
- *     //二維碼
- *     QRCodeBuilder().content(string(R.string.orderShareQrUrl)).size(126).build()?.let { canvas.drawBitmap(it, 532f, 806f, paint) }
- *     recycle()
- *     return bitmap
+ * 1) 只有继承了当前画笔接口的类才能使用以下方法
+ * 2) 使用示例代码
+ * // 需保证当前获取的 Bit 不被外部持有
+ * fun Bitmap.drawShareBit(info: BitmapInfo, refCode: String?): Bitmap {
+ * val paint = Paint()
+ * val canvasHeight = height + 170
+ * val shareBit = Bitmap.createBitmap(width, canvasHeight, Bitmap.Config.RGB_565)
+ * val canvas = Canvas(shareBit)
+ * canvas.drawColor(Color.WHITE)
+ * canvas.drawBitmap(this, 0f, 0f, paint)
+ * // 底部logo
+ * val logoBit = decodeAsset("share/img_order_share_logo.webp")
+ * canvas.drawBitmap(logoBit, 30f, 812f, paint)
+ * // 邀請碼標題
+ * val refTitlePaint = getTextPaint(32f, R.color.inviteFriendTxt, fontId = R.font.font_bold)
+ * val refTxt = string(R.string.orderShareRefCode)
+ * val refWidth = refTitlePaint.measureText(refTxt)
+ * refTitlePaint.drawTextLeft(29, 899, refTxt, canvas)
+ * // 邀請碼
+ * val refPaint = getTextPaint(32f, R.color.inviteFriendTxt, R.font.font_bold)
+ * refPaint.drawTextLeft(refWidth + 29 + 15, 899, refCode.orNoData, canvas)
+ * // 二維碼
+ * val qrBit = QRCodeBuilder().content(string(R.string.orderShareQrUrl)).size(126).build()
+ * canvas.drawBitmap(qrBit, 532f, 806f, paint)
+ * // 各个 Bit 回收
+ * logoBit.safeRecycle()
+ * qrBit.safeRecycle()
+ * safeRecycle()
+ * // 返回整体 Bit
+ * return shareBit
  * }
  */
 interface PaintImpl {
