@@ -1,6 +1,8 @@
 package com.example.common.bean
 
 import android.os.Parcelable
+import android.view.View
+import com.example.common.utils.i18n.LanguageUtil
 import kotlinx.parcelize.Parcelize
 import java.util.concurrent.ConcurrentHashMap
 
@@ -23,4 +25,10 @@ data class ServerLanguage(
     var name: String? = null,
     var path: String? = null,
     var version: String? = null,
-): Parcelable
+): Parcelable {
+
+    /**
+     * view随选中语言是否显示
+     */
+    val languageVisible get() = if (language == LanguageUtil.getLanguage()) View.VISIBLE else View.GONE
+}

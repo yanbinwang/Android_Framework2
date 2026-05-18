@@ -13,6 +13,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.I18nUtil.getLocalLanguageBean
+import com.example.common.utils.i18n.LanguageUtil
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.margin
@@ -51,6 +52,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     private fun getLanguageMap(bean: ServerLanguage?) {
         bean ?: return
         val language = bean.language ?: return
+        if (language == LanguageUtil.getLanguage()) {
+            return
+        }
         launch {
             val localPack = getLocalLanguageBean(bean.language)
             localPack?.let { result ->
