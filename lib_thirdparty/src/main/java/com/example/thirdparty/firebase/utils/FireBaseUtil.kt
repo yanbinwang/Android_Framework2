@@ -1,7 +1,6 @@
 package com.example.thirdparty.firebase.utils
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -14,6 +13,7 @@ import com.example.common.network.repository.successful
 import com.example.common.utils.helper.ConfigHelper
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.logE
+import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
@@ -37,74 +37,88 @@ import retrofit2.http.POST
  * }
  */
 object FireBaseUtil {
-    // 日志埋点
-    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance.applicationContext) }
     // FirebaseService->onNewToken(获取到手机token)
     var tokenRefreshListener: ((String) -> Unit)? = null
     // FirebaseService->onMessageReceived(收到的推送消息体)
     var notificationHandler: ((data: Map<String, String>) -> Boolean)? = null
     // 构建推送的intent，掉起一个透明的页面LinkActivity然后处理跳转
-    var notificationIntentGenerator = { _: Context, _: Map<String, String> -> Intent() }
+    var notificationIntentGenerator = { _: Context, _: Map<String, String> ->
+        Intent()
+    }
+    // 日志埋点
+    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance.applicationContext) }
 
     /**
      * firebase本身会自动注册，但会有延迟，此时显式调用
      */
-    fun initialize(context: Context) {
-        //初始化
-        FirebaseApp.initializeApp(context)
-        /**
-         * 功能：启用 Crashlytics 崩溃报告功能。
-         * 作用：
-         * 自动收集应用运行时的崩溃信息（如 NullPointerException、ANR 等），并上传到 Firebase 控制台。
-         * 提供详细的堆栈跟踪、设备信息和用户行为日志，帮助开发者快速定位问题。
-         * 注意：
-         * 需要在 Firebase 控制台配置应用并下载google-services.json文件。
-         * 可通过setUserId()关联用户身份，通过log()添加自定义日志。
-         * 在调试阶段可暂时禁用：setCrashlyticsCollectionEnabled(BuildConfig.DEBUG)。
-         */
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!isDebug)
-        /**
-         * 功能：启用 Firebase Analytics 用户行为分析。
-         * 作用：
-         * 自动跟踪用户留存、活跃度、转化漏斗等关键指标。
-         * 支持自定义事件（如点击按钮、完成注册）和用户属性（如会员等级）。
-         * 在 Firebase 控制台生成可视化报表，辅助产品决策。
-         * 注意：
-         * 数据默认会进行聚合和匿名化处理，符合隐私规范。
-         * 可通过logEvent()记录自定义事件，通过setUserProperty()设置用户属性。
-         * 国内环境可能需要配置网络代理才能正常上报数据。
-         */
-        FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(!isDebug)
-//        /**
-//         * 功能：订阅 FCM（Firebase Cloud Messaging）的主题推送。
-//         * 作用：
-//         * 将设备注册到名为default的主题，服务器可向该主题广播消息，所有订阅设备都会收到。
-//         * 适用于新闻推送、活动通知等一对多场景。
-//         * 注意：
-//         * 主题名称可自定义（如promotions、news），支持动态订阅 / 取消。
-//         * 需要在服务器端使用 FCM API 发送主题消息（如通过 Firebase 控制台或后端 SDK）。
-//         * 消息到达后，需在FirebaseMessagingService的子类中处理（如显示通知）。
-//         *  限制类型	                       具体要求	                                                 示例说明
-//         * 字符集限制	    仅支持字母（a-z、A-Z）、数字（0-9）、下划线（_）、连字符（-）、点（.）	     合法：news_sports、tech-2025
-//         * 禁止特殊字符	不支持中文、空格、斜杠（/）、@、# 等特殊字符	                         非法：新闻/体育、包名.测试
-//         * 长度限制	    主题名长度需控制在 256 个字符以内（实际业务中建议不超过 50 字符便于维护）	 过长名称可能导致解析异常
-//         * 层级结构限制	主题名可使用点（.）模拟层级（如 tech.android），但本质是平面结构而非目录	 与 /topics/tech/android 效果相同
-//         */
-//        FirebaseMessaging.getInstance().subscribeToTopic("default")
-        //刷新手机token
-        FirebaseMessaging.getInstance().token.addOnCompleteListener {
-            val token = try {
-                it.result
-            } catch (e: Exception) {
-                e.logE
-                null
-            }
-            if (!it.isSuccessful || token.isNullOrEmpty()) {
-                "Fetching FCM registration token failed".logE
-                return@addOnCompleteListener
-            }
-            tokenRefreshListener?.invoke(token)
+    fun initialize(context: Context): Boolean {
+        // 谷歌服务是否可用
+        if (!context.isGooglePlayServicesAvailable()) {
+            return false
         }
+        // 初始化
+        val isInitialized = try {
+            FirebaseApp.initializeApp(context) != null
+        } catch (_: Exception) {
+            false
+        }
+        // 成功初始化启用功能
+        if (isInitialized) {
+            /**
+             * 功能：启用 Crashlytics 崩溃报告功能。
+             * 作用：
+             * 自动收集应用运行时的崩溃信息（如 NullPointerException、ANR 等），并上传到 Firebase 控制台。
+             * 提供详细的堆栈跟踪、设备信息和用户行为日志，帮助开发者快速定位问题。
+             * 注意：
+             * 需要在 Firebase 控制台配置应用并下载google-services.json文件。
+             * 可通过setUserId()关联用户身份，通过log()添加自定义日志。
+             * 在调试阶段可暂时禁用：setCrashlyticsCollectionEnabled(BuildConfig.DEBUG)。
+             */
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!isDebug)
+            /**
+             * 功能：启用 Firebase Analytics 用户行为分析。
+             * 作用：
+             * 自动跟踪用户留存、活跃度、转化漏斗等关键指标。
+             * 支持自定义事件（如点击按钮、完成注册）和用户属性（如会员等级）。
+             * 在 Firebase 控制台生成可视化报表，辅助产品决策。
+             * 注意：
+             * 数据默认会进行聚合和匿名化处理，符合隐私规范。
+             * 可通过logEvent()记录自定义事件，通过setUserProperty()设置用户属性。
+             * 国内环境可能需要配置网络代理才能正常上报数据。
+             */
+            FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(!isDebug)
+//            /**
+//             * 功能：订阅 FCM（Firebase Cloud Messaging）的主题推送。
+//             * 作用：
+//             * 将设备注册到名为default的主题，服务器可向该主题广播消息，所有订阅设备都会收到。
+//             * 适用于新闻推送、活动通知等一对多场景。
+//             * 注意：
+//             * 主题名称可自定义（如promotions、news），支持动态订阅 / 取消。
+//             * 需要在服务器端使用 FCM API 发送主题消息（如通过 Firebase 控制台或后端 SDK）。
+//             * 消息到达后，需在FirebaseMessagingService的子类中处理（如显示通知）。
+//             *  限制类型	                       具体要求	                                                 示例说明
+//             * 字符集限制	    仅支持字母（a-z、A-Z）、数字（0-9）、下划线（_）、连字符（-）、点（.）	     合法：news_sports、tech-2025
+//             * 禁止特殊字符	不支持中文、空格、斜杠（/）、@、# 等特殊字符	                         非法：新闻/体育、包名.测试
+//             * 长度限制	    主题名长度需控制在 256 个字符以内（实际业务中建议不超过 50 字符便于维护）	 过长名称可能导致解析异常
+//             * 层级结构限制	主题名可使用点（.）模拟层级（如 tech.android），但本质是平面结构而非目录	 与 /topics/tech/android 效果相同
+//             */
+//            FirebaseMessaging.getInstance().subscribeToTopic("default")
+            //刷新手机token
+            FirebaseMessaging.getInstance().token.addOnCompleteListener {
+                val token = try {
+                    it.result
+                } catch (e: Exception) {
+                    e.logE
+                    null
+                }
+                if (!it.isSuccessful || token.isNullOrEmpty()) {
+                    "Fetching FCM registration token failed".logE
+                    return@addOnCompleteListener
+                }
+                tokenRefreshListener?.invoke(token)
+            }
+        }
+        return isInitialized
     }
 
     /**
@@ -124,10 +138,12 @@ object FireBaseUtil {
             .getDynamicLink(activity.intent)
             .addOnSuccessListener(activity) { dynamicLinkData ->
                 dynamicLinkData?.link?.onSuccess() ?: onFailed()
-            }.addOnFailureListener(activity) { e ->
+            }
+            .addOnFailureListener(activity) { e ->
                 e.logE
                 onFailed()
-            }.addOnCanceledListener {
+            }
+            .addOnCanceledListener {
                 onFailed()
             }
     }

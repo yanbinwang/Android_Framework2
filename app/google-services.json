@@ -9,7 +9,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:503708557075:android:8645455ecc1a61833784e6",
         "android_client_info": {
-          "package_name": "com.cheezeebit.trading"
+          "package_name": "com.example.mvvm"
         }
       },
       "oauth_client": [

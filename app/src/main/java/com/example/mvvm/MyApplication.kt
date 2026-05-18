@@ -43,14 +43,8 @@ class MyApplication : BaseApplication() {
         } else {
             initCrashHandler()
         }
-        if (isGooglePlayServicesAvailable()) {
-            try {
-                // 初始化firebase -> 没有谷歌服务的手机会报错
-                initFireBase()
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
+        // 初始化firebase
+        initFireBase()
 //        // 初始化图片库类
 //        initAlbum()
 //        // 数据库初始化
@@ -117,14 +111,15 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initFireBase() {
-        FireBaseUtil.initialize(applicationContext)
-        FireBaseUtil.notificationIntentGenerator = { _, map ->
-            " \n收到firebase\nmap:${map.toJson()}".logWTF
-            LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
-        }
-        FireBaseUtil.tokenRefreshListener = {
-            "firebase token $it".logE
-            ConfigHelper.setDeviceToken(it)
+        if (FireBaseUtil.initialize(applicationContext)) {
+            FireBaseUtil.notificationIntentGenerator = { _, map ->
+                " \n收到firebase\nmap:${map.toJson()}".logWTF
+                LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
+            }
+            FireBaseUtil.tokenRefreshListener = {
+                "firebase token $it".logE
+                ConfigHelper.setDeviceToken(it)
+            }
         }
     }
 

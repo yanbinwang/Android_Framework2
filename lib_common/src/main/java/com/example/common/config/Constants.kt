@@ -45,7 +45,7 @@ object Constants {
     const val PAGE_LIMIT = "10"
     // 语言包先写死
     val LANGUAGE_LIST by lazy { listOf(
-        ServerLanguage(0, "zh_HK", "繁體中文", "", "1"),
+        ServerLanguage(0, "zh_TW", "繁體中文", "", "1"),
         ServerLanguage(1, "en_IN", "English", "", "1"),
         ServerLanguage(2, "id_ID", "Bahasa Indonesia", "", "1")) }
     //------socket地址------

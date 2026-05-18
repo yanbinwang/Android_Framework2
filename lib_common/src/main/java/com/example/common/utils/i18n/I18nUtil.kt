@@ -63,9 +63,11 @@ object I18nUtil {
      * 检查是否有已被回收的item
      */
     private fun checkList() {
-        viewList.get().filter { it.get() == null }.forEach {
-            viewList.get().remove(it)
-        }
+        viewList.get()
+            .filter { it.get() == null }
+            .forEach {
+                viewList.get().remove(it)
+            }
     }
 
     /**
@@ -74,9 +76,10 @@ object I18nUtil {
      */
     fun refreshLanguage() {
         checkList()
-        viewList.get().forEach {
-            it.get()?.refreshText()
-        }
+        viewList.get()
+            .forEach {
+                it.get()?.refreshText()
+            }
     }
 
     /**
@@ -107,7 +110,7 @@ object I18nUtil {
     }
 
     /**
-     * 获取国际化text
+     * 获取 MMKV 中的国际化 String
      */
     private fun getTextFromI18n(@StringRes res: Int?): String? {
         val key = I18nMap.map[res]
@@ -121,7 +124,7 @@ object I18nUtil {
     }
 
     /**
-     * 获取Resources中的String
+     * 获取 Resources 中的国际化 String
      */
     private fun getTextFromRes(ctx: Context, @StringRes res: Int?): String? {
         if (res == null) return null
@@ -141,7 +144,7 @@ object I18nUtil {
     }
 
     /**
-     * 設置語言後，同步刷新view
+     * 設置語言後，同步刷新 View
      */
     fun setLanguagePack(packName: String, bean: LanguageBean, needRefresh: Boolean = true) {
         LanguageUtil.setLanguage(packName)
@@ -156,23 +159,6 @@ object I18nUtil {
      * 讀取assets下的font字體文件
      */
     fun getLocalLanguageBean(language: String?): LanguageBean? {
-//        val pack = LanguageUtil.getLanguageLocalAsset(language)
-//        val assetManager = BaseApplication.instance.applicationContext.assets
-//        val inputStream = try {
-//            assetManager.open(pack)
-//        } catch (_: Exception) {
-//            assetManager.open(en_US_PACK)
-//        }
-//        val reader = JsonReader(InputStreamReader(inputStream, "UTF-8"))
-//        val bean = try {
-//            gson.fromJson<LanguageBean>(reader, object : TypeToken<LanguageBean>() {}.type)
-//        } catch (_: Exception) {
-//            null
-//        } finally {
-//            inputStream.close()
-//            reader.close()
-//        }
-//        return bean
         val pack = LanguageUtil.getLanguageLocalAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
@@ -197,40 +183,6 @@ object I18nUtil {
      * 獲取本機語言包版本
      */
     fun getLocalLanguageVersion(language: String?): Int? {
-//        val pack = LanguageUtil.getLanguageLocalAsset(language)
-//        val assetManager = BaseApplication.instance.assets
-//        val inputStream = try {
-//            assetManager.open(pack)
-//        } catch (_: Exception) {
-//            return 0
-//        }
-//        val reader = BufferedReader(InputStreamReader(inputStream))
-//        val version = try {
-//            var count = 0
-//            val reg = Regex("""(?<="version"\s?:\s?")\d*(?=")""")
-//            var result: Int? = null
-//            while (reader.ready()) {
-//                count++
-//                if (count > 3) break
-//                val line = reader.readLine()
-//                val value = reg.find(line)?.value
-//                if (!value.isNullOrEmpty()) {
-//                    result = value.toSafeInt()
-//                    break
-//                }
-//            }
-//            result
-//        } catch (_: Exception) {
-//            null
-//        } finally {
-//            try {
-//                reader.close()
-//                inputStream.close()
-//            } catch (e: Exception) {
-//                e.logE
-//            }
-//        }
-//        return version
         val pack = LanguageUtil.getLanguageLocalAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
