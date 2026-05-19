@@ -5,42 +5,53 @@ import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toBundle
 import com.example.thirdparty.firebase.utils.FireBaseUtil.firebaseAnalytics
+import com.example.thirdparty.firebase.utils.FireBaseUtil.firebaseCrashlytics
 import com.example.thirdparty.track.bean.TrackEvent
 
 /**
- * 埋点提交工具类
+ * 埋点/异常提交提交工具类
  */
 object TrackUtil {
-    private var userId: String? = null
-    private val deviceId: String? by lazy { DeviceIdUtil.deviceId }
+    private var mUserId: String? = null
 
     /**
      * 用户登录调用该方法
      */
-    @JvmStatic
-    fun init(userId: String? = null) {
-        this.userId = userId
-        firebaseAnalytics.setUserId(userId)
+    fun initialize(userId: String? = null) {
+        mUserId = userId
+        firebaseAnalytics?.setUserId(userId)
     }
 
-    @JvmStatic
+    /**
+     * 上报闪退/异常日志
+     */
+    fun String.record(e: Throwable) {
+        record(this, e)
+    }
+
+    fun record(msg: String, e: Throwable) {
+        if (isDebug) return
+        firebaseCrashlytics.recordException(Exception(msg, e))
+    }
+
+    /**
+     * 上报统计/埋点日志
+     */
     fun TrackEvent.log(vararg pairs: Pair<String, Any?>) {
         log(tag, *pairs)
     }
 
-    @JvmStatic
     fun log(key: String, vararg pairs: Pair<String, Any?>) {
         if (isDebug || !isLogin()) return
         val bundle = pairs.toBundle { this }
-        userId?.let { bundle.putString("user_id", it) }
-        deviceId?.let { bundle.putString("device_num", it) }
-        firebaseAnalytics.logEvent(key, bundle)
+        mUserId?.let { bundle.putString("user_id", it) }
+        DeviceIdUtil.deviceId?.let { bundle.putString("device_num", it) }
+        firebaseAnalytics?.logEvent(key, bundle)
     }
 
     /**
      * banner点击数
      */
-    @JvmStatic
     fun homeBanner(banner: String) {
         TrackEvent.HOME_BANNER.log("banner" to banner)
     }
@@ -48,7 +59,6 @@ object TrackUtil {
     /**
      * 头像（左上角）
      */
-    @JvmStatic
     fun homePortrait() {
         TrackEvent.HOME_PORTRAIT.log()
     }
@@ -56,7 +66,6 @@ object TrackUtil {
     /**
      * 注册，获取验证码
      */
-    @JvmStatic
     fun smsCode() {
         TrackEvent.SMS_CODE.log()
     }
@@ -64,7 +73,6 @@ object TrackUtil {
     /**
      * 注册，确认下一步
      */
-    @JvmStatic
     fun registerNext() {
         TrackEvent.REGISTER_NEXT.log()
     }
@@ -72,7 +80,6 @@ object TrackUtil {
     /**
      * 所有注册成功
      */
-    @JvmStatic
     fun registerSuccess() {
         TrackEvent.REGISTER_SUCCESS.log()
     }
@@ -80,7 +87,6 @@ object TrackUtil {
     /**
      * 邮箱注册成功
      */
-    @JvmStatic
     fun registerEmailSuccess() {
         registerSuccess()
         TrackEvent.REGISTER_MAIL_SUCCESS.log()
@@ -89,7 +95,6 @@ object TrackUtil {
     /**
      * 邮箱登录成功
      */
-    @JvmStatic
     fun loginEmailSuccess() {
         TrackEvent.LOGIN_EMAIL_SUCCESS.log()
     }
@@ -97,7 +102,6 @@ object TrackUtil {
     /**
      * 实名认证提交
      */
-    @JvmStatic
     fun certification() {
         TrackEvent.CERTIFICATION.log()
     }
@@ -109,7 +113,6 @@ object TrackUtil {
      * balance->资金（点击充值按钮）
      * balance_detail资金（币种详情点击充值）
      */
-    @JvmStatic
     fun paymentClick(type: String) {
         TrackEvent.PAYMENT_CLICK.log("type" to type)
     }

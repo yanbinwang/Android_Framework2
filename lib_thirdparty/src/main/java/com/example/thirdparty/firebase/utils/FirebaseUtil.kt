@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import com.example.common.BaseApplication
 import com.example.common.network.factory.RetrofitFactory
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
@@ -37,16 +36,18 @@ import retrofit2.http.POST
  * }
  */
 object FireBaseUtil {
-    // FirebaseService->onNewToken(获取到手机token)
+    // FirebaseService -> onNewToken(获取到手机token)
     var tokenRefreshListener: ((String) -> Unit)? = null
-    // FirebaseService->onMessageReceived(收到的推送消息体)
+    // FirebaseService -> onMessageReceived(收到的推送消息体)
     var notificationHandler: ((data: Map<String, String>) -> Boolean)? = null
     // 构建推送的intent，掉起一个透明的页面LinkActivity然后处理跳转
     var notificationIntentGenerator = { _: Context, _: Map<String, String> ->
         Intent()
     }
-    // 日志埋点
-    val firebaseAnalytics by lazy { FirebaseAnalytics.getInstance(BaseApplication.instance.applicationContext) }
+    // 日志埋点 (统计用户行为、埋点、数据报表用的)
+    var firebaseAnalytics: FirebaseAnalytics? = null
+    // 日志上传 (抓崩溃、抓异常、查 bug 用的)
+    val firebaseCrashlytics by lazy { FirebaseCrashlytics.getInstance() }
 
     /**
      * firebase本身会自动注册，但会有延迟，此时显式调用
@@ -65,17 +66,6 @@ object FireBaseUtil {
         // 成功初始化启用功能
         if (isInitialized) {
             /**
-             * 功能：启用 Crashlytics 崩溃报告功能。
-             * 作用：
-             * 自动收集应用运行时的崩溃信息（如 NullPointerException、ANR 等），并上传到 Firebase 控制台。
-             * 提供详细的堆栈跟踪、设备信息和用户行为日志，帮助开发者快速定位问题。
-             * 注意：
-             * 需要在 Firebase 控制台配置应用并下载google-services.json文件。
-             * 可通过setUserId()关联用户身份，通过log()添加自定义日志。
-             * 在调试阶段可暂时禁用：setCrashlyticsCollectionEnabled(BuildConfig.DEBUG)。
-             */
-            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!isDebug)
-            /**
              * 功能：启用 Firebase Analytics 用户行为分析。
              * 作用：
              * 自动跟踪用户留存、活跃度、转化漏斗等关键指标。
@@ -86,7 +76,19 @@ object FireBaseUtil {
              * 可通过logEvent()记录自定义事件，通过setUserProperty()设置用户属性。
              * 国内环境可能需要配置网络代理才能正常上报数据。
              */
-            FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(!isDebug)
+            firebaseAnalytics = FirebaseAnalytics.getInstance(context)
+            firebaseAnalytics?.setAnalyticsCollectionEnabled(!isDebug)
+            /**
+             * 功能：启用 Crashlytics 崩溃报告功能。
+             * 作用：
+             * 自动收集应用运行时的崩溃信息（如 NullPointerException、ANR 等），并上传到 Firebase 控制台。
+             * 提供详细的堆栈跟踪、设备信息和用户行为日志，帮助开发者快速定位问题。
+             * 注意：
+             * 需要在 Firebase 控制台配置应用并下载google-services.json文件。
+             * 可通过setUserId()关联用户身份，通过log()添加自定义日志。
+             * 在调试阶段可暂时禁用：setCrashlyticsCollectionEnabled(BuildConfig.DEBUG)。
+             */
+            firebaseCrashlytics.setCrashlyticsCollectionEnabled(!isDebug)
 //            /**
 //             * 功能：订阅 FCM（Firebase Cloud Messaging）的主题推送。
 //             * 作用：
@@ -103,7 +105,7 @@ object FireBaseUtil {
 //             * 层级结构限制	主题名可使用点（.）模拟层级（如 tech.android），但本质是平面结构而非目录	 与 /topics/tech/android 效果相同
 //             */
 //            FirebaseMessaging.getInstance().subscribeToTopic("default")
-            //刷新手机token
+            // 刷新手机token
             FirebaseMessaging.getInstance().token.addOnCompleteListener {
                 val token = try {
                     it.result

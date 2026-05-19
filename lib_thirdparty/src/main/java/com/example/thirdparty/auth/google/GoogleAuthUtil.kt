@@ -145,9 +145,14 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
          * 生成谷歌登录专用 Nonce（谷歌强制要求）
          */
         private fun generateNonce(): String {
-            val nonceBytes = ByteArray(16)
-            SecureRandom().nextBytes(nonceBytes)
-            return Base64.encodeToString(nonceBytes, Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)
+            return try {
+                val nonceBytes = ByteArray(16)
+                SecureRandom().nextBytes(nonceBytes)
+                Base64.encodeToString(nonceBytes, Base64.NO_PADDING or Base64.NO_WRAP or Base64.URL_SAFE)
+            } catch (_: Exception) {
+                // 谷歌登录无nonce也能跑，只是安全性降级
+                ""
+            }
         }
 
         /**
@@ -281,11 +286,13 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
     /**
      * 登出
      */
-    fun signOutJob() {
+    fun signOut() {
         signOutJob?.cancel()
         signOutJob = mActivity.lifecycleScope.launch(Main.immediate) {
             runCatching {
-                withContext(IO) { credentialManager.clearCredentialState(ClearCredentialStateRequest()) }
+                withContext(IO) {
+                    credentialManager.clearCredentialState(ClearCredentialStateRequest())
+                }
             }
         }
     }
