@@ -4,7 +4,6 @@ import com.amap.api.maps.AMapUtils
 import com.amap.api.maps.CoordinateConverter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
-import com.example.framework.utils.function.value.toSafeDouble
 import java.math.BigDecimal
 import java.math.RoundingMode
 import java.util.Random
@@ -109,8 +108,8 @@ object CoordinateUtil {
      */
     @JvmStatic
     fun generateRandomPoint(minLng: Double, maxLng: Double, minLat: Double, maxLat: Double): LatLng {
-        val lon = BigDecimal(Math.random() * (maxLng - minLng) + minLng).setScale(6, RoundingMode.HALF_UP).toSafeDouble()
-        val lat = BigDecimal(Math.random() * (maxLat - minLat) + minLat).setScale(6, RoundingMode.HALF_UP).toSafeDouble()
+        val lon = BigDecimal(Math.random() * (maxLng - minLng) + minLng).setScale(6, RoundingMode.HALF_UP).toDouble()
+        val lat = BigDecimal(Math.random() * (maxLat - minLat) + minLat).setScale(6, RoundingMode.HALF_UP).toDouble()
         return LatLng(lat, lon)
     }
 
