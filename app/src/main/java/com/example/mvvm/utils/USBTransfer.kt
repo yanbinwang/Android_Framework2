@@ -23,8 +23,11 @@ import com.hoho.android.usbserial.driver.UsbSerialPort
 import com.hoho.android.usbserial.driver.UsbSerialProber
 import com.hoho.android.usbserial.util.SerialInputOutputManager
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.UnsupportedEncodingException
@@ -46,10 +49,12 @@ import java.io.UnsupportedEncodingException
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class USBTransfer(private val mActivity: FragmentActivity) {
+    // 是否连接
+    @Volatile
+    private var isConnect = false
     // 全局唯一的拼接流
     private val receiveBuffer = ByteArrayOutputStream()
     // 顺序： manager - availableDrivers（所有可用设备） - UsbSerialDriver（目标设备对象） - UsbDeviceConnection（设备连接对象） - UsbSerialPort（设备的端口，一般只有1个）
-    private var availableDrivers = mutableListOf<UsbSerialDriver>() // 所有可用设备
     private var usbSerialDriver: UsbSerialDriver? = null // 当前连接的设备
     private var usbDeviceConnection: UsbDeviceConnection? = null // 连接对象
     private var usbSerialPort: UsbSerialPort? = null // 设备端口对象，通过这个读写数据
@@ -59,20 +64,23 @@ class USBTransfer(private val mActivity: FragmentActivity) {
     private val dataBits = 8 // 数据位
     private val stopBits = UsbSerialPort.STOPBITS_1 // 停止位
     private val parity = UsbSerialPort.PARITY_NONE // 奇偶校验
+    private var deviceTargetName = " USB-Serial Controller D" // 目标设备标识
+    // 连接USB的job
+    private var connectJob: Job? = null
     // 发送数据的job
     private var sendJob: Job? = null
     // 回调接口
-    private var listener: OnUSBDateReceiveListener? = null
+    private var listener: OnUSBReceiveListener? = null
     // USB管理类
     private val manager by lazy { mActivity.getSystemService(Context.USB_SERVICE) as? UsbManager }
     // 广播监听：判断usb设备授权操作
     private val receiver by lazy { object : BroadcastReceiver() {
         override fun onReceive(context: Context, intent: Intent) {
             "onReceive: ${intent.action}".logE(TAG)
-            if (ACTION_GRANT_USB == intent.action) {
+            if (ACTION_USB_PERMISSION == intent.action) {
                 // 授权操作完成，连接
 //                val granted = intent.getBooleanExtra(UsbManager.EXTRA_PERMISSION_GRANTED, false) // 不知为何获取到的永远都是 false 因此无法判断授权还是拒绝
-                connectDevice()
+                openDevice()
             }
         }
     } }
@@ -80,12 +88,10 @@ class USBTransfer(private val mActivity: FragmentActivity) {
     private val hasPermission get() = manager?.hasPermission(usbSerialDriver?.device).orFalse
 
     companion object {
-        // usb权限请求标识
-        private val ACTION_GRANT_USB = "${Constants.APPLICATION_ID}.ACTION_GRANT_USB"
-        // 目标设备标识
-        private const val IDENTIFICATION = " USB-Serial Controller D"
         // 日志输出标识
         private const val TAG = "USBTransfer"
+        // usb权限请求标识
+        private val ACTION_USB_PERMISSION = "${Constants.APPLICATION_ID}.ACTION_GRANT_USB"
     }
 
     init {
@@ -96,58 +102,60 @@ class USBTransfer(private val mActivity: FragmentActivity) {
             sendJob?.cancel()
         }
         // 注册usb授权监听广播
-        mActivity.doOnReceiver(receiver, IntentFilter(ACTION_GRANT_USB), isExported = false)
+        mActivity.doOnReceiver(receiver, IntentFilter(ACTION_USB_PERMISSION), isExported = false)
     }
 
     /**
      * 开始建立连接
      */
     fun connect() {
-        disconnect()
-        findAllDrivers()
+        connectJob?.cancel()
+        connectJob = mActivity.lifecycleScope.launch(Main.immediate) {
+            // 断开连接
+            disconnect()
+            // 断开间断
+            delay(500)
+            // 查找设备
+            findAllDrivers()
+        }
     }
 
     /**
      * 刷新当前可用 usb设备，拿到已连接的usb设备列表
      */
     private fun findAllDrivers() {
-        availableDrivers.clear()
-        availableDrivers = UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+        val availableDrivers = getAllDrivers()
         "当前可用 usb 设备数量: ${availableDrivers.safeSize}".logE(TAG)
         // 有设备可以连接
         if (!availableDrivers.isEmpty()) {
             // 开发用的定制平板电脑有2个及以上的usb口，会搜索到多个
-            if (availableDrivers.safeSize > 1) {
-                for (i in availableDrivers.indices) {
-                    val availableDriver = availableDrivers.safeGet(i)
-                    val productName = availableDriver?.device?.productName
-                    "productName: $productName".logE(TAG)
-                    // 通过 ProductName 参数来识别要连接的设备
-                    if (productName == IDENTIFICATION) {
-                        usbSerialDriver = availableDriver
-                    }
-                }
-            } else {
+            usbSerialDriver = availableDrivers.find {
+                val productName = it.device?.productName
+                "productName: $productName".logE(TAG)
+                // 通过 ProductName 参数来识别要连接的设备
+                productName == deviceTargetName
+            }
+            if (usbSerialDriver == null) {
                 usbSerialDriver = availableDrivers.safeGet(0)
             }
             // 一般设备的端口都只有一个，具体要参考设备的说明文档
             usbSerialPort = usbSerialDriver?.ports.safeGet(0)
             // 同时申请设备权限
             if (!hasPermission) {
-                val usbPermissionIntent = PendingIntent.getBroadcast(mActivity, 0, Intent(ACTION_GRANT_USB), PendingIntent.FLAG_IMMUTABLE)
+                val usbPermissionIntent = PendingIntent.getBroadcast(mActivity, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
                 manager?.requestPermission(usbSerialDriver?.device, usbPermissionIntent)
             } else {
-                connectDevice()
+                openDevice()
             }
         } else {
-            listener?.onConnect(false, "请先接入设备")
+            listener?.onConnectionFailed("请先接入设备")
         }
     }
 
     /**
      * 连接设备
      */
-    private fun connectDevice() {
+    private fun openDevice() {
         if (usbSerialDriver == null || inputOutputManager != null || usbSerialPort == null) return
         // 判断是否拥有权限
         if (hasPermission) {
@@ -159,19 +167,27 @@ class USBTransfer(private val mActivity: FragmentActivity) {
                 // 设置串口参数：波特率 - 115200 ， 数据位 - 8 ， 停止位 - 1 ， 奇偶校验 - 无
                 usbSerialPort?.setParameters(baudRate, dataBits, stopBits, parity)
                 // 开启数据监听
-                startReceiveData()
-//                // 下发初始化指令
-//                initDevice()
+                start()
+                /**
+                 * [下发初始化指令 (查询 IC 信息)]
+                 * 串口打开成功后，自动发一条「初始化指令」给设备， demo 示例代码
+                 * 用的是 USB 串口设备（比如单片机、读卡器、传感器、门禁、工业设备）
+                 * 这类设备有个规则：
+                 * 发什么指令 → 设备返回什么数据
+                 * 比如：
+                 * 发 6861686168610D0A → 设备返回 设备型号 / 版本 / IC 信息
+                 * 发别的 → 设备做别的动作
+                 */
+                send("6861686168610D0A",500)
             } catch (_: IOException) {
             }
         } else {
-            listener?.onConnect(false, "请先授予权限再连接")
+            listener?.onConnectionFailed("请先授予权限再连接")
         }
     }
 
-    private fun startReceiveData() {
+    private fun start() {
         if (usbSerialPort == null || !usbSerialPort?.isOpen.orFalse) return
-        var isConnect = false
         inputOutputManager = SerialInputOutputManager(usbSerialPort, object : SerialInputOutputManager.Listener {
             override fun onNewData(data: ByteArray) {
                 try {
@@ -180,7 +196,7 @@ class USBTransfer(private val mActivity: FragmentActivity) {
                     val fullData = receiveBuffer.toByteArray()
                     // 判断是否结束
                     if (fullData.endWithCRLF()) {
-                        val reason = bytes2string(fullData)
+                        val reason = bytesToString(fullData)
                         "收到 usb 完整数据: $reason".logI(TAG)
                         mActivity.runOnUiThread {
                             listener?.onReceive(reason)
@@ -192,7 +208,7 @@ class USBTransfer(private val mActivity: FragmentActivity) {
                     if (!isConnect) {
                         isConnect = true
                         mActivity.runOnUiThread {
-                            listener?.onConnect(true, "连接成功")
+                            listener?.onConnected()
                         }
                     }
                 } catch (e: Exception) {
@@ -212,7 +228,7 @@ class USBTransfer(private val mActivity: FragmentActivity) {
         return size >= 2 && this[size-2] == '\r'.toByte() && this[size-1] == '\n'.toByte()
     }
 
-    private fun bytes2string(bytes: ByteArray?): String? {
+    private fun bytesToString(bytes: ByteArray?): String? {
         if (bytes == null) {
             return ""
         }
@@ -224,52 +240,41 @@ class USBTransfer(private val mActivity: FragmentActivity) {
         return newStr
     }
 
-//    /**
-//     * 串口打开成功后，自动发一条「初始化指令」给设备， demo 示例代码
-//     * 用的是 USB 串口设备（比如单片机、读卡器、传感器、门禁、工业设备）
-//     * 这类设备有个规则：
-//     * 发什么指令 → 设备返回什么数据
-//     * 比如：
-//     * 发 6861686168610D0A → 设备返回 设备型号 / 版本 / IC 信息
-//     * 发别的 → 设备做别的动作
-//     */
-//    private fun initDevice() {
-//        try {
-//            Thread.sleep(500)
-//        } catch (_: InterruptedException) {
-//        }
-//        // 查询 IC 信息
-//        send("6861686168610D0A")
-//    }
-
     /**
-     * 下发数据：建议使用线程池
+     * 发送数据
      */
-    fun send(data: String?) {
+    fun send(data: String?, timeMillis: Long = 0L) {
         data ?: return
-        if (usbSerialPort != null) {
-            "当前usb状态: isOpen-${usbSerialPort?.isOpen}".logE(TAG)
-            // 当串口打开时再下发
-            if (usbSerialPort?.isOpen.orFalse) {
-                sendJob?.cancel()
-                sendJob = mActivity.lifecycleScope.launch(IO) {
-                    try {
-                        // 将字符数据转化为 byte[]
-                        val dataBytes = hex2bytes(data)
-                        if (dataBytes == null || dataBytes.isEmpty()) return@launch
-                        // 写入数据，延迟设置太大的话如果下发间隔太小可能报错
-                        usbSerialPort?.write(dataBytes, 0)
-                    } catch (e: IOException) {
-                        "发送失败：${e.message}".logE(TAG)
-                    }
-                }
-            } else {
-                "write: usb 未连接".logE(TAG)
+        sendJob?.cancel()
+        sendJob = mActivity.lifecycleScope.launch(Main.immediate) {
+            delay(timeMillis)
+            try {
+                suspendingSend(data)
+            } catch (e: Exception) {
+                "发送失败：${e.message}".logE(TAG)
             }
         }
     }
 
-    private fun hex2bytes(hex: String?): ByteArray? {
+    private suspend fun suspendingSend(data: String) {
+        if (usbSerialPort != null) {
+            // 当串口打开时再下发
+            if (usbSerialPort?.isOpen.orFalse) {
+                withContext(IO) {
+                    // 将字符数据转化为 byte[]
+                    val dataBytes = hexToBytes(data)
+                    // 写入数据，延迟设置太大的话如果下发间隔太小可能报错
+                    usbSerialPort?.write(dataBytes, 0)
+                }
+            } else {
+                throw RuntimeException("发送失败：当前usb状态未开启")
+            }
+        } else {
+            throw RuntimeException("发送失败：端口对象未设置")
+        }
+    }
+
+    private fun hexToBytes(hex: String?): ByteArray? {
         var mHex = hex
         if (mHex.isNullOrEmpty()) {
             return null
@@ -310,34 +315,63 @@ class USBTransfer(private val mActivity: FragmentActivity) {
             usbDeviceConnection = null
             // 清除设备
             usbSerialDriver = null
-            // 清空设备列表
-            availableDrivers.clear()
-            listener?.onDisconnect()
+            // 回调监听
+            if (isConnect) {
+                listener?.onDisconnected()
+            }
+            // 清空状态
+            isConnect = false
             "断开连接".logE(TAG)
         } catch (_: Exception) {
         }
     }
 
     /**
+     * 当前设备连接状态 (STOPPED / RUNNING / STOPPING)
+     */
+    fun getUsbState(): SerialInputOutputManager.State? {
+        return inputOutputManager?.state
+    }
+
+    /**
+     * 获取所有可用设备
+     */
+    fun getAllDrivers(): MutableList<UsbSerialDriver> {
+        return UsbSerialProber.getDefaultProber().findAllDrivers(manager)
+    }
+
+    /**
+     * 设置要匹配的USB设备名称（productName）
+     */
+    fun setTargetDeviceName(name: String) {
+        deviceTargetName = name
+    }
+
+    /**
      * 设置回调接口
      */
-    fun setOnUSBDateReceiveListener(listener: OnUSBDateReceiveListener?) {
+    fun setOnUSBDateReceiveListener(listener: OnUSBReceiveListener?) {
         this.listener = listener
     }
 
     /**
      * 回调接口
      */
-    interface OnUSBDateReceiveListener {
+    interface OnUSBReceiveListener {
         /**
          * 连接信息
          */
-        fun onConnect(flag: Boolean, reason: String?)
+        fun onConnected()
+
+        /**
+         * 连接失败
+         */
+        fun onConnectionFailed(message: String?)
 
         /**
          * 断开连接
          */
-        fun onDisconnect()
+        fun onDisconnected()
 
         /**
          * 返回信息

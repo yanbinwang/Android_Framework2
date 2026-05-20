@@ -34,11 +34,14 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
 
     override fun initEvent() {
         super.initEvent()
-        usbTransfer.setOnUSBDateReceiveListener(object : USBTransfer.OnUSBDateReceiveListener {
-            override fun onConnect(flag: Boolean, reason: String?) {
+        usbTransfer.setOnUSBDateReceiveListener(object : USBTransfer.OnUSBReceiveListener {
+            override fun onConnected() {
             }
 
-            override fun onDisconnect() {
+            override fun onConnectionFailed(message: String?) {
+            }
+
+            override fun onDisconnected() {
             }
 
             override fun onReceive(reason: String?) {
