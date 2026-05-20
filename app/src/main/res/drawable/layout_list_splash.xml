@@ -1,32 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <item android:drawable="@color/bgBlue" />
+    <item android:drawable="@color/bgWhite" />
 
     <item
-        android:layout_width="280dp"
-        android:layout_height="60dp"
-        android:top="215dp">
+        android:width="300dp"
+        android:height="354dp"
+        android:gravity="top|center_horizontal"
+        android:top="104dp">
         <bitmap
             android:antialias="true"
-            android:gravity="top|center_horizontal"
             android:scaleType="fitXY"
-            android:src="@mipmap/bg_splash_header"
+            android:src="@mipmap/bg_splash"
             android:tileMode="disabled" />
     </item>
 
+</layer-list><!--<?xml version="1.0" encoding="utf-8"?>-->
+    <!--<layer-list xmlns:android="http://schemas.android.com/apk/res/android">-->
 
-    <!-- 底部空出一定的距离，进app后会隐藏导航栏和状态栏 -->
-    <item
-        android:layout_width="184dp"
-        android:layout_height="78dp"
-        android:bottom="60dp">
-        <bitmap
-            android:antialias="true"
-            android:gravity="bottom|center_horizontal"
-            android:scaleType="fitXY"
-            android:src="@mipmap/bg_splash_footer"
-            android:tileMode="disabled" />
-    </item>
+    <!--    <item android:drawable="@color/bgBlue" />-->
 
-</layer-list>
+    <!--    <item android:top="215dp">-->
+    <!--        <bitmap-->
+    <!--            android:antialias="true"-->
+    <!--            android:gravity="top|center_horizontal"-->
+    <!--            android:scaleType="fitXY"-->
+    <!--            android:src="@mipmap/bg_splash_header"-->
+    <!--            android:tileMode="disabled" />-->
+    <!--    </item>-->
+
+    <!--    &lt;!&ndash; 底部空出一定的距离，进app后会隐藏导航栏和状态栏 &ndash;&gt;-->
+    <!--    <item android:bottom="30dp">-->
+    <!--        <bitmap-->
+    <!--            android:antialias="true"-->
+    <!--            android:gravity="bottom|center_horizontal"-->
+    <!--            android:scaleType="fitXY"-->
+    <!--            android:src="@mipmap/bg_splash_footer"-->
+    <!--            android:tileMode="disabled" />-->
+    <!--    </item>-->
+
+    <!--</layer-list>-->

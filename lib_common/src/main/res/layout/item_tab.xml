@@ -3,15 +3,15 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <FrameLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/tv_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:gravity="center"
-            android:paddingHorizontal="6pt"
+            tools:paddingHorizontal="6pt"
             tools:text="文案文案文案"
             tools:textColor="@color/appTheme"
             tools:textSize="@dimen/textSize15" />

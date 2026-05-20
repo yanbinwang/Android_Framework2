@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <paths>
-    <external-path path="Android/data/com.example.mvvm/" name="files_root" />
-    <external-path path="." name="external_storage_root" />
+    <!-- 内部私有文件（context.filesDir）-->
+    <files-path name="files_path" path="." />
+    <!-- 内部缓存（context.cacheDir）-->
+    <cache-path name="cache_path" path="." />
+    <!-- 外部私有文件（推荐存照片 : context.getExternalFilesDir()） -->
+    <external-files-path name="external_files_path" path="." />
+    <!-- 外部缓存（推荐存录像 : context.getExternalCacheDir()） -->
+    <external-cache-path name="external_cache_path" path="." />
 </paths>

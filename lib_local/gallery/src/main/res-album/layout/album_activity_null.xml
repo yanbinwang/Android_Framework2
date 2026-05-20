@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/galleryBackground"
+    android:orientation="vertical">
+
+    <com.example.common.widget.AppToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tv_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/galleryFontHint"
+            android:textSize="@dimen/textSize12"
+            android:textStyle="bold"
+            tools:text="没有发现媒体文件" />
+
+        <LinearLayout
+            android:id="@+id/layout_camera_image"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_camera_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_image_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_image_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_camera_video"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
+            android:gravity="center"
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_camera_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_video_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_video_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

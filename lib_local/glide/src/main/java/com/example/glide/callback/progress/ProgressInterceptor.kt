@@ -2,7 +2,7 @@ package com.example.glide.callback.progress
 
 import okhttp3.Interceptor
 import okhttp3.Response
-import okhttp3.ResponseBody.Companion.toResponseBody
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -19,7 +19,9 @@ class ProgressInterceptor : Interceptor {
          */
         @JvmStatic
         fun addListener(url: String, onProgress: ((progress: Int) -> Unit)) {
-            listenerMap[url] = onProgress
+            if (url.isNotBlank()) {
+                listenerMap[url] = onProgress
+            }
         }
 
         /**
@@ -27,16 +29,25 @@ class ProgressInterceptor : Interceptor {
          */
         @JvmStatic
         fun removeListener(url: String) {
-            listenerMap.remove(url)
+            if (url.isNotBlank()) {
+                listenerMap.remove(url)
+            }
         }
-
     }
 
+    @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
-        val response = chain.proceed(request)
         val url = request.url.toString()
-        return response.newBuilder().body(ProgressResponseBody(url, response.body ?: "".toResponseBody())).build()
+        // 获取 listener 实例 , 如果没有注册监听器，直接返回原始响应
+        val listener = listenerMap[url] ?: return chain.proceed(request)
+        // 如果有监听器，则继续执行请求，并包装响应体
+        val response = chain.proceed(request)
+        val body = response.body
+        // 将 listener 直接传递给 ProgressResponseBody，而不是让它再去 Map 里取
+        return response.newBuilder()
+            .body(ProgressResponseBody(body, listener))
+            .build()
     }
 
 }

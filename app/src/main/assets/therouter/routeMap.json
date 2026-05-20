@@ -1,0 +1,72 @@
+[
+  {
+    "path": "/app/TestActivity",
+    "className": "com.example.mvvm.activity.TestActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/app/TestActivity2",
+    "className": "com.example.mvvm.activity.Test2Activity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/app/StartActivity",
+    "className": "com.example.mvvm.activity.StartActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/app/SplashActivity",
+    "className": "com.example.mvvm.activity.SplashActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/app/MainActivity",
+    "className": "com.example.mvvm.activity.MainActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/app/AdActivity",
+    "className": "com.example.mvvm.activity.AdActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/home/WebActivity",
+    "className": "com.example.home.activity.WebActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/home/ScaleActivity",
+    "className": "com.example.home.activity.ScaleActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/home/LinkActivity",
+    "className": "com.example.home.activity.LinkActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  },
+  {
+    "path": "/account/LoginActivity",
+    "className": "com.example.account.activity.LoginActivity",
+    "action": "",
+    "description": "",
+    "params": {}
+  }
+]

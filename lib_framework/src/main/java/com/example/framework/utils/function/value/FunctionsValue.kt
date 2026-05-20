@@ -1,15 +1,22 @@
 package com.example.framework.utils.function.value
 
+import android.content.res.ColorStateList
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
+import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Bundle
 import android.os.Looper
 import androidx.annotation.ColorInt
+import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
+import com.example.framework.R
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
 import java.io.IOException
 import java.util.Locale
+import java.util.regex.Pattern
 
 //------------------------------------方法工具类------------------------------------
 /**
@@ -45,6 +52,7 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
     return try {
         this.toString().toBoolean()
     } catch (e: Exception) {
+        e.printStackTrace()
         default
     }
 }
@@ -73,11 +81,25 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
- * 获取Color String中的color
- * eg: "#ffffff"
+ * 安全解析颜色字符串为 [ColorInt]，支持 null 处理和格式验证
+ * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
+ * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
  */
 @ColorInt
-fun String?.parseColor() = Color.parseColor(this ?: "#ffffff")
+fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
+    return this?.let { colorString ->
+        val colorPattern = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+        if (colorPattern.matcher(colorString).matches()) {
+            try {
+                colorString.toColorInt()
+            } catch (_: IllegalArgumentException) {
+                defaultColor
+            }
+        } else {
+            defaultColor
+        }
+    } ?: defaultColor
+}
 
 /**
  * 不指定name，默认返回class命名
@@ -87,20 +109,106 @@ fun Class<*>.getSimpleName(name: String? = null): String {
 }
 
 /**
+ * 获取正常颜色
+ */
+@ColorInt
+fun ColorStateList.getNormalColor(): Int {
+    return defaultColor
+}
+
+/**
+ * 获取高亮颜色（按下/选中/勾选 都一样）
+ */
+@ColorInt
+fun ColorStateList.getHighLightColor(): Int {
+    return getColorForState(intArrayOf(android.R.attr.state_pressed), defaultColor)
+}
+
+/**
+ * 创建按钮/文本/背景的颜色状态选择器
+ * 统一处理：按下、选中、勾选 = 高亮色 | 默认 = 正常色
+ */
+fun createColorSelector(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
+    val states = arrayOf(
+        // 勾选
+        intArrayOf(android.R.attr.state_checked),
+        // 按下
+        intArrayOf(android.R.attr.state_pressed),
+        // 选中
+        intArrayOf(android.R.attr.state_selected),
+        // 默认（所有其他情况）
+        intArrayOf()
+    )
+    val colors = intArrayOf(highLight, highLight, highLight, normal)
+    return ColorStateList(states, colors)
+}
+
+/**
+ * 创建带描边的圆角矩形 Drawable（适配服务器返回的颜色字符串,减少本地背景文件的绘制）
+ * @param colorString 背景色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @param radius 圆角半径（px，默认 0）
+ * @param strokeWidth 描边宽度（px，默认 -1 表示不绘制描边）
+ * @param strokeColor 描边颜色（ColorInt，默认透明，仅 strokeWidth > 0 时生效）
+ * @return 圆角矩形 Drawable
+ */
+fun createRectangleDrawable(colorString: String, radius: Float = 0f, strokeWidth: Int = -1, @ColorInt strokeColor: Int = Color.TRANSPARENT): Drawable {
+    return GradientDrawable().apply {
+        setColor(colorString.parseColor())
+        cornerRadius = radius
+        if (-1 != strokeWidth) {
+            setStroke(strokeWidth, strokeColor)
+        }
+    }
+}
+
+/**
+ * 创建圆形 Drawable（适配服务器返回的颜色字符串）
+ * @param colorString 颜色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @return 圆形 Drawable
+ */
+fun createOvalDrawable(colorString: String): Drawable {
+    return GradientDrawable().apply {
+        shape = OVAL
+        setColor(colorString.parseColor())
+    }
+}
+
+/**
+ * 比较两个 Drawable 是否来自同一资源或完全相同（仅支持 API 21+）
+ */
+fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
+    // 处理 null 情况（两个都为 null 才相同）
+    if (d1 == null && d2 == null) return true
+    if (d1 == null || d2 == null) return false
+    // 快速比较实例引用：同一个实例
+    if (d1 === d2) return true
+    // 通过 constantState 对比（同一资源/同一类型的 Drawable 会相同）
+    val cs1 = d1.constantState
+    val cs2 = d2.constantState
+    // 防御性编程：避免 constantState 为 null 时误判
+    return when {
+        cs1 == null && cs2 == null -> false
+        cs1 == null || cs2 == null -> false
+        else -> cs1 == cs2
+    }
+}
+
+/**
  * 获取android总运行内存大小(byte)
  */
 fun getMemInfo(): Long {
     var memory = 0L
     try {
         val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
-        //系统内存信息文件,读取meminfo第一行，系统总内存大小
+        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
         val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        //获得系统总内存，单位是KB
+        // 获得系统总内存，单位是KB
         val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-        //int值乘以1024转换为long类型
+        // int值乘以1024转换为long类型
         memory = systemMemory.toSafeLong() * 1024
         localBufferedReader.close()
-    } catch (_: IOException) {
+    } catch (e: IOException) {
+        e.printStackTrace()
     }
     return memory
 }
@@ -114,7 +222,8 @@ fun getCpuInfo(): String {
         val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
         localBufferedReader.close()
         return if ("0" == info || info.isEmpty()) "" else info
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
         ""
     }
 }
@@ -127,7 +236,8 @@ fun mobileIsRoot(): Boolean {
         for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
             if (File(element + "su").exists()) return true
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
     return false
 }

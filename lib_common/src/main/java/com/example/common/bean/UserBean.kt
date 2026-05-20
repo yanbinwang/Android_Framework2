@@ -35,6 +35,19 @@ data class UserInfoBean(
     var waitPayCount: Int? = null//等待支付订单
 ) : Parcelable {
 
+//    /**
+//     * 双向绑定tag
+//     * : Parcelable, BaseObservable()
+//     */
+//    @IgnoredOnParcel
+//    var tag = fileLabel
+//        @Bindable
+//        get
+//        set(value) {
+//            field = value
+//            notifyPropertyChanged(BR.tag)
+//        }
+
     /**
      * 我们需要规定两个不同的对象在部分值相同的时候让安卓虚拟机视为是相同的对象
      * 每个页面可以调取一下接口，然后用==和本地做对比
@@ -67,4 +80,5 @@ data class UserInfoBean(
         result = 31 * result + waitPayCount.hashCode()
         return result
     }
+
 }

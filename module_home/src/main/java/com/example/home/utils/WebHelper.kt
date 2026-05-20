@@ -7,10 +7,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
-import com.example.common.utils.FormActivityUtil
 import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.clear
 import com.example.common.utils.function.load
 import com.example.common.utils.function.refresh
 import com.example.common.utils.function.setClient
@@ -29,22 +27,20 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     private var webImpl: WebImpl? = null
     private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
+    private val webJsName = "JSCallAndroid"
     private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
-    private val webView get() = webUtil.webView
+    private val webView get() = webUtil.getWebView()
 
     init {
         mActivity.lifecycle.addObserver(this)
         addWebView()
-        FormActivityUtil.setAct(mActivity)
     }
 
     private fun addWebView() {
         webView?.byHardwareAccelerate()
         webView?.background(R.color.bgDefault)
-        webView?.settings?.useWideViewPort = true
-        webView?.settings?.loadWithOverviewMode = true
         //WebView与JS交互
-        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), "JSCallAndroid")
+        webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), webJsName)
         webView?.setClient(mBinding?.pbWeb, {
             //开始加载页面的操作...
             onPageStarted?.invoke()
@@ -104,7 +100,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     /**
      * 设置页面加载完毕后的监听
      */
-    fun setClientListener(onPageStarted: (() -> Unit), onPageFinished: ((title: String?) -> Unit)) {
+    fun setClientListener(onPageStarted: (() -> Unit) = {}, onPageFinished: ((title: String?) -> Unit) = {}) {
         this.onPageStarted = onPageStarted
         this.onPageFinished = onPageFinished
     }
@@ -115,9 +111,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
-                webView?.removeJavascriptInterface("JSCallAndroid")
-                webView?.clear()
-//                webView = null
+                webView?.removeJavascriptInterface(webJsName)
                 mBinding?.unbind()
                 mActivity.lifecycle.removeObserver(this)
             }

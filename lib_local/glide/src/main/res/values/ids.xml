@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="glide_res_tag" type="id"/>
+    <item name="glide_drawable_tag" type="id"/>
+    <item name="glide_visibility_tag" type="id"/>
+</resources>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="NewApi">
+
+    <!-- 基础样式 -->
+    <style name="Album" />
+
+    <!-- 基础对话框：悬浮、半透明背景 -->
+    <style name="Album.Dialog" parent="Gallery.Dialog" />
+
+    <!-- 文件夹对话框：全屏、透明背景 -->
+    <style name="Album.Dialog.Folder">
+        <item name="android:windowBackground">@color/galleryTransparent</item>
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowFullscreen">true</item>
+        <!-- 底部弹出动画 -->
+        <item name="android:windowAnimationStyle">@style/PopupTranslateAnimStyle</item>
+    </style>
+
+</resources>

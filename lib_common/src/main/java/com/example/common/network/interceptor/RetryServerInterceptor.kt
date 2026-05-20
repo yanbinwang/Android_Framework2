@@ -20,20 +20,21 @@ internal class RetryServerInterceptor : Interceptor {
         val headerValues: String
         val request = chain.request()
         headerValues = request.headers.toString()
-        //当请求头中包含Retry-Agent，切换请求地址(第三个参数为切换的具体地址)
+        // 当请求头中包含Retry-Agent，切换请求地址(第三个参数为切换的具体地址)
         if (headerValues.contains("Retry-Agent")) {
             return retryServer(chain, request, ServerConfig.serverUrl())
         }
         return chain.proceed(request)
     }
 
-    //切换请求前缀地址
+    // 切换请求前缀地址
     private fun retryServer(chain: Interceptor.Chain, request: Request, server: String): Response {
         var response: Response? = null
         val newRequest = request.newBuilder().url(request.url.toString().replace(ServerConfig.serverUrl(), server)).build()
         try {
             response = chain.proceed(newRequest)
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         return response ?: chain.proceed(request)
     }

@@ -2,13 +2,15 @@ package com.example.common.widget.advertising
 
 import android.annotation.SuppressLint
 import android.view.ViewGroup
-import android.widget.ImageView
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.init
 import com.example.glide.ImageLoader
 
 /**
@@ -16,25 +18,29 @@ import com.example.glide.ImageLoader
  *  广告适配器
  */
 @SuppressLint("NotifyDataSetChanged")
-class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.AdvertisingViewHolder>() {
     private var radius = 0
     private var localAsset = false
     private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ImageView(parent.context))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdvertisingViewHolder {
+        return AdvertisingViewHolder(CardView(parent.context).also { it.init(radius.ptFloat) })
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.itemView.click { onItemClick?.invoke(position.mod(list.safeSize)) }
-        val bean = list.safeGet(position.mod(list.safeSize)).orEmpty()
-        val image = holder.itemView as? ImageView ?: return
-        if (localAsset) {
-//            image.setDrawable(holder.itemView.context.defTypeMipmap(bean))
-            ImageLoader.instance.displayRound(image, holder.itemView.context.defTypeMipmap(bean), radius = radius.pt)
-        } else {
-            ImageLoader.instance.displayRound(image, bean, radius = radius.pt)
+    override fun onBindViewHolder(holder: AdvertisingViewHolder, position: Int) {
+        (holder.itemView as? CardView)?.let {
+            val index = position.mod(list.safeSize)
+            val uri = list.safeGet(index) ?: return
+            it.radius = radius.ptFloat
+            if (localAsset) {
+                ImageLoader.instance.loadCardViewFromDrawable(it, it.context.defTypeMipmap(uri))
+            } else {
+                ImageLoader.instance.loadCardViewFromUrl(it, uri)
+            }
+            it.click {
+                onItemClick?.invoke(index)
+            }
         }
     }
 
@@ -57,11 +63,9 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         this.onItemClick = onItemClick
     }
 
-    class ViewHolder(itemView: ImageView) : RecyclerView.ViewHolder(itemView) {
+    class AdvertisingViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
         init {
-            //设置缩放方式
-            itemView.scaleType = ImageView.ScaleType.FIT_XY
-            itemView.layoutParams = RecyclerView.LayoutParams(RecyclerView.LayoutParams.MATCH_PARENT, RecyclerView.LayoutParams.MATCH_PARENT)
+            itemView.layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }
     }
 

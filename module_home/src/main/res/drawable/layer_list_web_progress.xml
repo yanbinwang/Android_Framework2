@@ -3,7 +3,7 @@
     <item android:id="@android:id/background">
         <shape>
 
-            <corners android:radius="2dp" />
+            <corners android:radius="2pt" />
 
             <gradient
                 android:angle="270"
@@ -20,7 +20,7 @@
 
             <shape>
 
-                <corners android:radius="2dp" />
+                <corners android:radius="2pt" />
 
                 <gradient
                     android:centerColor="@color/bgWebProgressCenter"

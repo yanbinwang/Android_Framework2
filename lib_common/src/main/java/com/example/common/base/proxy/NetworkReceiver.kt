@@ -12,6 +12,7 @@ import android.net.ConnectivityManager
  * @author yan
  */
 @SuppressLint("MissingPermission")
+@Deprecated("可删,详细看NetWorkUtil的init方法")
 class NetworkReceiver : BroadcastReceiver() {
     companion object {
         val filter by lazy {

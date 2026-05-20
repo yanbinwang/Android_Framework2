@@ -19,7 +19,7 @@
             android:id="@+id/tv_cancel"
             android:layout_width="match_parent"
             android:layout_height="50pt"
-            android:layout_marginTop="9pt"
+            android:layout_marginTop="10pt"
             android:background="@color/bgDefault"
             android:gravity="center"
             android:text="@string/cancel"

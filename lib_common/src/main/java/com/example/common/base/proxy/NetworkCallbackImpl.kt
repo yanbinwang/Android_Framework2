@@ -9,6 +9,7 @@ import android.net.NetworkCapabilities
  *  Created by wangyanbin
  *  网络监听
  */
+@Deprecated("可删,详细看NetWorkUtil的init方法")
 class NetworkCallbackImpl : ConnectivityManager.NetworkCallback() {
     companion object {
         @Volatile

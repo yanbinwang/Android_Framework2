@@ -6,7 +6,7 @@
         android:id="@+id/fl_root"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        tools:background="@color/appWindowBackground">
 
         <LinearLayout
             android:id="@+id/ll_item"

@@ -2,12 +2,22 @@ package com.example.framework.utils.function.view
 
 import android.app.Activity
 import android.content.Context
-import android.graphics.*
-import android.text.*
+import android.graphics.Color
+import android.graphics.LinearGradient
+import android.graphics.Paint
+import android.graphics.Shader
+import android.graphics.Typeface
+import android.graphics.drawable.Drawable
+import android.os.Build
+import android.text.Editable
+import android.text.InputFilter
+import android.text.InputType
+import android.text.Spannable
+import android.text.TextUtils
+import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -22,21 +32,36 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
+import com.example.framework.utils.BlackListFilter
+import com.example.framework.utils.ChineseCharFilter
 import com.example.framework.utils.DecimalInputFilter
 import com.example.framework.utils.EditTextUtil
-import com.example.framework.utils.function.value.*
+import com.example.framework.utils.NoEmojiFilter
+import com.example.framework.utils.NumberLimitFilter
+import com.example.framework.utils.SpaceInputFilter
+import com.example.framework.utils.WhiteListFilter
+import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.multiply
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.parseColor
+import com.example.framework.utils.function.value.subtract
+import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.hideSoftKeyboard
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.insertAtFocusedPosition
 import com.example.framework.utils.function.view.ExtraTextViewFunctions.showSoftKeyboard
-import java.math.BigDecimal
-import java.util.*
+import java.math.RoundingMode
+import java.util.Random
 
 //------------------------------------textview扩展函数类------------------------------------
 /**
  * 直线渐变
  */
 fun TextView?.linearGradient(startColor: String?, endColor: String?) {
-    if (this == null) return
+    this ?: return
     paint.shader = LinearGradient(0f, 0f, paint.textSize * text.length, 0f, startColor.parseColor(), endColor.parseColor(), Shader.TileMode.CLAMP)
     invalidate()
 }
@@ -45,7 +70,7 @@ fun TextView?.linearGradient(startColor: String?, endColor: String?) {
  * 下划线
  */
 fun TextView?.underLine(haveLine: Boolean) {
-    if (this == null) return
+    this ?: return
     paintFlags = if (haveLine) {
         paintFlags or Paint.UNDERLINE_TEXT_FLAG
     } else {
@@ -57,7 +82,7 @@ fun TextView?.underLine(haveLine: Boolean) {
  * 加粗
  */
 fun TextView?.bold(isBold: Boolean) {
-    if (this == null) return
+    this ?: return
     typeface = if (isBold) {
         Typeface.defaultFromStyle(Typeface.BOLD)
     } else {
@@ -66,34 +91,63 @@ fun TextView?.bold(isBold: Boolean) {
 }
 
 /**
+ * 字重数值	对应名称（英文）	中文描述	      常见使用场景
+ * 100	      Thin	         极细	     特殊设计感标题
+ * 200	    Extra Light	     超轻	     轻量正文、辅助文字
+ * 300	      Light	         轻量	      正文、注释
+ * 400	     Regular	   常规（默认）    大多数正文内容
+ * 500	     Medium	         中等	   强调性文字（比常规稍重）
+ * 600	    Semi Bold	     半粗	   小标题、重点标签
+ * 700	     Bold	         加粗（标准）	  标题、按钮文字
+ * 800	   Extra Bold	     超粗	   大标题、强强调文字
+ * 900	     Black	         特粗	     品牌名、醒目标题
+ */
+fun TextView?.textFontWeight(weight: Int) {
+    this ?: return
+    val validWeight = weight.coerceIn(100, 900)
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        // 原生方法，直接设置字重
+        setTypeface(Typeface.create(null as Typeface?, validWeight))
+    } else {
+        // 低版本（23-25）兼容逻辑
+        when {
+            validWeight >= 700 -> {
+                // 模拟加粗（700-900）：启用 fakeBold，可适当增加描边
+                paint.isFakeBoldText = true
+                paint.style = Paint.Style.FILL_AND_STROKE
+                // 基于文字大小动态调整
+                paint.strokeWidth = textSize * 0.01f
+            }
+            validWeight <= 300 -> {
+                // 模拟细体（100-300）：禁用 fakeBold，确保无描边
+                paint.isFakeBoldText = false
+                paint.style = Paint.Style.FILL
+                paint.strokeWidth = 0f
+            }
+            else -> {
+                // 常规/中等（400-600）：默认样式
+                paint.isFakeBoldText = false
+                paint.style = Paint.Style.FILL
+                paint.strokeWidth = 0f
+            }
+        }
+        invalidate()
+    }
+}
+
+/**
  * 字体颜色
  */
-fun TextView?.textColor(@ColorRes color: Int) {
-    if (this == null) return
-    this.setTextColor(ContextCompat.getColor(context, color))
-}
-
-/**
- * 以res设置textSize
- */
-fun TextView?.textSize(@DimenRes size: Int) {
-    if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(size))
-}
-
-/**
- * 以px做单位设置textSize
- */
-fun TextView?.setPxTextSize(size: Float) {
-    if (this == null) return
-    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+fun TextView?.textColor(@ColorRes res: Int) {
+    this ?: return
+    this.setTextColor(ContextCompat.getColor(context, res))
 }
 
 /**
  * textview颜色随机
  */
-fun TextView?.setRandomTextColor() {
-    if (this == null) return
+fun TextView?.randomTextColor() {
+    this ?: return
     val random = Random()
     val r = random.nextInt(256)
     val g = random.nextInt(256)
@@ -102,83 +156,137 @@ fun TextView?.setRandomTextColor() {
 }
 
 /**
+ * 通过 dimens.xml 中定义的资源 ID，给 TextView 设置文字大小
+ * 不管资源里写的是什么单位，最终都转成像素（PX）给 TextView 用
+ *
+ * setTextSize(TypedValue.COMPLEX_UNIT_PX, ...)：
+ * 第一个参数 TypedValue.COMPLEX_UNIT_PX 明确告诉系统：“后面的数值单位是像素”。
+ * 因此，TextView 会直接使用转换后的像素值设置文字大小。
+ *
+ * context.resources.getDimension(res)：
+ * 从资源中获取尺寸值，自动将资源中定义的单位（dimes用的 pt）转换为 PX（像素）。
+ * 举例：若 dimens.xml 中是 <dimen name="textSize12">12pt</dimen>，
+ * getDimension 会根据当前设备的屏幕密度，把 12pt 转换为对应的像素值（比如在某设备上可能是 24px）。
+ */
+fun TextView?.textSize(@DimenRes res: Int) {
+    this ?: return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, context.resources.getDimension(res))
+}
+
+/**
+ * 直接接收一个像素值（PX），并将其设置为 TextView 的文字大小
+ * 使用扩展函数12.pt传入的话,会以设计图换算后的值为准设置给 TextView 用
+ */
+fun TextView?.pxTextSize(size: Float) {
+    this ?: return
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, size)
+}
+
+/**
+ * 将 value 按 SP 单位，结合当前页面的屏幕参数，转换为 PX
+ */
+fun TextView?.spTextSize(value: Float) {
+    this ?: return
+    // 用当前上下文的 metrics 转换 SP 为 PX
+    val pxValue = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, value, context.resources.displayMetrics)
+    // 显式指定单位为 PX，避免二次转换
+    this.setTextSize(TypedValue.COMPLEX_UNIT_PX, pxValue)
+}
+
+/**
+ * 给 View 设置上下左右图片
+ * drawables集合内引用drawable()扩展函数,加了mutate()安全隔离
+ */
+fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, width: Int?, height: Int?, tintColor: Int?) {
+    if (this == null || drawables.size != 4) return
+    // 图片间距
+    drawablePadding?.let {
+        compoundDrawablePadding = it
+    }
+    // 图片大小
+    val configAction = { drawable: Drawable? ->
+        if (width != null && height != null) {
+            drawable?.setBounds(0, 0, width, height)
+        }
+        if (tintColor != null) {
+            drawable?.setTint(tintColor)
+        }
+    }
+    val left = drawables[0]
+    val top = drawables[1]
+    val right = drawables[2]
+    val bottom = drawables[3]
+    configAction(left)
+    configAction(top)
+    configAction(right)
+    configAction(bottom)
+    setCompoundDrawables(left, top, right, bottom)
+}
+
+/**
  * 某些特殊布局如一个输入框最后测有个textview，然后输入框内容又是居中的
  * 通常外层会套一个Framelayout，然后把textview绘制在右侧，但是边距显示会很不正常，
  * 调用当前构造函数修整这种畸形效果,绘制时设置edittext宽度match，textview居左右侧都可以
  */
-fun TextView?.setFixDistance(editText: EditText?) {
+fun TextView?.fixDistance(editText: EditText?) {
     if (this == null || editText == null) return
-    doOnceAfterLayout { editText.margin(start = it.width, end = it.width) }
+    doOnceAfterLayout {
+        editText.margin(start = it.measuredWidth, end = it.measuredWidth)
+    }
 }
 
 /**
  * 设置撑满的文本内容
  */
-fun TextView?.setMatchText() {
-    if (this == null) return
-    post {
-        val rawText = text.toString()//原始文本
-        val tvPaint = paint//paint包含字体等信息
-        val tvWidth = width - paddingLeft - paddingRight//控件可用宽度
-        val rawTextLines = rawText.replace("\r".toRegex(), "").split("\n").toTypedArray()//将原始文本按行拆分
+fun TextView?.matchText() {
+    this ?: return
+    // 如果已经完成布局，直接处理文本,若未完成布局，监听布局变化，布局完成后处理文本
+    doOnceAfterLayout {
+        // 获取原始文本
+        val rawText = text.toString()
+        // 获取 TextView 的画笔，包含字体等信息
+        val tvPaint = paint
+        // 计算 TextView 可用于显示文本的宽度
+        val tvWidth = width - paddingLeft - paddingRight
+        // 移除原始文本中的 \r 并按 \n 分割成多行
+        val rawTextLines = rawText.replace("\r", "").split('\n')
+        // 用于存储处理后的文本
         val sbNewText = StringBuilder()
-        for (rawTextLine in rawTextLines) {
-            if (tvPaint.measureText(rawTextLine) <= tvWidth) {
-                //如果整行宽度在控件可用宽度之内，就不处理了
-                sbNewText.append(rawTextLine)
+        // 重新生成字符串
+        for (line in rawTextLines) {
+            if (tvPaint.measureText(line) <= tvWidth) {
+                // 若当前行宽度小于等于可用宽度，直接添加到结果中
+                sbNewText.append(line)
             } else {
-                //如果整行宽度超过控件可用宽度，则按字符测量，在超过可用宽度的前一个字符处手动换行
-                var lineWidth = 0f
-                var cnt = 0
-                while (cnt != rawTextLine.length) {
-                    val ch = rawTextLine[cnt]
-                    lineWidth += tvPaint.measureText(ch.toString())
-                    if (lineWidth <= tvWidth) {
-                        sbNewText.append(ch)
+                // 若当前行宽度超过可用宽度，按字符拆分处理
+                var currentLine = StringBuilder()
+                var currentWidth = 0f
+                for (char in line) {
+                    val charWidth = tvPaint.measureText(char.toString())
+                    if (currentWidth + charWidth <= tvWidth) {
+                        // 若添加当前字符后宽度仍小于等于可用宽度，添加该字符
+                        currentLine.append(char)
+                        currentWidth += charWidth
                     } else {
-                        sbNewText.append("\n")
-                        lineWidth = 0f
-                        --cnt
+                        // 若添加当前字符后宽度超过可用宽度，换行并重置当前行和宽度
+                        sbNewText.append(currentLine).append('\n')
+                        currentLine = StringBuilder().append(char)
+                        currentWidth = charWidth
                     }
-                    ++cnt
                 }
+                // 添加最后一行处理后的文本
+                sbNewText.append(currentLine)
             }
-            sbNewText.append("\n")
+            // 每行处理完后添加换行符
+            sbNewText.append('\n')
         }
-        //把结尾多余的\n去掉
-        if (!rawText.endsWith("\n")) sbNewText.deleteCharAt(sbNewText.length - 1)
+        // 移除末尾多余的换行符
+        if (sbNewText.isNotEmpty() && sbNewText.last() == '\n') {
+            sbNewText.deleteCharAt(sbNewText.length - 1)
+        }
+        // 更新 TextView 的文本
         text = sbNewText.toString()
     }
-}
-
-/**
- * 文案添加点击事件（单一）
- */
-fun TextView?.setClickSpan(txt: String, keyword: String, clickableSpan: ClickableSpan) {
-    if (this == null) return
-    val spannable = SpannableString(txt)
-    val index = txt.indexOf(keyword)
-    text = if (index != -1) {
-        spannable.setSpan(clickableSpan, index, index + keyword.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-        spannable
-    } else txt
-    movementMethod = LinkMovementMethod.getInstance()
-}
-
-fun TextView?.setClickSpan(txt: String, keyword: String, colorRes: Int, listener: () -> Unit) {
-    if (this == null) return
-    setClickSpan(txt, keyword, object : ClickableSpan() {
-        override fun onClick(widget: View) {
-            listener.invoke()
-            movementMethod = LinkMovementMethod.getInstance()
-        }
-
-        override fun updateDrawState(ds: TextPaint) {
-            super.updateDrawState(ds)
-            ds.color = ContextCompat.getColor(context, colorRes)
-            ds.isUnderlineText = false
-        }
-    })
 }
 
 /**
@@ -194,8 +302,10 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
         listener.invoke(0)
         return
     }
-    post {
-        listener.invoke(layout.getEllipsisCount(lineCount - 1))
+    // 若 TextView 已经完成布局，直接获取省略字符数量
+    doOnceAfterLayout {
+        val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+        listener.invoke(ellipsisCount)
     }
 }
 
@@ -206,83 +316,70 @@ fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
     movementMethod = LinkMovementMethod.getInstance()
+    clearHighlightColor()
 }
 
 /**
- * EditText输入密码是否可见(显隐)
+ * 清除高亮
  */
-fun EditText?.passwordDevelopment(): Boolean {
-    if (this == null) return false
-    var display = false
+fun TextView?.clearHighlightColor() {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        highlightColor = Color.TRANSPARENT
+    }
+}
+
+/**
+ * 自动跑马灯滚动效果
+ * 适用于：标题、超长文本、Toolbar 标题等
+ */
+fun TextView?.enableMarquee() {
+    this ?: return
+    // 必须单行
+    isSingleLine = true
+    // 跑马灯模式
+    ellipsize = TextUtils.TruncateAt.MARQUEE
+    // 无限循环
+    marqueeRepeatLimit = -1
+    // 强制获取焦点
+    isFocusable = true
+    isFocusableInTouchMode = true
+    requestFocus()
+    // 解决部分机型/布局中不滚动的问题（如被包裹在 Toolbar 里）
+    isSelected = true
+}
+
+/**
+ * 切换 EditText 的密码可见性（隐藏 ↔ 显示）
+ * @return 切换后的状态：true=密码可见，false=密码隐藏
+ */
+fun EditText?.togglePasswordVisibility(): Boolean {
+    this ?: return false
+    var isPasswordVisible = false
     try {
         if (transformationMethod == HideReturnsTransformationMethod.getInstance()) {
             transformationMethod = PasswordTransformationMethod.getInstance()
-            display = false
+            isPasswordVisible = false
         } else {
             transformationMethod = HideReturnsTransformationMethod.getInstance()
-            display = true
+            isPasswordVisible = true
         }
-        setSelection(text.length)
-        postInvalidate()
-    } catch (_: Exception) {
-    }
-    return display
-}
-
-/**
- * EditText输入金额小数限制
- */
-fun EditText?.decimalFilter(decimalPoint: Int = 2) {
-    if (this == null) return
-    removeFilter { it is DecimalInputFilter }
-    val decimalInputFilter = DecimalInputFilter()
-    decimalInputFilter.decimalPoint = decimalPoint
-    addFilter(decimalInputFilter)
-}
-
-/**
- * EditText不允许输入空格
- */
-fun EditText?.spaceLimit() {
-    if (this == null) return
-    addFilter(object : InputFilter {
-        override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
-            val result = source ?: ""
-            return if (result == " ") "" else null
+        if (!text.isNullOrEmpty()) {
+            setSelection(text.length)
         }
-    })
-}
-
-/**
- * 添加EditText的InputFilter
- */
-fun EditText?.addFilter(vararg filterList: InputFilter) {
-    if (this == null) return
-    filters = filters.plus(filterList)
-}
-
-/**
- * 去除EditText的InputFilter
- */
-fun EditText?.removeFilter(vararg filterList: InputFilter) {
-    if (this == null) return
-    filters = arrayOf<InputFilter>().plus(filters.filter { !filterList.contains(it) })
-}
-
-internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
-    if (this == null) return
-    val filterList = filters.toNewList { it }
-    filterList.forEach {
-        if (func(it)) filterList.remove(it)
+//        postInvalidate() // 可在子线程执行,多一层判断
+        invalidate() // 主线程执行
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
-    filters = filterList.toTypedArray()
+    return isPasswordVisible
 }
 
 /**
  * 添加回车时的处理
  */
 fun EditText?.onDone(listener: () -> Unit) {
-    if (this == null) return
+    this ?: return
     setOnEditorActionListener { _, id, _ ->
         if (id == EditorInfo.IME_ACTION_SEARCH || id == EditorInfo.IME_ACTION_UNSPECIFIED || id == EditorInfo.IME_ACTION_DONE) {
             listener()
@@ -293,31 +390,50 @@ fun EditText?.onDone(listener: () -> Unit) {
     }
 }
 
-///**
-// * 弹出软键盘并获取焦点
-// */
-//fun EditText?.showInput() {
-//    if (this == null) return
-//    focus()
-//    openDecor()
-//}
-
 /**
- * 弹出软键盘
+ * 弹出软键盘并获取焦点
+ * class InputDialog(mContext: Context) : BaseDialog<ViewDialogInputBinding>(mContext, MATCH_PARENT, 60, BOTTOM, R.style.InputDialogStyle, false, false) {
+ *     private var listener: ((text: String) -> Unit)? = null
+ *
+ *     init {
+ *         mBinding?.tvSend.click {
+ *             listener?.invoke(mBinding?.etContent.text())
+ *             mBinding?.etContent.clear()
+ *             dismiss()
+ *         }
+ *     }
+ *
+ *     fun showInput() {
+ *         show()
+ *         mBinding?.etContent.showInput()
+ *     }
+ *
+ *     fun setOnInputListener(listener: ((text: String) -> Unit)) {
+ *         this.listener = listener
+ *     }
+ *
+ * }
+ * <style name="InputDialogStyle" parent="android:Theme.Dialog">
+ *     <item name="android:windowBackground">@android:color/transparent</item>
+ *     <item name="android:windowNoTitle">true</item>
+ *     <item name="android:windowAnimationStyle">@null</item>
+ *     <!-- 完全透明加入下面这句 -->
+ *     <item name="android:backgroundDimEnabled">false</item>
+ * </style>
  */
-fun EditText?.doInput() {
-    if (this == null) return
-    requestFocus()
-    showSoftKeyboard(context, this)
-//    val inputManager = this.context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//    inputManager.showSoftInput(this, 0)
+fun EditText?.showInput(observer: LifecycleOwner) {
+    this ?: return
+    focus()
+    TimerBuilder.schedule(observer, {
+        showSoftKeyboard(context, this)
+    }, 200)
 }
 
 /**
  * 隐藏软键盘
  */
 fun EditText?.hideKeyboard() {
-    if (this == null) return
+    this ?: return
     hideSoftKeyboard(context, this)
     clearFocus()
 }
@@ -326,7 +442,7 @@ fun EditText?.hideKeyboard() {
  * 清除
  */
 fun EditText?.clear() {
-    if (this == null) return
+    this ?: return
     setText("")
     hideKeyboard()
 }
@@ -351,7 +467,8 @@ fun EditText?.setSafeSelection(start: Int, stop: Int? = null) {
         } else {
             setSelection(start, stop)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
@@ -364,33 +481,87 @@ fun EditText?.getNumber(): String {
     return text.toString().ifEmpty { "0" }
 }
 
-fun EditText?.add(number: String) {
+fun EditText?.add(number: String?) {
     this ?: return
     setText(getNumber().add(number))
 }
 
-fun EditText?.subtract(number: String) {
+fun EditText?.subtract(number: String?) {
     this ?: return
     setText(getNumber().subtract(number))
 }
 
-fun EditText?.multiply(number: String) {
+fun EditText?.multiply(number: String?) {
     this ?: return
     setText(getNumber().multiply(number))
 }
 
-fun EditText?.divide(number: String, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+fun EditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN) {
     this ?: return
-    setText(getNumber().divide(number, scale, mode))
+    setText(getNumber().divide(number, scale, roundingMode))
 }
 
 /**
- * 限制输入内容为目标值
+ * 添加EditText的InputFilter
+ */
+fun EditText?.addFilter(vararg filterList: InputFilter) {
+    this ?: return
+    val currentFilters = filters ?: emptyArray()
+    filters = currentFilters.plus(filterList)
+}
+
+/**
+ * 去除EditText的InputFilter
+ */
+fun EditText?.removeFilter(vararg filterClasses: Class<out InputFilter>) {
+    this ?: return
+    // 处理 filters 为 null 的情况，转为空列表
+    val currentFilters = filters ?: emptyArray()
+    // 过滤掉指定类型的Filter（保留非目标类型的）
+    val newFilters = currentFilters.filter { filter ->
+        // 只要Filter不属于传入的任意一个类型，就保留
+        !filterClasses.any { it.isInstance(filter) }
+    }
+    // 重新设置筛选器
+    filters = newFilters.toTypedArray()
+}
+
+internal fun EditText?.removeFilter(func: (InputFilter) -> Boolean) {
+    this ?: return
+    // 安全获取当前筛选器列表（null 兜底为空列表）
+    val currentFilters = filters?.toList() ?: emptyList()
+    // 过滤掉要移除的 Filter（避免遍历删除的坑）
+    val remainingFilters = currentFilters.filterNot(func)
+    // 重新设置筛选器（转数组）
+    filters = remainingFilters.toTypedArray()
+}
+
+/**
+ * EditText不允许输入空格
+ */
+fun EditText?.spaceLimit() {
+    this ?: return
+    removeFilter { it is SpaceInputFilter }
+    addFilter(SpaceInputFilter())
+}
+
+/**
+ * 限制输入内容仅为指定字符（白名单）
  * "0123456789."
  */
-fun EditText?.charLimit(characterAllowed: CharArray) {
+fun EditText?.whiteListLimit(allowed: CharArray) {
     this ?: return
-    EditTextUtil.setCharLimit(this, characterAllowed)
+    removeFilter { it is WhiteListFilter }
+    addFilter(WhiteListFilter(allowed))
+}
+
+/**
+ * 限制输入内容排除指定字符（黑名单）
+ */
+fun EditText?.blackListLimit(disallowed: CharArray) {
+    this ?: return
+    removeFilter { it is BlackListFilter }
+    addFilter(BlackListFilter(disallowed))
 }
 
 /**
@@ -398,7 +569,8 @@ fun EditText?.charLimit(characterAllowed: CharArray) {
  */
 fun EditText?.emojiLimit() {
     this ?: return
-    EditTextUtil.setEmojiLimit(this)
+    removeFilter { it is NoEmojiFilter }
+    addFilter(NoEmojiFilter())
 }
 
 /**
@@ -406,23 +578,40 @@ fun EditText?.emojiLimit() {
  */
 fun EditText?.chineseLimit() {
     this ?: return
-    EditTextUtil.setChineseLimit(this)
+    removeFilter { it is ChineseCharFilter }
+    addFilter(ChineseCharFilter())
+}
+
+/**
+ * EditText输入金额小数限制
+ */
+fun EditText?.decimalLimit(decimalPoint: Int = 2) {
+    this ?: return
+    // 配置数字输入类型（支持小数、正负号）
+    inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED
+    // 移除已有的 DecimalInputFilter，避免重复添加
+    removeFilter { it is DecimalInputFilter }
+    // 添加新的小数筛选器
+    addFilter(DecimalInputFilter(decimalPoint))
 }
 
 /**
  * 设置EditText输入的最大长度
  */
-fun EditText?.maxLength(maxLength: Int) {
+fun EditText?.maxLimit(maxLength: Int) {
     this ?: return
-    EditTextUtil.setMaxLength(this, maxLength)
+    removeFilter { it is InputFilter.LengthFilter }
+    addFilter(InputFilter.LengthFilter(maxLength))
 }
 
 /**
  * 设置EditText输入数值的最大值
  */
-fun EditText?.maxValue(maxLength: Int, maxDecimal: Int) {
+fun EditText?.maxLimit(maxLength: Int, maxDecimal: Int) {
     this ?: return
-    EditTextUtil.setMaxValue(this, maxLength, maxDecimal)
+    removeFilter(InputFilter.LengthFilter::class.java, NumberLimitFilter::class.java)
+    addFilter(InputFilter.LengthFilter(maxLength + 1 + maxDecimal))
+    addFilter(NumberLimitFilter(maxLength, maxDecimal))
 }
 
 /**
@@ -442,26 +631,28 @@ fun EditText?.imeOptions(imeOptions: Int) {
 }
 
 /**
- * 限制输入内容为非目标值
- */
-fun EditText?.charBlackList(characterAllowed: CharArray) {
-    this ?: return
-    EditTextUtil.setCharBlackList(this, characterAllowed)
-}
-
-/**
  * 屏蔽页面中的edit输入框的弹出
  */
 fun Activity?.inputHidden(vararg edits: EditText?): ArrayList<EditText?>? {
     this ?: return null
     val list = listOf(*edits)
-    //建立对应的绑定关系，让edittext不再弹出系统的输入框
+    // 建立对应的绑定关系，让edittext不再弹出系统的输入框
     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
-    try {
-        val setShowSoftInputOnFocus = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
-        setShowSoftInputOnFocus.isAccessible = true
-        list.forEach { setShowSoftInputOnFocus.invoke(it, false) }
-    } catch (_: Exception) {
+    // api26+的版本已经公开了setShowSoftInputOnFocus,不再需要反射
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        list.forEach { editText ->
+            editText?.showSoftInputOnFocus = false
+        }
+    } else {
+        try {
+            val method = EditText::class.java.getMethod("setShowSoftInputOnFocus", Boolean::class.javaPrimitiveType)
+            method.isAccessible = true
+            list.forEach { editText ->
+                editText?.let { method.invoke(it, false) }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
     return list.toArrayList()
 }
@@ -596,10 +787,13 @@ object ExtraTextViewFunctions {
      * @param text 插入的文本
      */
     fun insertAtFocusedPosition(editText: EditText, text: String) {
-        val index = editText.selectionStart //获取光标所在位置
-        val edit = editText.editableText //获取EditText的文字
+        // 获取光标所在位置
+        val index = editText.selectionStart
+        // 获取EditText的文字
+        val edit = editText.editableText
         if (index in edit.indices) {
-            edit.insert(index, text) //光标所在位置插入文字
+            // 光标所在位置插入文字
+            edit.insert(index, text)
         } else {
             edit.append(text)
         }

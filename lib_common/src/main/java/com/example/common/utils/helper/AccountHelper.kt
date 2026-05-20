@@ -1,19 +1,18 @@
 package com.example.common.utils.helper
 
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.bean.UserBean
 import com.example.common.bean.UserInfoBean
-import com.example.common.config.ARouterPath
 import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
-import com.example.common.config.Constants
-import com.example.common.event.EventCode
+import com.example.common.config.RouterPath
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
 import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
-import com.example.common.socket.WebSocketConnect
-import com.example.common.utils.AppManager
+import com.example.common.network.socket.topic.WebSocketConnect
+import com.example.common.utils.manager.AppManager
+import com.example.common.utils.manager.CacheDataManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
+import com.therouter.TheRouter
 
 /**
  * Created by WangYanBin on 2020/8/11.
@@ -21,8 +20,6 @@ import com.example.framework.utils.function.value.orFalse
  * 注意get值一定要有，否则xml中取值会报错
  */
 object AccountHelper {
-    //默认用户文件保存位置
-    val STORAGE get() = "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
 
     // <editor-fold defaultstate="collapsed" desc="用户类方法">
     /**
@@ -43,6 +40,7 @@ object AccountHelper {
     /**
      * 获取userid
      */
+    @JvmStatic
     fun getUserId(): String {
         return getUser().userId.orEmpty()
     }
@@ -50,6 +48,7 @@ object AccountHelper {
     /**
      * 获取token
      */
+    @JvmStatic
     fun getToken(): String {
         return getUser().token.orEmpty()
     }
@@ -57,6 +56,7 @@ object AccountHelper {
     /**
      * 是否通过实名认证
      */
+    @JvmStatic
     fun getIsReal(): Boolean {
         return getUser().isReal.orFalse
     }
@@ -64,17 +64,17 @@ object AccountHelper {
     /**
      * 存储手机号
      */
-    fun setPhoneNumber(newPhoneNumber: String?) {
-        newPhoneNumber ?: return
-        getUser().let {
-            it.phoneNumber = newPhoneNumber
-            setUser(it)
-        }
+    @JvmStatic
+    fun setPhoneNumber(phoneNumber: String) {
+        val bean = getUser()
+        bean.phoneNumber = phoneNumber
+        setUser(bean)
     }
 
     /**
      * 获取手机号
      */
+    @JvmStatic
     fun getPhoneNumber(): String {
         return getUser().phoneNumber.orEmpty()
     }
@@ -84,6 +84,7 @@ object AccountHelper {
     /**
      * 存储用户信息对象
      */
+    @JvmStatic
     private fun setUserInfo(bean: UserInfoBean?) {
         bean ?: return
         if (getUserInfo() == bean) return//重写equals和hashcode
@@ -93,6 +94,7 @@ object AccountHelper {
     /**
      * 获取用户信息对象
      */
+    @JvmStatic
     fun getUserInfo(): UserInfoBean {
         return userInfoBean.get() ?: UserInfoBean()
     }
@@ -101,20 +103,20 @@ object AccountHelper {
      * 设置账户状态
      * 0冻结 1正常
      */
-    fun setStatus(newStatus: Int?) {
-        newStatus ?: return
-        getUserInfo().let {
-            it.status = newStatus
-            setUserInfo(it)
-        }
+    @JvmStatic
+    fun setStatus(status: Int) {
+        val bean = getUserInfo()
+        bean.status = status
+        setUserInfo(bean)
     }
 
     /**
      * 获取余额->balance+sendBalance
      */
+    @JvmStatic
     fun getLumpSum(): String {
         return getUserInfo().let {
-            it.balance.add(it.sendBalance.orEmpty())
+            it.balance.add(it.sendBalance)
         }
     }
     // </editor-fold>
@@ -123,16 +125,18 @@ object AccountHelper {
     /**
      * 刷新个人信息
      */
-    fun refresh(bean: UserInfoBean?) {
+    @JvmStatic
+    fun refresh(bean: UserInfoBean?, isPost: Boolean = true) {
         bean ?: return
         if (getUserInfo() == bean) return
         setUserInfo(bean)
-        EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
+        if(isPost) EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
     }
 
     /**
      * 是否登陆
      */
+    @JvmStatic
     fun isLogin(): Boolean {
         return getUser().let {
             !it.token.isNullOrEmpty()
@@ -142,6 +146,7 @@ object AccountHelper {
     /**
      * 登录成功调取（初始化一些登录后才进行的操作，第三方库初始化）
      */
+    @JvmStatic
     fun signIn(bean: UserBean?) {
         bean ?: return
         setUser(bean)
@@ -152,16 +157,62 @@ object AccountHelper {
      * MainActivity中注册EVENT_USER_LOGIN_OUT广播，关闭除其外的所有activity
      * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
      */
+    @JvmStatic
+    fun signOut() {
+        // 清除mmkv和默认配置的数据库等缓存数据
+        signError()
+        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.StartActivity)
+    }
+
+    @JvmStatic
     fun signOut(isNavigation: Boolean = true) {
         userBean.del()
         userInfoBean.del()
+//        CacheDataManager.clearCacheBySignOut()
+//        ZendeskUtil.logout(true)
+//        // 断开/终止三方库的连接(其内部应包含数据的删除)
 //        WebSocketConnect.disconnect()
-//        EVENT_USER_LOGIN_OUT.post()
-        AppManager.finishAll()
-//        ARouter.getInstance().build(ARouterPath.StartActivity).navigation()
+        EVENT_USER_LOGIN_OUT.post()
         if (isNavigation) {
-            ARouter.getInstance().build(ARouterPath.LoginActivity).navigation()
+            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
         }
+    }
+
+//    @JvmStatic
+//    fun signOut(isNavigation: Boolean = true) {
+//        // 清除mmkv和默认配置的数据库等缓存数据
+//        userBean.del()
+//        userInfoBean.del()
+//        CacheDataManager.clearCacheBySignOut()
+//        // 断开/终止三方库的连接(其内部应包含数据的删除)
+////        WebSocketConnect.disconnect()
+//        // 根据app的实际情况分为一下两种处理
+//        /**
+//         * App需要强制登录后才能进入首页
+//         * 1)isNavigation: Boolean = true删除
+//         * 2)拉起透明页面,通过AppManager.reboot
+//         * 3)LoginActivity/StartActivity使用singleTask
+//         */
+//        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.LoginActivity)
+//        /**
+//         * App无需强制登录就能进入,但是会在首页或者初次启动/引导的页面打开登录
+//         * 1)isNavigation: Boolean = true保留,部分页面无需强制拉起首页
+//         * 2)LoginActivity使用singleTop
+//         */
+//        EVENT_USER_LOGIN_OUT.post()
+//        if (isNavigation) {
+//            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+//        }
+//    }
+
+    /**
+     * 登录时，有2个值是需要保证的，用户登录信息，基本信息
+     * 只要有一个接口报错，全部清空，反之依次存储
+     */
+    @JvmStatic
+    fun signError() {
+        userBean.del()
+        userInfoBean.del()
     }
     // </editor-fold>
 

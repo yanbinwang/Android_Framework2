@@ -2,32 +2,46 @@ package com.example.common.utils.function
 
 import android.app.Activity
 import android.app.SearchManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Rect
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.provider.MediaStore
 import android.provider.Settings
+import android.view.View
 import androidx.activity.result.ActivityResult
+import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
-import androidx.fragment.app.FragmentActivity
+import androidx.core.net.toUri
+import androidx.core.util.Pair
+import androidx.fragment.app.Fragment
 import com.example.common.R
-import com.example.common.base.page.RequestCode.REQUEST_PHOTO
+import com.example.common.base.page.ResultCode.RESULT_ALBUM
+import com.example.common.base.page.ResultCode.RESULT_IMAGE
+import com.example.common.base.page.ResultCode.RESULT_VIDEO
 import com.example.common.config.Constants
+import com.example.common.utils.StorageUtil.StorageType
+import com.example.common.utils.StorageUtil.getOutputFile
 import com.example.common.utils.builder.shortToast
+import com.example.framework.utils.function.value.hour
 import java.io.File
 import java.io.Serializable
 
 /**
  * 当前页面注册一个activity的result，获取resultCode
- * 1.拉起相册/视频库/录屏皆可
- * 2.需要读写权限
- * 3.注册方法不允许by lazy，直接变量里这么写
+ * 1) 拉起相册/视频库/录屏皆可
+ * 2) 需要读写权限
+ * 3) 注册方法不允许by lazy，直接变量里这么写
  *  val activityResultValue = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
  *      if (it.resultCode == Activity.RESULT_OK) {
  *          it?.data ?: return@registerForActivityResult
@@ -36,20 +50,50 @@ import java.io.Serializable
  *     }
  * }
  */
-fun FragmentActivity?.registerResult(func: ((it: ActivityResult) -> Unit)): ActivityResultLauncher<Intent>? {
-    this ?: return null
-    return registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        func.invoke(it)
+interface ActivityResultRegistrar {
+    val activityResultCaller: ActivityResultCaller
+    fun registerResult(func: (ActivityResult) -> Unit): ActivityResultLauncher<Intent> {
+        return activityResultCaller.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            func.invoke(it)
+        }
     }
+}
+
+fun AppCompatActivity.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
+}
+
+fun Fragment.registerResultWrapper(): ActivityResultRegistrar = object : ActivityResultRegistrar {
+    override val activityResultCaller: ActivityResultCaller get() = this@registerResultWrapper
 }
 
 /**
  * 拉起屏幕录制
  */
-fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
+fun ActivityResultLauncher<Intent>?.pullUpScreen(mContext: Context?) {
     this ?: return
-    val mediaProjectionManager = mActivity?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
+    val mediaProjectionManager = mContext?.getSystemService(AppCompatActivity.MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager
     launch(mediaProjectionManager?.createScreenCaptureIntent())
+}
+
+/**
+ * 拉起系统默认文件选择
+ * 处理选择结果（替代原onActivityResult逻辑）
+ * if (result.resultCode == RESULT_OK) {
+ *     val uri = result.data?.data
+ *     uri?.let {
+ *         // 拷贝到私有目录（子线程执行）
+ *         lifecycleScope.launch(Dispatchers.IO) {
+ *         copyUriToPrivateDir(it, this@YourActivity)
+ *     }
+ * }
+ */
+fun ActivityResultLauncher<Intent>?.pullUpFilePicker() {
+    this ?: return
+    launch(Intent(Intent.ACTION_OPEN_DOCUMENT).apply {
+        addCategory(Intent.CATEGORY_OPENABLE)
+        type = "*/*" // 支持所有文件类型，可按需限定（如"application/pdf"）
+    })
 }
 
 /**
@@ -57,7 +101,9 @@ fun ActivityResultLauncher<Intent>?.pullUpScreen(mActivity: Activity?) {
  */
 fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
     this ?: return
-    launch(Intent(Intent.ACTION_PICK, null).apply { setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*") })
+    launch(Intent(Intent.ACTION_PICK, null).apply {
+        setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
+    })
 }
 
 /**
@@ -67,23 +113,169 @@ fun ActivityResultLauncher<Intent>?.pullUpAlbum() {
  * val oriFile = uri.getFileFromUri()
  * val albumPath = oriFile?.absolutePath
  */
-fun Activity.pullUpAlbum() {
+fun Activity?.pullUpAlbum() {
+    this ?: return
     val intent = Intent(Intent.ACTION_PICK, null)
     intent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*")
-    startActivityForResult(intent, REQUEST_PHOTO)
+    startActivityForResult(intent, RESULT_ALBUM)
+}
+
+/**
+ * 打开手机相机 -> 拍照
+ * 1) 授权: CAMERA, STORAGE
+ * 2) 调起后获取源文件创建路径
+ * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
+ */
+fun Activity?.pullUpImage(requestCode: Int = RESULT_IMAGE): String? {
+    this ?: return null
+    val file = getOutputFile(StorageType.IMAGE)
+    val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    return startActivityForResult(file, intent, requestCode)
+}
+
+/**
+ * 打开手机相机 -> 录像
+ * @param maxDurationMs 最大时长(毫秒)
+ * @param maxSizeMb 最大文件大小(MB)
+ * @param quality 视频质量 0~1 (0 或 1)
+ * 1) 授权: CAMERA, MICROPHONE, STORAGE
+ * 2) 调起后获取源文件创建路径
+ * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
+ * 4) 三个参数基本失效, 国产 ROM 深度定制相机忽略了对应参数的兼容, Google 自家相机（Pixel）也在 2019 年移除了支持, 传输参数是没有任何意义的, 定制化相机需自行依赖三方库做限制
+ */
+fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, requestCode: Int = RESULT_VIDEO): String? {
+    this ?: return null
+    val file = getOutputFile(StorageType.VIDEO)
+    val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)
+    // 时间限制 (单位：秒)
+    val maxSecond = maxDurationMs.coerceAtLeast(1000) / 1000
+    intent.putExtra(MediaStore.EXTRA_DURATION_LIMIT, maxSecond)
+    // 大小限制 (单位：字节 byte)
+    val sizeLimit = maxSizeMb * 1024L * 1024L
+    intent.putExtra(MediaStore.EXTRA_SIZE_LIMIT, sizeLimit)
+    // 质量 (0[低清、小体积]或1[高清、大体积])
+    val safeQuality = if (quality == 0) 0 else 1
+    intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, safeQuality)
+    // 正式开启录制视频
+    return startActivityForResult(file, intent, requestCode)
+}
+
+private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int): String? {
+    if (null == file || null == this) return null
+    try {
+        val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
+        } else {
+            Uri.fromFile(file)
+        }
+        intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+        startActivityForResult(intent, requestCode)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    return file.absolutePath
+}
+
+/**
+ * 跳转当前应用的 MANAGE_EXTERNAL_STORAGE 专属设置页（最优路径）
+ */
+fun Context?.pullUpManageStorageSetting() {
+    this ?: return
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
+            // 通过Uri定向到当前应用的设置项
+            data = "package:${packageName}".toUri()
+            // 避免创建新任务栈，返回时能回到应用
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 部分厂商（如小米、华为）可能修改了Action，走兜底方案
+        jumpToManageStorageFallbackSetting()
+    }
+}
+
+/**
+ * 跳转系统“所有文件访问权限”总设置页
+ */
+@RequiresApi(Build.VERSION_CODES.R)
+private fun Context?.jumpToManageStorageFallbackSetting() {
+    this ?: return
+    try {
+        val intent = Intent(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        startActivity(intent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        // 极端情况：跳应用信息页，让用户手动找存储权限
+        jumpToAppInfoSetting()
+    }
+}
+
+/**
+ * 跳应用信息页（所有权限的总入口）
+ */
+fun Context?.jumpToAppInfoSetting() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+        data = "package:${packageName}".toUri()
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+    startActivity(intent)
 }
 
 /**
  * 高版本后台服务有浮层需要允许当前设置
+ * Settings.canDrawOverlays(this)
  */
-fun Activity.pullUpOverlay(): Boolean {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-        val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
-        intent.data = Uri.parse("package:${packageName}")
+fun Context?.pullUpOverlay() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+    intent.data = "package:${packageName}".toUri()
+    startActivity(intent)
+}
+
+/**
+ * 拉起无障碍设置页面
+ */
+fun Context?.pullUpAccessibility() {
+    this ?: return
+    val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+    startActivity(intent)
+}
+
+/**
+ * 拉起通知设置
+ */
+fun Context?.pullUpNotification() {
+    this ?: return
+    val intent = when {
+        // Android 8.0+（API 26+）：直接跳通知设置
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.O -> {
+            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                // 指定应用包名
+                putExtra(Settings.EXTRA_APP_PACKAGE, packageName)
+            }
+        }
+        // Android 6.0-7.1（API 23-25）：跳应用详情页
+        else -> {
+            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = "package:$packageName".toUri()
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+        }
+    }
+    // 尝试启动Intent，防止仍有设备不支持
+    try {
         startActivity(intent)
-        false
-    } else {
-        true
+    } catch (e: ActivityNotFoundException) {
+        e.printStackTrace()
+        // 跳系统设置首页
+        startActivity(Intent(Settings.ACTION_SETTINGS))
     }
 }
 
@@ -95,102 +287,151 @@ fun Activity.pullUpOverlay(): Boolean {
  * <package android:name="com.phonepe.app" />
  * </queries>
  */
-fun Context.pullUpPackage(packageName: String) {
-    if (packageName.isEmpty()) return
+fun Context?.pullUpPackage(packageName: String) {
+    this ?: return
     try {
         val intent = packageManager.getLaunchIntentForPackage(packageName)
         if (intent != null) {
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
-    } catch (_: Exception) {
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 从google搜索内容
  */
-fun Context.toGoogleSearch(searchText: String) {
-    Intent().apply {
-        action = Intent.ACTION_WEB_SEARCH
-        putExtra(SearchManager.QUERY, searchText)
-        startActivity(this)
+fun Context?.toGoogleSearch(searchText: String) {
+    this ?: return
+    try {
+        startActivity(Intent(Intent.ACTION_WEB_SEARCH).apply {
+            putExtra(SearchManager.QUERY, searchText)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 浏览网页
  */
-fun Context.toBrowser(url: String) {
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+fun Context?.toBrowser(url: String) {
+    this ?: return
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
  * 显示地图
  */
-fun Context.toMap(longitude: Float, latitude: Float) {
-    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("geo:$longitude,$latitude")))
+fun Context?.toMap(longitude: Double, latitude: Double) {
+    this ?: return
+    try {
+        val uri = "geo:${latitude},${longitude}".toUri()
+        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
  * 拨打电话
  */
-fun Context.toPhone(tel: String) {
-    startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:$tel")))
+fun Context?.toPhone(tel: String) {
+    this ?: return
+    try {
+        startActivity(Intent(Intent.ACTION_DIAL, "tel:$tel".toUri()).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }
 
 /**
  * 调用发短信的程序
  */
-fun Context.toSMS(text: String) {
-    Intent(Intent.ACTION_VIEW).apply {
-        putExtra("sms_body", text)
-        type = "vnd.android-dir/mms-sms"
-        startActivity(this)
+fun Context?.toSMS(text: String) {
+    this ?: return
+    try {
+        startActivity(Intent(Intent.ACTION_VIEW).apply {
+            type = "vnd.android-dir/mms-sms"
+            putExtra("sms_body", text)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 发短信
  */
-fun Context.toSMSApp(tel: String, text: String) {
-    Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:$tel")).apply {
-        putExtra("sms_body", text)
-        startActivity(this)
+fun Context?.toSMSApp(tel: String, text: String) {
+    this ?: return
+    try {
+        startActivity(Intent(Intent.ACTION_SENDTO, "smsto:$tel".toUri()).apply {
+            putExtra("sms_body", text)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        })
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
 }
 
 /**
  * 打开压缩包
  */
-fun Context.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
+fun Context?.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
 
 /**
  * 打开world
  */
-fun Context.openWorld(filePath: String) = openFile(filePath, "application/msword")
+fun Context?.openWorld(filePath: String) = openFile(filePath, "application/msword")
 
 /**
  * 打开安装包
  */
-fun Context.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+fun Context?.openSetupApk(filePath: String) = openFile(filePath, "application/vnd.android.package-archive")
+
+/**
+ * 打开系统默认视频播放器
+ */
+fun Context?.openVideo(filePath: String) = openFile(filePath, "video/*")
 
 /**
  * 统一开启文件
  * https://zhuanlan.zhihu.com/p/260340912
+ * @filePath 完整绝对路径 -> /storage/emulated/0/Android/data/xxx/files/test.zip
  */
-fun Context.openFile(filePath: String, type: String) {
+fun Context?.openFile(filePath: String, type: String) {
+    this ?: return
     val file = File(filePath)
-    if (file.fileValidation()) {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-                setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
-            } else {
-                setDataAndType(Uri.parse("file://$filePath"), type)
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-        })
+    if (file.isFileValid()) {
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    setDataAndType(FileProvider.getUriForFile(this@openFile, "${Constants.APPLICATION_ID}.fileProvider", file), type)
+                } else {
+                    setDataAndType("file://$filePath".toUri(), type)
+                }
+                // FLAG_ACTIVITY_NEW_TASK -> 系统创建一个全新任务栈 (返回时 → 回到文件管理器 / 系统页面，而不是应用，任何上下文都能调用（Activity / Application / View）)
+                flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
+            })
+        } catch (e: Exception) {
+            e.printStackTrace()
+            "未找到合适的应用来打开此文件，请安装相关应用".shortToast()
+        }
     }
 }
 
@@ -198,28 +439,32 @@ fun Context.openFile(filePath: String, type: String) {
  * 发送文件
  * image -> 图片
  */
-fun Context.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
+fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String? = "分享文件") {
+    this ?: return
     val file = File(filePath)
-    if (file.fileValidation()) {
-        startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
-            } else {
-                putExtra(Intent.EXTRA_STREAM, file)
-            }
-            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            type = fileType//此处可发送多种文件
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }, title))
+    if (file.isFileValid()) {
+        try {
+            startActivity(Intent.createChooser(Intent(Intent.ACTION_SEND).apply {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this@sendFile, "${Constants.APPLICATION_ID}.fileProvider", file))
+                } else {
+                    putExtra(Intent.EXTRA_STREAM, file)
+                }
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION
+                type = fileType
+            }, title))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 }
 
 /**
  * 文件校验方法
  */
-private fun File?.fileValidation(): Boolean {
+private fun File?.isFileValid(): Boolean {
     this ?: return false
-    return if (!exists()) {
+    return if (!absolutePath.isPathExists()) {
         R.string.sourcePathError.shortToast()
         false
     } else {
@@ -228,44 +473,189 @@ private fun File?.fileValidation(): Boolean {
 }
 
 /**
- * 获取对应对象->方法已经淘汰，扩展写下
+ * Intent取值
  */
-fun <T : Serializable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+fun Intent?.intentString(key: String, default: String = ""): String {
+    this ?: return default
+    return getStringExtra(key) ?: default
+}
+
+fun Intent?.intentInt(key: String, default: Int = 0): Int {
+    this ?: return default
+    return getIntExtra(key, default)
+}
+
+fun Intent?.intentLong(key: String, default: Long = 0L): Long {
+    this ?: return default
+    return getLongExtra(key, default)
+}
+
+fun Intent?.intentFloat(key: String, default: Float = 0f): Float {
+    this ?: return default
+    return getFloatExtra(key, default)
+}
+
+fun Intent?.intentDouble(key: String, default: Double = 0.0): Double {
+    this ?: return default
+    return getDoubleExtra(key, default)
+}
+
+fun Intent?.intentBoolean(key: String, default: Boolean = false): Boolean {
+    this ?: return default
+    return getBooleanExtra(key, default)
+}
+
+fun Intent?.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    this ?: return default
+    return getStringArrayListExtra(key) ?: default
+}
+
+inline fun <reified T : Serializable> Intent?.intentSerializable(key: String): T? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getSerializableExtra(name, clazz)
+        getSerializableExtra(key, T::class.java)
     } else {
-        getSerializableExtra(name) as? T
+        getSerializableExtra(key) as? T
     }
 }
 
-fun <T : Parcelable> Intent?.getExtra(name: String, clazz: Class<T>): T? {
+inline fun <reified T : Serializable> Intent?.intentSerializableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableExtra(name, clazz)
+        getSerializableExtra(name, ArrayList::class.java)
     } else {
-        getParcelableExtra(name) as? T
+        getSerializableExtra(name)
+    } as? ArrayList<T>
+}
+
+inline fun <reified T : Parcelable> Intent?.intentParcelable(key: String): T? {
+    this ?: return null
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        getParcelableExtra(key, T::class.java)
+    } else {
+        getParcelableExtra(key) as? T
     }
 }
 
-/**
- * Serializable未提供集合的方法，需要强转：
- * putSerializable(Extra.BUNDLE_LIST, list as? Serializable)
- * 然后getArrayListExtra取值后再强转
- * 故而使用putParcelableArrayListExtra来传输集合
- * putParcelableArrayListExtra(Extra.BUNDLE_LIST, list) })
- * list--->ArrayList<T>
- */
-fun <T : Parcelable> Intent?.getArrayListExtra(name: String, clazz: Class<T>): ArrayList<T>? {
+inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        getParcelableArrayListExtra(name, clazz)
+        getParcelableArrayListExtra(name, T::class.java)
     } else {
         getParcelableArrayListExtra(name)
     }
 }
 
-fun <T> Intent?.getArrayListExtra(name: String): ArrayList<T>? {
-    this ?: return null
-    return getSerializableExtra(name) as? ArrayList<T>
+/**
+ * makeCustomAnimation
+ * 效果：借助自定义的动画资源，达成 Activity 切换时的过渡效果。
+ * 用法：
+ * // 从activityA跳转到activityB时使用自定义动画
+ * Intent intent = new Intent(activityA, activityB);
+ * ActivityOptions options = ActivityOptions.makeCustomAnimation(
+ *     activityA,
+ *     R.anim.slide_in_right,  // 进入动画
+ *     R.anim.slide_out_left   // 退出动画
+ * ActivityCompat.startActivity(activityA, intent, options.toBundle());
+ * 实现效果：新 Activity 从右侧滑入，旧 Activity 向左侧滑出。
+ */
+fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeCustomAnimation(context, enterResId, exitResId)
+}
+
+/**
+ * makeScaleUpAnimation
+ * 效果：新 Activity 从特定位置开始，进行缩放和淡入操作。
+ * 用法：
+ * // 从坐标(startX, startY)处以初始尺寸(startWidth, startHeight)开始缩放
+ * ActivityOptions options = ActivityOptions.makeScaleUpAnimation(
+ *     view,           // 动画起始的视图
+ *     startX,         // X轴起始坐标
+ *     startY,         // Y轴起始坐标
+ *     startWidth,     // 初始宽度
+ *     startHeight     // 初始高度
+ * );
+ * 实现效果：新 Activity 从指定点开始，逐渐放大到全屏
+ */
+fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeScaleUpAnimation(view, startX, startY, width, height)
+}
+
+/**
+ * makeThumbnailScaleUpAnimation
+ * 效果：以缩略图为基础，实现 Activity 的缩放过渡效果。
+ * 用法：
+ * // 共享缩略图的缩放动画
+ * Bitmap thumbnail = getThumbnailBitmap(); // 获取缩略图
+ * ActivityOptions options = ActivityOptions.makeThumbnailScaleUpAnimation(
+ *     sourceView,     // 源视图
+ *     thumbnail,      // 缩略图
+ *     startX,         // 起始X坐标
+ *     startY          // 起始Y坐标
+ * );
+ * 实现效果：新 Activity 从缩略图位置开始，逐步放大到全屏。
+ */
+fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, thumbnail, startX, startY)
+}
+
+/**
+ * makeSceneTransitionAnimation
+ * 效果：实现共享元素在不同 Activity 之间的平滑过渡。
+ * 用法：
+ * // 共享元素的场景过渡动画
+ * Intent intent = new Intent(this, DetailActivity.class);
+ * ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+ *     this,
+ *     Pair.create(view1, "shared_element_name1"), // 共享元素1
+ *     Pair.create(view2, "shared_element_name2")  // 共享元素2
+ * );
+ * ActivityCompat.startActivity(this, intent, options.toBundle());
+ * 实现效果：共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换。
+ */
+fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements)
+}
+
+/**
+ * makeClipRevealAnimation
+ * 效果：以圆形或矩形的方式，显示新 Activity。
+ * 用法：
+ * // 从指定位置开始的圆形显示动画
+ * ActivityOptions options = ActivityOptions.makeClipRevealAnimation(
+ *     targetView,     // 目标视图
+ *     startX,         // 起始X坐标
+ *     startY,         // 起始Y坐标
+ *     width,          // 宽度
+ *     height          // 高度
+ * );
+ * 实现效果：新 Activity 从指定点开始，像水波一样逐渐显示出来。
+ */
+fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeClipRevealAnimation(view, startX, startY, width, height)
+}
+
+/**
+ * makeTaskLaunchBehind
+ * 效果：在当前 Activity 的后面启动新的 Activity 任务。
+ * 用法：
+ * // 在当前Activity后面启动新任务
+ * ActivityOptions options = ActivityOptions.makeTaskLaunchBehind();
+ * startActivity(intent, options.toBundle());
+ */
+fun getTaskLaunchBehind(): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeTaskLaunchBehind()
+}
+
+/**
+ * setLaunchBounds
+ * 效果：对 Activity 的启动区域进行限制。
+ * 用法：
+ * // 设置Activity的启动边界
+ * ActivityOptions options = ActivityOptions.makeBasic();
+ * options.setLaunchBounds(new Rect(left, top, right, bottom));
+ * startActivity(intent, options.toBundle());
+ */
+fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
+    return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
 }
