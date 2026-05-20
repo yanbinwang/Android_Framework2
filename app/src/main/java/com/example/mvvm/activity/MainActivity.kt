@@ -2,17 +2,18 @@ package com.example.mvvm.activity
 
 import android.view.View
 import android.view.View.OnClickListener
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.USBTransfer
+import com.therouter.router.Route
 
 /**
  * 首页
  * <activity
  *     android:name="..."
+ *     android:exported="true"
  *     ...>
  *     <intent-filter>
  *         <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
@@ -21,15 +22,19 @@ import com.example.mvvm.utils.USBTransfer
  *         android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
  *         android:resource="@xml/device_filter" />
  * </activity>
+ *
+ * android:exported="true"
+ * 1) 安卓系统 发现 USB 设备插入时
+ * 2) 系统要主动唤醒、打开你的这个 MainActivity
+ * 3) 系统 = 外部调用者
  */
-@Route(path = ARouterPath.MainActivity)
+@Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     private val usbTransfer by lazy { USBTransfer(this) }
 
     override fun initEvent() {
         super.initEvent()
-        usbTransfer.setOnUSBDateReceiveListener(object :
-            USBTransfer.OnUSBDateReceiveListener {
+        usbTransfer.setOnUSBDateReceiveListener(object : USBTransfer.OnUSBDateReceiveListener {
             override fun onConnect(flag: Boolean, reason: String?) {
             }
 
@@ -49,7 +54,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             // 下发数据
             R.id.tv_send -> {
                 val content_str = mBinding?.etContent?.text.toString()
-                usbTransfer.write(content_str)
+                usbTransfer.send(content_str)
                 mBinding?.tvReceive?.append("send: $content_str\r\n")
             }
             // 断开

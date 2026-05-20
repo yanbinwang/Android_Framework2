@@ -6,16 +6,16 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!--安装权限-->
+    <!-- 安装权限 -->
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!--震动提示-->
+    <!-- 震动提示 -->
     <uses-permission android:name="android.permission.VIBRATE" />
-    <!--通知弹出权限(安卓13开始强制要求授予)-->
+    <!-- 通知弹出权限(安卓13开始强制要求授予) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!--录屏服务窗口-->
+    <!-- 录屏服务窗口 -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <!--声明前台服务权限 -->
+    <!-- 声明前台服务权限 -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
@@ -49,6 +49,19 @@
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
+    <!-- 基础USB权限 -->
+    <uses-permission android:name="android.permission.USB_ACCESSORY" />
+    <uses-permission android:name="android.permission.MANAGE_USB"
+        tools:ignore="ProtectedPermissions" />
+    <!-- 监听USB插拔广播必备 -->
+    <uses-permission android:name="android.permission.BROADCAST_STICKY" />
+    <!--
+        设备特性声明
+        声明设备支持 USB 主机模式，无此硬件设备直接不安装
+    -->
+    <uses-feature
+        android:name="android.hardware.usb.host"
+        android:required="true" />
 
     <queries>
         <!--支付宝-正式环境-->
@@ -218,47 +231,18 @@
         <activity
             android:name=".activity.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:exported="true"
             android:launchMode="singleTask"
             android:screenOrientation="portrait"
             android:theme="@style/MainTheme"
-            android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
-
-        <activity
-            android:name=".activity.TestActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <!--        &lt;!&ndash;-->
-        <!--        当触发屏幕方向变化（比如从竖屏切横屏）时，Activity 会执行 onDestroy() → onCreate() 的重建流程-->
-        <!--        &ndash;&gt;-->
-        <!--        <activity-->
-        <!--            android:name=".activity.TestActivity"-->
-        <!--            android:configChanges="keyboardHidden|screenLayout|uiMode"-->
-        <!--            android:windowSoftInputMode="stateHidden|adjustPan" />-->
-        <activity
-            android:name=".activity.Test2Activity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-
-        <activity
-            android:name=".activity.AdActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <activity
-            android:name=".activity.TouchActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <!-- 安卓8.0才支持画中画,跳转前做版本判断 -->
-        <activity
-            android:name=".activity.ScreenActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:supportsPictureInPicture="true"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            tools:ignore="NewApi,UnusedAttribute" />
+            android:windowSoftInputMode="stateAlwaysHidden|adjustPan">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/device_filter" />
+        </activity>
         <!-- ******************************************************首页模块****************************************************** -->
         <!-- 推送 -->
         <activity
