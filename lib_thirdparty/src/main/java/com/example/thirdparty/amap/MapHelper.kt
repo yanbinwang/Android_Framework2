@@ -1,6 +1,5 @@
 package com.example.thirdparty.amap
 
-import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.os.Bundle
@@ -18,11 +17,7 @@ import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.MarkerOptions
 import com.amap.api.maps.model.PolygonOptions
-import com.amap.api.services.help.Inputtips
-import com.amap.api.services.help.InputtipsQuery
-import com.amap.api.services.help.Tip
 import com.example.amap.utils.CoordinateUtil
-import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
@@ -31,9 +26,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
 import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 import kotlin.math.roundToInt
 
 /**
@@ -75,33 +67,6 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 是否定位成功
      */
     val isSuccessful get() = aMapLocation != null
-
-    companion object {
-        /**
-         * 地图搜索协程
-         */
-        suspend fun suspendingMapSearch(context: Context, city: String?, keyword: String?): List<Tip> {
-            return suspendCancellableCoroutine {
-                if (city.isNullOrEmpty() || keyword.isNullOrEmpty()) it.resumeWithException(RuntimeException("未找到相关结果"))
-                // 定义一个输入提示对象，传入当前上下文和搜索对象
-                val query = InputtipsQuery(keyword, city)
-                // 限制在当前城市
-                query.cityLimit = true
-                // 获取在线建议检索结果
-                val tips = Inputtips(context, query)
-                tips.setInputtipsListener { mList, _ ->
-                    if (mList.isNullOrEmpty()) {
-                        "未找到相关结果".shortToast()
-                        it.resumeWithException(RuntimeException("未找到相关结果"))
-                    } else {
-                        it.resume(mList)
-                    }
-                }
-                // 输入查询提示的异步接口实现
-                tips.requestInputtipsAsyn()
-            }
-        }
-    }
 
     /**
      * 绑定页面生命周期
