@@ -1,6 +1,5 @@
 package com.example.amap.utils
 
-import com.amap.api.maps.CoordinateConverter
 import com.amap.api.maps.model.LatLng
 import com.amap.api.maps.model.LatLngBounds
 import java.math.BigDecimal
@@ -140,20 +139,6 @@ object CoordinateUtil {
             pathPoints.add(endLatLng)
         }
         return pathPoints
-    }
-
-    /**
-     * 支持GPS/Mapbar/Baidu等多种类型坐标在高德地图上使用
-     * val converter = CoordinateConverter(context)
-     */
-    @JvmStatic
-    fun convert(converter: CoordinateConverter, sourceLatLng: LatLng, type: CoordinateConverter.CoordType = CoordinateConverter.CoordType.GPS): LatLng {
-        // CoordType.GPS 待转换坐标类型
-        converter.from(type)
-        // sourceLatLng待转换坐标点 LatLng类型
-        converter.coord(sourceLatLng)
-        // 执行转换操作
-        return converter.convert()
     }
 
     /**
