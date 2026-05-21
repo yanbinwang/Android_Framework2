@@ -29,14 +29,14 @@ import tv.danmaku.ijk.media.exo2.ExoPlayerCacheManager
 import kotlin.math.max
 
 //------------------------------------播放器扩展函数类------------------------------------
-/**
- * https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
- *
- * <activity
- *     android:name=".xxxxx"
- *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
- *     android:screenOrientation="portrait" />
- */
+// ==============================
+//  https://github.com/CarGuo/GSYVideoPlayer/blob/master/doc/USE.md
+//
+//  <activity
+//      android:name=".xxxxx"
+//      android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
+//      android:screenOrientation="portrait" />
+// ==============================
 
 /**
  * 设置列表监听

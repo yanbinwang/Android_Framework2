@@ -1,10 +1,6 @@
 package com.example.thirdparty.amap
 
-import android.content.Context
-import android.graphics.Color
-import android.graphics.Point
 import android.os.Bundle
-import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
@@ -14,27 +10,15 @@ import com.amap.api.location.AMapLocation
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
-import com.amap.api.maps.model.BitmapDescriptorFactory
 import com.amap.api.maps.model.LatLng
-import com.amap.api.maps.model.MarkerOptions
-import com.amap.api.maps.model.PolygonOptions
-import com.amap.api.services.help.Inputtips
-import com.amap.api.services.help.InputtipsQuery
-import com.amap.api.services.help.Tip
-import com.example.amap.utils.CoordinateUtil
-import com.example.common.utils.builder.shortToast
+import com.example.amap.utils.moveToLatLng
+import com.example.amap.utils.setZoomLevel
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.gone
 import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
-import kotlin.math.roundToInt
 
 /**
  *  Created by wangyanbin
@@ -55,7 +39,7 @@ import kotlin.math.roundToInt
  */
 class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
-    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) } // 默认地图经纬度-杭州
+    private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) ?: LatLng(0.0, 0.0) } // 默认地图经纬度-杭州
     private val location by lazy { LocationHelper(mActivity, registrar) }
     /**
      * 地址控件
@@ -75,33 +59,6 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 是否定位成功
      */
     val isSuccessful get() = aMapLocation != null
-
-    companion object {
-        /**
-         * 地图搜索协程
-         */
-        suspend fun suspendingMapSearch(context: Context, city: String?, keyword: String?): List<Tip> {
-            return suspendCancellableCoroutine {
-                if (city.isNullOrEmpty() || keyword.isNullOrEmpty()) it.resumeWithException(RuntimeException("未找到相关结果"))
-                // 定义一个输入提示对象，传入当前上下文和搜索对象
-                val query = InputtipsQuery(keyword, city)
-                // 限制在当前城市
-                query.cityLimit = true
-                // 获取在线建议检索结果
-                val tips = Inputtips(context, query)
-                tips.setInputtipsListener { mList, _ ->
-                    if (mList.isNullOrEmpty()) {
-                        "未找到相关结果".shortToast()
-                        it.resumeWithException(RuntimeException("未找到相关结果"))
-                    } else {
-                        it.resume(mList)
-                    }
-                }
-                // 输入查询提示的异步接口实现
-                tips.requestInputtipsAsyn()
-            }
-        }
-    }
 
     /**
      * 绑定页面生命周期
@@ -143,15 +100,16 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
         aMap?.uiSettings?.isZoomControlsEnabled = false
         // 屏蔽双手指上下滑动切换为3d地图
         aMap?.uiSettings?.isTiltGesturesEnabled = false
-        aMap?.moveCamera(CameraUpdateFactory.zoomTo(18f))
+        // 调整缩放级别
+        aMap?.setZoomLevel(18f)
         // 初始化定位回调
         location.setOnLocationListener(object : LocationHelper.OnLocationListener {
             override fun onLocationChanged(aMapLocation: AMapLocation?, flag: Boolean) {
                 this@MapHelper.aMapLocation = aMapLocation
                 if (flag) {
-                    moveCamera(latLng)
+                    aMap.moveToLatLng(latLng)
                 } else {
-                    moveCamera()
+                    aMap.moveToLatLng(mapLatLng)
                 }
             }
 
@@ -163,7 +121,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
             // 是否需要在网络发生改变时，移动地图
             if (initLoaded) {
                 // 先移动到默认点再检测权限定位
-                moveCamera()
+                aMap.moveToLatLng(mapLatLng)
                 location()
             }
         }
@@ -173,93 +131,9 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 地图定位
      */
     fun location() {
-        if (mActivity.checkSelfLocation()) location.start()
-    }
-
-    /**
-     * 地图移动
-     */
-    fun moveCamera(latLng: LatLng? = mapLatLng, zoom: Float = 18f, anim: Boolean = false) {
-        aMap?.apply {
-            val update = CameraUpdateFactory.newLatLngZoom(latLng, zoom)
-            if (anim) animateCamera(update) else moveCamera(update)
+        if (mActivity.checkSelfLocation()) {
+            location.start()
         }
-    }
-
-    /**
-     * 移动到中心点
-     */
-    fun moveCamera(latLngList: MutableList<LatLng>, zoom: Float = 18f, anim: Boolean = false) {
-        moveCamera(CoordinateUtil.calculateCenterPoint(latLngList), zoom, anim)
-    }
-
-    /**
-     * 需要移动的经纬度，需要移动的范围（米）
-     */
-    fun adjustCamera(latLng: LatLng, range: Int) {
-        // 移动地图需要进行一定的换算
-        val scale = aMap?.scalePerPixel.toSafeFloat()
-        // 代表range（米）的像素数量
-        val pixel = (range / scale).roundToInt()
-        // 小范围，小缩放级别（比例尺较大），有精度损失
-        val projection = aMap?.projection ?: return
-        // 将地图的中心点，转换为屏幕上的点
-        val center = projection.toScreenLocation(latLng)
-        // 获取距离中心点为pixel像素的左、右两点（屏幕上的点
-        val top = Point(center.x, center.y + pixel)
-        // 将屏幕上的点转换为地图上的点
-        moveCamera(projection.fromScreenLocation(top), 16f, true)
-    }
-
-    /**
-     * 添加覆盖物
-     */
-    fun addMarker(latLng: LatLng, view: View, json: String = "") {
-        // 将标识绘制在地图上
-        val markerOptions = MarkerOptions()
-        val bitmap = BitmapDescriptorFactory.fromView(view)
-        markerOptions.position(latLng) // 设置位置
-            .icon(bitmap) // 设置图标样式
-            .anchor(0.5f, 0.5f)
-            .zIndex(9f) // 设置marker所在层级
-            .draggable(false) // 设置手势拖拽
-        // 给地图覆盖物加上额外的集合数据（点击时候取）
-        val marker = aMap?.addMarker(markerOptions)
-//        marker?.title = json
-        marker?.snippet = json // 使用摘录比title更规范些
-        marker?.setFixingPointEnable(false) // 去除拉近动画
-        marker?.isInfoWindowEnable = false // 禁止高德地图自己的弹出窗口
-    }
-
-    /**
-     * 绘制多边形
-     */
-    fun addPolygon(latLngList: MutableList<LatLng>) {
-        // 声明多边形参数对象
-        val polygonOptions = PolygonOptions()
-        for (latLng in latLngList) {
-            polygonOptions.add(latLng)
-        }
-        polygonOptions.strokeWidth(15f) // 多边形的边框
-            .strokeColor(Color.argb(50, 1, 1, 1))// 边框颜色
-            .fillColor(Color.argb(1, 1, 1, 1))// 多边形的填充色
-        aMap?.addPolygon(polygonOptions)
-    }
-
-    /**
-     * 判断经纬度是否在多边形范围内
-     */
-    fun isPolygonContainsPoint(latLngList: MutableList<LatLng>, point: LatLng): Boolean {
-        val options = PolygonOptions()
-        for (index in latLngList.indices) {
-            options.add(latLngList[index])
-        }
-        // 设置区域是否显示
-        options.visible(false)
-        val polygon = aMap?.addPolygon(options)
-        val contains = polygon?.contains(point)
-        polygon?.remove()
-        return contains.orFalse
     }
 
     /**
@@ -281,6 +155,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
                 mapView?.onPause()
             }
             Lifecycle.Event.ON_DESTROY -> {
+                aMapLocation = null
                 mapView?.onDestroy()
                 source.lifecycle.removeObserver(this)
             }
