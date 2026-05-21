@@ -263,4 +263,24 @@ object CoordinateUtil {
         return lng !in 72.004..137.8347 || lat < 0.8293 || lat > 55.8271
     }
 
+    /**
+     * 判断点是否在多边形内
+     */
+    @JvmStatic
+    fun isPointInPolygon(point: LatLng, polygonPoints: List<LatLng>): Boolean {
+        var inside = false
+        var i = 0
+        var j = polygonPoints.size - 1
+        while (i < polygonPoints.size) {
+            val pi = polygonPoints[i]
+            val pj = polygonPoints[j]
+            // 交叉判断（射线法）
+            if (((pi.latitude > point.latitude) != (pj.latitude > point.latitude)) && (point.longitude < (pj.longitude - pi.longitude) * (point.latitude - pi.latitude) / (pj.latitude - pi.latitude) + pi.longitude)) {
+                inside = !inside
+            }
+            j = i++
+        }
+        return inside
+    }
+
 }
