@@ -4,6 +4,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
+import com.example.framework.utils.function.view.clicks
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.utils.USBTransfer
@@ -34,14 +35,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
 
     override fun initEvent() {
         super.initEvent()
+        clicks(mBinding?.tvConnect, mBinding?.tvSend, mBinding?.tvDisconnect)
         usbTransfer.setOnUSBDateReceiveListener(object : USBTransfer.OnUSBReceiveListener {
             override fun onConnected() {
+                mBinding?.tvState?.text = "连接成功"
             }
 
             override fun onConnectionFailed(message: String?) {
+                mBinding?.tvState?.text = "连接失败"
             }
 
             override fun onDisconnected() {
+                mBinding?.tvState?.text = "未连接"
             }
 
             override fun onReceive(reason: String?) {
@@ -53,7 +58,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
     override fun onClick(v: View?) {
         when (v?.id) {
             // 连接
-            R.id.tv_connect -> usbTransfer.connect()
+            R.id.tv_connect -> {
+                mBinding?.tvState?.text = "连接中"
+                usbTransfer.connect()
+            }
             // 下发数据
             R.id.tv_send -> {
                 val content_str = mBinding?.etContent?.text.toString()

@@ -14,6 +14,7 @@
             android:id="@+id/tv_label"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="5pt"
             android:gravity="center"
             android:text="USB:"
             android:textColor="@color/textPrimary"
@@ -65,30 +66,65 @@
             android:id="@+id/tv_label2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5pt"
-            android:text="内容："
+            android:layout_marginTop="10pt"
+            android:text="接收内容："
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize18"
             app:layout_constraintTop_toBottomOf="@id/tv_send" />
 
+        <TextView
+            android:id="@+id/tv_state"
+            android:layout_width="match_parent"
+            android:layout_height="40pt"
+            android:layout_marginTop="5pt"
+            android:paddingHorizontal="5pt"
+            android:background="@drawable/shape_default"
+            android:gravity="center_vertical"
+            android:text="未连接"
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize14"
+            app:layout_constraintTop_toBottomOf="@id/tv_label2" />
+
+        <TextView
+            android:id="@+id/tv_label3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10pt"
+            android:text="发送内容："
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize18"
+            app:layout_constraintTop_toBottomOf="@id/tv_state" />
+
         <EditText
             android:id="@+id/et_content"
             android:layout_width="match_parent"
-            android:layout_height="80pt"
+            android:layout_height="40pt"
             android:layout_marginTop="5pt"
             android:background="@drawable/shape_default"
             android:textColor="@color/textPrimary"
             android:textColorHint="@color/textHint"
-            app:layout_constraintTop_toBottomOf="@id/tv_label2" />
+            app:layout_constraintTop_toBottomOf="@id/tv_label3" />
+
+        <TextView
+            android:id="@+id/tv_label4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10pt"
+            android:text="接收内容："
+            android:textColor="@color/textPrimary"
+            android:textSize="@dimen/textSize18"
+            app:layout_constraintTop_toBottomOf="@id/et_content" />
 
         <TextView
             android:id="@+id/tv_receive"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80pt"
             android:layout_marginTop="5pt"
+            android:background="@drawable/shape_default"
+            android:padding="5pt"
             android:textColor="@color/textPrimary"
             android:textSize="@dimen/textSize14"
-            app:layout_constraintTop_toBottomOf="@id/et_content"
+            app:layout_constraintTop_toBottomOf="@id/tv_label4"
             tools:text="------" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

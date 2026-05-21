@@ -33,7 +33,19 @@ import java.io.IOException
 import java.io.UnsupportedEncodingException
 
 /**
- *  <!-- 基础USB权限 -->
+ *  USB 连接工具类
+ *  1) 使用方式
+ *    模式 1：自动匹配
+ *      usb.setDriverConfig("XXX")
+ *      usb.connect()
+ *
+ *    模式 2：手动选择
+ *      val drivers = usb.getAllDrivers() // 获取所有设备
+ *      val selectedDriver = drivers[position] // 页面展示列表 + 用户选择一个
+ *      usb.setDriver(selectedDriver) // 直接连接选中的设备
+ *
+ *  2) 权限配置
+ *      <!-- 基础USB权限 -->
  *     <uses-permission android:name="android.permission.USB_ACCESSORY" />
  *     <uses-permission android:name="android.permission.MANAGE_USB"
  *         tools:ignore="ProtectedPermissions" />
@@ -61,10 +73,10 @@ class USBTransfer(private val mActivity: FragmentActivity) {
     private var inputOutputManager: SerialInputOutputManager? = null // 数据输入输出流管理器
     // 连接参数，按需求自行修改，一般情况下改变的参数只有波特率，数据位、停止位、奇偶校验都是固定的8/1/none ---------------------
     private var baudRate = 115200 // 波特率
-    private val dataBits = 8 // 数据位
-    private val stopBits = UsbSerialPort.STOPBITS_1 // 停止位
-    private val parity = UsbSerialPort.PARITY_NONE // 奇偶校验
-    private var deviceTargetName = " USB-Serial Controller D" // 目标设备标识
+    private var dataBits = 8 // 数据位
+    private var stopBits = UsbSerialPort.STOPBITS_1 // 停止位
+    private var parity = UsbSerialPort.PARITY_NONE // 奇偶校验
+    private var deviceName = " USB-Serial Controller D" // 目标设备标识
     // 连接USB的job
     private var connectJob: Job? = null
     // 发送数据的job
@@ -129,24 +141,16 @@ class USBTransfer(private val mActivity: FragmentActivity) {
         // 有设备可以连接
         if (!availableDrivers.isEmpty()) {
             // 开发用的定制平板电脑有2个及以上的usb口，会搜索到多个
-            usbSerialDriver = availableDrivers.find {
+            var driver = availableDrivers.find {
                 val productName = it.device?.productName
                 "productName: $productName".logE(TAG)
                 // 通过 ProductName 参数来识别要连接的设备
-                productName == deviceTargetName
+                productName == deviceName
             }
-            if (usbSerialDriver == null) {
-                usbSerialDriver = availableDrivers.safeGet(0)
+            if (driver == null) {
+                driver = availableDrivers.safeGet(0)
             }
-            // 一般设备的端口都只有一个，具体要参考设备的说明文档
-            usbSerialPort = usbSerialDriver?.ports.safeGet(0)
-            // 同时申请设备权限
-            if (!hasPermission) {
-                val usbPermissionIntent = PendingIntent.getBroadcast(mActivity, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
-                manager?.requestPermission(usbSerialDriver?.device, usbPermissionIntent)
-            } else {
-                openDevice()
-            }
+            setDriver(driver)
         } else {
             listener?.onConnectionFailed("请先接入设备")
         }
@@ -341,10 +345,31 @@ class USBTransfer(private val mActivity: FragmentActivity) {
     }
 
     /**
-     * 设置要匹配的USB设备名称（productName）
+     * 手动设置驱动设备 + 端口索引（支持多端口设备）
      */
-    fun setTargetDeviceName(name: String) {
-        deviceTargetName = name
+    fun setDriver(driver: UsbSerialDriver?, partIndex: Int = 0) {
+        driver ?: return
+        usbSerialDriver = driver
+        // 一般设备的端口都只有一个，具体要参考设备的说明文档
+        usbSerialPort = usbSerialDriver?.ports.safeGet(partIndex)
+        // 同时申请设备权限
+        if (!hasPermission) {
+            val usbPermissionIntent = PendingIntent.getBroadcast(mActivity, 0, Intent(ACTION_USB_PERMISSION), PendingIntent.FLAG_IMMUTABLE)
+            manager?.requestPermission(usbSerialDriver?.device, usbPermissionIntent)
+        } else {
+            openDevice()
+        }
+    }
+
+    /**
+     * 统一设置串口配置
+     */
+    fun setDriverConfig(deviceName: String, baudRate: Int, dataBits: Int = UsbSerialPort.DATABITS_8, stopBits: Int = UsbSerialPort.STOPBITS_1, parity: Int = UsbSerialPort.PARITY_NONE) {
+        this.deviceName = deviceName
+        this.baudRate = baudRate
+        this.dataBits = dataBits
+        this.stopBits = stopBits
+        this.parity = parity
     }
 
     /**
@@ -361,22 +386,22 @@ class USBTransfer(private val mActivity: FragmentActivity) {
         /**
          * 连接信息
          */
-        fun onConnected()
+        fun onConnected() {}
 
         /**
          * 连接失败
          */
-        fun onConnectionFailed(message: String?)
+        fun onConnectionFailed(message: String?) {}
 
         /**
          * 断开连接
          */
-        fun onDisconnected()
+        fun onDisconnected() {}
 
         /**
          * 返回信息
          */
-        fun onReceive(reason: String?)
+        fun onReceive(reason: String?) {}
     }
 
 }
