@@ -188,15 +188,10 @@ dependencies {
     // 基础库
     implementation(project(":module_home"))
     implementation(project(":module_account"))
-
+    // K线库
     implementation(project(":lib_local:klinechart"))
     // 页面路由
     ksp(libs.therouter.apt)
-
-    // 测试
-    implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
-    implementation("com.google.android.exoplayer:exoplayer-core:2.19.1")
-    implementation("com.google.android.exoplayer:exoplayer-ui:2.19.1")
 }
 
 androidComponents {
