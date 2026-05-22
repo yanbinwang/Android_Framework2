@@ -42,7 +42,25 @@ open class BaseViewDataBindingHolder(parent: ViewGroup, private val binding: Vie
          *   rootContainer.addView(xxx)
          *  private class FundsNormalEmptyViewHolder(parent: ViewGroup, binding: ViewDataBinding?) : BaseViewDataBindingHolder(parent, binding)
          *  TYPE_EMPTY -> FundsNormalEmptyViewHolder(parent, onCreateViewBindingHolder(parent).viewBinding()).viewBinding()
-         *  holder.viewBinding<ViewDataBinding>()?.apply {}
+         *  holder.viewBinding<ViewDataBinding>()?.apply {
+         *    val rootContainer = root as? LinearLayout ?: return@apply
+         *    var empty: EmptyLayout?
+         *    if (rootContainer.childCount == 1) {
+         *        empty = rootContainer.getChildAt(0) as? EmptyLayout
+         *    } else {
+         *        rootContainer.removeAllViews()
+         *        empty = EmptyLayout(holder.itemView.context)
+         *        empty.onInflate()
+         *        empty.empty()
+         *        rootContainer.addView(empty)
+         *    }
+         *    // 重新计算高度
+         *    val calculateHeight = screenHeight - getStatusBarHeight() - 56.pt - 187.pt - 51.pt - getNavigationBarHeight()
+         *    val emptyHeight = if (calculateHeight > 500.pt) calculateHeight else 500.pt
+         *    if (empty?.height != emptyHeight) {
+         *        empty.size(height = emptyHeight)
+         *    }
+         *  }
          */
         @JvmStatic
         fun onCreateViewBindingHolder(parent: ViewGroup): BaseViewDataBindingHolder {

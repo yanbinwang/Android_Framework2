@@ -3,6 +3,7 @@ package com.example.framework.utils.function.value
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
+import androidx.core.util.size
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
@@ -36,8 +37,37 @@ fun <T : List<K>, K> T?.safeGet(position: Int): K? {
     }
 }
 
+/**
+ * 返回第一个item，无法返回则返回null
+ */
+fun <T> List<T>?.safeGetFirst(): T? {
+    if (this.isNullOrEmpty()) return null
+    return try {
+        first()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 返回最后一个item，无法返回则返回null
+ */
+fun <T> List<T>?.safeGetLast(): T? {
+    if (this.isNullOrEmpty()) return null
+    return try {
+        get(size - 1)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 设置item的值，报错不处理
+ */
 fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
-    this ?: return
+    if (this.isNullOrEmpty()) return
     if (position in indices) try {
         set(position, value)
     } catch (e: Exception) {
@@ -49,7 +79,7 @@ fun <T : MutableList<K>, K> T?.safeSet(position: Int, value: K) {
  * 设置最后一个item的值，报错不处理
  */
 fun <T> MutableList<T>?.safeSetLast(t: T) {
-    if (isNullOrEmpty()) return
+    if (this.isNullOrEmpty()) return
     try {
         this[lastIndex] = t
     } catch (e: Exception) {
@@ -73,29 +103,54 @@ fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
 }
 
 /**
- * 返回第一个item，无法返回则返回null
+ * first:总和  second:最小值  third:最大值
+ * 核心逻辑：集合是啥数值类型，返回就啥类型（仅支持Int/Long/Float/Double）
  */
-fun <T> Collection<T>?.safeFirst(): T? {
-    if (isNullOrEmpty()) return null
-    return try {
-        first()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
+fun Collection<Number>?.safeNumStats(): Triple<Number, Number, Number> {
+    // 空/可空集合直接返回(0,0,0)
+    if (this.isNullOrEmpty()) return Triple(0, 0, 0)
+    // 取第一个元素的原始类型，避免统一转Double
+    val first = first()
+    return fold(Triple(first, first, first)) { acc, num ->
+        Triple(
+            // 按原始类型做加法
+            first = when (acc.first) {
+                is Int -> (acc.first as Int) + (num as Int)
+                is Long -> (acc.first as Long) + (num as Long)
+                is Float -> (acc.first as Float) + (num as Float)
+                is Double -> (acc.first as Double) + (num as Double)
+                else -> 0
+            },
+            // 按原始类型取最小值
+            second = when (acc.second) {
+                is Int -> minOf(acc.second as Int, num as Int)
+                is Long -> minOf(acc.second as Long, num as Long)
+                is Float -> minOf(acc.second as Float, num as Float)
+                is Double -> minOf(acc.second as Double, num as Double)
+                else -> 0
+            },
+            // 按原始类型取最大值
+            third = when (acc.third) {
+                is Int -> maxOf(acc.third as Int, num as Int)
+                is Long -> maxOf(acc.third as Long, num as Long)
+                is Float -> maxOf(acc.third as Float, num as Float)
+                is Double -> maxOf(acc.third as Double, num as Double)
+                else -> 0
+            }
+        )
     }
 }
 
-/**
- * 返回最后一个item，无法返回则返回null
- */
-fun <T> List<T>?.safeLast(): T? {
-    if (isNullOrEmpty()) return null
-    return try {
-        get(size - 1)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        null
-    }
+fun Collection<Number>?.sum(): Number {
+    return safeNumStats().first
+}
+
+fun Collection<Number>?.min(): Number {
+    return safeNumStats().second
+}
+
+fun Collection<Number>?.max(): Number {
+    return safeNumStats().third
 }
 
 /**
@@ -134,7 +189,7 @@ fun <T> MutableCollection<T>.findAndRemove(func: ((T) -> Boolean)) {
  * 抽奖/取随机
  */
 val <T> List<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
+    get() = if (this.isNullOrEmpty()) {
         null
     } else {
         this[Random.nextInt(0, size)]
@@ -144,7 +199,7 @@ val <T> List<T>?.randomItem: T?
  * 返回Array中随机一个值
  */
 val <T> Array<T>?.randomItem: T?
-    get() = if (isNullOrEmpty()) {
+    get() = if (this.isNullOrEmpty()) {
         null
     } else {
         this[Random.nextInt(0, size)]
@@ -322,7 +377,7 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
             is IntArray -> bundle.putIntArray(key, value)
             is Long -> bundle.putLong(key, value)
             is LongArray -> bundle.putLongArray(key, value)
-            is SparseArray<*> -> if (value.size() != 0) when (value[0]) {
+            is SparseArray<*> -> if (value.size != 0) when (value[0]) {
                 is Parcelable -> bundle.putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
             }
             is Array<*> -> if (value.isNotEmpty()) when (value[0]) {
@@ -345,7 +400,19 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
  * 将Array转换为Bundle
  */
 fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
-    return this.toList().toBundle(func)
+    return toList().toBundle(func)
+}
+
+/**
+ * Bundle 转为 Pair 列表 (与 toBundle 对称)
+ */
+fun Bundle.toPairs(): List<Pair<String, Any?>> {
+    val pairs = mutableListOf<Pair<String, Any?>>()
+    for (key in keySet()) {
+        val value = get(key)
+        pairs.add(key to value)
+    }
+    return pairs
 }
 
 /**
@@ -416,8 +483,8 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
 
 /**
  * list1为服务器中数据 , list2为本地存储数据
- * isRepeated为是否返回重复的或不重复的数据 ,正向查为服务器新增数据 , 反向查为本地删除数据
- * 需重写equals和hasCode方法
+ * 1) isRepeated -> 是否返回重复的或不重复的数据 , 正向查为服务器新增数据 , 反向查为本地删除数据
+ * 2) 需重写equals和hasCode方法
  * data class User(val id: Int, val name: String) {
  *    override fun equals(other: Any?): Boolean {
  *        if (this === other) return true
@@ -436,7 +503,7 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
  */
 fun <T> List<T>?.toExtract(list: List<T>, isRepeated : Boolean = false): List<T>? {
     this ?: return null
-    return this.let { source ->
+    return let { source ->
         // 当前集合
         val sourceSet = source.toSet()
         // 目标集合
@@ -622,35 +689,58 @@ fun <T> List<T>?.toExtract(list: List<T>, idMatcher: ((localItem: T, serverItem:
  *  部分接口参数需要id逗号拼接或者特殊符号拼接，可以使用当前方式提取出其中选中的值
  */
 fun List<Pair<String, Boolean>>?.joinToFilter(separator: String): String {
-    if (isNullOrEmpty()) return ""
+    if (this.isNullOrEmpty()) return ""
 //    return filter { it.second }.toNewList { it.first }.join(separator)
     return filter { it.second }.toNewList { it.first }.joinToString(separator)
 }
 
 /**
- * pair转jsonobject
+ * 获取一串拼接的json
+ * val numbers = listOf(1, 2, 3, 4)
+ * // 初始值=0，累加逻辑：acc + num
+ * val sum = numbers.fold(0) { acc, num ->
+ *     println("当前acc: $acc, 当前元素: $num, 计算后: ${acc + num}")
+ *     acc + num
+ * }
+ * println("最终和: $sum") // 输出：10
+ *
+ * val words = listOf("Kotlin", "is", "fun")
+ * // 初始值是空字符串（R=String），集合元素是String，拼接成一句话
+ * val sentence = words.fold("") { acc, word ->
+ *     if (acc.isEmpty()) word // 第一个元素直接用，不加空格
+ *     else "$acc $word"       // 后续元素加空格拼接
+ * }
+ * println(sentence) // 输出：Kotlin is fun
+ *
+ * // 另一个例子：统计字符总数（R=Int，集合元素=String）
+ * val charCount = words.fold(0) { acc, word -> acc + word.length }
+ * println(charCount) // 输出：11（Kotlin=6 + is=2 + fun=3）
+ *
+ * val numbers = listOf(1, 2, 3, 4, 5)
+ * // 初始值是空List（R=List<Int>），过滤并收集偶数
+ * val evenNumbers = numbers.fold(mutableListOf<Int>()) { acc, num ->
+ *     if (num % 2 == 0) {
+ *         acc.add(num) // 偶数加入累加器
+ *     }
+ *     acc // 必须返回更新后的累加器
+ * }
+ * println(evenNumbers) // 输出：[2, 4]
+ *
+ * // 定义数据类存储结果
+ * data class SumAndMax(val sum: Int, val max: Int)
+ * fun main() {
+ * val numbers = listOf(1, 5, 3, 9, 2)
+ * val result = numbers.fold(SumAndMax(0, Int.MIN_VALUE)) { acc, num ->
+ *     SumAndMax(
+ *         sum = acc.sum + num, // 累加和
+ *         max = maxOf(acc.max, num) // 更新最大值
+ *     )
+ * }
+ * println(result) // 输出：SumAndMax(sum=20, max=9)
+ * }
  */
-fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
-    val json = JSONObject()
-    pairs.forEach {
-        if (it?.first != null && it.second != null) {
-            it.second.apply {
-                when (this) {
-                    is List<*> -> json.put(it.first, toJsonArray())
-                    is Array<*> -> json.put(it.first, toList().toJsonArray())
-                    else -> json.put(it.first, this)
-                }
-            }
-        }
-    }
-    return json
-}
-
-///**
-// * 获取一串拼接的json
-// */
-//fun <T> ArrayList<T>?.requestParams(): String {
-//    if (isNullOrEmpty()) return ""
+fun <T> ArrayList<T>?.joinToJson(): String {
+    if (this.isNullOrEmpty()) return ""
 //    val builder = StringBuilder("[")
 //    for (i in indices) {
 //        builder.append(safeGet(i))
@@ -660,12 +750,40 @@ fun jsonOf(vararg pairs: Pair<String, Any?>?): JSONObject {
 //    }
 //    builder.append("]")
 //    return builder.toString()
-//    return joinToString(separator = "],[").let { "[$it]" }
+    // 利用 Kotlin 标准库 joinToString 方法（专门用于集合拼接字符串），先把列表元素用 ],[ 分隔拼接，再包裹 []
+    return joinToString(separator = "],[").let { "[$it]" }
+    // 用 fold 折叠集合，初始值为 [，每次拼接 ],[元素，最后补 ]
 //    return fold("[") { acc, t -> "${acc}],[${t}"}.run { "${this}]" }
-//}
+}
 
 /**
- * pair处理（如果都不为空，则返回true）
+ * 多个Pair转JsonObject
+ */
+fun jsonOf(vararg pairs: Pair<String, Any?>): JSONObject {
+    val json = JSONObject()
+    pairs.forEach { (key, value) ->
+        value.also {
+            when (it) {
+                is List<*> -> json.put(key, it.toJsonArray())
+                is Array<*> -> json.put(key, it.toList().toJsonArray())
+                else -> json.put(key, it)
+            }
+        }
+    }
+    return json
+}
+
+/**
+ * 多个JsonObject转array
+ */
+fun jsonArrayOf(vararg objects: JSONObject): JSONArray {
+    return JSONArray().apply {
+        objects.forEach { put(it) }
+    }
+}
+
+/**
+ * Pair处理（如果都不为空，则返回true）
  */
 fun Pair<String?, String?>?.isNotEmpty(): Boolean {
     this ?: return false

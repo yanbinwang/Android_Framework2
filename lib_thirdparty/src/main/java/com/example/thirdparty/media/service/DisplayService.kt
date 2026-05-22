@@ -3,6 +3,7 @@ package com.example.thirdparty.media.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaRecorder
@@ -16,7 +17,8 @@ import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getExtra
+import com.example.common.utils.function.intentInt
+import com.example.common.utils.function.intentParcelable
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
@@ -116,16 +118,20 @@ class DisplayService : TrackableLifecycleService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-        // 构建完整的通知（必须包含图标、标题）
+        // 构建完整的通知
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("正在录屏") // 强制要求：标题
-            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
+            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true) // 标记为持续通知，用户无法手动清除
             .setSilent(true) // 静音通知
             .build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
-        startForeground(notificationId, notification)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        } else {
+            startForeground(notificationId, notification)
+        }
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
@@ -138,8 +144,8 @@ class DisplayService : TrackableLifecycleService() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // 获取到页面OnActivityResult取得的值
-        val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-        val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
+        val resultCode = intent.intentInt(Extra.RESULT_CODE, -1)
+        val resultData = intent.intentParcelable<Intent>(Extra.BUNDLE_BEAN)
         startRecording(resultCode, resultData)
 //        return START_STICKY
         return super.onStartCommand(intent, flags, startId)

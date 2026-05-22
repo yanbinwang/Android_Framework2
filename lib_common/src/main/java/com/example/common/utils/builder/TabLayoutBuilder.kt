@@ -166,10 +166,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         if (action != null) {
             action.invoke()
         } else {
-            allowedResetAction(mTab, i)
+            resetAllowedAction(mTab, i)
         }
     }
-    private val allowedResetAction = { mTab: TabLayout.Tab?, i: Int ->
+    private val resetAllowedAction = { mTab: TabLayout.Tab?, i: Int ->
         if (mCurrentItem != i) {
             // 取消上一个选中的 tab（更新未选中状态）
             val lastSelectedIndex = mCurrentItem
@@ -195,6 +195,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
     init {
         observer.doOnDestroy {
+            tab?.removeOnTabSelectedListener(mTabListener)
+            mediator?.detach()
             resetJob?.cancel()
             allowedJob?.cancel()
             selectJob?.cancel()
@@ -328,7 +330,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
      */
     private fun selectTabNow(index: Int) {
         if (hasAction) {
-            allowedResetAction(tab?.getTabAt(index), index)
+            resetAllowedAction(tab?.getTabAt(index), index)
         } else {
             // 当代码执行到这里时，TabLayout 已经完成初始化
             selectJob?.cancel()
@@ -341,7 +343,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     /**
      * 对应下标需求对应不同的点击，改为自定义
      */
-    fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
+    fun clickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
         hasAction = true
         clickActions = ConcurrentHashMap(params.toMap())
         for (i in 0 until mTabCount) {
@@ -356,8 +358,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
                 }
             }
         }
-        tab?.removeOnTabSelectedListener(mTabListener)
         // 移除之前的拦截器
+        tab?.removeOnTabSelectedListener(mTabListener)
         tab?.setOnTouchListener(null)
     }
 
@@ -365,7 +367,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
      * 还原对应下标的点击
      * addClickAllowed后可还原
      */
-    fun allowedReset(index: Int) {
+    fun resetAllowed(index: Int) {
         hasAction = true
         val action = clickActions[index]
         if (action != null) {
@@ -373,7 +375,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
             (mTab?.customView?.parent as? View)?.click {
                 resetJob?.cancel()
                 resetJob = observer.lifecycleScope.launch(Main.immediate) {
-                    allowedResetAction(mTab, index)
+                    resetAllowedAction(mTab, index)
                 }
             }
         }
@@ -383,26 +385,26 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
      * 整个TabLayout的操作，拦截所有，改为自己的点击
      * true拦截 false不拦截
      */
-    fun setClickable(isClickable: Boolean, listener: (() -> Unit)? = {}) {
+    fun setClickable(clickable: Boolean, listener: (() -> Unit)? = {}) {
         for (i in 0 until mTabCount) {
             tab?.getTabAt(i)?.customView.let {
-                it?.isClickable = isClickable
-                if (isClickable) {
-                    it?.click {
+                it?.isClickable = clickable
+                if (clickable) {
+                    it.click {
                         listener?.invoke()
                     }
                 } else {
-                    it?.clearClick()
+                    it.clearClick()
                 }
             }
         }
-        if (isClickable) {
-            tab?.removeOnTabSelectedListener(mTabListener)
+        if (clickable) {
             // 移除之前的拦截器
+            tab?.removeOnTabSelectedListener(mTabListener)
             tab?.setOnTouchListener(null)
         } else {
-            tab?.addOnTabSelectedListener(mTabListener)
             // 设置触摸拦截器
+            tab?.addOnTabSelectedListener(mTabListener)
             tab?.setOnTouchListener { _, _ -> true }
         }
     }

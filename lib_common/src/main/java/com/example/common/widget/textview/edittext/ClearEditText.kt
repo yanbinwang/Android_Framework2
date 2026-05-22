@@ -1,6 +1,5 @@
 package com.example.common.widget.textview.edittext
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.text.Editable
 import android.text.InputFilter
@@ -15,14 +14,15 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.imeOptions
@@ -38,11 +38,11 @@ import com.example.framework.widget.BaseViewGroup
  * @description 带删除按钮的输入框
  * @author yan
  */
-@SuppressLint("CustomViewStyleable")
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false // 是否不可操作
     private var isShowBtn = true // 是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
+    private var afterTextChanged: ((s: Editable?) -> Unit)? = null
     private val mBinding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = mBinding.etClear
 
@@ -54,6 +54,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 mBinding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
             }
+            doAfterTextChanged {
+                afterTextChanged?.invoke(it)
+            }
         }
         mBinding.ivClear.click {
             mBinding.etClear.setText("")
@@ -64,7 +67,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val text = getResourceId(R.styleable.ClearEditText_text, -1)
             if (text != -1) setText(text)
             // 文字大小
-            val textSize = getDimension(R.styleable.ClearEditText_textSize, context.dimen(R.dimen.textSize14))
+            val textSize = getDimension(R.styleable.ClearEditText_textSize, dimen(R.dimen.textSize14))
             setTextSize(textSize)
             // 文字颜色
             val textColor = getColor(R.styleable.ClearEditText_textColor, color(R.color.textPrimary))
@@ -118,7 +121,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(mBinding.root)
     }
 
     override fun setEnabled(enabled: Boolean) {
@@ -128,19 +131,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         } else {
             setDisabled()
         }
-    }
-
-    private fun setDisabled() {
-        isDisabled = true
-        isShowBtn = false
-        mBinding.etClear.apply {
-            isCursorVisible = false
-            isFocusable = false
-            isEnabled = false
-            isFocusableInTouchMode = false
-            textColor(R.color.textDisabled)
-        }
-        mBinding.ivClear.gone()
     }
 
     private fun setEnabled() {
@@ -154,6 +144,19 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             textColor(R.color.textPrimary)
         }
         mBinding.ivClear.visible()
+    }
+
+    private fun setDisabled() {
+        isDisabled = true
+        isShowBtn = false
+        mBinding.etClear.apply {
+            isCursorVisible = false
+            isFocusable = false
+            isEnabled = false
+            isFocusableInTouchMode = false
+            textColor(R.color.textDisabled)
+        }
+        mBinding.ivClear.gone()
     }
 
     fun setText(@StringRes resid: Int) {
@@ -228,13 +231,17 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         mBinding.etClear.filters = filters
     }
 
-    fun addTextChangedListener(onTextChanged: ((s: Editable?) -> Unit)) {
-        this.onTextChanged = onTextChanged
+    fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
+        this.onTextChanged = listener
     }
 
-    fun setOnFocusChangeListener(onFocusChange: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
+        this.afterTextChanged = listener
+    }
+
+    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
         mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
-            onFocusChange.invoke(v, hasFocus)
+            listener.invoke(v, hasFocus)
         }
     }
 

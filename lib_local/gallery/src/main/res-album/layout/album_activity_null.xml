@@ -1,66 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Album.MatchParent"
-    android:background="@color/albumPageLight">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/galleryBackground"
+    android:orientation="vertical">
 
-    <com.google.android.material.appbar.AppBarLayout
-        android:id="@+id/app_bar_layout"
-        style="@style/Album.AppBar.General">
-
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            style="@style/Album.Toolbar.Dark"
-            app:navigationIcon="@drawable/album_ic_back_white">
-
-            <TextView
-                android:id="@+id/tv_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:ellipsize="end"
-                android:lines="1"
-                android:scrollHorizontally="true"
-                android:textSize="@dimen/album_sp_18"
-                tools:text="@string/albumTitle"
-                tools:textColor="@color/textWhite" />
-
-        </androidx.appcompat.widget.Toolbar>
-
-    </com.google.android.material.appbar.AppBarLayout>
+    <com.example.common.widget.AppToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
     <LinearLayout
-        style="@style/Album.MatchParent"
-        android:layout_below="@+id/app_bar_layout"
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"
         android:gravity="center"
         android:orientation="vertical">
 
         <TextView
             android:id="@+id/tv_message"
-            style="@style/Album.WrapContent"
-            android:textColor="@color/albumFontHint" />
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/galleryFontHint"
+            android:textSize="@dimen/textSize12"
+            android:textStyle="bold"
+            tools:text="没有发现媒体文件" />
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_camera_image"
-            style="@style/Album.Button.WrapContent"
-            android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@drawable/album_ic_image_camera_white"
-            android:drawablePadding="@dimen/album_dp_6"
+        <LinearLayout
+            android:id="@+id/layout_camera_image"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
             android:gravity="center"
-            android:text="@string/album_camera_image_capture"
-            android:textColor="@color/albumFontLight" />
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
 
-        <androidx.appcompat.widget.AppCompatButton
-            android:id="@+id/btn_camera_video"
-            style="@style/Album.Button.WrapContent"
-            android:layout_marginTop="@dimen/album_dp_15"
-            android:drawableStart="@drawable/album_ic_video_camera_white"
-            android:drawablePadding="@dimen/album_dp_6"
+            <TextView
+                android:id="@+id/tv_camera_image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_image_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_image_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/layout_camera_video"
+            android:layout_width="80pt"
+            android:layout_height="34pt"
+            android:layout_marginTop="10pt"
             android:gravity="center"
-            android:text="@string/album_camera_video_capture"
-            android:textColor="@color/albumFontLight" />
+            android:visibility="gone"
+            tools:background="@drawable/selector_r5_main"
+            tools:visibility="visible">
+
+            <TextView
+                android:id="@+id/tv_camera_video"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:text="@string/album_camera_video_capture"
+                android:textSize="@dimen/textSize12"
+                app:drawableStartCompat="@mipmap/album_ic_video_camera"
+                tools:textColor="@color/galleryFontLight" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-</RelativeLayout>
+</LinearLayout>

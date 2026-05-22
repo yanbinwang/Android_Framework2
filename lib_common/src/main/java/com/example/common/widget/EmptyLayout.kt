@@ -106,7 +106,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(mBinding.root)
     }
 
     /**

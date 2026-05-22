@@ -32,6 +32,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getManifestString
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
@@ -173,8 +174,14 @@ object ScreenUtil {
      * 是否具备底部导航栏
      * 如是扩展函数,view必须是window.decorView
      */
-    fun View.hasNavigationBar(): Boolean {
-        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+//    fun View.hasNavigationBar(): Boolean {
+//        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+//        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
+//    }
+    fun hasNavigationBar(): Boolean {
+        val currentActivity = AppManager.currentActivity()
+        val decorView = currentActivity?.window?.decorView ?: return false
+        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return false
         return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 

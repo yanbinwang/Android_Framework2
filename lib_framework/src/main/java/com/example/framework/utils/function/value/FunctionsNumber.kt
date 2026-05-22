@@ -1,21 +1,31 @@
 package com.example.framework.utils.function.value
 
 import java.math.BigDecimal
+import java.math.RoundingMode
 
 //------------------------------------计算工具类------------------------------------
 /**
- * 数值安全转换
+ * 数值安全转换 (泛型T需要判断 T 的具体类型时 , 需使用inline + reified这对组合 , 防止类型擦除节省调用的内存)
+ * 1) 判断 泛型 T 的类型（reified 的作用） -> 使用
+ *  when(T::class.java) {
+ *      Float::class.java -> ...
+ *  }
+ * 2) 泛型类型强转 -> 必须 inline + reified
+ * 3) 判断泛型T的值 -> 不使用
+ *  when(this) {
+ *      is Float -> ...
+ *  }
  */
 val <T : Number> T?.orZero: T
     get() {
         return this ?: (when (this) {
-            is Short? -> 0.toShort()
-            is Byte? -> 0.toByte()
-            is Int? -> 0
-            is Long? -> 0L
-            is Double? -> 0.0
-            is Float? -> 0f
-            is BigDecimal? -> BigDecimal.ZERO
+            is Short -> 0.toShort()
+            is Byte -> 0.toByte()
+            is Int -> 0
+            is Long -> 0L
+            is Double -> 0.0
+            is Float -> 0f
+            is BigDecimal -> BigDecimal.ZERO
             else -> 0
         } as T)
     }
@@ -351,23 +361,23 @@ fun Double?.fitRange(range: IntRange): Double {
  * 断言请求的操作具有精确的结果，因此不需要舍入。
  * 如果对获得精确结果的操作指定此舍入模式，则抛出ArithmeticException。
  */
-fun Number?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return BigDecimal((this ?: 0).toString()).toFixed(fixed, mode)
+fun Number?.toFixed(fixed: Int, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+    return BigDecimal((this ?: 0).toString()).toFixed(fixed, roundingMode)
 }
 
 /**
  * 保留fixed位小数
  * 后端如果数值过大是不能用double接取的，使用string接受转BigDecimal，或直接BigDecimal接取
  */
-fun String?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return BigDecimal(this ?: "0").toFixed(fixed, mode)
+fun String?.toFixed(fixed: Int, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+    return BigDecimal(this ?: "0").toFixed(fixed, roundingMode)
 }
 
 /**
  * 保留fixed位小数
  */
-fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return (this ?: BigDecimal.ZERO).setScale(fixed, mode).toPlainString()
+fun BigDecimal?.toFixed(fixed: Int, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+    return (this ?: BigDecimal.ZERO).setScale(fixed, roundingMode).toPlainString()
 }
 
 /**
@@ -382,9 +392,9 @@ fun BigDecimal?.toFixed(fixed: Int, mode: Int = BigDecimal.ROUND_DOWN): String {
  * val b = 1.6; fixed=2
  * ->1.6
  */
-fun Number?.toFixedWithoutZero(fixed: Int = 1, replenish: Boolean = true): String {
+fun Number?.toFixedWithoutZero(fixed: Int = 1, replenish: Boolean = true, roundingMode: RoundingMode = RoundingMode.DOWN): String {
     // 设置小数位数，不进行四舍五入
-    val result = this.toSafeBigDecimal().setScale(fixed, BigDecimal.ROUND_DOWN)
+    val result = this.toSafeBigDecimal().setScale(fixed, roundingMode)
     // 如果不需要补零，去掉末尾的零
     return if (!replenish) {
         result.stripTrailingZeros().toPlainString()
@@ -477,17 +487,17 @@ fun Number?.multiply(number: Any?): String {
  * 如果number是字符串，必須是數值（'1'或‘-1’）的字符串
  * 如果除数是小数或除不尽，则必须指定小数位数
  */
-fun String?.divide(number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return performDivision(toSafeBigDecimal(), number, scale, mode)
+fun String?.divide(number: Any?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+    return performDivision(toSafeBigDecimal(), number, scale, roundingMode)
 }
 
-fun Number?.divide(number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
-    return performDivision(toSafeBigDecimal(), number, scale, mode)
+fun Number?.divide(number: Any?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+    return performDivision(toSafeBigDecimal(), number, scale, roundingMode)
 }
 
-private fun performDivision(current: BigDecimal, number: Any?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN): String {
+private fun performDivision(current: BigDecimal, number: Any?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN): String {
     val divisor = number.convertToSafeBigDecimal()
     // 处理除数为 0 的情况
     if (divisor.toPlainString().removeEndZero() == "0") return "0"
-    return current.divide(divisor, scale, mode).toPlainString().removeEndZero()
+    return current.divide(divisor, scale, roundingMode).toPlainString().removeEndZero()
 }

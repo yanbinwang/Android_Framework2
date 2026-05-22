@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="albumColorPrimary">#2196F3</color>
-    <color name="albumColorPrimaryBlack">#2B2B2B</color>
-    <color name="albumColorPrimaryDark">#1E88E5</color>
-    <color name="albumFontDark">#333</color>
-    <color name="albumFontHint">#808080</color>
-    <color name="albumFontLight">#FFF</color>
-    <color name="albumIconDark">#333</color>
-    <color name="albumLoadingDark">#333</color>
-    <color name="albumPageLight">#FFF</color>
-    <color name="albumSelectorNormal">#E0E0E0</color>
-    <color name="albumSheetBottom">#992B2B2B</color>
-    <color name="albumSheetLayer">#EE2B2B2B</color>
-    <color name="albumTransparent">#0000</color>
+    <!-- 列表项不可用 -->
+    <color name="albumLayerDisabled">#EE2B2B2B</color>
+    <!-- 加载控件覆盖色 -->
+    <color name="albumLoading">#333</color>
+    <!-- 相册页背景色 -->
+    <color name="albumGalleryBackground">#2B2B2B</color>
+    <!-- 菜单背景色 -->
+    <color name="albumMenuBackground">#992B2B2B</color>
+    <!-- 拍照按钮背景色 -->
+    <color name="albumBtnBackground">#2B2B2B</color>
 </resources>

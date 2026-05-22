@@ -1,6 +1,5 @@
 package com.example.common.widget
 
-import android.app.Activity
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.InputFilter
@@ -14,13 +13,15 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.tintWithMutate
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
@@ -42,15 +43,16 @@ import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.tint
 import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.widget.BaseViewGroup
+import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 仿系统Toolbar自定义头
  */
 class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var mActivity: Activity? = null
-    val rootView by lazy { ConstraintLayout(context) }
-    val idsMap by lazy { ConcurrentHashMap<String, Int>() }
+    private var mHost: WeakReference<FragmentActivity>? = null
+    val mRootView by lazy { ConstraintLayout(context) }
+    val mIdsMap by lazy { ConcurrentHashMap<String, Int>() }
 
     companion object {
         // 标题
@@ -66,37 +68,66 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         const val KEY_RIGHT_CUSTOM_VIEW = "right_custom_view" // 右侧自定义视图（任意 View 类型）
     }
 
+    /**
+     * 初始化及添加当前View至容器
+     */
     init {
-        rootView.size(MATCH_PARENT, WRAP_CONTENT)
-        rootView.padding(top = getStatusBarHeight(), start = 5.pt, end = 5.pt)
+        mRootView.size(MATCH_PARENT, WRAP_CONTENT)
+        mRootView.padding(top = getStatusBarHeight(), start = 5.pt, end = 5.pt)
     }
 
     override fun onInflate() {
-        if (isInflate) addView(rootView)
+        if (shouldInflate) addView(mRootView)
     }
 
     /**
      * 建立页面视图绑定关系
      */
-    fun bind(activity: AppCompatActivity): AppToolbar {
-        mActivity = activity
-        activity.doOnDestroy {
-            idsMap.clear()
+    fun bind(host: Any): AppToolbar {
+        mHost = WeakReference(when (host) {
+            // Activity（兼容所有现代 Activity）
+            is FragmentActivity -> host
+            // AndroidX Fragment
+            is Fragment -> host.requireActivity()
+            // 旧系统Fragment
+            is android.app.Fragment -> throw RuntimeException("android.app.Fragment is deprecated and not supported!")
+            // 不认识的类型
+            else -> throw IllegalArgumentException("Unsupported host type: ${host::class.java.name}")
+        })
+        host.doOnDestroy {
+            mIdsMap.clear()
         }
         return this
+    }
+
+    /**
+     * 控件移除页面时持有引用清空
+     */
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        runCatching { mHost?.clear() }.onFailure { e -> e.printStackTrace() }
+    }
+
+    /**
+     * 关闭引用的页面
+     */
+    private fun finishHost() {
+        mHost?.get()?.takeIf { !it.isFinishing }?.finish()
     }
 
     /**
      * 默认二级页面标题配置
      * @title -> 标题
      * @titleColor -> 标题字体颜色
+     * @resId -> 返回按钮样式
+     * @tintColor -> 返回按钮覆盖色
      * @bgColor ->背景颜色
      * @hasShade -> 标题底部是否带阴影
-     * @onClick -> 默认左侧返回
+     * @onBack -> 默认左侧返回
      */
-    fun setTitle(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        rootView.setBackgroundColor(context.color(bgColor))
-        if (title.isNotBlank()) {
+    fun setCustomTitle(title: String? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        // 设置标题
+        if (!title.isNullOrEmpty()) {
             createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
                 TextView(context).also {
                     it.setTheme(title, titleColor)
@@ -111,18 +142,25 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 center(it)
             })
         }
+        // 设置返回后按钮
+        setLeftButton(resId, tintColor, onBack = onBack)
+        // 设置背景色
+        mRootView.setBackgroundColor(context.color(bgColor))
+        // 设置阴影
         if (hasShade) createShade()
-        setLeftButton(onClick = onClick)
+        return this
+    }
+
+    fun setTitle(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        setCustomTitle(title, titleColor, bgColor = bgColor, hasShade = hasShade, onBack = onBack)
         return this
     }
 
     /**
      * 页面不需要标题，只需要定制的返回按钮及特定背景
      */
-    fun setSecondaryTitle(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        rootView.setBackgroundColor(context.color(bgColor))
-        if (hasShade) createShade()
-        setLeftButton(resId, tintColor, onClick = onClick)
+    fun setSecondaryTitle(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        setCustomTitle(resId = resId, tintColor = tintColor, bgColor = bgColor, hasShade = hasShade, onBack = onBack)
         return this
     }
 
@@ -130,22 +168,22 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 1) xml中绘制AppToolbar
      * 2) 页面调用bind()方法传入activity实现绑定后，调取该方法
      */
-    fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        return setTitle(title, titleColor, R.color.bgTransparent, onClick = onClick)
+    fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        return setTitle(title, titleColor, R.color.bgTransparent, onBack = onBack)
     }
 
-    fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        return setSecondaryTitle(resId, tintColor, R.color.bgTransparent, onClick = onClick)
+    fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        return setSecondaryTitle(resId, tintColor, R.color.bgTransparent, onBack = onBack)
     }
 
     /**
      * 设置左/右侧按钮图片资源
      * @resId -> 图片
      * @tintColor -> 图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
-     * @onClick -> 点击事件
+     * @onBack -> 点击事件
      */
-    fun setLeftButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        createImageView(KEY_LEFT_ICON, resId, tintColor, onClick) {
+    fun setLeftButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        createImageView(KEY_LEFT_ICON, resId, tintColor, onBack) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -160,10 +198,10 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      *  1) drawable(res, width, height)获取图片，设置宽高
      *  2) view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
      *  3) drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
-     * @onClick -> 点击事件
+     * @onBack -> 点击事件
      */
-    fun setLeftText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = { mActivity?.finish() }): AppToolbar {
-        createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onClick) {
+    fun setLeftText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onBack) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -173,42 +211,42 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 1) 创建视图的函数
      * 2) 配置视图的回调
-     * setLeft({ ImageView(mActivity) }) { img ->
+     * setLeft({ ImageView(mHost) }) { img ->
      *     img.setImageResource(R.drawable.ic_back)
-     *     img.setOnClickListener { mActivity.finish() }
+     *     img.setOnClickListener { mHost.finish() }
      *     img.setPadding(10.pt, 10.pt, 10.pt, 10.pt)
      * }
      */
-    inline fun <reified T : View> setLeft(crossinline creator: () -> T, rsp: (T) -> Unit = {}): AppToolbar {
+    inline fun <reified T : View> setLeft(crossinline creator: () -> T, block: (T) -> Unit = {}): AppToolbar {
         //margin属性是插入后才可以设置的
         createOrUpdateView(KEY_LEFT_CUSTOM_VIEW, creator) {
             startToStartOf(it)
             centerVertically(it)
-        }.also(rsp)
+        }.also(block)
         return this
     }
 
-    fun setRightButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onClick: () -> Unit = {}): AppToolbar {
-        createImageView(KEY_RIGHT_ICON, resId, tintColor, onClick) {
+    fun setRightButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = {}): AppToolbar {
+        createImageView(KEY_RIGHT_ICON, resId, tintColor, onBack) {
             endToEndOf(it)
             centerVertically(it)
         }
         return this
     }
 
-    fun setRightText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onClick: () -> Unit = {}): AppToolbar {
-        createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, onClick) {
+    fun setRightText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = {}): AppToolbar {
+        createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, onBack) {
             endToEndOf(it)
             centerVertically(it)
         }
         return this
     }
 
-    inline fun <reified T : View> setRight(crossinline creator: () -> T, rsp: (T) -> Unit = {}): AppToolbar {
+    inline fun <reified T : View> setRight(crossinline creator: () -> T, block: (T) -> Unit = {}): AppToolbar {
         createOrUpdateView(KEY_RIGHT_CUSTOM_VIEW, creator) {
             endToEndOf(it)
             centerVertically(it)
-        }.also(rsp)
+        }.also(block)
         return this
     }
 
@@ -217,19 +255,19 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     inline fun <reified T : View> createOrUpdateView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         // 移除上一次的视图
-        val lastId = idsMap[key]
+        val lastId = mIdsMap[key]
         if (lastId != null && lastId != NO_ID) {
-            rootView.findViewById<T>(lastId)?.let {
-                rootView.removeView(it)
+            mRootView.findViewById<T>(lastId)?.let {
+                mRootView.removeView(it)
             }
         }
         // 生成新的唯一 id
         val newViewId = generateViewId()
-        idsMap[key] = newViewId
+        mIdsMap[key] = newViewId
         val newView = creator.invoke()
         newView.id = newViewId
-        rootView.addView(newView)
-        rootView.applyConstraints {
+        mRootView.addView(newView)
+        mRootView.applyConstraints {
             block(newViewId)
         }
         return newView
@@ -239,9 +277,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 获取某个特定的view
      */
     inline fun <reified T : View> findViewByKey(key: String): T? {
-        val id = idsMap[key]
+        val id = mIdsMap[key]
         return if (id != null && id != NO_ID) {
-            rootView.findViewById(id)
+            mRootView.findViewById(id)
         } else {
             null
         }
@@ -251,14 +289,14 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 获取某个特定的view的id
      */
     fun findIdByKey(key: String): Int? {
-        return idsMap[key]
+        return mIdsMap[key]
     }
 
     /**
      * 检测是否创建
      */
     fun nonNull(vararg keys: String): Boolean {
-        return keys.all { idsMap[it] != null }
+        return keys.all { mIdsMap[it] != null }
     }
 
     /**
@@ -280,7 +318,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 创建左右侧文本方法
      */
-    private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<TextView>(key, {
             TextView(context).also {
                 it.setTheme(label, labelColor)
@@ -290,12 +328,12 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 if (drawable != null) {
                     it.clearBackground()
                     it.clearHighlightColor()
-                    drawable.setTint(context.color(labelColor))
+                    drawable.tintWithMutate(context.color(labelColor))
                     it.setCompoundDrawables(drawable, null, null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
                 it.click {
-                    onClick.invoke()
+                    onBack.invoke()
                 }
             }
         }, block)
@@ -304,7 +342,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 创建左右侧按钮方法
      */
-    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onClick: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createImageView(key: String, @DrawableRes resId: Int, @ColorRes tintColor: Int, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<ImageView>(key, {
             ImageView(context).also {
                 it.setResource(resId)
@@ -312,7 +350,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 it.size(44.pt, 44.pt)
                 it.padding(10.pt, 10.pt, 10.pt, 10.pt)
                 it.click {
-                    onClick.invoke()
+                    onBack.invoke()
                 }
             }
         }, block)

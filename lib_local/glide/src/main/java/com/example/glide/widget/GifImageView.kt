@@ -34,15 +34,12 @@ class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeS
                 loadGifFromUrl(gifUrl)
             } else {
                 // 处理 gifSrc：区分资源引用/颜色值
-                val gifSrcType = getType(R.styleable.GifImageView_gifSrc)
-                if (gifSrcType == TypedValue.TYPE_REFERENCE) {
-                    // 类型为：本地资源（drawable/mipmap）
-                    val gifResId = getResourceId(R.styleable.GifImageView_gifSrc, -1)
-                    if (gifResId != -1) {
-                        loadGifFromResource(gifResId)
-                    }
+                val gifResId = getResourceId(R.styleable.GifImageView_gifSrc, -1)
+                if (gifResId != -1) {
+                    // 资源ID有效，说明是本地drawable/mipmap资源
+                    loadGifFromResource(gifResId)
                 } else {
-                    // 兜底处理：所有非资源引用的类型（颜色相关）均显示纯色
+                    // 资源ID无效，尝试获取颜色值
                     val color = getColor(R.styleable.GifImageView_gifSrc, Color.TRANSPARENT)
                     setBackgroundColor(color)
                 }
@@ -87,7 +84,16 @@ class GifImageView @JvmOverloads constructor(context: Context, attrs: AttributeS
      * 开始 GIF 动画
      */
     fun startGifAnimation() {
-        gifDrawable?.start()
+        gifDrawable?.apply {
+            // 如果当前正在播放，先停止再从第一帧启动
+            if (isRunning) {
+                stop()
+                startFromFirstFrame()
+            } else {
+                // 如果未播放，直接从第一帧启动
+                startFromFirstFrame()
+            }
+        }
     }
 
     /**

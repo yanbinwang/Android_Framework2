@@ -1,154 +1,98 @@
 package com.example.gallery.base
 
+import android.content.Intent
+import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.transition.Slide
+import android.transition.Visibility
 import android.view.Gravity
-import android.view.ViewGroup
 import android.view.Window
-import android.widget.ImageButton
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.enableEdgeToEdge
-import androidx.annotation.ColorRes
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.view.menu.ActionMenuItemView
-import androidx.appcompat.widget.ActionMenuView
-import androidx.appcompat.widget.Toolbar
-import com.example.common.R
-import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
-import com.example.common.utils.function.getStatusBarHeight
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Observer
+import com.example.common.base.bridge.BaseImpl
+import com.example.common.utils.ScreenUtil.screenHeight
+import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
-import com.example.framework.utils.function.view.doOnceAfterLayout
-import com.example.framework.utils.function.view.padding
-import com.example.framework.utils.function.view.size
-import com.example.framework.utils.function.view.textColor
-import com.example.framework.utils.function.view.textSize
-import com.example.gallery.base.bridge.Bye
+import com.example.framework.utils.function.value.isMainThread
+import com.example.gallery.R
+import com.example.gallery.base.bridge.PageCloseable
 import com.gyf.immersionbar.ImmersionBar
-
+import me.jessyan.autosize.AutoSizeCompat
+import me.jessyan.autosize.AutoSizeConfig
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 针对所有相册页面的基类
  */
-abstract class BaseActivity : AppCompatActivity(), Bye {
+abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
+    private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-
-    companion object {
-
-        /**
-         * 兼容控件内toolbar
-         */
-        @JvmStatic
-        fun setSupportToolbar(toolbar: Toolbar) {
-            toolbar.doOnceAfterLayout {
-                val statusBarHeight = getStatusBarHeight()
-                it.size(height = it.measuredHeight + statusBarHeight)
-                it.padding(top = statusBarHeight)
-                // 返回按钮调整
-                val navButton = getNavButtonView(it)
-                // 去除长按文字
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    navButton?.tooltipText = null
-                }
-                navButton?.setContentDescription(null)
-                navButton?.setOnLongClickListener { v -> true }
-                // 去除水波纹
-                navButton?.background = null
-            }
-        }
-
-        /**
-         * 反射获取 Toolbar 中的私有字段 mNavButtonView（返回按钮）
-         */
-        private fun getNavButtonView(toolbar: Toolbar): ImageButton? {
-            try {
-                // 获取 Toolbar 类中的 mNavButtonView 字段
-                val field = Toolbar::class.java.getDeclaredField("mNavButtonView")
-                // 设置字段可访问（私有字段需要开启）
-                field.isAccessible = true
-                // 获取字段值（即返回按钮的 ImageButton 实例）
-                return field.get(toolbar) as? ImageButton
-            } catch (e: Exception) {
-                // 转换异常
-                e.printStackTrace()
-            }
-            return null
-        }
-
-        /**
-         * 处理纯图片的按钮
-         * 页面的onCreateOptionsMenu中调取,此时Toolbar已经加载完成
-         */
-        @JvmStatic
-        fun setSupportMenuView(toolbar: Toolbar, @ColorRes colorRes: Int) {
-            for (i in 0 until toolbar.childCount) {
-                val child = toolbar.getChildAt(i)
-                if (child is ActionMenuView) {
-                    // 设定的按钮被绘制为ActionMenuView,本身高度看似撑满屏幕并且绘制也是,但其内部的view还是带有一定的上下边距
-                    child.doOnceAfterLayout {
-                        adjustActionMenuView(it, colorRes)
-                    }
-                }
-            }
-        }
-
-        private fun adjustActionMenuView(menuView: ActionMenuView, @ColorRes colorRes: Int) {
-            for (i in 0..<menuView.childCount) {
-                val itemView = menuView.getChildAt(i)
-                // 打破 ActionMenuItemView 的高度限制
-                if (itemView is ActionMenuItemView) {
-                    // 取消最小高度限制
-                    itemView.setMinHeight(0)
-                    // 取消最大高度限制
-                    itemView.setMaxHeight(Int.MAX_VALUE)
-                    // 强制 ActionMenuItemView 高度占满父容器（ActionMenuView）
-                    val lp = itemView.layoutParams
-                    lp.height = ViewGroup.LayoutParams.MATCH_PARENT
-                    itemView.setLayoutParams(lp)
-                    // 清除 ActionMenuItemView 自身的 padding
-                    itemView.setPadding(itemView.getPaddingLeft(), 0, itemView.getPaddingRight(), 0)
-                    // 内容居中
-                    itemView.gravity = Gravity.CENTER
-                    // 颜色调整
-                    if (!shouldUseWhiteSystemBarsForRes(colorRes)) {
-                        itemView.textColor(R.color.textBlack)
-                    } else {
-                        itemView.textColor(R.color.textWhite)
-                    }
-                    // 字体大小
-                    itemView.textSize(R.dimen.textSize14)
-                }
-            }
-        }
-
-    }
+    private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
+        // 设置相册整体动画
+        setActivityAnimations()
+        // 强制补动画（外部跳转生效）
+        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
+        // 布局开始之前回调
+        initBefore()
         // 添加至统一页面管理类
         AppManager.addActivity(this)
         // 子页不实现方法走默认窗体配置(状态栏+导航栏)
         if (isImmersionBarEnabled()) initImmersionBar()
+        initView(savedInstanceState)
+        initEvent()
+        initData()
+    }
+
+    /**
+     * 复用页面时强制统一动画
+     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        setActivityAnimations()
+    }
+
+    private fun setActivityAnimations() {
+        val (slideEnter, slideExit) = Pair(
+            Slide(Gravity.END).apply { duration = 300; mode = Visibility.MODE_IN },
+            Slide(Gravity.START).apply { duration = 300; mode = Visibility.MODE_OUT }
+        )
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.exitTransition = slideEnter
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.returnTransition = slideExit
     }
 
     protected open fun isImmersionBarEnabled(): Boolean {
         return true
     }
 
-    protected open fun initImmersionBar(statusBarDark: Boolean = false, navigationBarDark: Boolean = false, navigationBarColor: Int = R.color.bgBlack) {
+    override fun initImmersionBar(statusBarDark: Boolean, navigationBarDark: Boolean, navigationBarColor: Int) {
+        super.initImmersionBar(statusBarDark, navigationBarDark, navigationBarColor)
         window?.apply {
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
-            setNavigationBarDrawable(navigationBarColor)
+            setNavigationBarDrawable(navigationBarColor) {
+                onWindowInsetsChanged?.invoke(it)
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             immersionBar?.apply {
@@ -158,6 +102,22 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                 init()
             }
         }
+    }
+
+    /**
+     * ViewModel 中定义无值事件（用 Unit 替代 Any）
+     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     */
+    protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
+        this ?: return
+        val observer = Observer<Any?> { value ->
+            if (value != null) {
+                (value as? T)?.let { block(it) }
+            }
+        }
+        dataManager[this] = observer
+        observe(this@BaseActivity, observer)
     }
 
     /**
@@ -199,6 +159,7 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
                     onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
                 }
             }
+
             else -> {
                 (backCallback as? OnBackPressedCallback)?.remove()
             }
@@ -214,20 +175,61 @@ abstract class BaseActivity : AppCompatActivity(), Bye {
     }
 
     /**
-     * 1.bye() 方法中直接调用了 onBackPressed()
-     * 2.在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
-     * 3.系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
+     * 用于设置自定义Insets处理逻辑
      */
-    override fun bye() {
+    protected fun setOnWindowInsetsChanged(onWindowInsetsChanged: (insets: WindowInsetsCompat) -> Unit) {
+        this.onWindowInsetsChanged = onWindowInsetsChanged
+    }
+
+    protected fun clearOnWindowInsetsChanged() {
+        onWindowInsetsChanged = null
+    }
+
+    /**
+     * 1) bye() 方法中直接调用了 onBackPressed()
+     * 2) 在未重写 onBackPressed() 的情况下，会执行 Activity 类的默认实现
+     * 3) 系统默认的 onBackPressed() 最终会调用 finish() 销毁当前 Activity
+     */
+    override fun navigateBack() {
 //        onBackPressed()
         finish()
+    }
+
+    override fun getResources(): Resources {
+        if (isMainThread) {
+            AutoSizeConfig.getInstance()
+                .setScreenWidth(screenWidth)
+                .setScreenHeight(screenHeight)
+            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+        }
+        return super.getResources()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        AutoSizeConfig.getInstance().stop(this)
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        AutoSizeConfig.getInstance().restart()
     }
 
     override fun onDestroy() {
         super.onDestroy()
         window?.removeNavigationBarDrawable()
         clearOnBackPressedListener()
+        clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
+        for ((key, value) in dataManager) {
+            key.removeObserver(value)
+        }
+        dataManager.clear()
+    }
+
+    override fun finish() {
+        super.finish()
+        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
 }

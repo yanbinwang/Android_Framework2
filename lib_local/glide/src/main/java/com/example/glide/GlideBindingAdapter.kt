@@ -15,6 +15,7 @@ import com.example.glide.ImageLoader.Companion.DEFAULT_CIRCULAR_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_CORNER_RADIUS
 import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_ROUNDED_RESOURCE
+import com.example.glide.ImageLoader.Companion.DEFAULT_SCALE_TYPE
 import java.lang.ref.WeakReference
 
 /**
@@ -116,17 +117,22 @@ object GlideBindingAdapter {
         ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
+    /**
+     * app:cardview_scaleType="@{android.widget.ImageView.ScaleType.CENTER_CROP}"
+     */
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource"], requireAll = false)
-    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?) {
+    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource", "cardview_scaleType"], requireAll = false)
+    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?, scaleType: ImageView.ScaleType?) {
+        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
         val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
-        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
+        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, effectiveScaleType, { view.disable() }, { view.enable() })
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageResource"])
-    fun bindingCardViewFromResource(view: CardView, @RawRes @DrawableRes imageResource: Int?) {
-        ImageLoader.instance.loadCardViewFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["cardview_imageResource", "cardview_scaleType"], requireAll = false)
+    fun bindingCardViewFromResource(view: CardView, @RawRes @DrawableRes imageResource: Int?, scaleType: ImageView.ScaleType?) {
+        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
+        ImageLoader.instance.loadCardViewFromResource(view, imageResource, scaleType = effectiveScaleType, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**

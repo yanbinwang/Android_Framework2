@@ -13,8 +13,7 @@ import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
-import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration
-import com.example.common.widget.xrecyclerview.manager.SCommonItemDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
@@ -28,10 +27,13 @@ import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
 import com.example.framework.utils.function.view.initLinearHorizontal
 import com.example.framework.utils.function.view.initLinearVertical
+import com.example.framework.utils.function.view.initStaggeredHorizontal
+import com.example.framework.utils.function.view.initStaggeredVertical
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.safeUpdate
+import com.example.framework.utils.function.view.setOnScrollListener
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
@@ -53,7 +55,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     // 默认开启嵌套滚动
-    private var nestedScrollEnabled = false
+    private var nestedScrollEnabled = true
     // 是否具有刷新
     private var refreshEnable = false
     // 是否具有空布局
@@ -83,7 +85,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     init {
         context.withStyledAttributes(attrs, R.styleable.XRecyclerView) {
-            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, false)
+            nestedScrollEnabled = getBoolean(R.styleable.XRecyclerView_android_nestedScrollingEnabled, true)
             refreshEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableRefresh, false)
             emptyEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmpty, false)
             emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
@@ -92,7 +94,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     override fun onInflate() {
-        if (isInflate) {
+        if (shouldInflate) {
             when (refreshEnable) {
                 false -> {
                     root.addView(recycler)
@@ -110,7 +112,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
                 setRootSize(height = rootFixedHeight)
             }
             // 嵌套滚动设置
-            recycler.isNestedScrollingEnabled = nestedScrollEnabled
+            setNestedScrollingEnabled(nestedScrollEnabled)
             // 取一次内部padding,针对RecyclerView做padding
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return
@@ -129,6 +131,17 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             empty.size(MATCH_PARENT, MATCH_PARENT)
             empty.isClickable = emptyClickableEnable
         }
+    }
+
+    /**
+     * 重写View自带的是否支持惯性滑动
+     * 1) 默认情况下是true
+     * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
+     * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
+     */
+    override fun setNestedScrollingEnabled(enabled: Boolean) {
+        super.setNestedScrollingEnabled(enabled)
+        recycler.isNestedScrollingEnabled = enabled
     }
 
     /**
@@ -225,8 +238,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置默认recycler的输出manager
      * 默认一行一个，线样式可自画可调整
      */
-    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
+    fun setAdapter(adapter: RecyclerView.Adapter<*>, spanCount: Int = 1, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL, isStaggered: Boolean = false) {
         when {
+            // 瀑布流
+            isStaggered -> {
+                if (orientation == RecyclerView.VERTICAL) {
+                    recycler.initStaggeredVertical(adapter, spanCount)
+                } else {
+                    recycler.initStaggeredHorizontal(adapter, spanCount)
+                }
+            }
             // 单列 + 垂直 → 垂直线性布局
             spanCount <= 1 && orientation == RecyclerView.VERTICAL -> {
                 recycler.initLinearVertical(adapter)
@@ -249,20 +270,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 设置自定义快速适配器
      */
-    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL) {
-        setAdapter(adapter, spanCount, orientation)
+    fun <T : BaseQuickAdapter<*, *>> setQuickAdapter(adapter: T, spanCount: Int = 1, horizontalSpace: Int = 0, verticalSpace: Int = 0, @RecyclerView.Orientation orientation: Int = RecyclerView.VERTICAL, isStaggered: Boolean = false) {
+        setAdapter(adapter, spanCount, orientation, isStaggered)
         val hasHorizontalEdge = horizontalSpace > 0
         val hasVerticalEdge = verticalSpace > 0
         if (horizontalSpace <= 0 && verticalSpace <= 0) return
         addItemDecoration(horizontalSpace, verticalSpace, hasHorizontalEdge, hasVerticalEdge)
     }
-
-//    /**
-//     * 设置横向左右滑动的adapter
-//     */
-//    fun <T : BaseQuickAdapter<*, *>> setHorizontalAdapter(adapter: T) {
-//        recycler.initLinearHorizontal(adapter)
-//    }
 
     /**
      * 设置复杂的多个adapter直接拼接成一个
@@ -278,8 +292,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      *     }
      * }
      */
-    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T) {
-        recycler.initConcat(*adapters)
+    fun <T : BaseQuickAdapter<*, *>> setConcatAdapter(vararg adapters: T, manager: RecyclerView.LayoutManager? = null) {
+        recycler.initConcat(*adapters, manager = manager)
     }
 
     /**
@@ -289,7 +303,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         val propMap = SparseArray<ItemDecorationProps>()
         val prop1 = ItemDecorationProps(horizontalSpace.pt, verticalSpace.pt, hasHorizontalEdge, hasVerticalEdge)
         propMap.put(0, prop1)
-        recycler.addItemDecoration(SCommonItemDecoration(propMap))
+        recycler.addItemDecoration(SpacingDecoration(propMap))
     }
 
     /**
@@ -303,17 +317,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         return recycler.adapter as? T
     }
 
-//    /**
-//     * 获取一个列表中固定下标的holder
-//     */
-//    fun <K : BaseViewDataBindingHolder> getHolder(position: Int): K? {
-//        return recycler.getHolder(position)
-//    }
-//
-//    fun <VDB : ViewDataBinding> getViewHolder(position: Int): VDB? {
-//        return getHolder<BaseViewDataBindingHolder>(position)?.viewBinding() as? VDB
-//    }
-
     /**
      * 让列表滚动到对应下标点
      */
@@ -325,8 +328,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 安全更新
      */
-    fun safeUpdate(action: () -> Unit) {
-        recycler.safeUpdate(action)
+    fun safeUpdate(func: () -> Unit) {
+        recycler.safeUpdate(func)
     }
 
     /**
@@ -334,6 +337,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun setRecyclerBackgroundColor(@ColorInt color: Int) {
         recycler.setBackgroundColor(color)
+    }
+
+    /**
+     * 设置滚动监听
+     */
+    fun setOnScrollListener(func: (manager: RecyclerView, isScrolled: Boolean) -> Unit = { _, _ -> }) {
+        recycler.setOnScrollListener(lifecycleOwner, func)
     }
 
     /**

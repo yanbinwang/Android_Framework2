@@ -1,0 +1,6 @@
+<resources>
+    <!-- 分享 -->
+    <string name="shareSuccess">分享成功</string>
+    <string name="shareFailure">分享失败</string>
+    <string name="shareCancel">分享取消</string>
+</resources>

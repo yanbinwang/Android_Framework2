@@ -6,6 +6,7 @@ plugins {
     id("io.objectbox")
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.objectbox"
 
@@ -15,7 +16,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
         javaCompileOptions {
             annotationProcessorOptions {
@@ -28,10 +28,6 @@ android {
 //        arguments {
 //            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
 //        }
-//    }
-
-//    kotlinOptions {
-//        jvmTarget = "11"
 //    }
 
     kotlin {

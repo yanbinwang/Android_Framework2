@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.view.View
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.base.binding.adapter.BaseItemType.BEAN
-import com.example.common.base.binding.adapter.BaseItemType.LIST
+import com.example.common.base.binding.adapter.BaseAdapter.BaseItemType.BEAN
+import com.example.common.base.binding.adapter.BaseAdapter.BaseItemType.LIST
 import com.example.common.base.bridge.BaseViewModel
 import com.example.framework.utils.function.value.findIndexOf
 import com.example.framework.utils.function.value.orFalse
@@ -40,6 +40,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     protected var onItemLongClick: ((v: View?, t: T?, position: Int) -> Boolean)? = null
 
     /**
+     * 适配器枚举类型
+     */
+    enum class BaseItemType {
+        BEAN, LIST
+    }
+
+    /**
      * 默认是返回集合
      */
     constructor() {
@@ -67,7 +74,7 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     override fun getItemCount(): Int {
         return when (itemType) {
             LIST -> data.safeSize
-            BEAN -> if (t != null) 1 else 0
+            BEAN -> if (t == null) 0 else 1
         }
     }
 
@@ -105,6 +112,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
 
     /**
      * 如果payloads不为空，回调里做局部刷新
+     * mBinding?.adapter?.changed({ it.baoquan == baoquan }, progress)
+     * val progress = (payloads.safeGet(0) as? Int).orZero
      */
     private fun onConvertHolder(holder: BaseViewDataBindingHolder, payloads: MutableList<Any>?) {
         // 扁平化 payloads，处理系统多套的一层 List
@@ -118,15 +127,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
                 flatPayloads.add(item)
             }
         }
-        val position = holder.absoluteAdapterPosition
         // 注意判断当前适配器是否具有头部view
+        val position = holder.absoluteAdapterPosition
+        val bean = getItem(position)
         holder.itemView.click {
-            onItemClick?.invoke(it, data.safeGet(position), position)
+            onItemClick?.invoke(it, bean, position)
         }
         holder.itemView.setOnLongClickListener {
-            onItemLongClick?.invoke(it, data.safeGet(position), position).orFalse
+            onItemLongClick?.invoke(it, bean, position).orFalse
         }
-        onConvert(holder, getItem(position), flatPayloads)
+        onConvert(holder, bean, flatPayloads)
     }
 
     /**
@@ -516,6 +526,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 列表如果支持拖拽,使用该方法 (参照gesture的touch的OnItemTouchListener)
+     */
+    fun move(fromPosition: Int, toPosition: Int) {
+        // 交换位置
+        Collections.swap(data, fromPosition, toPosition)
+        // 局部刷新(移动)
+        notifyItemMoved(fromPosition, toPosition)
+    }
+
+    /**
      * 查找并返回符合条件的对象
      */
     fun findItem(func: ((T) -> Boolean)): T? {
@@ -578,7 +598,13 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      * 获取当前集合长度
      */
     fun size(): Int {
-        return if (itemType == LIST) data.safeSize else 1
+        return if (itemType == LIST) {
+            // 集合空 → 0，有数据 → 长度
+            data.safeSize
+        } else {
+            // 对象空 → 0，有对象 → 1
+            if (t == null) 0 else 1
+        }
     }
 
     /**

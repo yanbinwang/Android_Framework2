@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.amap"
 
@@ -14,17 +15,12 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
     buildFeatures {
         dataBinding = true
     }
-
-//    kotlinOptions {
-//        jvmTarget = "11"
-//    }
 
     kotlin {
         compilerOptions {
@@ -52,5 +48,5 @@ dependencies {
     // 框架库
     implementation(project(":lib_framework"))
     // 高德地图
-    api(files("libs/AMap3DMap_10.1.600_AMapSearch_9.7.4_AMapLocation_6.5.1_20251020.jar"))
+    api(files("libs/AMap3DMap_11.1.200_AMapSearch_9.7.4_AMapLocation_11.1.200_20260430.jar"))
 }

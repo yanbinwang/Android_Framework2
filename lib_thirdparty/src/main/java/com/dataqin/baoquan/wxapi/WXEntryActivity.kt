@@ -5,6 +5,7 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.example.common.utils.builder.shortToast
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.wechat.WXManager
 import com.tencent.mm.opensdk.constants.ConstantsAPI
@@ -66,22 +67,19 @@ class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
      * @param resp 回调数据，包含分享/登录/支付的结果
      */
     override fun onResp(resp: BaseResp?) {
-//        resp?.let {
-//            // 处理业务逻辑：比如分享成功/失败、登录授权结果等
-//            when (it.errCode) {
-//                BaseResp.ErrCode.ERR_OK -> {
-//                    // 操作成功（如分享成功、登录授权成功）
-//                }
-//                BaseResp.ErrCode.ERR_USER_CANCEL -> {
-//                    // 用户取消操作
-//                }
-//                else -> {
-//                    // 操作失败，it.errStr 是失败原因
-//                }
-//            }
-//        }
-//        // 处理完回调结果后，再关闭Activity
-//        finish()
+        resp?.let {
+            // 处理业务逻辑：比如分享成功/失败、登录授权结果等
+            when (it.errCode) {
+                // 操作成功（如分享成功、登录授权成功）
+                BaseResp.ErrCode.ERR_OK -> R.string.shareSuccess.shortToast()
+                // 用户取消操作
+                BaseResp.ErrCode.ERR_USER_CANCEL -> R.string.shareCancel.shortToast()
+                // 操作失败，it.errStr 是失败原因
+                else -> R.string.shareFailure.shortToast()
+            }
+        }
+        // 处理完回调结果后，再关闭Activity
+        finish()
     }
 
 }

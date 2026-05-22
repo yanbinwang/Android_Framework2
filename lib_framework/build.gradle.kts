@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.framework"
 
@@ -14,7 +15,6 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
         testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
@@ -22,10 +22,6 @@ android {
         dataBinding = true
         buildConfig = true
     }
-
-//    kotlinOptions {
-//        jvmTarget = "11"
-//    }
 
     kotlin {
         compilerOptions {
@@ -59,8 +55,8 @@ dependencies {
     implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
-    //安卓x库
+    // 安卓x库
     api(libs.bundles.androidx.general.core)
-    //其余谷歌官方库
+    // 其余谷歌官方库
     api(libs.bundles.google.extensions)
 }

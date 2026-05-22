@@ -8,6 +8,10 @@ import android.content.pm.ActivityInfo
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.os.Process.killProcess
+import android.os.Process.myPid
+import android.transition.Slide
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -46,6 +50,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -72,6 +77,7 @@ import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.exitProcess
 
 /**
  * Created by WangYanBin on 2020/6/3.
@@ -115,8 +121,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
-        var onFinishListener: OnFinishListener? = null
+        @Volatile
         var isAnyActivityStarting = false
+        var onFinishListener: OnFinishListener? = null
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
             startActivity(getIntent(cls, *pairs).apply {
@@ -141,10 +148,33 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+        // 自定义滑入动画（从右侧进入）
+        val slideEnter = Slide(Gravity.END)
+        slideEnter.duration = 300
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.exitTransition = slideEnter
+        // 自定义滑出动画（向右侧退出）
+        val slideExit = Slide(Gravity.START)
+        slideExit.duration = 300
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.returnTransition = slideExit
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        // 先检测大屏设备，再执行父类的onCreate，避免布局加载
+        if (checkLargeScreen()) {
+            // 关闭所有Activity
+            finishAffinity()
+            // 终止进程（兼容所有安卓版本，捕获异常）
+            try {
+                killProcess(myPid())
+                exitProcess(0)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+            // 如果检测到大屏设备，直接return，不执行后续逻辑
+            return
+        }
         /**
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
          * 状态栏:
@@ -177,6 +207,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             enableEdgeToEdge()
         }
         super.onCreate(savedInstanceState)
+        initBefore()
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
@@ -193,15 +224,36 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) {
-            EventBus.instance.collect(this) {
-                this@BaseActivity.onCollect()
-            }
-        }
+//        if (isCollectEnabled()) {
+//            EventBus.instance.collect(this) {
+//                this@BaseActivity.onCollect()
+//            }
+//        }
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
         initData()
+    }
+
+    /**
+     * 检测大屏设备
+     * @return true-检测到大屏设备并弹出提示，false-正常设备
+     */
+    private var checkedLargeScreen = false
+    private fun checkLargeScreen(): Boolean {
+        if (checkedLargeScreen) return false
+        checkedLargeScreen = true
+        // 页面销毁直接返回
+        if (isFinishing || isDestroyed) return false
+        // 判断是否为大屏设备（宽度≥600dp）
+        val config = resources.configuration
+        // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
+        val isPhysicalTablet = config.smallestScreenWidthDp >= 600
+        // 只要是物理平板 → 直接拦截，不管是不是分屏
+        if (isPhysicalTablet) {
+            "当前设备为平板/大屏设备，暂不支持使用".shortToast()
+        }
+        return isPhysicalTablet
     }
 
     /**
@@ -378,7 +430,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         mActivityResult.unregister()
         mBinding?.unbind()
         job.cancel() // 之后再起的job无法工作
-//        coroutineContext.cancelChildren()//之后再起的可以工作
+//        coroutineContext.cancelChildren() // 之后再起的可以工作
     }
     // </editor-fold>
 
@@ -606,12 +658,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return false
     }
 
-    protected open suspend fun CoroutineScope.onCollect() {
-    }
-
-    protected open fun isCollectEnabled(): Boolean {
-        return false
-    }
+//    protected open suspend fun CoroutineScope.onCollect() {
+//    }
+//
+//    protected open fun isCollectEnabled(): Boolean {
+//        return false
+//    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
@@ -658,8 +710,4 @@ val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner:
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
-}
-
-interface OnCreateListener {
-    fun onCreate(act: BaseActivity<*>)
 }

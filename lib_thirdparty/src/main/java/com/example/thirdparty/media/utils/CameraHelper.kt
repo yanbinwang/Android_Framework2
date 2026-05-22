@@ -34,7 +34,7 @@ import com.otaliastudios.cameraview.controls.Preview
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
     private var isPictureShutter = false
-    private var sourcePath: String? = null // 源文件路径->拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径---》每次都会覆盖
+    private var sourcePath: String? = null // 源文件路径 (每次都会覆盖) -> 拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
@@ -325,7 +325,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //                    } catch (_: Exception) {
 //                    }
 //                }
-                sourcePath = null
+                cvFinder?.clearCameraListeners()
                 cvFinder = null
                 source.lifecycle.removeObserver(this)
             }
