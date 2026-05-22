@@ -10,9 +10,9 @@ import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
 import com.example.klinechart.adapter.KLineChartAdapter
-import com.example.klinechart.draw.Status
-import com.example.klinechart.entity.KLineEntity
-import com.example.klinechart.formatter.DateFormatter
+import com.example.klinechart.widget.draw.Status
+import com.example.klinechart.bean.KLineChartBean
+import com.example.klinechart.utils.formatter.DateFormatter
 import com.example.klinechart.utils.DataHelper
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
@@ -21,7 +21,7 @@ import com.therouter.router.Route
 
 @Route(path = RouterPath.KLineActivity)
 class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickListener {
-    private var datas = ArrayList<KLineEntity>()
+    private var datas = ArrayList<KLineChartBean>()
     private val adapter by lazy { KLineChartAdapter() }
     // 主图指标下标
     private var mainIndex = 0

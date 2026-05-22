@@ -1,6 +1,6 @@
 package com.example.klinechart.utils
 
-import com.example.klinechart.entity.KLineEntity
+import com.example.klinechart.bean.KLineChartBean
 import kotlin.math.abs
 import kotlin.math.sqrt
 
@@ -11,11 +11,8 @@ object DataHelper {
 
     /**
      * 计算RSI
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateRSI(dataList: MutableList<KLineEntity>?) {
+    fun calculateRSI(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         var rsi: Float?
         var rsiABSEma = 0f
@@ -44,11 +41,8 @@ object DataHelper {
 
     /**
      * 计算kdj
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateKDJ(dataList: MutableList<KLineEntity>?) {
+    fun calculateKDJ(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         var k = 0f
         var d = 0f
@@ -94,11 +88,8 @@ object DataHelper {
 
     /**
      * 计算wr
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateWR(dataList: MutableList<KLineEntity>?) {
+    fun calculateWR(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         var r: Float
         for (i in dataList.indices) {
@@ -128,11 +119,8 @@ object DataHelper {
 
     /**
      * 计算macd
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateMACD(dataList: MutableList<KLineEntity>?) {
+    fun calculateMACD(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         var ema12 = 0f
         var ema26 = 0f
@@ -165,11 +153,8 @@ object DataHelper {
 
     /**
      * 计算 BOLL 需要在计算ma之后进行
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateBOLL(dataList: MutableList<KLineEntity>?) {
+    fun calculateBOLL(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         for (i in dataList.indices) {
             val point = dataList[i]
@@ -197,11 +182,8 @@ object DataHelper {
 
     /**
      * 计算ma
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculateMA(dataList: MutableList<KLineEntity>?) {
+    fun calculateMA(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         var ma5 = 0f
         var ma10 = 0f
@@ -261,11 +243,8 @@ object DataHelper {
 
     /**
      * 计算MA BOLL RSI KDJ MACD
-     *
-     * @param dataList
      */
-    @JvmStatic
-    fun calculate(dataList: MutableList<KLineEntity>?) {
+    fun calculate(dataList: MutableList<KLineChartBean>?) {
         dataList ?: return
         calculateMA(dataList)
         calculateMACD(dataList)
@@ -276,7 +255,7 @@ object DataHelper {
         calculateVolumeMA(dataList)
     }
 
-    private fun calculateVolumeMA(entries: MutableList<KLineEntity>) {
+    private fun calculateVolumeMA(entries: MutableList<KLineChartBean>) {
         var volumeMa5 = 0f
         var volumeMa10 = 0f
         for (i in entries.indices) {

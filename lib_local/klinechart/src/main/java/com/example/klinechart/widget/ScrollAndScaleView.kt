@@ -17,12 +17,12 @@ import kotlin.math.roundToInt
  * 支持滑动和缩放功能的抽象自定义控件ScrollAndScaleView
  */
 abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr), GestureDetector.OnGestureListener, OnScaleGestureListener {
-    private var x = 0f
+    private var mX = 0f
     private var mTouch = false
     private var mMultipleTouch = false
     private var mScrollEnable = true
     private var mScaleEnable = true
-    private var mScroller: OverScroller? = null
+    private val mScroller = OverScroller(getContext()) // 滚动器
     protected var mScrollX = 0
     protected var mScaleX = 1f
     protected var mScaleXMax = 2f
@@ -34,10 +34,9 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     init {
         // 允许控件重绘
         setWillNotDraw(false)
-        // 初始化手势检测器,缩放检测器,滚动器
+        // 初始化手势检测器,缩放检测器
         mDetector = GestureDetectorCompat(getContext(), this)
         mScaleDetector = ScaleGestureDetector(getContext(), this)
-        mScroller = OverScroller(getContext())
     }
 
     /**
@@ -53,7 +52,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
      */
     override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
         if (!isTouch() && isScrollEnable()) {
-            mScroller?.fling(mScrollX, 0, (velocityX / mScaleX).roundToInt(), 0, Int.MIN_VALUE, Int.MAX_VALUE, 0, 0)
+            mScroller.fling(mScrollX, 0, (velocityX / mScaleX).roundToInt(), 0, Int.MIN_VALUE, Int.MAX_VALUE, 0, 0)
         }
         return true
     }
@@ -102,7 +101,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
             return false
         }
         val oldScale = mScaleX
-        mScaleX *= detector.getScaleFactor()
+        mScaleX *= detector.scaleFactor
         if (mScaleX < mScaleXMin) {
             mScaleX = mScaleXMin
         } else if (mScaleX > mScaleXMax) {
@@ -145,7 +144,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         when (event.action and MotionEvent.ACTION_MASK) {
             MotionEvent.ACTION_DOWN -> {
                 mTouch = true
-                x = event.x
+                mX = event.x
             }
             // 长按之后移动
             MotionEvent.ACTION_MOVE -> {
@@ -157,7 +156,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
                 invalidate()
             }
             MotionEvent.ACTION_UP -> {
-                if (x == event.x) {
+                if (mX == event.x) {
                     if (mIsLongPress) {
                         mIsLongPress = false
                     }
@@ -185,11 +184,11 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
      * 触摸时，强制结束滚动（forceFinished(true)）。
      */
     override fun computeScroll() {
-        if (mScroller?.computeScrollOffset().orFalse) {
+        if (mScroller.computeScrollOffset().orFalse) {
             if (!isTouch()) {
-                scrollTo(mScroller?.currX.orZero, mScroller?.currY.orZero)
+                scrollTo(mScroller.currX, mScroller.currY)
             } else {
-                mScroller?.forceFinished(true)
+                mScroller.forceFinished(true)
             }
         }
     }
@@ -210,7 +209,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
      */
     override fun scrollTo(x: Int, y: Int) {
         if (!isScrollEnable()) {
-            mScroller?.forceFinished(true)
+            mScroller.forceFinished(true)
             return
         }
         val oldX = mScrollX
@@ -218,11 +217,11 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
         if (mScrollX < getMinScrollX()) {
             mScrollX = getMinScrollX()
             onRightSide()
-            mScroller?.forceFinished(true)
+            mScroller.forceFinished(true)
         } else if (mScrollX > getMaxScrollX()) {
             mScrollX = getMaxScrollX()
             onLeftSide()
-            mScroller?.forceFinished(true)
+            mScroller.forceFinished(true)
         }
         onScrollChanged(mScrollX, 0, oldX, 0)
         invalidate()
@@ -257,10 +256,10 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     protected open fun checkAndFixScrollX() {
         if (mScrollX < getMinScrollX()) {
             mScrollX = getMinScrollX()
-            mScroller?.forceFinished(true)
+            mScroller.forceFinished(true)
         } else if (mScrollX > getMaxScrollX()) {
             mScrollX = getMaxScrollX()
-            mScroller?.forceFinished(true)
+            mScroller.forceFinished(true)
         }
     }
 

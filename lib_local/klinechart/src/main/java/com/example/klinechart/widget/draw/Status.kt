@@ -1,4 +1,4 @@
-package com.example.klinechart.draw
+package com.example.klinechart.widget.draw
 
 /**
  * MainDraw当前子视图

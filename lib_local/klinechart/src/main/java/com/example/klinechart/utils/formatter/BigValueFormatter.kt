@@ -1,4 +1,4 @@
-package com.example.klinechart.formatter
+package com.example.klinechart.utils.formatter
 
 import java.util.Locale
 
@@ -22,7 +22,7 @@ class BigValueFormatter : IValueFormatter {
             }
             i--
         }
-        return String.format(Locale.getDefault(), "%.2f", mValue) + unit
+        return String.format(Locale.ROOT, "%.2f", mValue) + unit
     }
 
 }

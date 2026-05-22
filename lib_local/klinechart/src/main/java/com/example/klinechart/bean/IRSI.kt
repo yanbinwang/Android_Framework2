@@ -1,4 +1,4 @@
-package com.example.klinechart.entity
+package com.example.klinechart.bean
 
 /**
  * RSI指标接口

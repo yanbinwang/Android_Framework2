@@ -1,7 +1,7 @@
-package com.example.klinechart.draw
+package com.example.klinechart.widget.draw
 
 import android.graphics.Canvas
-import com.example.klinechart.formatter.IValueFormatter
+import com.example.klinechart.utils.formatter.IValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**

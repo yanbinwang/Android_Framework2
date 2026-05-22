@@ -1,16 +1,16 @@
-package com.example.klinechart.draw
+package com.example.klinechart.widget.draw
 
-import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
+import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
-import com.example.klinechart.entity.ICandle
-import com.example.klinechart.formatter.IValueFormatter
-import com.example.klinechart.formatter.ValueFormatter
+import com.example.klinechart.bean.ICandle
+import com.example.klinechart.utils.formatter.IValueFormatter
+import com.example.klinechart.utils.formatter.ValueFormatter
 import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.BaseKLineChartView
 import com.example.klinechart.widget.KLineChartView
@@ -19,44 +19,41 @@ import kotlin.math.max
 /**
  * 主图的实现类
  */
-class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
+class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     private var mCandleWidth = 0f
     private var mCandleLineWidth = 0f
     private var isLine = false // 是否分时
     private var mCandleSolid = true
-    private var status = Status.MA
-    private var mContext: Context? = null
-    private var kChartView: KLineChartView? = null
-    private val paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mLinePaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mRedPaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mGreenPaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val ma5Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val ma10Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val ma30Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mSelectorTextPaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mSelectorBackgroundPaint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
+    private var mStatus = Status.MA
+    private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mRedPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mGreenPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val ma5Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val ma10Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val ma30Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mSelectorTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mSelectorBackgroundPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mContext get() = view.context
+    private val mKChartView get() = view as? KLineChartView
 
     init {
-        val context = view.context
-        kChartView = view as? KLineChartView
-        mContext = context
-        mRedPaint.setColor(ContextCompat.getColor(context, R.color.chart_red))
-        mGreenPaint.setColor(ContextCompat.getColor(context, R.color.chart_green))
-        mLinePaint.setColor(ContextCompat.getColor(context, R.color.chart_line))
-        paint.setColor(ContextCompat.getColor(context, R.color.chart_line_background))
+        mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
+        mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
+        mLinePaint.color = ContextCompat.getColor(mContext, R.color.chart_line)
+        mPaint.color = ContextCompat.getColor(mContext, R.color.chart_line_background)
     }
 
     override fun drawTranslated(lastPoint: ICandle?, curPoint: ICandle?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
         if (isLine) {
             view.drawMainLine(canvas, mLinePaint, lastX, lastPoint?.getClosePrice().orZero, curX, curPoint?.getClosePrice().orZero)
-            view.drawMainMinuteLine(canvas, paint, lastX, lastPoint?.getClosePrice().orZero, curX, curPoint?.getClosePrice().orZero)
-            if (status == Status.MA) {
+            view.drawMainMinuteLine(canvas, mPaint, lastX, lastPoint?.getClosePrice().orZero, curX, curPoint?.getClosePrice().orZero)
+            if (mStatus == Status.MA) {
                 // 画ma60
                 if (lastPoint?.getMA60Price() != 0f) {
                     view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.getMA60Price().orZero, curX, curPoint?.getMA60Price().orZero)
                 }
-            } else if (status == Status.BOLL) {
+            } else if (mStatus == Status.BOLL) {
                 // 画boll
                 if (lastPoint?.getMb() != 0f) {
                     view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.getMb().orZero, curX, curPoint?.getMb().orZero)
@@ -64,7 +61,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
             }
         } else {
             drawCandle(view, canvas, curX, curPoint?.getHighPrice().orZero, curPoint?.getLowPrice().orZero, curPoint?.getOpenPrice().orZero, curPoint?.getClosePrice().orZero)
-            if (status == Status.MA) {
+            if (mStatus == Status.MA) {
                 // 画ma5
                 if (lastPoint?.getMA5Price() != 0f) {
                     view.drawMainLine(canvas, ma5Paint, lastX, lastPoint?.getMA5Price().orZero, curX, curPoint?.getMA5Price().orZero)
@@ -77,7 +74,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
                 if (lastPoint?.getMA30Price() != 0f) {
                     view.drawMainLine(canvas, ma30Paint, lastX, lastPoint?.getMA30Price().orZero, curX, curPoint?.getMA30Price().orZero)
                 }
-            } else if (status == Status.BOLL) {
+            } else if (mStatus == Status.BOLL) {
                 //画boll
                 if (lastPoint?.getUp() != 0f) {
                     view.drawMainLine(canvas, ma5Paint, lastX, lastPoint?.getUp().orZero, curX, curPoint?.getUp().orZero)
@@ -98,27 +95,27 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         val point = view.getItem(position) as? ICandle
         mY -= 5
         if (isLine) {
-            if (status == Status.MA) {
+            if (mStatus == Status.MA) {
                 if (point?.getMA60Price() != 0f) {
-                    val text = "MA60:${view.formatValue(point?.getMA60Price().orZero)}  "
+                    val text = "MA60:${view.formatValue(point?.getMA60Price().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma10Paint)
                 }
-            } else if (status == Status.BOLL) {
+            } else if (mStatus == Status.BOLL) {
                 if (point?.getMb() != 0f) {
-                    val text = "BOLL:${view.formatValue(point?.getMb().orZero)}  "
+                    val text = "BOLL:${view.formatValue(point?.getMb().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma10Paint)
                 }
             }
         } else {
-            if (status == Status.MA) {
+            if (mStatus == Status.MA) {
                 var text: String?
                 if (point?.getMA5Price() != 0f) {
-                    text = "MA5:${view.formatValue(point?.getMA5Price().orZero)}  "
+                    text = "MA5:${view.formatValue(point?.getMA5Price().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma5Paint)
                     mX += ma5Paint.measureText(text)
                 }
                 if (point?.getMA10Price() != 0f) {
-                    text = "MA10:${view.formatValue(point?.getMA10Price().orZero)}  "
+                    text = "MA10:${view.formatValue(point?.getMA10Price().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma10Paint)
                     mX += ma10Paint.measureText(text)
                 }
@@ -126,12 +123,12 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
                     text = "MA30:${view.formatValue(point?.getMA30Price().orZero)}"
                     canvas?.drawText(text, mX, mY, ma30Paint)
                 }
-            } else if (status == Status.BOLL) {
+            } else if (mStatus == Status.BOLL) {
                 if (point?.getMb() != 0f) {
-                    var text = "BOLL:${view.formatValue(point?.getMb().orZero)}  "
+                    var text = "BOLL:${view.formatValue(point?.getMb().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma10Paint)
                     mX += ma5Paint.measureText(text)
-                    text = "UB:${view.formatValue(point?.getUp().orZero)}  "
+                    text = "UB:${view.formatValue(point?.getUp().orZero)}\u0020\u0020"
                     canvas?.drawText(text, mX, mY, ma5Paint)
                     mX += ma10Paint.measureText(text)
                     text = "LB:${view.formatValue(point?.getDn().orZero)}"
@@ -145,7 +142,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     override fun getMaxValue(point: ICandle?): Float {
-        return if (status == Status.BOLL) {
+        return if (mStatus == Status.BOLL) {
             if (java.lang.Float.isNaN(point?.getUp().orZero)) {
                 if (point?.getMb() == 0f) {
                     point.getHighPrice().orZero
@@ -163,7 +160,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     override fun getMinValue(point: ICandle?): Float {
-        return if (status == Status.BOLL) {
+        return if (mStatus == Status.BOLL) {
             if (point?.getDn() == 0f) {
                 point.getLowPrice()
             } else {
@@ -183,16 +180,15 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     fun setStatus(status: Status) {
-        this.status = status
+        mStatus = status
     }
 
     fun getStatus(): Status {
-        return status
+        return mStatus
     }
 
     /**
      * 画Candle
-     *
      * @param canvas
      * @param x      x轴坐标
      * @param high   最高价
@@ -237,12 +233,9 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
 
     /**
      * draw选择器
-     *
-     * @param view
-     * @param canvas
      */
     private fun drawSelector(view: BaseKLineChartView, canvas: Canvas?) {
-        val metrics = mSelectorTextPaint.getFontMetrics()
+        val metrics = mSelectorTextPaint.fontMetrics
         val textHeight = metrics.descent - metrics.ascent
         val index = view.getSelectedIndex()
         val padding = ViewUtil.dp2px(mContext, 5f)
@@ -252,7 +245,7 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         val top = margin + view.getTopPadding()
         val height = padding * 8 + textHeight * 5
         val point = view.getItem(index) as ICandle
-        val strings: MutableList<String> = ArrayList()
+        val strings = ArrayList<String>()
         strings.add(view.getAdapter()?.getDate(index).orEmpty())
         strings.add("高:${point.getHighPrice()}")
         strings.add("低:${point.getLowPrice()}")
@@ -279,8 +272,6 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
 
     /**
      * 设置蜡烛宽度
-     *
-     * @param candleWidth
      */
     fun setCandleWidth(candleWidth: Float) {
         mCandleWidth = candleWidth
@@ -288,8 +279,6 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
 
     /**
      * 设置蜡烛线宽度
-     *
-     * @param candleLineWidth
      */
     fun setCandleLineWidth(candleLineWidth: Float) {
         mCandleLineWidth = candleLineWidth
@@ -297,44 +286,34 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
 
     /**
      * 设置ma5颜色
-     *
-     * @param color
      */
-    fun setMa5Color(color: Int) {
-        this.ma5Paint.setColor(color)
+    fun setMa5Color(@ColorInt color: Int) {
+        ma5Paint.color = color
     }
 
     /**
      * 设置ma10颜色
-     *
-     * @param color
      */
-    fun setMa10Color(color: Int) {
-        this.ma10Paint.setColor(color)
+    fun setMa10Color(@ColorInt color: Int) {
+        ma10Paint.color = color
     }
 
     /**
      * 设置ma30颜色
-     *
-     * @param color
      */
-    fun setMa30Color(color: Int) {
-        this.ma30Paint.setColor(color)
+    fun setMa30Color(@ColorInt color: Int) {
+        ma30Paint.color = color
     }
 
     /**
      * 设置选择器文字颜色
-     *
-     * @param color
      */
-    fun setSelectorTextColor(color: Int) {
-        mSelectorTextPaint.setColor(color)
+    fun setSelectorTextColor(@ColorInt color: Int) {
+        mSelectorTextPaint.color = color
     }
 
     /**
      * 设置选择器文字大小
-     *
-     * @param textSize
      */
     fun setSelectorTextSize(textSize: Float) {
         mSelectorTextPaint.textSize = textSize
@@ -342,11 +321,9 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
 
     /**
      * 设置选择器背景
-     *
-     * @param color
      */
-    fun setSelectorBackgroundColor(color: Int) {
-        mSelectorBackgroundPaint.setColor(color)
+    fun setSelectorBackgroundColor(@ColorInt color: Int) {
+        mSelectorBackgroundPaint.color = color
     }
 
     /**
@@ -379,9 +356,9 @@ class MainDraw(view: BaseKLineChartView) : IChartDraw<ICandle> {
         if (isLine != line) {
             isLine = line
             if (isLine) {
-                kChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 7f).toSafeFloat())
+                mKChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 7f).toSafeFloat())
             } else {
-                kChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 6f).toSafeFloat())
+                mKChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 6f).toSafeFloat())
             }
         }
     }

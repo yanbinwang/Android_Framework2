@@ -9,7 +9,7 @@ import com.example.common.utils.toList
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeFloat
-import com.example.klinechart.entity.KLineEntity
+import com.example.klinechart.bean.KLineChartBean
 import com.example.klinechart.utils.DataHelper
 import com.example.mvvm.bean.KLineBean
 import kotlinx.coroutines.Dispatchers.IO
@@ -21,14 +21,14 @@ import kotlin.math.min
 
 class KLineViewModel : BaseViewModel() {
     val uiManage by lazy { MutableLiveData<Boolean>() }
-    val list by lazy { MutableLiveData<List<KLineEntity>?>() }
+    val list by lazy { MutableLiveData<List<KLineChartBean>?>() }
 
     fun getAll() {
         launch {
-            val data = ArrayList<KLineEntity>()
+            val data = ArrayList<KLineChartBean>()
             flow {
                 val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean->
-                    val entity = KLineEntity()
+                    val entity = KLineChartBean()
                     entity.let {
                         it.mClose = bean.Close.toSafeFloat()
                         it.mDate = bean.Date.orEmpty()
@@ -57,7 +57,7 @@ class KLineViewModel : BaseViewModel() {
         launch {
             flow {
                 val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean->
-                    val entity = KLineEntity()
+                    val entity = KLineChartBean()
                     entity.let {
                         it.mClose = bean.Close.toSafeFloat()
                         it.mDate = bean.Date.orEmpty()
@@ -76,7 +76,7 @@ class KLineViewModel : BaseViewModel() {
                 uiManage.postValue(true)
             }.collect {
                 it ?: return@collect
-                val data = ArrayList<KLineEntity>()
+                val data = ArrayList<KLineChartBean>()
                 val start = max(0, it.size - 1 - offset - size)
                 val stop = min(it.size, it.size - offset)
                 for (i in start..<stop) {

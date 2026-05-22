@@ -1,9 +1,9 @@
-package com.example.klinechart.entity
+package com.example.klinechart.bean
 
 /**
  * K线实体
  */
-class KLineEntity : IKLine {
+class KLineChartBean : IKLine {
     var mDate = ""
     var mOpen = 0f
     var mHigh = 0f

@@ -1,12 +1,12 @@
 package com.example.klinechart.adapter
 
-import com.example.klinechart.entity.KLineEntity
+import com.example.klinechart.bean.KLineChartBean
 
 /**
  * 数据适配器
  */
 class KLineChartAdapter : BaseKLineChartAdapter() {
-    private val data by lazy { ArrayList<KLineEntity>() }
+    private val data by lazy { ArrayList<KLineChartBean>() }
 
     override fun getCount(): Int {
         return data.size
@@ -23,7 +23,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     /**
      * 头部添加数据
      */
-    fun addHeaderData(list: MutableList<KLineEntity>?) {
+    fun addHeaderData(list: MutableList<KLineChartBean>?) {
         list ?: return
         data.clear()
         data.addAll(list)
@@ -32,7 +32,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     /**
      * 尾部添加数据
      */
-    fun addFooterData(list: MutableList<KLineEntity>?) {
+    fun addFooterData(list: MutableList<KLineChartBean>?) {
         list ?: return
         data.clear()
         data.addAll(0, list)
@@ -43,7 +43,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
      *
      * @param position 索引值
      */
-    fun changeItem(position: Int, bean: KLineEntity?) {
+    fun changeItem(position: Int, bean: KLineChartBean?) {
         bean ?: return
         data[position] = bean
         notifyDataSetChanged()

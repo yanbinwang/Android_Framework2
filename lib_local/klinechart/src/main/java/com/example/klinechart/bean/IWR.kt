@@ -1,4 +1,4 @@
-package com.example.klinechart.entity
+package com.example.klinechart.bean
 
 /**
  * WR指标(随机指标)接口

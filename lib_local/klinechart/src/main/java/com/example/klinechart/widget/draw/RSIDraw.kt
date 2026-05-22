@@ -1,20 +1,26 @@
-package com.example.klinechart.draw
+package com.example.klinechart.widget.draw
 
 import android.graphics.Canvas
 import android.graphics.Paint
+import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
-import com.example.klinechart.entity.IRSI
-import com.example.klinechart.formatter.IValueFormatter
-import com.example.klinechart.formatter.ValueFormatter
+import com.example.klinechart.bean.IRSI
+import com.example.klinechart.utils.formatter.IValueFormatter
+import com.example.klinechart.utils.formatter.ValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**
  * RSI实现类
+ * 1) 核心公式
+ *  上涨均值 MA_UP = N日内收盘价上涨幅度平均值
+ *  下跌均值 MA_DOWN = N日内收盘价下跌幅度平均值
+ *  RS = MA_UP / MA_DOWN
+ *  RSI = 100 - 100 / (1 + RS)
  */
-class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
-    private val mRSI1Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mRSI2Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
-    private val mRSI3Paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
+class RSIDraw : IChartDraw<IRSI> {
+    private val mRSI1Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mRSI2Paint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mRSI3Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
         if (lastPoint?.getRsi() != 0f) {
@@ -26,7 +32,7 @@ class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
         var mX = x
         val point = view.getItem(position) as? IRSI
         if (point?.getRsi() != 0f) {
-            var text = "RSI(14)  "
+            var text = "RSI(14)\u0020\u0020"
             canvas?.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
             text = view.formatValue(point?.getRsi().orZero)
@@ -46,16 +52,16 @@ class RSIDraw(view: BaseKLineChartView) : IChartDraw<IRSI> {
         return ValueFormatter()
     }
 
-    fun setRSI1Color(color: Int) {
-        mRSI1Paint.setColor(color)
+    fun setRSI1Color(@ColorInt color: Int) {
+        mRSI1Paint.color = color
     }
 
-    fun setRSI2Color(color: Int) {
-        mRSI2Paint.setColor(color)
+    fun setRSI2Color(@ColorInt color: Int) {
+        mRSI2Paint.color = color
     }
 
-    fun setRSI3Color(color: Int) {
-        mRSI3Paint.setColor(color)
+    fun setRSI3Color(@ColorInt color: Int) {
+        mRSI3Paint.color = color
     }
 
     /**

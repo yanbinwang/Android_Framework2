@@ -11,6 +11,7 @@ import android.graphics.Rect
 import android.util.AttributeSet
 import android.view.MotionEvent
 import android.view.ScaleGestureDetector
+import androidx.annotation.ColorInt
 import androidx.core.graphics.withScale
 import androidx.core.graphics.withTranslation
 import androidx.core.view.GestureDetectorCompat
@@ -21,15 +22,15 @@ import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.dimen
 import com.example.klinechart.R
 import com.example.klinechart.adapter.IAdapter
-import com.example.klinechart.draw.IChartDraw
-import com.example.klinechart.draw.MainDraw
-import com.example.klinechart.draw.Status
-import com.example.klinechart.entity.IKLine
-import com.example.klinechart.formatter.IDateTimeFormatter
-import com.example.klinechart.formatter.IValueFormatter
-import com.example.klinechart.formatter.TimeFormatter
-import com.example.klinechart.formatter.ValueFormatter
+import com.example.klinechart.bean.IKLine
 import com.example.klinechart.utils.ViewUtil
+import com.example.klinechart.utils.formatter.IDateTimeFormatter
+import com.example.klinechart.utils.formatter.IValueFormatter
+import com.example.klinechart.utils.formatter.TimeFormatter
+import com.example.klinechart.utils.formatter.ValueFormatter
+import com.example.klinechart.widget.draw.IChartDraw
+import com.example.klinechart.widget.draw.MainDraw
+import com.example.klinechart.widget.draw.Status
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.roundToInt
@@ -38,7 +39,7 @@ import kotlin.math.roundToInt
  * k线图
  */
 abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : ScrollAndScaleView(context, attrs, defStyleAttr) {
-    private var displayHeight = 0
+    private var mDisplayHeight = 0
     private var mItemCount = 0 // 当前点的个数
     private var mChildDrawPosition = -1
     private var mWidth = 0
@@ -68,9 +69,22 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     private var mVolMinValue = Float.MIN_VALUE
     private var mChildMaxValue = Float.MAX_VALUE
     private var mChildMinValue = Float.MIN_VALUE
-    private val mAnimationDuration = 500L
     private var isWR = false
     private var isShowChild = false
+    private var mMainRect: Rect? = null
+    private var mVolRect: Rect? = null
+    private var mChildRect: Rect? = null
+    private var mVolDraw: IChartDraw<Any>? = null
+    private var mMainDraw: IChartDraw<Any>? = null
+    private val mChartDraw get() = mMainDraw as? MainDraw
+    private var mAdapter: IAdapter? = null
+    private var mChildDraw: IChartDraw<Any>? = null
+    private var mValueFormatter: IValueFormatter? = null
+    private var mDateTimeFormatter: IDateTimeFormatter? = null
+    private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
+    private val mAnimationDuration = 500L
+    private val mAnimator = ValueAnimator.ofFloat(0f, 1f)
+    private val mChildDraws = ArrayList<IChartDraw<Any>>()
     private val mGridPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mTextPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mMaxMinPaint = Paint(Paint.ANTI_ALIAS_FLAG)
@@ -79,19 +93,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     private val mSelectedYLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectPointPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectorFramePaint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private var mMainRect: Rect? = null
-    private var mVolRect: Rect? = null
-    private var mChildRect: Rect? = null
-    private var mMainDraw: IChartDraw<Any>? = null
-    private var mVolDraw: IChartDraw<Any>? = null
-    private var mainDraw: MainDraw? = null
-    private var mAdapter: IAdapter? = null
-    private var mChildDraw: IChartDraw<Any>? = null
-    private var mValueFormatter: IValueFormatter? = null
-    private var mDateTimeFormatter: IDateTimeFormatter? = null
-    private val mChildDraws = ArrayList<IChartDraw<Any>>()
-    private var mAnimator: ValueAnimator? = null
-    private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
     private val mDataSetObserver = object : DataSetObserver() {
         override fun onChanged() {
             super.onChanged()
@@ -113,18 +114,19 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         mTopPadding = dimen(R.dimen.chart_top_padding).toSafeInt()
         mChildPadding = dimen(R.dimen.child_top_padding).toSafeInt()
         mBottomPadding = dimen(R.dimen.chart_bottom_padding).toSafeInt()
-        mAnimator = ValueAnimator.ofFloat(0f, 1f)
-        mAnimator?.setDuration(mAnimationDuration)
-        mAnimator?.addUpdateListener { invalidate() }
+        mAnimator.duration = mAnimationDuration
+        mAnimator.addUpdateListener {
+            invalidate()
+        }
         mSelectorFramePaint.strokeWidth = ViewUtil.dp2px(getContext(), 0.6f).toSafeFloat()
         mSelectorFramePaint.style = Paint.Style.STROKE
-        mSelectorFramePaint.setColor(Color.WHITE)
+        mSelectorFramePaint.color = Color.WHITE
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
-        this.mWidth = w
-        displayHeight = h - mTopPadding - mBottomPadding
+        mWidth = w
+        mDisplayHeight = h - mTopPadding - mBottomPadding
         initRect()
         setTranslateXFromScrollX(mScrollX)
     }
@@ -150,7 +152,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         val lastIndex = mSelectedIndex
         calculateSelectedX(e.x)
         if (lastIndex != mSelectedIndex) {
-            onSelectedChanged(this, getItem(mSelectedIndex), mSelectedIndex)
+            mOnSelectedChangedListener?.onSelectedChanged(this, getItem(mSelectedIndex), mSelectedIndex)
         }
         invalidate()
     }
@@ -177,21 +179,21 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置背景颜色
      */
-    override fun setBackgroundColor(color: Int) {
-        mBackgroundPaint.setColor(color)
+    override fun setBackgroundColor(@ColorInt color: Int) {
+        mBackgroundPaint.color = color
     }
 
     private fun initRect() {
         if (isShowChild) {
-            val mMainHeight = (displayHeight * 0.6f).toSafeInt()
-            val mVolHeight = (displayHeight * 0.2f).toSafeInt()
-            val mChildHeight = (displayHeight * 0.2f).toSafeInt()
+            val mMainHeight = (mDisplayHeight * 0.6f).toSafeInt()
+            val mVolHeight = (mDisplayHeight * 0.2f).toSafeInt()
+            val mChildHeight = (mDisplayHeight * 0.2f).toSafeInt()
             mMainRect = Rect(0, mTopPadding, mWidth, mTopPadding + mMainHeight)
             mVolRect = Rect(0, mMainRect?.bottom.orZero + mChildPadding, mWidth, mMainRect?.bottom.orZero + mVolHeight)
             mChildRect = Rect(0, mVolRect?.bottom.orZero + mChildPadding, mWidth, mVolRect?.bottom.orZero + mChildHeight)
         } else {
-            val mMainHeight = (displayHeight * 0.75f).toSafeInt()
-            val mVolHeight = (displayHeight * 0.25f).toSafeInt()
+            val mMainHeight = (mDisplayHeight * 0.75f).toSafeInt()
+            val mVolHeight = (mDisplayHeight * 0.25f).toSafeInt()
             mMainRect = Rect(0, mTopPadding, mWidth, mTopPadding + mMainHeight)
             mVolRect = Rect(0, mMainRect?.bottom.orZero + mChildPadding, mWidth, mMainRect?.bottom.orZero + mVolHeight)
         }
@@ -199,8 +201,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 画表格
-     *
-     * @param canvas
      */
     private fun drawGird(canvas: Canvas) {
         //-----------------------上方k线图------------------------
@@ -229,8 +229,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 画k线图
-     *
-     * @param canvas
      */
     private fun drawK(canvas: Canvas) {
         // 保存之前的平移，缩放
@@ -272,8 +270,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 计算文本长度
-     *
-     * @return
      */
     private fun calculateWidth(text: String): Int {
         val rect = Rect()
@@ -283,8 +279,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 计算文本长度
-     *
-     * @return
      */
     private fun calculateMaxMin(text: String): Rect {
         val rect = Rect()
@@ -294,11 +288,9 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 画文字
-     *
-     * @param canvas
      */
     private fun drawText(canvas: Canvas) {
-        val fm = mTextPaint.getFontMetrics()
+        val fm = mTextPaint.fontMetrics
         val textHeight = fm.descent - fm.ascent
         val baseLine = (textHeight - fm.bottom - fm.top) / 2
         //--------------画上方k线图的值-------------
@@ -408,15 +400,13 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 画文字
-     *
-     * @param canvas
      */
     private fun drawMaxAndMin(canvas: Canvas) {
-        if (!mainDraw?.isLine().orFalse) {
+        if (!mChartDraw?.isLine().orFalse) {
             //绘制最大值和最小值
             var x: Float = translateXtoX(getX(mMainMinIndex))
             var y = getMainY(mMainLowMinValue)
-            var lowString = "── $mMainLowMinValue"
+            var lowString = "──\u0020$mMainLowMinValue"
             //计算文本宽度
             val lowStringWidth = calculateMaxMin(lowString).width()
             val lowStringHeight = calculateMaxMin(lowString).height()
@@ -425,12 +415,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
                 canvas.drawText(lowString, x, y + lowStringHeight / 2, mMaxMinPaint)
             } else {
                 // 画左边
-                lowString = "$mMainLowMinValue ──"
+                lowString = "$mMainLowMinValue\u0020──"
                 canvas.drawText(lowString, x - lowStringWidth, y + lowStringHeight / 2, mMaxMinPaint)
             }
             x = translateXtoX(getX(mMainMaxIndex))
             y = getMainY(mMainHighMaxValue)
-            var highString = "── $mMainHighMaxValue"
+            var highString = "──\u0020$mMainHighMaxValue"
             val highStringWidth = calculateMaxMin(highString).width()
             val highStringHeight = calculateMaxMin(highString).height()
             if (x < width / 2) {
@@ -438,7 +428,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
                 canvas.drawText(highString, x, y + highStringHeight / 2, mMaxMinPaint)
             } else {
                 // 画左边
-                highString = "$mMainHighMaxValue ──"
+                highString = "$mMainHighMaxValue\u0020──"
                 canvas.drawText(highString, x - highStringWidth, y + highStringHeight / 2, mMaxMinPaint)
             }
         }
@@ -446,15 +436,14 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 画值
-     *
      * @param canvas
      * @param position 显示某个点的值
      */
     private fun drawValue(canvas: Canvas?, position: Int) {
-        val fm = mTextPaint.getFontMetrics()
+        val fm = mTextPaint.fontMetrics
         val textHeight = fm.descent - fm.ascent
         val baseLine = (textHeight - fm.bottom - fm.top) / 2
-        if (position in 0..<mItemCount) {
+        if (position in 0..mItemCount) {
             if (mMainDraw != null) {
                 val y = mMainRect?.top.orZero + baseLine - textHeight
                 mMainDraw?.drawText(canvas, this, position, 0f, y)
@@ -556,16 +545,14 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         if (mChildRect != null) {
             mChildScaleY = mChildRect?.height().orZero * 1f / (mChildMaxValue - mChildMinValue)
         }
-        if (mAnimator?.isRunning.orFalse) {
-            val value = mAnimator?.getAnimatedValue() as? Float
+        if (mAnimator.isRunning) {
+            val value = mAnimator.animatedValue as? Float
             mStopIndex = mStartIndex + (value.orZero * (mStopIndex - mStartIndex)).roundToInt()
         }
     }
 
     /**
      * 获取平移的最小值
-     *
-     * @return
      */
     private fun getMinTranslateX(): Float {
         return -mDataLen + mWidth / mScaleX - mPointWidth / 2
@@ -573,8 +560,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 获取平移的最大值
-     *
-     * @return
      */
     private fun getMaxTranslateX(): Float {
         if (!isFullScreen()) {
@@ -585,8 +570,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * scrollX 转换为 TranslateX
-     *
-     * @param scrollX
      */
     private fun setTranslateXFromScrollX(scrollX: Int) {
         mTranslateX = scrollX + getMinTranslateX()
@@ -596,7 +579,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 开始动画
      */
     fun startAnimation() {
-        mAnimator?.start()
+        mAnimator.start()
     }
 
     /**
@@ -611,8 +594,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 格式化时间
-     *
-     * @param date
      */
     fun formatDateTime(date: Date?): String {
         if (getDateTimeFormatter() == null) {
@@ -623,8 +604,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 给子区域添加画图方法
-     *
-     * @param childDraw IChartDraw
      */
     fun addChildDraw(childDraw: IChartDraw<Any>?) {
         childDraw ?: return
@@ -664,7 +643,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 解决text居中的问题
      */
     fun fixTextY(y: Float): Float {
-        val fontMetrics = mTextPaint.getFontMetrics()
+        val fontMetrics = mTextPaint.fontMetrics
         return y + fontMetrics.descent - fontMetrics.ascent
     }
 
@@ -672,18 +651,17 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 解决text居中的问题
      */
     fun fixTextY1(y: Float): Float {
-        val fontMetrics = mTextPaint.getFontMetrics()
+        val fontMetrics = mTextPaint.fontMetrics
         return (y + (fontMetrics.descent - fontMetrics.ascent) / 2 - fontMetrics.descent)
     }
 
     /**
      * MA/BOLL切换及隐藏
-     *
      * @param status MA/BOLL/NONE
      */
     fun changeMainDrawType(status: Status) {
-        if (mainDraw != null && mainDraw?.getStatus() != status) {
-            mainDraw?.setStatus(status)
+        if (mChartDraw != null && mChartDraw?.getStatus() != status) {
+            mChartDraw?.setStatus(status)
             invalidate()
         }
     }
@@ -694,8 +672,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 二分查找当前值的index
-     *
-     * @return
      */
     fun indexOfTranslateX(translateX: Float, start: Int, end: Int): Int {
         if (end == start) {
@@ -719,9 +695,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * view中的x转化为TranslateX
-     *
-     * @param x
-     * @return
      */
     fun xToTranslateX(x: Float): Float {
         return -mTranslateX + x / mScaleX
@@ -729,9 +702,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * translateX转化为view中的x
-     *
-     * @param translateX
-     * @return
      */
     fun translateXtoX(translateX: Float): Float {
         return (translateX + mTranslateX) * mScaleX
@@ -739,7 +709,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 在主区域画线
-     *
      * @param startX    开始点的横坐标
      * @param stopX     开始点的值
      * @param stopX     结束点的横坐标
@@ -751,7 +720,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 在主区域画分时线
-     *
      * @param startX    开始点的横坐标
      * @param stopX     开始点的值
      * @param stopX     结束点的横坐标
@@ -759,17 +727,16 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      */
     fun drawMainMinuteLine(canvas: Canvas, paint: Paint, startX: Float, startValue: Float, stopX: Float, stopValue: Float) {
         val path5 = Path()
-        path5.moveTo(startX, (displayHeight + mTopPadding + mBottomPadding).toSafeFloat())
+        path5.moveTo(startX, (mDisplayHeight + mTopPadding + mBottomPadding).toSafeFloat())
         path5.lineTo(startX, getMainY(startValue))
         path5.lineTo(stopX, getMainY(stopValue))
-        path5.lineTo(stopX, (displayHeight + mTopPadding + mBottomPadding).toSafeFloat())
+        path5.lineTo(stopX, (mDisplayHeight + mTopPadding + mBottomPadding).toSafeFloat())
         path5.close()
         canvas.drawPath(path5, paint)
     }
 
     /**
      * 在子区域画线
-     *
      * @param startX     开始点的横坐标
      * @param startValue 开始点的值
      * @param stopX      结束点的横坐标
@@ -781,7 +748,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 在子区域画线
-     *
      * @param startX     开始点的横坐标
      * @param startValue 开始点的值
      * @param stopX      结束点的横坐标
@@ -800,8 +766,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 数据是否充满屏幕
-     *
-     * @return
      */
     fun isFullScreen(): Boolean {
         return mDataLen >= mWidth / mScaleX
@@ -829,7 +793,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 根据索引获取实体
-     *
      * @param position 索引值
      * @return
      */
@@ -843,7 +806,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 根据索引索取x坐标
-     *
      * @param position 索引值
      * @return
      */
@@ -853,8 +815,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 获取适配器
-     *
-     * @return
      */
     fun getAdapter(): IAdapter? {
         return mAdapter
@@ -862,8 +822,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 获取ValueFormatter
-     *
-     * @return
      */
     fun getValueFormatter(): IValueFormatter? {
         return mValueFormatter
@@ -871,7 +829,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 获取DatetimeFormatter
-     *
      * @return 时间格式化器
      */
     fun getDateTimeFormatter(): IDateTimeFormatter? {
@@ -880,8 +837,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 获取主区域的 IChartDraw
-     *
-     * @return IChartDraw
      */
     fun getMainDraw(): IChartDraw<Any>? {
         return mMainDraw
@@ -908,7 +863,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 获取子试图上方padding
      */
-    fun getmChildScaleYPadding(): Float {
+    fun getChildScaleYPadding(): Float {
         return mChildPadding.toSafeFloat()
     }
 
@@ -955,13 +910,25 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     fun getDisplayHeight(): Int {
-        return displayHeight + mTopPadding + mBottomPadding
+        return mDisplayHeight + mTopPadding + mBottomPadding
+    }
+
+    /**
+     * 获取表格线
+     */
+    fun getGridPaint(): Paint {
+        return mGridPaint
+    }
+
+    /**
+     * 设置选择监听
+     */
+    fun setOnSelectedChangedListener(listener: OnSelectedChangedListener) {
+        mOnSelectedChangedListener = listener
     }
 
     /**
      * 设置当前子图
-     *
-     * @param position
      */
     open fun setChildDraw(position: Int) {
         if (mChildDrawPosition != position) {
@@ -978,16 +945,14 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 设置ValueFormatter
-     *
      * @param valueFormatter value格式化器
      */
     open fun setValueFormatter(valueFormatter: IValueFormatter) {
-        this.mValueFormatter = valueFormatter
+        mValueFormatter = valueFormatter
     }
 
     /**
      * 设置dateTimeFormatter
-     *
      * @param dateTimeFormatter 时间格式化器
      */
     open fun setDateTimeFormatter(dateTimeFormatter: IDateTimeFormatter) {
@@ -996,18 +961,17 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 设置主区域的 IChartDraw
-     *
      * @param mainDraw IChartDraw
      */
-    open fun setMainDraw(mainDraw: IChartDraw<Any>?) {
-        mainDraw ?: return
-        mMainDraw = mainDraw
-        this.mainDraw = mMainDraw as? MainDraw
+    open fun setMainDraw(draw: IChartDraw<Any>?) {
+        draw ?: return
+        mMainDraw = draw
+//        mainDraw = mMainDraw as? MainDraw
     }
 
-    open fun setVolDraw(mVolDraw: IChartDraw<Any>?) {
-        mVolDraw ?: return
-        this.mVolDraw = mVolDraw
+    open fun setVolDraw(draw: IChartDraw<Any>?) {
+        draw ?: return
+        mVolDraw = draw
     }
 
     /**
@@ -1031,9 +995,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 设置动画时间
      */
     open fun setAnimationDuration(duration: Long) {
-        if (mAnimator != null) {
-            mAnimator?.setDuration(duration)
-        }
+        mAnimator.duration = duration
     }
 
     /**
@@ -1071,8 +1033,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 设置上方padding
-     *
-     * @param topPadding
      */
     open fun setTopPadding(topPadding: Int) {
         mTopPadding = topPadding
@@ -1080,8 +1040,6 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
 
     /**
      * 设置下方padding
-     *
-     * @param bottomPadding
      */
     open fun setBottomPadding(bottomPadding: Int) {
         mBottomPadding = bottomPadding
@@ -1097,12 +1055,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置表格线颜色
      */
-    open fun setGridLineColor(color: Int) {
-        mGridPaint.setColor(color)
-    }
-
-    open fun getGridPaint(): Paint {
-        return mGridPaint
+    open fun setGridLineColor(@ColorInt color: Int) {
+        mGridPaint.color = color
     }
 
     /**
@@ -1115,8 +1069,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置选择器横线颜色
      */
-    open fun setSelectedXLineColor(color: Int) {
-        mSelectedXLinePaint.setColor(color)
+    open fun setSelectedXLineColor(@ColorInt color: Int) {
+        mSelectedXLinePaint.color = color
     }
 
     /**
@@ -1129,15 +1083,15 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置选择器竖线颜色
      */
-    open fun setSelectedYLineColor(color: Int) {
-        mSelectedYLinePaint.setColor(color)
+    open fun setSelectedYLineColor(@ColorInt color: Int) {
+        mSelectedYLinePaint.color = color
     }
 
     /**
      * 设置文字颜色
      */
-    open fun setTextColor(color: Int) {
-        mTextPaint.setColor(color)
+    open fun setTextColor(@ColorInt color: Int) {
+        mTextPaint.color = color
     }
 
     /**
@@ -1150,8 +1104,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置最大值/最小值文字颜色
      */
-    open fun setMTextColor(color: Int) {
-        mMaxMinPaint.setColor(color)
+    open fun setMTextColor(@ColorInt color: Int) {
+        mMaxMinPaint.color = color
     }
 
     /**
@@ -1164,8 +1118,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置选中point 值显示背景
      */
-    open fun setSelectPointColor(color: Int) {
-        mSelectPointPaint.setColor(color)
+    open fun setSelectPointColor(@ColorInt color: Int) {
+        mSelectPointPaint.color = color
     }
 
     /**
@@ -1183,30 +1137,16 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 设置选择监听
-     */
-    fun setOnSelectedChangedListener(l: OnSelectedChangedListener) {
-        this.mOnSelectedChangedListener = l
-    }
-
-    fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int) {
-        mOnSelectedChangedListener?.onSelectedChanged(view, point, index)
-    }
-
-    /**
      * 选中点变化时的监听
      */
     interface OnSelectedChangedListener {
-
         /**
          * 当选点中变化时
-         *
          * @param view  当前view
          * @param point 选中的点
          * @param index 选中点的索引
          */
         fun onSelectedChanged(view: BaseKLineChartView?, point: Any?, index: Int)
-
     }
 
 }

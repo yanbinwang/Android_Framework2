@@ -1,4 +1,4 @@
-package com.example.klinechart.entity
+package com.example.klinechart.bean
 
 /**
  * MACD指标(指数平滑移动平均线)接口

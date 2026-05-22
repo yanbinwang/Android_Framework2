@@ -1,4 +1,4 @@
-package com.example.klinechart.entity
+package com.example.klinechart.bean
 
 /**
  * 成交量接口
