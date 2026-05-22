@@ -160,25 +160,12 @@
             android:screenOrientation="portrait"
             android:theme="@style/MainTheme"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
-
+        <!-- K线 -->
         <activity
             android:name=".activity.KLineActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateHidden|adjustPan" />
-        <activity
-            android:name=".activity.TouchActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustPan" />
-        <!-- 安卓8.0才支持画中画,跳转前做版本判断 -->
-        <activity
-            android:name=".activity.ScreenActivity"
-            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
-            android:supportsPictureInPicture="true"
-            android:windowSoftInputMode="stateHidden|adjustPan"
-            tools:ignore="NewApi,UnusedAttribute" />
         <!-- ******************************************************首页模块****************************************************** -->
         <!-- 推送 -->
         <activity

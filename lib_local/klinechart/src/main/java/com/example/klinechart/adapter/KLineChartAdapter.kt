@@ -21,7 +21,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     }
 
     /**
-     * 向头部添加数据
+     * 头部添加数据
      */
     fun addHeaderData(list: MutableList<KLineEntity>?) {
         list ?: return
@@ -30,7 +30,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     }
 
     /**
-     * 向尾部添加数据
+     * 尾部添加数据
      */
     fun addFooterData(list: MutableList<KLineEntity>?) {
         list ?: return
