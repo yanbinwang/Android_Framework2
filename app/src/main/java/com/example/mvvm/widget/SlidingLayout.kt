@@ -22,38 +22,50 @@ import kotlin.math.abs
 
 /**
  * 侧滑菜单
- * 1) 第一个 = 左侧菜单 / 第二个 = 主内容
- * <?xml version="1.0" encoding="utf-8"?>
+ * 1) 左侧菜单
  * <com.example.mvvm.widget.SlidingLayout
- *     xmlns:android="http://schemas.android.com/apk/res/android"
- *     android:id="@+id/slidingLayout"
  *     android:layout_width="match_parent"
- *     android:layout_height="match_parent"
- *     android:orientation="horizontal">
+ *     android:layout_height="match_parent">
  *
- *     <!-- 第一个：左侧菜单 -->
+ *     <!-- 左侧菜单 -->
  *     <LinearLayout
  *         android:layout_width="match_parent"
  *         android:layout_height="match_parent"
- *         android:background="#f44336"/>
+ *         android:background="#ff0000"/>
  *
- *     <!-- 第二个：主内容 -->
+ *     <!-- 主内容 -->
  *     <LinearLayout
- *         android:id="@+id/contentLayout"
+ *         android:id="@+id/content"
  *         android:layout_width="match_parent"
  *         android:layout_height="match_parent"
  *         android:background="#ffffff"/>
  *
  * </com.example.mvvm.widget.SlidingLayout>
  *
- * // 绑定（必须先调用）
- * slidingLayout.bind(this, contentView)
- * // 打开菜单
- * slidingLayout.scrollToLeftLayout()
- * // 关闭菜单
- * slidingLayout.scrollToRightLayout()
- * // 判断是否打开
- * val isOpen = slidingLayout.isLeftLayoutVisible()
+ * 2) 右侧菜单（阿拉伯 / RTL）
+ * <com.example.mvvm.widget.SlidingLayout
+ *     android:layout_width="match_parent"
+ *     android:layout_height="match_parent">
+ *
+ *     <!-- 主内容 -->
+ *     <LinearLayout
+ *         android:id="@+id/content"
+ *         android:layout_width="match_parent"
+ *         android:layout_height="match_parent"
+ *         android:background="#ffffff"/>
+ *
+ *     <!-- 右侧菜单 -->
+ *     <LinearLayout
+ *         android:layout_width="match_parent"
+ *         android:layout_height="match_parent"
+ *         android:background="#00ff00"/>
+ *
+ * </com.example.mvvm.widget.SlidingLayout>
+ *
+ * 3) 使用
+ * slidingLayout.openMenu()       // 打开菜单
+ * slidingLayout.closeMenu()      // 关闭菜单
+ * val isOpen = isMenuOpened()    // 菜单是否打开
  */
 @SuppressLint("ClickableViewAccessibility")
 class SlidingLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : LinearLayout(context, attrs, defStyleAttr), View.OnTouchListener {
@@ -70,7 +82,7 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
     // 记录手指抬起时的横坐标
     private var xUp = 0f
     // 左侧布局当前是显示还是隐藏。只有完全显示或隐藏时才会更改此值，滑动过程中此值无效
-    private var isLeftLayoutVisible = false
+    private var isMenuOpened = false
     // 左侧布局对象
     private var leftLayout: View? = null
     // 右侧布局对象
@@ -85,6 +97,8 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
     private var lifecycleOwner: LifecycleOwner? = null
     // 滚动Job
     private var scrollJob: Job? = null
+    // 默认左侧菜单
+    private var slideDir: SlideDirection = SlideDirection.LEFT
     // 用于计算手指滑动的速度。
     private var tracker = VelocityTracker.obtain()
 
@@ -93,24 +107,38 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
         private const val SNAP_VELOCITY = 200
     }
 
+    enum class SlideDirection {
+        LEFT, RIGHT
+    }
+
     /**
      * 在onLayout中重新设定左侧布局和右侧布局的参数
+     *  XML 加载布局 → 自动调用
+     *  代码 new SlidingLayout(context) → 自动调用
+     *  调用 view.requestLayout() → 触发
+     *  布局大小变化（横竖屏切换）→ 触发
+     *  父布局重新排版 → 触发
      */
     override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
         super.onLayout(changed, l, t, r, b)
-        if (changed) {
-            // 获取左侧布局对象
+        if (changed && childCount == 2) {
             leftLayout = getChildAt(0)
-            leftLayoutParams = leftLayout?.layoutParams as? MarginLayoutParams
-            // 重置左侧布局对象的宽度为屏幕宽度减去leftLayoutPadding
-            leftLayoutParams?.width = screenWidth - leftLayoutPadding
-            // 设置最左边距为负的左侧布局的宽度
-            leftEdge = -leftLayoutParams?.width.orZero
-            leftLayoutParams?.leftMargin = leftEdge
-            leftLayout?.layoutParams = leftLayoutParams
-            // 获取右侧布局对象
             rightLayout = getChildAt(1)
+            leftLayoutParams = leftLayout?.layoutParams as? MarginLayoutParams
             rightLayoutParams = rightLayout?.layoutParams as? MarginLayoutParams
+            val menuWidth = screenWidth - leftLayoutPadding
+            when(slideDir){
+                SlideDirection.LEFT -> {
+                    leftEdge = -menuWidth
+                    leftLayoutParams?.leftMargin = leftEdge
+                }
+                SlideDirection.RIGHT -> {
+                    leftEdge = screenWidth
+                    leftLayoutParams?.leftMargin = leftEdge
+                }
+            }
+            leftLayoutParams?.width = menuWidth
+            leftLayout?.layoutParams = leftLayoutParams
             rightLayoutParams?.width = screenWidth
             rightLayout?.layoutParams = rightLayoutParams
         }
@@ -127,15 +155,24 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
                 // 手指移动时，对比按下时的横坐标，计算出移动的距离，来调整左侧布局的leftMargin值，从而显示和隐藏左侧布局
                 xMove = event.rawX
                 val distanceX = (xMove - xDown).toInt()
-                if (isLeftLayoutVisible) {
-                    leftLayoutParams?.leftMargin = distanceX
-                } else {
-                    leftLayoutParams?.leftMargin = leftEdge + distanceX
-                }
-                if (leftLayoutParams?.leftMargin.orZero < leftEdge) {
-                    leftLayoutParams?.leftMargin = leftEdge
-                } else if (leftLayoutParams?.leftMargin.orZero > rightEdge) {
-                    leftLayoutParams?.leftMargin = rightEdge
+                when(slideDir){
+                    SlideDirection.LEFT -> {
+                        if (isMenuOpened) {
+                            leftLayoutParams?.leftMargin = distanceX
+                        } else {
+                            leftLayoutParams?.leftMargin = leftEdge + distanceX
+                        }
+                        // 左右边界限制
+                        leftLayoutParams?.leftMargin = leftLayoutParams?.leftMargin.orZero.coerceIn(leftEdge, rightEdge)
+                    }
+                    SlideDirection.RIGHT -> {
+                        if (isMenuOpened) {
+                            leftLayoutParams?.leftMargin = screenWidth + distanceX
+                        } else {
+                            leftLayoutParams?.leftMargin = leftEdge + distanceX
+                        }
+                        leftLayoutParams?.leftMargin = leftLayoutParams?.leftMargin.orZero.coerceIn(rightEdge, leftEdge)
+                    }
                 }
                 leftLayout?.layoutParams = leftLayoutParams
             }
@@ -144,15 +181,15 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
                 xUp = event.rawX
                 if (wantToShowLeftLayout()) {
                     if (shouldScrollToLeftLayout()) {
-                        scrollToLeftLayout()
+                        openMenu()
                     } else {
-                        scrollToRightLayout()
+                        closeMenu()
                     }
                 } else if (wantToShowRightLayout()) {
                     if (shouldScrollToContent()) {
-                        scrollToRightLayout()
+                        closeMenu()
                     } else {
-                        scrollToLeftLayout()
+                        openMenu()
                     }
                 }
                 recycleVelocityTracker()
@@ -166,14 +203,14 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
      * @return 当前手势想显示右侧布局返回true，否则返回false
      */
     private fun wantToShowRightLayout(): Boolean {
-        return xUp - xDown < 0 && isLeftLayoutVisible
+        return xUp - xDown < 0 && isMenuOpened
     }
 
     /**
      * 判断当前手势的意图是不是想显示左侧布局。如果手指移动的距离是正数，且当前左侧布局是不可见的，则认为当前手势是想要显示左侧布局
      */
     private fun wantToShowLeftLayout(): Boolean {
-        return xUp - xDown > 0 && !isLeftLayoutVisible
+        return xUp - xDown > 0 && !isMenuOpened
     }
 
     /**
@@ -220,7 +257,9 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
         return abs(velocity)
     }
 
-    //回收VelocityTracker对象。
+    /**
+     * 回收VelocityTracker对象
+     */
     private fun recycleVelocityTracker() {
         tracker.recycle()
         tracker = null
@@ -243,10 +282,10 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
                 }
                 leftLayoutParams?.leftMargin = leftMargin
                 leftLayout?.layoutParams = leftLayoutParams
-                // 为了要有滚动效果产生，每次循环使线程睡眠20毫秒，这样肉眼才能够看到滚动动画。
-                delay(20)
+                // 为了要有滚动效果产生，每次循环使线程睡眠10毫秒，这样肉眼才能够看到滚动动画。
+                delay(10)
             }
-            isLeftLayoutVisible = speed > 0
+            isMenuOpened = speed > 0
             leftLayoutParams?.leftMargin = leftMargin
             leftLayout?.layoutParams = leftLayoutParams
         }
@@ -255,7 +294,7 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 绑定监听侧滑事件的View，即在绑定的View进行滑动才可以显示和隐藏左侧布局
      */
-    fun bind(owner: LifecycleOwner, view: View) {
+    fun bind(owner: LifecycleOwner, view: View?) {
         lifecycleOwner = owner
         bindView = view
         bindView?.setOnTouchListener(this)
@@ -264,23 +303,31 @@ class SlidingLayout @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 将屏幕滚动到左侧布局界面，滚动速度设定为30
      */
-    fun scrollToLeftLayout() {
-        scroll(30)
+    fun openMenu() {
+        scroll(60)
     }
 
     /**
      * 将屏幕滚动到右侧布局界面，滚动速度设定为-30
      */
-    fun scrollToRightLayout() {
-        scroll(-30)
+    fun closeMenu() {
+        scroll(-60)
     }
 
     /**
      * 左侧布局是否完全显示出来，或完全隐藏，滑动过程中此值无效
      * @return 左侧布局完全显示返回true，完全隐藏返回false。
      */
-    fun isLeftLayoutVisible(): Boolean {
-        return isLeftLayoutVisible
+    fun isMenuOpened(): Boolean {
+        return isMenuOpened
+    }
+
+    /**
+     * 方向设置
+     */
+    fun setSlideDirection(direction: SlideDirection){
+        slideDir = direction
+        requestLayout()
     }
 
 }
