@@ -52,9 +52,11 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
@@ -1086,6 +1088,43 @@ fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
     setOnGroupClickListener { _, _, _, _ -> true }
     // 设置折叠适配器
     setAdapter(adapter)
+}
+
+/**
+ * 切换抽屉开关状态 (覆盖在界面上)
+ * 篩選欄的操作/禁止右侧主动滑出
+ * setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+ */
+fun DrawerLayout?.toggleDrawer(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    if (isDrawerOpen(gravity)) {
+        closeDrawer(gravity)
+    } else {
+        openDrawer(gravity)
+    }
+    return true
+}
+
+/**
+ * 抽屉是否打开
+ */
+fun DrawerLayout?.isDrawerOpened(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    return isDrawerOpen(gravity)
+}
+
+/**
+ * 按下返回键时处理抽屉逻辑
+ * @param gravity 抽屉方向
+ * @return true:已处理拦截返回键 false:未处理交给系统
+ */
+fun DrawerLayout?.handleBackPressed(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    if (isDrawerOpened(gravity)) {
+        closeDrawer(gravity)
+        return true
+    }
+    return false
 }
 
 /**
