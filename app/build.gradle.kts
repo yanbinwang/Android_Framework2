@@ -190,7 +190,8 @@ dependencies {
     implementation(project(":module_account"))
     // 页面路由
     ksp(libs.therouter.apt)
-
+    // 侧滑
+    implementation("androidx.slidingpanelayout:slidingpanelayout:1.2.0")
     // 测试
     implementation("com.github.yyued:SVGAPlayer-Android:2.6.1")
     implementation("com.google.android.exoplayer:exoplayer-core:2.19.1")
