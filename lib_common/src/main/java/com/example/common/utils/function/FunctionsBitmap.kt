@@ -70,8 +70,8 @@ fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
  * 获取路径图片的宽高
  * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
  */
-fun String?.decodeDimensions(): IntArray? {
-    this ?: return null
+fun String?.decodeDimensions(): IntArray {
+    this ?: return intArrayOf(0, 0)
     val options = BitmapFactory.Options()
     // 不加载图片到内存，只获取图片的尺寸信息
     options.inJustDecodeBounds = true
@@ -120,7 +120,7 @@ fun String?.isValidImage(): Boolean {
             // 检查文件是否存在
             if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
-            val dimensions = path.decodeDimensions() ?: intArrayOf(0, 0)
+            val dimensions = path.decodeDimensions()
             // 有效图片的宽高必须大于0
             dimensions[0] > 0 && dimensions[1] > 0
         } catch (e: Exception) {
