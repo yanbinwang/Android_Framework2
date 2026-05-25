@@ -376,7 +376,8 @@ fun Drawable.toBitmap(): Bitmap {
     val width = if (intrinsicWidth > 0) intrinsicWidth else 1
     val height = if (intrinsicHeight > 0) intrinsicHeight else 1
     // 根据透明度选择配置
-    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+//    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+    val config = Bitmap.Config.ARGB_8888
     return try {
         val bitmap = createBitmap(width, height, config)
         val canvas = Canvas(bitmap)
