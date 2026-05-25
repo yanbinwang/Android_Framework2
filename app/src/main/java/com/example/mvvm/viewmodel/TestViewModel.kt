@@ -225,11 +225,11 @@ class TestViewModel : BaseViewModel() {
                     inScaled = false
                     // 禁用内存复用（避免复用低精度 Bitmap 的内存，导致细节丢失）
                     inMutable = false
-                })?.toDrawable(it.resources)
+                })
                 // 生成父布局
                 val rootView = ConstraintLayout(it)
                 rootView.size(335.pt, 300.pt)
-                rootView.background = shareBg
+                rootView.background = shareBg?.toDrawable(it.resources)
                 // 生成律师名称
                 val tvNick = TextView(it)
                 tvNick.id = generateViewId()
@@ -278,8 +278,8 @@ class TestViewModel : BaseViewModel() {
                 // 回收所有引用的bitmap
                 rootView.background.getBitmap()?.safeRecycle()
                 ivQrCode.safeRecycle()
-                shareBg?.bitmap?.safeRecycle()
-                qrBit?.safeRecycle()
+                shareBg.safeRecycle()
+                qrBit.safeRecycle()
                 shareBit.safeRecycle()
                 // 返回本地地址
                 filePath
@@ -301,13 +301,13 @@ class TestViewModel : BaseViewModel() {
                     inScaled = false
                     // 禁用内存复用（避免复用低精度 Bitmap 的内存，导致细节丢失）
                     inMutable = false
-                })?.toDrawable(it.resources)
+                })
                 // 获取照片的实际宽高
-                val shotDimensions = sourcePath.decodeDimensions() ?: intArrayOf(0, 0)
+                val shotDimensions = sourcePath.decodeDimensions()
                 // 生成父布局
                 val rootView = ConstraintLayout(it)
                 rootView.size(shotDimensions[0], shotDimensions[1])
-                rootView.background = shareBg
+                rootView.background = shareBg?.toDrawable(it.resources)
                 // 生成底部经纬度布局
                 val latLngView = ConstraintLayout(it)
                 latLngView.id = generateViewId()
@@ -384,8 +384,8 @@ class TestViewModel : BaseViewModel() {
                 // 回收所有引用的bitmap
                 rootView.background.getBitmap()?.safeRecycle()
                 ivQrCode.safeRecycle()
-                shareBg?.bitmap?.safeRecycle()
-                qrBit?.safeRecycle()
+                shareBg.safeRecycle()
+                qrBit.safeRecycle()
                 shareBit.safeRecycle()
                 // 返回本地地址
                 filePath
