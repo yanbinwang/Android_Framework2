@@ -107,7 +107,8 @@ private fun Context.insertImageToMediaStoreQPlus(file: File) {
 fun Context.getApplicationIcon(): Bitmap? {
     try {
         packageManager.getApplicationIcon(Constants.APPLICATION_ID).apply {
-            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+//            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
             draw(canvas)
