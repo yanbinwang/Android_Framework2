@@ -25,6 +25,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.get
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.framework.utils.function.color
@@ -144,7 +145,8 @@ fun Bitmap?.getCenterPixelColor(): Int {
     val topY = 0
     // 确保坐标在有效范围内
     return if (centerX in 0 until width && topY in 0 until height) {
-        getPixel(centerX, topY)
+//        getPixel(centerX, topY)
+        get(centerX, topY)
     } else {
         Color.WHITE
     }
