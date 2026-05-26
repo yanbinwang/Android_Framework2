@@ -34,9 +34,10 @@ import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.config.ServerConfig
 import com.example.common.utils.NavigationBarDrawable
-import com.example.common.utils.ScreenUtil.getRealSize
-import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.ScreenUtil.hasNavigationBar
+import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.ExtraNumber.dp
+import com.example.common.utils.function.ExtraNumber.dpFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.i18n.i18String
@@ -53,7 +54,9 @@ import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.min
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getScreenLocation
@@ -67,9 +70,11 @@ import com.example.framework.utils.setSpanFirst
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byServerUrl get() = i18String(this.orZero).byServerUrl
+val Int?.byServerUrl: String
+    get() = string(this.orZero).byServerUrl
 
-val String?.byServerUrl get() = "${ServerConfig.serverUrl()}${this}"
+val String?.byServerUrl: String
+    get() = "${ServerConfig.serverUrl()}${this}"
 
 /**
  * 设计图尺寸转换为实际尺寸
@@ -84,16 +89,46 @@ val Number?.ptFloat: Float
  * dp尺寸转换为实际尺寸
  */
 val Number?.dp: Int
-    get() {
-        this ?: return 0
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), BaseApplication.instance.resources.displayMetrics).toInt()
-    }
+    get() = dp()
+
+val Number?.dpFloat: Float
+    get() = dpFloat()
 
 /**
  * 获取Manifest中的参数
  */
 fun getManifestString(name: String): String? {
-    return BaseApplication.instance.packageManager.getApplicationInfo(BaseApplication.instance.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+    val context = BaseApplication.instance.applicationContext
+    return context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+}
+
+/**
+ * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
+ * "status_bar_height" → 状态栏高度
+ * "navigation_bar_height" → 竖屏导航栏高度
+ * "navigation_bar_height_landscape" → 横屏导航栏高度
+ */
+fun getInternalDimensionSize(key: String): Int {
+    val context = BaseApplication.instance.applicationContext
+    val result = 0
+    try {
+        val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
+        if (resourceId > 0) {
+            val size = context.resources.getDimensionPixelSize(resourceId)
+            val size2 = Resources.getSystem().getDimensionPixelSize(resourceId)
+            return if (size2 >= size) {
+                size2
+            } else {
+                val densityOne = context.resources.displayMetrics.density
+                val densityTwo = Resources.getSystem().displayMetrics.density
+                val f = size * densityTwo / densityOne
+                (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
+            }
+        }
+    } catch (_: Resources.NotFoundException) {
+        return 0
+    }
+    return result
 }
 
 /**
@@ -103,7 +138,7 @@ fun getManifestString(name: String): String? {
  * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
  */
 fun getStatusBarHeight(): Int {
-    val baseStatusBarHeight = ExtraNumber.getInternalDimensionSize(BaseApplication.instance.applicationContext, "status_bar_height")
+    val baseStatusBarHeight = getInternalDimensionSize("status_bar_height")
     val currentActivity = AppManager.currentActivity()
     return if (null == currentActivity) {
         baseStatusBarHeight
@@ -117,23 +152,15 @@ fun getStatusBarHeight(): Int {
  * 获取底栏高度(静态默认值)
  */
 fun getNavigationBarHeight(): Int {
-    val mContext = BaseApplication.instance.applicationContext
-    val baseNavigationBarHeight = ExtraNumber.getInternalDimensionSize(mContext, "navigation_bar_height")
+    val baseNavigationBarHeight = getInternalDimensionSize("navigation_bar_height")
     val currentActivity = AppManager.currentActivity()
     return if (null == currentActivity) {
-        if (hasNavigationBar(mContext)) {
+        if (hasNavigationBar(BaseApplication.instance.applicationContext)) {
             baseNavigationBarHeight
         } else {
             0
         }
     } else {
-//        val decorView = currentActivity.window.decorView
-//        if (decorView.hasNavigationBar()) {
-//            val insets = ViewCompat.getRootWindowInsets(decorView)
-//            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
-//        } else {
-//            0
-//        }
         val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
         insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
     }
@@ -184,8 +211,7 @@ fun getNavigationBarHeight(): Int {
  *  }.orZero
  */
 inline fun <reified T : Drawable> getTypedDrawable(@DrawableRes res: Int): T? {
-    val mContext = BaseApplication.instance.applicationContext
-    return mContext.getTypedDrawable(res)
+    return BaseApplication.instance.applicationContext.getTypedDrawable(res)
 }
 
 /**
@@ -264,7 +290,7 @@ fun String?.orNoData(): String {
  */
 fun String?.setPrimaryClip(label: String = "Label") {
     if (this == null) return
-    BaseApplication.instance.setPrimaryClip(label, this)
+    BaseApplication.instance.applicationContext.setPrimaryClip(label, this)
 }
 
 /**
@@ -576,6 +602,25 @@ abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : Cl
 
 object ExtraNumber {
     /**
+     * 根据AutoSize设置来获取设定的宽度
+     * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
+     */
+    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+
+    /**
+     * dp → 转成 手机真实像素 px
+     */
+    fun Number?.dp(): Int {
+        if (this == null) return 0
+        return dpFloat().toInt()
+    }
+
+    fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+        if (this == null) return 0f
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
+    }
+
+    /**
      * 设计图尺寸转换为实际尺寸
      */
     fun Number?.pt(): Int {
@@ -586,34 +631,55 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.ptFloat(context: Context = BaseApplication.instance): Float {
+    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
         if (this == null) return 0f
         return getRealSizeFloat(context, this.toFloat())
     }
 
     /**
-     * 获取顶栏高度
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
      */
-    fun getInternalDimensionSize(context: Context, key: String): Int {
-        val result = 0
-        try {
-            val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
-            if (resourceId > 0) {
-                val size = context.resources.getDimensionPixelSize(resourceId)
-                val size2 = Resources.getSystem().getDimensionPixelSize(resourceId)
-                return if (size2 >= size) {
-                    size2
-                } else {
-                    val densityOne = context.resources.displayMetrics.density
-                    val densityTwo = Resources.getSystem().displayMetrics.density
-                    val f = size * densityTwo / densityOne
-                    (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
-                }
-            }
-        } catch (ignored: Resources.NotFoundException) {
-            return 0
+    @JvmStatic
+    fun getRealSize(length: Int): Int {
+        return if (length > 0) {
+            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+        } else {
+            0
         }
-        return result
+    }
+
+    @JvmStatic
+    fun getRealSize(length: Double): Int {
+        return if (length > 0) {
+            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+        } else {
+            0
+        }
+    }
+
+    @JvmStatic
+    fun getRealSize(context: Context, length: Int): Int {
+        return length * screenWidth(context) / designWidth
+    }
+
+    @JvmStatic
+    fun getRealSize(context: Context, length: Double): Int {
+        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+    }
+
+    /**
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+     * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
+     */
+    @JvmStatic
+    fun getRealSizeFloat(context: Context, length: Int): Float {
+        return getRealSizeFloat(context, length.toFloat())
+    }
+
+    @JvmStatic
+    fun getRealSizeFloat(context: Context, length: Float): Float {
+        return length * screenWidth(context).toFloat() / designWidth.toFloat()
     }
 
 }
