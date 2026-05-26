@@ -260,14 +260,12 @@ fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom:
     val lp = layoutParams as? ViewGroup.MarginLayoutParams ?: return
     start?.let {
         lp.marginStart = it
-//        lp.leftMargin = it
     }
     top?.let {
         lp.topMargin = it
     }
     end?.let {
         lp.marginEnd = it
-//        lp.rightMargin = it
     }
     bottom?.let {
         lp.bottomMargin = it
@@ -925,6 +923,14 @@ fun ViewGroup.dimen(@DimenRes res: Int): Float {
 /**
  * 获取Resources中的String
  */
+fun ViewGroup.string(@StringRes res: Int, vararg param: Int): String {
+    return context.string(res, *param)
+}
+
+fun ViewGroup.string(@StringRes res: Int, vararg param: String): String {
+    return context.string(res, *param)
+}
+
 fun ViewGroup.string(@StringRes res: Int): String {
     return context.string(res)
 }

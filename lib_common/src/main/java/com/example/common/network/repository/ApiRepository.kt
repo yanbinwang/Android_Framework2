@@ -7,7 +7,7 @@ import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.resString
+import com.example.common.utils.function.string
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
 import kotlinx.coroutines.CoroutineScope
@@ -216,10 +216,10 @@ inline fun <reified T> Any?.safeAs(): T? {
  */
 fun String?.responseToast() {
     (if (!NetWorkUtil.isNetworkAvailable()) {
-        resString(R.string.responseNetError)
+        string(R.string.responseNetError)
     } else {
         if (isNullOrEmpty()) {
-            resString(R.string.responseError)
+            string(R.string.responseError)
         } else {
             this
         }
