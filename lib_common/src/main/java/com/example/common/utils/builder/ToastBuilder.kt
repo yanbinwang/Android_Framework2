@@ -9,7 +9,7 @@ import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.databinding.ViewToastImageStyleBinding
 import com.example.common.utils.function.setPrimaryClip
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.inflate
 import java.lang.ref.WeakReference
 
@@ -190,7 +190,7 @@ fun String?.longToast() {
 fun String?.copy(label: String = "Label") {
     this ?: return
     setPrimaryClip(label)
-    setToastView(R.mipmap.ic_toast, string(R.string.copySuccess))
+    setToastView(R.mipmap.ic_toast, i18String(R.string.copySuccess))
 }
 
 /**

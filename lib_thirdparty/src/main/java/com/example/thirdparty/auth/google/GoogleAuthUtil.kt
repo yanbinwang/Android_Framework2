@@ -15,7 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.getManifestString
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.R
 import com.google.android.gms.common.ConnectionResult
@@ -231,7 +231,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
                         // 使用googleIdTokenCredentials并提取ID进行验证和在服务器上进行身份验证
                         val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                         if (googleIdTokenCredential.id.isEmpty()) {
-                            throw RuntimeException(string(R.string.authOpenIdError))
+                            throw RuntimeException(i18String(R.string.authOpenIdError))
                         }
                         onSuccess(googleIdTokenCredential)
                     } catch (e: GoogleIdTokenParsingException) {

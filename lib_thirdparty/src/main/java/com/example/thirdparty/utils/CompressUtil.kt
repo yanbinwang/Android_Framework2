@@ -3,7 +3,7 @@ package com.example.thirdparty.utils
 import android.content.Context
 import android.graphics.Bitmap
 import com.example.common.utils.function.mb
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.thirdparty.R
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
@@ -20,15 +20,15 @@ object CompressUtil {
     private const val resHeight = 1000
 
     suspend fun compressFile(context: Context?, pathname: String?): File {
-        pathname ?: throw RuntimeException(string(R.string.compressPathEmpty))
+        pathname ?: throw RuntimeException(i18String(R.string.compressPathEmpty))
         return compressFile(context, File(pathname))
     }
 
     suspend fun compressFile(context: Context?, file: File?): File {
-        context ?: throw RuntimeException(string(R.string.compressError))
-        file ?: throw RuntimeException(string(R.string.compressFileEmpty))
+        context ?: throw RuntimeException(i18String(R.string.compressError))
+        file ?: throw RuntimeException(i18String(R.string.compressFileEmpty))
         if (file.length() > 10.mb) {
-            throw RuntimeException(string(R.string.compressSizeError))
+            throw RuntimeException(i18String(R.string.compressSizeError))
         }
         // 内部已切换到了io线程
         return try {

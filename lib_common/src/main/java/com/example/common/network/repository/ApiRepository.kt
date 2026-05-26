@@ -8,8 +8,8 @@ import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.resString
 import com.example.common.utils.helper.AccountHelper
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.toJson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.IO
@@ -208,10 +208,10 @@ inline fun <reified T> Any?.safeAs(): T? {
  */
 fun String?.responseToast() {
     (if (!NetWorkUtil.isNetworkAvailable()) {
-        resString(R.string.responseNetError)
+        i18String(R.string.responseNetError)
     } else {
         if (isNullOrEmpty()) {
-            resString(R.string.responseError)
+            i18String(R.string.responseError)
         } else {
             this
         }

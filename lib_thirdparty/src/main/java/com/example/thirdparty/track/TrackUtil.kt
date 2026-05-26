@@ -26,10 +26,10 @@ object TrackUtil {
      * 上报闪退/异常日志
      */
     fun String.record(e: Throwable) {
-        record(this, e)
+        recordException(this, e)
     }
 
-    fun record(msg: String, e: Throwable) {
+    fun recordException(msg: String, e: Throwable) {
         if (isDebug) return
         firebaseCrashlytics.recordException(Exception(msg, e))
     }
@@ -38,10 +38,10 @@ object TrackUtil {
      * 上报统计/埋点日志
      */
     fun TrackEvent.log(vararg pairs: Pair<String, Any?>) {
-        log(tag, *pairs)
+        logEvent(tag, *pairs)
     }
 
-    fun log(key: String, vararg pairs: Pair<String, Any?>) {
+    fun logEvent(key: String, vararg pairs: Pair<String, Any?>) {
         if (isDebug || !isLogin()) return
         val bundle = pairs.toBundle { this }
         mUserId?.let { bundle.putString("user_id", it) }

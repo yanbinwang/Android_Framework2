@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import com.example.common.R
 import com.example.common.databinding.ItemPopupSelectBinding
 import com.example.common.utils.function.orNoData
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 
@@ -20,7 +20,7 @@ class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int) {
     init {
         val textToProcess = when (item) {
             is Int -> {
-                string(item).also {
+                i18String(item).also {
                     mBinding.tvLabel.setI18nRes(item)
                 }
             }

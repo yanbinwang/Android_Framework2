@@ -9,7 +9,7 @@ import androidx.appcompat.widget.AppCompatButton
 import androidx.core.content.withStyledAttributes
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import java.lang.ref.WeakReference
 
 /**
@@ -101,10 +101,10 @@ class I18nButton @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 i18nTextRes < 0 -> {
                 }
                 contents.isNullOrEmpty() -> {
-                    text = string(i18nTextRes)
+                    text = i18String(i18nTextRes)
                 }
                 else -> {
-                    text = string(i18nTextRes, *contents)
+                    text = i18String(i18nTextRes, *contents)
                 }
             }
         }

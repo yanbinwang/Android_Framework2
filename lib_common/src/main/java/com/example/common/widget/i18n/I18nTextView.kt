@@ -15,7 +15,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.withStyledAttributes
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.fitRange
 import com.example.framework.utils.function.value.toNewList
@@ -158,20 +158,20 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
                 i18nTextRes < 0 -> {
                 }
                 spanArray.isNotEmpty() -> {
-                    val result = string(i18nTextRes, *(spanArray.toNewList { it.first }.toIntArray()))
-                    val spanString = spanArray.toNewList { string(it.first) }
+                    val result = i18String(i18nTextRes, *(spanArray.toNewList { it.first }.toIntArray()))
+                    val spanString = spanArray.toNewList { i18String(it.first) }
                     onSpan(spanString, result)
                 }
                 spanArrayString.isNotEmpty() -> {
                     val spanString = spanArrayString.toNewList { it.first }
-                    val result = string(i18nTextRes, *(spanString.toTypedArray()))
+                    val result = i18String(i18nTextRes, *(spanString.toTypedArray()))
                     onSpan(spanString, result)
                 }
                 contents.isNullOrEmpty() -> {
-                    text = string(i18nTextRes)
+                    text = i18String(i18nTextRes)
                 }
                 else -> {
-                    text = string(i18nTextRes, *contents)
+                    text = i18String(i18nTextRes, *contents)
                 }
             }
         }

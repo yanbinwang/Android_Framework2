@@ -8,7 +8,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatRadioButton
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import java.lang.ref.WeakReference
 import androidx.core.content.withStyledAttributes
 
@@ -101,10 +101,10 @@ class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: Attribu
                 i18nTextRes < 0 -> {
                 }
                 contents.isNullOrEmpty() -> {
-                    text = string(i18nTextRes)
+                    text = i18String(i18nTextRes)
                 }
                 else -> {
-                    text = string(i18nTextRes, *contents)
+                    text = i18String(i18nTextRes, *contents)
                 }
             }
         }

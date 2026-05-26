@@ -46,7 +46,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.split
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
@@ -448,7 +448,7 @@ private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputSt
  */
 suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
     if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
-        throw RuntimeException(string(R.string.linkError))
+        throw RuntimeException(i18String(R.string.linkError))
     }
     // 清除目录下的所有文件
     filePath.deleteDirectory()

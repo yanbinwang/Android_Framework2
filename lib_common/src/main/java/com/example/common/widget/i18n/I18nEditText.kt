@@ -7,7 +7,7 @@ import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatEditText
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import java.lang.ref.WeakReference
 import androidx.core.content.withStyledAttributes
 
@@ -116,15 +116,15 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
                 i18nTextRes < 0 -> {
                 }
                 contents.isNullOrEmpty() -> {
-                    setText(string(i18nTextRes))
+                    setText(i18String(i18nTextRes))
                 }
                 else -> {
-                    setText(string(i18nTextRes, *contents))
+                    setText(i18String(i18nTextRes, *contents))
                 }
             }
         }
         if (i18nHintRes != -1) {
-            hint = string(i18nHintRes)
+            hint = i18String(i18nHintRes)
         }
     }
 

@@ -7,7 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA_GROUP
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE_GROUP
 import com.example.common.widget.dialog.AppDialog
@@ -80,7 +80,7 @@ class PermissionHelper(private val activity: FragmentActivity) {
             }
         }
         dialog
-            .setParams(message = string(R.string.permissionGoSetting, reason))
+            .setParams(message = i18String(R.string.permissionGoSetting, reason))
             .setDialogListener({
                 XXPermissions.startPermissionActivity(activity, permissions)
             })
@@ -92,8 +92,8 @@ class PermissionHelper(private val activity: FragmentActivity) {
      */
     private fun onReason(index: Int): String? {
         return when (index) {
-            0 -> string(R.string.permissionCamera)
-            1 -> string(R.string.permissionStorage)
+            0 -> i18String(R.string.permissionCamera)
+            1 -> i18String(R.string.permissionStorage)
             else -> null
         }
     }

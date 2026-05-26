@@ -32,7 +32,7 @@ import com.example.common.utils.i18n.I18nUtil.getPackVersion
 import com.example.common.utils.i18n.LanguageUtil.checkLanguageVersion
 import com.example.common.utils.i18n.LanguageUtil.resetLanguage
 import com.example.common.utils.i18n.LanguageUtil.setLocalLanguage
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -198,7 +198,7 @@ abstract class BaseApplication : Application() {
             // 设置显示时间
             toast.duration = length
             val view = TextView(instance)
-            view.text = string(message)
+            view.text = i18String(message)
             view.setBackgroundResource(R.drawable.shape_toast)
 //            view.background = drawable
             view.minHeight = 40.pt

@@ -39,7 +39,7 @@ import com.example.common.utils.ScreenUtil.getRealSizeFloat
 import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.i18n.I18nTextView
 import com.example.common.widget.textview.edittext.ClearEditText
@@ -52,6 +52,7 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -66,7 +67,7 @@ import com.example.framework.utils.setSpanFirst
 /**
  * 对应的拼接区分本地和测试
  */
-val Int?.byServerUrl get() = string(this.orZero).byServerUrl
+val Int?.byServerUrl get() = i18String(this.orZero).byServerUrl
 
 val String?.byServerUrl get() = "${ServerConfig.serverUrl()}${this}"
 
@@ -227,15 +228,28 @@ fun dimen(@DimenRes res: Int): Float {
 }
 
 /**
- * 获取Resources中的String
+ *  <string name="dollar">\$%1$s</string>
+ *  string(R.string.dollar, "10086")
+ *  $10086
+ *  字符串表达式的处理
+ *  %n$ms：代表输出的是字符串，n代表是第几个参数，设置m的值可以在输出之前放置空格
+ *  %n$md：代表输出的是整数，n代表是第几个参数，设置m的值可以在输出之前放置空格，也可以设为0m,在输出之前放置m个0
+ *  %n$mf：代表输出的是浮点数，n代表是第几个参数，设置m的值可以控制小数位数，如m=2.2时，输出格式为00.00
+ *  也可简单写成：
+ *  %d   （表示整数）
+ *  %f   （表示浮点数）
+ *  %s   （表示字符串）
  */
-fun resString(@StringRes res: Int): String {
-    return try {
-        BaseApplication.instance.getString(res)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        ""
-    }
+fun string(@StringRes res: Int, vararg param: Int): String {
+    return BaseApplication.instance.applicationContext.string(res, *param)
+}
+
+fun string(@StringRes res: Int, vararg param: String): String {
+    return BaseApplication.instance.applicationContext.string(res, *param)
+}
+
+fun string(@StringRes res: Int): String {
+    return BaseApplication.instance.applicationContext.string(res)
 }
 
 /**
@@ -278,12 +292,12 @@ fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
 fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
     val textToProcess = when (txt) {
-        is Int -> string(txt)
+        is Int -> i18String(txt)
         is String -> txt
         else -> ""
     }
     val keywordToProcess = when (keyword) {
-        is Int -> string(keyword)
+        is Int -> i18String(keyword)
         is String -> keyword
         else -> ""
     }
@@ -301,14 +315,14 @@ fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.
 fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
     val textToProcess = when (txt) {
-        is Int -> string(txt)
+        is Int -> i18String(txt)
         is String -> txt
         else -> ""
     }
     var content: Spannable = SpannableString.valueOf(textToProcess)
     keywords.forEach {
         val keyword = when (val res = it.first) {
-            is Int -> string(res)
+            is Int -> i18String(res)
             is String -> res
             else -> ""
         }

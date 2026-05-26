@@ -1,6 +1,7 @@
 package com.example.common.utils.i18n
 
 import android.content.Context
+import android.view.ViewGroup
 import androidx.annotation.StringRes
 import com.example.common.BaseApplication
 import com.example.common.bean.LanguageBean
@@ -8,7 +9,7 @@ import com.example.common.config.CacheData.languageBean
 import com.example.common.config.I18nMap
 import com.example.common.event.EventCode.EVENT_LANGUAGE_CHANGE
 import com.example.common.utils.GsonUtil.gson
-import com.example.common.utils.function.resString
+import com.example.common.utils.function.string
 import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_US_PACK
 import com.example.common.widget.i18n.I18nImpl
 import com.example.framework.utils.function.string
@@ -116,7 +117,7 @@ object I18nUtil {
         val key = I18nMap.map[res]
         if (key.isNullOrEmpty()) {
             if (isDebug) {
-                "I18N key is null or empty. res:$res txt:${resString(res.orZero)}".logV
+                "I18N key is null or empty. res:$res txt:${string(res.orZero)}".logV
             }
             return null
         }
@@ -138,7 +139,7 @@ object I18nUtil {
     private fun onResultNull(@StringRes res: Int?): String {
         val key = I18nMap.map[res]
         if (isDebug) {
-            "No value is set for i18n. res:$res txt:${resString(res.orZero)} key:$key".logV
+            "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV
         }
         return ""
     }
@@ -235,14 +236,38 @@ object I18nUtil {
  *  %f   （表示浮点数）
  *  %s   （表示字符串）
  */
-fun string(@StringRes res: Int, vararg param: Int): String {
-    return I18nUtil.getText(BaseApplication.instance, res, *param)
+fun Context.i18String(@StringRes res: Int, vararg param: Int): String {
+    return I18nUtil.getText(this, res, *param)
 }
 
-fun string(@StringRes res: Int, vararg param: String): String {
-    return I18nUtil.getText(BaseApplication.instance, res, *param)
+fun Context.i18String(@StringRes res: Int, vararg param: String): String {
+    return I18nUtil.getText(this, res, *param)
 }
 
-fun string(@StringRes res: Int): String {
-    return I18nUtil.getText(BaseApplication.instance, res)
+fun Context.i18String(@StringRes res: Int): String {
+    return I18nUtil.getText(this, res)
+}
+
+fun ViewGroup.i18String(@StringRes res: Int, vararg param: Int): String {
+    return context.i18String(res, *param)
+}
+
+fun ViewGroup.i18String(@StringRes res: Int, vararg param: String): String {
+    return context.i18String(res, *param)
+}
+
+fun ViewGroup.i18String(@StringRes res: Int): String {
+    return context.i18String(res)
+}
+
+fun i18String(@StringRes res: Int, vararg param: Int): String {
+    return BaseApplication.instance.applicationContext.i18String(res, *param)
+}
+
+fun i18String(@StringRes res: Int, vararg param: String): String {
+    return BaseApplication.instance.applicationContext.i18String(res, *param)
+}
+
+fun i18String(@StringRes res: Int): String {
+    return BaseApplication.instance.applicationContext.i18String(res)
 }

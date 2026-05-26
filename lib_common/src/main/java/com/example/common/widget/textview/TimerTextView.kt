@@ -4,9 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.view.Gravity
-import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.second
@@ -46,10 +45,10 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         if (!tag.isNullOrEmpty()) timerTag = tag
         timerBuilder?.startCountDown(timerTag, {
             disable()
-            text = string(R.string.timerPressed, it.toString())
+            text = i18String(R.string.timerPressed, it.toString())
         }, {
             enable()
-            text = string(R.string.timerDisabled)
+            text = i18String(R.string.timerDisabled)
         }, second.second)
     }
 

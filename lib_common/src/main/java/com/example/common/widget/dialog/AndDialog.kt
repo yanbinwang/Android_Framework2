@@ -7,7 +7,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.utils.function.orNoData
-import com.example.common.utils.i18n.string
+import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.value.orFalse
 
 /**
@@ -55,14 +55,14 @@ class AndDialog(activity: FragmentActivity) : AlertDialog.Builder(activity, R.st
     /**
      * 确定样式
      */
-    fun setPositive(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure), hasTitle: Boolean = true): AndDialog {
+    fun setPositive(title: String? = i18String(R.string.hint), message: String? = null, positiveText: String? = i18String(R.string.sure), hasTitle: Boolean = true): AndDialog {
         return setParams(title, message, positiveText, "", hasTitle)
     }
 
     /**
      * 确定/取消 样式
      */
-    fun setParams(title: String? = string(R.string.hint), message: String? = null, positiveText: String? = string(R.string.sure), negativeText: String? = string(R.string.cancel), hasTitle: Boolean = true): AndDialog {
+    fun setParams(title: String? = i18String(R.string.hint), message: String? = null, positiveText: String? = i18String(R.string.sure), negativeText: String? = i18String(R.string.cancel), hasTitle: Boolean = true): AndDialog {
         if (hasTitle) setTitle(title.orNoData())
         setMessage(message.orNoData())
         setPositiveButton(positiveText.orNoData()) { _: DialogInterface?, _: Int ->
