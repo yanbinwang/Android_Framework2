@@ -50,8 +50,8 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.getScreenLocation
@@ -239,25 +239,15 @@ fun dimen(@DimenRes res: Int): Float {
  *  %s   （表示字符串）
  */
 fun string(@StringRes res: Int, vararg param: Int): String {
-    val args = param.toNewList { resString(it) }.toTypedArray()
-    return String.format(resString(res), args)
+    return BaseApplication.instance.applicationContext.string(res, *param)
 }
 
 fun string(@StringRes res: Int, vararg param: String): String {
-    return String.format(resString(res), *param)
+    return BaseApplication.instance.applicationContext.string(res, *param)
 }
 
 fun string(@StringRes res: Int): String {
-    return resString(res)
-}
-
-fun resString(@StringRes res: Int): String {
-    return try {
-        BaseApplication.instance.getString(res)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        ""
-    }
+    return BaseApplication.instance.applicationContext.string(res)
 }
 
 /**
@@ -272,7 +262,7 @@ fun String?.orNoData(): String {
  */
 fun String?.setPrimaryClip(label: String = "Label") {
     if (this == null) return
-    BaseApplication.instance.setPrimaryClip(label, this)
+    BaseApplication.instance.applicationContext.setPrimaryClip(label, this)
 }
 
 /**
