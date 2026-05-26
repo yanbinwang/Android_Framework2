@@ -41,6 +41,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeLong
 import java.io.Serializable
 import java.util.WeakHashMap
@@ -84,6 +85,15 @@ fun Context.dimen(@DimenRes res: Int): Float {
 /**
  * 获取Resources中的String
  */
+fun Context.string(@StringRes res: Int, vararg param: Int): String {
+    val args = param.toNewList { string(it) }.toTypedArray()
+    return String.format(string(res), args)
+}
+
+fun Context.string(@StringRes res: Int, vararg param: String): String {
+    return String.format(string(res), *param)
+}
+
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
