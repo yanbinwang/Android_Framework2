@@ -25,6 +25,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.get
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.framework.utils.function.color
@@ -70,8 +71,8 @@ fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
  * 获取路径图片的宽高
  * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
  */
-fun String?.decodeDimensions(): IntArray? {
-    this ?: return null
+fun String?.decodeDimensions(): IntArray {
+    this ?: return intArrayOf(0, 0)
     val options = BitmapFactory.Options()
     // 不加载图片到内存，只获取图片的尺寸信息
     options.inJustDecodeBounds = true
@@ -120,7 +121,7 @@ fun String?.isValidImage(): Boolean {
             // 检查文件是否存在
             if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
-            val dimensions = path.decodeDimensions() ?: intArrayOf(0, 0)
+            val dimensions = path.decodeDimensions()
             // 有效图片的宽高必须大于0
             dimensions[0] > 0 && dimensions[1] > 0
         } catch (e: Exception) {
@@ -144,7 +145,8 @@ fun Bitmap?.getCenterPixelColor(): Int {
     val topY = 0
     // 确保坐标在有效范围内
     return if (centerX in 0 until width && topY in 0 until height) {
-        getPixel(centerX, topY)
+//        getPixel(centerX, topY)
+        get(centerX, topY)
     } else {
         Color.WHITE
     }
@@ -376,7 +378,8 @@ fun Drawable.toBitmap(): Bitmap {
     val width = if (intrinsicWidth > 0) intrinsicWidth else 1
     val height = if (intrinsicHeight > 0) intrinsicHeight else 1
     // 根据透明度选择配置
-    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+//    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+    val config = Bitmap.Config.ARGB_8888
     return try {
         val bitmap = createBitmap(width, height, config)
         val canvas = Canvas(bitmap)

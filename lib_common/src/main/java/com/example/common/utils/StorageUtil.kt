@@ -72,8 +72,8 @@ object StorageUtil {
      * "${Constants.APPLICATION_PATH}/手机文件/${getUserId()}"
      */
     @JvmStatic
-    fun getStoragePath(fileName: String, userStorage: Boolean = true): String {
-        return "${STORAGE}${if (userStorage) "/${getUserId()}" else ""}/${fileName}"
+    fun getStoragePath(fileName: String, needUserFolder: Boolean = true): String {
+        return "${STORAGE}${if (needUserFolder) "/${getUserId()}" else ""}/${fileName}"
     }
 
 }
