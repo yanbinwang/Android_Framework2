@@ -239,14 +239,12 @@ fun dimen(@DimenRes res: Int): Float {
  *  %s   （表示字符串）
  */
 fun string(@StringRes res: Int, vararg param: Int): String {
-    val paramString = param.toNewList { resString(it) }.toTypedArray()
-    val result = resString(res)
-    return String.format(result, paramString)
+    val args = param.toNewList { resString(it) }.toTypedArray()
+    return String.format(resString(res), args)
 }
 
 fun string(@StringRes res: Int, vararg param: String): String {
-    val result = resString(res)
-    return String.format(result, *param)
+    return String.format(resString(res), *param)
 }
 
 fun string(@StringRes res: Int): String {
