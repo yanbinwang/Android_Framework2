@@ -535,9 +535,9 @@ object ExtraNumber {
     /**
      * dp → 转成 手机真实像素 px
      */
-    fun Number?.dp(): Int {
+    fun Number?.dp(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return dpFloat().toInt()
+        return dpFloat(context).toInt()
     }
 
     fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
@@ -548,9 +548,9 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.pt(): Int {
+    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return getRealSize(this.toDouble())
+        return getRealSize(context, this.toDouble())
     }
 
     /**
@@ -562,43 +562,98 @@ object ExtraNumber {
     }
 
     /**
-     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
-     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
+     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。
      */
-    fun getRealSize(length: Int): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    fun getRealSize(length: Double): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    fun getRealSize(context: Context, length: Int): Int {
-        return length * screenWidth(context) / designWidth
-    }
-
-    fun getRealSize(context: Context, length: Double): Int {
-        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+    private fun getRealSize(context: Context, length: Double): Int {
+        if (length <= 0) return 0
+        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
     }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-    fun getRealSizeFloat(context: Context, length: Int): Float {
-        return getRealSizeFloat(context, length.toFloat())
-    }
-
-    fun getRealSizeFloat(context: Context, length: Float): Float {
-        return length * screenWidth(context).toFloat() / designWidth.toFloat()
+    private fun getRealSizeFloat(context: Context, length: Float): Float {
+        if (length <= 0) return 0f
+        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
     }
 
 }
+//object ExtraNumber {
+//    /**
+//     * 根据AutoSize设置来获取设定的宽度
+//     * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
+//     */
+//    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+//
+//    /**
+//     * dp → 转成 手机真实像素 px
+//     */
+//    fun Number?.dp(): Int {
+//        if (this == null) return 0
+//        return dpFloat().toInt()
+//    }
+//
+//    fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
+//    }
+//
+//    /**
+//     * 设计图尺寸转换为实际尺寸
+//     */
+//    fun Number?.pt(): Int {
+//        if (this == null) return 0
+//        return getRealSize(this.toDouble())
+//    }
+//
+//    /**
+//     * 设计图尺寸转换为实际尺寸
+//     */
+//    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return getRealSizeFloat(context, this.toFloat())
+//    }
+//
+//    /**
+//     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+//     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+//     */
+//    fun getRealSize(length: Int): Int {
+//        return if (length > 0) {
+//            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+//        } else {
+//            0
+//        }
+//    }
+//
+//    fun getRealSize(length: Double): Int {
+//        return if (length > 0) {
+//            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+//        } else {
+//            0
+//        }
+//    }
+//
+//    fun getRealSize(context: Context, length: Int): Int {
+//        return length * screenWidth(context) / designWidth
+//    }
+//
+//    fun getRealSize(context: Context, length: Double): Int {
+//        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+//    }
+//
+//    /**
+//     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+//     * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
+//     */
+//    fun getRealSizeFloat(context: Context, length: Int): Float {
+//        return getRealSizeFloat(context, length.toFloat())
+//    }
+//
+//    fun getRealSizeFloat(context: Context, length: Float): Float {
+//        return length * screenWidth(context).toFloat() / designWidth.toFloat()
+//    }
+//
+//}
