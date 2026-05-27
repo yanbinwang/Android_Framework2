@@ -12,8 +12,6 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.VectorDrawable
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.TextPaint
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -45,6 +43,7 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
+import com.example.framework.utils.LinkSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
@@ -345,15 +344,14 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     }
     var content: Spannable = SpannableString.valueOf(textToProcess)
     keywords.forEach {
-        val keyword = when (val res = it.first) {
-            is Int -> string(res)
-            is String -> res
+        val (keywordText, colorRes, clickAction) = it
+        val keyword = when (keywordText) {
+            is Int -> string(keywordText)
+            is String -> keywordText
             else -> ""
         }
-        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
-            override fun onLinkClick(widget: View) {
-                it.third.invoke()
-            }
+        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), ClickSpan(LinkSpan(color(R.color.appTheme)) {
+            clickAction.invoke()
         }))
     }
     setSpannable(content)
@@ -361,7 +359,8 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
 
 fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
     setSpan(txt, *keywords.map {
-        Triple(it.first, colorRes, it.second)
+        val (keywordText, clickAction) = it
+        Triple(keywordText, colorRes, clickAction)
     }.toTypedArray())
 }
 
@@ -573,33 +572,8 @@ fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> 
 //})
 
 /**
- * 点击链接的span
- * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击用户协议".logWTF
- *      }
- *  })).setSpanFirst("《隐私政策》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击隐私政策".logWTF
- *      }
- *  }))
- *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+ * px/dp 设计图换算
  */
-abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
-
-    abstract fun onLinkClick(widget: View)
-
-    override fun onClick(widget: View) {
-        onLinkClick(widget)
-    }
-
-    override fun updateDrawState(ds: TextPaint) {
-        super.updateDrawState(ds)
-        ds.color = color(colorRes)
-        ds.isUnderlineText = false
-    }
-}
-
 object ExtraNumber {
     /**
      * 根据AutoSize设置来获取设定的宽度
@@ -640,7 +614,6 @@ object ExtraNumber {
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
      */
-    @JvmStatic
     fun getRealSize(length: Int): Int {
         return if (length > 0) {
             (length * screenWidth.toDouble() / designWidth).toInt().min(1)
@@ -649,7 +622,6 @@ object ExtraNumber {
         }
     }
 
-    @JvmStatic
     fun getRealSize(length: Double): Int {
         return if (length > 0) {
             (length * screenWidth.toDouble() / designWidth).toInt().min(1)
@@ -658,12 +630,10 @@ object ExtraNumber {
         }
     }
 
-    @JvmStatic
     fun getRealSize(context: Context, length: Int): Int {
         return length * screenWidth(context) / designWidth
     }
 
-    @JvmStatic
     fun getRealSize(context: Context, length: Double): Int {
         return (length * screenWidth(context).toDouble() / designWidth).toInt()
     }
@@ -672,12 +642,10 @@ object ExtraNumber {
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-    @JvmStatic
     fun getRealSizeFloat(context: Context, length: Int): Float {
         return getRealSizeFloat(context, length.toFloat())
     }
 
-    @JvmStatic
     fun getRealSizeFloat(context: Context, length: Float): Float {
         return length * screenWidth(context).toFloat() / designWidth.toFloat()
     }
