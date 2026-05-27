@@ -523,23 +523,6 @@ private fun getActualInputView(v: View?): EditText? {
 }
 
 /**
- * 联动滑动时某个控件显影，传入对应控件的高度（dp）
- */
-fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
-    this ?: return
-    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        // 确保menuHeight不为0，避免除零异常
-        if (menuHeight <= 0) {
-            func(0f)
-            return@OnScrollChangeListener
-        }
-        // 计算透明度：在0到menuHeight范围内从0平滑过渡到1
-        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
-        func(alpha)
-    })
-}
-
-/**
  * px/dp 设计图换算
  */
 object ExtraNumber {
