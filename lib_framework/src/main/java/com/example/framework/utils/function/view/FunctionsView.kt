@@ -56,6 +56,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -1097,6 +1098,51 @@ fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
 }
 
 /**
+ * 无阴影的CardView
+ */
+fun CardView?.init(cornerRadius: Float = 0f) {
+    this ?: return
+    // 阴影高度设为0
+    cardElevation = 0f
+    // 最大阴影高度设为0
+    maxCardElevation = 0f
+    // 兼容低版本的阴影属性
+    elevation = 0f
+    // 圆角半径（按需调整）
+    radius = cornerRadius
+    // 防止图片溢出圆角
+    preventCornerOverlap = true
+    // 无阴影时可关闭兼容padding
+    useCompatPadding = false
+    // 透明背景
+    setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+}
+
+/**
+ * 给 NestedScrollView 添加滚动透明度监听
+ * 滚动距离在 0 ~ menuHeight 之间时，alpha 从 0 平滑过渡到 1
+ * 滚动超过 menuHeight，alpha 固定为 1
+ * @param menuHeight 透明度渐变的总高度（阈值） -> 对应控件的高度
+ * @param func 透明度回调
+ */
+fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
+    // 空安全：如果 NestedScrollView 为 null，直接返回
+    this ?: return
+    // 设置滚动监听
+    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+        // 防御性判断：防止高度为 0 导致除零异常
+        if (menuHeight <= 0) {
+            func(0f)
+            return@OnScrollChangeListener
+        }
+        // 滚动距离 / 渐变高度 → 得到 0~1 的透明度
+        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
+        // 把计算好的透明度回调出去
+        func(alpha)
+    })
+}
+
+/**
  * 切换抽屉开关状态 (覆盖在界面上)
  * 篩選欄的操作/禁止右侧主动滑出
  * setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
@@ -1131,27 +1177,6 @@ fun DrawerLayout?.handleBackPressed(gravity: Int = GravityCompat.START): Boolean
         return true
     }
     return false
-}
-
-/**
- * 无阴影的CardView
- */
-fun CardView?.init(cornerRadius: Float = 0f) {
-    this ?: return
-    // 阴影高度设为0
-    cardElevation = 0f
-    // 最大阴影高度设为0
-    maxCardElevation = 0f
-    // 兼容低版本的阴影属性
-    elevation = 0f
-    // 圆角半径（按需调整）
-    radius = cornerRadius
-    // 防止图片溢出圆角
-    preventCornerOverlap = true
-    // 无阴影时可关闭兼容padding
-    useCompatPadding = false
-    // 透明背景
-    setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
 }
 
 /**
