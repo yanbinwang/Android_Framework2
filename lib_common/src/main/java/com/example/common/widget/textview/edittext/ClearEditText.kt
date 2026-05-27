@@ -36,7 +36,6 @@ import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
-import java.util.Arrays
 
 /**
  * @description 带删除按钮的输入框
@@ -162,17 +161,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setText(@StringRes resid: Int) {
-        if (isInEditMode) {
-            mBinding.etClear.setText(resid)
-        } else {
-            mBinding.etClear.setI18nRes(resid)
-        }
-//        mBinding.etClear.setI18nRes(resid)
+        mBinding.etClear.setI18nRes(resid)
     }
 
     fun setTextString(text: String) {
         mBinding.etClear.setTextString(text)
-//        mBinding.etClear.setText(text)
     }
 
     fun getText(): String {
@@ -192,19 +185,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setHint(@StringRes resid: Int) {
-        if (isInEditMode) {
-            mBinding.etClear.setHint(resid)
-        } else {
-            mBinding.etClear.setI18nHintRes(resid)
-        }
+        mBinding.etClear.setI18nHintRes(resid)
     }
 
     fun setHintString(text: String) {
-        if (isInEditMode) {
-            mBinding.etClear.setHint(text)
-        } else {
-            mBinding.etClear.setHintString(text)
-        }
+        mBinding.etClear.setHintString(text)
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

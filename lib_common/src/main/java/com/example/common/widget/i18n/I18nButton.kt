@@ -25,13 +25,8 @@ class I18nButton @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     init {
         context.withStyledAttributes(attrs, R.styleable.I18n) {
-            // xml瀏覽的情況下
-            if (isInEditMode) {
-                val textRes = getResourceId(R.styleable.I18n_android_text, -1)
-                if (textRes != -1) setText(textRes)
-            } else {
-                setI18nRes(getResourceId(R.styleable.I18n_android_text, -1))
-            }
+            val textRes = getResourceId(R.styleable.I18n_android_text, -1)
+            if (textRes != -1) setText(textRes)
         }
     }
 
@@ -110,6 +105,8 @@ class I18nButton @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }
     }
 
-    override fun getWeakRef() = weakReference
+    override fun getWeakRef(): WeakReference<I18nImpl> {
+        return weakReference
+    }
 
 }

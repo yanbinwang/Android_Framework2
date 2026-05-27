@@ -25,16 +25,10 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
 
     init {
         context.withStyledAttributes(attrs, R.styleable.I18n) {
-            // xml瀏覽的情況下
-            if (isInEditMode) {
-                val textRes = getResourceId(R.styleable.I18n_android_text, -1)
-                if (textRes != -1) setText(textRes)
-                val hintRes = getResourceId(R.styleable.I18n_android_hint, -1)
-                if (hintRes != -1) setHint(hintRes)
-            } else {
-                setI18nRes(getResourceId(R.styleable.I18n_android_text, -1))
-                setI18nHintRes(getResourceId(R.styleable.I18n_android_hint, -1))
-            }
+            val textRes = getResourceId(R.styleable.I18n_android_text, -1)
+            if (textRes != -1) setText(textRes)
+            val hintRes = getResourceId(R.styleable.I18n_android_hint, -1)
+            if (hintRes != -1) setHint(hintRes)
         }
         // 设置输入框可聚集
         isFocusable = true
@@ -128,6 +122,8 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
         }
     }
 
-    override fun getWeakRef() = weakReference
+    override fun getWeakRef(): WeakReference<I18nImpl> {
+        return weakReference
+    }
 
 }

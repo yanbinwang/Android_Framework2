@@ -54,12 +54,12 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         layout.addView(viewCircle)
         viewCircle.background = createRectangleDrawable("#ffffff", 9.ptFloat)
         // 布局属性绘制
-        if (isInEditMode) {
-            val ratio = dimen(R.dimen.textSize20) / 20
-            size(layout, ratio)
-        } else {
+//        if (isInEditMode) {
+//            val ratio = dimen(R.dimen.textSize20) / 20
+//            size(layout, ratio)
+//        } else {
             size(layout)
-        }
+//        }
         //        context.inflate(R.layout.view_deal_check, this).apply {
         //            viewCircle = findViewById(R.id.viewCircle)
         //            viewBg = findViewById(R.id.viewBg)
