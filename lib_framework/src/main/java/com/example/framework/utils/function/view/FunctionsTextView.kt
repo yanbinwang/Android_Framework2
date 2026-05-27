@@ -156,7 +156,7 @@ fun TextView?.randomTextColor() {
 }
 
 /**
- * 通过 dimens.xml 中定义的资源 ID，给 TextView 设置文字大小
+ * 通过 dimens.xml（里面写 pt/dp/sp 都行，AutoSize 适配） 中定义的资源 ID，给 TextView 设置文字大小
  * 不管资源里写的是什么单位，最终都转成像素（PX）给 TextView 用
  *
  * setTextSize(TypedValue.COMPLEX_UNIT_PX, ...)：
@@ -174,6 +174,7 @@ fun TextView?.textSize(@DimenRes res: Int) {
 }
 
 /**
+ * 项目 UI 还原专用，直接用 pt / dp 计算后的像素
  * 直接接收一个像素值（PX），并将其设置为 TextView 的文字大小
  * 使用扩展函数12.pt传入的话,会以设计图换算后的值为准设置给 TextView 用
  */
@@ -183,6 +184,7 @@ fun TextView?.pxTextSize(size: Float) {
 }
 
 /**
+ * 系统标准 sp 字体（跟随系统设置）
  * 将 value 按 SP 单位，结合当前页面的屏幕参数，转换为 PX
  */
 fun TextView?.spTextSize(value: Float) {
