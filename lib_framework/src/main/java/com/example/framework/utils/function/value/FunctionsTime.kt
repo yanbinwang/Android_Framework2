@@ -387,12 +387,26 @@ object DateFormat {
 //    }
 
     /**
-     * 计算并设置服务器时间差
+     * 计算并设置服务器时间差 (让手机本地时间 = 服务器真实时间)
      * 1) reqStartTime：客户端发起请求的本地时间（nano 转的毫秒）；
      * 2) reqEndTime：客户端收到响应的本地时间（nano 转的毫秒）；
      * 3) serverReceiveTime：推测服务器收到请求的本地时间（取请求 / 响应时间的中间值）；
-     * 4) systemTime：服务器返回的真实时间戳；
+     * 4) systemTime：服务器返回的真实时间戳（毫秒时间戳 System.currentTimeMillis () 同单位）；
      * 5) 最终 timeDiff = 服务器真实时间 - 推测的服务器接收时间
+     * 必须在 网络请求的前后 记录两个时间
+     * // 发起请求前 → 记录开始时间
+     * val reqStartTime = currentTimeNano
+     * // 发起网络请求
+     * api.getServerTime { serverTimeStamp ->
+     *     // 收到响应 → 记录结束时间
+     *     val reqEndTime = currentTimeNano
+     *     // 调用这个方法
+     *     DateFormat.setServiceTime(
+     *         reqStartTime = reqStartTime,
+     *         reqEndTime = reqEndTime,
+     *         systemTime = serverTimeStamp // 服务器返回的时间戳
+     *     )
+     * }
      */
     @JvmStatic
     fun setServiceTime(reqStartTime: Long, reqEndTime: Long, systemTime: Long) {
