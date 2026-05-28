@@ -124,7 +124,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
         @Volatile
-        var isAnyActivityStarting = false
+        var isAnyActivityStarting = false // 当前是否正在「启动一个新的 Activity」
         var onFinishListener: OnFinishListener? = null
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
