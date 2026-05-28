@@ -47,7 +47,7 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
             // 内容
             tvMessage.gravity = gravity
             tvMessage.text = message.orNoData()
-            // 操作键
+            // 确定
             tvPositive.apply {
                 text = positiveText.orNoData()
                 click {
@@ -55,14 +55,15 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
                     onPositive?.invoke()
                 }
             }
+            // 取消
             if (negativeText.isNullOrEmpty()) {
                 viewLine.gone()
                 tvNegative.gone()
             } else {
                 viewLine.visible()
                 tvNegative.apply {
-                    visible()
                     text = negativeText
+                    visible()
                     click {
                         dismiss()
                         onNegative?.invoke()
@@ -106,11 +107,23 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
         return this
     }
 
+    fun setPositiveTheme(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvPositive?.text = spannable
+        mBinding?.tvPositive?.textSize(sizeRes)
+        return this
+    }
+
     /**
      * 取消样式
      */
     fun setNegativeTheme(@ColorRes colorRes: Int = R.color.appTheme, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvNegative.textColor(colorRes)
+        mBinding?.tvNegative?.textSize(sizeRes)
+        return this
+    }
+
+    fun setNegativeTheme(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
+        mBinding?.tvNegative?.text = spannable
         mBinding?.tvNegative?.textSize(sizeRes)
         return this
     }
