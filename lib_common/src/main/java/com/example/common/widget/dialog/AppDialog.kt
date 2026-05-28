@@ -2,6 +2,8 @@ package com.example.common.widget.dialog
 
 import android.text.Spannable
 import android.view.Gravity
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.BaseDialog
@@ -74,7 +76,7 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
     /**
      * 标题样式
      */
-    fun setTitle(colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setTitle(@ColorRes colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvTitle.textColor(colorRes)
         mBinding?.tvTitle?.textSize(sizeRes)
         return this
@@ -83,21 +85,22 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
     /**
      * 内容样式
      */
-    fun setMessage(colorRes: Int = R.color.textPrimary, sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setMessage(@ColorRes colorRes: Int = R.color.textPrimary, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvMessage.textColor(colorRes)
         mBinding?.tvMessage?.textSize(sizeRes)
         return this
     }
 
-    fun setMessage(spannable: Spannable): AppDialog {
+    fun setMessage(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvMessage?.text = spannable
+        mBinding?.tvMessage?.textSize(sizeRes)
         return this
     }
 
     /**
      * 确认样式
      */
-    fun setPositiveTheme(colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setPositiveTheme(@ColorRes colorRes: Int = R.color.appTheme, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvPositive.textColor(colorRes)
         mBinding?.tvPositive?.textSize(sizeRes)
         return this
@@ -106,7 +109,7 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
     /**
      * 取消样式
      */
-    fun setNegativeTheme(colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setNegativeTheme(@ColorRes colorRes: Int = R.color.appTheme, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvNegative.textColor(colorRes)
         mBinding?.tvNegative?.textSize(sizeRes)
         return this
