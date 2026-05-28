@@ -146,20 +146,20 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         /**
          * 1) 跳转三方页面专用：临时关闭当前页面的 EdgeToEdge / 全屏沉浸属性
          *  作用：让下一个页面不会继承你的全屏、状态栏透明、导航栏透明
-         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性
+         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性 ! 使用该标记即可
          *  作用：addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
          */
-        @Suppress("DEPRECATION")
-        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
-            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
-            WindowCompat.setDecorFitsSystemWindows(window, true)
-            // 清除所有 LAYOUT_xxx 全屏标记
-            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
-            // 把系统栏恢复为不透明（防止三方页继承透明）
-            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
-            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
-        }
+//        @Suppress("DEPRECATION")
+//        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
+//            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
+//            WindowCompat.setDecorFitsSystemWindows(window, true)
+//            // 清除所有 LAYOUT_xxx 全屏标记
+//            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
+//            // 把系统栏恢复为不透明（防止三方页继承透明）
+//            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
+//            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
+//        }
     }
 
     /**
