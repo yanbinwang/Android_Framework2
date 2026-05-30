@@ -8,6 +8,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
+import com.example.common.base.BaseActivity
+import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
@@ -99,6 +101,9 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
             } else {
                 activityResultValue.launch(intent, options)
             }
+            // 基类添加正在启动
+            val cls = navigator.getDestinationClass() ?: return@navigateWithInterceptors
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }, {
         it?.printStackTrace()

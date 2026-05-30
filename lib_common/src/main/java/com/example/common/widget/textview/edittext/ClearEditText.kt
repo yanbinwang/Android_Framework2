@@ -10,6 +10,7 @@ import android.view.Gravity
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
+import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.core.content.withStyledAttributes
@@ -31,6 +32,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -171,11 +173,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         return mBinding.etClear.let { if (it.text == null) "" else it.text.toString() }
     }
 
-    fun setTextSize(size: Float) {
-        setTextSize(size, TypedValue.COMPLEX_UNIT_PX)
+    fun setTextSize(@DimenRes res: Int) {
+        mBinding.etClear.textSize(res)
     }
 
-    fun setTextSize(size: Float, unit: Int) {
+    fun setTextSize(size: Float, unit: Int = TypedValue.COMPLEX_UNIT_PX) {
         mBinding.etClear.setTextSize(unit, size)
     }
 

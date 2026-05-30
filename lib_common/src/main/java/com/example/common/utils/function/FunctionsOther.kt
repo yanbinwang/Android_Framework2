@@ -12,8 +12,6 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.VectorDrawable
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.TextPaint
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -45,6 +43,7 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
+import com.example.framework.utils.LinkSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
@@ -345,15 +344,14 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     }
     var content: Spannable = SpannableString.valueOf(textToProcess)
     keywords.forEach {
-        val keyword = when (val res = it.first) {
-            is Int -> string(res)
-            is String -> res
+        val (keywordText, colorRes, clickAction) = it
+        val keyword = when (keywordText) {
+            is Int -> string(keywordText)
+            is String -> keywordText
             else -> ""
         }
-        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
-            override fun onLinkClick(widget: View) {
-                it.third.invoke()
-            }
+        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), ClickSpan(LinkSpan(color(R.color.appTheme)) {
+            clickAction.invoke()
         }))
     }
     setSpannable(content)
@@ -361,7 +359,8 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
 
 fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
     setSpan(txt, *keywords.map {
-        Triple(it.first, colorRes, it.second)
+        val (keywordText, clickAction) = it
+        Triple(keywordText, colorRes, clickAction)
     }.toTypedArray())
 }
 
@@ -540,66 +539,8 @@ private fun getActualInputView(v: View?): EditText? {
 }
 
 /**
- * 联动滑动时某个控件显影，传入对应控件的高度（dp）
+ * px/dp 设计图换算
  */
-fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
-    this ?: return
-    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        // 确保menuHeight不为0，避免除零异常
-        if (menuHeight <= 0) {
-            func(0f)
-            return@OnScrollChangeListener
-        }
-        // 计算透明度：在0到menuHeight范围内从0平滑过渡到1
-        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
-        func(alpha)
-//        func.invoke(if (scrollY <= menuHeight / 2f) 0 + scrollY / (menuHeight / 4f) else 1f)
-    })
-}
-
-//private static final int SCROLL_THRESHOLD = 500;
-//
-//scrollView.setOnScrollChangeListener(new ViewTreeObserver.OnScrollChangedListener() {
-//    @Override
-//    public void onScrollChanged() {
-//        // 获取当前滚动的垂直距离（像素）
-//        int scrollY = scrollView.getScrollY();
-//        // 限制范围并计算透明度
-//        int clampedScrollY = Math.max(0, Math.min(scrollY, SCROLL_THRESHOLD));
-//        float alpha = (float) clampedScrollY / SCROLL_THRESHOLD;
-//        // 应用透明度
-//        backgroundBlock.setAlpha(alpha);
-//    }
-//})
-
-/**
- * 点击链接的span
- * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击用户协议".logWTF
- *      }
- *  })).setSpanFirst("《隐私政策》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击隐私政策".logWTF
- *      }
- *  }))
- *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
- */
-abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
-
-    abstract fun onLinkClick(widget: View)
-
-    override fun onClick(widget: View) {
-        onLinkClick(widget)
-    }
-
-    override fun updateDrawState(ds: TextPaint) {
-        super.updateDrawState(ds)
-        ds.color = color(colorRes)
-        ds.isUnderlineText = false
-    }
-}
-
 object ExtraNumber {
     /**
      * 根据AutoSize设置来获取设定的宽度
@@ -610,9 +551,9 @@ object ExtraNumber {
     /**
      * dp → 转成 手机真实像素 px
      */
-    fun Number?.dp(): Int {
+    fun Number?.dp(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return dpFloat().toInt()
+        return dpFloat(context).toInt()
     }
 
     fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
@@ -623,9 +564,9 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.pt(): Int {
+    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return getRealSize(this.toDouble())
+        return getRealSize(context, this.toDouble())
     }
 
     /**
@@ -637,49 +578,98 @@ object ExtraNumber {
     }
 
     /**
-     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
-     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
+     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。
      */
-    @JvmStatic
-    fun getRealSize(length: Int): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(length: Double): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Int): Int {
-        return length * screenWidth(context) / designWidth
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Double): Int {
-        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+    private fun getRealSize(context: Context, length: Double): Int {
+        if (length <= 0) return 0
+        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
     }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-    @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Int): Float {
-        return getRealSizeFloat(context, length.toFloat())
-    }
-
-    @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Float): Float {
-        return length * screenWidth(context).toFloat() / designWidth.toFloat()
+    private fun getRealSizeFloat(context: Context, length: Float): Float {
+        if (length <= 0) return 0f
+        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
     }
 
 }
+//object ExtraNumber {
+//    /**
+//     * 根据AutoSize设置来获取设定的宽度
+//     * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
+//     */
+//    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+//
+//    /**
+//     * dp → 转成 手机真实像素 px
+//     */
+//    fun Number?.dp(): Int {
+//        if (this == null) return 0
+//        return dpFloat().toInt()
+//    }
+//
+//    fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
+//    }
+//
+//    /**
+//     * 设计图尺寸转换为实际尺寸
+//     */
+//    fun Number?.pt(): Int {
+//        if (this == null) return 0
+//        return getRealSize(this.toDouble())
+//    }
+//
+//    /**
+//     * 设计图尺寸转换为实际尺寸
+//     */
+//    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return getRealSizeFloat(context, this.toFloat())
+//    }
+//
+//    /**
+//     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+//     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+//     */
+//    fun getRealSize(length: Int): Int {
+//        return if (length > 0) {
+//            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+//        } else {
+//            0
+//        }
+//    }
+//
+//    fun getRealSize(length: Double): Int {
+//        return if (length > 0) {
+//            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
+//        } else {
+//            0
+//        }
+//    }
+//
+//    fun getRealSize(context: Context, length: Int): Int {
+//        return length * screenWidth(context) / designWidth
+//    }
+//
+//    fun getRealSize(context: Context, length: Double): Int {
+//        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+//    }
+//
+//    /**
+//     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
+//     * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
+//     */
+//    fun getRealSizeFloat(context: Context, length: Int): Float {
+//        return getRealSizeFloat(context, length.toFloat())
+//    }
+//
+//    fun getRealSizeFloat(context: Context, length: Float): Float {
+//        return length * screenWidth(context).toFloat() / designWidth.toFloat()
+//    }
+//
+//}
