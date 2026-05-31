@@ -134,14 +134,13 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         // MVP设置
         mView.setupViews(mWidget, mColumnCount, mHasCamera, mChoiceMode)
         // 弹框设置
-        val progressColor = color(if (mWidget.uiStyle == Widget.STYLE_LIGHT) {
+        mLoadingDialog.setupViews(color(if (mWidget.uiStyle == Widget.STYLE_LIGHT) {
             // 浅色模式 → 深色加载条
             R.color.albumLoading
         } else {
             // 深色模式 → 用主题色
             mWidget.statusBarColor
-        })
-        mLoadingDialog.setupViews(progressColor, R.string.album_converting)
+        }), R.string.album_converting)
     }
 
     override fun initEvent() {
@@ -238,9 +237,9 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         // 开始扫描相册
         mView.setCompleteDisplay(false)
         mView.setLoadingDisplay(true)
-        val checkedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST) ?: arrayListOf()
+        val lastCheckedFiles = intentParcelableArrayList<AlbumFile>(Album.KEY_INPUT_CHECKED_LIST) ?: arrayListOf()
         val mediaReader = MediaReader(this, sSizeFilter, sMimeFilter, sDurationFilter, mFilterVisibility)
-        mTask.mediaReaderExecute(mFunction, checkedFiles, mediaReader)
+        mTask.mediaReaderExecute(mFunction, lastCheckedFiles, mediaReader)
     }
 
     /**
@@ -265,12 +264,12 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         val hasCheckSize = mCheckedList.size
         // 超过最大选择数量 → 提示
         if (hasCheckSize >= mLimitCount) {
-            getString(when (mFunction) {
+            string(when (mFunction) {
                 Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit_camera
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit_camera
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit_camera
                 else -> R.string.unitNoData
-            }, mLimitCount).shortToast()
+            }, "$mLimitCount").shortToast()
             // 根据功能类型拍照/录像/选择
         } else {
             when (mFunction) {
@@ -299,12 +298,12 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         val albumFile = mAlbumFolders[mCurrentFolder].albumFiles[position]
         if (button?.isChecked.orFalse) {
             if (mCheckedList.size >= mLimitCount) {
-                getString(when (mFunction) {
+                string(when (mFunction) {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, mLimitCount).shortToast()
+                }, "$mLimitCount").shortToast()
                 button?.isChecked = false
             } else {
                 albumFile.isChecked = true

@@ -13,6 +13,7 @@ import com.example.common.utils.function.orEmpty
 import com.example.common.widget.AppToolbar
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.string
 
 /**
  * MVP 架构中所有 View 层的基类
@@ -72,11 +73,15 @@ abstract class BaseView<Presenter : BasePresenter>(private val mSource: BaseSour
      * 返回纯文本，不带任何样式
      */
     protected fun getString(@StringRes resId: Int): String {
-        return getContext().getString(resId)
+        return getContext().string(resId)
     }
 
-    protected fun getString(@StringRes resId: Int, vararg formatArgs: Any): String {
-        return getContext().getString(resId, *formatArgs)
+    protected fun getString(@StringRes resId: Int, vararg param: Int): String {
+        return getContext().string(resId, *param)
+    }
+
+    protected fun getString(@StringRes resId: Int, vararg param: String): String {
+        return getContext().string(resId, *param)
     }
 
     // <editor-fold defaultstate="collapsed" desc="生命周期回调">
