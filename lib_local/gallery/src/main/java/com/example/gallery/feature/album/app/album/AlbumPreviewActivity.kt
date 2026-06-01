@@ -5,6 +5,7 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.convertDuration
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
@@ -94,12 +95,12 @@ internal class AlbumPreviewActivity : BaseActivity(), Contract.GalleryPresenter 
         } else {
             // 超过最大数量 → 提示
             if (sCheckedCount >= mAllowSelectCount) {
-                getString(when (mFunction) {
+                string(when (mFunction) {
                     Album.FUNCTION_CHOICE_IMAGE -> R.string.album_check_image_limit
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, mAllowSelectCount).shortToast()
+                }, "$mAllowSelectCount").shortToast()
                 mView.setChecked(false)
                 // 没超数量 → 选中
             } else {
