@@ -1,6 +1,7 @@
 package com.example.thirdparty.firebase.service
 
 import com.example.common.utils.toJson
+import com.example.framework.utils.function.serviceStateMap
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationHandler
@@ -25,6 +26,16 @@ class FirebaseService : FirebaseMessagingService() {
 //            this.debuggingListener = listener
 //        }
 //    }
+
+    override fun onCreate() {
+        super.onCreate()
+        serviceStateMap[this::class.java] = true
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        serviceStateMap.remove(this::class.java)
+    }
 
     override fun onNewToken(token: String) {
         FireBaseUtil.tokenRefreshListener?.invoke(token)
