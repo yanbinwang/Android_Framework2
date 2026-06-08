@@ -1003,9 +1003,9 @@ fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int):
  * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
  * 设置setImageDrawable(null)
  */
-fun ImageView?.setDrawable(resId: Drawable?) {
+fun ImageView?.setDrawable(drawable: Drawable?) {
     this ?: return
-    setImageDrawable(resId)
+    setImageDrawable(drawable)
 }
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
@@ -1066,7 +1066,7 @@ fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
             subscriptionMap.remove(this)
         }
     }
-    // 设置新 Bitmap
+    // 设置新 Bitmap -> 等价于 setImageDrawable(BitmapDrawable(resources, bitmap))
     setImageBitmap(bit)
 }
 
