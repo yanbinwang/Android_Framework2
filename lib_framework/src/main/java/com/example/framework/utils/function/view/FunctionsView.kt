@@ -1180,7 +1180,21 @@ fun DrawerLayout?.handleBackPressed(gravity: Int = GravityCompat.START): Boolean
 }
 
 /**
- * AppBarLayout监听
+ * AppBarLayout 垂直滑动距离监听
+ */
+fun AppBarLayout?.setOnOffsetChangedListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (verticalOffset: Int) -> Unit = {}) {
+    this ?: return
+    val listener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+        func.invoke(verticalOffset)
+    }
+    addOnOffsetChangedListener(listener)
+    owner.doOnDestroy {
+        removeOnOffsetChangedListener(listener)
+    }
+}
+
+/**
+ * AppBarLayout 状态监听
  * @Volatile
  * private var appBarState = AppBarLayoutStateChangeListener.State.EXPANDED
  * mBinding?.alHeader.stateChanged {
