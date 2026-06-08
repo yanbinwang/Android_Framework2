@@ -982,20 +982,41 @@ fun ImageView?.tint(@ColorRes res: Int) {
 /**
  * 如果一个图片是在LayerDrawable内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
  */
-fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int): IntArray {
-    this ?: return intArrayOf(0, 0)
+//fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int): IntArray {
+//    this ?: return intArrayOf(0, 0)
+//    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable
+//    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
+//    val dimensions = bitmapDrawable?.let {
+//        intArrayOf(it.intrinsicWidth, it.intrinsicHeight)
+//    } ?: intArrayOf(0, 0)
+//    size(dimensions[0], dimensions[1])
+//    return intArrayOf(
+//        layerDrawable?.getLayerInsetStart(targetItemIndex).orZero,
+//        layerDrawable?.getLayerInsetTop(targetItemIndex).orZero,
+//        layerDrawable?.getLayerInsetEnd(targetItemIndex).orZero,
+//        layerDrawable?.getLayerInsetBottom(targetItemIndex).orZero
+//    )
+//}
+fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) {
+    this ?: return
     val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable
     val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
     val dimensions = bitmapDrawable?.let {
-        intArrayOf(it.intrinsicWidth, it.intrinsicHeight)
+        intArrayOf(
+            it.intrinsicWidth,
+            it.intrinsicHeight
+        )
     } ?: intArrayOf(0, 0)
     size(dimensions[0], dimensions[1])
-    return intArrayOf(
-        layerDrawable?.getLayerInsetStart(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetTop(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetEnd(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetBottom(targetItemIndex).orZero
-    )
+    val margins = layerDrawable?.let {
+        intArrayOf(
+            it.getLayerInsetStart(targetItemIndex),
+            it.getLayerInsetTop(targetItemIndex),
+            it.getLayerInsetEnd(targetItemIndex),
+            it.getLayerInsetBottom(targetItemIndex)
+        )
+    } ?: intArrayOf(0, 0, 0, 0)
+    margin(margins[0], margins[1], margins[2], margins[3])
 }
 
 /**

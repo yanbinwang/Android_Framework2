@@ -134,10 +134,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
      */
     private fun adjustSplashUi() {
         if (!isHighVersion) {
-            mBinding?.ivSplash.let {
-                val (_, top, _, _) = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)
-                it.margin(top = top)
-            }
+            mBinding?.ivSplash.adjustLayerDrawable(R.drawable.layout_list_splash, 1)
+//            mBinding?.ivSplash.let {
+//                val (_, top, _, _) = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)
+//                it.margin(top = top)
+//            }
         }
     }
 
