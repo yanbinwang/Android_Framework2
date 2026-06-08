@@ -203,6 +203,11 @@ inline fun <reified T> Any?.safeAs(): T? {
     return if (this is T) this else null
 }
 
+inline fun <reified T> List<Any?>?.safeGet(): T? {
+    this ?: return null
+    return filterIsInstance<T>().firstOrNull()
+}
+
 /**
  * 提示方法，根据接口返回的msg提示
  */
