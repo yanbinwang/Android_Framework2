@@ -77,10 +77,22 @@ class TestViewModel : BaseViewModel() {
      * } // 组件销毁时自动取消协程[2](@ref)
      */
 //    val token by lazy { MutableStateFlow("") }
-
+//
 //    sealed class PageInfoResult {
 //        data class DealDetailResult(val bean: DealBean?) : PageInfoResult()
 //        data class PaymentListResult(val list: List<PaymentBean>?) : PageInfoResult()
+//        companion object {
+//            fun fromResults(results: List<Any?>): DealBundle? {
+//                // 用安全判断，绝对不报错
+//                val dealBean = results.filterIsInstance<com.example.order.bean.bundle.DealResult.DealDetailResult>().firstOrNull()?.bean
+//                val paymentList = results.filterIsInstance<com.example.order.bean.bundle.DealResult.PaymentListResult>().firstOrNull()?.list.orEmpty()
+//                return if (dealBean != null && paymentList.isNotEmpty()) {
+//                    DealBundle(dealBean, paymentList)
+//                } else {
+//                    null
+//                }
+//            }
+//        }
 //    }
 //
 //    fun getPageInfo(orderId: String?) {
