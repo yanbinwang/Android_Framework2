@@ -61,7 +61,7 @@ class RatingBar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
             starSize = getDimension(R.styleable.RatingBar_starSize, 20.ptFloat).toInt()
             starCount = getInteger(R.styleable.RatingBar_starCount, 5)
             integerOnly = getBoolean(R.styleable.RatingBar_integerOnly, false)
-            starEmptyDrawable = getDrawable(R.styleable.RatingBar_starEmpty)
+            starEmptyDrawable = getDrawable(R.styleable.RatingBar_starEmpty)?.mutate()
             starFillBitmap = drawableToBitmap(getDrawable(R.styleable.RatingBar_starFill), starSize)
         }
         isClickable = true
@@ -82,7 +82,6 @@ class RatingBar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val fillBitmap = starFillBitmap ?: return
         val emptyDrawable = starEmptyDrawable ?: return
         // 绘制空心星星
         for (i in 0 until starCount) {
@@ -130,6 +129,13 @@ class RatingBar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
     }
 
     /**
+     * 获取显示星星的数目
+     */
+    fun getRating(): Float {
+        return rating
+    }
+
+    /**
      * 设置评分（星星数量）
      */
     fun setRating(score: Float) {
@@ -140,13 +146,6 @@ class RatingBar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
         }
         onRatingChangedListener?.onChanged(rating)
         invalidate()
-    }
-
-    /**
-     * 获取显示星星的数目
-     */
-    fun getRating(): Float {
-        return rating
     }
 
     /**
