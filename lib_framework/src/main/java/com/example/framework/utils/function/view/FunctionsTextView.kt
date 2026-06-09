@@ -30,6 +30,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.FontRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -42,6 +43,7 @@ import com.example.framework.utils.NumberLimitFilter
 import com.example.framework.utils.SpaceInputFilter
 import com.example.framework.utils.WhiteListFilter
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.function.font
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
@@ -91,6 +93,18 @@ fun TextView?.bold(isBold: Boolean) {
 }
 
 /**
+ * 设置字体
+ * setTypeface(自定义字体, BOLD)：保留你的字体，只加粗
+ * defaultFromStyle(BOLD)：直接用系统默认字体
+ * setTypeface(font(R.font.font_bold), Typeface.NORMAL)
+ */
+fun TextView?.font(@FontRes res: Int? = null, style: Int = Typeface.NORMAL) {
+    this ?: return
+    val tf = if (res == null) null else context.font(res)
+    setTypeface(tf, style)
+}
+
+/**
  * 字重数值	对应名称（英文）	中文描述	      常见使用场景
  * 100	      Thin	         极细	     特殊设计感标题
  * 200	    Extra Light	     超轻	     轻量正文、辅助文字
@@ -102,7 +116,7 @@ fun TextView?.bold(isBold: Boolean) {
  * 800	   Extra Bold	     超粗	   大标题、强强调文字
  * 900	     Black	         特粗	     品牌名、醒目标题
  */
-fun TextView?.textFontWeight(weight: Int) {
+fun TextView?.fontWeight(weight: Int) {
     this ?: return
     val validWeight = weight.coerceIn(100, 900)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
