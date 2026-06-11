@@ -107,84 +107,13 @@ fun WebView?.evaluateJs(script: String, listener: (String?) -> Unit) {
 /**
  * 设置client处理
  */
-fun WebView?.setClient(loading: ProgressBar?, onPageStarted: () -> Unit, onPageFinished: () -> Unit, webChangedListener: OnWebChangedListener?) {
+fun WebView?.setClient(loading: ProgressBar? = null, onPageStarted: () -> Unit = {}, onPageFinished: () -> Unit = {}, webChangedListener: OnWebChangedListener? = null) {
     if (this == null) return
     webChromeClient = XWebChromeClient(WeakReference(loading), webChangedListener)
     webViewClient = XWebViewClient(onPageStarted, onPageFinished)
 }
 
-private class XWebViewClient(val onPageStarted: () -> Unit, val onPageFinished: () -> Unit) : WebViewClient() {
-
-    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        return try {
-            shouldOverrideUrlLoading(view, request.url, request.url.toString())
-        } catch (e: Exception) {
-            e.logE
-            false
-        }
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
-        return shouldOverrideUrlLoading(view, url.toUri(), url)
-    }
-
-    private fun shouldOverrideUrlLoading(view: WebView, uri: Uri, url: String): Boolean {
-        url.logE
-        val scheme = uri.scheme
-        val host = uri.host
-        return when {
-            scheme.isNullOrEmpty() -> {
-                false
-            }
-            host.isNullOrEmpty() -> if (scheme.isHttp) {
-                false
-            } else {
-                uri.jumpToOtherApp(view.context)
-                true
-            }
-//            host.endsWith(routerLink) || host.endsWith(routerLink) -> {
-//                currentActivity()?.let { RouterUtil.jump(it, url) }
-//                true
-//            }
-            scheme.isHttp -> {
-                false
-            }
-            else -> {
-                uri.jumpToOtherApp(view.context)
-                true
-            }
-        }
-    }
-
-    private val String?.isHttp: Boolean get() = this == "http" || this == "https"
-
-    private fun Uri.jumpToOtherApp(context: Context) {
-        try {
-            // 以下固定写法
-            val intent = Intent(Intent.ACTION_VIEW, this)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            context.applicationContext.startActivity(intent)
-        } catch (e: Exception) {
-            // 防止没有安装的情况
-            e.logE
-//            "當前App尚未安裝，請安裝後再試".shortToast()
-        }
-    }
-
-    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
-        super.onPageStarted(view, url, favicon)
-        onPageStarted()
-    }
-
-    override fun onPageFinished(view: WebView, url: String) {
-        super.onPageFinished(view, url)
-        onPageFinished()
-    }
-
-}
-
-private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val listener: OnWebChangedListener?) : WebChromeClient() {
+private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, private val listener: OnWebChangedListener?) : WebChromeClient() {
     private val runnable = Runnable {
         loading.get()?.fade(200)
         loading.get()?.progress = 0
@@ -242,6 +171,79 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
     override fun onHideCustomView() {
         listener?.onHideCustomView()
     }
+}
+
+private class XWebViewClient(private val onPageStarted: () -> Unit, private val onPageFinished: () -> Unit) : WebViewClient() {
+
+    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+        return try {
+            shouldOverrideUrlLoading(view, request.url, request.url.toString())
+        } catch (e: Exception) {
+            e.logE
+            false
+        }
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+        return shouldOverrideUrlLoading(view, url.toUri(), url)
+    }
+
+    private fun shouldOverrideUrlLoading(view: WebView, uri: Uri, url: String): Boolean {
+        url.logE
+        val scheme = uri.scheme
+        val host = uri.host
+        return when {
+            scheme.isNullOrEmpty() -> {
+                false
+            }
+            host.isNullOrEmpty() -> {
+                if (scheme.isHttp) {
+                    false
+                } else {
+                    uri.jumpToOtherApp(view.context)
+                    true
+                }
+//            host.endsWith(routerLink) || host.endsWith(routerLink) -> {
+//                currentActivity()?.let { RouterUtil.jump(it, url) }
+//                true
+//            }
+            }
+            scheme.isHttp -> {
+                false
+            }
+            else -> {
+                uri.jumpToOtherApp(view.context)
+                true
+            }
+        }
+    }
+
+    private val String?.isHttp: Boolean get() = this == "http" || this == "https"
+
+    private fun Uri.jumpToOtherApp(context: Context) {
+        try {
+            // 以下固定写法
+            val intent = Intent(Intent.ACTION_VIEW, this)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
+            context.applicationContext.startActivity(intent)
+        } catch (e: Exception) {
+            // 防止没有安装的情况
+            e.logE
+//            "當前App尚未安裝，請安裝後再試".shortToast()
+        }
+    }
+
+    override fun onPageStarted(view: WebView?, url: String?, favicon: Bitmap?) {
+        super.onPageStarted(view, url, favicon)
+        onPageStarted()
+    }
+
+    override fun onPageFinished(view: WebView, url: String) {
+        super.onPageFinished(view, url)
+        onPageFinished()
+    }
+
 }
 
 interface OnWebChangedListener {
