@@ -14,7 +14,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.function.clear
+import com.example.common.utils.function.clearWebClientTask
+import com.example.common.utils.function.clearWebData
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
 import com.example.framework.utils.function.view.visible
@@ -184,10 +185,12 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
         mXCustomViewCallback = null
         // 销毁 webview
         mWebView?.let { web ->
+            // 移除进度条延迟任务
+            web.clearWebClientTask()
             // 停止加载，清空页面
             web.stopLoading()
             web.loadUrl("about:blank")
-            web.clear()
+            web.clearWebData()
             // 生命周期暂停
             web.onPause()
             // 清理视图缓存

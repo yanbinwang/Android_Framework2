@@ -11,7 +11,7 @@ import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
 import com.example.common.utils.function.load
 import com.example.common.utils.function.refresh
-import com.example.common.utils.function.setClient
+import com.example.common.utils.function.setupWebClient
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
@@ -41,7 +41,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
         webView?.background(R.color.bgDefault)
         // WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), webJsName)
-        webView?.setClient(mBinding?.pbWeb, {
+        webView?.setupWebClient(mBinding?.pbWeb, {
             // 开始加载页面的操作...
             onPageStarted?.invoke()
         }, {
