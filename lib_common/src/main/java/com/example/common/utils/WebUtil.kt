@@ -22,9 +22,8 @@ import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 
 /**
- * @description webview工具类
- * 帮助处理WebView的内存泄漏问题的类，传入一个将用来装填WebView的ViewGroup
- * @author yan
+ * WebView 工具类
+ * 帮助处理 WebView 的内存泄漏问题的类，传入一个将用来装填 WebView 的 ViewGroup
  */
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
 class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleObserver {
@@ -40,8 +39,8 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
     }
     private var mWebView: WebView? = null
     private var mWebSettings: WebSettings? = null
-    private var mXCustomView: View? = null
-    private var mXCustomViewCallback: WebChromeClient.CustomViewCallback? = null
+    private var mCustomView: View? = null
+    private var mCustomViewCallback: WebChromeClient.CustomViewCallback? = null
 
     init {
         mActivity.lifecycle.addObserver(this)
@@ -115,35 +114,44 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
 
     fun onShowCustomView(view: View?, callback: WebChromeClient.CustomViewCallback?) {
         mActivity.apply {
+            // 屏幕强制横屏
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+            // 把原 WebView 隐藏
             mWebView.invisible()
-            // 如果一个视图已经存在，那么立刻终止并新建一个
-            if (mXCustomView != null) {
+            // 已经存在全屏视图 → 先关闭旧全屏，直接返回
+            if (mCustomView != null) {
                 callback?.onCustomViewHidden()
                 return
             }
-            mXCustomView = view
-            mXCustomViewCallback = callback
+            // 保存系统传过来的视频View 和 回调对象
+            mCustomView = view
+            mCustomViewCallback = callback
+            // 把视频View 添加到 Activity 顶层 DecorView（全局最上层）
             val decor = window.decorView as? FrameLayout
             decor?.addView(view)
-            mXCustomView.visible()
+            mCustomView.visible()
         }
     }
 
     fun onHideCustomView() {
         mActivity.apply {
+            // 如果已经是竖屏，直接返回（防重复执行）
             if (requestedOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) return
+            // 切回竖屏
             requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            mXCustomView.gone()
+            mCustomView.gone()
+            // 从顶层 DecorView 移除全屏视频View
             val decor = window.decorView as? FrameLayout
             try {
-                decor?.removeView(mXCustomView)
+                decor?.removeView(mCustomView)
             } catch (e: Exception) {
                 e.logE
             }
-            mXCustomViewCallback?.onCustomViewHidden()
-            mXCustomView = null
-            mXCustomViewCallback = null
+            // 通知 WebView「全屏已关闭」
+            mCustomViewCallback?.onCustomViewHidden()
+            // 清空全局缓存、恢复原WebView显示
+            mCustomView = null
+            mCustomViewCallback = null
             mWebView.visible()
         }
     }
@@ -173,7 +181,7 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
         // 先移除父容器并销毁自身，再执行清理操作
         mActivity.lifecycle.removeObserver(this)
         // 清理全屏自定义视图
-        mXCustomView?.let {
+        mCustomView?.let {
             val decor = mActivity.window.decorView as? FrameLayout
             try {
                 decor?.removeView(it)
@@ -181,8 +189,8 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
                 e.logE
             }
         }
-        mXCustomView = null
-        mXCustomViewCallback = null
+        mCustomView = null
+        mCustomViewCallback = null
         // 销毁 webview
         mWebView?.let { web ->
             // 移除进度条延迟任务
