@@ -1,5 +1,6 @@
 package com.example.common.utils.function
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
@@ -15,6 +16,7 @@ import android.webkit.WebStorage
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
+import androidx.annotation.RequiresApi
 import androidx.core.net.toUri
 import com.example.framework.utils.function.value.toBoolean
 import com.example.framework.utils.function.view.fade
@@ -23,9 +25,9 @@ import com.example.framework.utils.logE
 import java.lang.ref.WeakReference
 
 /**
- * 这里做是否加载完毕的处理，丢在tag中
+ * 标记网页是否加载完成，借助 View.tag 存储状态
  */
-var WebView?.loadFinished: Boolean
+var WebView?.isLoadFinished: Boolean
     set(value) {
         this?.tag = value
     }
@@ -35,12 +37,14 @@ var WebView?.loadFinished: Boolean
 
 /**
  * 加载网页
+ * @param url 网页地址
+ * @param appendHeader 是否追加当前网页专属请求头
  */
-fun WebView?.load(url: String, needHeader: Boolean) {
+fun WebView?.load(url: String, appendHeader: Boolean = false) {
     if (this == null) return
-    loadFinished = false
-    if (needHeader) {
-        loadUrl(url, getHeader())
+    isLoadFinished = false
+    if (appendHeader) {
+        loadUrl(url, getWebHeader())
     } else {
         loadUrl(url)
     }
@@ -49,8 +53,8 @@ fun WebView?.load(url: String, needHeader: Boolean) {
 /**
  * 添加请求头
  */
-private fun getHeader(): Map<String, String> {
-    val map = HashMap<String, String>()
+private fun getWebHeader(): Map<String, String> {
+    val map = mutableMapOf<String, String>()
 //    if (UserDataUtil.isLogin()) {
 //        UserDataUtil.getUserData()?.token?.let { map["token"] = it }
 //    }
@@ -59,18 +63,18 @@ private fun getHeader(): Map<String, String> {
 }
 
 /**
- * 刷新网页
+ * 刷新当前网页
  */
 fun WebView?.refresh() {
     if (this == null) return
-    loadFinished = false
+    isLoadFinished = false
     reload()
 }
 
 /**
- * 网页緩存清除
+ * 清空 WebView 缓存、历史、Cookie 及本地存储
  */
-fun WebView?.clear() {
+fun WebView?.clearWebData() {
     if (this == null) return
     // 历史记录 & 表单
     clearHistory()
@@ -88,32 +92,81 @@ fun WebView?.clear() {
 }
 
 /**
- * 是否具备对应js方法
+ * 执行 JS 脚本并回调结果
+ * JS 返回空字符串 / "null" 统一转为 Kotlin null
+ * @param script JS 脚本内容
+ * @param listener 执行结果回调
+ * 1) 检测 JS 方法是否存在
+ * // 检测全局方法 jsCallNative 是否存在
+ * val checkScript = "typeof jsCallNative === 'function' ? 'ok' : ''"
+ * webView?.runJsScript(checkScript) { result ->
+ *     if (result != null) {
+ *         // JS 方法存在
+ *     } else {
+ *         // JS 方法不存在
+ *     }
+ * }
+ * 2) 调用无参 JS 方法
+ * // 调用 jsAlert()
+ * webView?.runJsScript("jsAlert()") { result ->
+ *     // 接收 JS 返回值
+ * }
+ * 3) 调用带参数的 JS 方法
+ * // 调用 jsReceiveData("来自原生的数据")
+ * val data = "来自原生的数据"
+ * val script = "jsReceiveData('$data')"
+ * webView?.runJsScript(script) { result ->
+ *     // 处理返回结果
+ * }
+ * 4) 读取 JS 全局变量
+ * // 读取全局变量 appVersion
+ * webView?.runJsScript("appVersion") { version ->
+ *     version?.let {
+ *         // 拿到 JS 变量值
+ *     }
+ * }
+ * 5) 执行单纯逻辑脚本（无需返回值）
+ * // 执行一段 JS 业务逻辑
+ * val script = """
+ *     console.log('原生调用JS');
+ *     initPage();
+ * """.trimIndent()
+ * webView?.runJsScript(script) { }
  */
-fun WebView?.evaluateJs(script: String, listener: (String?) -> Unit) {
+fun WebView?.runJsScript(script: String, listener: (String?) -> Unit) {
     if (this == null) {
         listener(null)
         return
     }
-    this.evaluateJavascript(script) {
-        if (it.isNullOrEmpty() || it == "null") {
-            listener(null)
-        } else {
-            listener(it)
-        }
+    evaluateJavascript(script) {
+        listener(if (it.isNullOrEmpty() || it == "null") null else it)
     }
 }
 
 /**
- * 设置client处理
+ * 移除延迟任务
  */
-fun WebView?.setClient(loading: ProgressBar? = null, onPageStarted: () -> Unit = {}, onPageFinished: () -> Unit = {}, webChangedListener: OnWebChangedListener? = null) {
+@SuppressLint("WebViewApiAvailability")
+fun WebView?.clearWebClientTask() {
     if (this == null) return
-    webChromeClient = XWebChromeClient(WeakReference(loading), webChangedListener)
-    webViewClient = XWebViewClient(onPageStarted, onPageFinished)
+    // 直接移除当前WebView上所有Runnable
+    removeCallbacks(null)
+    // API26+ 额外精准清理（可选，不加也够用）
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        (webChromeClient as? WebChromeClientImpl)?.clearTask(this)
+    }
 }
 
-private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, private val listener: OnWebChangedListener?) : WebChromeClient() {
+/**
+ * 配置 WebView 客户端与监听
+ */
+fun WebView?.setupWebClient(loading: ProgressBar? = null, onPageStarted: () -> Unit = {}, onPageFinished: () -> Unit = {}, webChangedListener: OnWebChangedListener? = null) {
+    if (this == null) return
+    webChromeClient = WebChromeClientImpl(WeakReference(loading), webChangedListener)
+    webViewClient = WebViewClientImpl(onPageStarted, onPageFinished)
+}
+
+private class WebChromeClientImpl(private val loading: WeakReference<ProgressBar>, private val listener: OnWebChangedListener?) : WebChromeClient() {
     private val runnable = Runnable {
         loading.get()?.fade(200)
         loading.get()?.progress = 0
@@ -124,7 +177,7 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
      */
     override fun onProgressChanged(view: WebView, newProgress: Int) {
         listener?.onProgressChanged(newProgress)
-        if (!view.loadFinished) {
+        if (!view.isLoadFinished) {
             loading.get().visible()
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
                 loading.get()?.setProgress(newProgress, true)
@@ -133,7 +186,7 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
             }
             // 加载完网页进度条消失
             if (newProgress >= 100) {
-                view.loadFinished = true
+                view.isLoadFinished = true
                 view.postDelayed(runnable, 500)
             }
         }
@@ -155,7 +208,8 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
      */
     override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean {
         result?.cancel()
-        return super.onJsAlert(view, url, message, result)
+        return true
+//        return super.onJsAlert(view, url, message, result)
     }
 
     /**
@@ -171,9 +225,16 @@ private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, 
     override fun onHideCustomView() {
         listener?.onHideCustomView()
     }
+
+    /**
+     * 移除延迟任务
+     */
+    fun clearTask(view: WebView) {
+        view.removeCallbacks(runnable)
+    }
 }
 
-private class XWebViewClient(private val onPageStarted: () -> Unit, private val onPageFinished: () -> Unit) : WebViewClient() {
+private class WebViewClientImpl(private val onPageStarted: () -> Unit, private val onPageFinished: () -> Unit) : WebViewClient() {
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         return try {
@@ -219,7 +280,8 @@ private class XWebViewClient(private val onPageStarted: () -> Unit, private val 
         }
     }
 
-    private val String?.isHttp: Boolean get() = this == "http" || this == "https"
+    private val String?.isHttp: Boolean
+        get() = equals("http", true) || equals("https", true)
 
     private fun Uri.jumpToOtherApp(context: Context) {
         try {
