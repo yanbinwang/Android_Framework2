@@ -113,7 +113,7 @@ fun WebView?.setClient(loading: ProgressBar? = null, onPageStarted: () -> Unit =
     webViewClient = XWebViewClient(onPageStarted, onPageFinished)
 }
 
-private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, val listener: OnWebChangedListener?) : WebChromeClient() {
+private class XWebChromeClient(private val loading: WeakReference<ProgressBar>, private val listener: OnWebChangedListener?) : WebChromeClient() {
     private val runnable = Runnable {
         loading.get()?.fade(200)
         loading.get()?.progress = 0
