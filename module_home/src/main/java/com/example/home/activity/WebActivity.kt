@@ -2,6 +2,7 @@ package com.example.home.activity
 
 import android.os.Bundle
 import android.view.KeyEvent
+import androidx.appcompat.app.AppCompatActivity
 import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.bean.WebBundle
@@ -31,11 +32,11 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         initImmersionBar(bundle?.getLight().orTrue)
         helper.setBundle(bundle, this)
         // 需要标题头并且值已经传输过来了则设置标题
-        titleRoot.apply {
+        titleRoot.also {
             if (isTitleRequired) {
-                setTitle(bundle?.getTitle().orNoData())
+                it.setTitle(bundle?.getTitle().orNoData())
             } else {
-                gone()
+                it.gone()
             }
         }
     }
@@ -70,7 +71,9 @@ class WebActivity : BaseTitleActivity<ActivityWebBinding>(), WebImpl {
         return true
     }
 
-    override fun getActivity() = this
+    override fun getActivity(): AppCompatActivity {
+        return this
+    }
 
     override fun getGoBackJS(value: String?) {
     }
