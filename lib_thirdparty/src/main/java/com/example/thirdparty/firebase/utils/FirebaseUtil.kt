@@ -41,9 +41,7 @@ object FireBaseUtil {
     // FirebaseService -> onMessageReceived(收到的推送消息体)
     var notificationHandler: ((data: Map<String, String>) -> Boolean)? = null
     // 构建推送的intent，掉起一个透明的页面LinkActivity然后处理跳转
-    var notificationIntentGenerator = { _: Context, _: Map<String, String> ->
-        Intent()
-    }
+    var notificationIntentGenerator = { _: Context, _: Map<String, String> -> Intent() }
     // 日志埋点 (统计用户行为、埋点、数据报表用的)
     var firebaseAnalytics: FirebaseAnalytics? = null
     // 日志上传 (抓崩溃、抓异常、查 bug 用的)
