@@ -35,6 +35,7 @@ class LinkActivity : BaseActivity<Nothing>() {
         @JvmStatic
         fun byPush(context: Context, vararg pairs: Pair<String, Any?>): Intent {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+            isAnyActivityStarting = true
             return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
         }
 
