@@ -348,51 +348,10 @@ fun Bundle?.toMap(): Map<String, String> {
 /**
  * 将Collection转换为Bundle
  */
-@Suppress("UNCHECKED_CAST")
 fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
     val bundle = Bundle()
-    forEach {
-        val pair = it.func()
-        val key = pair.first
-        val value = pair.second ?: return@forEach
-        when (value) {
-            is Char -> bundle.putChar(key, value)
-            is Byte -> bundle.putByte(key, value)
-            is Bundle -> bundle.putBundle(key, value)
-            is ByteArray -> bundle.putByteArray(key, value)
-            is CharArray -> bundle.putCharArray(key, value)
-            is CharSequence -> bundle.putCharSequence(key, value)
-            is Float -> bundle.putFloat(key, value)
-            is FloatArray -> bundle.putFloatArray(key, value)
-            is Int -> bundle.putInt(key, value)
-            is Parcelable -> bundle.putParcelable(key, value)
-            is Serializable -> bundle.putSerializable(key, value)
-            is Short -> bundle.putShort(key, value)
-            is ShortArray -> bundle.putShortArray(key, value)
-            is String -> bundle.putString(key, value)
-            is Boolean -> bundle.putBoolean(key, value)
-            is BooleanArray -> bundle.putBooleanArray(key, value)
-            is Double -> bundle.putDouble(key, value)
-            is DoubleArray -> bundle.putDoubleArray(key, value)
-            is IntArray -> bundle.putIntArray(key, value)
-            is Long -> bundle.putLong(key, value)
-            is LongArray -> bundle.putLongArray(key, value)
-            is SparseArray<*> -> if (value.size != 0) when (value[0]) {
-                is Parcelable -> bundle.putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
-            }
-            is Array<*> -> if (value.isNotEmpty()) when (value[0]) {
-                is CharSequence -> bundle.putCharSequenceArray(key, value as Array<out CharSequence>)
-                is Parcelable -> bundle.putParcelableArray(key, value as Array<out Parcelable>)
-                is String -> bundle.putStringArray(key, value as Array<out String>)
-            }
-            is List<*> -> if (value.isNotEmpty()) when (value[0]) {
-                is CharSequence -> bundle.putCharSequenceArrayList(key, value as ArrayList<CharSequence>)
-                is Int -> bundle.putIntegerArrayList(key, value as ArrayList<Int>)
-                is Parcelable -> bundle.putParcelableArrayList(key, value as ArrayList<out Parcelable>)
-                is String -> bundle.putStringArrayList(key, value as ArrayList<String>)
-            }
-        }
-    }
+    val pairs = map { it.func() }
+    bundle.writeBundle(*pairs.toTypedArray())
     return bundle
 }
 
@@ -401,6 +360,71 @@ fun <T> Collection<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
  */
 fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
     return toList().toBundle(func)
+}
+
+/**
+ * 通用填充Bundle，统一处理所有支持类型
+ */
+fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
+    pairs.forEach { (key, value) ->
+        when (value) {
+            // 基本数值类型
+            is Int -> putInt(key, value)
+            is Long -> putLong(key, value)
+            is Byte -> putByte(key, value)
+            is Short -> putShort(key, value)
+            is Float -> putFloat(key, value)
+            is Double -> putDouble(key, value)
+            is Boolean -> putBoolean(key, value)
+            is Char -> putChar(key, value)
+            // 文本类型
+            is String -> putString(key, value)
+            is CharSequence -> putCharSequence(key, value)
+            // 基础类型数组
+            is IntArray -> putIntArray(key, value)
+            is LongArray -> putLongArray(key, value)
+            is ByteArray -> putByteArray(key, value)
+            is ShortArray -> putShortArray(key, value)
+            is FloatArray -> putFloatArray(key, value)
+            is DoubleArray -> putDoubleArray(key, value)
+            is BooleanArray -> putBooleanArray(key, value)
+            is CharArray -> putCharArray(key, value)
+            // 标准容器 & 序列化类型
+            is Bundle -> putBundle(key, value)
+            is Parcelable -> putParcelable(key, value)
+            is Serializable -> putSerializable(key, value)
+            // 扩展容器类型
+            is SparseArray<*> -> {
+                if (value.size != 0) {
+                    @Suppress("UNCHECKED_CAST")
+                    when (value[0]) {
+                        is Parcelable -> putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
+                    }
+                }
+            }
+            is Array<*> -> {
+                if (value.isNotEmpty()) {
+                    @Suppress("UNCHECKED_CAST")
+                    when (value[0]) {
+                        is CharSequence -> putCharSequenceArray(key, value as Array<out CharSequence>)
+                        is String -> putStringArray(key, value as Array<out String>)
+                        is Parcelable -> putParcelableArray(key, value as Array<out Parcelable>)
+                    }
+                }
+            }
+            is List<*> -> {
+                if (value.isNotEmpty()) {
+                    @Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS")
+                    when (value[0]) {
+                        is Int -> putIntegerArrayList(key, value as ArrayList<Int>)
+                        is String -> putStringArrayList(key, value as ArrayList<String>)
+                        is CharSequence -> putCharSequenceArrayList(key, value as ArrayList<CharSequence>)
+                        is Parcelable -> putParcelableArrayList(key, value as ArrayList<out Parcelable>)
+                    }
+                }
+            }
+        }
+    }
 }
 
 /**

@@ -43,6 +43,7 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.framework.utils.function.value.writeBundle
 import java.io.Serializable
 import java.util.WeakHashMap
 
@@ -325,7 +326,7 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
     val intent = Intent(this, cls)
     val bundle = Bundle()
-    writeBundle(bundle, *pairs)
+    bundle.writeBundle(*pairs)
     intent.putExtras(bundle)
     return intent
 }
@@ -333,7 +334,7 @@ fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>)
 fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
     val intent = Intent()
     val bundle = Bundle()
-    writeBundle(bundle, *pairs)
+    bundle.writeBundle(*pairs)
     intent.putExtras(bundle)
     setResult(resultCode, intent)
     return this
@@ -341,40 +342,9 @@ fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Acti
 
 fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
     val bundle = Bundle()
-    writeBundle(bundle, *pairs)
+    bundle.writeBundle(*pairs)
     arguments = bundle
     return this
-}
-
-/**
- * 通用填充Bundle，统一处理所有支持类型
- */
-private fun writeBundle(bundle: Bundle, vararg pairs: Pair<String, Any?>) {
-    pairs.forEach { (key, value) ->
-        when (value) {
-            is Int -> bundle.putInt(key, value)
-            is Byte -> bundle.putByte(key, value)
-            is Char -> bundle.putChar(key, value)
-            is Long -> bundle.putLong(key, value)
-            is Float -> bundle.putFloat(key, value)
-            is Short -> bundle.putShort(key, value)
-            is Double -> bundle.putDouble(key, value)
-            is Boolean -> bundle.putBoolean(key, value)
-            is String -> bundle.putString(key, value)
-            is Bundle -> bundle.putBundle(key, value)
-            is IntArray -> bundle.putIntArray(key, value)
-            is ByteArray -> bundle.putByteArray(key, value)
-            is CharArray -> bundle.putCharArray(key, value)
-            is LongArray -> bundle.putLongArray(key, value)
-            is FloatArray -> bundle.putFloatArray(key, value)
-            is Parcelable -> bundle.putParcelable(key, value)
-            is ShortArray -> bundle.putShortArray(key, value)
-            is DoubleArray -> bundle.putDoubleArray(key, value)
-            is BooleanArray -> bundle.putBooleanArray(key, value)
-            is CharSequence -> bundle.putCharSequence(key, value)
-            is Serializable -> bundle.putSerializable(key, value)
-        }
-    }
 }
 
 /**
