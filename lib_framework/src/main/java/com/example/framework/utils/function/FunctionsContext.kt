@@ -324,72 +324,34 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
 
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
     val intent = Intent(this, cls)
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String -> intent.putExtra(key, value)
-            is Bundle -> intent.putExtra(key, value)
-            is IntArray -> intent.putExtra(key, value)
-            is ByteArray -> intent.putExtra(key, value)
-            is CharArray -> intent.putExtra(key, value)
-            is LongArray -> intent.putExtra(key, value)
-            is FloatArray -> intent.putExtra(key, value)
-            is Parcelable -> intent.putExtra(key, value)
-            is ShortArray -> intent.putExtra(key, value)
-            is DoubleArray -> intent.putExtra(key, value)
-            is BooleanArray -> intent.putExtra(key, value)
-            is CharSequence -> intent.putExtra(key, value)
-            is Serializable -> intent.putExtra(key, value)
-        }
-    }
+    val bundle = Bundle()
+    writeBundle(bundle, *pairs)
+    intent.putExtras(bundle)
     return intent
 }
 
 fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
     val intent = Intent()
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String -> intent.putExtra(key, value)
-            is Bundle -> intent.putExtra(key, value)
-            is IntArray -> intent.putExtra(key, value)
-            is ByteArray -> intent.putExtra(key, value)
-            is CharArray -> intent.putExtra(key, value)
-            is LongArray -> intent.putExtra(key, value)
-            is FloatArray -> intent.putExtra(key, value)
-            is Parcelable -> intent.putExtra(key, value)
-            is ShortArray -> intent.putExtra(key, value)
-            is DoubleArray -> intent.putExtra(key, value)
-            is BooleanArray -> intent.putExtra(key, value)
-            is CharSequence -> intent.putExtra(key, value)
-            is Serializable -> intent.putExtra(key, value)
-        }
-    }
+    val bundle = Bundle()
+    writeBundle(bundle, *pairs)
+    intent.putExtras(bundle)
     setResult(resultCode, intent)
     return this
 }
 
 fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
     val bundle = Bundle()
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
+    writeBundle(bundle, *pairs)
+    arguments = bundle
+    return this
+}
+
+/**
+ * 通用填充Bundle，统一处理所有支持类型
+ */
+private fun writeBundle(bundle: Bundle, vararg pairs: Pair<String, Any?>) {
+    pairs.forEach { (key, value) ->
+        when (value) {
             is Int -> bundle.putInt(key, value)
             is Byte -> bundle.putByte(key, value)
             is Char -> bundle.putChar(key, value)
@@ -413,8 +375,6 @@ fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
             is Serializable -> bundle.putSerializable(key, value)
         }
     }
-    arguments = bundle
-    return this
 }
 
 /**

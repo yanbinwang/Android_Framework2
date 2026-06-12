@@ -69,9 +69,11 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 底部弹框使用的dialog
- * // 不可滑动关闭
+ * 1) 不可滑动关闭
  * dialog?.setCanceledOnTouchOutside(false)
  * dialog?.setCancelable(false)
+ * 2) 外部赋值
+ * 每次都会重新新建,只需 setParams 其余会再走一次 initView (BaseTopSheetDialogFragment同理)
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
