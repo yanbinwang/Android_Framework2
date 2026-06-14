@@ -60,6 +60,14 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
         }
     }
 
+    fun setParams(vararg labels: T, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
+        setParams(labels.toList(), menuWidth, horizontalMargin, verticalMargin, gravity)
+    }
+
+    fun setParams(vararg labels: T, view: WeakReference<View>, gravity: Int = Gravity.END) {
+        setParams(labels.toList(), view, gravity)
+    }
+
     private fun setConfiguration(list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
         mBinding?.apply {
             // 确定箭头大小/位置
@@ -71,35 +79,33 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
 
     private fun setupArrow(arrowView: View, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
         arrowView.layoutGravity = gravity
-        arrowView.margin(
-            start = if (gravity == Gravity.START) 10.pt + horizontalMargin.pt else 0,
-            top = verticalMargin.pt,
-            end = if (gravity == Gravity.END) 10.pt + horizontalMargin.pt else 0
-        )
+        val resolvedStart = if (gravity == Gravity.START) 10.pt + horizontalMargin.pt else 0
+        val resolvedTop = verticalMargin.pt
+        val resolvedEnd = if (gravity == Gravity.END) 10.pt + horizontalMargin.pt else 0
+        arrowView.margin(start = resolvedStart, top = resolvedTop, end = resolvedEnd)
     }
 
     private fun setupContainer(container: ViewGroup, list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
         container.apply {
             if (menuWidth != 0) size(menuWidth, WRAP_CONTENT)
             layoutGravity = gravity
-            margin(
-                start = if (gravity == Gravity.START) horizontalMargin.pt else 0,
-                top = 10.pt + verticalMargin.pt,
-                end = if (gravity == Gravity.END) horizontalMargin.pt else 0
-            )
+            val resolvedStart = if (gravity == Gravity.START) horizontalMargin.pt else 0
+            val resolvedTop = 10.pt + verticalMargin.pt
+            val resolvedEnd = if (gravity == Gravity.END) horizontalMargin.pt else 0
+            margin(start = resolvedStart, top = resolvedTop, end = resolvedEnd)
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局
                 val root = SelectItemHolder(this, formatter(t), index, R.color.bgTransparent).also {
-                    it.onItemClick = { item, clickIndex ->
+                    it.onItemClick = { item, index ->
                         dismiss()
-                        listener?.invoke(item, clickIndex)
+                        listener?.invoke(item, index)
                     }
                 }.getRoot()
                 // 添加布局进外层父布局
                 addView(root)
                 // 添加完成后设置大小
-                root.size(height = 50.pt)
+                root.size(height = 30.pt)
                 // 绘制下划线
                 if (list.safeSize - 1 > index) {
                     addDivider(this)
