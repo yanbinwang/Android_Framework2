@@ -90,7 +90,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局
-                val root = SelectItemHolder(this, formatter(t), index).also {
+                val root = SelectItemHolder(this, formatter(t), index, R.color.bgTransparent).also {
                     it.onItemClick = { item, clickIndex ->
                         dismiss()
                         listener?.invoke(item, clickIndex)
