@@ -99,7 +99,7 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
      */
     fun setParams(data: List<T>) {
         list = data
-        initData()
+//        initData()
     }
 
     /**
