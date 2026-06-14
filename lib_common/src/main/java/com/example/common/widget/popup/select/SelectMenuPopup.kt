@@ -94,7 +94,7 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局 (只对Int做特殊处理)
-                val root = SelectItemHolder(this, if (t is Int) t else formatter(t), index).also {
+                val root = SelectItemHolder(this, if (t is Int) t else formatter(t), index, R.color.bgTransparent).also {
                     it.onItemClick = { item, index ->
                         dismiss()
                         listener?.invoke(item, index)

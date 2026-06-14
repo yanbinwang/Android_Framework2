@@ -26,8 +26,8 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
             return SelectLabelPopup(labels.toList()) { it }
         }
 
-        fun createByI18(list: List<Int>? = emptyList()): SelectLabelPopup<Int> {
-            return SelectLabelPopup(list.orEmpty()) { "" }
+        fun createByI18(vararg labelsRes: Int): SelectLabelPopup<Int> {
+            return SelectLabelPopup(labelsRes.toList()) { "" }
         }
 
     }
