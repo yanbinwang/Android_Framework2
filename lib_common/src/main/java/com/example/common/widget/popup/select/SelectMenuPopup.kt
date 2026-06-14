@@ -64,6 +64,14 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
         }
     }
 
+    fun setParams(vararg labels: T, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
+        setParams(labels.toList(), menuWidth, horizontalMargin, verticalMargin, gravity)
+    }
+
+    fun setParams(vararg labels: T, view: WeakReference<View>, gravity: Int = Gravity.END) {
+        setParams(labels.toList(), view, gravity)
+    }
+
     private fun setConfiguration(list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
         mBinding?.apply {
             // 确定箭头大小/位置
