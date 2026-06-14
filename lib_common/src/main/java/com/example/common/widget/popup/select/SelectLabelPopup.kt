@@ -1,5 +1,6 @@
 package com.example.common.widget.popup.select
 
+import androidx.fragment.app.FragmentManager
 import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.databinding.ViewPopupSelectLabelBinding
 import com.example.common.utils.function.pt
@@ -65,9 +66,15 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
     /**
      * 刷新内部布局
      */
-    fun setParams(data: List<T>) {
-        list = data
-        initData()
+//    fun setParams(data: List<T>) {
+//        list = data
+////        initData()
+//    }
+    fun show(data: List<T>? = null, manager: FragmentManager) {
+        if (!data.isNullOrEmpty()) {
+            list = data
+        }
+        show(manager)
     }
 
     /**
