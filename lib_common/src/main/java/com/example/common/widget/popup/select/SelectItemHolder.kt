@@ -17,7 +17,7 @@ import com.example.framework.utils.function.view.click
  */
 class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int, @ColorRes bgColor: Int = R.color.bgDefault) {
     internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
-    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
+    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = null
 
     init {
         val textToProcess = when (item) {
