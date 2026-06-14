@@ -9,6 +9,7 @@
         android:gravity="center"
         android:textColor="@color/textPrimary"
         android:textSize="@dimen/textSize16"
+        tools:background="@color/bgDefault"
         tools:layout_height="50pt"
         tools:layout_marginBottom="1pt"
         tools:text="律师" />
