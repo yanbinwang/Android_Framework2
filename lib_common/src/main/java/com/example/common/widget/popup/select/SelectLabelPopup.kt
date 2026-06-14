@@ -1,5 +1,6 @@
 package com.example.common.widget.popup.select
 
+import androidx.fragment.app.FragmentManager
 import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.databinding.ViewPopupSelectLabelBinding
 import com.example.common.utils.function.pt
@@ -82,6 +83,14 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
      */
     fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
         this.listener = WeakReference(listener)
+    }
+
+    /**
+     * BaseTopSheetDialogFragment / BaseBottomSheetDialogFragment 属于 Fragment , 故而 set 的变量会保留 (监听使用弱引用) 但 View 不持有
+     */
+    fun show(list: List<T>, manager: FragmentManager) {
+        this.list = list
+        show(manager)
     }
 
 }

@@ -17,27 +17,17 @@ import com.example.framework.utils.function.view.click
  */
 class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int, @ColorRes bgColor: Int = R.color.bgDefault) {
     internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
-    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = null
+    internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
 
     init {
-        val textToProcess = when (item) {
-            is Int -> {
-                i18String(item).also {
-                    mBinding.tvLabel.setI18nRes(item)
-                }
-            }
-            is String -> {
-                item.orNoData().also {
-                    mBinding.tvLabel.text = it
-                }
-            }
-            else -> {
-                ""
-            }
+        val txt = when (item) {
+            is Int -> i18String(item).also { mBinding.tvLabel.setI18nRes(item) }
+            is String -> item.orNoData().also { mBinding.tvLabel.text = it }
+            else -> ""
         }
         mBinding.tvLabel.background(bgColor)
         mBinding.root.click {
-            onItemClick?.invoke(textToProcess, index)
+            onItemClick?.invoke(txt, index)
         }
     }
 
