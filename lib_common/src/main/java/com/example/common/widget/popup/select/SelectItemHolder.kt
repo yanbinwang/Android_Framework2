@@ -6,7 +6,6 @@ import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ItemPopupSelectBinding
 import com.example.common.utils.function.orNoData
-import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
@@ -20,14 +19,13 @@ class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int, @ColorRes bgCo
     internal var onItemClick: ((item: String?, index: Int) -> Unit)? = { _, _ -> }
 
     init {
-        val txt = when (item) {
-            is Int -> i18String(item).also { mBinding.tvLabel.setI18nRes(item) }
-            is String -> item.orNoData().also { mBinding.tvLabel.text = it }
-            else -> ""
+        when (item) {
+            is Int -> mBinding.tvLabel.setI18nRes(item)
+            is String -> mBinding.tvLabel.text = item.orNoData()
         }
         mBinding.tvLabel.background(bgColor)
         mBinding.root.click {
-            onItemClick?.invoke(txt, index)
+            onItemClick?.invoke(mBinding.tvLabel.text.toString().orNoData(), index)
         }
     }
 
