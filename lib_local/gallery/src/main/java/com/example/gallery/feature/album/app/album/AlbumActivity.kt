@@ -277,7 +277,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_VIDEO -> takeVideo()
                 Album.FUNCTION_CHOICE_ALBUM -> {
                     if (!::mCameraPopupMenu.isInitialized) {
-                        mCameraPopupMenu = SelectLabelPopup.create(string(R.string.album_camera_image_capture), string(R.string.album_camera_video_capture))
+                        mCameraPopupMenu = SelectLabelPopup.create(R.string.album_camera_image_capture, R.string.album_camera_video_capture)
                         mCameraPopupMenu.setOnItemClickListener { _, index ->
                             when (index) {
                                 0 -> takePicture()

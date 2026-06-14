@@ -16,6 +16,7 @@ import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.string
 import java.lang.ref.WeakReference
 
 /**
@@ -25,7 +26,6 @@ import java.lang.ref.WeakReference
  * private val occupationPopup by lazy { SelectBottomPopup<String>(this) { it }.apply { setParams(UserAuthBean.jobList) }}
  */
 class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> String?) : BasePopupWindow<ViewPopupSelectMenuBinding>(activity, hasLight = false) {
-    private var lastMenuWidth = 0
     private var listener: ((item: String?, index: Int) -> Unit)? = null
 
     companion object {
@@ -46,17 +46,12 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
      *  }
      */
     fun setParams(list: List<T>, menuWidth: Int = 0, horizontalMargin: Int = 15, verticalMargin: Int = 0, gravity: Int = Gravity.END) {
-        lastMenuWidth = menuWidth
         setConfiguration(list, menuWidth, horizontalMargin, verticalMargin, gravity)
     }
 
     fun setParams(list: List<T>, view: WeakReference<View>, gravity: Int = Gravity.END) {
-        if (0 == lastMenuWidth) {
-            view.get()?.doOnceAfterLayout {
-                setParams(list, menuWidth = it.measuredWidth, gravity = gravity)
-            }
-        } else {
-            setParams(list, menuWidth = lastMenuWidth, gravity = gravity)
+        view.get()?.doOnceAfterLayout {
+            setParams(list, menuWidth = it.measuredWidth, gravity = gravity)
         }
     }
 
@@ -96,7 +91,11 @@ class SelectMenuPopup<T>(activity: FragmentActivity, var formatter: (T?) -> Stri
             removeAllViews()
             list.forEachIndexed { index, t ->
                 // 获取根布局
-                val root = SelectItemHolder(this, formatter(t), index, R.color.bgTransparent).also {
+                val root = SelectItemHolder(this, when (t) {
+                    is Int -> string(t)
+                    is String -> formatter(t)
+                    else -> ""
+                }, index, R.color.bgTransparent).also {
                     it.onItemClick = { item, index ->
                         dismiss()
                         listener?.invoke(item, index)

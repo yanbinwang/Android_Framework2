@@ -1,9 +1,12 @@
 package com.example.common.widget.popup.select
 
+import androidx.fragment.app.FragmentManager
 import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.databinding.ViewPopupSelectLabelBinding
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
@@ -24,6 +27,10 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
          */
         fun create(vararg labels: String): SelectLabelPopup<String> {
             return SelectLabelPopup(labels.toList()) { it }
+        }
+
+        fun create(vararg labels: Int): SelectLabelPopup<String> {
+            return SelectLabelPopup(labels.toNewList { string(it) }) { it }
         }
 
     }
@@ -78,6 +85,14 @@ class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> Stri
      */
     fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
         this.listener = WeakReference(listener)
+    }
+
+    /**
+     * BaseTopSheetDialogFragment / BaseBottomSheetDialogFragment 属于 Fragment , 故而 set 的变量会保留 (监听使用弱引用) 但 View 不持有
+     */
+    fun show(list: List<T>, manager: FragmentManager) {
+        this.list = list
+        show(manager)
     }
 
 }
