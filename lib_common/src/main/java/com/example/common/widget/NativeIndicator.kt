@@ -35,12 +35,16 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingTop="0dp" />
  */
 class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<Int, ItemTabBinding>(observer, tab, tabTitle) {
-    private var redraw: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
+    private var redraw: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
 
-    override fun getBindView() = ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
+    constructor(observer: LifecycleOwner, tab: TabLayout?, vararg data: Int) : this(observer, tab, data.toList())
+
+    override fun getBindView(): ItemTabBinding {
+        return ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
+    }
 
     override fun onBindView(mBinding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) {
-        if(null == redraw) {
+        if (null == redraw) {
             mBinding?.tvTitle.setI18nTabTheme(item.orZero, selected)
         } else {
             redraw?.invoke(mBinding, item, selected, index)
@@ -61,7 +65,7 @@ class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<
  * 全局默认样式
  */
 fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
-    setI18nTheme(resText, if (selected) colorRes.first.orZero else colorRes.second.orZero,)
+    setI18nTheme(resText, if (selected) colorRes.first.orZero else colorRes.second.orZero)
     textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
     padding(start = padding.first.pt, end = padding.second.pt)
     bold(selected)
