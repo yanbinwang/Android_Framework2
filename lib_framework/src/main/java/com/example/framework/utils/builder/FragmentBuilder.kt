@@ -97,10 +97,6 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         initView(false, default)
     }
 
-    fun bind(vararg clazzPair: Pair<Class<*>, String>, default: Int = 0) {
-        bind(listOf(*clazzPair), default)
-    }
-
     /**
      * SceneListFragment::class.java.getBindBundle("Scene${i}", pairs = arrayOf(Extra.ID to i))
      * first：class名
@@ -112,8 +108,12 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         initView(true, default)
     }
 
-    fun bindBundle(vararg clazzTriple: Triple<Class<*>, String, Bundle>, default: Int = 0) {
-        bindBundle(listOf(*clazzTriple), default)
+    fun bind(vararg data: Pair<Class<*>, String>, default: Int = 0) {
+        bind(data.toList(), default)
+    }
+
+    fun bindBundle(vararg data: Triple<Class<*>, String, Bundle>, default: Int = 0) {
+        bindBundle(data.toList(), default)
     }
 
     /**
