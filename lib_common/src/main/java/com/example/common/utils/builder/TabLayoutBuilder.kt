@@ -193,6 +193,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
     }
 
+    constructor(observer: LifecycleOwner, tab: TabLayout?, vararg tabData: T) : this(observer, tab, tabData.toList())
+
     init {
         observer.doOnDestroy {
             tab?.removeOnTabSelectedListener(mTabListener)
