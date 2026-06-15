@@ -65,8 +65,8 @@ class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<
  * 全局默认样式
  */
 fun TextView?.setTabTheme(text: String?, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
-    setTheme(text.orEmpty(), if (selected) colorRes.first.orZero else colorRes.second.orZero, if (selected) bgRes.first.orZero else bgRes.second.orZero)
-    textSize(if (selected) sizeRes.first.orZero else sizeRes.second.orZero)
+    setTheme(text.orEmpty(), if (selected) colorRes.first else colorRes.second, if (selected) bgRes.first else bgRes.second)
+    textSize(if (selected) sizeRes.first else sizeRes.second)
     padding(start = padding.first.pt, end = padding.second.pt)
     bold(selected)
 }
