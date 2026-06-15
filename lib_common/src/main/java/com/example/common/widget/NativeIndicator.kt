@@ -35,9 +35,13 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingTop="0dp" />
  */
 class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(observer, tab, tabTitle) {
-    private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null//如需自定義，重寫此監聽
+    private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
 
-    override fun getBindView() = ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
+    constructor(observer: LifecycleOwner, tab: TabLayout?, vararg data: String) : this(observer, tab, data.toList())
+
+    override fun getBindView(): ItemTabBinding {
+        return ItemTabBinding.bind(getContext().inflate(R.layout.item_tab))
+    }
 
     override fun onBindView(mBinding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
         if(null == redraw) {
