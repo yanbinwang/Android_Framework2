@@ -28,12 +28,12 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshFooter {
     private var noMoreData = false
     private var animation: AnimationDrawable? = null
-    private val mBinding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
+    private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
 //        mBinding.root.size(MATCH_PARENT, 40.pt)
-        mBinding.ivProgress.let {
+        binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
@@ -42,14 +42,14 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun onInflate() {
-        if (shouldInflate) addView(mBinding.root)
+        if (shouldInflate) addView(binding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {
     }
 
     override fun getView(): View {
-        return mBinding.root
+        return binding.root
     }
 
     override fun getSpinnerStyle(): SpinnerStyle {
@@ -67,8 +67,8 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         if (!isDragging) return
         if (noMoreData) {
             animation?.stop()
-            mBinding.tvMsg.visible()
-            mBinding.ivProgress.gone()
+            binding.tvMsg.visible()
+            binding.ivProgress.gone()
             return
         }
         animation?.start()
@@ -100,11 +100,11 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         this.noMoreData = noMoreData
         if (noMoreData) {
             animation?.stop()
-            mBinding.tvMsg.visible()
-            mBinding.ivProgress.gone()
+            binding.tvMsg.visible()
+            binding.ivProgress.gone()
         } else {
-            mBinding.tvMsg.gone()
-            mBinding.ivProgress.visible()
+            binding.tvMsg.gone()
+            binding.ivProgress.visible()
         }
         return true
     }
@@ -118,7 +118,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
      * 转圈颜色
      */
     fun setProgressTint(@ColorRes color: Int) {
-        mBinding.ivProgress.tint(color)
+        binding.ivProgress.tint(color)
     }
 
 }
