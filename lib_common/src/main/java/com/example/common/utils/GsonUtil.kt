@@ -50,7 +50,7 @@ object GsonUtil {
     /**
      * 外部获取原生Gson实例，用于流式JsonReader/流解析等自定义场景
      */
-    fun getGson(): Gson {
+    fun getGsonInstance(): Gson {
         return gson
     }
 
