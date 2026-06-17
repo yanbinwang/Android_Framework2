@@ -9,7 +9,6 @@ import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.lang.ref.WeakReference
 
 /**
@@ -18,11 +17,11 @@ import java.lang.ref.WeakReference
  */
 class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     private var webJob: Job? = null
-    private val mActivity by lazy { webImpl.get()?.getActivity() }
-    private val mScope get() = mActivity?.lifecycleScope
+    private val activity by lazy { webImpl.get()?.getActivity() }
+    private val scope get() = activity?.lifecycleScope
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             webJob?.cancel()
         }
     }
@@ -30,32 +29,32 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     @JavascriptInterface
     fun goBack(value: String?) {
         webJob?.cancel()
-        webJob = mScope?.launch {
-            withContext(Main.immediate) { webImpl.get()?.getGoBackJS(value) }
+        webJob = scope?.launch(Main.immediate) {
+            webImpl.get()?.getGoBackJS(value)
         }
     }
 
     @JavascriptInterface
     fun toast(value: String?) {
         webJob?.cancel()
-        webJob = mScope?.launch {
-            withContext(Main.immediate) { value.shortToast() }
+        webJob = scope?.launch(Main.immediate) {
+            value.shortToast()
         }
     }
 
     @JavascriptInterface
     fun download(value: String?) {
         webJob?.cancel()
-        webJob = mScope?.launch {
-            withContext(Main.immediate) { mActivity.toBrowser(value.orEmpty()) }
+        webJob = scope?.launch(Main.immediate) {
+            activity.toBrowser(value.orEmpty())
         }
     }
 
     @JavascriptInterface
     fun toKol(value: String?) {
         webJob?.cancel()
-        webJob = mScope?.launch {
-            withContext(Main.immediate) { webImpl.get()?.getToKolJS() }
+        webJob = scope?.launch(Main.immediate) {
+            webImpl.get()?.getToKolJS()
         }
     }
 
