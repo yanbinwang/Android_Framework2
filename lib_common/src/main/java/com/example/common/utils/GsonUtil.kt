@@ -1,5 +1,6 @@
 package com.example.common.utils
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import com.google.gson.TypeAdapter
@@ -46,7 +47,14 @@ object GsonUtil {
     }
 
     /**
-     * 对象转json字符串
+     * 外部获取原生Gson实例，用于流式JsonReader/流解析等自定义场景
+     */
+    fun getGson(): Gson {
+        return gson
+    }
+
+    /**
+     * JSON转普通实体对象
      */
     fun objToJson(obj: Any): String? {
         var ret: String? = null
@@ -59,7 +67,7 @@ object GsonUtil {
     }
 
     /**
-     * json字符串转对象
+     * JSON转普通实体对象
      * val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
      */
     fun <T> jsonToObj(json: String, clazz: Class<T>): T? {
@@ -73,8 +81,9 @@ object GsonUtil {
     }
 
     /**
+     * JSON转泛型对象（List/Map/嵌套泛型专用）
      * 如果class内部运用了泛型，则传type，不然会被擦除
-     * val type = getType(List::class.java, List::class.java)
+     * @type val type = getType(List::class.java, List::class.java)
      */
     fun <T> jsonToObj(json: String, type: Type): T? {
         var ret: T? = null
@@ -87,9 +96,8 @@ object GsonUtil {
     }
 
     /**
-     * json字符串转集合
-     * 由于类型擦除，解析器无法在运行时获取真实类型 T
-     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
+     * JSON数组转List<T>
+     * 由于类型擦除，解析器无法在运行时获取真实类型 T , 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
      * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
      * val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
      */
@@ -105,14 +113,28 @@ object GsonUtil {
     }
 
     /**
+     * JSON转Map<K,V>
+     */
+    fun <K, V> jsonToMap(json: String, kClazz: Class<K>, vClazz: Class<V>): Map<K, V>? {
+        var ret: Map<K, V>? = null
+        try {
+            val type = getType(Map::class.java, kClazz, vClazz)
+            ret = gson.fromJson(json, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return ret
+    }
+
+    /**
      * 获取type类型
-     * //List<String>的type为
+     * // List<String>的type为
      *  val type = getType(List::class.java,String::class.java)
-     * //List<List<String>>的type为
+     * // List<List<String>>的type为
      *  val type = getType(List::class.java,getType(List::class.java,String::class.java))
-     * //Map<Int,String>的type为
-     * val type = getType(List::class.java,Int::class.java,String::class.java)
-     * //Map<String,List<String>>的类型为
+     * // Map<Int,String>的type为
+     * val type = getType(Map::class.java,Int::class.java,String::class.java)
+     * // Map<String,List<String>>的类型为
      * val type = getType(Map::class.java,String::class.java, getType(List::class.java,String::class.java))
      */
     private fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
@@ -176,6 +198,11 @@ fun <T> String?.toObj(type: Type): T? {
 fun <T> String?.toList(clazz: Class<T>): List<T>? {
     if (this == null) return null
     return GsonUtil.jsonToList(this, clazz)
+}
+
+fun <K, V> String?.toMap(kClazz: Class<K>, vClazz: Class<V>): Map<K, V>? {
+    if (this == null) return null
+    return GsonUtil.jsonToMap(this, kClazz, vClazz)
 }
 
 /**

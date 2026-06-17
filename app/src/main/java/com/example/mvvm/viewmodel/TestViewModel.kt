@@ -1,5 +1,6 @@
 package com.example.mvvm.viewmodel
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Color
@@ -226,7 +227,7 @@ class TestViewModel : BaseViewModel() {
      * 1.拿取UI提供的最高清的3倍图
      * 2.需求规定不同手机分享出去的大小都为335*300(像素)
      */
-    suspend fun suspendingKolShare(): String? {
+    suspend fun suspendingKolShare(): String {
         return withContext(IO) {
             mContext?.let {
                 // 获取分享背景图片
@@ -302,7 +303,8 @@ class TestViewModel : BaseViewModel() {
     /**
      * 通过camera拍摄了一张图片,如果需要分享,需要对原图做一个修改
      */
-    suspend fun suspendingCameraShare(sourcePath: String): String? {
+    @SuppressLint("SetTextI18n")
+    suspend fun suspendingCameraShare(sourcePath: String): String {
         return withContext(IO) {
             mContext?.let {
                 // 获取拍摄的照片
@@ -348,7 +350,7 @@ class TestViewModel : BaseViewModel() {
                 val tvLatLng = TextView(it)
                 tvLatLng.id = generateViewId()
                 tvLatLng.text = "经度：120.161893  纬度：30.28989"
-                tvLatLng.setTextAppearance(it, R.style.TextShadow)
+                tvLatLng.setTextAppearance(R.style.TextShadow)
                 tvLatLng.textSize(R.dimen.textSize10)
                 tvLatLng.textColor(R.color.textWhite)
                 latLngView.addView(tvLatLng)
@@ -363,7 +365,7 @@ class TestViewModel : BaseViewModel() {
                 val tvDate = TextView(it)
                 tvDate.id = generateViewId()
                 tvDate.text = "2021年6月20日 21:32:45"
-                tvDate.setTextAppearance(it, R.style.TextShadow)
+                tvDate.setTextAppearance(R.style.TextShadow)
                 tvDate.textSize(R.dimen.textSize10)
                 tvDate.textColor(R.color.textWhite)
                 latLngView.addView(tvDate)
@@ -378,7 +380,7 @@ class TestViewModel : BaseViewModel() {
                 val tvAddress = TextView(it)
                 tvAddress.id = generateViewId()
                 tvAddress.text = "浙江省杭州市余杭区"
-                tvAddress.setTextAppearance(it, R.style.TextShadow)
+                tvAddress.setTextAppearance(R.style.TextShadow)
                 tvAddress.textSize(R.dimen.textSize10)
                 tvAddress.textColor(R.color.textWhite)
                 latLngView.addView(tvAddress)
