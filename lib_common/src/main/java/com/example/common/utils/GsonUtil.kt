@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.google.gson.Strictness
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
@@ -152,18 +153,26 @@ object GsonUtil {
      */
     private class BooleanTypeAdapter : TypeAdapter<Boolean>() {
 
-        @Throws(IOException::class)
         override fun write(writer: JsonWriter, value: Boolean?) {
             writer.value(value.toString())
         }
 
-        @Throws(IOException::class)
         override fun read(reader: JsonReader): Boolean? {
-            return try {
-                val value = reader.nextString()
-                "Y" == value || "1" == value || "true" == value
-            } catch (_: NullPointerException) {
-                false
+            return when (reader.peek()) {
+                JsonToken.BOOLEAN -> reader.nextBoolean()
+                JsonToken.STRING -> {
+                    val value = reader.nextString().trim().lowercase()
+                    value == "y" || value == "1" || value == "true"
+                }
+                JsonToken.NUMBER -> reader.nextInt() == 1
+                else -> {
+                    /**
+                     * JsonReader 是游标流式读取，它内部有个指针停在当前待读取的元素上
+                     * skipValue() = 把当前一整个完整值全部读完并丢弃，游标自动跳到下一个元素
+                     */
+                    reader.skipValue()
+                    false
+                }
             }
         }
 
