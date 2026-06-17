@@ -19,7 +19,7 @@ import kotlinx.coroutines.withContext
 /**
  * 支付宝支付
  */
-class AlipayPay(private val mActivity: FragmentActivity)  {
+class AlipayPay(private val mActivity: FragmentActivity) {
     private var payJob: Job? = null
 
     init {
@@ -70,7 +70,7 @@ class AlipayPay(private val mActivity: FragmentActivity)  {
              */
             val resultStatus = AlipayPayResult(payResult).resultStatus
             // 判断resultStatus 为“9000”则代表支付成功，具体状态码代表含义可参考接口文档
-            when(resultStatus) {
+            when (resultStatus) {
                 // 支付成功
                 "9000" -> handlePayResult(R.string.paySuccess, 0)
                 // 用户取消支付

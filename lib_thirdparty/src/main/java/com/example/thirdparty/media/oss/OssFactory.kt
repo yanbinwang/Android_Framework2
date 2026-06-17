@@ -83,7 +83,6 @@ class OssFactory private constructor() : CoroutineScope {
         /**
          * 单例初始化
          */
-        @JvmStatic
         val instance by lazy { OssFactory() }
 
         /**

@@ -1,13 +1,9 @@
 package com.example.thirdparty.utils.wechat
 
 import android.annotation.SuppressLint
-import android.content.IntentFilter
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.Constants
-import com.example.framework.utils.function.doOnReceiver
-import com.example.thirdparty.utils.wechat.service.WXReceiver
-import com.tencent.mm.opensdk.constants.ConstantsAPI
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
 import java.lang.ref.WeakReference
@@ -24,7 +20,6 @@ class WXManager private constructor() {
     private val wxApiMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, IWXAPI>() }
 
     companion object {
-        @JvmStatic
         val instance by lazy { WXManager() }
     }
 
@@ -33,35 +28,19 @@ class WXManager private constructor() {
      */
     fun regToWx(mActivity: FragmentActivity?): IWXAPI? {
         mActivity ?: return null
+        // 先查找当前页面是否已有有效api，直接复用
+        wxApiMap.forEach { (weakRef, api) ->
+            val target = weakRef.get()
+            if (target === mActivity) {
+                return api
+            }
+        }
         // 如果之前的 FragmentActivity 存在，取消并从集合中移除
         unRegToWx(mActivity)
         // 通过WXAPIFactory工厂，获取IWXAPI的实例
         val api = WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true)
         // 将应用的appId注册到微信
         api.registerApp(Constants.WX_APP_ID)
-        // 创建注册广播
-        val wxReceiver = WXReceiver(api)
-        // 动态监听微信启动广播进行注册到微信
-        mActivity.apply {
-            doOnReceiver(this, wxReceiver, IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP), false) {
-                unRegToWx(this)
-            }
-        }
-//        val intentFilter = IntentFilter(ConstantsAPI.ACTION_REFRESH_WXAPP)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-//            mActivity.registerReceiver(wxReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED)
-//        } else {
-//            mActivity.registerReceiver(wxReceiver, intentFilter)
-//        }
-//        // 注销广播接收器
-//        mActivity.doOnDestroy {
-//            try {
-//                mActivity.unregisterReceiver(wxReceiver)
-//            } catch (e: Exception) {
-//                e.printStackTrace()
-//            }
-//            unRegToWx(mActivity)
-//        }
         // 存储该api
         wxApiMap[WeakReference(mActivity)] = api
         // 返回该实例
@@ -97,8 +76,8 @@ class WXManager private constructor() {
      * Application的onTerminate或别处页面需要全局清空调取
      */
     fun unRegToWx() {
-        wxApiMap.values.forEach {
-            it.unregisterApp()
+        wxApiMap.values.forEach { api ->
+            api.unregisterApp()
         }
         wxApiMap.clear()
     }

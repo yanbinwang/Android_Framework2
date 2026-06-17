@@ -82,7 +82,6 @@ class EventBus private constructor() {
 //    private val collectionJobs by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
 
     companion object {
-        @JvmStatic
         val instance by lazy { EventBus() }
 
 //        /**
