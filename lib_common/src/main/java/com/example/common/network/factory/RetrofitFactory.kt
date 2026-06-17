@@ -23,7 +23,6 @@ class RetrofitFactory private constructor() {
     }
 
     companion object {
-        @JvmStatic
         val instance by lazy { RetrofitFactory() }
     }
 
