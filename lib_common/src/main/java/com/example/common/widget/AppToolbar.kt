@@ -52,9 +52,9 @@ import java.util.concurrent.ConcurrentHashMap
  * 仿系统Toolbar自定义头
  */
 class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private var mHost: WeakReference<FragmentActivity>? = null
-    val mRootView by lazy { ConstraintLayout(context) }
-    val mIdsMap by lazy { ConcurrentHashMap<String, Int>() }
+    private var activity: WeakReference<FragmentActivity>? = null
+    val rootView by lazy { ConstraintLayout(context) }
+    val idsMap by lazy { ConcurrentHashMap<String, Int>() }
 
     companion object {
         // 标题
@@ -74,19 +74,19 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 初始化及添加当前View至容器
      */
     init {
-        mRootView.size(MATCH_PARENT, WRAP_CONTENT)
-        mRootView.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
+        rootView.size(MATCH_PARENT, WRAP_CONTENT)
+        rootView.padding(5.pt, getStatusBarHeight(), 5.pt, 0)
     }
 
     override fun onInflate() {
-        if (shouldInflate) addView(mRootView)
+        if (shouldInflate) addView(rootView)
     }
 
     /**
      * 建立页面视图绑定关系
      */
     fun bind(host: Any): AppToolbar {
-        mHost = WeakReference(when (host) {
+        activity = WeakReference(when (host) {
             // Activity（兼容所有现代 Activity）
             is FragmentActivity -> host
             // AndroidX Fragment
@@ -97,7 +97,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
             else -> throw IllegalArgumentException("Unsupported host type: ${host::class.java.name}")
         })
         host.doOnDestroy {
-            mIdsMap.clear()
+            idsMap.clear()
         }
         return this
     }
@@ -107,14 +107,14 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        runCatching { mHost?.clear() }.onFailure { e -> e.printStackTrace() }
+        runCatching { activity?.clear() }.onFailure { e -> e.printStackTrace() }
     }
 
     /**
      * 关闭引用的页面
      */
     private fun finishHost() {
-        mHost?.get()?.takeIf { !it.isFinishing }?.finish()
+        activity?.get()?.takeIf { !it.isFinishing }?.finish()
     }
 
     /**
@@ -151,7 +151,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         // 设置返回后按钮
         setLeftButton(resId, tintColor, onBack = onBack)
         // 设置背景色
-        mRootView.setBackgroundColor(context.color(bgColor))
+        rootView.setBackgroundColor(context.color(bgColor))
         // 设置阴影
         if (hasShade) createShade()
         return this
@@ -261,19 +261,19 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      */
     inline fun <reified T : View> createOrUpdateView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         // 移除上一次的视图
-        val lastId = mIdsMap[key]
+        val lastId = idsMap[key]
         if (lastId != null && lastId != NO_ID) {
-            mRootView.findViewById<T>(lastId)?.let {
-                mRootView.removeView(it)
+            rootView.findViewById<T>(lastId)?.let {
+                rootView.removeView(it)
             }
         }
         // 生成新的唯一 id
         val newViewId = generateViewId()
-        mIdsMap[key] = newViewId
+        idsMap[key] = newViewId
         val newView = creator.invoke()
         newView.id = newViewId
-        mRootView.addView(newView)
-        mRootView.applyConstraints {
+        rootView.addView(newView)
+        rootView.applyConstraints {
             block(newViewId)
         }
         return newView
@@ -283,9 +283,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 获取某个特定的view
      */
     inline fun <reified T : View> findViewByKey(key: String): T? {
-        val id = mIdsMap[key]
+        val id = idsMap[key]
         return if (id != null && id != NO_ID) {
-            mRootView.findViewById(id)
+            rootView.findViewById(id)
         } else {
             null
         }
@@ -295,14 +295,14 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 获取某个特定的view的id
      */
     fun findIdByKey(key: String): Int? {
-        return mIdsMap[key]
+        return idsMap[key]
     }
 
     /**
      * 检测是否创建
      */
     fun nonNull(vararg keys: String): Boolean {
-        return keys.all { mIdsMap[it] != null }
+        return keys.all { idsMap[it] != null }
     }
 
     /**
