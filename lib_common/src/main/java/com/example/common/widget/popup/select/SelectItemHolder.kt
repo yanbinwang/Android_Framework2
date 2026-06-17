@@ -15,22 +15,22 @@ import com.example.framework.utils.function.view.click
  * @index -> 下标
  */
 class SelectItemHolder(parent: ViewGroup, item: Any?, index: Int, @ColorRes bgColor: Int = R.color.bgDefault) {
-    internal val mBinding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
+    internal val binding by lazy { ItemPopupSelectBinding.bind(parent.context.inflate(R.layout.item_popup_select)) }
     internal var onItemClick: ((item: String?, index: Int) -> Unit)? = null
 
     init {
         when (item) {
-            is Int -> mBinding.tvLabel.setI18nRes(item)
-            is String -> mBinding.tvLabel.text = item.orNoData()
+            is Int -> binding.tvLabel.setI18nRes(item)
+            is String -> binding.tvLabel.text = item.orNoData()
         }
-        mBinding.tvLabel.background(bgColor)
-        mBinding.root.click {
-            onItemClick?.invoke(mBinding.tvLabel.text.toString().orNoData(), index)
+        binding.tvLabel.background(bgColor)
+        binding.root.click {
+            onItemClick?.invoke(binding.tvLabel.text.toString().orNoData(), index)
         }
     }
 
     fun getRoot(): View {
-        return mBinding.root
+        return binding.root
     }
 
 }

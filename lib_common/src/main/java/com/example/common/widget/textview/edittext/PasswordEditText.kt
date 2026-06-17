@@ -41,20 +41,20 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     private var hideRes = -1
     private var showRes = -1
     private var isShowBtn = true
-    private val mBinding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
-    val editText get() = mBinding.etClear
+    private val binding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
+    val editText get() = binding.etClear
 
     init {
-        mBinding.etClear.emojiLimit()
-        mBinding.etClear.apply {
+        binding.etClear.emojiLimit()
+        binding.etClear.apply {
             setOnKeyListener { _, keyCode, _ ->
-                if (keyCode == KeyEvent.KEYCODE_DEL) mBinding.etClear.setText("")
+                if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
                 false
             }
         }
-        mBinding.ivShow.apply {
+        binding.ivShow.apply {
             click {
-                setResource(Triple(mBinding.etClear.togglePasswordVisibility(), showRes, hideRes))
+                setResource(Triple(binding.etClear.togglePasswordVisibility(), showRes, hideRes))
             }
         }
         // 以下属性在xml中前缀使用app:调取
@@ -85,63 +85,63 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             if (maxLength != -1) setMaxLength(maxLength)
             // 配置输入法右下角按钮的样式
             val imeOptions = getInt(R.styleable.PasswordEditText_imeOptions, 0)
-            mBinding.etClear.imeOptions(imeOptions)
+            binding.etClear.imeOptions(imeOptions)
             // 内部容器修正
             val (resolvedStart, resolvedTop, resolvedEnd, resolvedBottom) = paddingLtrb()
             if (resolvedStart == 0  && resolvedTop == 0 && resolvedEnd == 0 &&  resolvedBottom == 0) return@withStyledAttributes
             // 撑满父容器
             paddingAll(0)
             // 子容器添加padding
-            mBinding.root.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
+            binding.root.padding(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
         }
     }
 
     override fun onInflate() {
-        if (shouldInflate) addView(mBinding.root)
+        if (shouldInflate) addView(binding.root)
     }
 
     fun setText(@StringRes resid: Int) {
-        mBinding.etClear.setI18nRes(resid)
+        binding.etClear.setI18nRes(resid)
     }
 
     fun setTextString(text: String) {
-        mBinding.etClear.setTextString(text)
+        binding.etClear.setTextString(text)
     }
 
     fun getText(): String {
-        return mBinding.etClear.let { if (it.text == null) "" else it.text.toString() }
+        return binding.etClear.let { if (it.text == null) "" else it.text.toString() }
     }
 
     fun setTextSize(@DimenRes res: Int) {
-        mBinding.etClear.textSize(res)
+        binding.etClear.textSize(res)
     }
 
     fun setTextSize(size: Float, unit: Int = TypedValue.COMPLEX_UNIT_PX) {
-        mBinding.etClear.setTextSize(unit, size)
+        binding.etClear.setTextSize(unit, size)
     }
 
     fun setTextColor(@ColorInt color: Int) {
-        mBinding.etClear.setTextColor(color)
+        binding.etClear.setTextColor(color)
     }
 
     fun setHint(@StringRes resid: Int) {
-        mBinding.etClear.setI18nHintRes(resid)
+        binding.etClear.setI18nHintRes(resid)
     }
 
     fun setHintString(text: String) {
-        mBinding.etClear.setHintString(text)
+        binding.etClear.setHintString(text)
     }
 
     fun setHintTextColor(@ColorInt color: Int) {
-        mBinding.etClear.setHintTextColor(color)
+        binding.etClear.setHintTextColor(color)
     }
 
     fun setSelection(mCursor: Int) {
-        mBinding.etClear.setSelection(mCursor)
+        binding.etClear.setSelection(mCursor)
     }
 
     fun setGravity(gravity: Int) {
-        mBinding.etClear.gravity = gravity
+        binding.etClear.gravity = gravity
     }
 
     fun setMaxLength(maxLength: Int) {
@@ -150,34 +150,34 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun hideBtn() {
         isShowBtn = false
-        mBinding.ivShow.gone()
+        binding.ivShow.gone()
     }
 
     fun showBtn() {
         isShowBtn = true
-        mBinding.ivShow.visible()
+        binding.ivShow.visible()
     }
 
     fun addFilter(filter: InputFilter) {
-        val filters = mBinding.etClear.filters.copyOf(mBinding.etClear.filters.size + 1)
+        val filters = binding.etClear.filters.copyOf(binding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
-        mBinding.etClear.filters = filters
+        binding.etClear.filters = filters
     }
 
     fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
-        mBinding.etClear.addTextChangedListener {
+        binding.etClear.addTextChangedListener {
             listener.invoke(it)
         }
     }
 
     fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
-        mBinding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
+        binding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             listener.invoke(v, hasFocus)
         }
     }
 
     fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        mBinding.etClear.setOnEditorActionListener(listener)
+        binding.etClear.setOnEditorActionListener(listener)
     }
 
 }
