@@ -8,7 +8,7 @@ import com.example.common.bean.LanguageBean
 import com.example.common.config.CacheData.languageBean
 import com.example.common.config.I18nMap
 import com.example.common.event.EventCode.EVENT_LANGUAGE_CHANGE
-import com.example.common.utils.GsonUtil.gson
+import com.example.common.utils.GsonUtil.getGson
 import com.example.common.utils.function.string
 import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_US_PACK
 import com.example.common.widget.i18n.I18nImpl
@@ -171,7 +171,7 @@ object I18nUtil {
             inputStream.use { stream ->
                 InputStreamReader(stream, "UTF-8").use { reader ->
                     JsonReader(reader).use { jsonReader ->
-                        gson.fromJson(jsonReader, object : TypeToken<LanguageBean>() {}.type)
+                        getGson().fromJson(jsonReader, object : TypeToken<LanguageBean>() {}.type)
                     }
                 }
             }
