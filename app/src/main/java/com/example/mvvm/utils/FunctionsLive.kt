@@ -1,20 +1,25 @@
 package com.example.mvvm.utils
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.ViewGroup
 import androidx.core.net.toUri
+import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.AspectRatioFrameLayout
 import androidx.media3.ui.PlayerView
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.removeSelf
 import com.opensource.svgaplayer.SVGAImageView
 import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAParser.ParseCompletion
 import com.opensource.svgaplayer.SVGAParser.PlayCallback
 import com.opensource.svgaplayer.SVGAVideoEntity
+import java.lang.ref.WeakReference
 import java.net.URL
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * CountdownView 倒计时视图库 -> 应用于限时促销、活动倒计时、游戏计时等场景
@@ -47,17 +52,23 @@ import java.net.URL
 /**
  * 代码创建一个svg
  * @videoItem 使用parserSource解析
+ * 解析资源，拿到 SVGAVideoEntity
+ * context.parserSVGASource("https://xxx/anim.svga") { videoItem ->
+ *     // 传入 createSVGAView 生成 SVGAImageView
+ *     val svgaView = context.createSVGAView(videoItem)
+ *     // 配置循环、回调、添加到布局
+ *     svgaView?.loops = 0
+ *     svgaView?.startAnimation()
+ * }
  */
-fun Context?.createSVGAView(videoItem: SVGAVideoEntity?): SVGAImageView? {
-    this ?: return null
+fun Context?.createSVGAView(item: SVGAVideoEntity?): SVGAImageView? {
+    if (this == null || item == null) return null
     // 创建 SVGA 视图
-    val svgaView = SVGAImageView(this)
-    // 立刻初始化全局解析器
-    SVGAParser.shareParser().init(this)
+    val view = SVGAImageView(this)
     // 再加载动画
-    svgaView.setVideoItem(videoItem)
+    view.setVideoItem(item)
     // 返回本体
-    return svgaView
+    return view
 }
 
 /**
@@ -137,6 +148,7 @@ fun Context?.createPlayerView(exoPlayer: ExoPlayer?): PlayerView? {
 /**
  * 建立绑定关系
  */
+@SuppressLint("UnsafeOptInUsageError")
 fun PlayerView?.bindExoPlayer(exoPlayer: ExoPlayer?) {
     if (null == this || null == exoPlayer) return
     // 等价 app:use_controller="false"
@@ -163,37 +175,72 @@ fun PlayerView?.releasePlayerView() {
 /**
  * ExoPlayer -> 播放
  */
-// 保存当前的播放结束监听,确保能移除
-private var exoPlayEndListener: Player.Listener? = null
+private val exoMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, Player.Listener>() }
 
-fun ExoPlayer?.playExoPlayer(mp4Path: String, onEnd: () -> Unit = {}) {
-    this ?: return
-    // 先移除旧监听
-    exoPlayEndListener?.let { removeListener(it) }
-    // 设置视频（本地assets / 网络链接都支持）
+fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -> Unit = {}) {
+    val player = this ?: return
+    // 清理当前页面历史监听
+    clearOwnerOldListener(owner)
+    // 加载视频资源
     val uri = if (mp4Path.startsWith("http")) {
-        // 网络链接 → 直接用
         mp4Path.toUri()
     } else {
-        // 本地 assets → 加 asset:///
         "asset:///$mp4Path".toUri()
     }
     val mediaItem = MediaItem.fromUri(uri)
-    setMediaItem(mediaItem)
-    // 准备 + 播放
-    prepare()
-    play()
-    // 创建新监听
-    val listener = object : Player.Listener {
+    player.setMediaItem(mediaItem)
+    player.prepare()
+    player.play()
+    // 强制新建监听，删除多余if判断
+    val newListener = object : Player.Listener {
         override fun onPlaybackStateChanged(state: Int) {
             if (state == Player.STATE_ENDED) {
                 onEnd()
-                releaseExoPlayer()
+                // 播放结束同步清理map缓存
+                exoMap.remove(WeakReference(owner))
+                player.releasePlayer()
             }
         }
-    }.also { exoPlayEndListener = it }
-    // 播放完隐藏/回收
-    addListener(listener)
+    }
+    player.addListener(newListener)
+    exoMap[WeakReference(owner)] = newListener
+}
+
+/**
+ * 清理指定页面旧监听，同时自动清除已销毁页面的垃圾弱引用缓存
+ */
+fun ExoPlayer?.clearOwnerOldListener(owner: LifecycleOwner) {
+    this ?: return
+    val wkOwner = WeakReference(owner)
+    // 仅首次绑定页面销毁监听，避免重复注册Observer
+    if (!exoMap.containsKey(wkOwner)) {
+        owner.doOnDestroy {
+            // 遍历map找到当前页面绑定的listener，反向拿到播放器并释放
+            exoMap.remove(wkOwner)?.let { listener ->
+                removeListener(listener)
+                releasePlayer()
+            }
+        }
+    }
+    // 清理当前页面历史监听
+    var oldListener: Player.Listener? = null
+    // 顺带清理已经销毁的页面弱引用垃圾数据
+    val removeKeys = mutableListOf<WeakReference<LifecycleOwner>>()
+    exoMap.forEach { (weakRef, listener) ->
+        val target = weakRef.get()
+        if (target === owner) {
+            oldListener = listener
+        } else if (target == null) {
+            removeKeys.add(weakRef)
+        }
+    }
+    // 清理失效页面缓存
+    removeKeys.forEach { exoMap.remove(it) }
+    // 移除旧监听 & 删除map记录
+    oldListener?.let {
+        removeListener(it)
+        exoMap.remove(wkOwner)
+    }
 }
 
 /**
@@ -201,17 +248,12 @@ fun ExoPlayer?.playExoPlayer(mp4Path: String, onEnd: () -> Unit = {}) {
  * exoPlayer.releaseExoPlayer()    // 销毁播放器
  * playerView.releasePlayerView()  // 销毁界面
  */
-fun ExoPlayer?.releaseExoPlayer() {
+fun ExoPlayer?.releasePlayer() {
     this ?: return
-    // 移除监听
-    exoPlayEndListener?.let { removeListener(it) }
-    exoPlayEndListener = null
     // 停止播放
     stop()
     // 清空播放源
     setMediaItems(emptyList())
     // 官方销毁
     release()
-//    // 置空
-//    this = null
 }
