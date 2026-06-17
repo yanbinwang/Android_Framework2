@@ -26,7 +26,7 @@ import com.example.framework.utils.logE
  * 帮助处理 WebView 的内存泄漏问题的类，传入一个将用来装填 WebView 的 ViewGroup
  */
 @SuppressLint("SetJavaScriptEnabled", "SourceLockedOrientationActivity")
-class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleObserver {
+class WebUtil(host: Any, private val mContainer: ViewGroup?) : DefaultLifecycleObserver {
     private val activity = when (host) {
         // Activity（兼容所有现代 Activity）
         is FragmentActivity -> host
@@ -58,7 +58,7 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
             return
         }
         val mWebView = webView ?: return
-        container?.addView(mWebView)
+        mContainer?.addView(mWebView)
         mWebView.apply {
             setBackgroundColor(Color.TRANSPARENT)
             layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -209,7 +209,7 @@ class WebUtil(host: Any, private val container: ViewGroup?) : DefaultLifecycleOb
             // destroy() 会终止 WebView 所有操作，若 clear() 在 destroy() 之后，可能清理不彻底
             web.destroy()
         }
-        container?.removeAllViews()
+        mContainer?.removeAllViews()
         webView = null
         webSettings = null
     }

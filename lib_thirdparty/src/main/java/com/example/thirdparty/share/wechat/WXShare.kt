@@ -57,11 +57,11 @@ class WXShare(private val mActivity: FragmentActivity) {
     private var configJob: Job? = null
     private var shareJob: Job? = null
     // 分享缩略图byte
-    private var mThumbByte: ByteArray? = null
+    private var thumbByte: ByteArray? = null
     // 分享信息
-    private var mShareMessage: WXShareMessage? = null
+    private var shareMessage: WXShareMessage? = null
     // 获取页面协程上下文
-    private val mScope get() = mActivity.lifecycleScope
+    private val scope get() = mActivity.lifecycleScope
     // 通过WXAPIFactory工厂，获取IWXAPI的实例
     private val wxApi by lazy { WXManager.instance.regToWx(mActivity) }
 
@@ -82,15 +82,15 @@ class WXShare(private val mActivity: FragmentActivity) {
             targetBmp ?: throw RuntimeException(string(R.string.shareFailure))
             return withContext(IO) {
                 // 获取图片的字节数组
-                val thumbByte = targetBmp.scale(THUMB_SIZE, THUMB_SIZE).let { thumbBmp ->
+                val thumbData = targetBmp.scale(THUMB_SIZE, THUMB_SIZE).let { thumbBmp ->
                     targetBmp.safeRecycle()
                     bitmapToByteArray(thumbBmp, true)
                 } ?: throw RuntimeException(string(R.string.shareFailure))
                 // 校验缩略图大小，避免超过微信限制 (压缩到符合要求的大小)
-                if (thumbByte.size / 1024 <= MAX_THUMB_SIZE_KB) {
-                    thumbByte
+                if (thumbData.size / 1024 <= MAX_THUMB_SIZE_KB) {
+                    thumbData
                 } else {
-                    suspendingCompressByteArray(thumbByte)
+                    suspendingCompressByteArray(thumbData)
                 }
             }
         }
@@ -146,8 +146,8 @@ class WXShare(private val mActivity: FragmentActivity) {
             configJob?.cancel()
             shareJob?.cancel()
             // 清空缩略图数据，避免内存泄漏
-            mThumbByte = null
-            mShareMessage = null
+            thumbByte = null
+            shareMessage = null
         }
     }
 
@@ -160,10 +160,10 @@ class WXShare(private val mActivity: FragmentActivity) {
      * @block 配置完成后的分享回调
      */
     fun config(mView: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, needRecycle: Boolean = false, block: (builder: WXShare) -> Unit = {}) {
-        mShareMessage = message ?: WXShareMessage()
+        shareMessage = message ?: WXShareMessage()
         // 获取分享消息体的左侧图标
-        if (needRecycle) mThumbByte = null
-        val targetBmp = if (mThumbByte != null) {
+        if (needRecycle) thumbByte = null
+        val targetBmp = if (thumbByte != null) {
             // 已有有效缩略图，无需重新生成，直接走回调
             null
         } else {
@@ -172,13 +172,13 @@ class WXShare(private val mActivity: FragmentActivity) {
         }
         if (targetBmp != null) {
             configJob?.cancel()
-            configJob = mScope.launch(Main.immediate) {
+            configJob = scope.launch(Main.immediate) {
                 flow {
                     emit(requestAffair { suspendingBuildThumb(targetBmp) })
                 }.withHandling(mView, end = {
                     block.invoke(this@WXShare)
-                }, isShowToast = true).collect { thumbByte ->
-                    mThumbByte = thumbByte
+                }, isShowToast = true).collect { thumbData ->
+                    thumbByte = thumbData
                 }
             }
         } else {
@@ -189,11 +189,11 @@ class WXShare(private val mActivity: FragmentActivity) {
     /**
      * 设置分享基础信息 : 手动配置（直接传入预生成的缩略图，无需异步处理）
      * @message -> 分享基础信息
-     * @thumbByte -> 预生成的缩略图字节数组
+     * @thumbData -> 预生成的缩略图字节数组
      */
-    fun config(message: WXShareMessage, thumbByte: ByteArray?) {
-        mShareMessage = message
-        mThumbByte = thumbByte
+    fun config(message: WXShareMessage, thumbData: ByteArray?) {
+        shareMessage = message
+        thumbByte = thumbData
     }
 
     /**
@@ -336,15 +336,15 @@ class WXShare(private val mActivity: FragmentActivity) {
         }
         // 发起分享
         val message = WXMediaMessage(mediaObject).apply {
-            mShareMessage?.let {
+            shareMessage?.let {
                 title = it.title
                 description = it.description
-                thumbData = mThumbByte
+                thumbData = thumbByte
                 messageExt = it.messageExt
             }
         }
         shareJob?.cancel()
-        shareJob = mScope.launch(Main.immediate) {
+        shareJob = scope.launch(Main.immediate) {
             try {
                 wxApi?.sendReq(SendMessageToWX.Req().also {
                     it.transaction = buildTransaction(transaction)
