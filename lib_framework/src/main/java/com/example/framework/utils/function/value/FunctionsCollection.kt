@@ -759,9 +759,14 @@ fun jsonArrayOf(vararg objects: JSONObject): JSONArray {
 }
 
 /**
- * Pair处理（如果都不为空，则返回true）
+ * Pair / Triple 处理（如果都不为空，则返回true）
  */
 fun Pair<String?, String?>?.isNotEmpty(): Boolean {
     this ?: return false
     return !first.isNullOrEmpty() && !second.isNullOrEmpty()
+}
+
+fun Triple<String?, String?, String?>?.isNotEmpty(): Boolean {
+    this ?: return false
+    return !first.isNullOrEmpty() && !second.isNullOrEmpty() && !third.isNullOrEmpty()
 }
