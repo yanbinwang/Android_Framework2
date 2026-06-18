@@ -157,7 +157,16 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     protected abstract fun onConvert(holder: BaseViewDataBindingHolder, item: T?, payloads: MutableList<Any>?)
 
     /**
-     * 适用于 “需要立即更新视图的场景（如 RecyclerView 复用）”，避免视图显示旧数据
+     * 普通异步绑定
+     */
+    protected fun setVariable(mBinding: ViewDataBinding?, variableId: Int, value: Any?) {
+        value ?: return
+        mBinding?.setVariable(variableId, value)
+    }
+
+    /**
+     * 同步立即绑定，用于 RecyclerView item 防闪烁
+     * 适用于 “需要立即更新视图的场景（如 RecyclerView 复用）”，避免视图显示旧数据 (禁止在 xml 绑定表达式写耗时逻辑：计算、格式化、IO、复杂判断)
      * setVariable原理:
      * 异步绑定：
      * 当调用 binding.setVariable(BR.bean, item) 或 binding.bean = item 时，DataBinding 并不会立即执行所有的绑定表达式（比如 android:text="@{bean.amount}"）。为了优化性能，它会将这些绑定操作推迟到下一帧（Frame） 绘制之前执行。这个过程是异步的。
