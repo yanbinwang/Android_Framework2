@@ -217,11 +217,11 @@ val CharArray?.randomItem: Char?
     }
 
 /**
- * 将旧list转换为新list
- * List 示例（过滤 null 结果）
+ * 将旧list转换为新list，转换返回可空类型自动过滤null值
+ * 示例：
  * val strList: List<String>? = listOf("1", "2", null, "3")
- * val intList = strList.toNewList { it?.toIntOrNull() }
- * 结果：[1, 2, 3]（过滤了 null 和无法转 Int 的元素）
+ * val intList = strList.toNewList { it.toIntOrNull() }
+ * 结果：[1, 2, 3]
  */
 fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     if (this == null) return arrayListOf()
@@ -234,10 +234,23 @@ fun <T, K> List<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
     return list
 }
 
-fun <T, K> ArrayList<T>?.toNewList(func: (T) -> K?): ArrayList<K> {
-    return (this as? List<T>).toNewList(func)
+/**
+ * 带下标转换List，转换返回可空类型自动过滤null值
+ */
+fun <T, K> List<T>?.toNewList(func: (Int, T) -> K?): ArrayList<K> {
+    if (this == null) return arrayListOf()
+    val list = arrayListOf<K>()
+    forEachIndexed { index, bean ->
+        func(index, bean)?.let { result ->
+            list.add(result)
+        }
+    }
+    return list
 }
 
+/**
+ * 泛型数组转ArrayList，转换结果非空，全部存入不过滤
+ */
 fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -247,6 +260,9 @@ fun <T, K> Array<T>?.toNewList(func: (T) -> K): ArrayList<K> {
     return list
 }
 
+/**
+ * Int基础数组转ArrayList，转换结果非空，全部存入不过滤
+ */
 fun <K> IntArray?.toNewList(func: (Int) -> K): ArrayList<K> {
     if (this == null) return arrayListOf()
     val list = arrayListOf<K>()
@@ -317,8 +333,8 @@ inline fun <T, reified K, P> Map<P, T>?.toArray(func: (Map.Entry<P, T>) -> K?): 
 /**
  * 将Collection转换为Map
  */
-fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, K> {
-    if (this == null) return hashMapOf()
+fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): Map<String, K> {
+    if (this == null) return mapOf()
     val map = hashMapOf<String, K>()
     forEach {
         func(it)?.apply {
@@ -333,9 +349,8 @@ fun <T, K> Collection<T>?.toMap(func: (T) -> Pair<String, K>?): HashMap<String, 
  */
 fun Bundle?.toMap(): Map<String, String> {
     this ?: return mapOf()
-    val map = HashMap<String, String>()
-    val ks = keySet()
-    val iterator = ks.iterator()
+    val map = hashMapOf<String, String>()
+    val iterator = keySet().iterator()
     while (iterator.hasNext()) {
         val key = iterator.next()
         getString(key)?.let {
