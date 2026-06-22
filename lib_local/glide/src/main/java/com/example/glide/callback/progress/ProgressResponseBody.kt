@@ -1,6 +1,5 @@
 package com.example.glide.callback.progress
 
-import com.example.framework.utils.function.value.orZero
 import okhttp3.MediaType
 import okhttp3.ResponseBody
 import okio.BufferedSource
@@ -10,12 +9,11 @@ import okio.buffer
  *  Created by wangyanbin
  *  拦截器窗体
  */
-class ProgressResponseBody(url: String, private var responseBody: ResponseBody) : ResponseBody() {
-    private val listener by lazy { ProgressInterceptor.listenerMap[url] }
+class ProgressResponseBody(private var responseBody: ResponseBody,private val listener: ((progress: Int) -> Unit)?) : ResponseBody() {
     private val bufferedSource by lazy { ProgressSource(responseBody, listener).buffer() }
 
     override fun contentLength(): Long {
-        return responseBody.contentLength().orZero
+        return responseBody.contentLength()
     }
 
     override fun contentType(): MediaType? {

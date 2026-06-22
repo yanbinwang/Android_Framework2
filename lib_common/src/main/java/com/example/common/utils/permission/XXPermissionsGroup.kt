@@ -1,6 +1,8 @@
 package com.example.common.utils.permission
 
 import android.content.Context
+import android.os.Build
+import android.os.Environment
 import com.example.common.utils.permission.XXPermissionsGroup.ACTIVITY_RECOGNITION_GROUP
 import com.example.common.utils.permission.XXPermissionsGroup.CALENDAR_GROUP
 import com.example.common.utils.permission.XXPermissionsGroup.CAMERA_GROUP
@@ -81,6 +83,17 @@ fun Context.checkSelfSMS() = XXPermissions.isGrantedPermissions(this, SMS_GROUP)
  * 存储权限组
  */
 fun Context.checkSelfStorage() = XXPermissions.isGrantedPermissions(this, STORAGE_GROUP)
+
+/**
+ * 1) 安卓11+具备的特殊外置存储权限,拿到了即可操作所有的存储文件,
+ * 2) 需要在AndroidMainFest里写入权限组<uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+ */
+fun Context.checkExternalStorageManager() = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+    true
+} else {
+    // 仅判断是否开启“所有文件访问权限”，和传统存储权限无关
+    Environment.isExternalStorageManager()
+}
 
 /**
  * 媒体位置权限组

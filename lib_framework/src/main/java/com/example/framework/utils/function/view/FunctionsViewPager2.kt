@@ -1,7 +1,9 @@
 package com.example.framework.utils.function.view
 
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orZero
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
@@ -11,7 +13,7 @@ import com.google.android.material.tabs.TabLayoutMediator
  * ViewPager2获取内部RecyclerView
  */
 fun ViewPager2?.getRecyclerView(): RecyclerView? {
-    if (this == null) return null
+    this ?: return null
     return try {
         (getChildAt(0) as? RecyclerView)
     } catch (e: Exception) {
@@ -21,10 +23,10 @@ fun ViewPager2?.getRecyclerView(): RecyclerView? {
 }
 
 /**
- * ViewPager2隐藏fadingEdge
+ * ViewPager2隐藏fadingEdge (剔除左右滑动会有的果冻回弹效果)
  */
 fun ViewPager2?.hideFadingEdge() {
-    if (this == null) return
+    this ?: return
     try {
         getRecyclerView()?.overScrollMode = RecyclerView.OVER_SCROLL_NEVER
     } catch (e: Exception) {
@@ -37,6 +39,7 @@ fun ViewPager2?.hideFadingEdge() {
  * @param multiplier 灵敏度倍数，默认为 3
  */
 fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
+    this ?: return
     try {
         val recyclerView = getRecyclerView()
         val touchSlopField = RecyclerView::class.java.getDeclaredField("mTouchSlop")
@@ -49,34 +52,51 @@ fun ViewPager2?.reduceSensitivity(multiplier: Int = 3) {
 }
 
 /**
+ * 设置页面滑动监听
+ */
+fun ViewPager2?.setOnPageChangeListener(owner: LifecycleOwner? = getLifecycleOwner(), callback: ViewPager2.OnPageChangeCallback) {
+    this ?: return
+    registerOnPageChangeCallback(callback)
+    owner.doOnDestroy {
+        unregisterOnPageChangeCallback(callback)
+    }
+}
+
+/**
  * 选中某页
- * class EvidencePageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
- *     private val buffer by lazy { ConcurrentHashMap<Int, Fragment>() }//存储声明的fragment
+ * class EvidencePageAdapter(private val fragmentManager: FragmentManager, lifecycle: Lifecycle) : FragmentStateAdapter(fragmentManager, lifecycle) {
  *
- *     init {
- *         lifecycle.doOnDestroy {
- *             buffer.clear()
- *         }
- *     }
+ * private companion object {
+ *      private const val PAGE_COUNT = 7       // 总页面数
+ *      private const val POSITION_EXTRA = 0   // 未上传列表
+ * }
  *
- *     override fun getItemCount() = 6
+ * override fun getItemCount() = PAGE_COUNT
  *
- *     override fun createFragment(position: Int): Fragment {
- *         val fragment = when (position) {
- *             0 -> EvidenceExtraFragment()
- *             else -> EvidenceListFragment().apply { arguments = Bundle().apply { putString(Extra.ID, (position - 1).toString()) } }
- *         }
- *         buffer[position] = fragment
- *         return fragment
- *     }
+ * override fun createFragment(position: Int): Fragment {
+ *      return when (position) {
+ *          POSITION_EXTRA -> EvidenceExtraFragment()
+ *          else -> EvidenceListFragment().apply { arguments = Bundle().apply { putString(Extra.ID, (position - 1).toString()) } }
+ *      }
+ * }
  *
- *     /**
- *      * 获取对应的fragment
- *      * 存在获取不到的情况(直接从0选择2,3的页面，然后获取1，本身并未添加进map，拿到的就是null)
- *      */
- *     fun <T : Fragment> getFragment(index: Int): T? {
- *         return buffer[index] as? T
- *     }
+ * /**
+ *  * 通过位置查找对应 Fragment
+ *  * 当 FragmentStateAdapter 向 FragmentManager 添加 Fragment 时，官方会自动为每个位置的 Fragment 生成固定格式的 TAG："f" + position（比如位置 0 对应 TAG "f0"、位置 1 对应 TAG "f1"）
+ * */
+ * private fun findFragmentByPosition(position: Int): Fragment? {
+ *      // 官方固定的 Fragment TAG 格式，不可修改
+ *      val fragmentTag = "f$position"
+ *      // 通过 FragmentManager 查找对应 TAG 的 Fragment
+ *      return fragmentManager.findFragmentByTag(fragmentTag)
+ * }
+ *
+ * /**
+ *  * 获取未上传列表
+ * */
+ * fun getExtra(): EvidenceExtraFragment? {
+ *      return findFragmentByPosition(POSITION_EXTRA) as? EvidenceExtraFragment
+ * }
  *
  * }
  */
@@ -96,7 +116,7 @@ fun ViewPager2?.setCurrent(item: Int, smoothScroll: Boolean = true) {
  * ViewPager2向后翻页
  */
 fun ViewPager2?.nextPage(isSmooth: Boolean = true) {
-    if (this == null) return
+    this ?: return
     adapter?.let { adapter ->
         if (adapter.itemCount == 0) return
         setCurrentItem(currentItem + 1, isSmooth)
@@ -107,7 +127,7 @@ fun ViewPager2?.nextPage(isSmooth: Boolean = true) {
  * ViewPager2向前翻页
  */
 fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
-    if (this == null) return
+    this ?: return
     adapter?.let { adapter ->
         if (adapter.itemCount == 0) return
         setCurrentItem(currentItem - 1, isSmooth)
@@ -118,7 +138,7 @@ fun ViewPager2?.prevPage(isSmooth: Boolean = true) {
  * 设置适配器扩展
  */
 fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = false) {
-    if (this == null) return
+    this ?: return
     hideFadingEdge()
     setAdapter(adapter)
     setOrientation(orientation)
@@ -145,12 +165,14 @@ fun ViewPager2?.adapter(adapter: RecyclerView.Adapter<*>, orientation: Int = Vie
  * 绑定vp和tab
  */
 fun ViewPager2?.bind(tab: TabLayout?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
-    return TabLayoutMediator(tab ?: return null, this ?: return null, true, listener).apply { attach() }
+    if (this == null || tab == null) return null
+    return TabLayoutMediator(tab, this, true, listener).apply { attach() }
 }
 
 /**
  * 绑定vp和tab
  */
 fun TabLayout?.bind(vp: ViewPager2?, listener: TabLayoutMediator.TabConfigurationStrategy = TabLayoutMediator.TabConfigurationStrategy { _, _ -> }): TabLayoutMediator? {
-    return TabLayoutMediator(this ?: return null, vp ?: return null, listener).apply { attach() }
+    if (this == null || vp == null) return null
+    return TabLayoutMediator(this, vp, listener).apply { attach() }
 }

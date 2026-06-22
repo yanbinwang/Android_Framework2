@@ -8,6 +8,10 @@ import android.content.pm.ActivityInfo
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
+import android.os.Process.killProcess
+import android.os.Process.myPid
+import android.transition.Slide
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.MotionEvent.ACTION_DOWN
@@ -24,13 +28,13 @@ import androidx.activity.result.ActivityResult
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -46,6 +50,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.builder.shortToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -62,60 +67,67 @@ import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
+import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
+import kotlin.system.exitProcess
 
 /**
  * Created by WangYanBin on 2020/6/3.
  * 对应页面传入继承自BaseViewModel的数据模型类，以及由系统生成的ViewDataBinding绑定类
- * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context
- * 無xml的界面，泛型括號裡傳ViewDataBinding
- * 如果希望打开的页面有自定义的动画效果，可以重写oncreate，或者调取基类的initview方法
- * // 在需要转换动画的 Activity 中
+ * 在基类中实现绑定，向ViewModel中注入对应页面的Activity和Context,無xml的界面泛型括號裡傳Nothing
+ * 使用协程时,推荐使用lifecycleScope.(launch/async)
+ *
+ * 如果希望打开的页面有自定义的动画效果，可以重写onCreate，或者调取基类的initView方法，在需要转换动画的 Activity 中
  * @Override
  * protected void onCreate(Bundle savedInstanceState) {
  *     super.onCreate(savedInstanceState);
- * // 自定义滑入动画（从右侧进入）
- * Slide slide = new Slide(Gravity.END);
- * slide.setDuration(300);
- * getWindow().setEnterTransition(slide);
- * // 自定义滑出动画（向右侧退出）
- * Slide slideExit = new Slide(Gravity.START);
- * slideExit.setDuration(300);
- * 当 A 启动 B 时，A 被覆盖的过程	应用于 被启动的 Activity（B）
- * getWindow().setExitTransition(slideExit);
- * 当 B 返回 A 时，B 退出的过程	应用于 返回的 Activity（B）
- * getWindow().setReturnTransition(slideExit);
+ *     // 自定义滑入动画（从右侧进入）
+ *     Slide slide = new Slide(Gravity.END);
+ *     slide.setDuration(300);
+ *     getWindow().setEnterTransition(slide);
+ *     // 自定义滑出动画（向右侧退出）
+ *     Slide slideExit = new Slide(Gravity.START);
+ *     slideExit.setDuration(300);
+ *     当 A 启动 B 时，A 被覆盖的过程	应用于 被启动的 Activity（B）
+ *     getWindow().setExitTransition(slideExit);
+ *     当 B 返回 A 时，B 退出的过程	应用于 返回的 Activity（B）
+ *     getWindow().setReturnTransition(slideExit);
  * }
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseImpl, BaseView, CoroutineScope {
+    val mDialog by lazy { AppDialog(this) }
+    val mPermission by lazy { PermissionHelper(this) }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { AppDialog(this) }
-    protected val mPermission by lazy { PermissionHelper(this) }
-    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
+    protected val mActivityResult = mResultWrapper.registerResult {
+        onActivityResultListener?.invoke(it)
+    }
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { LoadingDialog(this) }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val job = SupervisorJob()//https://blog.csdn.net/chuyouyinghe/article/details/123057776
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job//加上SupervisorJob，提升协程作用域
+    private val job = SupervisorJob() // https://blog.csdn.net/chuyouyinghe/article/details/123057776
+    override val coroutineContext: CoroutineContext get() = Main.immediate + job // 加上SupervisorJob，提升协程作用域
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
+        @Volatile
+        var isAnyActivityStarting = false // 当前是否正在「启动一个新的 Activity」
         var onFinishListener: OnFinishListener? = null
-        var isAnyActivityStarting = false
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
             startActivity(getIntent(cls, *pairs).apply {
@@ -132,6 +144,42 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             startActivityForResult(getIntent(cls, *pairs), requestCode)
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
+
+        /**
+         * 1) 跳转三方页面专用：临时关闭当前页面的 EdgeToEdge / 全屏沉浸属性
+         *  作用：让下一个页面不会继承你的全屏、状态栏透明、导航栏透明
+         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性 ! 使用该标记即可
+         *  作用：addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+         */
+//        @Suppress("DEPRECATION")
+//        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
+//            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
+//            WindowCompat.setDecorFitsSystemWindows(window, true)
+//            // 清除所有 LAYOUT_xxx 全屏标记
+//            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
+//            // 把系统栏恢复为不透明（防止三方页继承透明）
+//            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
+//            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
+//        }
+    }
+
+    /**
+     * 复用页面时强制统一动画（右侧划入）
+     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     */
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        // 自定义滑入动画（从右侧进入）
+        val slideEnter = Slide(Gravity.END)
+        slideEnter.duration = 300
+        // 当 A 启动 B 时，A 被覆盖的过程 -> 应用于被启动的 Activity（B）
+        window.exitTransition = slideEnter
+        // 自定义滑出动画（向右侧退出）
+        val slideExit = Slide(Gravity.START)
+        slideExit.duration = 300
+        // 当 B 返回 A 时，B 退出的过程 -> 应用于返回的 Activity（B）
+        window.returnTransition = slideExit
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -163,8 +211,28 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
          * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
          * 3. 支持文字亮 / 暗色，对比度由系统管理
          */
-        enableEdgeToEdge()
+        if (!shouldExcludeFullScreen()) {
+            enableEdgeToEdge()
+        }
         super.onCreate(savedInstanceState)
+        // 先检测大屏设备，避免布局加载
+        if (checkLargeScreen()) {
+            launch {
+                delay(800)
+                // 关闭所有Activity
+                finishAffinity()
+                // 终止进程（兼容所有安卓版本，捕获异常）
+                try {
+                    killProcess(myPid())
+                    exitProcess(0)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            // 如果检测到大屏设备，直接return，不执行后续逻辑
+            return
+        }
+        initBefore()
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
@@ -181,15 +249,49 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) {
-            EventBus.instance.collect(this) {
-                this@BaseActivity.onCollect()
-            }
-        }
+//        if (isCollectEnabled()) {
+//            EventBus.instance.collect(this) {
+//                this@BaseActivity.onCollect()
+//            }
+//        }
         if (isImmersionBarEnabled()) initImmersionBar()
         initView(savedInstanceState)
         initEvent()
         initData()
+    }
+
+    /**
+     * 检测大屏设备
+     * @return true-检测到大屏设备并弹出提示，false-正常设备
+     */
+    private var checkedLargeScreen = false
+    private fun checkLargeScreen(): Boolean {
+        if (checkedLargeScreen) return false
+        checkedLargeScreen = true
+        // 页面销毁直接返回
+        if (isFinishing || isDestroyed) return false
+        // 判断是否为大屏设备（宽度≥600dp）
+        val config = resources.configuration
+        // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
+        val isPhysicalTablet = config.smallestScreenWidthDp >= 600
+        // 只要是物理平板 → 直接拦截，不管是不是分屏
+        if (isPhysicalTablet) {
+            "当前设备为平板/大屏设备，暂不支持使用".shortToast()
+        }
+        return isPhysicalTablet
+    }
+
+    /**
+     * 定义需要排除全屏的第三方包名前缀集合
+     */
+    private val excludeFullScreenPrefixes = listOf(
+        "io.rong.imkit",    // 融云IM相关页面
+        "com.xxx.thirdlib"  // 其他需要排除的第三方库包名前缀，按需添加
+    )
+    private fun shouldExcludeFullScreen(): Boolean {
+        val currentClassName = this::class.java.name
+        // 遍历前缀集合，只要匹配任意一个就返回true（需要排除）
+        return excludeFullScreenPrefixes.any { currentClassName.startsWith(it) }
     }
 
     /**
@@ -273,11 +375,14 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 onWindowInsetsChanged?.invoke(it)
             }
         }
-        immersionBar?.apply {
-            reset()
-            statusBarDarkFont(statusBarDark, 0.2f)
-            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)//edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
-            init()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            immersionBar?.apply {
+                reset()
+                statusBarDarkFont(statusBarDark, 0.2f)
+                // edge会导致低版本ui深浅代码失效,但是会以传入的颜色值为主(偏深为白,反之为黑)
+                navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
+                init()
+            }
         }
     }
 
@@ -300,7 +405,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
                 }
             }
         }
-        ARouter.getInstance().inject(this)
+        TheRouter.inject(this)
     }
 
     override fun initEvent() {
@@ -310,7 +415,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     override fun getResources(): Resources {
-        //AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
         if (isMainThread) {
             AutoSizeConfig.getInstance()
                 .setScreenWidth(screenWidth)
@@ -343,14 +448,14 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
+        for ((liveData, obs) in dataManager) {
+            liveData.removeObserver(obs)
         }
         dataManager.clear()
         mActivityResult.unregister()
         mBinding?.unbind()
-        job.cancel()//之后再起的job无法工作
-//        coroutineContext.cancelChildren()//之后再起的可以工作
+        job.cancel() // 之后再起的job无法工作
+//        coroutineContext.cancelChildren() // 之后再起的可以工作
     }
     // </editor-fold>
 
@@ -362,13 +467,19 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
      */
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
+        dataManager[this]?.let { oldObserver ->
+            removeObserver(oldObserver)
+        }
+        val storeObserver = Observer<Any?> { value ->
+            // 只是内部过滤空逻辑，不代表回调不会进来 null，入参本身依然是可空
             if (value != null) {
-                (value as? T)?.let { block(it) }
+                (value as? T)?.let {
+                    block(it)
+                }
             }
         }
-        dataManager[this] = observer
-        observe(this@BaseActivity, observer)
+        observe(this@BaseActivity, storeObserver)
+        dataManager[this] = storeObserver
     }
 
     /**
@@ -517,7 +628,8 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
     }
 
     protected fun hideInputMethod(v: View?) {
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        val imm = ContextCompat.getSystemService(this, InputMethodManager::class.java)
         imm?.hideSoftInputFromWindow(v?.windowToken, 0)
     }
 
@@ -538,7 +650,7 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
             val leftTop = intArrayOf(0, 0)
             val width: Int
             val height: Int
-            //获取输入框当前的location位置
+            // 获取输入框当前的location位置
             val parent = v.findSpecialEditTextParent(5)
             if (parent != null) {
                 parent.getLocationInWindow(leftTop)
@@ -577,12 +689,12 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         return false
     }
 
-    protected open suspend fun CoroutineScope.onCollect() {
-    }
-
-    protected open fun isCollectEnabled(): Boolean {
-        return false
-    }
+//    protected open suspend fun CoroutineScope.onCollect() {
+//    }
+//
+//    protected open fun isCollectEnabled(): Boolean {
+//        return false
+//    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
@@ -604,13 +716,13 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this) // 传入activity
+                .setLabel(label) // 设置引导层标示，用于区分不同引导层，必传！否则报错
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay) // 此处处理一下阴影背景
                 builder.addGuidePage(page)
             }
             builder.show()
@@ -625,24 +737,8 @@ abstract class BaseActivity<VDB : ViewDataBinding?> : AppCompatActivity(), BaseI
 
 }
 
-//fun AppCompatActivity.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = lifecycleScope.launch(context, start, block)
-//
-//fun <T> AppCompatActivity.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = lifecycleScope.async(context, start, block)
-
 val BaseActivity<*>.needTransparentOwner get() = hasAnnotation(TransparentOwner::class.java)
 
 interface OnFinishListener {
     fun onFinish(act: BaseActivity<*>)
-}
-
-interface OnCreateListener {
-    fun onCreate(act: BaseActivity<*>)
 }

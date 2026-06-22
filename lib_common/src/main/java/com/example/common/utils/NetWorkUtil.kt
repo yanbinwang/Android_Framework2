@@ -10,6 +10,7 @@ import android.net.NetworkRequest
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.telephony.TelephonyManager
 import android.text.TextUtils
 import androidx.annotation.RequiresApi
 import androidx.lifecycle.LifecycleOwner
@@ -69,14 +70,29 @@ object NetWorkUtil {
             val networkInfo = connectivityManager?.activeNetworkInfo
             if (networkInfo != null && networkInfo.isConnected) return networkInfo.state == NetworkInfo.State.CONNECTED
         } else {
+            /**
+             * Android 10+ 引入 NET_CAPABILITY_VALIDATED 后，系统会额外做一层 “互联网连通性校验”，但这个校验有很多 “隐藏门槛”，哪怕满足了 “连网 + 有 INTERNET 权限”，也可能返回 false
+             * 后台限制：App 不在前台（退后台、锁屏），系统直接让 isValidated = false（Android 10+ 强制限制）；
+             * 权限关联：targetSdk=31+ 时，ACCESS_WIFI_STATE/ACCESS_NETWORK_STATE 没加 neverForLocation，系统把它归为 “定位敏感权限”，间接限制 isValidated；
+             * 网络类型：部分特殊网络（如企业 Wi-Fi、VPN）会让系统校验失败；
+             * 系统缓存：偶尔系统连通性校验缓存过期，导致误判。
+             */
             val network = connectivityManager?.activeNetwork ?: return false
             val capabilities = connectivityManager?.getNetworkCapabilities(network) ?: return false
-            // 1. 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
+            // 检查是否有网络传输通道（Wi-Fi/蜂窝网络等）
             val hasTransport = capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-            // 2. 检查网络是否已通过系统验证（可联网）
-            val isValidated = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            // 3.返回联网结果
-            return hasTransport && isValidated
+            // 不是手机常用网络，直接返回 false
+            if (!hasTransport) return false
+            // 有互联网权限
+            val hasInternet = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+            // 非受限
+            val isNotRestricted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_RESTRICTED)
+            // 可信网络
+            val isTrusted = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_TRUSTED)
+//            // 前台网络（可选，根据需求加）
+//            val isForeground = capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_FOREGROUND)
+            // 手机网络 + 能上网 + 非受限 + 可信
+            return hasInternet && isNotRestricted && isTrusted
         }
         return false
     }
@@ -215,6 +231,68 @@ object NetWorkUtil {
             capabilities.contains("WPA") -> "WPA"
             capabilities.contains("WEP") -> "WEP"
             else -> "NONE"
+        }
+    }
+
+    /**
+     * 网络apn类型
+     */
+    @JvmStatic
+    fun getAPNType(): String {
+        // 先判断是否是 WiFi（优先用 NetworkCapabilities，适配高版本）
+        if (isWifiConnected()) {
+            return "wifi"
+        }
+        // 判断是否是蜂窝网络（移动数据）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            val activeNetwork = connectivityManager?.activeNetwork ?: return "NULL"
+            val capabilities = connectivityManager?.getNetworkCapabilities(activeNetwork) ?: return "NULL"
+            // 确认是蜂窝网络
+            if (!capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)) {
+                return "NULL"
+            }
+            // 判断网络代际（2G/3G/4G/5G），使用 TelephonyManager 新 API + 兼容处理
+            val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return "mobile"
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+ 支持 5G 判断（需要 ACCESS_FINE_LOCATION 权限）
+                when (telephonyManager.dataNetworkType) {
+                    TelephonyManager.NETWORK_TYPE_NR -> "5G"
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0,
+                    TelephonyManager.NETWORK_TYPE_EVDO_A, TelephonyManager.NETWORK_TYPE_EVDO_B -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                // Android 9-10，无 5G 支持
+                when (telephonyManager.dataNetworkType) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            } else {
+                // Android 8 及以下，沿用旧逻辑但优化
+                when (telephonyManager.networkType) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            }
+        } else {
+            // Android 6-9，兼容旧 API
+            val networkInfo = connectivityManager?.activeNetworkInfo ?: return "NULL"
+            if (networkInfo.type == ConnectivityManager.TYPE_MOBILE) {
+                val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager ?: return "mobile"
+                return when (networkInfo.subtype) {
+                    TelephonyManager.NETWORK_TYPE_LTE -> "4G"
+                    TelephonyManager.NETWORK_TYPE_UMTS, TelephonyManager.NETWORK_TYPE_HSDPA, TelephonyManager.NETWORK_TYPE_EVDO_0 -> "3G"
+                    TelephonyManager.NETWORK_TYPE_GPRS, TelephonyManager.NETWORK_TYPE_EDGE, TelephonyManager.NETWORK_TYPE_CDMA -> "2G"
+                    else -> if (telephonyManager.isNetworkRoaming) "mobile(roam)" else "mobile"
+                }
+            }
+            return "NULL"
         }
     }
 

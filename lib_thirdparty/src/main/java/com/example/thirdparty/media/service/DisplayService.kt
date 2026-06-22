@@ -3,6 +3,7 @@ package com.example.thirdparty.media.service
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Intent
+import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaRecorder
@@ -16,7 +17,8 @@ import com.example.common.utils.ScreenUtil.screenDensity
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getExtra
+import com.example.common.utils.function.intentInt
+import com.example.common.utils.function.intentParcelable
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
@@ -104,7 +106,7 @@ class DisplayService : TrackableLifecycleService() {
 
     override fun onCreate() {
         super.onCreate()
-        // 1. 创建符合Android 15要求的通知渠道
+        // 创建符合Android 15要求的通知渠道
         val channelId = string(R.string.notificationChannelId)
         val channelName = string(R.string.notificationChannelName)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -116,16 +118,20 @@ class DisplayService : TrackableLifecycleService() {
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
-        // 2. 构建完整的通知（必须包含图标、标题）
+        // 构建完整的通知
         val notification = NotificationCompat.Builder(this, channelId)
             .setContentTitle("正在录屏") // 强制要求：标题
-            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标（替换为你的资源）
+            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .setOngoing(true) // 标记为持续通知，用户无法手动清除
             .setSilent(true) // 静音通知
             .build()
-        // 3. 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
-        startForeground(notificationId, notification)
+        // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+        } else {
+            startForeground(notificationId, notification)
+        }
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
@@ -137,9 +143,9 @@ class DisplayService : TrackableLifecycleService() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        //获取到页面OnActivityResult取得的值
-        val resultCode = intent?.getIntExtra(Extra.RESULT_CODE, -1)
-        val resultData = intent?.getExtra(Extra.BUNDLE_BEAN, Intent::class.java)
+        // 获取到页面OnActivityResult取得的值
+        val resultCode = intent.intentInt(Extra.RESULT_CODE, -1)
+        val resultData = intent.intentParcelable<Intent>(Extra.BUNDLE_BEAN)
         startRecording(resultCode, resultData)
 //        return START_STICKY
         return super.onStartCommand(intent, flags, startId)
@@ -193,11 +199,12 @@ class DisplayService : TrackableLifecycleService() {
             projection = (getSystemService(MEDIA_PROJECTION_SERVICE) as? MediaProjectionManager)?.getMediaProjection(resultCode.orZero, resultData)
             display = projection?.createVirtualDisplay("mediaProjection", currentWidth, currentHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
             recorder?.start()
-            //仅在 start 成功后触发
+            // 仅在 start 成功后触发
             listener?.onStart(folderPath)
         } catch (e: Exception) {
             isDestroy = true
-            releaseDisplay()//确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            // 确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
+            releaseDisplay()
             listener?.onError(e)
             stopSelf()
         }
@@ -209,7 +216,8 @@ class DisplayService : TrackableLifecycleService() {
     private fun stopRecording() {
         listener?.onShutter()
         recorder?.runCatching {
-            stop()//阻塞直到文件写入完成
+            // 阻塞直到文件写入完成
+            stop()
             releaseDisplay()
         }?.onSuccess {
             listener?.onStop()
@@ -219,9 +227,12 @@ class DisplayService : TrackableLifecycleService() {
     }
 
     private fun releaseDisplay() {
-        recorder?.reset()//重置状态（可选）
-        recorder?.release()//释放底层资源
-        recorder = null//置空引用
+        // 重置状态
+        recorder?.reset()
+        // 释放底层资源
+        recorder?.release()
+        // 置空引用
+        recorder = null
         display?.release()
         display = null
         projection?.stop()

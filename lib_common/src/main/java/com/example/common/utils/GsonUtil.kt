@@ -1,9 +1,11 @@
 package com.example.common.utils
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import com.google.gson.Strictness
 import com.google.gson.TypeAdapter
-import com.google.gson.reflect.TypeToken.*
 import com.google.gson.stream.JsonReader
+import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
@@ -12,21 +14,49 @@ import java.lang.reflect.Type
 /**
  * author:wyb
  * 对象转换类
+ * 1) 方法1 -> 对象
+ * data class User(val name: String, val age: Int)
+ * val user = User("小明", 20)
+ * val json = Gson().toJson(user)
+ *
+ * 2) 方法2 -> 自建键值对
+ * val json = Gson().toJson(
+ *     mapOf(
+ *         "name" to "小明",
+ *         "age" to 20,
+ *         "score" to listOf(90, 80, 100)
+ *     )
+ * )
+ *
+ * val list = listOf(
+ *     mapOf("id" to 1),
+ *     mapOf("id" to 2),
+ *     mapOf("id" to 3)
+ * )
+ * val json = Gson().toJson(list)
  */
 object GsonUtil {
     private val gson by lazy {
-//        GsonBuilder().setLenient()//json宽松,针对json格式不规范
-//            .disableHtmlEscaping()//防止特殊字符出现乱码
-//            .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter()).create()
-        GsonBuilder().setLenient()//json宽松,针对json格式不规范
-            .disableHtmlEscaping()//防止特殊字符出现乱码
+        GsonBuilder()
+            // json宽松,针对json格式不规范
+            .setStrictness(Strictness.LENIENT)
+            // 防止特殊字符出现乱码
+            .disableHtmlEscaping()
+//            // 把 JSON 里的字符串 "Y"、"1"、"true" 统统自动转成 Kotlin 的 Boolean = true
+//            .registerTypeAdapter(Boolean::class.java, BooleanTypeAdapter())
             .create()
     }
 
     /**
-     * 对象转json字符串
+     * 外部获取原生Gson实例，用于流式JsonReader/流解析等自定义场景
      */
-    @JvmStatic
+    fun getGsonInstance(): Gson {
+        return gson
+    }
+
+    /**
+     * JSON转普通实体对象
+     */
     fun objToJson(obj: Any): String? {
         var ret: String? = null
         try {
@@ -38,10 +68,9 @@ object GsonUtil {
     }
 
     /**
-     * json字符串转对象
+     * JSON转普通实体对象
      * val testBean = "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(Book::class.java)
      */
-    @JvmStatic
     fun <T> jsonToObj(json: String, clazz: Class<T>): T? {
         var ret: T? = null
         try {
@@ -53,10 +82,10 @@ object GsonUtil {
     }
 
     /**
+     * JSON转泛型对象（List/Map/嵌套泛型专用）
      * 如果class内部运用了泛型，则传type，不然会被擦除
-     * val type = getType(List::class.java, List::class.java)
+     * @type val type = getType(List::class.java, List::class.java)
      */
-    @JvmStatic
     fun <T> jsonToObj(json: String, type: Type): T? {
         var ret: T? = null
         try {
@@ -68,13 +97,11 @@ object GsonUtil {
     }
 
     /**
-     * json字符串转集合
-     * 由于类型擦除，解析器无法在运行时获取真实类型 T
-     * 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
+     * JSON数组转List<T>
+     * 由于类型擦除，解析器无法在运行时获取真实类型 T , 直接传T获取会报com.google.gson.internal.LinkedTreeMap cannot be cast to object
      * 故而直接把T的class传入，让解析器能够识别，并且重新转换成一个list
      * val testList = "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(Book::class.java)
      */
-    @JvmStatic
     fun <T> jsonToList(json: String, clazz: Class<T>): List<T>? {
         var ret: List<T>? = null
         try {
@@ -87,18 +114,31 @@ object GsonUtil {
     }
 
     /**
+     * JSON转Map<K,V>
+     */
+    fun <K, V> jsonToMap(json: String, kClazz: Class<K>, vClazz: Class<V>): Map<K, V>? {
+        var ret: Map<K, V>? = null
+        try {
+            val type = getType(Map::class.java, kClazz, vClazz)
+            ret = gson.fromJson(json, type)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return ret
+    }
+
+    /**
      * 获取type类型
-     * //List<String>的type为
+     * // List<String>的type为
      *  val type = getType(List::class.java,String::class.java)
-     * //List<List<String>>的type为
+     * // List<List<String>>的type为
      *  val type = getType(List::class.java,getType(List::class.java,String::class.java))
-     * //Map<Int,String>的type为
-     * val type = getType(List::class.java,Int::class.java,String::class.java)
-     * //Map<String,List<String>>的类型为
+     * // Map<Int,String>的type为
+     * val type = getType(Map::class.java,Int::class.java,String::class.java)
+     * // Map<String,List<String>>的类型为
      * val type = getType(Map::class.java,String::class.java, getType(List::class.java,String::class.java))
      */
-    @JvmStatic
-    fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
+    private fun getType(raw: Class<*>, vararg args: Type) = object : ParameterizedType {
 
         override fun getRawType(): Type = raw
 
@@ -113,18 +153,26 @@ object GsonUtil {
      */
     private class BooleanTypeAdapter : TypeAdapter<Boolean>() {
 
-        @Throws(IOException::class)
         override fun write(writer: JsonWriter, value: Boolean?) {
             writer.value(value.toString())
         }
 
-        @Throws(IOException::class)
         override fun read(reader: JsonReader): Boolean? {
-            return try {
-                val value = reader.nextString()
-                "Y" == value || "1" == value || "true" == value
-            } catch (e: NullPointerException) {
-                false
+            return when (reader.peek()) {
+                JsonToken.BOOLEAN -> reader.nextBoolean()
+                JsonToken.STRING -> {
+                    val value = reader.nextString().trim().lowercase()
+                    value == "y" || value == "1" || value == "true"
+                }
+                JsonToken.NUMBER -> reader.nextInt() == 1
+                else -> {
+                    /**
+                     * JsonReader 是游标流式读取，它内部有个指针停在当前待读取的元素上
+                     * skipValue() = 把当前一整个完整值全部读完并丢弃，游标自动跳到下一个元素
+                     */
+                    reader.skipValue()
+                    false
+                }
             }
         }
 
@@ -159,4 +207,16 @@ fun <T> String?.toObj(type: Type): T? {
 fun <T> String?.toList(clazz: Class<T>): List<T>? {
     if (this == null) return null
     return GsonUtil.jsonToList(this, clazz)
+}
+
+fun <K, V> String?.toMap(kClazz: Class<K>, vClazz: Class<V>): Map<K, V>? {
+    if (this == null) return null
+    return GsonUtil.jsonToMap(this, kClazz, vClazz)
+}
+
+/**
+ * 利用gson直接取的json字符串,无需创建data class
+ */
+fun jsonOf(vararg pairs: Pair<String, Any?>): String? {
+    return pairs.toMap().toJson()
 }

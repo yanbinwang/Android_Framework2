@@ -7,21 +7,22 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
-import com.alibaba.android.arouter.core.LogisticsCenter
-import com.alibaba.android.arouter.exception.NoRouteFoundException
-import com.alibaba.android.arouter.facade.Postcard
-import com.alibaba.android.arouter.facade.callback.InterceptorCallback
-import com.alibaba.android.arouter.facade.service.InterceptorService
-import com.alibaba.android.arouter.launcher.ARouter
 import com.example.common.R
+import com.example.common.base.BaseActivity
+import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
+import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
 import com.example.common.utils.function.getCustomOption
-import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.toBundle
+import com.example.framework.utils.function.value.toPairs
+import com.therouter.TheRouter
+import com.therouter.router.Navigator
+import com.therouter.router.matchRouteMap
+
 
 /**
  * 列表页调取方法
@@ -29,7 +30,7 @@ import com.example.framework.utils.function.value.toBundle
 fun XRecyclerView?.setState(length: Int = 0, imgRes: Int? = null, text: String? = null) {
     this ?: return
     finishRefreshing()
-    //判断集合长度，有长度不展示emptyview只做提示
+    // 判断集合长度，有长度不展示EmptyLayout只做提示
     if (length <= 0) empty.setEmptyState(imgRes, text)
 }
 
@@ -65,41 +66,44 @@ fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
  * 页面跳转的构建
  */
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
-    //构建arouter跳转
-    val postcard = ARouter.getInstance().build(path)
-    //获取一下要跳转的页面及class
-    val clazz = postcard.getPostcardClass() ?: return
-    val intent = Intent(this, clazz)
-    //检查目标页面是否已经在任务栈中，在的话直接拉起来
-    if (AppManager.isActivityAlive(clazz)) {
-        //Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
-        //不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
-        intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-    }
-    //判断一下跳转参数
+    // 构建router跳转
+    val navigator = TheRouter.build(path)
+    // createIntent内部会触发 PageInterceptor 的 process 方法,故而之前先set一个值,process内部做处理
+    navigator.withBoolean(Extra.SKIP_INTERCEPT, true)
+    val intent = navigator.createIntent(this)
+    /**
+     * 添加标记 : 检查目标页面是否已经在任务栈中，在的话直接拉起来
+     * Activity 会调用 onNewIntent 方法来接收新的 Intent，并且它的生命周期方法调用顺序与普通启动 Activity 有所不同，
+     * 不会调用 onCreate 和 onStart 方法，而是调用 onRestart、onResume 等方法。
+     */
+    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+    // 判断跳转参数
     var hasResultCode = false
     if (params.isNotEmpty()) {
-        //过滤掉 null 值
+        // 过滤掉 null 值
         val nonNullParams = params.filterNotNull()
         hasResultCode = nonNullParams.find { it.first == RESULT_CODE } != null
-        //排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
+        // 排除 RESULT_CODE 参数，将其他参数添加到 Bundle 中
         val bundle = nonNullParams.filter { it.first != RESULT_CODE }.toBundle { this }
         intent.putExtras(bundle)
     }
-    //标记是否有动画配置
+    // 标记是否有动画配置
     if (null != options) {
         intent.putExtra(BUNDLE_OPTIONS, true)
     }
-    //获取一下拦截器
-    postcard.navigateWithInterceptors({
-        //检查 Activity 是否存活
+    // 获取一下拦截器
+    navigator.navigateWithInterceptors({
+        // 检查 Activity 是否存活
         if (!isFinishing && !isDestroyed) {
-            //跳转对应页面
+            // 跳转对应页面
             if (!hasResultCode) {
                 startActivity(intent, options?.toBundle())
             } else {
                 activityResultValue.launch(intent, options)
             }
+            // 基类添加正在启动
+            val cls = navigator.getDestinationClass() ?: return@navigateWithInterceptors
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }, {
         it?.printStackTrace()
@@ -107,44 +111,59 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
 }
 
 /**
- * 获取arouter构建的class文件
- * Postcard 仅在 ARouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
+ * 获取Router构建的class文件
+ * Navigator 仅在 TheRouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
  */
-fun Postcard.getPostcardClass(): Class<*>? {
-//    context = mContext
+fun Navigator.getDestinationClass(): Class<*>? {
     return try {
-        LogisticsCenter.completion(this)
-        destination
-    } catch (e: NoRouteFoundException) {
+        // 使用 TheRouter.matchRouteMap() 查找 RouteItem
+        val routeItem = matchRouteMap(url)
+        // 从 RouteItem 中获取目标类的完整名称字符串
+        val className = routeItem?.className ?: return null
+        // 使用 Java 反射，将类名字符串转换为 Class 对象
+        val targetClass = Class.forName(className)
+        // 返回对应的类
+        targetClass
+    } catch (e: ClassNotFoundException) {
         e.printStackTrace()
         null
     }
 }
 
-//fun Context.getPostcardClass(path: String): Class<*>? {
-//    return ARouter.getInstance().build(path).getPostcardClass(this)
-//}
-
-fun String.getPostcardClass(): Class<*>? {
-//    val context = BaseApplication.instance.applicationContext
-//    return context.getPostcardClass(this)
-    return ARouter.getInstance().build(this).getPostcardClass()
+fun String.getDestinationClass(): Class<*>? {
+    return TheRouter.build(this).getDestinationClass()
 }
 
 /**
- * 获取arouter构建的拦截器
+ * 获取Router构建的拦截器
  */
-fun Postcard.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Throwable?) -> Unit) {
-    val interceptorService = ARouter.getInstance().navigation(InterceptorService::class.java)
-    interceptorService.doInterceptions(this, object : InterceptorCallback {
-        override fun onContinue(postcard: Postcard) {
+fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Throwable?) -> Unit) {
+    try {
+        // 匹配路由（复用 Navigator 自身的匹配逻辑）
+        val routeItem = matchRouteMap(url)
+        // 调用全局拦截器的 shouldIntercept，确保规则统一
+        val isIntercepted = shouldIntercept(routeItem) { throwable ->
+            // 异常回调（比如路由参数配置错误）
+            throw throwable
+        }
+        // 根据拦截结果触发对应回调
+        if (!isIntercepted) {
             onContinue()
         }
+    } catch (e: Exception) {
+        // 捕获其他意外异常（比如 matchRouteMap 失败）
+        onInterrupt(e)
+    }
+}
 
-        override fun onInterrupt(exception: Throwable?) {
-            onInterrupt(exception)
-        }
-    })
+/**
+ * 取得当前页面所有获取的传输参数,丢给下个页面
+ * *getIntent().getParams()
+ */
+fun Intent?.getParams(): Array<Pair<String, Any?>> {
+    if (this == null) return emptyArray()
+    val list = extras?.toPairs() ?: emptyList()
+    return list.toTypedArray()
 }
 
 /**

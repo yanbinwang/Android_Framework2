@@ -19,6 +19,8 @@ object Extra {
     const val BUNDLE_BOOLEAN = "bundleBoolean"
     //页面动画配置
     const val BUNDLE_OPTIONS = "bundleOptions"
+    // 页面构建配置
+    const val SKIP_INTERCEPT = "skipIntercept"
     //透傳信息/验证码/配置项等（参数多了直接对象）
     const val SOURCE = "source"
     //请求id/类型-应用内所有详情页需要id的都采用该字段

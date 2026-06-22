@@ -1,32 +1,33 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
+    alias(libs.plugins.devtools.ksp)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.home"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
     buildFeatures {
         dataBinding = true
     }
 
-    //arouter编译
-    kapt {
-        arguments {
-            arg("AROUTER_MODULE_NAME", project.getName())
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
         }
-    }
-
-    kotlinOptions {
-        jvmTarget = "11"
     }
 
     compileOptions {
@@ -49,5 +50,5 @@ dependencies {
     // 框架库
     api(project(":lib_thirdparty"))
     // 页面路由
-    kapt(libs.alibaba.arouter.compiler)
+    ksp(libs.therouter.apt)
 }

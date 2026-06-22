@@ -23,6 +23,18 @@ import com.example.framework.utils.logWTF
  */
 class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : ViewFlipper(context, attrs) {
 
+    override fun showNext() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
+        super.showNext()
+    }
+
+    override fun showPrevious() {
+        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
+        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
+        super.showPrevious()
+    }
+
     /**
      * 添加view
      */
@@ -35,18 +47,6 @@ class SwitchFlipper @JvmOverloads constructor(context: Context, attrs: Attribute
      */
     fun addViews(vararg views: View) {
         views.forEach { addView(it) }
-    }
-
-    override fun showNext() {
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_in)
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_out)
-        super.showNext()
-    }
-
-    override fun showPrevious() {
-        inAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_left_in)
-        outAnimation = AnimationUtils.loadAnimation(context, R.anim.set_translate_right_out)
-        super.showPrevious()
     }
 
     /**

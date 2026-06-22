@@ -8,18 +8,29 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.PixelFormat
+import android.graphics.PorterDuff
+import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
+import android.graphics.drawable.LayerDrawable
 import android.text.Layout
 import android.text.StaticLayout
 import android.text.TextPaint
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.graphics.get
 import com.example.common.BaseApplication
+import com.example.common.R
+import com.example.framework.utils.function.color
+import com.example.framework.utils.function.font
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
@@ -53,17 +64,15 @@ fun Context?.decodeAsset(filePath: String, opts: BitmapFactory.Options? = null):
 
 fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
     this ?: return null
-    return BaseApplication.instance.assets.open(this).use {
-        BitmapFactory.decodeStream(it, null, opts)
-    }
+    return BaseApplication.instance.applicationContext.decodeAsset(this, opts)
 }
 
 /**
  * 获取路径图片的宽高
  * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
  */
-fun String?.decodeDimensions(): IntArray? {
-    this ?: return null
+fun String?.decodeDimensions(): IntArray {
+    this ?: return intArrayOf(0, 0)
     val options = BitmapFactory.Options()
     // 不加载图片到内存，只获取图片的尺寸信息
     options.inJustDecodeBounds = true
@@ -85,6 +94,24 @@ fun BitmapDrawable?.decodeDimensions(): IntArray {
 }
 
 /**
+ * 获取xml绘制的layer的其中一个图片的边距
+ */
+fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
+    this ?: return intArrayOf(0, 0, 0, 0)
+    return try {
+        intArrayOf(
+            getLayerInsetStart(targetItemIndex).orZero,
+            getLayerInsetTop(targetItemIndex).orZero,
+            getLayerInsetEnd(targetItemIndex).orZero,
+            getLayerInsetBottom(targetItemIndex).orZero
+        )
+    } catch (e: Exception) {
+        e.printStackTrace()
+        intArrayOf(0, 0, 0, 0)
+    }
+}
+
+/**
  * 判断一个路径地址是否为一张图片
  * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
  */
@@ -92,9 +119,9 @@ fun String?.isValidImage(): Boolean {
     return this?.let { path ->
         try {
             // 检查文件是否存在
-            if (!path.isExists()) return@let false
+            if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
-            val dimensions = path.decodeDimensions() ?: intArrayOf(0, 0)
+            val dimensions = path.decodeDimensions()
             // 有效图片的宽高必须大于0
             dimensions[0] > 0 && dimensions[1] > 0
         } catch (e: Exception) {
@@ -108,19 +135,31 @@ fun String?.isValidImage(): Boolean {
 /**
  * 提取Bitmap在x轴中心点颜色
  */
+@ColorInt
 fun Bitmap?.getCenterPixelColor(): Int {
     // 如果bitmap为空，返回默认颜色值
     this ?: return Color.WHITE
     // 计算中心坐标
     val centerX = width / 2
-    // Y轴取第1个像素（索引从0开始，所以是0）
+    // Y轴取第1个像素（索引从0开始）
     val topY = 0
     // 确保坐标在有效范围内
-    return if (width > 0 && height > 0 && centerX in 0 until width && topY in 0 until height) {
-        getPixel(centerX, topY)
+    return if (centerX in 0 until width && topY in 0 until height) {
+//        getPixel(centerX, topY)
+        get(centerX, topY)
     } else {
         Color.WHITE
     }
+}
+
+/**
+ * 1) decodeResource 读取到本地图片
+ * 2) 通过 X.pt 转换想要的大小,调用该函数,取得特定的Icon
+ */
+fun Bitmap?.getIcon(targetWidth: Int, targetHeight: Int): Icon? {
+    this ?: return null
+    val bits = scaleBitmap(targetWidth, targetHeight)
+    return Icon.createWithBitmap(bits)
 }
 
 /**
@@ -177,10 +216,15 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
  * @return 缩放后的 Bitmap，若原 Bitmap 为空或参数无效则返回 null
  */
 fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
-    this ?: return null
-    if (scale <= 0) {
+    // 本身不为空且缩放值大于0
+    if (this == null || scale <= 0) {
         return null
     }
+    // 不创建、不回收，直接返回，不创建新图
+    if (scale == 1f) {
+        return this
+    }
+    // 开始缩放
     val matrix = Matrix().apply {
         postScale(scale, scale)
     }
@@ -214,7 +258,46 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
 //}
 
 /**
+ * Bitmap 安全着色（不修改原图，返回新的着色 Bitmap）
+ */
+fun Bitmap?.tint(@ColorInt tintColor: Int): Bitmap? {
+    this ?: return null
+    // 创建一个和原图一样大的新 Bitmap 不污染原图
+    val resultBitmap = createBitmap(width, height)
+    val paint = Paint().apply {
+        isAntiAlias = true
+        colorFilter = PorterDuffColorFilter(tintColor, PorterDuff.Mode.SRC_IN)
+    }
+    val canvas = Canvas(resultBitmap)
+    // 把原图 + 颜色画上去
+    canvas.drawBitmap(this, 0f, 0f, paint)
+    // 本身回收
+    safeRecycle()
+    return resultBitmap
+}
+
+/**
  * 安全回收Bitmap的扩展函数
+ * 1) 自己 new / 自己 decode 的图 → 自己负责回收
+ * 比如：
+ * logoBit = decodeAsset(...)
+ * qrBit = 生成二维码 ()
+ * 临时图
+ * 画完 → 立刻回收
+ * 2) 别人传给你的图 → 绝对不回收
+ * 比如：
+ * 函数参数 Bitmap
+ * 扩展函数 this
+ * 谁给你的，谁负责回收
+ * 3) 最后返回出去的成品图 → 绝对不回收
+ * 比如：
+ * shareBit
+ * 合成好的图
+ * 谁拿去用，谁最后回收
+ * 4) 离线 Canvas（自己 new Canvas）
+ * drawBitmap 之后 立刻回收临时图 100% 安全
+ * 5) View.onDraw 里的 Canvas
+ * 绝对不回收任何图
  */
 fun Bitmap?.safeRecycle() {
     this ?: return
@@ -228,6 +311,24 @@ fun Bitmap?.safeRecycle() {
  */
 fun Drawable?.getBitmap(): Bitmap? {
     return (this as? BitmapDrawable)?.bitmap
+}
+
+/**
+ * 安全获取Drawable
+ */
+fun Drawable?.orEmpty(): Drawable {
+    return this ?: Color.TRANSPARENT.toDrawable().mutate()
+}
+
+/**
+ * Android 系统在加载同一个图片资源（比如 R.drawable.ic_back）时，默认会共享同一个 Drawable 状态（ConstantState） 调用mutate() → 让这个 Drawable 脱离共享状态，变成独立实例
+ * 1) 大多数时候，ImageView 会自动 mutate ()
+ * 2) 设置染色时,嵌套 mutate() 避免出现极端情况
+ */
+fun Drawable?.tintWithMutate(@ColorInt tintColor: Int) {
+    this ?: return
+    mutate()
+    setTint(tintColor)
 }
 
 /**
@@ -265,6 +366,8 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
 }
 
 fun Drawable.toBitmap(): Bitmap {
+    // 让 Drawable 拥有独立的状态，不会影响到其他使用同一个资源的 Drawable
+    mutate()
     // 若本身是 BitmapDrawable，直接返回其 Bitmap（避免重复绘制）
     if (this is BitmapDrawable) {
         val config = bitmap.config ?: Bitmap.Config.ARGB_8888
@@ -275,7 +378,8 @@ fun Drawable.toBitmap(): Bitmap {
     val width = if (intrinsicWidth > 0) intrinsicWidth else 1
     val height = if (intrinsicHeight > 0) intrinsicHeight else 1
     // 根据透明度选择配置
-    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+//    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
+    val config = Bitmap.Config.ARGB_8888
     return try {
         val bitmap = createBitmap(width, height, config)
         val canvas = Canvas(bitmap)
@@ -351,55 +455,64 @@ fun View.loadBitmap(targetWidth: Int = measuredWidth, targetHeight: Int = measur
 
 /**
  * 画笔默认取中心点坐标，所以要除2
- * 只有继承了当前画笔接口的类才能使用以下方法
- * private fun Bitmap.drawShareBitMap(info: BitmapInfo, refCode: String?): Bitmap {
- *     val paint = Paint()
- *     val canvasHeight = height + 170
- *     val bitmap = Bitmap.createBitmap(width, canvasHeight, Bitmap.Config.RGB_565)
- *     val canvas = Canvas(bitmap)
- *     canvas.drawColor(Color.WHITE)
- *     canvas.drawBitmap(this, 0f, 0f, paint)
- *     //底部logo
- *     "share/img_order_share_logo.webp".getBitmapFromAsset()?.let { canvas.drawBitmap(it, 30f, 812f, paint) }
- *     //邀請碼標題
- *     val refPaint = getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), fontId = R.font.font_bold)
- *     val refTxt = string(R.string.orderShareRefCode)
- *     val refWidth = refPaint.measureText(refTxt)
- *     refPaint.drawTextLeft(29, 899, refTxt, canvas)
- *     //邀請碼
- *     getTextPaint(32f, MyApplication.instance.color(R.color.inviteFriendTxt), R.font.font_bold).drawTextLeft(refWidth + 29 + 15, 899, refCode.orNoData, canvas)
- *     //二維碼
- *     QRCodeBuilder().content(string(R.string.orderShareQrUrl)).size(126).build()?.let { canvas.drawBitmap(it, 532f, 806f, paint) }
- *     recycle()
- *     return bitmap
+ * 1) 只有继承了当前画笔接口的类才能使用以下方法
+ * 2) 使用示例代码
+ * // 需保证当前获取的 Bit 不被外部持有
+ * fun Bitmap.drawShareBit(info: BitmapInfo, refCode: String?): Bitmap {
+ * val paint = Paint()
+ * val canvasHeight = height + 170
+ * val shareBit = Bitmap.createBitmap(width, canvasHeight, Bitmap.Config.RGB_565)
+ * val canvas = Canvas(shareBit)
+ * canvas.drawColor(Color.WHITE)
+ * canvas.drawBitmap(this, 0f, 0f, paint)
+ * // 底部logo
+ * val logoBit = decodeAsset("share/img_order_share_logo.webp")
+ * canvas.drawBitmap(logoBit, 30f, 812f, paint)
+ * // 邀請碼標題
+ * val refTitlePaint = getTextPaint(32f, R.color.inviteFriendTxt, fontId = R.font.font_bold)
+ * val refTxt = string(R.string.orderShareRefCode)
+ * val refWidth = refTitlePaint.measureText(refTxt)
+ * refTitlePaint.drawTextLeft(29, 899, refTxt, canvas)
+ * // 邀請碼
+ * val refPaint = getTextPaint(32f, R.color.inviteFriendTxt, R.font.font_bold)
+ * refPaint.drawTextLeft(refWidth + 29 + 15, 899, refCode.orNoData, canvas)
+ * // 二維碼
+ * val qrBit = QRCodeBuilder().content(string(R.string.orderShareQrUrl)).size(126).build()
+ * canvas.drawBitmap(qrBit, 532f, 806f, paint)
+ * // 各个 Bit 回收
+ * logoBit.safeRecycle()
+ * qrBit.safeRecycle()
+ * safeRecycle()
+ * // 返回整体 Bit
+ * return shareBit
  * }
  */
 interface PaintImpl {
 
     /**
+     * 以左侧为基准点绘制对应文字
      * x:距左距离
      * y:距上距离
-     * 以左侧为基准点绘制对应文字
      */
     fun Paint.drawTextLeft(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        val measureHeight = measureSize(text).second
+        val (_, measureHeight) = measureSize(text)
         canvas.drawText(text, x.toSafeFloat(), (y.toSafeFloat() + measureHeight / 2), this)
     }
 
     /**
+     * 以中心为基准点绘制对应文字
      * x:距左距离
      * y:距上距离
-     * 以中心为基准点绘制对应文字
      */
     fun Paint.drawTextCenter(x: Number?, y: Number?, text: String, canvas: Canvas) {
-        val size = measureSize(text)
-        canvas.drawText(text, (x.toSafeFloat() - size.first / 2), (y.toSafeFloat() + size.second / 2), this)
+        val (measureWidth, measureHeight) = measureSize(text)
+        canvas.drawText(text, (x.toSafeFloat() - measureWidth / 2), (y.toSafeFloat() + measureHeight / 2), this)
     }
 
     /**
      * 测绘绘制文字宽高
-     * first-》宽
-     * second-》高
+     * first -> 宽
+     * second -> 高
      */
     fun Paint.measureSize(text: String): Pair<Float, Float> {
         val measureWidth = measureText(text)
@@ -409,13 +522,37 @@ interface PaintImpl {
 
     /**
      * text本身默认绘制是一行的，不会自动换行，使用此方法传入指定宽度换行
+     * // 要绘制的长文字
+     * val longText = "我是一段很长很长的文字，我会自动换行，不需要手动加\n，我会根据你给的宽度自动折行，超级方便！"
+     * // 最大宽度（比如屏幕宽度 - 40）
+     * val maxWidth = screenWidth - 40
+     * // 开始绘制（直接调用你的方法）
+     * paint.drawTextStatic(
+     *     maxTextWidth = maxWidth,
+     *     text = longText,
+     *     canvas = canvas,
+     *     dx = 20,        // 左边距
+     *     dy = 20,        // 上边距
+     *     spacingMult = 1f// 行间距
+     * )
      */
-    fun TextPaint.drawTextStatic(maxTextWidth: Number?, text: String, canvas: Canvas, dx: Number? = 0, dy: Number? = 0, spacingmult: Number? = 1f) {
-        //spacingmult 是行间距的倍数，通常情况下填 1 就好；
-        //spacingadd 是行间距的额外增加值，通常情况下填 0 就好
-        val layout = StaticLayout(text, this, maxTextWidth.toSafeInt(), Layout.Alignment.ALIGN_NORMAL, spacingmult.toSafeFloat(), 0f, false)
+    fun TextPaint.drawTextStatic(maxTextWidth: Number?, text: String, canvas: Canvas, dx: Number? = 0, dy: Number? = 0, spacingMult: Number? = 1f) {
+//        val layout = StaticLayout(text, this, maxTextWidth.toSafeInt(), Layout.Alignment.ALIGN_NORMAL, spacingmult.toSafeFloat(), 0f, false)
+        /**
+         * spacingMult 是行间距的倍数，通常情况下填 1
+         * spacingAdd 是行间距的额外增加值，通常情况下填 0
+         */
+        val layout = StaticLayout.Builder.obtain(text, 0, text.length, this, maxTextWidth.toSafeInt())
+            // 对齐方式
+            .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+            // 行间距
+            .setLineSpacing(0f, spacingMult.toSafeFloat())
+            // 包含文字边距
+            .setIncludePad(true)
+            // 开始构建
+            .build()
+        // StaticLayout 默认画在 Canva s的 (0,0) 点，如果需要调整位置只能在draw之前移Canvas的起始坐标
         canvas.save()
-        //StaticLayout默认画在Canvas的(0,0)点，如果需要调整位置只能在draw之前移Canvas的起始坐标
         canvas.translate(dx.toSafeFloat(), dy.toSafeFloat())
         layout.draw(canvas)
     }
@@ -423,14 +560,17 @@ interface PaintImpl {
     /**
      * 获取一个预设的文字画笔
      */
-    fun getTextPaint(textSize: Float, color: Int = Color.WHITE, typeface: Typeface = Typeface.DEFAULT): TextPaint {
+    fun getTextPaint(textSize: Float, @ColorInt color: Int = Color.WHITE, typeface: Typeface? = Typeface.DEFAULT): TextPaint {
         val paint = TextPaint()
         paint.isAntiAlias = true
         paint.textSize = textSize
         paint.color = color
         paint.typeface = typeface
-//        paint.typeface = ResourcesCompat.getFont(BaseApplication.instance, fontId)
         return paint
+    }
+
+    fun Context.getTextPaint(textSize: Float, @ColorRes colorRes: Int = R.color.textWhite, @FontRes fontRes: Int = -1): TextPaint {
+        return getTextPaint(textSize, color(colorRes), if (-1 != fontRes) font(fontRes) else Typeface.DEFAULT)
     }
 
 }

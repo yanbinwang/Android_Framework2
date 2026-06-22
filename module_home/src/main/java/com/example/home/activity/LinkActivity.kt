@@ -5,17 +5,15 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
-import com.example.common.base.page.getPostcardClass
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
-import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
 import com.example.home.R
+import com.therouter.router.Route
 import kotlinx.coroutines.Job
 
 /**
@@ -27,7 +25,7 @@ import kotlinx.coroutines.Job
  * </style>
  * @author yan
  */
-@Route(path = ARouterPath.LinkActivity)
+@Route(path = RouterPath.LinkActivity)
 class LinkActivity : BaseActivity<Nothing>() {
     private val source by lazy { intentString(Extra.SOURCE) }
     private var timeOutJob: Job? = null
@@ -37,6 +35,7 @@ class LinkActivity : BaseActivity<Nothing>() {
         @JvmStatic
         fun byPush(context: Context, vararg pairs: Pair<String, Any?>): Intent {
             (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+            isAnyActivityStarting = true
             return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
         }
 
@@ -50,17 +49,18 @@ class LinkActivity : BaseActivity<Nothing>() {
 
     override fun isBindingEnabled() = false
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun initView(savedInstanceState: Bundle?) {
+        super.initView(savedInstanceState)
+        // 需写在setContentView之前,故而关闭isBindingEnabled,避免造成闪屏
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
-//        //預留3s的關閉時間
+//        // 預留3s的關閉時間
 //        setTimeOut()
-        //處理推送透傳信息
+        // 處理推送透傳信息
         onLink()
     }
 
@@ -70,20 +70,8 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     private fun onLink() {
-//        //只要是推送，全局开启onFinish监听，拉起首页
-//        BaseApplication.needOpenHome = true
-//        when (source) {
-//            //推送消息
-//            "push" -> {
-//                if (!handlePush(this)) navigation(ARouterPath.MainActivity)
-//                finish()
-//            }
-//            //其他情况统一走firebase处理
-////            else -> handleDeepLink(this) { finish() }
-//            else -> finish()
-//        }
         when (source) {
-//            //推送消息
+//            // 推送消息
 //            "push" -> {
 //                //只要是推送，全局开启onFinish监听，拉起首页
 //                BaseApplication.needOpenHome = true
@@ -96,20 +84,23 @@ class LinkActivity : BaseActivity<Nothing>() {
 //                    finish()
 //                }
 //            }
-            //高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
+            // 高版本安卓(12+)在任务栈空的情况下,拉起页面是不管如何都不会执行配置的动画的,此时通过拉起透明页面然后再拉起对应页面来做处理
             "normal" -> {
                 // 获取跳转的路由地址
-                val path = intentString(Extra.ID, ARouterPath.StartActivity)
-                // 获取跳转的class
-                val clazz = path.getPostcardClass()
-                // 不管存在不存在,先关闭
-                AppManager.finishTargetActivity(clazz)
-                // 跳转对应页面
-                navigation(path, options = getFadeOptions())
-                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-                schedule(this,{
-                    AppManager.finishAllExcept(clazz)
-                },500)
+                val path = intentString(Extra.ID, RouterPath.StartActivity)
+//                // 获取跳转的class
+//                val clazz = path.getDestinationClass()
+//                // 不管存在不存在,先关闭
+//                AppManager.finishTargetActivity(clazz)
+//                // 跳转对应页面
+//                navigation(path, options = getFadeOptions())
+//                // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
+//                schedule(this,{
+//                    AppManager.finishAllExcept(clazz)
+//                },500)
+                AppManager.rebootTaskStackAndLaunchTarget(path) {
+                    navigation(path, options = getFadeOptions())
+                }
             }
             //其他情况统一关闭
             else -> finish()

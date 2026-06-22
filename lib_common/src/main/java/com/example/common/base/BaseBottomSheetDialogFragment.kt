@@ -16,6 +16,7 @@ import android.widget.EditText
 import androidx.activity.result.ActivityResult
 import androidx.appcompat.widget.AppCompatEditText
 import androidx.core.app.ActivityOptionsCompat
+import androidx.core.content.ContextCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.FragmentActivity
@@ -68,24 +69,29 @@ import kotlin.coroutines.CoroutineContext
 
 /**
  * 底部弹框使用的dialog
+ * 1) 不可滑动关闭
+ * dialog?.setCanceledOnTouchOutside(false)
+ * dialog?.setCancelable(false)
+ * 2) 外部赋值
+ * 每次都会重新新建,只需 setParams 其余会再走一次 initView (BaseTopSheetDialogFragment同理)
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var showTime = 0L
-    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
-    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
+    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
+    private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
@@ -102,11 +108,11 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) {
-            EventBus.instance.collect(this) {
-                this@BaseBottomSheetDialogFragment.onCollect()
-            }
-        }
+//        if (isCollectEnabled()) {
+//            EventBus.instance.collect(this) {
+//                this@BaseBottomSheetDialogFragment.onCollect()
+//            }
+//        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -141,8 +147,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
             }
 
             protected fun hideSoftKeyboard() {
-                val inputMethodManager = BaseApplication.instance.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-                inputMethodManager.hideSoftInputFromWindow(mBinding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+                val imm = BaseApplication.instance.applicationContext.getSystemService(Activity.INPUT_METHOD_SERVICE) as? InputMethodManager
+                imm?.hideSoftInputFromWindow(mBinding?.root?.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
             }
 
             /**
@@ -164,12 +170,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                         }
                     }
                 }
-                //必不可少，否则所有的组件都不会有TouchEvent了
+                // 必不可少，否则所有的组件都不会有TouchEvent了
                 return if (window?.superDispatchTouchEvent(ev).orFalse) true else onTouchEvent(ev)
             }
 
             protected fun hideInputMethod(v: View?) {
-                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+//                val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+                val imm = ContextCompat.getSystemService(context, InputMethodManager::class.java)
                 imm?.hideSoftInputFromWindow(v?.windowToken, 0)
             }
 
@@ -199,7 +206,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                     val leftTop = intArrayOf(0, 0)
                     val width: Int
                     val height: Int
-                    //获取输入框当前的location位置
+                    // 获取输入框当前的location位置
                     val parent = v.findSpecialEditTextParent(5)
                     if (parent != null) {
                         parent.getLocationInWindow(leftTop)
@@ -214,7 +221,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                     val top = leftTop[1]
                     val bottom = top + height
                     val right = left + width
-                    //点击的是输入框区域，保留点击EditText的事件
+                    // 点击的是输入框区域，保留点击EditText的事件
                     return !(event.rawX.toInt() in left..right && event.rawY.toInt() in top..bottom)
                 }
                 return false
@@ -236,7 +243,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         if (activity?.isFinishing.orFalse) return
         if (manager.findFragmentByTag(tag) != null) return
         if (manager.isDestroyed) return
-        //防止因为意外情况连续call两次show，设置500毫秒的最低间隔
+        // 防止因为意外情况连续call两次show，设置500毫秒的最低间隔
         if (currentTimeNano - showTime < 500) return
         showTime = currentTimeNano
         try {
@@ -267,11 +274,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
                 onWindowInsetsChanged?.invoke(it)
             }
         }
-        immersionBar?.apply {
-            reset()
-            statusBarDarkFont(statusBarDark, 0.2f)
-            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
-            init()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            immersionBar?.apply {
+                reset()
+                statusBarDarkFont(statusBarDark, 0.2f)
+                navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
+                init()
+            }
         }
     }
 
@@ -287,7 +296,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun onStart() {
         super.onStart()
-        //设置软键盘不自动弹出
+        // 设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
 //        //本身完全弹出
 //        (view?.parent as? View)?.let {
@@ -308,8 +317,8 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
 
     override fun onDestroy() {
         super.onDestroy()
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
+        for ((liveData, obs) in dataManager) {
+            liveData.removeObserver(obs)
         }
         dataManager.clear()
         job.cancel()
@@ -319,13 +328,18 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
+        dataManager[this]?.let { oldObserver ->
+            removeObserver(oldObserver)
+        }
+        val storeObserver = Observer<Any?> { value ->
             if (value != null) {
-                (value as? T)?.let { block(it) }
+                (value as? T)?.let {
+                    block(it)
+                }
             }
         }
-        dataManager[this] = observer
-        observe(this@BaseBottomSheetDialogFragment, observer)
+        dataManager[this] = storeObserver
+        observe(this@BaseBottomSheetDialogFragment, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
@@ -358,12 +372,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         return false
     }
 
-    protected open suspend fun CoroutineScope.onCollect() {
-    }
-
-    protected open fun isCollectEnabled(): Boolean {
-        return false
-    }
+//    protected open suspend fun CoroutineScope.onCollect() {
+//    }
+//
+//    protected open fun isCollectEnabled(): Boolean {
+//        return false
+//    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
@@ -385,13 +399,13 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding?> : BottomShe
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()

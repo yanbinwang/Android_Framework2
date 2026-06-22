@@ -15,7 +15,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import com.alibaba.android.arouter.launcher.ARouter
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -49,11 +48,14 @@ import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.collections.component1
+import kotlin.collections.component2
 import kotlin.coroutines.CoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
  * 在 Fragment 中使用协程时，必须使用 viewLifecycleOwner.lifecycleScope 而非 lifecycleScope，以确保协程在视图销毁时自动取消，避免内存泄漏
+ * viewLifecycleOwner.lifecycleScope.(launch/async)
  *
  * onAttach()‌：当Fragment与Activity关联时调用。
  * onCreate()‌：在Fragment创建时调用。
@@ -82,19 +84,19 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
-abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+    val mDialog by lazy { mActivity?.let { AppDialog(it) } }
+    val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
+    val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
+    val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected var lazyData = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
-    protected val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
-    protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
     protected val mResultWrapper = registerResultWrapper()
     protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
-    protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
-    protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
-    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }//刷新球控件，相当于加载动画
+    private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val job = SupervisorJob()
     override val coroutineContext: CoroutineContext get() = Main.immediate + job
@@ -112,11 +114,11 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
                 it.onEvent()
             }
         }
-        if (isCollectEnabled()) {
-            EventBus.instance.collect(this) {
-                this@BaseFragment.onCollect()
-            }
-        }
+//        if (isCollectEnabled()) {
+//            EventBus.instance.collect(this) {
+//                this@BaseFragment.onCollect()
+//            }
+//        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -160,16 +162,17 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
         }
-        immersionBar?.apply {
-            reset()
-            statusBarDarkFont(statusBarDark, 0.2f)
-            navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
-            init()
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            immersionBar?.apply {
+                reset()
+                statusBarDarkFont(statusBarDark, 0.2f)
+                navigationBarDarkIcon(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarDark else false, 0.2f)
+                init()
+            }
         }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
-        ARouter.getInstance().inject(this)
     }
 
     override fun initEvent() {
@@ -212,8 +215,8 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
 
     override fun onDestroy() {
         super.onDestroy()
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
+        for ((liveData, obs) in dataManager) {
+            liveData.removeObserver(obs)
         }
         dataManager.clear()
         job.cancel()
@@ -223,13 +226,18 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
+        dataManager[this]?.let { oldObserver ->
+            removeObserver(oldObserver)
+        }
+        val storeObserver = Observer<Any?> { value ->
             if (value != null) {
-                (value as? T)?.let { block(it) }
+                (value as? T)?.let {
+                    block(it)
+                }
             }
         }
-        dataManager[this] = observer
-        observe(this@BaseFragment, observer)
+        dataManager[this] = storeObserver
+        observe(this@BaseFragment, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
@@ -249,12 +257,12 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         return false
     }
 
-    protected open suspend fun CoroutineScope.onCollect() {
-    }
-
-    protected open fun isCollectEnabled(): Boolean {
-        return false
-    }
+//    protected open suspend fun CoroutineScope.onCollect() {
+//    }
+//
+//    protected open fun isCollectEnabled(): Boolean {
+//        return false
+//    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="BaseView实现方法-初始化一些工具类和全局的订阅">
@@ -276,13 +284,13 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
         val labelTag = DataBooleanCache(label)
         if (!labelTag.get()) {
             if (isOnly) labelTag.set(true)
-            val builder = NewbieGuide.with(this)//传入activity
-                .setLabel(label)//设置引导层标示，用于区分不同引导层，必传！否则报错
+            val builder = NewbieGuide.with(this)
+                .setLabel(label)
                 .setOnGuideChangedListener(guideListener)
                 .setOnPageChangedListener(pageListener)
                 .alwaysShow(true)
             for (page in pages) {
-                page.backgroundColor = color(R.color.bgOverlay)//此处处理一下阴影背景
+                page.backgroundColor = color(R.color.bgOverlay)
                 builder.addGuidePage(page)
             }
             builder.show()
@@ -296,15 +304,3 @@ abstract class BaseFragment<VDB : ViewDataBinding?> : Fragment(), BaseImpl, Base
     // </editor-fold>
 
 }
-
-//fun Fragment.launch(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> Unit
-//) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
-//
-//fun <T> Fragment.async(
-//    context: CoroutineContext = EmptyCoroutineContext,
-//    start: CoroutineStart = CoroutineStart.DEFAULT,
-//    block: suspend CoroutineScope.() -> T
-//) = viewLifecycleOwner.lifecycleScope.async(context, start, block)

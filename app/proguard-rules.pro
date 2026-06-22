@@ -304,7 +304,7 @@
 # 保留项目中实际的 JS 交互内部类（替换为你的实际类名）
 -keepclassmembers class com.example.home.utils.WebJavaScriptObject { *; }
 
-# 保留所有被 @JavascriptInterface 注解的方法（核心）
+# 保留所有被 @JavascriptInterface 注解的方法
 -keepclassmembers class * {
     @android.webkit.JavascriptInterface <methods>;
 }
@@ -428,263 +428,39 @@
 -keep class com.tencent.mm.sdk.** {
     *;
 }
-# ---------------------------- 图片裁剪混淆 ----------------------------
--dontwarn com.yanzhenjie.durban.**
--keep class com.yanzhenjie.durban.**{*;}
--dontwarn com.yanzhenjie.loading.**
--keep class com.yanzhenjie.loading.**{*;}
-# ---------------------------- 图片库混淆 ----------------------------
--dontwarn com.yanzhenjie.album.**
--keep class com.yanzhenjie.album.**{*;}
+# ---------------------------- 图片相册/裁剪库混淆 ----------------------------
+-dontwarn com.example.gallery.**
+-keep class com.example.gallery.**{*;}
 # ---------------------------- 阿里oss混淆 ----------------------------
 -keep class com.alibaba.sdk.android.oss.** { *; }
 -dontwarn okio.**
 -dontwarn org.apache.commons.codec.binary.**
-# ---------------------------- 阿里ARouter混淆 ----------------------------
-# 1. 保留所有带 @Route 注解的类（类名不混淆、不被移除）
--keep @com.alibaba.android.arouter.facade.annotation.Route class * { *; }
-
-# 2. 保留 ARouter 路由表和核心接口
--keep public class com.alibaba.android.arouter.routes.**{*;}
--keep public class com.alibaba.android.arouter.facade.**{*;}
--keep class * implements com.alibaba.android.arouter.facade.template.ISyringe{*;}
--keep class * implements com.alibaba.android.arouter.facade.service.InterceptorService { *; }
-
-# 3. 保护 IProvider 接口及实现类（如果使用）
--keep interface * implements com.alibaba.android.arouter.facade.template.IProvider
--keep class * implements com.alibaba.android.arouter.facade.template.IProvider { *; }
-
-# 4. 保留带 @Route 注解的 Activity/Fragment 的核心方法
--keepclassmembers @com.alibaba.android.arouter.facade.annotation.Route class * extends android.app.Activity {
-    public void onCreate(android.os.Bundle);
-    public void onResume();
-    public void onPause();
-    public void onDestroy();
-}
--keepclassmembers @com.alibaba.android.arouter.facade.annotation.Route class * extends androidx.fragment.app.Fragment {
-    public void onCreate(android.os.Bundle);
-    public android.view.View onCreateView(...);
-    public void onViewCreated(android.view.View, android.os.Bundle);
-}
-# 保留 ARouter 生成的所有路由表类
--keep class *$$ARouter$$Group$$* { *; }
--keep class *$$ARouter$$Provider$$* { *; }
--keep class *$$ARouter$$Inject$$* { *; }
-# 保留 @Autowired 注解
--keep class com.alibaba.android.arouter.facade.annotation.Autowired { *; }
-# 保留所有类中被 @Autowired 标记的字段
+# ---------------------------- 货拉拉TheRouter混淆 ----------------------------
+# need add for Fragment page route
+# -keep public class * extends android.app.Fragment
+# -keep public class * extends androidx.fragment.app.Fragment
+# -keep public class * extends android.support.v4.app.Fragment
+-keep class androidx.annotation.Keep
+-keep @androidx.annotation.Keep class * {*;}
 -keepclassmembers class * {
-    @com.alibaba.android.arouter.facade.annotation.Autowired <fields>;
+    @androidx.annotation.Keep *;
 }
-# 保留 Kotlin 元数据（避免 Lambda 和扩展函数被误处理）
--keepattributes KotlinMetadata
--keep class kotlin.Metadata { *; }
-# 保留ARouter的LogisticsCenter类及其init方法（用于反射调用）
--keep class com.alibaba.android.arouter.core.LogisticsCenter {
-    public static void init(android.content.Context, java.util.concurrent.ThreadPoolExecutor);
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep <methods>;
 }
-# 允许反射访问ARouter路由表的字段
--keepclassmembers class *$$ARouter$$Group$$* {
-    public static <fields>;
-    public static <methods>;
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep <fields>;
 }
-
-# 5. 忽略编译期注解类的缺失（运行时无需存在）
+-keepclasseswithmembers class * {
+    @androidx.annotation.Keep <init>(...);
+}
+-keepclasseswithmembers class * {
+    @com.therouter.router.Autowired <fields>;
+}
+# 忽略编译期注解类的缺失（运行时无需存在）
 -dontwarn javax.lang.model.**
 -dontwarn com.sun.source.**
 -dontwarn javax.annotation.**
-# ---------------------------- 腾讯x5混淆 ----------------------------
--dontwarn dalvik.**
--dontwarn com.tencent.smtt.**
-# ------------------ Keep LineNumbers and properties ---------------- #
--keepattributes Exceptions,InnerClasses,Signature,Deprecated,SourceFile,LineNumberTable,*Annotation*,EnclosingMethod
-# --------------------------------------------------------------------------
-#-keep class com.tencent.smtt.export.external.**{
-#    *;
-#}
-#-keep class  com.tencent.smtt.export.internal.**{
-#    *;
-#}
-#-keep class com.tencent.tbs.video.interfaces.IUserStateChangedListener {
-#	*;
-#}
-#-keep class com.tencent.smtt.sdk.CacheManager {
-#	public *;
-#}
-#-keep class com.tencent.smtt.sdk.CookieManager {
-#	public *;
-#}
-#-keep class com.tencent.smtt.sdk.WebHistoryItem {
-#	public *;
-#}
-#-keep class com.tencent.smtt.sdk.WebViewDatabase {
-#	public *;
-#}
-#-keep class com.tencent.smtt.sdk.WebBackForwardList {
-#	public *;
-#}
-#-keep public class com.tencent.smtt.sdk.WebView {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebView$HitTestResult {
-#	public static final <fields>;
-#	public java.lang.String getExtra();
-#	public int getType();
-#}
-#-keep public class com.tencent.smtt.sdk.WebView$WebViewTransport {
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebView$PictureListener {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keepattributes InnerClasses
-#-keep public enum com.tencent.smtt.sdk.WebSettings$** {
-#    *;
-#}
-#-keep public enum com.tencent.smtt.sdk.QbSdk$** {
-#    *;
-#}
-#-keep public class com.tencent.smtt.sdk.WebSettings {
-#    public *;
-#}
-#-keepattributes Signature
-#-keep public class com.tencent.smtt.sdk.ValueCallback {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebViewClient {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.DownloadListener {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebChromeClient {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebChromeClient$FileChooserParams {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep class com.tencent.smtt.sdk.SystemWebChromeClient{
-#	public *;
-#}
-## 1. extension interfaces should be apparent
-#-keep public class com.tencent.smtt.export.external.extension.interfaces.* {
-#	public protected *;
-#}
-## 2. interfaces should be apparent
-#-keep public class com.tencent.smtt.export.external.interfaces.* {
-#	public protected *;
-#}
-#-keep public class com.tencent.smtt.sdk.WebViewCallbackClient {
-#	public protected *;
-#}
-#-keep public class com.tencent.smtt.sdk.WebStorage$QuotaUpdater {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebIconDatabase {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.WebStorage {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.DownloadListener {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.QbSdk {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.QbSdk$PreInitCallback {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.CookieSyncManager {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.Tbs* {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.utils.LogFileUtils {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.utils.TbsLog {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.utils.TbsLogClient {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.CookieSyncManager {
-#	public <fields>;
-#	public <methods>;
-#}
-## Added for game demos
-#-keep public class com.tencent.smtt.sdk.TBSGamePlayer {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGamePlayerClient* {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGamePlayerClientExtension {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGamePlayerService* {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep public class com.tencent.smtt.utils.Apn {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep class com.tencent.smtt.** {
-#	*;
-#}
-#-keep public class com.tencent.smtt.export.external.extension.proxy.ProxyWebViewClientExtension {
-#	public <fields>;
-#	public <methods>;
-#}
-#-keep class MTT.ThirdAppInfoNew {
-#	*;
-#}
-#-keep class com.tencent.mtt.MttTraceEvent {
-#	*;
-#}
-## Game related
-#-keep public class com.tencent.smtt.gamesdk.* {
-#	public protected *;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGameBooter {
-#        public <fields>;
-#        public <methods>;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGameBaseActivity {
-#	public protected *;
-#}
-#-keep public class com.tencent.smtt.sdk.TBSGameBaseActivityProxy {
-#	public protected *;
-#}
-#-keep public class com.tencent.smtt.gamesdk.internal.TBSGameServiceClient {
-#	public *;
-#}
--keep class com.tencent.smtt.** {*;}
--keep class com.tencent.tbs.** {*;}
 # ---------------------------- 今日头条兼容 ----------------------------
 -keep class me.jessyan.autosize.** { *; }
 -keep interface me.jessyan.autosize.** { *; }
@@ -706,8 +482,22 @@
 -dontwarn com.shuyu.gsyvideoplayer.video.base.**
 -keep class com.shuyu.gsyvideoplayer.utils.** { *; }
 -dontwarn com.shuyu.gsyvideoplayer.utils.**
+-keep class com.shuyu.gsyvideoplayer.player.** {*;}
+-dontwarn com.shuyu.gsyvideoplayer.player.**
 -keep class tv.danmaku.ijk.** { *; }
 -dontwarn tv.danmaku.ijk.**
+-keep class androidx.media3.** {*;}
+-keep interface androidx.media3.**
+-keep class com.shuyu.alipay.** {*;}
+-keep interface com.shuyu.alipay.**
+-keep public class * extends android.view.View{
+    *** get*();
+    void set*(***);
+    public <init>(android.content.Context);
+    public <init>(android.content.Context, java.lang.Boolean);
+    public <init>(android.content.Context, android.util.AttributeSet);
+    public <init>(android.content.Context, android.util.AttributeSet, int);
+}
 # ---------------------------- 刷新混淆 ----------------------------
 -keep class com.scwang.smart.** { *; }
 -dontwarn com.scwang.smart.**
@@ -719,6 +509,9 @@
     public static void init(android.content.Context, java.lang.Class);
 }
 # ---------------------------- 项目库混淆 ----------------------------
+# 直接保留SplashActivity所有内容，不混淆、不删除任何方法/变量
+-keep class com.example.mvvm.activity.SplashActivity { *; }
+
 -keep class com.example.topsheet.** {*;}
 -keep class com.example.objectbox.dao.** {*;}
 -keep class com.example.thirdparty.media.oss.bean.** {*;}

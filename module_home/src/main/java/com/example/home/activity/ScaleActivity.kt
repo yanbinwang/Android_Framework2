@@ -1,19 +1,17 @@
 package com.example.home.activity
 
 import android.os.Bundle
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.interf.TransparentOwner
-import com.example.common.config.ARouterPath
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
+import com.example.common.config.RouterPath
 import com.example.framework.utils.function.intentSerializable
 import com.example.framework.utils.function.value.toNewList
-import com.example.framework.utils.function.view.appear
 import com.example.home.R
 import com.example.home.databinding.ActivityScaleBinding
 import com.example.home.widget.scale.ScaleAdapter
 import com.example.home.widget.scale.ScaleImageView
+import com.therouter.router.Route
 
 /**
  * @description 大图伸缩
@@ -26,7 +24,7 @@ import com.example.home.widget.scale.ScaleImageView
  *     navigation(ARouterPath.ScaleActivity, Extra.BUNDLE_LIST to arrayListOf(value))
  */
 @TransparentOwner
-@Route(path = ARouterPath.ScaleActivity)
+@Route(path = RouterPath.ScaleActivity)
 class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     private val list by lazy { intentSerializable<ArrayList<String>>(Extra.BUNDLE_LIST) }
 
@@ -35,17 +33,17 @@ class ScaleActivity : BaseActivity<ActivityScaleBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         initImmersionBar(false, false, R.color.bgBlack)
-        mBinding?.titleRoot?.setLeftButton(tintColor = R.color.bgWhite)?.bind(this)
+        mBinding?.titleRoot
+            ?.setLeftButton(tintColor = R.color.bgWhite)
+            ?.bind(this)
     }
 
     override fun initData() {
         super.initData()
-        val imgList = list?.toNewList { ScaleImageView(this) to it }
-        mBinding?.vpPage?.apply {
-            adapter = ScaleAdapter(imgList.orEmpty())
-            currentItem = 0
-//            animation = elasticityEnter()
-            appear()
+        val imgList = list?.toNewList { ScaleImageView(this) to it }.orEmpty()
+        mBinding?.vpPage?.let {
+            it.adapter = ScaleAdapter(imgList)
+            it.currentItem = 0
         }
     }
 

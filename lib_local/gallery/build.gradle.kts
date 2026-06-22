@@ -1,11 +1,18 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.parcelize)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.gallery"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     sourceSets {
         getByName("main") {
@@ -13,8 +20,7 @@ android {
                 srcDirs(
                     "src/main/res",
                     "src/main/res-album",
-                    "src/main/res-durban",
-                    "src/main/res-loading"
+                    "src/main/res-durban"
                 )
             }
         }
@@ -22,12 +28,13 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {

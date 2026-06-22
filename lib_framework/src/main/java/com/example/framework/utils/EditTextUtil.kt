@@ -5,157 +5,88 @@ import android.text.InputFilter
 import android.text.InputType
 import android.text.Selection
 import android.text.Spanned
-import android.text.TextUtils
 import android.text.TextWatcher
 import android.text.method.DigitsKeyListener
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.widget.EditText
+import com.example.framework.utils.EditTextUtil.isChinese
+import com.example.framework.utils.EditTextUtil.isNonEmojiCharacter
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.execute
-import com.example.framework.utils.function.value.fitRange
 import com.example.framework.utils.function.value.numberCompareTo
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.addFilter
-import com.example.framework.utils.function.view.decimalFilter
+import com.example.framework.utils.function.view.blackListLimit
+import com.example.framework.utils.function.view.decimalLimit
+import com.example.framework.utils.function.view.getLifecycleOwner
+import com.example.framework.utils.function.view.removeFilter
 import com.example.framework.utils.function.view.text
+import com.example.framework.utils.function.view.whiteListLimit
 import java.lang.ref.WeakReference
-import java.util.regex.Pattern
 
 // <editor-fold defaultstate="collapsed" desc="工具类方法">
 object EditTextUtil {
-    private var chineseParam: CharArray = charArrayOf(
-        '」', '，', '。', '？', '…', '：', '～', '【', '＃', '、', '％',
-        '＊', '＆', '＄', '（', '‘', '’', '“', '”', '『', '〔', '｛',
-        '【', '￥', '￡', '‖', '〖', '《', '「', '》', '〗', '】', '｝',
-        '〕', '』', '”', '）', '！', '；', '—')
 
     /**
-     * 设置文本框自动四位加一个空格
-     * 需要注意的是getText后会获取到空格，需要手动用replace替换掉
-     * 方法内已经自带设定最大输入位数以及输入类型的设定，可以不在xml中设定这些内容
+     * 设置文本框自动四位加一个空格（手机号格式）
+     * 注意：getText会包含空格，需手动replace(" ", "")
      */
-    fun setPhoneNumSpace(target: EditText) {
-        val filters = arrayOf<InputFilter>(InputFilter.LengthFilter(13))
-        target.filters = filters
+    fun setPhoneSpace(target: EditText) {
+        // 移除所有长度限制Filter（避免重复/冲突）
+        target.removeFilter { it is InputFilter.LengthFilter }
+        // 13位长度限制（手机号纯数字最大13位）
+        target.addFilter(InputFilter.LengthFilter(13))
+        // 设置输入类型（优先用TYPE_CLASS_PHONE，适配手机号键盘）
         target.inputType = InputType.TYPE_CLASS_PHONE
-        target.addTextChangedListener(NumSpaceTextWatcher(target))
-    }
-
-    /**
-     * 限制输入内容为目标值
-     * "0123456789."
-     */
-    fun setCharLimit(target: EditText, characterAllowed: CharArray) {
-        target.addFilter(getCharLimitFilter(characterAllowed))
-    }
-
-    /**
-     * 限制输入内容为非目标值
-     */
-    fun setCharBlackList(target: EditText, characterAllowed: CharArray) {
-        target.addFilter(getCharBlackListFilter(characterAllowed))
-    }
-
-    /**
-     * 限制输入内容为目标值
-     */
-    fun getCharLimitFilter(characterAllowed: String): InputFilter {
-        return getCharLimitFilter(characterAllowed.toCharArray())
-    }
-
-    /**
-     * 限制输入内容为目标值
-     */
-    fun getCharBlackListFilter(characterBlackList: String): InputFilter {
-        return getCharBlackListFilter(characterBlackList.toCharArray())
-    }
-
-    /**
-     * 限制输入内容为目标值
-     */
-    fun getCharLimitFilter(characterAllowed: CharArray): InputFilter {
-        return InputFilter { source, start, end, _, _, _ ->
-            var flag = true
-            val sb = StringBuilder()
-            for (i in start until end) {
-                if (!characterAllowed.contains(source[i])) {
-                    flag = false
-                } else {
-                    sb.append(source[i])
-                }
-            }
-            if (flag) {
-                null
-            } else {
-                sb.toString()
+        // 创建并添加空格格式化监听（弱引用+生命周期管理）
+        val watcher = SpaceTextWatcher(WeakReference(target))
+        target.addTextChangedListener(watcher)
+        // 生命周期绑定：页面销毁时移除监听
+        target.getLifecycleOwner()?.lifecycle?.doOnDestroy {
+            // 避免空指针 + 重复移除
+            if (target.isAttachedToWindow) {
+                target.removeTextChangedListener(watcher)
             }
         }
     }
 
     /**
-     * 限制输入内容为目标值
+     * 限制输入内容仅为指定字符（白名单）
+     * @param target 目标EditText
+     * @param allowed 允许输入的字符数组（如："0123456789.".toCharArray()）
      */
-    fun getCharBlackListFilter(characterBlackList: CharArray): InputFilter {
-        return InputFilter { source, start, end, _, _, _ ->
-            var flag = true
-            val sb = StringBuilder()
-            for (i in start until end) {
-                if (characterBlackList.contains(source[i])) {
-                    flag = false
-                } else {
-                    sb.append(source[i])
-                }
-            }
-            if (flag) {
-                null
-            } else {
-                sb.toString()
-            }
-        }
+    fun setWhiteListLimit(target: EditText, allowed: String) {
+        target.whiteListLimit(allowed.toCharArray())
     }
 
     /**
-     * 限制输入框输入emoji
+     * 限制输入内容排除指定字符（黑名单）
+     * @param target 目标EditText
+     * @param disallowed 禁止输入的字符数组
      */
-    fun setEmojiLimit(target: EditText) {
-        target.addFilter(object : InputFilter {
-            override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int, ): CharSequence? {
-                for (i in start until end) {
-                    if (!isEmojiCharacter(source[i])) {
-                        return ""
-                    }
-                }
-                return null
-            }
-        })
+    fun setBlackListLimit(target: EditText, disallowed: String) {
+        target.blackListLimit(disallowed.toCharArray())
     }
 
     /**
-     * 判断是否是Emoji
+     * 判断一个字符「是不是非Emoji」
      */
-    fun isEmojiCharacter(codePoint: Char): Boolean {
-        return codePoint.code == 0x0 || codePoint.code == 0x9 || codePoint.code == 0xA || codePoint.code == 0xD || codePoint.code in 0x20..0xD7FF || codePoint.code in 0xE000..0xFFFD || codePoint.code in 0x10000..0x10FFFF
-    }
-
-    /**
-     * 限制只能输入中文和英文数字和符号
-     */
-    fun setChineseLimit(target: EditText) {
-        target.addFilter(object : InputFilter {
-            override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int, ): CharSequence? {
-                for (i in start until end) {
-                    if (!isChinese(source[i]) && !Character.isLetterOrDigit(source[i]) && source[i].toString() != "_") {
-                        return ""
-                    }
-                }
-                return null
-            }
-        })
+    fun isNonEmojiCharacter(codePoint: Char): Boolean {
+        return codePoint.code == 0x0 || codePoint.code == 0x9 || codePoint.code == 0xA || codePoint.code == 0xD
+                || codePoint.code in 0x20..0xD7FF || codePoint.code in 0xE000..0xFFFD
+                || codePoint.code in 0x10000..0x10FFFF
     }
 
     /**
      * 判定输入汉字是否是中文
      */
+    private var chineseParam = charArrayOf(
+        '」', '，', '。', '？', '…', '：', '～', '【', '＃', '、', '％',
+        '＊', '＆', '＄', '（', '‘', '’', '“', '”', '『', '〔', '｛',
+        '【', '￥', '￡', '‖', '〖', '《', '「', '》', '〗', '】', '｝',
+        '〕', '』', '”', '）', '！', '；', '—')
+
     fun isChinese(c: Char): Boolean {
         for (param in chineseParam) {
             if (param == c) {
@@ -172,53 +103,27 @@ object EditTextUtil {
     }
 
     /**
-     * 设置EditText输入的最大长度
-     */
-    fun setMaxLength(target: EditText, maxLength: Int) {
-        target.addFilter(InputFilter.LengthFilter(maxLength))
-    }
-
-    /**
-     * 设置EditText输入数值的最大值
-     */
-    fun setMaxValue(target: EditText, maxInteger: Int, maxDecimal: Int) {
-        val filters = target.filters.toMutableList()
-        filters.removeAll { it is InputFilter.LengthFilter }
-        filters.removeAll { it is NumInputFilter }
-        target.filters = filters.toTypedArray()
-        target.addFilter(InputFilter.LengthFilter(maxInteger + 1 + maxDecimal))
-        target.addFilter(getNumInputFilter(maxInteger, maxDecimal))
-    }
-
-    /**
-     * 设置EditText输入数值的最大值
-     */
-    fun getNumInputFilter(maxInteger: Int, maxDecimal: Int): InputFilter {
-        return NumInputFilter(maxInteger, maxDecimal)
-    }
-
-    /**
      * 设置输出格式
      */
     fun setInputType(target: EditText?, inputType: Int) = target?.execute {
         when (inputType) {
-            //text
+            // text
             0 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
-            //textPassword
+            // textPassword
             1 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_PASSWORD)
-            //phone
+            // phone
             2 -> setInputType(InputType.TYPE_CLASS_PHONE)
-            //number
+            // number
             3 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_VARIATION_NORMAL)
-            //rate,numberDecimal
+            // rate,numberDecimal
             9, 4 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL)
-            //email
+            // email
             5 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
-            //idcard,textVisiblePassword
+            // idcard,textVisiblePassword
             8, 6 -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD)
-            //money
+            // money
             7 -> setInputType(InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL or InputType.TYPE_NUMBER_FLAG_SIGNED)
-            //text
+            // text
             else -> setInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_VARIATION_NORMAL)
         }
     }
@@ -243,339 +148,10 @@ object EditTextUtil {
 // </editor-fold>
 
 // <editor-fold defaultstate="collapsed" desc="输入监听">
-private class NumInputFilter(private val maxInteger: Int, private val maxDecimal: Int) : InputFilter {
-    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
-        if (source == "." && dest.toString().isEmpty()) {
-            return if (maxDecimal == 0) {
-                "0"
-            } else {
-                "0."
-            }
-        }
-        if (dest.toString().contains(".")) {
-            val index = dest.toString().indexOf(".")
-            val length1 = dest.toString().substring(0, index).length
-            val length2 = dest.toString().substring(index).length
-            if (length1 >= maxInteger && dstart < index) {
-                return ""
-            }
-            if (length2 >= maxDecimal + 1 && dstart > index) {
-                return ""
-            }
-        } else {
-            val length1 = dest.toString().length
-            if (maxDecimal == 0 && source == ".") {
-                return ""
-            } else if ((length1 >= maxInteger) and (source != ".")) {
-                return ""
-            }
-        }
-        return source ?: ""
-    }
-}
-
 /**
- * 类银行卡4位插入一空格监听
- * mDesTxt:目标输入框
- * mOffset:偏移量(几位插入一空格)
+ * 用于输入框失去焦点时自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变/默认大小和小数位数不做限制)
  */
-private class NumSpaceTextWatcher @JvmOverloads constructor(private val mDesTxt: EditText, private val mOffset: Int = DEFAULT_OFFSET) : TextWatcher {
-    companion object {
-        private const val DEFAULT_OFFSET = 4
-    }
-
-    // 记录目标字符串
-    private val mBuffer = StringBuffer()
-    // 改变之前的文本长度
-    private var mBeforeTextLength: Int = 0
-    // 改变之后的文本长度
-    private var mOnTextLength: Int = 0
-    // 改变之前去除空格的文本长度
-    private var mBeforeNumTxtLength: Int = 0
-    // 改变之后去除空格的文本长度
-    private var mNumTxtLength: Int = 0
-    // 目标 光标的位置
-    private var mLocation = 0
-    // 之前 光标的位置(可判断用户是否做删除操作)
-    private var mBeforeLocation = 0
-    // 改变前有多少空格
-    private var mBeforeSpaceNumber = 0
-    // 是否选中空格覆盖
-    private var isOverrideSpace: Boolean = false
-    // 被覆盖的空格数
-    private var mOverrideSpaceNum: Int = 0
-    // 是否是粘贴(此粘贴非彼粘贴)
-    private var isPaste: Boolean = false
-    // 复制的字符数(不包括空格)
-    private var mPasteNum: Int = 0
-    // 是否需要进行格式化字符串操作
-    private var isChanged = false
-
-    init {
-        if (mDesTxt.inputType == InputType.TYPE_CLASS_NUMBER || mDesTxt.inputType == InputType.TYPE_CLASS_PHONE || mDesTxt.inputType == InputType.TYPE_CLASS_TEXT) {
-            mDesTxt.inputType = InputType.TYPE_CLASS_TEXT
-            // 当InputType为Number时，手动设置我们的Listener
-            mDesTxt.keyListener = MyDigitsKeyListener()
-        } else if (mDesTxt.inputType != InputType.TYPE_CLASS_TEXT) {
-            // 仅支持Text及Number类型的EditText
-            throw IllegalArgumentException("EditText only support TEXT and NUMBER InputType！")
-        }
-    }
-
-    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
-        mBeforeTextLength = s.length
-        mBeforeNumTxtLength = s.toString().replace(" ", "").length
-        mBeforeLocation = mDesTxt.selectionEnd
-        // 重置mBuffer
-        if (mBuffer.isNotEmpty()) {
-            mBuffer.delete(0, mBuffer.length)
-        }
-        // 计算改变前空格的个数
-        mBeforeSpaceNumber = 0
-        for (element in s) {
-            if (element == ' ') {
-                mBeforeSpaceNumber++
-            }
-        }
-    }
-
-    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-        mOnTextLength = s.length
-        mNumTxtLength = s.toString().replace(" ".toRegex(), "").length
-        // 判断是否是粘贴,其中粘贴小于offset位的不做判断,并且offset>2判断才有意义
-        if (mOffset in 2..count) {
-            isPaste = true
-            mPasteNum = count
-        } else {
-            isPaste = false
-            mPasteNum = 0
-        }
-        // 若是经过afterTextChanged方法，则直接return
-        if (isChanged) {
-            isChanged = false
-            return
-        }
-        // 若改变后长度小于等于mOffset - 1，则直接return
-        if (mOnTextLength <= mOffset - 1) {
-            isChanged = false
-            return
-        }
-        // 若改变前后长度一致，并且数字位数相同，则isChanged为false
-        // (数字位数相同是防止用户单选空格后输入数字)
-        if (mBeforeTextLength == mOnTextLength && mBeforeNumTxtLength == mNumTxtLength) {
-            isChanged = false
-            return
-        } else {
-            isChanged = true
-        }
-        // 若要进行格式化，则判断该情况
-        // 判断是否选中空格覆盖(排除删除空格的情况)
-        isOverrideSpace = if (before == 1 && count == 0) {
-            false
-        } else {
-            mBeforeTextLength - mBeforeSpaceNumber - before + count != mNumTxtLength
-        }
-        // 若是该情况，计算覆盖空格的个数
-        mOverrideSpaceNum = if (isOverrideSpace) {
-            mNumTxtLength - (mBeforeTextLength - mBeforeSpaceNumber - before + count)
-        } else {
-            0
-        }
-    }
-
-    override fun afterTextChanged(s: Editable) {
-        if (isChanged) {
-            mLocation = mDesTxt.selectionEnd
-            // 去除空格
-            mBuffer.append(s.toString().replace(" ", ""))
-            // 格式化字符串，mOffset位加一个空格
-            var index = 0
-            var mAfterSpaceNumber = 0
-            while (index < mBuffer.length) {
-                if (index == mOffset * (1 + mAfterSpaceNumber) + mAfterSpaceNumber - 1) {
-                    mBuffer.insert(index, ' ')
-                    mAfterSpaceNumber++
-                }
-                index++
-            }
-            // 判断是否是粘贴键入
-            if (isPaste) {
-                mLocation += mPasteNum / mOffset
-                isPaste = false
-                // 判断是否是选中空格输入
-            } else if (isOverrideSpace) {
-                mLocation += mOverrideSpaceNum
-                // 判断此时光标是否在特殊位置上
-            } else if ((mLocation + 1) % (mOffset + 1) == 0) {
-                // 是键入OR删除
-                if (mBeforeLocation <= mLocation) {
-                    mLocation++
-                } else {
-                    mLocation--
-                }
-            }
-            // 若是删除数据刚好删除一位，前一位是空格，mLocation会超出格式化后字符串的长度(因为格
-            // 式化后的长度没有不包括最后的空格)，将光标移到正确的位置
-            val str = mBuffer.toString()
-            mLocation = mLocation.fitRange(0..str.length)
-            s.replace(0, s.length, str)
-            val editable = mDesTxt.text
-            try {
-                Selection.setSelection(editable, mLocation)
-            } catch (e: Exception) {
-                e.logE
-            }
-        }
-    }
-
-    // 继承DigitsKeyListener，实现我们自己的Listener
-    private inner class MyDigitsKeyListener : DigitsKeyListener() {
-        private val mAccepted = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', ' ')
-
-        override fun getAcceptedChars(): CharArray {
-            return mAccepted
-        }
-    }
-}
-
-/**
- * EditText添加文字限制的时候使用此TextWatcher,
- * 提供回调，有部分界面使用到判断
- * maxLength:最大长度，ASCII码算一个，其它算两个
- */
-private class TextLengthFilter(private val maxLength: Int) : InputFilter {
-    companion object {
-        fun getCurLength(s: CharSequence?): Int {
-            var length = 0
-            if (s == null) return length else {
-                for (element in s) {
-                    length += if (element.toInt() < 128) 1 else 2
-                }
-            }
-            return length
-        }
-    }
-
-    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence? {
-        if (TextUtils.isEmpty(source)) {
-            return null
-        }
-        var destCount = 0
-        val inputCount = getCurLength(source)
-        if (dest.isNotEmpty()) destCount = getCurLength(dest)
-        if (destCount >= maxLength) return "" else {
-            val count = inputCount + destCount
-            if (dest.isEmpty()) {
-                return if (count <= maxLength) null else sub(source, maxLength)
-            }
-            if (count > maxLength) {
-                //int min = count - maxLength;
-                val maxSubLength = maxLength - destCount
-                return sub(source, maxSubLength)
-            }
-        }
-        return null
-    }
-
-    private fun sub(sq: CharSequence, subLength: Int): CharSequence {
-        var needLength = 0
-        var length = 0
-        for (element in sq) {
-            length += if (element.toInt() < 128) 1 else 2
-            ++needLength
-            if (subLength <= length) {
-                return sq.subSequence(0, needLength)
-            }
-        }
-        return sq
-    }
-
-}
-
-/**
- *  代码实例：
- *   val filters = arrayOf<InputFilter>(DecimalInputFilter())
- *   it.filters = filters
- *
- *   <EditText
- *      android:id="@+id/et_integral"
- *      android:layout_width="0dp"
- *      android:layout_height="match_parent"
- *      android:layout_weight="1"
- *      android:background="@null"
- *      android:ellipsize="end"
- *      android:hint="请输入积分充值数额"
- *      android:inputType="numberDecimal"
- *      android:lines="1"
- *      android:textColor="@color/textPrimary"
- *      android:textColorHint="@color/textHint"
- *      android:textSize="30mm"
- *      android:textStyle="bold" />
- */
-class DecimalInputFilter : InputFilter {
-    private val mPattern by lazy { Pattern.compile("([0-9]|\\.)*") }
-    private val maxValue by lazy { Int.MAX_VALUE }//输入的最大金额
-    private val point = "."
-    private val zero = "0"
-    var decimalPoint = 2 //小数点后的位数
-
-    /**
-     * @param source    新输入的字符串
-     * @param start     新输入的字符串起始下标，一般为0
-     * @param end       新输入的字符串终点下标，一般为source长度-1
-     * @param dest      输入之前文本框内容
-     * @param dstart    原内容起始坐标，一般为0
-     * @param dend      原内容终点坐标，一般为dest长度-1
-     * @return          输入内容
-     */
-    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
-        val sourceText = source.toString()
-        val destText = dest.toString()
-        //验证删除等按键
-        if (sourceText.isEmpty()) return ""
-        val matcher = mPattern.matcher(source ?: "")
-        //已经输入小数点的情况下，只能输入数字
-        if (destText.contains(point)) {
-            if (!matcher.matches()) {
-                return ""
-                //只能输入一个小数点
-            } else if (point == source.toString()) {
-                return ""
-            }
-            //验证小数点精度，保证小数点后只能输入两位
-            val index = destText.indexOf(point)
-            val length = dend - index
-            if (length > decimalPoint) return dest?.subSequence(dstart, dend)
-        } else {
-            /**
-             * 没有输入小数点的情况下，只能输入小数点和数字
-             * 1. 首位不能输入小数点
-             * 2. 如果首位输入0，则接下来只能输入小数点了
-             */
-            if (!matcher.matches()) {
-                return ""
-            } else {
-                //首位不能输入小数点
-                if (point == source.toString() && destText.isEmpty()) {
-                    return ""
-                    //如果首位输入0，接下来只能输入小数点
-                } else if (point != source.toString() && zero == destText) {
-                    return ""
-                }
-            }
-        }
-        //验证输入金额的大小
-        if ((destText + sourceText).toDouble() > maxValue) return dest?.subSequence(dstart, dend)
-        return dest?.subSequence(dstart, dend).toString() + sourceText
-    }
-}
-
-/**
- * 用于输入框失去焦点时
- * 自动根据输入框内的值吸附最大最小值(处在范围内的值不会改变)
- * 默认大小和小数位数不做限制
- */
-class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean = true) {
+class RangeLimit(private val view: WeakReference<EditText>?, hasAuto: Boolean = true) {
     private var min: String? = null
     private var max: String? = null
     private val editText get() = view?.get()
@@ -598,7 +174,9 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
     fun setRange(min: String? = null, max: String? = null, digits: Int? = -1) {
         this.min = min
         this.max = max
-        if (digits != -1) editText?.decimalFilter(digits.orZero)
+        if (digits != -1) {
+            editText?.decimalLimit(digits.orZero)
+        }
     }
 
     /**
@@ -635,101 +213,419 @@ class RangeHelper(private val view: WeakReference<EditText>?, hasAuto: Boolean =
 
 }
 
-///**
-// * 用于限制输入框在输入时候的小数位数
-// * 禁止用户在打入小数后超过设定的位数，会自动回滚之前的值
-// */
-//class DecimalHelper(private val view: WeakReference<EditText>?) {
-//    private var listener: ((text: String) -> Unit)? = null
-//    private val editText get() = view?.get()
-//    private val watcher by lazy { object : DecimalTextWatcher(view) {
-//        override fun onEmpty() {
-//            "值为空".logWTF
-//            editText?.setText("")
-//        }
-//
-//        override fun onOverstep(before: String?, cursor: Int?) {
-//            "值超过小数位".logWTF
-//            editText?.setText(before.orEmpty())
-//            editText.setSafeSelection(cursor.orZero)
-//        }
-//
-//        override fun onChanged(text: String) {
-//            "输入合法".logWTF
-//            listener?.invoke(text)
-//        }
-//    }}
-//
-//    init {
-//        //可在xml中实现输入限制
-//        EditTextUtil.setInputType(editText, 7)
-//        //添加监听
-//        editText?.addTextChangedListener(watcher)
-//    }
-//
-//    /**
-//     * 设置小数位数限制
-//     */
-//    fun setDigits(digits: Int) {
-//        watcher.setDigits(digits)
-//    }
-//
-//    /**
-//     * 设置回调监听
-//     */
-//    fun setOnChangedListener(listener: ((text: String) -> Unit)) {
-//        this.listener = listener
-//    }
-//
-//}
-//
-///**
-// * 对应输入框限制输入的监听
-// * 注：如果是输入范围限制，只能做最大值的限制
-// */
-//private abstract class DecimalTextWatcher(private val view: WeakReference<EditText>?) : TextWatcher {
-//    private var digits = 0
-//    private var textCursor = 0//用于记录变化时光标的位置
-//    private var textBefore: String? = null//用于记录变化前的文字
-//    private val editText get() = view?.get()
-//
-//    override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
-//        textBefore = s.toString()
-//        textCursor = start
-//    }
-//
-//    override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-//    }
-//
-//    override fun afterTextChanged(s: Editable?) {
-//        val text = s.toString()
-//        if (text.isEmpty()) {
-//            editText?.removeTextChangedListener(this)
-//            onEmpty()
-//            editText?.addTextChangedListener(this)
-//            return
-//        }
-//        if (text.numberDigits() > digits) {
-//            editText?.removeTextChangedListener(this)
-//            onOverstep(textBefore, textCursor)
-//            editText?.addTextChangedListener(this)
-//            return
-//        }
-//        onChanged(text)
-//    }
-//
-//    /**
-//     * 设置小数位数限制
-//     */
-//    fun setDigits(digits: Int) {
-//        this.digits = digits
-//    }
-//
-//    abstract fun onEmpty()
-//
-//    abstract fun onOverstep(before: String?, cursor: Int?)
-//
-//    abstract fun onChanged(text: String)
-//
-//}
+/**
+ * 类银行卡4位插入一空格监听
+ * @param mDesTxt 目标输入框
+ * @param mOffset 偏移量(几位插入一空格)，默认4位
+ */
+class SpaceTextWatcher @JvmOverloads constructor(private val view: WeakReference<EditText>?, private val mOffset: Int = DEFAULT_OFFSET) : TextWatcher {
+    // 获取输入框
+    private val mDesTxt get() = view?.get()
+    // 改变之前的文本长度
+    private var mBeforeTextLength = 0
+    // 改变之后的文本长度
+    private var mOnTextLength = 0
+    // 改变之前去除空格的文本长度
+    private var mBeforeNumTxtLength = 0
+    // 改变之后去除空格的文本长度
+    private var mNumTxtLength = 0
+    // 目标光标的位置
+    private var mLocation = 0
+    // 之前光标的位置(可判断用户是否做删除操作)
+    private var mBeforeLocation = 0
+    // 改变前有多少空格
+    private var mBeforeSpaceNum = 0
+    // 被覆盖的空格数
+    private var mOverrideSpaceNum = 0
+    // 复制的字符数(不包括空格)
+    private var mPasteNum = 0
+    // 记录目标字符串
+    private val mBuffer = StringBuffer()
+    // 是否选中空格覆盖
+    private var isOverrideSpace = false
+    // 是否是粘贴(此粘贴非彼粘贴)
+    private var isPaste = false
+    // 是否需要进行格式化字符串操作
+    private var isChanged = false
+
+    companion object {
+        // 默认4位插入空格
+        private const val DEFAULT_OFFSET = 4
+        // 空格字符常量
+        private const val SPACE_CHAR = '\u0020'
+        // 所有需要过滤/替换的空格类型（覆盖常见空格）
+        private val ALL_SPACE_CHARS = charArrayOf(
+            '\u0020', // 半角空格
+            '\u3000', // 全角空格（中文空格）
+            '\u00A0', // 不换行空格
+            '\u2000', // 中文全角空格变体
+            '\u2001', // 中文全角空格变体
+            '\u2002', // 中文全角空格变体
+            '\u2003', // 中文全角空格变体
+            '\t'      // 制表符（也视为空格）
+        )
+    }
+
+    init {
+        if (mDesTxt?.inputType == InputType.TYPE_CLASS_NUMBER || mDesTxt?.inputType == InputType.TYPE_CLASS_PHONE || mDesTxt?.inputType == InputType.TYPE_CLASS_TEXT) {
+            mDesTxt?.inputType = InputType.TYPE_CLASS_TEXT
+            // 当InputType为Number时，手动设置我们的Listener
+            mDesTxt?.keyListener = object : DigitsKeyListener() {
+                private val mAccepted = charArrayOf('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', SPACE_CHAR)
+
+                override fun getAcceptedChars(): CharArray {
+                    return mAccepted
+                }
+            }
+        } else if (mDesTxt?.inputType != InputType.TYPE_CLASS_TEXT) {
+            // 仅支持Text及Number类型的EditText
+            throw IllegalArgumentException("EditText only support TEXT and NUMBER InputType！")
+        }
+    }
+
+    override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {
+        mBeforeTextLength = s.length
+        // 移除所有类型空格，计算纯数字长度
+        mBeforeNumTxtLength = removeAllSpaces(s.toString()).length
+        // 空安全：selectionEnd为空时默认0
+        mBeforeLocation = mDesTxt?.selectionEnd.orZero
+        // 重置缓冲区，避免残留数据
+        if (mBuffer.isNotEmpty()) {
+            mBuffer.delete(0, mBuffer.length)
+        }
+        // 统计所有类型空格的数量
+        mBeforeSpaceNum = countAllSpaces(s)
+    }
+
+    override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+        mOnTextLength = s.length
+        // 移除所有类型空格，计算纯数字长度
+        mNumTxtLength = removeAllSpaces(s.toString()).length
+        // 判断是否为粘贴操作（批量输入≥2位且offset≥2）
+        isPaste = mOffset in 2..count
+        mPasteNum = if (isPaste) count else 0
+        // 无需格式化的场景：已触发过格式化/文本过短/无有效变化
+        isChanged = when {
+            isChanged -> {
+                isChanged = false
+                false
+            }
+            mOnTextLength <= mOffset - 1 -> false
+            mBeforeTextLength == mOnTextLength && mBeforeNumTxtLength == mNumTxtLength -> false
+            else -> true
+        }
+        // 计算是否选中空格覆盖及覆盖数量
+        isOverrideSpace = !(before == 1 && count == 0) && (mBeforeTextLength - mBeforeSpaceNum - before + count != mNumTxtLength)
+        mOverrideSpaceNum = if (isOverrideSpace) {
+            mNumTxtLength - (mBeforeTextLength - mBeforeSpaceNum - before + count)
+        } else {
+            0
+        }
+    }
+
+    override fun afterTextChanged(s: Editable) {
+        if (!isChanged || mDesTxt == null) return
+        // 记录光标位置（空安全兜底）
+        mLocation = mDesTxt?.selectionEnd ?: 0
+        // 移除所有类型的空格，只保留数字
+        mBuffer.append(removeAllSpaces(s.toString()))
+        // 按offset位数插入【标准半角空格】格式化
+        var index = 0
+        var mAfterSpaceNumber = 0
+        while (index < mBuffer.length) {
+            val spacePosition = mOffset * (1 + mAfterSpaceNumber) + mAfterSpaceNumber - 1
+            if (index == spacePosition) {
+                // 只插入标准半角空格
+                mBuffer.insert(index, SPACE_CHAR)
+                mAfterSpaceNumber++
+            }
+            index++
+        }
+        // 修正光标位置（适配粘贴/空格覆盖/删除操作）
+        when {
+            isPaste -> {
+                mLocation += mPasteNum / mOffset
+                isPaste = false
+            }
+            isOverrideSpace -> mLocation += mOverrideSpaceNum
+            (mLocation + 1) % (mOffset + 1) == 0 -> {
+                mLocation += if (mBeforeLocation <= mLocation) 1 else -1
+            }
+        }
+        // 替换文本并设置光标（防越界+空安全）
+        val str = mBuffer.toString()
+        mLocation = mLocation.coerceIn(0, str.length)
+        s.replace(0, s.length, str)
+        try {
+            Selection.setSelection(mDesTxt!!.text, mLocation)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        // 重置状态，避免下次处理污染
+        resetState()
+    }
+
+    /**
+     * 移除字符串中所有类型的空格（半角/全角/制表符等）
+     */
+    private fun removeAllSpaces(str: String): String {
+        return str.replace(Regex("[" + ALL_SPACE_CHARS.concatToString() + "]"), "")
+    }
+
+    /**
+     * 统计字符串中所有类型的空格数量
+     */
+    private fun countAllSpaces(s: CharSequence): Int {
+        var count = 0
+        for (c in s) {
+            if (c in ALL_SPACE_CHARS) {
+                count++
+            }
+        }
+        return count
+    }
+
+    /**
+     * 重置所有状态变量，避免多次操作后状态残留
+     */
+    private fun resetState() {
+        mBeforeTextLength = 0
+        mOnTextLength = 0
+        mBeforeNumTxtLength = 0
+        mNumTxtLength = 0
+        mLocation = 0
+        mBeforeLocation = 0
+        mBeforeSpaceNum = 0
+        mOverrideSpaceNum = 0
+        mPasteNum = 0
+        isOverrideSpace = false
+        isPaste = false
+        isChanged = false
+        mBuffer.delete(0, mBuffer.length)
+    }
+
+}
+
+/**
+ * 空白字符拦截器（单独封装，便于管理和去重）
+ */
+class SpaceInputFilter : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        // 空输入（删除/回退）直接放行
+        if (source.isNullOrEmpty()) return null
+        // 过滤所有空白字符：半角空格、全角空格、制表符、换行、回车等
+        val filtered = source.toString().replace(Regex("\\s"), "")
+        // 如果过滤后为空，说明输入的全是空白字符，直接拦截
+        return filtered.ifEmpty { "" }
+    }
+}
+
+/**
+ * 字符白名单输入过滤器（可精准判断重复，避免重复添加）
+ * @param allowed 允许输入的字符数组（比如数字+空格）
+ */
+class WhiteListFilter(private val allowed: CharArray) : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        // 空安全兜底：source为null直接视为空字符串，避免后续操作NPE
+        val safeSource = source ?: return null  // source=null等价于空输入，直接放行
+        val sb = StringBuilder()
+        // 先限定遍历的上下界，避免越界
+        // 确保start≥0
+        val actualStart = start.coerceAtLeast(0)
+        // 确保end≤source长度
+        val actualEnd = end.coerceAtMost(safeSource.length)
+        // 遍历有效范围的字符
+        for (i in actualStart until actualEnd) {
+            // 此时i一定在[0, safeSource.length)范围内，无越界风险
+            val char = safeSource[i]
+            // 只保留白名单内的字符
+            if (allowed.contains(char)) {
+                sb.append(char)
+            }
+        }
+        // 筛选结果处理：空则返回""（禁止输入），非空返回筛选结果
+        return sb.toString().takeIf { it.isNotEmpty() } ?: ""
+    }
+}
+
+/**
+ * 字符黑名单输入过滤器（精准去重+空安全+索引安全）
+ * @param disallowed 禁止输入的字符数组
+ */
+class BlackListFilter(private val disallowed: CharArray) : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        // 空安全兜底：source为null直接视为空输入，放行（删除/回退操作）
+        val safeSource = source ?: return null
+        val sb = StringBuilder()
+        // 限定遍历范围，避免越界/负数
+        // 起始索引≥0
+        val actualStart = start.coerceAtLeast(0)
+        // 结束索引≤source长度
+        val actualEnd = end.coerceAtMost(safeSource.length)
+        // 遍历有效范围，排除黑名单字符
+        for (i in actualStart until actualEnd) {
+            // 索引绝对安全，无越界风险
+            val char = safeSource[i]
+            // 只保留「不在黑名单」的字符
+            if (!disallowed.contains(char)) {
+                sb.append(char)
+            }
+        }
+        // 结果处理：空则返回""（禁止输入），非空返回筛选结果
+        return sb.toString().takeIf { it.isNotEmpty() } ?: ""
+    }
+}
+
+/**
+ * 禁止输入Emoji过滤器（精准去重+空安全+索引安全）
+ */
+class NoEmojiFilter : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        // 空安全兜底：source为null直接放行（删除/回退操作）
+        val safeSource = source ?: return null
+        val sb = StringBuilder()
+        // 索引安全：限定遍历范围
+        val actualStart = start.coerceAtLeast(0)
+        val actualEnd = end.coerceAtMost(safeSource.length)
+        // 遍历有效范围，只保留非Emoji字符
+        for (i in actualStart until actualEnd) {
+            val char = safeSource[i]
+            if (isNonEmojiCharacter(char)) {
+                sb.append(char)
+            }
+        }
+        // 结果处理：空则返回""（禁止输入），非空返回筛选结果
+        return sb.toString().takeIf { it.isNotEmpty() } ?: ""
+    }
+}
+
+/**
+ * 仅允许输入中文/字母/数字/下划线过滤器（精准去重+空安全+索引安全）
+ */
+class ChineseCharFilter : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        // 空安全兜底：source为null直接放行（删除/回退操作）
+        val safeSource = source ?: return null
+        val sb = StringBuilder()
+        // 索引安全：限定遍历范围，避免越界/负数
+        val actualStart = start.coerceAtLeast(0)
+        val actualEnd = end.coerceAtMost(safeSource.length)
+        // 遍历有效范围，保留合法字符（和你原有逻辑完全一致）
+        for (i in actualStart until actualEnd) {
+            val char = safeSource[i]
+            // 保留合法字符：中文、字母、数字、下划线（和你原逻辑一模一样）
+            if (isChinese(char) || Character.isLetterOrDigit(char) || char == '_') {
+                sb.append(char)
+            }
+        }
+        // 结果处理：空则返回""（禁止输入），非空返回筛选结果
+        return sb.toString().takeIf { it.isNotEmpty() } ?: ""
+    }
+}
+
+/**
+ * 数值限制筛选器
+ */
+class NumberLimitFilter(private val maxInteger: Int, private val maxDecimal: Int) : InputFilter {
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence {
+        val safeSource = source ?: "" // 空安全兜底
+        if (safeSource == "." && dest.toString().isEmpty()) {
+            return if (maxDecimal == 0) {
+                "0"
+            } else {
+                "0."
+            }
+        }
+        if (dest.toString().contains(".")) {
+            val index = dest.toString().indexOf(".")
+            val length1 = dest.toString().substring(0, index).length
+            val length2 = dest.toString().substring(index).length
+            if (length1 >= maxInteger && dstart < index) {
+                return ""
+            }
+            if (length2 >= maxDecimal + 1 && dstart > index) {
+                return ""
+            }
+        } else {
+            val length1 = dest.toString().length
+            if (maxDecimal == 0 && source == ".") {
+                return ""
+            } else if ((length1 >= maxInteger) and (source != ".")) {
+                return ""
+            }
+        }
+        return safeSource
+    }
+}
+
+/**
+ *  代码实例：
+ *   val filters = arrayOf<InputFilter>(DecimalInputFilter())
+ *   it.filters = filters
+ *
+ *   <EditText
+ *      android:id="@+id/et_integral"
+ *      android:layout_width="0dp"
+ *      android:layout_height="match_parent"
+ *      android:layout_weight="1"
+ *      android:background="@null"
+ *      android:ellipsize="end"
+ *      android:hint="请输入积分充值数额"
+ *      android:inputType="numberDecimal"
+ *      android:lines="1"
+ *      android:textColor="@color/textPrimary"
+ *      android:textColorHint="@color/textHint"
+ *      android:textSize="30mm"
+ *      android:textStyle="bold" />
+ */
+class DecimalInputFilter(private val decimalPoint: Int = 2) : InputFilter {
+    private val point = "."
+    private val zero = "0"
+    private val maxValue by lazy { Int.MAX_VALUE } // 输入的最大金额
+
+    /**
+     * @param source    新输入的字符串
+     * @param start     新输入的字符串起始下标，一般为0
+     * @param end       新输入的字符串终点下标，一般为source长度-1
+     * @param dest      输入之前文本框内容
+     * @param dstart    原内容起始坐标，一般为0
+     * @param dend      原内容终点坐标，一般为dest长度-1
+     * @return          输入内容
+     */
+    override fun filter(source: CharSequence?, start: Int, end: Int, dest: Spanned?, dstart: Int, dend: Int): CharSequence? {
+        val sourceText = source?.toString().orEmpty()
+        val destText = dest?.toString().orEmpty()
+        // 删除/回退键直接放行
+        if (sourceText.isEmpty()) return null
+        // 拼接输入后的完整文本（基于最终文本判断，而非光标位置）
+        val newText = destText.substring(0, dstart) + sourceText + destText.substring(dend)
+        // 拦截多个小数点（inputType允许输入多个，需要Filter拦截）
+        if (newText.split(point).size > 2) {
+            return ""
+        }
+        // 精准判断小数位数（修复你原代码的核心错误）
+        if (newText.contains(point)) {
+            val pointIndex = newText.indexOf(point)
+            val decimalLength = newText.length - pointIndex - 1
+            if (decimalLength > decimalPoint) {
+                return ""
+            }
+        }
+        // 0开头逻辑
+        if (newText.startsWith(zero) && newText.length > 1) {
+            // 0开头且第二位不是小数点，拦截（禁止0123，允许0.12）
+            if (!newText.startsWith("$zero$point")) {
+                return ""
+            }
+        }
+        // 校验最大值（捕获异常，避免崩溃）
+        return try {
+            val value = newText.toDouble()
+            if (value > maxValue) "" else null
+        } catch (_: NumberFormatException) {
+            // 处理123.、.12等非完整数字场景，暂时放行（后续输入会重新校验）
+            null
+        }
+    }
+}
 // </editor-fold>

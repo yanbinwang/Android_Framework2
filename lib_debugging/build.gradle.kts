@@ -1,25 +1,32 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.parcelize)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.debugging"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
     buildFeatures {
         dataBinding = true
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {

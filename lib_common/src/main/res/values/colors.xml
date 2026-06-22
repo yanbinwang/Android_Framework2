@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- app内的一些颜色-->
-    <color name="appTheme">#3d81f2</color><!-- app主题色 -->
-    <color name="appPrimary">#202630</color><!-- app全局字体默认颜色 -->
-    <color name="appStatusBar">#ffffff</color><!-- app状态栏颜色 -->
-    <color name="appNavigationBar">#ffffff</color><!-- app导航栏颜色 -->
-    <color name="appWindowBackground">#f6f8ff</color><!-- app背景色 -->
-    <color name="appPrimaryDark">#ffffff</color><!-- app主题深色强调色（API < 21 时影响状态栏颜色） -->
-    <color name="appAccent">#3d81f2</color><!-- 光标色 -->
-    <color name="appControlNormal">#333333</color><!-- 控制控件的默认颜色 -->
+    <color name="appTheme">#3d81f2</color> <!-- app主题色 -->
+    <color name="appPrimary">#202630</color> <!-- app全局字体默认颜色 -->
+    <color name="appStatusBar">#ffffff</color> <!-- app状态栏颜色 -->
+    <color name="appNavigationBar">#ffffff</color> <!-- app导航栏颜色 -->
+    <color name="appWindowBackground">#f6f8ff</color> <!-- app背景色 -->
+    <color name="appPrimaryDark">#ffffff</color> <!-- app主题深色强调色（API < 21 时影响状态栏颜色） -->
+    <color name="appAccent">#3d81f2</color> <!-- 光标色 -->
+    <color name="appControlNormal">#333333</color> <!-- 控制控件的默认颜色 -->
     <!-- 输入框/显示文本 -->
-    <color name="textPrimary">#202630</color><!-- 字体默认颜色 -->
-    <color name="textSecondary">#999EA4</color><!-- 字体二级默认颜色 -->
-    <color name="textHint">#999EA4</color><!-- 控件显示提示文案字体颜色 -->
-    <color name="textDisabled">#aaa</color><!-- 不可用控件字体颜色 -->
+    <color name="textPrimary">#202630</color> <!-- 字体默认颜色 -->
+    <color name="textSecondary">#999EA4</color> <!-- 字体二级默认颜色 -->
+    <color name="textHint">#999EA4</color> <!-- 控件显示提示文案字体颜色 -->
+    <color name="textDisabled">#aaa</color> <!-- 不可用控件字体颜色 -->
     <!-- 弹框/遮罩/默认线条背景 -->
-    <color name="bgLine">#f6f8ff</color><!-- 线条颜色 -->
-    <color name="bgToast">#cf111111</color><!-- 语句提示框背景 -->
-    <color name="bgDialog">#33000000</color><!-- 弹框背景 -->
-    <color name="bgAppDialog">#00ffffff</color><!-- 提示背景 -->
-    <color name="bgToolbar">#ffffff</color><!-- 标题背景 -->
-    <color name="bgDefault">#ffffff</color><!-- 背景色 -->
+    <color name="bgLine">#f6f8ff</color> <!-- 线条颜色 -->
+    <color name="bgToast">#cf111111</color> <!-- 语句提示框背景 -->
+    <color name="bgDialog">#33000000</color> <!-- 弹框背景 -->
+    <color name="bgAppDialog">#00ffffff</color> <!-- 提示背景 -->
+    <color name="bgToolbar">#ffffff</color> <!-- 标题背景 -->
+    <color name="bgDefault">#ffffff</color> <!-- 背景色 -->
     <!-- 特定字体的颜色,不管何种模式基本不可改变（每种颜色最多3种样式，需要UI统一） -->
     <color name="bgShadow">#ff000000</color>
     <color name="bgOverlay">#4c000000</color>

@@ -31,12 +31,12 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 @SuppressLint("RestrictedApi")
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
-    private val mBinding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
+    private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-//        mBinding.root.size(MATCH_PARENT, 40.pt)
-        mBinding.ivProgress.let {
+//        binding.root.size(MATCH_PARENT, 40.pt)
+        binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
@@ -44,14 +44,14 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(binding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {
     }
 
     override fun getView(): View {
-        return mBinding.root
+        return binding.root
     }
 
     override fun getSpinnerStyle(): SpinnerStyle {
@@ -109,7 +109,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
-        return true
+        return false
     }
 
     /**
@@ -117,14 +117,14 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      */
     fun setStatusBarHeight(statusBarHeight: Int) {
         //40*2.5
-        mBinding.root.size(MATCH_PARENT, 100.pt + statusBarHeight)
+        binding.root.size(MATCH_PARENT, 100.pt + statusBarHeight)
     }
 
     /**
      * 转圈颜色
      */
     fun setProgressTint(@ColorRes color: Int) {
-        mBinding.ivProgress.tint(color)
+        binding.ivProgress.tint(color)
     }
 
 }

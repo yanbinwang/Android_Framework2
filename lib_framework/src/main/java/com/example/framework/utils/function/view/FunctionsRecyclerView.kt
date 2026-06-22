@@ -1,9 +1,8 @@
 package com.example.framework.utils.function.view
 
 import android.annotation.SuppressLint
-import android.os.SystemClock
-import android.view.MotionEvent
 import android.view.ViewGroup
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.ConcatAdapter
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -11,14 +10,15 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.SimpleItemAnimator
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 
-//------------------------------------recyclerview扩展函数类------------------------------------
+//------------------------------------RecyclerView扩展函数类------------------------------------
 
 /**
- * 初始化一个recyclerview
+ * 初始化一个 RecyclerView
  */
 fun RecyclerView?.init(hasFixedSize: Boolean = true) {
     this ?: return
@@ -40,7 +40,7 @@ fun RecyclerView?.init(hasFixedSize: Boolean = true) {
  */
 @SuppressLint("NotifyDataSetChanged")
 fun RecyclerView?.refresh() {
-    if (this == null) return
+    this ?: return
     this.adapter?.notifyDataSetChanged()
 }
 
@@ -87,14 +87,14 @@ fun RecyclerView?.enableViewHolderCache() {
  * 临时禁用缓存执行操作并自动恢复
  * 它只在执行特定操作（如数据刷新）时临时禁用缓存，操作完成后立即恢复默认缓存策略，实现精确控制与性能优化的平衡
  */
-fun RecyclerView?.withTempDisabledCache(block: () -> Unit) {
+inline fun RecyclerView?.withTempDisabledCache(func: () -> Unit) {
     this ?: return
     // 保存当前动画状态
     val originalAnimations = (itemAnimator as? SimpleItemAnimator)?.supportsChangeAnimations ?: true
     // 临时禁用缓存
     disableViewHolderCache()
     // 执行具体操作（如刷新数据）
-    block()
+    func()
     // 恢复缓存策略（在 block 之后执行）
     enableViewHolderCache()
     // 恢复原始动画状态（在 block 之后执行）
@@ -119,10 +119,137 @@ fun RecyclerView?.withTempDisabledCache(block: () -> Unit) {
 //}
 
 /**
+ * RecyclerView 安全更新扩展函数
+ * 解决 "Cannot call this method while RecyclerView is computing a layout or scrolling" 异常
+ * @param func 要执行的更新逻辑（如 adapter.notifyXXX()/数据修改）
+ */
+inline fun RecyclerView?.safeUpdate(crossinline func: () -> Unit) {
+    // 空指针防护：RecyclerView 实例为空时直接返回
+    this ?: return
+    // 生命周期防护：View未挂载到窗口时不执行（避免页面销毁后仍更新）
+    if (!isAttachedToWindow) return
+    // 延迟执行：将更新任务放入主线程消息队列，避开布局计算/滚动周期
+    post {
+        // 双重校验：执行前再次确认状态（防止post期间View状态变化）
+        if (isAttachedToWindow && !isComputingLayout) {
+            try {
+                func()
+            } catch (e: Exception) {
+                // 捕获意外异常，避免崩溃扩散（保留基础异常防护）
+                e.printStackTrace()
+            }
+        }
+    }
+}
+
+/**
+ * 获取滑动出来的第一个item的下标
+ * recyclerView?.getFirstVisibleItemPosition().orZero
+ *
+ * fun change(recyclerView: RecyclerView) {
+ *  val index = (recyclerView.layoutManager as? GridLayoutManager)?.findFirstVisibleItemPosition()
+ *  mBinding?.tvDate?.text = mBinding?.adapter?.item(index)?.date
+ * }
+ *
+ * val date get() = EN_YMDHMS.convert(CN_YM, createTime.orEmpty())
+ * viewModel.list.observe {
+ *     mBinding?.adapter?.notify(this, viewModel)
+ *     // 赋值后取出总集合，添加标记后再刷新列表
+ *     var createTime = ""
+ *     mBinding?.adapter?.list()?.forEach {
+ *         if (createTime != it.date) {
+ *             createTime = it.date
+ *             it.first = true
+ *          }
+ *     }
+ *     mBinding?.adapter?.notifyDataSetChanged()
+ * }
+ */
+fun RecyclerView?.setOnScrollListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (manager: RecyclerView, isScrolled: Boolean) -> Unit = { _, _ -> }) {
+    this ?: return
+    val listener = object : RecyclerView.OnScrollListener() {
+        /**
+         * 滚动状态变化时（停止/拖拽/惯性滚动）回调
+         * change(recyclerView)
+         */
+        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+            super.onScrollStateChanged(recyclerView, newState)
+            func.invoke(recyclerView, false)
+        }
+
+        /**
+         * 滚动过程中持续回调
+         * // -1代表顶部,1代表底部,返回true表示没到还可以滑
+         * if (!recyclerView.canScrollVertically(-1)) {
+         *     mBinding?.tvDate.gone()
+         * } else {
+         *     if (recyclerView.canScrollVertically(1)) {
+         *         if (dy >= 1) mBinding?.tvDate.visible()
+         *     }
+         * }
+         * change(recyclerView)
+         */
+        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+            super.onScrolled(recyclerView, dx, dy)
+            func.invoke(recyclerView, true)
+        }
+    }
+    addOnScrollListener(listener)
+    owner.doOnDestroy {
+        removeOnScrollListener(listener)
+    }
+}
+
+/**
+ * 获取 RecyclerView 第一个可见 Item 位置（部分可见）
+ * 适配 LinearLayout/Grid/StaggeredGrid 布局
+ */
+fun RecyclerView?.getFirstVisibleItemPosition(): Int {
+    this ?: return 0
+    return layoutManager.getFirstVisibleItemPosition()
+}
+
+fun RecyclerView.LayoutManager?.getFirstVisibleItemPosition(): Int {
+    return when (this) {
+        // LinearLayoutManager 及其子类（GridLayoutManager）
+        is LinearLayoutManager -> {
+            this.findFirstVisibleItemPosition()
+        }
+        // 瀑布流布局（StaggeredGridLayoutManager）
+        is StaggeredGridLayoutManager -> {
+            // 瀑布流返回的是数组（多列），取最小的位置（第一个可见）
+            this.findFirstVisibleItemPositions(null).minOrNull().orZero
+        }
+        // 其他布局管理器（如自定义），返回0（无通用方法）
+        else -> 0
+    }
+}
+
+/**
+ * 获取 RecyclerView 第一个完全可见 Item 位置
+ * 适配 LinearLayout/Grid 布局，StaggeredGrid 需手动判断
+ */
+fun RecyclerView?.getFirstCompletelyVisibleItemPosition(): Int {
+    this ?: return 0
+    return layoutManager.getFirstCompletelyVisibleItemPosition()
+}
+
+fun RecyclerView.LayoutManager?.getFirstCompletelyVisibleItemPosition(): Int {
+    return when (this) {
+        // LinearLayout/GridLayout 有现成方法，直接用
+        is LinearLayoutManager -> {
+            this.findFirstCompletelyVisibleItemPosition()
+        }
+        // 其他布局管理器返回0
+        else -> 0
+    }
+}
+
+/**
  * 判断是否滑到顶端
  */
 fun RecyclerView?.isTop(): Boolean {
-    if (this == null) return true
+    this ?: return true
     val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findFirstVisibleItemPosition()
     return if (position <= 0) {
@@ -137,7 +264,7 @@ fun RecyclerView?.isTop(): Boolean {
  * 判断是否滑到底端
  */
 fun RecyclerView?.isBottom(): Boolean {
-    if (this == null) return true
+    this ?: return true
     val layoutManager = layoutManager as? LinearLayoutManager ?: return true
     val position = layoutManager.findLastVisibleItemPosition()
     return if (position >= adapter?.itemCount.orZero - 1) {
@@ -149,36 +276,46 @@ fun RecyclerView?.isBottom(): Boolean {
 }
 
 /**
- * 滚动RecyclerView，目标位置置顶
+ * 目标位置置顶
+ * 1) 以其 “起始边” 对齐 RecyclerView 的可视区域起始边
+ * 2) 如果 pos 对应的 Item 原本就在可视区域内，只会滚动到 Item 置顶；如果 pos 在可视区域外，会先滚动到 Item 进入可视区域，再对齐顶部
  */
-fun RecyclerView?.toPositionSmooth(pos: Int, scale: Float = 1f) = smoothScroll(pos, LinearSmoothScroller.SNAP_TO_START, scale)
+fun RecyclerView?.toTopPositionSmooth(pos: Int, scale: Float = 1f) {
+    toPositionSmooth(pos, LinearSmoothScroller.SNAP_TO_START, scale)
+}
 
 /**
- * 滚动RecyclerView，目标位置置底
+ * 目标位置置底
+ * 1) 以其 “结束边” 对齐 RecyclerView 的可视区域结束边
+ * 2) 如果 pos 对应的 Item 原本就在可视区域内，只会滚动到 Item 置底；如果 pos 在可视区域外，会先滚动到 Item 进入可视区域，再对齐底部
  */
-fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) = smoothScroll(pos, LinearSmoothScroller.SNAP_TO_END, scale)
+fun RecyclerView?.toBottomPositionSmooth(pos: Int, scale: Float = 1f) {
+    toPositionSmooth(pos, LinearSmoothScroller.SNAP_TO_END, scale)
+}
 
-fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
-    if (this == null) return
-    val manager = layoutManager
-    if (manager !is LinearLayoutManager) return
-    try {
-        (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    val first = manager.findFirstVisibleItemPosition()
-    val last = manager.findLastVisibleItemPosition()
-    if (first > pos || last < pos) {
+/**
+ * 滚动RecyclerView
+ * scale = 1f（默认）：按完整计算距离滚动，目标位置精准置顶 / 置底；
+ * scale < 1f（如 0.5f）：按计算距离的比例滚动，目标位置不会完全置顶 / 置底，而是保留一部分偏移；
+ * scale > 1f（如 1.2f）：滚动距离超过计算值，会额外多滚一段距离。
+ */
+fun RecyclerView?.toPositionSmooth(pos: Int, type: Int, scale: Float) {
+    this ?: return
+    (parent as? ViewGroup).actionCancel()
+    val layoutManager = layoutManager as? LinearLayoutManager ?: return
+    val first = layoutManager.findFirstVisibleItemPosition()
+    val last = layoutManager.findLastVisibleItemPosition()
+    if (pos !in first..last) {
         val smoothScroller = object : LinearSmoothScroller(this.context) {
             override fun getVerticalSnapPreference(): Int = type
             override fun getHorizontalSnapPreference(): Int = type
         }
         smoothScroller.targetPosition = pos
-        layoutManager?.startSmoothScroll(smoothScroller)
+        layoutManager.startSmoothScroll(smoothScroller)
     } else {
-        val top = manager.findViewByPosition(pos)?.top.orZero
-        val height = manager.findViewByPosition(pos)?.height.orZero
+        val targetView = layoutManager.findViewByPosition(pos) ?: return
+        val top = targetView.top.orZero
+        val height = targetView.height.orZero
         val listHeight = measuredHeight
         when (type) {
             LinearSmoothScroller.SNAP_TO_START -> smoothScrollBy(0, (top * scale).toSafeInt())
@@ -189,19 +326,23 @@ fun RecyclerView?.smoothScroll(pos: Int, type: Int, scale: Float) {
 
 /**
  * 滚动RecyclerView，可带有offset
+ * offset = 0（默认）：目标 Item 的顶部与 RecyclerView 的顶部完全对齐（精准置顶）；
+ * offset = 50：目标 Item 的顶部距离 RecyclerView 顶部保留 50px 的偏移；
+ * offset = -30：目标 Item 的顶部超出 RecyclerView 顶部 30px（部分被遮挡）。
  */
 fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
-    if (this == null) return
-    try {
-        (parent as ViewGroup).dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+    this ?: return
+    // 取消触摸事件
+    (parent as? ViewGroup).actionCancel()
+    // 滑动到指定位置
     scrollToPosition(pos)
-    when (val mLayoutManager = layoutManager) {
-        is LinearLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
-        is GridLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
-        is StaggeredGridLayoutManager -> mLayoutManager.scrollToPositionWithOffset(pos, offset)
+    // 合并 LinearLayoutManager + GridLayoutManager（父类覆盖子类，消除重复分支） 仅保留两个分支，消除冗余判断
+    layoutManager?.let { lm ->
+        when (lm) {
+            is LinearLayoutManager -> lm.scrollToPositionWithOffset(pos, offset)
+            is StaggeredGridLayoutManager -> lm.scrollToPositionWithOffset(pos, offset)
+            else -> Unit
+        }
     }
 }
 
@@ -209,7 +350,7 @@ fun RecyclerView?.toPosition(pos: Int, offset: Int = 0) {
  * RecyclerView添加不遮挡item的padding
  */
 fun RecyclerView?.paddingClip(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
-    if (this == null) return
+    this ?: return
     clipToPadding = false
     padding(start, top, end, bottom)
 }
@@ -235,94 +376,57 @@ fun RecyclerView?.initLinearVertical(adapter: RecyclerView.Adapter<*>? = null): 
 /**
  * 设置水平的Grid的GridLayoutManager和adapter
  */
-fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+fun RecyclerView?.initGridHorizontal(adapter: RecyclerView.Adapter<*>, spanCount: Int): GridLayoutManager? {
     this ?: return null
     this.adapter = adapter
-    return GridLayoutManager(context, columns, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
+    return GridLayoutManager(context, spanCount, RecyclerView.HORIZONTAL, false).apply { layoutManager = this }
 }
 
 /**
  * 设置垂直的Grid的GridLayoutManager和adapter
  */
-fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, columns: Int): GridLayoutManager? {
+fun RecyclerView?.initGridVertical(adapter: RecyclerView.Adapter<*>, spanCount: Int): GridLayoutManager? {
     this ?: return null
     this.adapter = adapter
-    return GridLayoutManager(context, columns, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+    return GridLayoutManager(context, spanCount, RecyclerView.VERTICAL, false).apply { layoutManager = this }
+}
+
+/**
+ * 设置垂直方向的瀑布流 LayoutManager
+ */
+fun RecyclerView?.initStaggeredVertical(adapter: RecyclerView.Adapter<*>, spanCount: Int): StaggeredGridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.VERTICAL).apply {
+        layoutManager = this
+        // 解决瀑布流滑动时item乱序、跳动、位置错乱问题
+        gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+    }
+}
+
+/**
+ * 设置水平方向的瀑布流 LayoutManager
+ */
+fun RecyclerView?.initStaggeredHorizontal(adapter: RecyclerView.Adapter<*>, spanCount: Int): StaggeredGridLayoutManager? {
+    this ?: return null
+    this.adapter = adapter
+    return StaggeredGridLayoutManager(spanCount, StaggeredGridLayoutManager.HORIZONTAL).apply {
+        layoutManager = this
+        gapStrategy = StaggeredGridLayoutManager.GAP_HANDLING_NONE
+    }
 }
 
 /**
  * 设置复杂的多个adapter直接拼接成一个
+ * GridLayoutManager(spanCount = 2) + ConcatAdapter(AdapterA, AdapterB)
+ * 最终排版是全部揉在一起统一两列流式往下走：
+ * A1  A2
+ * A3  B1
+ * B2  B3
  */
-fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>) {
+fun RecyclerView?.initConcat(vararg adapters: RecyclerView.Adapter<*>, manager: RecyclerView.LayoutManager? = null) {
     this ?: return
-    layoutManager = LinearLayoutManager(context)
+    layoutManager = manager ?: LinearLayoutManager(context)
+    // true：各子 Adapter 的 viewType 互相隔离、互不干扰，不会因为不同 Adapter 用了同一个 int 类型值导致缓存错乱
     adapter = ConcatAdapter(ConcatAdapter.Config.Builder().setIsolateViewTypes(true).build(), *adapters)
-}
-
-/**
- * 获取holder
- * 1. 只能获取「活跃状态」的 ViewHolder
- * 原生方法仅返回以下两种状态的 ViewHolder，其他情况返回 null：
- * 正在屏幕内显示的 ViewHolder（Item 在可见区域内）；
- * 刚滚出屏幕、暂存在 Scrap 缓存（一级缓存）的 ViewHolder（还没被回收至 RecycledViewPool）。
- * 若 Item 满足以下条件，getHolder 会返回 null：
- * Item 还没创建（比如首次加载时，屏幕外的 Item 未初始化）；
- * Item 已滚出屏幕并被回收至 RecycledViewPool（二级缓存）；
- * Item 已从数据集中删除（比如调用 notifyItemRemoved 后）。
- * 2. 可能返回 “复用后的旧 ViewHolder”
- * RecyclerView 有复用机制：一个 ViewHolder 可能先绑定 position=0，滚出屏幕后复用给 position=10。若在「复用已发生但 onBindViewHolder 未执行完毕」的间隙调用 getHolder(0)，可能返回已复用给 position=10 的 ViewHolder，导致操作错误的 Item。
- * 3. 配置变更后会失效
- * 当屏幕旋转、语言切换等配置变更发生时，RecyclerView 和 Adapter 会重建，原来的 ViewHolder 会被销毁，此时调用 getHolder 会返回 null。
- */
-fun <K : RecyclerView.ViewHolder> RecyclerView?.getHolder(position: Int): K? {
-    if (this == null) return null
-    adapter?.let {
-        if (position !in 0 until it.itemCount) {
-            return null
-        }
-    } ?: return null
-    return findViewHolderForAdapterPosition(position) as? K
-}
-
-/**
- * 获取滑动出来的第一个item的下标
- * (recyclerView.layoutManager as? LinearLayoutManager)?.findFirstVisibleItemPosition().orZero
- */
-fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener(onCurrent: ((manager: RecyclerView.LayoutManager?) -> Unit)?) {
-    if (this == null) return
-    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-            super.onScrollStateChanged(recyclerView, newState)
-            onCurrent?.invoke(recyclerView.layoutManager)
-        }
-
-        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-            super.onScrolled(recyclerView, dx, dy)
-            onCurrent?.invoke(recyclerView.layoutManager)
-        }
-    })
-}
-
-//fun RecyclerView?.addOnScrollFirstVisibleItemPositionListener2(onCurrent: ((index: Int) -> Unit)?) {
-//    if (this == null) return
-//    addOnScrollListener(object : RecyclerView.OnScrollListener() {
-//        override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
-//            super.onScrollStateChanged(recyclerView, newState)
-//            onCurrent?.invoke(getFirstVisibleItemPosition())
-//        }
-//
-//        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-//            super.onScrolled(recyclerView, dx, dy)
-//            onCurrent?.invoke(getFirstVisibleItemPosition())
-//        }
-//    })
-//}
-
-fun RecyclerView?.getFirstVisibleItemPosition(): Int {
-    if (this == null) return 0
-    return when (val mLayoutManager = layoutManager) {
-        is LinearLayoutManager -> mLayoutManager.findFirstVisibleItemPosition().orZero
-        is GridLayoutManager -> mLayoutManager.findFirstVisibleItemPosition().orZero
-        else -> 0
-    }
 }

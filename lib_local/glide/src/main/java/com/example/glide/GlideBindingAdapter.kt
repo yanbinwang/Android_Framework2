@@ -3,6 +3,8 @@ package com.example.glide
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.widget.ImageView
+import androidx.annotation.DrawableRes
+import androidx.annotation.RawRes
 import androidx.cardview.widget.CardView
 import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.value.areDrawablesSame
@@ -13,6 +15,7 @@ import com.example.glide.ImageLoader.Companion.DEFAULT_CIRCULAR_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_CORNER_RADIUS
 import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_ROUNDED_RESOURCE
+import com.example.glide.ImageLoader.Companion.DEFAULT_SCALE_TYPE
 import java.lang.ref.WeakReference
 
 /**
@@ -47,7 +50,7 @@ object GlideBindingAdapter {
      */
     @JvmStatic
     @BindingAdapter(value = ["res", "drawable", "visibility"], requireAll = false)
-    fun bindingImageViewTheme(view: ImageView, res: Int?, drawable: Drawable?, visibility: Int?) {
+    fun bindingImageViewTheme(view: ImageView, @DrawableRes res: Int?, drawable: Drawable?, visibility: Int?) {
         res?.let { newRes ->
             val resKey = R.id.glide_res_tag
             val oldSrcRes = view.getTag(resKey) as? Int
@@ -58,7 +61,7 @@ object GlideBindingAdapter {
         }
         drawable?.let { newDrawable ->
             val drawableKey = R.id.glide_drawable_tag
-            val oldDrawable = (view.getTag(drawableKey) as? WeakReference<Drawable>)?.get()
+            val oldDrawable = view.getTag(drawableKey) as? Drawable
             if (oldDrawable == null || !areDrawablesSame(oldDrawable, newDrawable)) {
                 view.setImageDrawable(newDrawable)
                 view.setTag(drawableKey, WeakReference(newDrawable))
@@ -75,6 +78,21 @@ object GlideBindingAdapter {
     }
 
     /**
+     * 加载gif图片
+     */
+    @JvmStatic
+    @BindingAdapter(value = ["gif_gifUrl"])
+    fun bindingGifFromUrl(view: ImageView, gifUrl: String?) {
+        ImageLoader.instance.loadGifFromUrl(view, gifUrl)
+    }
+
+    @JvmStatic
+    @BindingAdapter(value = ["gif_gifResource"])
+    fun bindingGifFromResource(view: ImageView, @RawRes @DrawableRes gifResource: Int?) {
+        ImageLoader.instance.loadGifFromResource(view, gifResource)
+    }
+
+    /**
      * 加载图片（比例缩放）
      */
     @JvmStatic
@@ -84,41 +102,37 @@ object GlideBindingAdapter {
     }
 
     /**
-     * 加载gif图片
-     */
-    @JvmStatic
-    @BindingAdapter(value = ["gif_gifUrl"])
-    fun bindingGifFromUrl(view: ImageView, gifUrl: String?) {
-        ImageLoader.instance.loadGifFromUrl(view, gifUrl)
-    }
-
-    /**
      * 加载图片
      */
     @JvmStatic
     @BindingAdapter(value = ["imageUrl", "errorResource"], requireAll = false)
-    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
+    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, @DrawableRes errorResource: Int?) {
         val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
         ImageLoader.instance.loadImageFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
     }
 
     @JvmStatic
     @BindingAdapter(value = ["imageResource"])
-    fun bindingImageFromResource(view: ImageView, imageResource: Int?) {
+    fun bindingImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?) {
         ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
+    /**
+     * app:cardview_scaleType="@{android.widget.ImageView.ScaleType.CENTER_CROP}"
+     */
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource"], requireAll = false)
-    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, errorResource: Int?) {
+    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource", "cardview_scaleType"], requireAll = false)
+    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?, scaleType: ImageView.ScaleType?) {
+        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
         val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
-        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
+        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, effectiveScaleType, { view.disable() }, { view.enable() })
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageResource"])
-    fun bindingCardViewFromResource(view: CardView, imageResource: Int?) {
-        ImageLoader.instance.loadCardViewFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["cardview_imageResource", "cardview_scaleType"], requireAll = false)
+    fun bindingCardViewFromResource(view: CardView, @RawRes @DrawableRes imageResource: Int?, scaleType: ImageView.ScaleType?) {
+        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
+        ImageLoader.instance.loadCardViewFromResource(view, imageResource, scaleType = effectiveScaleType, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**
@@ -130,15 +144,15 @@ object GlideBindingAdapter {
         val effectiveErrorResource = errorResource ?: DEFAULT_ROUNDED_RESOURCE
         val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
         val effectiveOverrideColor = overrideColor ?: Color.WHITE
-        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor)
+        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     @JvmStatic
     @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius", "rounded_overrideColor"], requireAll = false)
-    fun bindingRoundedImageFromResource(view: ImageView, imageResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
+    fun bindingRoundedImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
         val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
         val effectiveOverrideColor = overrideColor ?: Color.WHITE
-        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor)
+        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     /**
@@ -148,13 +162,13 @@ object GlideBindingAdapter {
     @BindingAdapter(value = ["circular_imageUrl", "circular_errorResource"], requireAll = false)
     fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
         val effectiveErrorResource = errorResource ?: DEFAULT_CIRCULAR_RESOURCE
-        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, effectiveErrorResource)
+        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, effectiveErrorResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
 
     @JvmStatic
     @BindingAdapter(value = ["circular_imageResource"])
-    fun bindingCircularImageFromResource(view: ImageView, imageResource: Int?) {
-        ImageLoader.instance.loadCircularImageFromResource(view, imageResource)
+    fun bindingCircularImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?) {
+        ImageLoader.instance.loadCircularImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
     }
     // </editor-fold>
 

@@ -1,88 +1,98 @@
 package com.example.common.widget.popup.select
 
+import androidx.fragment.app.FragmentManager
 import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.databinding.ViewPopupSelectLabelBinding
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
+import java.lang.ref.WeakReference
 
 /**
  * Created by wangyanbin
  * 底部多选弹框
  * private val occupationPopup by lazy { SelectBottomPopup<String>(this) { it }.apply { setParams(UserAuthBean.jobList) }}
  */
-//class SelectLabelPopup<T>(activity: FragmentActivity, var formatter: (T?) -> String?) : BasePopupWindow<ViewPopupSelectLabelBinding>(activity, popupAnimStyle = Companion.PopupAnimType.TRANSLATE) {
-//    private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
-//
-//    fun setParams(list: List<T>) {
-//        mBinding?.apply {
-//            llItem.apply {
-//                removeAllViews()
-//                list.forEachIndexed { index, t ->
-//                    // 获取根布局
-//                    val root = SelectItemHolder(llItem, formatter(t), index).also {
-//                        it.onItemClick = { item, index ->
-//                            dismiss()
-//                            onCurrent?.invoke(item, index)
-//                        }
-//                    }.mBinding.root
-//                    // 添加布局进外层父布局
-//                    addView(root)
-//                    // 添加完成后设置大小
-//                    root.size(height = 50.pt)
-//                    // 判断是否需要添加下划线
-//                    if (list.safeSize - 1 > index) {
-//                        root.margin(bottom = 1.pt)
-//                    }
-//                }
-//            }
-//            tvCancel.click {
-//                dismiss()
-//            }
-//        }
-//    }
-//
-//    fun setOnItemClickListener(onCurrent: ((item: String?, index: Int) -> Unit)) {
-//        this.onCurrent = onCurrent
-//    }
-//
-//}
-class SelectLabelPopup<T>(private val list: List<T>, var formatter: (T?) -> String?) : BaseBottomSheetDialogFragment<ViewPopupSelectLabelBinding>() {
-    private var onCurrent: ((item: String?, index: Int) -> Unit)? = null
+class SelectLabelPopup<T>(private var list: List<T>, var formatter: (T?) -> String?) : BaseBottomSheetDialogFragment<ViewPopupSelectLabelBinding>() {
+    private var listener: WeakReference<((item: String?, index: Int) -> Unit)>? = null
+
+    companion object {
+
+        /**
+         * 不添加默认数据的构建
+         */
+        fun create(vararg labels: String): SelectLabelPopup<String> {
+            return SelectLabelPopup(labels.toList()) { it }
+        }
+
+        fun create(vararg labels: Int): SelectLabelPopup<String> {
+            return SelectLabelPopup(labels.toNewList { string(it) }) { it }
+        }
+
+    }
+
+    override fun initEvent() {
+        super.initEvent()
+        mBinding?.tvCancel.click {
+            dismiss()
+        }
+    }
 
     override fun initData() {
         super.initData()
-        mBinding?.apply {
-            llItem.apply {
-                removeAllViews()
-                list.forEachIndexed { index, t ->
-                    // 获取根布局
-                    val root = SelectItemHolder(llItem, formatter(t), index).also {
-                        it.onItemClick = { item, index ->
-                            dismiss()
-                            onCurrent?.invoke(item, index)
-                        }
-                    }.mBinding.root
-                    // 添加布局进外层父布局
-                    addView(root)
-                    // 添加完成后设置大小
-                    root.size(height = 50.pt)
-                    // 判断是否需要添加下划线
-                    if (list.safeSize - 1 > index) {
-                        root.margin(bottom = 1.pt)
+        mBinding?.llItem?.apply {
+            removeAllViews()
+            list.forEachIndexed { index, t ->
+                // 获取根布局
+                val root = SelectItemHolder(this, formatter(t), index).also {
+                    it.onItemClick = { item, index ->
+                        dismiss()
+                        listener?.get()?.invoke(item, index)
                     }
+                }.getRoot()
+                // 添加布局进外层父布局
+                addView(root)
+                // 添加完成后设置大小
+                root.size(height = 50.pt)
+                // 判断是否需要添加下划线
+                if (list.safeSize - 1 > index) {
+                    root.margin(bottom = 1.pt)
                 }
-            }
-            tvCancel.click {
-                dismiss()
             }
         }
     }
 
-    fun setOnItemClickListener(onCurrent: ((item: String?, index: Int) -> Unit)) {
-        this.onCurrent = onCurrent
+    /**
+     * 刷新内部布局
+     */
+    fun setParams(list: List<T>) {
+        this.list = list
+    }
+
+    /**
+     * 获取数据
+     */
+    fun getParams(): List<T> {
+        return list
+    }
+
+    /**
+     * 设置监听
+     */
+    fun setOnItemClickListener(listener: ((item: String?, index: Int) -> Unit)) {
+        this.listener = WeakReference(listener)
+    }
+
+    /**
+     * BaseTopSheetDialogFragment / BaseBottomSheetDialogFragment 属于 Fragment , 故而 set 的变量会保留 (监听使用弱引用) 但 View 不持有
+     */
+    fun show(list: List<T>, manager: FragmentManager) {
+        this.list = list
+        show(manager)
     }
 
 }

@@ -3,15 +3,14 @@ package com.example.common.widget.advertising
 import android.annotation.SuppressLint
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import androidx.appcompat.view.ContextThemeWrapper
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
-import com.example.common.R
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.defTypeMipmap
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.click
+import com.example.framework.utils.function.view.init
 import com.example.glide.ImageLoader
 
 /**
@@ -19,25 +18,25 @@ import com.example.glide.ImageLoader
  *  广告适配器
  */
 @SuppressLint("NotifyDataSetChanged")
-class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>() {
+class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.AdvertisingViewHolder>() {
     private var radius = 0
     private var localAsset = false
     private var list = ArrayList<String>()
     private var onItemClick: ((position: Int) -> Unit)? = null
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(CardView(ContextThemeWrapper(parent.context, R.style.CardViewStyle)))
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): AdvertisingViewHolder {
+        return AdvertisingViewHolder(CardView(parent.context).also { it.init(radius.ptFloat) })
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: AdvertisingViewHolder, position: Int) {
         (holder.itemView as? CardView)?.let {
             val index = position.mod(list.safeSize)
             val uri = list.safeGet(index) ?: return
             it.radius = radius.ptFloat
             if (localAsset) {
-                ImageLoader.instance.loadCardViewDrawableFromResource(it, it.context.defTypeMipmap(uri))
+                ImageLoader.instance.loadCardViewFromDrawable(it, it.context.defTypeMipmap(uri))
             } else {
-                ImageLoader.instance.loadCardViewDrawableFromUrl(it, uri)
+                ImageLoader.instance.loadCardViewFromUrl(it, uri)
             }
             it.click {
                 onItemClick?.invoke(index)
@@ -64,7 +63,7 @@ class AdvertisingAdapter : RecyclerView.Adapter<AdvertisingAdapter.ViewHolder>()
         this.onItemClick = onItemClick
     }
 
-    class ViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
+    class AdvertisingViewHolder(itemView: CardView) : RecyclerView.ViewHolder(itemView) {
         init {
             itemView.layoutParams = RecyclerView.LayoutParams(MATCH_PARENT, MATCH_PARENT)
         }

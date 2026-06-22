@@ -1,8 +1,8 @@
 package com.example.common.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -31,10 +31,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
-import com.example.common.utils.function.getManifestString
-import com.example.framework.utils.function.value.min
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.math.max
 import kotlin.properties.Delegates
@@ -46,32 +44,29 @@ import kotlin.properties.Delegates
 object ScreenUtil {
 
     /**
-     * 获取屏幕高度（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕高度（像素值px）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenHeight by lazy(NONE) { screenHeight() }
 
     /**
-     * 获取屏幕高度（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕宽度（像素值px）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenWidth by lazy(NONE) { screenWidth() }
 
     /**
-     * 获取屏幕比值（px）
-     * 不会随着各种情况的变化而更新
+     * 获取屏幕密度/比值（dpi值）
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenDensity by lazy(NONE) { screenDensity() }
 
     /**
-     * 根据autosize设置来获取设定的宽度
-     */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
-
-    /**
      * 获取屏幕宽度（px）
+     * 根据屏幕方向返回宽度：竖屏时为 widthPixels，横屏时为 heightPixels（因横屏时宽高会交换）
      */
-    private fun screenWidth(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenWidth(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.widthPixels
         } else {
@@ -81,8 +76,10 @@ object ScreenUtil {
 
     /**
      * 获取屏幕高度（px）
+     * 根据屏幕方向返回高度：竖屏时为 heightPixels，横屏时为 widthPixels
      */
-    private fun screenHeight(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenHeight(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.heightPixels
         } else {
@@ -91,85 +88,48 @@ object ScreenUtil {
     }
 
     /**
-     * 屏幕比值
+     * 屏幕密度/比值(dpi值)
+     * 返回屏幕密度（dpi），即 displayMetrics.densityDpi
      */
-    private fun screenDensity(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenDensity(context: Context = BaseApplication.instance.applicationContext): Int {
         return context.resources.displayMetrics.densityDpi
     }
 
     /**
-     * 设计图宽度转实际宽度
+     * 根据颜色(资源ID)的亮度判断是否需要使用白色系统状态栏/导航栏图标
+     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
+     * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
      */
-    fun getRealSize(length: Int): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    fun getRealSize(length: Double): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
+    @JvmStatic
+    fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
+        return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
     }
 
     /**
-     * 设计图宽度转实际宽度
+     * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
      */
-    fun getRealSize(context: Context, length: Int): Int {
-        return length * screenWidth(context) / designWidth
-    }
-
-    fun getRealSize(context: Context, length: Double): Int {
-        return (length * screenWidth(context).toDouble() / designWidth).toInt()
-    }
-
-    /**
-     * 设计图宽度转实际宽度
-     */
-    fun getRealSizeFloat(context: Context, length: Int): Float {
-        return getRealSizeFloat(context, length.toFloat())
-    }
-
-    fun getRealSizeFloat(context: Context, length: Float): Float {
-        return length * screenWidth(context).toFloat() / designWidth.toFloat()
-    }
-
-    /**
-     * 获取顶部刘海高度（整个状态栏-->仅支持 Android 9.0+）
-     * @return 刘海高度（无刘海或不支持时返回 0）
-     */
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun Activity?.getTopCutoutHeight(): Int {
-        this ?: return 0
-        // 1. 获取 WindowInsets（可能为 null，需判空）
-        val windowInsets = window?.decorView?.rootWindowInsets
-        val displayCutout = windowInsets?.displayCutout ?: return 0
-        // 2. 解析顶部刘海区域
-        var cutoutHeight = 0
-        displayCutout.boundingRects.forEach { rect ->
-            // 顶部刘海的 top 坐标为 0（状态栏起始位置）
-            if (rect.top == 0) {
-                // 只保留正数，负数说明无超出的刘海
-                val currentCutout = maxOf(cutoutHeight, rect.bottom)
-                cutoutHeight = max(0, currentCutout)
-            }
-        }
-        return cutoutHeight
+    @JvmStatic
+    fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
+        // 使用系统API获取相对亮度（0.0-1.0之间）
+        val luminance = calculateLuminance(backgroundColor)
+        // 亮度阈值，低于0.5认为是暗色背景，需要白色图标
+        return luminance < 0.5
     }
 
     /**
      * 是否具备底部导航栏
      * 如是扩展函数,view必须是window.decorView
      */
-    fun View.hasNavigationBar(): Boolean {
-        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+    @JvmStatic
+    fun hasNavigationBar(): Boolean {
+        val currentActivity = AppManager.currentActivity()
+        val decorView = currentActivity?.window?.decorView ?: return false
+        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return false
         return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 
+    @JvmStatic
     fun hasNavigationBar(context: Context): Boolean {
         val appUsableSize = getAppUsableScreenSize(context)
         val realScreenSize = getRealScreenSize(context)
@@ -188,11 +148,11 @@ object ScreenUtil {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             val currentMetrics = windowManager?.currentWindowMetrics
-            // 1. 获取当前窗口的整体边界（包含系统栏）
+            // 获取当前窗口的整体边界（包含系统栏）
             val bounds = currentMetrics?.bounds
-            // 2. 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
+            // 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
             val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
-            // 3. 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
+            // 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
             val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
             val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
             Point(usableWidth, usableHeight)
@@ -228,27 +188,28 @@ object ScreenUtil {
         }
     }
 
-    /**
-     * 根据颜色(资源ID)的亮度判断是否需要使用白色系统状态栏/导航栏图标
-     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
-     * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
-     */
-    @JvmStatic
-    fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
-        return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
-    }
+}
 
-    /**
-     * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
-     */
-    @JvmStatic
-    fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
-        // 使用系统API获取相对亮度（0.0-1.0之间）
-        val luminance = calculateLuminance(backgroundColor)
-        // 亮度阈值，低于0.5认为是暗色背景，需要白色图标
-        return luminance < 0.5
+/**
+ * 获取顶部刘海高度（整个状态栏 -> 仅支持 Android 9.0+）
+ * @return 刘海高度（无刘海或不支持时返回 0）
+ */
+@RequiresApi(Build.VERSION_CODES.P)
+fun Window.getTopInsetHeight(): Int {
+    // 获取 WindowInsets（可能为 null，需判空）
+    val windowInsets = decorView.rootWindowInsets
+    val displayCutout = windowInsets?.displayCutout ?: return 0
+    // 解析顶部刘海区域
+    var cutoutHeight = 0
+    displayCutout.boundingRects.forEach { rect ->
+        // 顶部刘海的 top 坐标为 0（状态栏起始位置）
+        if (rect.top == 0) {
+            // 只保留正数，负数说明无超出的刘海
+            val currentCutout = maxOf(cutoutHeight, rect.bottom)
+            cutoutHeight = max(0, currentCutout)
+        }
     }
-
+    return cutoutHeight
 }
 
 /**
@@ -258,10 +219,10 @@ object ScreenUtil {
  * setContentView 的作用是将布局文件加载到 decorView 的子容器中（通常是 android.R.id.content 对应的容器），但不影响 decorView 本身的存在。
  */
 fun Window.applyFullScreen() {
-    // 1. 基础全屏标志（全版本通用）
+    // 基础全屏标志（全版本通用）
     clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN)
     setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
-    // 2. 版本差异化处理
+    // 版本差异化处理
     when {
         // 安卓11+：现代全屏方案
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> {
@@ -321,9 +282,11 @@ private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegate
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
  */
 fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit) = {}) {
-    // 1. 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
+    // 项目MinSdk为23，TargetSdk为36,底部包含背景/UI深浅两部分，API 23-25无法操作图标颜色，系统默认就是白色，故而采用强制指定背景颜色规避这个问题
     val mNavigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack
-    // 2. 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
+    // 缓存目标颜色，避免重复获取
+    val targetColor = color(mNavigationBarColor)
+    // 获取样式中的 android:windowBackground 作为底层背景（Activity如果不单独设置style样式，默认采取的是全局背景色）
     val windowBackground = decorView.background?.let { background ->
         when (background) {
             // 纯颜色背景直接使用
@@ -339,28 +302,36 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
             }
         }
     } ?: color(R.color.appWindowBackground).toDrawable()
-    // 3. 创建底部色块 Drawable
-    val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(color(mNavigationBarColor))
-    bottomBarDrawable.paint.color = color(mNavigationBarColor) // 确保颜色正确
-    // 4. 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
+    // 创建底部色块 Drawable / 没有则新建
+    val bottomBarDrawable = (decorView.background as? LayerDrawable)?.getDrawable(1) as? NavigationBarDrawable ?: NavigationBarDrawable(targetColor)
+    // 颜色变了才更新，避免无效重绘
+    if (bottomBarDrawable.paint.color != targetColor) {
+        bottomBarDrawable.paint.color = targetColor
+        // 局部重绘，比整体重绘高效
+        bottomBarDrawable.invalidateSelf()
+    }
+    // 组合成 LayerDrawable（上层：android:windowBackground，底层：底部色块）
     val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomBarDrawable))
-    // 5. 设置为 decorView 背景（此时两者会叠加显示）
+    // 设置为 decorView 背景（此时两者会叠加显示）
     val currentBackground = decorView.background
+    // 获取到的背景样式类型需是LayerDrawable
     if (currentBackground !is LayerDrawable ||
+        // 组合长度应是2个
         currentBackground.numberOfLayers != 2 ||
-        currentBackground.getDrawable(0) != windowBackground ||
-        currentBackground.getDrawable(1) != bottomBarDrawable
+        // 底层背景：只要类型是支持的（颜色/图片），且内容没实质变化，就认为没改 （底层背景不是导航栏，导航栏只关心颜色）
+        currentBackground.getDrawable(0) !is ColorDrawable && currentBackground.getDrawable(0) !is BitmapDrawable && currentBackground.getDrawable(0) !is VectorDrawable ||
+        // 导航栏背景：只判断颜色
+        (currentBackground.getDrawable(1) as? NavigationBarDrawable)?.paint?.color != targetColor
     ) {
         decorView.background = combinedDrawable
     }
-    // 6. 处理导航栏高度变化
     /**
      * 监听视图自身布局边界的变化，当视图的位置（left/top/right/bottom）或尺寸（宽高）发生改变时触发
      * 视图首次布局完成时。
      * 视图因父布局调整、屏幕旋转、动态修改尺寸等原因发生布局重绘时。
      * 调用 requestLayout() 强制重绘后
      */
-    layoutChangeListener = View.OnLayoutChangeListener { v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom ->
+    layoutChangeListener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         updateNavBar(v, bottomBarDrawable, navBottom)
@@ -388,7 +359,6 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
  * 更新导航栏高度和 padding
  */
 private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int) {
-//    val actualNavBottom = if (!v.hasNavigationBar()) 0 else getNavigationBarHeight()
     if (v.paddingBottom != navBottom) {
         v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
     }
@@ -425,6 +395,7 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         invalidateSelf()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun getOpacity(): Int {
         return PixelFormat.TRANSLUCENT
     }
@@ -446,32 +417,27 @@ class NavigationBarDrawable(@ColorInt backgroundColor: Int, private var navigati
         val validHeight = max(0, height)
         if (navigationBarHeight != validHeight) {
             navigationBarHeight = validHeight
-            // 低版本兼容：通过 Callback 触发重绘
-            if (callback != null) {
-                callback?.invalidateDrawable(this)
-            } else {
-                // 若没有 Callback，尝试通过 decorView 强制重绘
-                (callback as? View)?.invalidate()
-            }
+            callback?.invalidateDrawable(this)
         }
     }
+
 }
 
 /**
  * 释放导航栏相关的监听器和资源
  */
 fun Window.removeNavigationBarDrawable() {
-    // 1. 移除布局变化监听器
+    // 移除布局变化监听器
     try {
         decorView.removeOnLayoutChangeListener(layoutChangeListener)
     } catch (e: Exception) {
         // 防止未初始化时调用导致的异常（如未调用set就调用remove）
         e.printStackTrace()
     }
-    // 2. 移除WindowInsets监听器
+    // 移除WindowInsets监听器
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
-    // 3. 重置decorView背景（避免自定义Drawable残留引用-->Dialog 的 Window 和 Activity 的 Window 是完全独立的两个实例，它们分别持有各自的decorView）
-    // 注意：若页面有自己的背景设置，可注释此行，避免覆盖业务背景
+    // 重置decorView背景（避免自定义Drawable残留引用）
+    // 若页面有自己的背景设置，可注释此行，避免覆盖业务背景
     if (decorView.background is LayerDrawable) {
         decorView.background = null
     }
@@ -480,8 +446,21 @@ fun Window.removeNavigationBarDrawable() {
 /**
  * 导航栏图标亮/暗
  */
-fun Window.setNavigationBarLightMode(isLight: Boolean) {
+fun Window.setNavigationBarLightMode(isLight: Boolean, force: Boolean = false) {
+    // 先判断当前模式是否已符合，符合则直接返回
+    val currentIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        insetsController?.systemBarsAppearance?.and(WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0
+    } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        (decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0
+    } else {
+        // 低版本不支持，直接返回
+        false
+    }
+    // 相同模式且不强制，直接跳过（避免重复触发重绘）
+    if (!force && currentIsLight == isLight) return
+    // 低版本固定白色
     val mIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) isLight else false
+    // 开始执行导航栏图标切换
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // Android 11+ 推荐接口
         insetsController?.apply {
@@ -506,7 +485,16 @@ fun Window.setNavigationBarLightMode(isLight: Boolean) {
 /**
  * 状态栏图标亮/暗
  */
-fun Window.setStatusBarLightMode(isLight: Boolean) {
+fun Window.setStatusBarLightMode(isLight: Boolean, force: Boolean = false) {
+    // 先判断当前模式是否已符合，符合则直接返回
+    val currentIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        insetsController?.systemBarsAppearance?.and(WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0
+    } else {
+        (decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0
+    }
+    // 相同模式且不强制，直接跳过（避免重复触发重绘）
+    if (!force && currentIsLight == isLight) return
+    // 开始执行状态栏图标切换
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // Android 11+（API 30+）推荐使用 InsetsController
         insetsController?.apply {

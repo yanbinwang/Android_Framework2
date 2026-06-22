@@ -21,9 +21,9 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.builder.shortToast
-import com.example.common.utils.function.deleteDir
+import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.deleteFile
-import com.example.common.utils.function.getLength
+import com.example.common.utils.function.getFileLength
 import com.example.common.utils.function.mb
 import com.example.common.utils.helper.AccountHelper.getUserId
 import com.example.common.utils.toJson
@@ -31,9 +31,10 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import com.example.greendao.bean.OssDB
+import com.example.objectbox.dao.OssDB
 import com.example.thirdparty.media.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
 import com.example.thirdparty.media.oss.network.OssApi
@@ -65,11 +66,12 @@ class OssFactory private constructor() : CoroutineScope {
     private var isAuthorize = false
     // Oss基础类
     private var oss: OSS? = null
-    // key->保全号（服务器唯一id）value->对应oss的传输类/协程
-    private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult?>?>() }
-    private val ossJobMap by lazy { ConcurrentHashMap<String, Job?>() }
     // 对象锁，缩小范围减少开销
-    private val postLock by lazy { Any() }
+    private val LOCK = Any()
+    // key -> 保全号（服务器唯一id）value->对应oss的传输类/协程
+    private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult>?>() }
+    private val ossProgressMap by lazy { ConcurrentHashMap<String, Int>() }
+    private val ossJobMap by lazy { ConcurrentHashMap<String, Job>() }
     // 传入页面的lifecycle以及页面实现的OssImpl
     private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
     // 协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
@@ -81,7 +83,6 @@ class OssFactory private constructor() : CoroutineScope {
         /**
          * 单例初始化
          */
-        @JvmStatic
         val instance by lazy { OssFactory() }
 
         /**
@@ -109,8 +110,8 @@ class OssFactory private constructor() : CoroutineScope {
      * 2.app启动时application中初始化，保证启动期间先获取一次授权，时间过长会重置（120分钟）
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
-    fun initialize() {
-        synchronized(postLock) {
+    fun initialize(block: () -> Unit = {}) {
+        synchronized(LOCK) {
             initJob?.cancel()
             initJob = launch {
                 flow {
@@ -118,6 +119,7 @@ class OssFactory private constructor() : CoroutineScope {
                 }.withHandling({
                     isAuthorize = false
                 }, {
+                    block()
                     initJob?.cancel()
                     initJob = null
                 }).onStart {
@@ -172,6 +174,13 @@ class OssFactory private constructor() : CoroutineScope {
     }
 
     /**
+     * 获取对应保全号文件的上传进度
+     */
+    fun getProgress(baoquan: String): Int {
+        return ossProgressMap[baoquan].orZero
+    }
+
+    /**
      * 绑定对应页面的生命周期-》对应回调重写对应方法
      * @param observer
      */
@@ -206,6 +215,7 @@ class OssFactory private constructor() : CoroutineScope {
             }
         }
         ossMap.clear()
+        ossProgressMap.clear()
         ossJobMap.clear()
         ossImpl.get().clear()
         // 取消页面协程
@@ -227,7 +237,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(baoquan: String, sourcePath: String?, fileType: String) {
         sourcePath ?: return
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (isInit()) {
                 // 校验是否上传
                 if (OssDBHelper.isUpload(baoquan)) return
@@ -256,34 +266,36 @@ class OssFactory private constructor() : CoroutineScope {
                 // 设置上传过程回调(进度条)
                 var percentage = 0
                 var lastPercentage = 0
-                var randomMod = Random.nextInt(5, 11)
                 // 最大间隔，避免长时间无回调
                 val maxInterval = 7
                 // 是否需要回调（目前只有100M+的文件需要进度条）
-//                val isCallBack = sourcePath.getLength() >= 100.mb
-                val isCallBack = true
+                val isCallBack = sourcePath.getFileLength() >= 100.mb
                 var isUploadStarted = false
                 request.progressCallback = OSSProgressCallback<ResumableUploadRequest?> { _, currentSize, totalSize ->
+                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
                     if (!isUploadStarted && currentSize > 0) {
                         isUploadStarted = true
+                        if (isCallBack) {
+                            // 开始时更新一次
+                            ossProgressMap[baoquan] = percentage
+                        }
                         // 在这里执行上传开始后的操作，比如更新UI显示上传已开始
                         callback(0 , baoquan)
                     }
-                    percentage = currentSize.toString().divide(totalSize.toString(), 2).multiply("100").toSafeInt()
                     if (isCallBack) {
                         when (percentage) {
                             0, 100 -> {
-                                callback(1, baoquan, percentage)
+                                // 0% 或 100% 时更新
+                                ossProgressMap[baoquan] = percentage
                                 lastPercentage = percentage
-                                if (percentage < 100) {
-                                    randomMod = Random.nextInt(5, 11)
-                                }
+                                callback(1, baoquan, percentage)
                             }
                             in 1..99 -> {
-                                if (percentage % randomMod == 0 || percentage - lastPercentage >= maxInterval) {
-                                    callback(1, baoquan, percentage)
+                                if (percentage % Random.nextInt(5, 11) == 0 || percentage - lastPercentage >= maxInterval) {
+                                    // 满足间隔条件时更新
+                                    ossProgressMap[baoquan] = percentage
                                     lastPercentage = percentage
-                                    randomMod = Random.nextInt(5, 11)
+                                    callback(1, baoquan, percentage)
                                 }
                             }
                         }
@@ -306,7 +318,7 @@ class OssFactory private constructor() : CoroutineScope {
                         if (clientExcepion != null) {
                             result += "\n本地异常：\n${clientExcepion.message}"
                             // 本地异常诱发的原因有很多，擅自修改手机本机时间，oss断点数据库出错都有可能导致，此时直接清空断点续传的记录文件，让用户从头来过
-                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDirectory()
                         }
                         if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
                         log(sourcePath, result)
@@ -339,9 +351,9 @@ class OssFactory private constructor() : CoroutineScope {
                 it.state = 1
                 it.extras = ""
             }
-            OssDBHelper.insert(query)
+            OssDBHelper.put(query)
         }
-        OssDBHelper.update(baoquan, if (isInit) 0 else 1)
+        OssDBHelper.put(baoquan, if (isInit) 0 else 1)
         // 2的时候才会有success参数
         callback(if (isInit) 0 else 2, baoquan, success = false)
         return query
@@ -351,12 +363,12 @@ class OssFactory private constructor() : CoroutineScope {
      * 完成时候的回调
      */
     private fun response(isSuccess: Boolean, query: OssDB, fileType: String, recordDirectory: String?, percentage: Int = 0, errorMessage: String? = "") {
-        val baoquan = query.baoquan
+        val baoquan = query.baoquan.orEmpty()
         if (isSuccess) {
             // 全部传完停止服务器
             if (percentage == 100) {
                 //优先保证本地数据库记录成功
-                OssDBHelper.update(baoquan, 2)
+                OssDBHelper.put(baoquan, 2)
                 success(query, fileType, recordDirectory.orEmpty())
             }
         } else {
@@ -366,6 +378,7 @@ class OssFactory private constructor() : CoroutineScope {
             failure(baoquan, errorMessage)
         }
         ossMap.remove(baoquan)
+        ossProgressMap.remove(baoquan)
     }
 
     /**
@@ -384,7 +397,7 @@ class OssFactory private constructor() : CoroutineScope {
                 // 删除对应断点续传的文件夹和源文件
                 query?.sourcePath.deleteFile()
                 recordDirectory.deleteFile()
-                OssDBHelper.delete(query)
+                OssDBHelper.remove(query)
                 callback(2, baoquan, success = true)
                 EVENT_EVIDENCE_UPDATE.post(fileType)
             }
@@ -400,7 +413,7 @@ class OssFactory private constructor() : CoroutineScope {
         }.withHandling(end = {
             end(baoquan)
         }).onStart {
-            OssDBHelper.update(baoquan, 1)
+            OssDBHelper.put(baoquan, 1)
             callback(2, baoquan, success = false)
         }.launchIn(this)
     }
@@ -455,7 +468,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(sourcePath: String?, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
         sourcePath ?: return
-        synchronized(postLock) {
+        synchronized(LOCK) {
             if (isInit()) {
                 onStart.invoke()
                 // 设置对应文件的断点文件存放路径
@@ -478,7 +491,7 @@ class OssFactory private constructor() : CoroutineScope {
                 val resumableTask = oss?.asyncResumableUpload(request, object : OSSCompletedCallback<ResumableUploadRequest?, ResumableUploadResult?> {
                     override fun onSuccess(request: ResumableUploadRequest?, result: ResumableUploadResult?) {
                         if (progress == 100) {
-                            recordDirectory.deleteDir()
+                            recordDirectory.deleteDirectory()
                             onComplete(true, result?.objectKey)
                         }
                     }
@@ -487,7 +500,7 @@ class OssFactory private constructor() : CoroutineScope {
                         var result = "上传失败"
                         if (clientExcepion != null) {
                             result += "\n本地异常：\n${clientExcepion.message}"
-                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDir()
+                            if (NetWorkUtil.isNetworkAvailable()) recordDirectory.deleteDirectory()
                         }
                         if (serviceException != null) result += "\n服务异常：\n${serviceException.message}"
                         onComplete(false, result)

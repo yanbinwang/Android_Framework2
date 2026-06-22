@@ -71,26 +71,23 @@ import androidx.databinding.ViewDataBinding
  * 如果是Fragment内的FragmentManager，在Fragment切成另一个页面，切过去和切回来都会触发onHiddenChanged，但onHiddenChanged不会在页面初始化加载时触发
  *
  * 页面处理方法：
- *
  * override fun onResume() {
- * super.onResume()
- * if (isHidden) return
- * refreshNow()
+ *     super.onResume()
+ *     if (isHidden) return
+ *     refreshNow()
  * }
- *
  * override fun onHiddenChanged(hidden: Boolean) {
- * super.onHiddenChanged(hidden)
- * if (!hidden) refreshNow()
+ *     super.onHiddenChanged(hidden)
+ *     if (!hidden) refreshNow()
  * }
- *
  * private fun refreshNow() {
- * viewModel?.refresh()
+ *     viewModel?.refresh()
  * }
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var hasLoad = false//页面是否被加载
-    private var canLoad = true//数据是否允许加载
-    private var loaded = false//数据是否被加载
+    private var hasLoad = false // 页面是否被加载
+    private var canLoad = true // 数据是否允许加载
+    private var loaded = false // 数据是否被加载
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

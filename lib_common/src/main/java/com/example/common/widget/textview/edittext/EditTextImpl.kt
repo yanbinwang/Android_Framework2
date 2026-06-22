@@ -10,7 +10,7 @@ import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
-import com.example.framework.utils.function.value.matches
+import com.example.framework.utils.function.value.matchesRegex
 import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.OnMultiTextWatcher
@@ -19,8 +19,7 @@ import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.hideKeyboard
 import com.example.framework.utils.function.view.onDone
 import com.example.framework.utils.function.view.showInput
-import java.math.BigDecimal
-import java.util.regex.Pattern
+import java.math.RoundingMode
 
 /**
  * kt中的接口是可以实现的，实现后的方法只有继承的类才能使用
@@ -87,7 +86,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!matches(PASSWORD)) {
+        if (!matchesRegex(PASSWORD)) {
             if (-1 != res2) res2.shortToast()
             return false
         }
@@ -97,11 +96,11 @@ interface EditTextImpl {
     fun String?.passwordLevel(): Int {
         this ?: return 0
         //纯数字、纯字母、纯特殊字符
-        if (this.length < 8 || Pattern.matches("^\\d+$", this) || matches("^[a-z]+$") || matches("^[A-Z]+$") || matches("^[@#$%^&]+$")) return 1
+        if (this.length < 8 || matchesRegex("^\\d+$") || matchesRegex("^[a-z]+$") || matchesRegex("^[A-Z]+$") || matchesRegex("^[@#$%^&]+$")) return 1
         //字母+数字、字母+特殊字符、数字+特殊字符
-        if (matches("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || matches("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || matches("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || matches("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || matches("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || matches("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
+        if (matchesRegex("^(?!\\d+$)(?![a-z]+$)[a-z\\d]+$") || matchesRegex("^(?!\\d+$)(?![A-Z]+$)[A-Z\\d]+$") || matchesRegex("^(?![a-z]+$)(?![@#$%^&]+$)[a-z@#$%^&]+$") || matchesRegex("^(?![A-Z]+$)(?![@#$%^&]+$)[A-Z@#$%^&]+$") || matchesRegex("^(?![a-z]+$)(?![A-Z]+$)[a-zA-Z]+$") || matchesRegex("^(?!\\d+)(?![@#$%^&]+$)[\\d@#$%^&]+$")) return 2
         //字母+数字+特殊字符
-        if (matches("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
+        if (matchesRegex("^(?!\\d+$)(?![a-z]+$)(?![A-Z]+$)(?![@#$%^&]+$)[\\da-zA-Z@#$%^&]+$")) return 3
         return 3
     }
     // </editor-fold>
@@ -121,7 +120,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (matches(EMAIL)) return true
+        if (matchesRegex(EMAIL)) return true
         if (-1 != res2) res2.shortToast()
         return false
     }
@@ -142,7 +141,7 @@ interface EditTextImpl {
             if (-1 != res) res.shortToast()
             return false
         }
-        if (!matches(MOBILE)) {
+        if (!matchesRegex(MOBILE)) {
             if (-1 != res2) res2.shortToast()
             return false
         }
@@ -194,9 +193,9 @@ interface EditTextImpl {
         setText(getNumber().multiply(number))
     }
 
-    fun ClearEditText?.divide(number: String?, scale: Int = 0, mode: Int = BigDecimal.ROUND_DOWN) {
+    fun ClearEditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN) {
         this ?: return
-        setText(getNumber().divide(number, scale, mode))
+        setText(getNumber().divide(number, scale, roundingMode))
     }
 
     fun ClearEditText?.isZero(): Boolean {

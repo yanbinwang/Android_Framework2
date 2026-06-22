@@ -79,25 +79,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 透明主题(部分三方库,无动画无过渡的透明页面)
-        override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
-        }
-
-        override fun finish() {
-            super.finish()
-            overridePendingTransition(R.anim.set_alpha_no, R.anim.set_alpha_trans_out)
-        }
-
-        override fun initView() {
-            requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
-        }
-    -->
+    <!-- 透明主题 (拉起一个透底的Activity) -->
     <style name="TranslucentTheme" parent="NoAnimTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -106,7 +88,26 @@
         <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
-    <!-- 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏 -->
+    <!-- 1) 启动页/引导页/首页/背景纯色的页面，单独使用该样式，可重写把背景替换掉，解决页面切换之间不会黑一下屏
+         2) 部分三方库,无动画无过渡的透明页面
+            override fun onCreate(savedInstanceState: Bundle?) {
+                 super.onCreate(savedInstanceState)
+                overridePendingTransition(R.anim.set_alpha_trans_in, R.anim.set_alpha_no)
+            }
+
+            override fun finish() {
+                 super.finish()
+                 overridePendingTransition(R.anim.set_alpha_no, R.anim.set_alpha_trans_out)
+            }
+
+            override fun initView() {
+               requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+                   ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+               } else {
+                   ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+               }
+            }
+    -->
     <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
@@ -119,7 +120,7 @@
         <item name="colorPrimaryDark">@android:color/transparent</item>
     </style>
 
-    <!--底部弹出样式 -->
+    <!-- 底部弹出样式 -->
     <style name="TransparentBottomSheetStyle" parent="Theme.Design.Light.BottomSheetDialog">
         <!-- 指定 BottomSheet 本体样式，关联到自定义的 SheetStyle -->
         <item name="bottomSheetStyle">@style/SheetStyle</item>
@@ -200,46 +201,18 @@
         <item name="android:clipToPadding">false</item>
         <item name="tabBackground">@android:color/transparent</item>
         <item name="tabIndicator">@drawable/layer_list_tab_line</item>
-        <item name="tabIndicatorColor">@color/bgMain</item>
+        <item name="tabIndicatorColor">@color/tabIndicator</item>
         <item name="tabIndicatorFullWidth">false</item>
         <item name="tabIndicatorHeight">3pt</item>
         <item name="tabMinWidth">0pt</item>
         <item name="tabRippleColor">@android:color/transparent</item>
-        <item name="tabSelectedTextColor">@color/appTheme</item>
-        <item name="tabTextColor">@color/textHint</item>
+        <item name="tabSelectedTextColor">@color/tabSelected</item>
+        <item name="tabTextColor">@color/tabUnselected</item>
         <item name="tabPadding">0pt</item>
         <item name="tabPaddingStart">0pt</item>
         <item name="tabPaddingTop">0pt</item>
         <item name="tabPaddingEnd">0pt</item>
         <item name="tabPaddingBottom">0pt</item>
-    </style>
-
-    <!--
-        弧形cardview默认配置,需要注意是4个角都是弧形
-        CardView(context).apply {
-                // 阴影高度设为0
-                cardElevation = 0f
-                // 最大阴影高度设为0
-                maxCardElevation = 0f
-                // 兼容低版本的阴影属性
-                elevation = 0f
-                // 圆角半径（按需调整）
-                radius = cornerRadius
-                // 防止图片溢出圆角
-                preventCornerOverlap = true
-                // 无阴影时可关闭兼容padding
-                useCompatPadding = false
-                // 透明背景
-                setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
-            }
-    -->
-    <style name="CardViewStyle">
-        <item name="elevation">0dp</item>
-        <item name="cardMaxElevation">0dp</item>
-        <item name="cardElevation">0dp</item>
-        <item name="cardPreventCornerOverlap">true</item>
-        <item name="cardUseCompatPadding">false</item>
-        <item name="cardBackgroundColor">@android:color/transparent</item>
     </style>
 
     <!--

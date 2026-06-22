@@ -6,9 +6,12 @@ import androidx.core.text.TextUtilsCompat
 import com.example.account.R
 import com.example.account.databinding.ActivityLoginBinding
 import com.example.common.base.BaseActivity
+import com.example.common.config.RouterPath
 import com.example.framework.utils.function.view.startAnimation
+import com.therouter.router.Route
 import java.util.Locale
 
+@Route(path = RouterPath.LoginActivity)
 class LoginActivity : BaseActivity<ActivityLoginBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {

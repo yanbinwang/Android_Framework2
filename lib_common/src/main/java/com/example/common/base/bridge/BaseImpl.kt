@@ -17,7 +17,12 @@ import com.example.framework.utils.function.view.visible
  * 定义基类可以调取的一些方法
  * 只开放给自写的base基类（common模块）
  */
-internal interface BaseImpl {
+interface BaseImpl {
+
+    /**
+     * super.onCreate(savedInstanceState)下方执行,用于做overridePendingTransition,取值extras等操作
+     */
+    fun initBefore() {}
 
     /**
      * 初始化状态栏
@@ -29,17 +34,17 @@ internal interface BaseImpl {
      * 初始化控件
      * savedInstanceState->activity/fragment具备,其余为null
      */
-    fun initView(savedInstanceState: Bundle?)
+    fun initView(savedInstanceState: Bundle? = null) {}
 
     /**
      * 初始化事件
      */
-    fun initEvent()
+    fun initEvent() {}
 
     /**
      * 初始化数据
      */
-    fun initData()
+    fun initData() {}
 
     /**
      * 控件不可操作

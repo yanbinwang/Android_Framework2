@@ -8,21 +8,36 @@ import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.framework.utils.logWTF
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * 非订阅长连接类->websocket代理类
+ * 非订阅长连接类 -> websocket代理类
  * https://ok.zhxu.cn/v4/getstart.html#maven
  * https://blog.51cto.com/u_12682526/10303358
  */
 class WebSocketProxy(private val socketUrl: String) {
-    //回调监听
-    private var listener: OnWebSocketProxyListener? = null
-    //socket服务器，客户端每隔5秒向服务器发送一次PING消息，并期望服务器回复PONG消息的间隔5秒一次，
-    //如果服务器或网络由于某些未知原因导致客户端未能正确收到PONG消息，客户端会容忍两次失败，当第三个5秒后还未收到服务器的任何消息时，则会触发SocketTimeoutException异常
-    private val stomp by lazy { Stomp.over(OkHttps.webSocket(socketUrl).heatbeat(5, 5)) }
-    //默认头部内容配置
+    // 重连job
+    private var connectJob: Job? = null
+    // 回调监听 (订阅主题)
+    private var proxyListener: OnWebSocketProxyListener? = null
+    // 全局消息监听（无订阅主题）
+    private var messageListener: ((String?) -> Unit)? = null
+    // socket服务器，客户端每隔5秒向服务器发送一次PING消息，并期望服务器回复PONG消息的间隔5秒一次，5秒只是起到校验是否处于正常连接状态,和接受服务器数据无关
+    // 如果服务器或网络由于某些未知原因导致客户端未能正确收到PONG消息，客户端会容忍两次失败，当第三个5秒后还未收到服务器的任何消息时，则会触发SocketTimeoutException异常
+    private val stomp by lazy {
+        Stomp.over(OkHttps.webSocket(socketUrl).heatbeat(5, 5).also {
+            it.setOnMessage { _, msg ->
+                // 拿到服务器发来的原始消息
+                val rawMsg = msg.toString()
+                "底层WS收到原始消息：$rawMsg".logWTF
+                // 触发全局监听，透传给上层
+                messageListener?.invoke(rawMsg)
+            }
+        })
+    }
+    // 默认头部内容配置
     private val headers by lazy { mutableListOf(Header("Client-Type", "mobile"), Header("timeZone", "GMT+8")) }
 
     /**
@@ -31,7 +46,8 @@ class WebSocketProxy(private val socketUrl: String) {
     fun connect(owner: LifecycleOwner, list: List<Header>? = headers) {
         if (isConnected()) {
             disconnect()
-            owner.lifecycleScope.launch {
+            connectJob?.cancel()
+            connectJob = owner.lifecycleScope.launch {
                 delay(1000)
                 connectNow(list)
             }
@@ -48,14 +64,14 @@ class WebSocketProxy(private val socketUrl: String) {
             .setOnConnected {
                 "Stomp connection opened $it".logWTF
 //                topic(*topicUrl)
-                listener?.onConnected(it)
+                proxyListener?.onConnected(it)
             }
             /**
              * 连接已断开回调
              */
             .setOnDisconnected {
                 "Stomp connection closed $it".logWTF
-                listener?.onDisconnected(it)
+                proxyListener?.onDisconnected(it)
             }
             /**
              * 错误监听（v2.4.1 新增）
@@ -63,7 +79,7 @@ class WebSocketProxy(private val socketUrl: String) {
              */
             .setOnError {
                 "Stomp Server connection error $it".logWTF
-                listener?.onError(it)
+                proxyListener?.onError(it)
             }
             /**
              * 异常监听（v3.1.1 新增）
@@ -71,7 +87,7 @@ class WebSocketProxy(private val socketUrl: String) {
              */
             .setOnException {
                 "Stomp connection error $it".logWTF
-                listener?.onException(it)
+                proxyListener?.onException(it)
             }
             .connect(list)
     }
@@ -96,7 +112,6 @@ class WebSocketProxy(private val socketUrl: String) {
      *  订阅服务提供的topic
      */
     fun topic(destination: String, listener: (url: String?, data: Message?) -> Unit) {
-        //開始訂閱
         stomp.subscribe(destination, null) {
             //得到消息负载
             val payload = it.payload
@@ -113,10 +128,24 @@ class WebSocketProxy(private val socketUrl: String) {
     }
 
     /**
+     * 发送消息
+     */
+    fun sendTo(destination: String, data: String) {
+        stomp.sendTo(destination, data)
+    }
+
+    /**
      * 设置监听
      */
     fun setOnWebSocketProxyListener(listener: OnWebSocketProxyListener) {
-        this.listener = listener
+        this.proxyListener = listener
+    }
+
+    /**
+     * 无订阅监听
+     */
+    fun setOnWebSocketMessageListener(listener: (String?) -> Unit) {
+        this.messageListener = listener
     }
 
     /**
@@ -131,17 +160,17 @@ class WebSocketProxy(private val socketUrl: String) {
         /**
          * 连接已断开回调
          */
-        fun onDisconnected(onConnected: WebSocket.Close)
+        fun onDisconnected(onDisconnected: WebSocket.Close)
 
         /**
          * 错误监听
          */
-        fun onError(onConnected: Message)
+        fun onError(onError: Message)
 
         /**
          * 异常监听
          */
-        fun onException(onConnected: Throwable)
+        fun onException(onException: Throwable)
     }
 
 }

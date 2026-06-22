@@ -1,25 +1,32 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.glide"
-    compileSdk = libs.versions.compileSdkVersion.get().toInt()
+
+    compileSdk {
+        version = release(libs.versions.compileSdkVersion.get().toInt())
+    }
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
     }
 
     buildFeatures {
         dataBinding = true
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {
@@ -46,9 +53,9 @@ dependencies {
 //    // 调色盘 依赖
 //    api("androidx.palette:palette:1.0.0")
     // Glide 依赖
-    api("com.github.bumptech.glide:glide:5.0.5")
-    kapt("com.github.bumptech.glide:compiler:5.0.5")
+    api("com.github.bumptech.glide:glide:5.0.7")
+//    kapt("com.github.bumptech.glide:compiler:5.0.5")
     // OkHttp 依赖
-    api("com.squareup.okhttp3:okhttp:5.1.0")
-    implementation("com.github.bumptech.glide:okhttp3-integration:5.0.5")
+    api("com.squareup.okhttp3:okhttp:5.3.2")
+    implementation("com.github.bumptech.glide:okhttp3-integration:5.0.7")
 }

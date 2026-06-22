@@ -38,7 +38,11 @@ object MmkvUtil {
     fun decodeBytes(key: String, value: ByteArray = byteArrayOf()) = mmkv.decodeBytes(key, value)
     fun <T : Parcelable> decodeParcelable(label: String, tClass: Class<T>, value: T? = null) = mmkv.decodeParcelable(label, tClass, value)
 
+    fun containsKey(key: String) = mmkv.containsKey(key)
+    fun allKeys() = mmkv.allKeys()
     fun removeValueForKey(label: String) = mmkv.removeValueForKey(label)
+    fun removeValuesForKeys(vararg labels: String) = mmkv.removeValuesForKeys(labels)
+    fun clearAll() = mmkv.clearAll()
 }
 
 abstract class BaseDataCache(private val key: String) {
@@ -81,6 +85,6 @@ class DataBytesCache(private val key: String, private val defaultValue: ByteArra
 }
 
 class DataParcelableCache<T : Parcelable>(private val key: String, private val clazz: Class<T>, private val value: T? = null) : BaseDataCache(key) {
-    fun get() = decodeParcelable(key, clazz, value)//可能存在获取到空对象的情况，切记写个?：UserBean()，源码内部会在不为null的时候把clazz打成bytes存到mmkv里，先取的时候如果为null则返回默认值
+    fun get() = decodeParcelable(key, clazz, value) // 可能存在获取到空对象的情况，切记写个?：UserBean()，源码内部会在不为null的时候把clazz打成bytes存到mmkv里，先取的时候如果为null则返回默认值
     fun set(value: T) = encode(key, value)
 }
