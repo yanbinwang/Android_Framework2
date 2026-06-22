@@ -12,7 +12,7 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.fade
 import com.example.gsyvideoplayer.R
-import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 
 /**
  * 使用正常播放按键和loading的播放器
