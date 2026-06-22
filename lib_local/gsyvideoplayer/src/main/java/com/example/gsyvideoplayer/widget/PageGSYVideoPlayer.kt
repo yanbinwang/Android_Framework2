@@ -4,23 +4,25 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.widget.ImageView
+import androidx.fragment.app.FragmentActivity
+import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.function.string
+import com.example.common.utils.manager.AppManager
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.fade
 import com.example.gsyvideoplayer.R
 import com.example.gsyvideoplayer.video.StandardGSYVideoPlayer
-import com.shuyu.gsyvideoplayer.utils.NetworkUtils
 
 /**
  * 使用正常播放按键和loading的播放器
  * 适用于viewpager2上下滑动的列表播放器
- * 1.项目主要修改的是gsy播放器的容器
- * 2.部分改动资源可以本地覆写
- * 3.和依赖项目中自定义的播放器有个区分（为便于修改，故而依赖项目的播放器文件放置于video目录下）
+ * 1) 项目主要修改的是gsy播放器的容器
+ * 2) 部分改动资源可以本地覆写
+ * 3) 和依赖项目中自定义的播放器有个区分（为便于修改，故而依赖项目的播放器文件放置于video目录下）
  */
 class PageGSYVideoPlayer : StandardGSYVideoPlayer {
-    private val dialog by lazy { AppDialog(mContext) }
+    private val dialog by lazy { (AppManager.currentActivity() as? FragmentActivity)?.let { AppDialog(it) } }
 
     constructor(context: Context) : super(context)
 
@@ -65,13 +67,14 @@ class PageGSYVideoPlayer : StandardGSYVideoPlayer {
      * wifi弹框自定义
      */
     override fun showWifiDialog() {
-        if (!NetworkUtils.isAvailable(mContext)) {
+        if (!NetWorkUtil.isNetworkAvailable()) {
             startPlayLogic()
             return
         }
-        dialog.setParams(message = string(R.string.gsyNotWifiTips), positiveText = string(R.string.gsyNotWifiConfirm), negativeText = string(R.string.gsyNotWifiCancel))
-            .setDialogListener({ startPlayLogic() })
-            .show()
+        dialog
+            ?.setParams(message = string(R.string.gsyNotWifiTips), positiveText = string(R.string.gsyNotWifiConfirm), negativeText = string(R.string.gsyNotWifiCancel))
+            ?.setDialogListener({ startPlayLogic() })
+            ?.show()
     }
 
     /**
