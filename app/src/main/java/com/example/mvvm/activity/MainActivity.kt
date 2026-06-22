@@ -2,10 +2,9 @@ package com.example.mvvm.activity
 
 import android.os.Bundle
 import androidx.viewpager2.widget.ViewPager2
-import com.alibaba.android.arouter.facade.annotation.Route
 import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
-import com.example.common.config.ARouterPath
+import com.example.common.config.RouterPath
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.framework.utils.function.value.safeGet
@@ -18,13 +17,13 @@ import com.example.mvvm.fragment.VideoSnapFragment
 import com.example.mvvm.utils.VideoSnapImpl
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
-
+import com.therouter.router.Route
 
 /**
  * 首页
  * https://blog.csdn.net/hongxue8888/article/details/104109232/
  */
-@Route(path = ARouterPath.MainActivity)
+@Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), OnRefreshLoadMoreListener {
     //所有页面数据集合(服务器下发)
     private val dataList = ArrayList<VideoSnapBean>()
