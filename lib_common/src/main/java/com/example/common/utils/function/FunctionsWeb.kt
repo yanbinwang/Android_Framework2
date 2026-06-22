@@ -81,14 +81,19 @@ fun WebView?.clearWebData() {
     clearFormData()
     // 内存+磁盘缓存
     clearCache(true)
-    // 清空 DOM 存储
-    WebStorage.getInstance().deleteAllData()
-    // 清空 Cookie 并强制刷盘兜底
-    val cookieManager = CookieManager.getInstance()
-    cookieManager.removeAllCookies {
+    // 全局单例操作，部分厂商 ROM 在 destroy 期间可能异常
+    try {
+        // 清空 DOM 存储
+        WebStorage.getInstance().deleteAllData()
+        // 清空 Cookie 并强制刷盘兜底
+        val cookieManager = CookieManager.getInstance()
+        cookieManager.removeAllCookies {
+            cookieManager.flush()
+        }
         cookieManager.flush()
+    } catch (e: Exception) {
+        e.logE
     }
-    cookieManager.flush()
 }
 
 /**
