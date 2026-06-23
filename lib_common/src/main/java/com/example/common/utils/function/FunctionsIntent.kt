@@ -187,8 +187,9 @@ fun Context?.pullUpManageStorageSetting() {
         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
             // 通过Uri定向到当前应用的设置项
             data = "package:${packageName}".toUri()
-            // 避免创建新任务栈，返回时能回到应用
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            // 创建新任务栈，返回时能回到应用
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(intent)
     } catch (e: Exception) {
@@ -290,12 +291,17 @@ fun Context?.pullUpNotification() {
 fun Context?.pullUpPackage(packageName: String) {
     this ?: return
     try {
-        packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (null != intent && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
+        } else {
+            "打开外部应用失败".shortToast()
         }
     } catch (e: Exception) {
         e.printStackTrace()
+        "未找到可打开的应用".shortToast()
     }
 }
 
@@ -310,13 +316,10 @@ fun Context?.pullUpOtherApp(uri: Uri) {
         }
         // 先检查是否有应用能处理该 Intent，避免抛出运行时异常
         if (intent.resolveActivity(packageManager) != null) {
-            applicationContext.startActivity(intent)
+            startActivity(intent)
         } else {
             "未找到可打开此链接的应用".shortToast()
         }
-    } catch (e: SecurityException) {
-        e.printStackTrace()
-        "无权打开该链接或目标应用受限".shortToast()
     } catch (e: Exception) {
         e.printStackTrace()
         "打开外部应用失败".shortToast()
@@ -358,8 +361,7 @@ fun Context?.toBrowser(url: String) {
 fun Context?.toMap(longitude: Double, latitude: Double) {
     this ?: return
     try {
-        val uri = "geo:${latitude},${longitude}".toUri()
-        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+        startActivity(Intent(Intent.ACTION_VIEW, "geo:${latitude},${longitude}".toUri()).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
     } catch (e: Exception) {
