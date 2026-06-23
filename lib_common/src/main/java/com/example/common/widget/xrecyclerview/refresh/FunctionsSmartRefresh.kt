@@ -18,7 +18,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 
 //------------------------------------刷新控件扩展函数类------------------------------------
 /**
- * 初始化刷新控件
+ * 传统列表页，刷新+加载更多
  */
 fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
     this ?: return
@@ -30,6 +30,9 @@ fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header
     setHeaderAndFooterHeight()
 }
 
+/**
+ * 需要分别控制刷新/加载
+ */
 fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
     this ?: return
     if (null != header) setRefreshHeader(header)
@@ -52,14 +55,29 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
 }
 
 /**
- * 设置透明头(content内容不会被下拉,只会下拉刷新控件)
+ * 只需下拉刷新，无需加载更多
  */
-fun SmartRefreshLayout?.initTranslation(header: RefreshHeader) {
+fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader) {
+    this ?: return
+    init(onRefresh = listener, header = header)
+}
+
+/**
+ * 只需上拉加载，无需下拉刷新
+ */
+fun SmartRefreshLayout?.initFooterOnlyPull(listener: OnLoadMoreListener? = null, footer: RefreshFooter) {
+    this ?: return
+    init(onLoadMore = listener, footer = footer)
+}
+
+/**
+ * 吸顶头/展开面板 (内容不会被下拉,只会下拉出头部的刷新控件)
+ */
+fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, header: RefreshHeader) {
     this ?: return
     // 是否下拉Header的时候向下平移列表或者内容
     setEnableHeaderTranslationContent(false)
-    setRefreshHeader(header)
-    setHeaderAndFooterHeight()
+    init(onRefresh = listener, header = header)
 }
 
 /**
@@ -145,7 +163,6 @@ fun SmartRefreshLayout?.setHeaderDragRate(headerHeight: Int = 40.pt) {
             val statusHeight = getStatusBarHeight()
             padding(top = statusHeight)
             setStatusBarHeight(statusHeight)
-//            val height = 40.ptFloat
             /**
              * 设置下拉最大高度和Header高度的比率（将会影响可以下拉的最大高度）
              * rate – ratio = (the maximum height to drag header)/(the height of header) 比率 = 下拉最大高度 / Header的高度
