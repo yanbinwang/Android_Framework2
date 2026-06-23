@@ -57,7 +57,7 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
 /**
  * 只需下拉刷新，无需加载更多
  */
-fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader) {
+fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader? = null) {
     this ?: return
     init(onRefresh = listener, header = header)
 }
@@ -65,7 +65,7 @@ fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, 
 /**
  * 只需上拉加载，无需下拉刷新
  */
-fun SmartRefreshLayout?.initFooterOnlyPull(listener: OnLoadMoreListener? = null, footer: RefreshFooter) {
+fun SmartRefreshLayout?.initFooterOnlyPull(listener: OnLoadMoreListener? = null, footer: RefreshFooter? = null) {
     this ?: return
     init(onLoadMore = listener, footer = footer)
 }
@@ -73,7 +73,7 @@ fun SmartRefreshLayout?.initFooterOnlyPull(listener: OnLoadMoreListener? = null,
 /**
  * 吸顶头/展开面板 (内容不会被下拉,只会下拉出头部的刷新控件)
  */
-fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, header: RefreshHeader) {
+fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, header: RefreshHeader? = null) {
     this ?: return
     // 是否下拉Header的时候向下平移列表或者内容
     setEnableHeaderTranslationContent(false)

@@ -16,6 +16,9 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
+import com.example.common.widget.xrecyclerview.refresh.initFooterOnlyPull
+import com.example.common.widget.xrecyclerview.refresh.initHeaderOnlyPull
+import com.example.common.widget.xrecyclerview.refresh.initStickyHeader
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
@@ -37,6 +40,8 @@ import com.example.framework.utils.function.view.setOnScrollListener
 import com.example.framework.utils.function.view.size
 import com.example.framework.widget.BaseViewGroup
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
+import com.scwang.smart.refresh.layout.api.RefreshFooter
+import com.scwang.smart.refresh.layout.api.RefreshHeader
 import com.scwang.smart.refresh.layout.listener.OnLoadMoreListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshListener
 import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
@@ -170,12 +175,20 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 刷新页面监听
      * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
      */
-    fun setOnRefreshListener(listener: OnRefreshLoadMoreListener) {
-        refresh.init(listener)
+    fun setOnRefreshLoadMoreListener(listener: OnRefreshLoadMoreListener, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
+        refresh.init(listener, header, footer)
     }
 
-    fun setOnRefreshListener(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null) {
-        refresh.init(onRefresh, onLoadMore)
+    fun setOnRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null) {
+        refresh.initHeaderOnlyPull(listener, header)
+    }
+
+    fun setOnLoadMoreListener(listener: OnLoadMoreListener, footer: RefreshFooter? = null) {
+        refresh.initFooterOnlyPull(listener, footer)
+    }
+
+    fun setOnStickyRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null) {
+        refresh.initStickyHeader(listener, header)
     }
 
     /**
