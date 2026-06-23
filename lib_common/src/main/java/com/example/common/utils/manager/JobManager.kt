@@ -49,7 +49,7 @@ class JobManager(observer: LifecycleOwner?) {
             it.cancel()
             jobMap.remove(key)
         }
-        //新的 Job 添加到集合中
+        // 新的 Job 添加到集合中
         jobMap[key] = job
     }
 
