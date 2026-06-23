@@ -22,7 +22,7 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.builder.suspendingSavePic
 import com.example.common.utils.builder.suspendingSaveView
-import com.example.common.utils.function.byServerUrl
+import com.example.common.utils.function.toServerUrl
 import com.example.common.utils.function.decodeAsset
 import com.example.common.utils.function.decodeDimensions
 import com.example.common.utils.function.decodeResource
@@ -270,7 +270,7 @@ class TestViewModel : BaseViewModel() {
                 }
                 ivLine.margin(top = 1.pt)
                 // 生成二维码
-                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".byServerUrl
+                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".toServerUrl
                 val qrBit = QRCodeEncoder.syncEncodeQRCode(content, 400, Color.BLACK, Color.WHITE, mContext.decodeResource(R.mipmap.ic_qr_code))
                 val ivQrCode = ImageView(it)
                 ivQrCode.id = generateViewId()
@@ -334,7 +334,7 @@ class TestViewModel : BaseViewModel() {
                     bottomToBottomOf(viewId)
                 }
                 // 生成二维码
-                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".byServerUrl
+                val content = "/app/sign-up?inviteCode=${URLEncoder.encode("10086", "UTF-8")}".toServerUrl
                 val qrBit = QRCodeEncoder.syncEncodeQRCode(content, 400, Color.BLACK, Color.WHITE, mContext.decodeResource(R.mipmap.ic_qr_code))
                 val ivQrCode = ImageView(it)
                 ivQrCode.id = generateViewId()

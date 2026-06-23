@@ -23,7 +23,7 @@ import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.color
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.load
+import com.example.common.utils.function.loadWebUrl
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.widget.advertising.Advertising
@@ -593,7 +593,7 @@ object BaseBindingAdapter {
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
     fun bindingWebViewLoadUrl(view: WebView, networkUrl: String?, needHeader: Boolean?) {
-        view.load(networkUrl.orEmpty(), needHeader.orFalse)
+        view.loadWebUrl(networkUrl.orEmpty(), needHeader.orFalse)
     }
 
     /**
@@ -603,7 +603,7 @@ object BaseBindingAdapter {
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
     fun bindingWebViewLoadAssetUrl(view: WebView, assetPath: String?, needHeader: Boolean?) {
-        view.load("file:///android_asset/$assetPath", needHeader.orFalse)
+        view.loadWebUrl("file:///android_asset/$assetPath", needHeader.orFalse)
     }
     // </editor-fold>
 
