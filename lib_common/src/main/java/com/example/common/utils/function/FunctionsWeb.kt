@@ -1,8 +1,6 @@
 package com.example.common.utils.function
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Build
@@ -338,7 +336,7 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
                 if (scheme.isHttpUrl) {
                     false
                 } else {
-                    uri.jumpToOtherApp(view.context)
+                    view.context.pullUpOtherApp(uri)
                     true
                 }
 //            host.endsWith(routerLink) || host.endsWith(routerLink) -> {
@@ -353,22 +351,10 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
             // 其余所有未知/自定义协议
             else -> {
                 // 唤起外部App
-                uri.jumpToOtherApp(view.context)
+                view.context.pullUpOtherApp(uri)
                 // 拦截WebView跳转
                 true
             }
-        }
-    }
-
-    private fun Uri.jumpToOtherApp(context: Context) {
-        try {
-            val intent = Intent(Intent.ACTION_VIEW, this)
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
-            context.applicationContext.startActivity(intent)
-        } catch (e: Exception) {
-            // 防止没有安装的情况
-            e.logE
-//            "當前App尚未安裝，請安裝後再試".shortToast()
         }
     }
 
