@@ -9,8 +9,8 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
 import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.load
-import com.example.common.utils.function.refresh
+import com.example.common.utils.function.loadWebUrl
+import com.example.common.utils.function.reloadWebUrl
 import com.example.common.utils.function.setupWebClient
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
@@ -66,14 +66,14 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
      * 加载页面
      */
     fun load() {
-        webView.load(bean?.getUrl().orEmpty(), true)
+        webView.loadWebUrl(bean?.getUrl().orEmpty(), true)
     }
 
     /**
      * 刷新页面
      */
     fun refresh() {
-        webView.refresh()
+        webView.reloadWebUrl()
     }
 
     /**

@@ -30,7 +30,6 @@ import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
-import com.example.common.config.ServerConfig
 import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -66,15 +65,6 @@ import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
 
 //------------------------------------按钮，控件行为工具类------------------------------------
-/**
- * 对应的拼接区分本地和测试
- */
-val Int?.byServerUrl: String
-    get() = string(this.orZero).byServerUrl
-
-val String?.byServerUrl: String
-    get() = "${ServerConfig.serverUrl()}${this}"
-
 /**
  * 设计图尺寸转换为实际尺寸
  */

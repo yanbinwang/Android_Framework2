@@ -18,11 +18,31 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.ProgressBar
 import androidx.core.net.toUri
+import com.example.common.config.ServerConfig
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toBoolean
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.visible
 import com.example.framework.utils.logE
 import java.lang.ref.WeakReference
+
+/**
+ * 对应的拼接区分本地和测试
+ */
+val Int?.toServerUrl: String
+    get() = string(this.orZero).toServerUrl
+
+val String?.toServerUrl: String
+    get() = "${ServerConfig.serverUrl()}${this}"
+
+/**
+ * 是否为 http 地址
+ */
+val String?.isHttpUrl: Boolean
+    get() = !this.isNullOrBlank() && run {
+        val s = trimStart().lowercase()
+        s.startsWith("http://") || s.startsWith("https://") || s == "http" || s == "https"
+    }
 
 /**
  * 标记网页是否加载完成，借助 View.tag 存储状态
@@ -40,7 +60,7 @@ var WebView?.isLoadFinished: Boolean
  * @param url 网页地址
  * @param appendHeader 是否追加当前网页专属请求头
  */
-fun WebView?.load(url: String, appendHeader: Boolean = false) {
+fun WebView?.loadWebUrl(url: String, appendHeader: Boolean = false) {
     if (this == null) return
     isLoadFinished = false
     if (appendHeader) {
@@ -65,7 +85,7 @@ private fun getWebHeader(): Map<String, String> {
 /**
  * 刷新当前网页
  */
-fun WebView?.refresh() {
+fun WebView?.reloadWebUrl() {
     if (this == null) return
     isLoadFinished = false
     reload()
@@ -152,7 +172,7 @@ fun WebView?.clearWebClientTask() {
  * """.trimIndent()
  * webView?.runJsScript(script) { }
  */
-fun WebView?.runJsScript(script: String, listener: (String?) -> Unit) {
+fun WebView?.runWebJsScript(script: String, listener: (String?) -> Unit) {
     if (this == null) {
         listener(null)
         return
@@ -315,7 +335,7 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
             }
             // 有协议头，但没有域名（典型：tel:、mailto:、weixin:// 这类App协议）
             host.isNullOrEmpty() -> {
-                if (scheme.isHttp) {
+                if (scheme.isHttpUrl) {
                     false
                 } else {
                     uri.jumpToOtherApp(view.context)
@@ -327,7 +347,7 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
 //            }
             }
             // 协议是 http / https 标准网页
-            scheme.isHttp -> {
+            scheme.isHttpUrl -> {
                 false
             }
             // 其余所有未知/自定义协议
@@ -339,9 +359,6 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
             }
         }
     }
-
-    private val String?.isHttp: Boolean
-        get() = equals("http", true) || equals("https", true)
 
     private fun Uri.jumpToOtherApp(context: Context) {
         try {
