@@ -290,13 +290,36 @@ fun Context?.pullUpNotification() {
 fun Context?.pullUpPackage(packageName: String) {
     this ?: return
     try {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        if (intent != null) {
+        packageManager.getLaunchIntentForPackage(packageName)?.let { intent ->
             intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
             startActivity(intent)
         }
     } catch (e: Exception) {
         e.printStackTrace()
+    }
+}
+
+/**
+ * 打开 uri 指向的 app
+ */
+fun Context?.pullUpOtherApp(uri: Uri) {
+    this ?: return
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        // 先检查是否有应用能处理该 Intent，避免抛出运行时异常
+        if (intent.resolveActivity(packageManager) != null) {
+            applicationContext.startActivity(intent)
+        } else {
+            "未找到可打开此链接的应用".shortToast()
+        }
+    } catch (e: SecurityException) {
+        e.printStackTrace()
+        "无权打开该链接或目标应用受限".shortToast()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        "打开外部应用失败".shortToast()
     }
 }
 
@@ -363,15 +386,16 @@ fun Context?.toPhone(tel: String) {
  */
 fun Context?.toSMS(text: String) {
     this ?: return
-    try {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            type = "vnd.android-dir/mms-sms"
-            putExtra("sms_body", text)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+//    try {
+//        startActivity(Intent(Intent.ACTION_VIEW).apply {
+//            type = "vnd.android-dir/mms-sms"
+//            putExtra("sms_body", text)
+//            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        })
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//    }
+    toSMSApp("", text)
 }
 
 /**
@@ -395,9 +419,9 @@ fun Context?.toSMSApp(tel: String, text: String) {
 fun Context?.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
 
 /**
- * 打开world
+ * 打开word
  */
-fun Context?.openWorld(filePath: String) = openFile(filePath, "application/msword")
+fun Context?.openWord(filePath: String) = openFile(filePath, "application/msword")
 
 /**
  * 打开安装包
@@ -455,6 +479,7 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
             }, title))
         } catch (e: Exception) {
             e.printStackTrace()
+            "分享失败，请重试".shortToast()
         }
     }
 }
