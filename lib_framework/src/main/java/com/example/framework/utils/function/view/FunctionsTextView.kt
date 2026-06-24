@@ -517,6 +517,11 @@ fun EditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode
     setText(getNumber().divide(number, scale, roundingMode))
 }
 
+fun EditText?.isZero(): Boolean {
+    this ?: return false
+    return getNumber() == "0"
+}
+
 /**
  * 添加EditText的InputFilter
  */
