@@ -6,6 +6,6 @@
         <!-- 四边各缩进 30%，视觉上约为原始的 40% 大小 -->
         <inset
             android:drawable="@mipmap/ic_launcher"
-            android:inset="30%" />
+            android:inset="35%" />
     </foreground>
 </adaptive-icon>
