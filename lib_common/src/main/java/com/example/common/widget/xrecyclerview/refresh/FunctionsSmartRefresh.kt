@@ -133,6 +133,34 @@ fun SmartRefreshLayout?.noMoreOnInit() {
 }
 
 /**
+ * 【沉浸式全屏专用】校正下拉拖拽比率
+ * 设置后需要手动在xml中禁用是否加载更多
+ * app:srlEnableLoadMore="false"
+ * app:srlEnableRefresh="true"
+ */
+fun SmartRefreshLayout?.correctImmersiveDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
+    this ?: return
+    applyToHeaderAndFooter { header, _ ->
+        // 获取状态栏高度
+        val statusHeight = getStatusBarHeight()
+        // 设置顶部内边距，让刷新图标避开状态栏
+        header.padding(top = statusHeight)
+        // 重新设置 View 总高度
+        header?.applyStatusBarInset(statusHeight, headerHeight, dragScaleFactor)
+        /**
+         * 设置下拉最大高度和 Header 高度的比率（影响可以下拉的最大高度）
+         * rate -> [比率 = 下拉最大高度 / Header的高度]
+         * 1) 由于设置了 paddingTop，SmartRefreshLayout 内部测量的 Header 基准高度已变为 (statusHeight + headerHeight)
+         * 2) 为了让【实际最大下拉像素】恰好等于 View 的总高度，必须用“期望总高度”除以“框架内部认知的基准高度”来反推倍率
+         */
+        val expectedMaxDragPx = statusHeight + headerHeight * dragScaleFactor
+        val frameworkBaseHeight = statusHeight + headerHeight
+        setHeaderMaxDragRate(expectedMaxDragPx / frameworkBaseHeight.toFloat())
+//        setHeaderMaxDragRate(headerHeight * 2.5f / (statusHeight + headerHeight))
+    }
+}
+
+/**
  * 获取“仅播放下拉动画”模式的持续时长
  * launch {
  *   delay(mRefresh.getAutoRefreshTime())
@@ -149,35 +177,6 @@ fun SmartRefreshLayout?.noMoreOnInit() {
 fun SmartRefreshLayout?.getPullAnimDuration(): Long {
     this ?: return 0L
     return if (autoRefreshAnimationOnly().orFalse) 300L else 0L
-}
-
-/**
- * 设置后需要手动在xml中禁用是否加载更多
- * app:srlEnableLoadMore="false"
- * app:srlEnableRefresh="true"
- */
-fun SmartRefreshLayout?.setHeaderDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
-    this ?: return
-    applyToHeaderAndFooter { header, _ ->
-        header?.apply {
-            // 获取状态栏高度
-            val statusHeight = getStatusBarHeight()
-            // 设置顶部内边距，让刷新图标避开状态栏
-            padding(top = statusHeight)
-            // 重新设置 View 总高度
-            applyStatusBarInset(statusHeight, headerHeight, dragScaleFactor)
-            /**
-             * 设置下拉最大高度和 Header 高度的比率（影响可以下拉的最大高度）
-             * rate -> [比率 = 下拉最大高度 / Header的高度]
-             * 1) 由于设置了 paddingTop，SmartRefreshLayout 内部测量的 Header 基准高度已变为 (statusHeight + headerHeight)
-             * 2) 为了让【实际最大下拉像素】恰好等于 View 的总高度，必须用“期望总高度”除以“框架内部认知的基准高度”来反推倍率
-             */
-            val expectedMaxDragPx = statusHeight + headerHeight * dragScaleFactor
-            val frameworkBaseHeight = statusHeight + headerHeight
-            setHeaderMaxDragRate(expectedMaxDragPx / frameworkBaseHeight.toFloat())
-//            setHeaderMaxDragRate(headerHeight * 2.5f / (statusHeight + headerHeight))
-        }
-    }
 }
 
 /**

@@ -7,7 +7,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
-import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
+import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
@@ -37,7 +37,7 @@ class AdActivity : BaseActivity<ActivityAdBinding>(), OnRefreshListener {
         mBinding?.viewCover.size(height = 330.pt + statusBarHeight)
         mBinding?.avBanner.margin(top = statusBarHeight)
         mBinding?.refresh?.setProgressTint(R.color.bgBlack)
-        mBinding?.refresh?.setHeaderDragRate()
+        mBinding?.refresh?.correctImmersiveDragRate()
         mBinding?.refresh?.setHeaderDragListener { _: Boolean, _: Float, offset: Int, _: Int, _: Int ->
             val imgBgHeight = mBinding?.avBanner?.measuredHeight.orZero
             if (imgBgHeight <= 0) return@setHeaderDragListener

@@ -27,7 +27,7 @@ import com.example.common.utils.toList
 import com.example.common.utils.toObj
 import com.example.common.widget.textview.edittext.EditTextImpl
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
-import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
+import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.framework.utils.BitmapSpan
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.ImageSpan
@@ -1116,7 +1116,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             padding(top = getStatusBarHeight())
         }
         //全屏的刷新，顶部需要空出导航栏的距离
-        mBinding?.refresh.setHeaderDragRate()
+        mBinding?.refresh.correctImmersiveDragRate()
         //设置头部的滑动监听
         mBinding?.refresh.setHeaderDragListener { isDragging, percent, offset, height, maxDragHeight ->
             changeBgHeight(offset)
