@@ -85,21 +85,21 @@ fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, he
  * true → 标记无更多数据
  * false → 显式重置为“还有更多数据”
  */
-fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean) {
+fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
     this ?: return
     when (this.state) {
         RefreshState.Loading, RefreshState.LoadFinish, RefreshState.LoadReleased -> {
             finishLoadMore(300)
-            if (noMoreData) setNoMoreData(true)
+            if (noMoreData.orFalse) setNoMoreData(true)
         }
         RefreshState.Refreshing, RefreshState.RefreshFinish, RefreshState.RefreshReleased -> {
             finishRefresh()
-            if (noMoreData) setNoMoreData(true)
+            if (noMoreData.orFalse) setNoMoreData(true)
         }
         else -> {
             finishLoadMore(300)
             finishRefresh()
-            setNoMoreData(noMoreData)
+            setNoMoreData(noMoreData.orFalse)
         }
     }
 }

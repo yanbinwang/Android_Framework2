@@ -451,22 +451,12 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
         listener(this)
     } else {
         // 如果视图还未完成布局，添加监听器
-        val observer = viewTreeObserver
-        // 防止 View 已 detach 但 isLaidOut 仍为 false 的边界情况
-        if (!observer.isAlive) return
-        // 允许重复调用时注册多个 listener，每个 listener 独立触发一次后自动移除，作为状态设置的安全兜底
-        val layoutListener = object : ViewTreeObserver.OnGlobalLayoutListener {
+        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                // 双重检查：回调时 View 可能已被销毁
-                if (!isAttachedToWindow) {
-                    observer.removeOnGlobalLayoutListener(this)
-                    return
-                }
-                observer.removeOnGlobalLayoutListener(this)
+                viewTreeObserver.removeOnGlobalLayoutListener(this)
                 listener(this@doOnceAfterLayout)
             }
-        }
-        observer.addOnGlobalLayoutListener(layoutListener)
+        })
     }
 }
 
