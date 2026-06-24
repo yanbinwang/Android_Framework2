@@ -120,7 +120,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      * 算式 : 40.pt (顶部高度) * 2.5 = 100.pt
      * binding.root.size(MATCH_PARENT, 100.pt + statusBarHeight) -> 不传 headerHeight 的写法
      */
-    fun applyStatusBarInset(statusBarHeight: Int, headerHeight: Int, dragScaleFactor: Float = 2.5f) {
+    fun applyStatusBarInset(statusBarHeight: Int, headerHeight: Int, dragScaleFactor: Float) {
         val scaledHeaderHeight = (headerHeight * dragScaleFactor).toSafeInt()
         val totalHeight = scaledHeaderHeight + statusBarHeight
         binding.root.size(MATCH_PARENT, totalHeight)

@@ -21,7 +21,7 @@ import com.example.common.widget.xrecyclerview.refresh.initHeaderOnlyPull
 import com.example.common.widget.xrecyclerview.refresh.initStickyHeader
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
-import com.example.common.widget.xrecyclerview.refresh.setHeaderDragRate
+import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.init
@@ -194,12 +194,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新的一些操作
      */
-    fun setProgressTint(@ColorRes color: Int) {
-        refresh.setProgressTint(color)
+    fun correctImmersiveDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
+        refresh.correctImmersiveDragRate(headerHeight, dragScaleFactor)
     }
 
-    fun setHeaderDragRate(headerHeight: Int = 40.pt) {
-        refresh.setHeaderDragRate(headerHeight)
+    fun setProgressTint(@ColorRes color: Int) {
+        refresh.setProgressTint(color)
     }
 
     fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
