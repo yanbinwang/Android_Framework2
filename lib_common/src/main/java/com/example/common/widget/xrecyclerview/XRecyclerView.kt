@@ -14,6 +14,7 @@ import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
+import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
 import com.example.common.widget.xrecyclerview.refresh.init
 import com.example.common.widget.xrecyclerview.refresh.initFooterOnlyPull
@@ -21,7 +22,6 @@ import com.example.common.widget.xrecyclerview.refresh.initHeaderOnlyPull
 import com.example.common.widget.xrecyclerview.refresh.initStickyHeader
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
-import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.init
@@ -194,7 +194,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新的一些操作
      */
-    fun correctImmersiveDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
+    fun correctImmersiveDragRate(headerHeight: Int, dragScaleFactor: Float) {
         refresh.correctImmersiveDragRate(headerHeight, dragScaleFactor)
     }
 
