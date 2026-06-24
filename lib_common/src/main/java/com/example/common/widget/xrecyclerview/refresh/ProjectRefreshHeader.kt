@@ -10,6 +10,7 @@ import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
@@ -40,6 +41,11 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animation?.stop()
     }
 
     override fun onInflate() {
@@ -84,6 +90,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      */
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
         // 松开时才开始做动画
+        if (animation?.isRunning.orFalse) return
         animation?.start()
     }
 
