@@ -9,6 +9,7 @@ import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.tint
@@ -38,6 +39,11 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
             animation = it.drawable as? AnimationDrawable
         }
         setNoMoreData(noMoreData)
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animation?.stop()
     }
 
     override fun onInflate() {
@@ -70,6 +76,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
             binding.ivProgress.gone()
             return
         }
+        if (animation?.isRunning.orFalse) return
         animation?.start()
     }
 
@@ -106,11 +113,6 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
             binding.ivProgress.visible()
         }
         return true
-    }
-
-    override fun onDetachedFromWindow() {
-        super.onDetachedFromWindow()
-        animation?.stop()
     }
 
     /**
