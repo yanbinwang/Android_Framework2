@@ -25,8 +25,8 @@ class ColorProgressBar @JvmOverloads constructor(context: Context, attrs: Attrib
 
     init {
         // 强制使用项目自带的无锯齿圆形加载图
-        val loadingDrawable = context.drawable(R.drawable.layer_list_loading)
-        indeterminateDrawable = loadingDrawable?.mutate()
+        val loadingDrawable = context.drawable(R.drawable.layer_list_loading)?.mutate()
+        indeterminateDrawable = loadingDrawable
     }
 
     /**
