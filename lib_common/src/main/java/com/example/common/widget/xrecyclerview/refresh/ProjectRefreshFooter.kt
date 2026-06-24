@@ -32,7 +32,6 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-//        mBinding.root.size(MATCH_PARENT, 40.pt)
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
