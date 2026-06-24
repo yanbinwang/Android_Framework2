@@ -8,17 +8,18 @@ import com.example.common.utils.builder.shortToast
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
-import com.example.framework.utils.function.value.add
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.matchesRegex
-import com.example.framework.utils.function.value.multiply
-import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.view.OnMultiTextWatcher
+import com.example.framework.utils.function.view.add
 import com.example.framework.utils.function.view.clear
+import com.example.framework.utils.function.view.divide
 import com.example.framework.utils.function.view.getNumber
 import com.example.framework.utils.function.view.hideKeyboard
+import com.example.framework.utils.function.view.isZero
+import com.example.framework.utils.function.view.multiply
 import com.example.framework.utils.function.view.onDone
 import com.example.framework.utils.function.view.showInput
+import com.example.framework.utils.function.view.subtract
 import java.math.RoundingMode
 
 /**
@@ -180,26 +181,27 @@ interface EditTextImpl {
 
     fun ClearEditText?.add(number: String?) {
         this ?: return
-        setText(getNumber().add(number))
+        editText.add(number)
     }
 
     fun ClearEditText?.subtract(number: String?) {
         this ?: return
-        setText(getNumber().subtract(number))
+        editText.subtract(number)
     }
 
     fun ClearEditText?.multiply(number: String?) {
         this ?: return
-        setText(getNumber().multiply(number))
+        editText.multiply(number)
     }
 
     fun ClearEditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN) {
         this ?: return
-        setText(getNumber().divide(number, scale, roundingMode))
+        editText.divide(number, scale, roundingMode)
     }
 
     fun ClearEditText?.isZero(): Boolean {
-        return getNumber() == "0"
+        this ?: return false
+        return editText.isZero()
     }
 
     fun ClearEditText?.text(): String {
