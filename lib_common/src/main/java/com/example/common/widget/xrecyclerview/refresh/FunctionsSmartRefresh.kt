@@ -57,9 +57,10 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
 /**
  * 只需下拉刷新，无需加载更多
  */
-fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader? = null) {
+fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader? = null, immersive: Boolean = false) {
     this ?: return
     init(onRefresh = listener, header = header)
+    if (immersive) correctImmersiveDragRate()
 }
 
 /**

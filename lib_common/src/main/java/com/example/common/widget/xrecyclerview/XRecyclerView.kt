@@ -179,8 +179,8 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         refresh.init(listener, header, footer)
     }
 
-    fun setOnRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null) {
-        refresh.initHeaderOnlyPull(listener, header)
+    fun setOnRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null, immersive: Boolean = false) {
+        refresh.initHeaderOnlyPull(listener, header, immersive)
     }
 
     fun setOnLoadMoreListener(listener: OnLoadMoreListener, footer: RefreshFooter? = null) {
