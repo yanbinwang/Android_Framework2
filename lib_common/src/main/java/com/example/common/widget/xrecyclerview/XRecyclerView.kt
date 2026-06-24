@@ -194,12 +194,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新的一些操作
      */
-    fun setHeaderDragRate(headerHeight: Int = 40.pt) {
-        refresh.setHeaderDragRate(headerHeight)
-    }
-
     fun setProgressTint(@ColorRes color: Int) {
         refresh.setProgressTint(color)
+    }
+
+    fun setHeaderDragRate(headerHeight: Int = 40.pt) {
+        refresh.setHeaderDragRate(headerHeight)
     }
 
     fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {

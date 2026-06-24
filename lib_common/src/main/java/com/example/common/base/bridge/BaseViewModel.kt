@@ -29,7 +29,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
-import com.example.common.widget.xrecyclerview.refresh.getAutoRefreshTime
+import com.example.common.widget.xrecyclerview.refresh.getPullAnimDuration
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -291,7 +291,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 自动刷新控件浮现，记得setExtraView
      */
     protected suspend fun autoRefresh() {
-        delay(mRefresh?.getAutoRefreshTime().orZero)
+        delay(mRefresh?.getPullAnimDuration().orZero)
     }
 
     /**
