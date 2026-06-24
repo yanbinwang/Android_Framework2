@@ -194,7 +194,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 刷新的一些操作
      */
-    fun correctImmersiveDragRate(headerHeight: Int, dragScaleFactor: Float) {
+    fun correctImmersiveDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
         refresh.correctImmersiveDragRate(headerHeight, dragScaleFactor)
     }
 
