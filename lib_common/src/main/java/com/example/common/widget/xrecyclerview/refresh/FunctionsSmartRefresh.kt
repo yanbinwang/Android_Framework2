@@ -82,22 +82,24 @@ fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, he
 
 /**
  * 完成刷新
+ * true → 标记无更多数据
+ * false → 显式重置为“还有更多数据”
  */
-fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
+fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean) {
     this ?: return
     when (this.state) {
         RefreshState.Loading, RefreshState.LoadFinish, RefreshState.LoadReleased -> {
             finishLoadMore(300)
-            if (noMoreData.orFalse) setNoMoreData(true)
+            if (noMoreData) setNoMoreData(true)
         }
         RefreshState.Refreshing, RefreshState.RefreshFinish, RefreshState.RefreshReleased -> {
             finishRefresh()
-            if (noMoreData.orFalse) setNoMoreData(true)
+            if (noMoreData) setNoMoreData(true)
         }
         else -> {
             finishLoadMore(300)
             finishRefresh()
-            setNoMoreData(noMoreData.orFalse)
+            setNoMoreData(noMoreData)
         }
     }
 }
@@ -105,14 +107,6 @@ fun SmartRefreshLayout?.finishRefreshing(noMoreData: Boolean? = true) {
 /**
  * 刷新控件状态
  */
-fun SmartRefreshLayout?.isRefreshing(): Boolean {
-    this ?: return false
-    return when (this.state) {
-        RefreshState.Refreshing, RefreshState.RefreshReleased -> true
-        else -> false
-    }
-}
-
 fun SmartRefreshLayout?.isLoading(): Boolean {
     this ?: return false
     return when (this.state) {
@@ -121,14 +115,11 @@ fun SmartRefreshLayout?.isLoading(): Boolean {
     }
 }
 
-/**
- * 没有更多数据初始化
- */
-fun SmartRefreshLayout?.noMoreOnInit() {
-    this ?: return
-    setEnableLoadMore(true)
-    applyToHeaderAndFooter { _, footer ->
-        footer?.setNoMoreData(true)
+fun SmartRefreshLayout?.isRefreshing(): Boolean {
+    this ?: return false
+    return when (this.state) {
+        RefreshState.Refreshing, RefreshState.RefreshReleased -> true
+        else -> false
     }
 }
 
@@ -187,6 +178,17 @@ fun SmartRefreshLayout?.setHeaderAndFooterHeight(headerHeight: Int = 40.pt, foot
     applyToHeaderAndFooter { header, footer ->
         header?.view?.size(MATCH_PARENT, headerHeight)
         footer?.view?.size(MATCH_PARENT, footerHeight)
+    }
+}
+
+/**
+ * 没有更多数据初始化
+ */
+fun SmartRefreshLayout?.setFooterNoMore() {
+    this ?: return
+    setEnableLoadMore(true)
+    applyToHeaderAndFooter { _, footer ->
+        footer?.setNoMoreData(true)
     }
 }
 
