@@ -20,8 +20,8 @@ import com.example.common.R
 import com.example.common.utils.function.color
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.setI18nTheme
-import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.applyI18nTextStyle
+import com.example.common.utils.function.applyTextStyle
 import com.example.common.utils.function.tintWithMutate
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.color
@@ -143,8 +143,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 center(it)
             }).apply {
                 when (title) {
-                    is Int -> setI18nTheme(title, titleColor)
-                    is String -> setTheme(title, titleColor)
+                    is Int -> applyI18nTextStyle(title, titleColor)
+                    is String -> applyTextStyle(title, titleColor)
                 }
             }
         }
@@ -325,8 +325,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         createOrUpdateView<I18nTextView>(key, {
             I18nTextView(context).also {
                 when (label) {
-                    is Int -> it.setI18nTheme(label, labelColor)
-                    is String -> it.setTheme(label, labelColor)
+                    is Int -> it.applyI18nTextStyle(label, labelColor)
+                    is String -> it.applyTextStyle(label, labelColor)
                 }
                 it.padding(start = 15.pt, end = 15.pt)
                 it.textSize(R.dimen.textSize14)

@@ -303,7 +303,7 @@ fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.applyTextStyle(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
@@ -311,73 +311,62 @@ fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTh
 }
 
 /**
- * 设置textview内容当中某一段的颜色
- */
-fun TextView?.highlightText(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
-    this ?: return
-    val textToProcess = when (txt) {
-        is Int -> i18String(txt)
-        is String -> txt
-        else -> ""
-    }
-    val keywordToProcess = when (keyword) {
-        is Int -> i18String(keyword)
-        is String -> keyword
-        else -> ""
-    }
-    val span = ColorSpan(context.color(colorRes))
-    setSpannable(if (spanAll) {
-        textToProcess.setSpanAll(keywordToProcess, span)
-    } else {
-        textToProcess.setSpanFirst(keywordToProcess, span)
-    })
-}
-
-/**
- * 设置点击跳转
- */
-fun TextView?.setClickableText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
-    this ?: return
-    val textToProcess = when (txt) {
-        is Int -> i18String(txt)
-        is String -> txt
-        else -> ""
-    }
-    var content: Spannable = SpannableString.valueOf(textToProcess)
-    keywords.forEach {
-        val (keywordText, colorRes, clickAction) = it
-        val keyword = when (keywordText) {
-            is Int -> i18String(keywordText)
-            is String -> keywordText
-            else -> ""
-        }
-        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
-            clickAction.invoke()
-        })
-    }
-    setSpannable(content)
-}
-
-fun TextView?.setClickableText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
-    setClickableText(txt, *keywords.map {
-        val (keywordText, clickAction) = it
-        Triple(keywordText, colorRes, clickAction)
-    }.toTypedArray())
-}
-
-/**
  * 國際化文本操作
  */
-fun I18nTextView?.setI18nTheme(resText: Int = -1, colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun I18nTextView?.applyI18nTextStyle(resText: Int = -1, colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     setI18nRes(resText)
     textColor(colorRes)
     if (-1 != resId) background(resId)
 }
 
-fun I18nTextView?.setI18nContent(i18nTextRes: Int, vararg contents: String) {
+fun I18nTextView?.applyI18nContent(i18nTextRes: Int, vararg contents: String) {
     this ?: return
     setI18nContent(i18nTextRes, *contents)
+}
+
+/**
+ * 设置textview内容当中某一段的颜色
+ */
+fun TextView?.highlightText(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
+    this ?: return
+    val content = resolveText(txt)
+    val target = resolveText(keyword)
+    val span = ColorSpan(context.color(colorRes))
+    setSpannable(if (spanAll) {
+        content.setSpanAll(target, span)
+    } else {
+        content.setSpanFirst(target, span)
+    })
+}
+
+/**
+ * 设置点击跳转
+ */
+fun TextView?.linkText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
+    this ?: return
+    var spannable: Spannable = SpannableString.valueOf(resolveText(txt))
+    keywords.forEach { (keywordSource, colorRes, clickAction) ->
+        val target = resolveText(keywordSource)
+        spannable = spannable.setSpanFirst(target, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
+            clickAction.invoke()
+        })
+    }
+    setSpannable(spannable)
+}
+
+fun TextView?.linkText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
+    linkText(txt, *keywords.map { (keywordText, clickAction) ->
+        Triple(keywordText, colorRes, clickAction)
+    }.toTypedArray())
+}
+
+private fun resolveText(source: Any): String {
+    return when (source) {
+        is Int -> i18String(source)
+        is String -> source
+        else -> ""
+    }
 }
 
 /**

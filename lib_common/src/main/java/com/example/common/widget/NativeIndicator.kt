@@ -5,7 +5,7 @@ import com.example.common.R
 import com.example.common.databinding.ItemTabBinding
 import com.example.common.utils.builder.TabLayoutBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.setI18nTheme
+import com.example.common.utils.function.applyI18nTextStyle
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orZero
@@ -65,7 +65,7 @@ class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<
  * 全局默认样式
  */
 fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
-    setI18nTheme(resText, if (selected) colorRes.first else colorRes.second, if (selected) bgRes.first else bgRes.second)
+    applyI18nTextStyle(resText, if (selected) colorRes.first else colorRes.second, if (selected) bgRes.first else bgRes.second)
     textSize(if (selected) sizeRes.first else sizeRes.second)
     padding(start = padding.first.pt, end = padding.second.pt)
     bold(selected)
