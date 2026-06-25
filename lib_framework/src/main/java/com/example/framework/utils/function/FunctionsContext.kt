@@ -40,7 +40,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.function.value.writeBundle
@@ -191,9 +190,9 @@ fun Context.getMetaData(): Bundle? {
  *  获取android当前可用运行内存大小(byte)
  */
 fun Context.getAvailMemory(): Long {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     val memoryInfo = ActivityManager.MemoryInfo()
-    manager?.getMemoryInfo(memoryInfo)
+    activityManager?.getMemoryInfo(memoryInfo)
     return memoryInfo.availMem
 }
 
@@ -201,21 +200,18 @@ fun Context.getAvailMemory(): Long {
  * 获取当前应用使用的内存大小(byte)
  */
 fun Context.getSampleMemory(): Long {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    var memory = 0L
-    try {
-        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
-        if (memInfo?.size.orZero > 0) {
-            memInfo ?: return 0
-            val totalPss = memInfo[0].totalPss
-            if (totalPss >= 0) {
-                memory = totalPss.toSafeLong()
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
+    return try {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()))
+        if (memInfo.isNullOrEmpty()) return 0L
+        val pssKb = memInfo[0].totalPss
+        // 异常设备可能返回负数 PSS，防御性取 0
+        if (pssKb <= 0) return 0L
+        // PSS 单位是 KB，转 Byte；用 Long 防溢出
+        pssKb.toLong() * 1024L
+    } catch (_: Exception) {
+        0L
     }
-    return memory * 1024
 }
 
 /**

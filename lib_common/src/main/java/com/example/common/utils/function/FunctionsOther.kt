@@ -85,41 +85,12 @@ val Number?.dpFloat: Float
 /**
  * 获取Manifest中的参数
  */
-fun getManifestString(name: String): String? {
-    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name)
+fun getManifestString(name: String): String {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name, "").orEmpty()
 }
 
-fun getManifestInt(name: String): Int? {
-    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name)
-}
-
-/**
- * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
- * "status_bar_height" → 状态栏高度
- * "navigation_bar_height" → 竖屏导航栏高度
- * "navigation_bar_height_landscape" → 横屏导航栏高度
- */
-fun getInternalDimensionSize(key: String): Int {
-    val context = BaseApplication.instance.applicationContext
-    val result = 0
-    try {
-        val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
-        if (resourceId > 0) {
-            val size = context.resources.getDimensionPixelSize(resourceId)
-            val size2 = Resources.getSystem().getDimensionPixelSize(resourceId)
-            return if (size2 >= size) {
-                size2
-            } else {
-                val densityOne = context.resources.displayMetrics.density
-                val densityTwo = Resources.getSystem().displayMetrics.density
-                val f = size * densityTwo / densityOne
-                (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
-            }
-        }
-    } catch (_: Resources.NotFoundException) {
-        return 0
-    }
-    return result
+fun getManifestInt(name: String): Int {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name, 0).orZero
 }
 
 /**
@@ -154,6 +125,36 @@ fun getNavigationBarHeight(): Int {
     } else {
         val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
         insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+    }
+}
+
+/**
+ * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
+ * "status_bar_height" → 状态栏高度
+ * "navigation_bar_height" → 竖屏导航栏高度
+ * "navigation_bar_height_landscape" → 横屏导航栏高度
+ */
+private fun getInternalDimensionSize(key: String): Int {
+    val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
+    if (resourceId <= 0) return 0
+    return try {
+        val context = BaseApplication.instance.applicationContext
+        val systemSize = Resources.getSystem().getDimensionPixelSize(resourceId)
+        val appSize = context.resources.getDimensionPixelSize(resourceId)
+        // 优先取较大值；若系统值更小，则按密度比补偿后四舍五入
+        if (systemSize >= appSize) {
+            systemSize
+        } else {
+            val densityCompensatedSize = appSize * Resources.getSystem().displayMetrics.density / context.resources.displayMetrics.density
+            // 刻意保留 ±0.5f 手写取整，不使用 roundToInt() 因为 roundToInt() 在 -0.5f 时结果为 0，而原版逻辑结果为 -1，必须保持逐 bit 一致以避免兼容性问题
+            (if (densityCompensatedSize >= 0) {
+                densityCompensatedSize + 0.5f
+            } else {
+                densityCompensatedSize - 0.5f
+            }).toInt()
+        }
+    } catch (_: Resources.NotFoundException) {
+        0
     }
 }
 
