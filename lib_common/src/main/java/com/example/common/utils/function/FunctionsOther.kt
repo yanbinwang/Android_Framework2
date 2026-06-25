@@ -2,7 +2,6 @@ package com.example.common.utils.function
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
@@ -48,6 +47,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.getMetaData
 import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.string
@@ -86,8 +86,11 @@ val Number?.dpFloat: Float
  * 获取Manifest中的参数
  */
 fun getManifestString(name: String): String? {
-    val context = BaseApplication.instance.applicationContext
-    return context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name)
+}
+
+fun getManifestInt(name: String): Int? {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name)
 }
 
 /**
@@ -508,7 +511,7 @@ object ExtraNumber {
      * 根据AutoSize设置来获取设定的宽度
      * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
      */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+    private val designWidth by lazy { getManifestInt("design_width_in_dp").toSafeInt(375) }
 
     /**
      * dp → 转成 手机真实像素 px

@@ -18,6 +18,7 @@ import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
+import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -306,12 +307,10 @@ fun TextView?.matchText() {
 }
 
 /**
- * 获取textview文字占据的行数
+ * 获取textview文字占据的行数 (代码中在设置了text后调取 需要注意如果在list列表的话，数据不宜过多，会造成卡顿)
  * xml中设置属性：
  * android:ellipsize="end"
  * android:maxLines="2"
- * 代码中在设置了text后调取
- * 需要注意如果在list列表的话，数据不宜过多，会造成卡顿
  */
 inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int) -> Unit = {}) {
     if (this == null) {
@@ -320,7 +319,14 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
     }
     // 若 TextView 已经完成布局，直接获取省略字符数量
     doOnceAfterLayout {
-        val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+        /**
+         * 当 TextView 刚绑定数据但尚未完成测量，或者文本被设置为空字符串时，lineCount 可能返回 0。
+         * 此时 lineCount - 1 等于 -1，传入 layout?.getEllipsisCount(-1) 会直接抛出 ArrayIndexOutOfBoundsException。
+         * 虽然外层有 layout? 的空安全保护，但 layout 不为 null 且 lineCount == 0 是真实存在的状态，空安全拦不住这个异常
+         */
+        val ellipsisCount = layout?.run {
+            if (lineCount > 0) getEllipsisCount(lineCount - 1) else 0
+        }.orZero
         listener.invoke(ellipsisCount)
     }
 }
@@ -331,7 +337,10 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
 fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
-    movementMethod = LinkMovementMethod.getInstance()
+    // 仅按需启用 LinkMovementMethod
+    val hasClickable = spannable.getSpans(0, spannable.length, ClickableSpan::class.java).isNotEmpty()
+    movementMethod = if (hasClickable) LinkMovementMethod.getInstance() else null
+    // 高亮色统一清除
     clearHighlightColor()
 }
 
@@ -340,9 +349,7 @@ fun TextView?.setSpannable(spannable: Spannable) {
  */
 fun TextView?.clearHighlightColor() {
     this ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        highlightColor = Color.TRANSPARENT
-    }
+    highlightColor = Color.TRANSPARENT
 }
 
 /**
