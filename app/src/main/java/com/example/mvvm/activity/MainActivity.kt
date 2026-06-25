@@ -26,11 +26,11 @@ import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
 import com.example.common.widget.textview.edittext.EditTextImpl
-import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
+import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.framework.utils.BitmapSpan
 import com.example.framework.utils.ColorSpan
-import com.example.framework.utils.ImageSpan
+import com.example.framework.utils.RadiusSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.builder.TimerBuilder
@@ -712,14 +712,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 
 
         mBinding?.tvTest?.text = TextSpan()
-            .add("在Cheezeebit交易，訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
-            .add(
-                " 0.5% ",
-                SizeSpan(dimen(R.dimen.textSize14)),
-                ColorSpan(color(R.color.textSecondary))
-            )
+            .add("訂單賺取高達", SizeSpan(dimen(R.dimen.textSize14)))
+            .add(" 0.5% ", SizeSpan(dimen(R.dimen.textSize14)), ColorSpan(color(R.color.textSecondary)))
             .add("的訂單獎勵", SizeSpan(dimen(R.dimen.textSize14)))
-            .add("★", BitmapSpan(ImageSpan(drawable(R.mipmap.ic_rank)?.toBitmapOrNull(), 18.pt)))
+            .add("★", BitmapSpan((drawable(R.mipmap.ic_rank)?.toBitmapOrNull()), 18.pt))
+            .add("fdssdf", SizeSpan(dimen(R.dimen.textSize8)), RadiusSpan(color(R.color.bgMain), 10.pt))
             .build()
 
 //        /**

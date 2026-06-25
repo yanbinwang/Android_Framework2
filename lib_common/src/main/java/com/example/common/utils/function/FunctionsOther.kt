@@ -40,9 +40,8 @@ import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
-import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
-import com.example.framework.utils.LinkSpan
+import com.example.framework.utils.LinkClickSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
@@ -300,9 +299,19 @@ fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
 }
 
 /**
- * 设置textview内容当中某一段的颜色
+ * 设置显示内容和对应文本颜色
  */
-fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
+fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
+    this ?: return
+    text = txt
+    textColor(colorRes)
+    if (-1 != resId) background(resId)
+}
+
+/**
+ * 高亮某段文本
+ */
+fun TextView?.highlightText(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
     val textToProcess = when (txt) {
         is Int -> string(txt)
@@ -323,9 +332,9 @@ fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.
 }
 
 /**
- * 设置点击跳转
+ * 绑定可点击文本
  */
-fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
+fun TextView?.setClickableText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
     val textToProcess = when (txt) {
         is Int -> string(txt)
@@ -340,28 +349,18 @@ fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
             is String -> keywordText
             else -> ""
         }
-        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), ClickSpan(LinkSpan(color(R.color.appTheme)) {
+        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
             clickAction.invoke()
-        }))
+        })
     }
     setSpannable(content)
 }
 
-fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
-    setSpan(txt, *keywords.map {
+fun TextView?.setClickableText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
+    setClickableText(txt, *keywords.map {
         val (keywordText, clickAction) = it
         Triple(keywordText, colorRes, clickAction)
     }.toTypedArray())
-}
-
-/**
- * 设置显示内容和对应文本颜色
- */
-fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
-    this ?: return
-    text = txt
-    textColor(colorRes)
-    if (-1 != resId) background(resId)
 }
 
 ///**

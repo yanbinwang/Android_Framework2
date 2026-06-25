@@ -51,6 +51,7 @@ import com.example.framework.utils.function.view.initStaggeredVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.spaceLimit
 import com.example.framework.utils.function.view.whiteListLimit
 
@@ -185,7 +186,7 @@ object BaseBindingAdapter {
                 val spannableKey = R.id.theme_spannable_tag
                 val oldSpannable = view.getTag(spannableKey) as? Spannable
                 if (oldSpannable != newSpannable) {
-                    view.text = newSpannable
+                    view.setSpannable(newSpannable)
                     view.setTag(spannableKey, newSpannable)
                 }
             }
