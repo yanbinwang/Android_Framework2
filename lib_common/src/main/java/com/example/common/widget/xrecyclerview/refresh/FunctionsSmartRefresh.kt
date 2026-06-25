@@ -20,7 +20,7 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
 /**
  * 传统列表页，刷新+加载更多
  */
-fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
+fun SmartRefreshLayout?.setupRefreshLoadMore(listener: OnRefreshLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
     this ?: return
     if (null != header) setRefreshHeader(header)
     if (null != footer) setRefreshFooter(footer)
@@ -33,7 +33,7 @@ fun SmartRefreshLayout?.init(listener: OnRefreshLoadMoreListener? = null, header
 /**
  * 需要分别控制刷新/加载
  */
-fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
+fun SmartRefreshLayout?.setupRefreshAndLoadMore(onRefresh: OnRefreshListener? = null, onLoadMore: OnLoadMoreListener? = null, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
     this ?: return
     if (null != header) setRefreshHeader(header)
     if (null != footer) setRefreshFooter(footer)
@@ -57,28 +57,29 @@ fun SmartRefreshLayout?.init(onRefresh: OnRefreshListener? = null, onLoadMore: O
 /**
  * 只需下拉刷新，无需加载更多
  */
-fun SmartRefreshLayout?.initHeaderOnlyPull(listener: OnRefreshListener? = null, header: RefreshHeader? = null, immersive: Boolean = false) {
+fun SmartRefreshLayout?.setupPullRefresh(listener: OnRefreshListener? = null, header: RefreshHeader? = null, immersive: Boolean = false) {
     this ?: return
-    init(onRefresh = listener, header = header)
+    setupRefreshAndLoadMore(onRefresh = listener, header = header)
     if (immersive) correctImmersiveDragRate()
 }
 
 /**
  * 只需上拉加载，无需下拉刷新
  */
-fun SmartRefreshLayout?.initFooterOnlyPull(listener: OnLoadMoreListener? = null, footer: RefreshFooter? = null) {
+fun SmartRefreshLayout?.setupLoadMore(listener: OnLoadMoreListener? = null, footer: RefreshFooter? = null) {
     this ?: return
-    init(onLoadMore = listener, footer = footer)
+    setupRefreshAndLoadMore(onLoadMore = listener, footer = footer)
 }
 
 /**
  * 吸顶头/展开面板 (内容不会被下拉,只会下拉出头部的刷新控件)
  */
-fun SmartRefreshLayout?.initStickyHeader(listener: OnRefreshListener? = null, header: RefreshHeader? = null) {
+fun SmartRefreshLayout?.setupStickyRefresh(listener: OnRefreshListener? = null, header: RefreshHeader? = null, immersive: Boolean = false) {
     this ?: return
     // 是否下拉Header的时候向下平移列表或者内容
     setEnableHeaderTranslationContent(false)
-    init(onRefresh = listener, header = header)
+    setupRefreshAndLoadMore(onRefresh = listener, header = header)
+    if (immersive) correctImmersiveDragRate()
 }
 
 /**
@@ -121,6 +122,17 @@ fun SmartRefreshLayout?.isRefreshing(): Boolean {
     return when (this.state) {
         RefreshState.Refreshing, RefreshState.RefreshReleased -> true
         else -> false
+    }
+}
+
+/**
+ * 销毁转圈动画资源
+ */
+fun SmartRefreshLayout?.clearAnimationResources() {
+    this ?: return
+    applyToHeaderAndFooter { header, footer ->
+        header?.release()
+        footer?.release()
     }
 }
 

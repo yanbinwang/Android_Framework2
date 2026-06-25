@@ -120,6 +120,13 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     /**
+     * 转圈颜色
+     */
+    fun setProgressTint(@ColorRes color: Int) {
+        binding.ivProgress.tint(color)
+    }
+
+    /**
      * 应用状态栏占位，重新计算并设置 Header 的总高度
      * @param statusBarHeight 状态栏实际像素高度
      * @param headerHeight 设计稿定义的纯刷新头部高度（px）
@@ -134,10 +141,12 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     /**
-     * 转圈颜色
+     * 显式销毁，供外部在确定不再使用时调用
      */
-    fun setProgressTint(@ColorRes color: Int) {
-        binding.ivProgress.tint(color)
+    fun release() {
+        animation?.stop()
+        binding.ivProgress.setImageDrawable(null)
+        animation = null
     }
 
 }

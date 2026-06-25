@@ -16,13 +16,13 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
 import com.example.common.widget.xrecyclerview.refresh.correctImmersiveDragRate
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
-import com.example.common.widget.xrecyclerview.refresh.init
-import com.example.common.widget.xrecyclerview.refresh.initFooterOnlyPull
-import com.example.common.widget.xrecyclerview.refresh.initHeaderOnlyPull
-import com.example.common.widget.xrecyclerview.refresh.initStickyHeader
 import com.example.common.widget.xrecyclerview.refresh.setFooterDragListener
 import com.example.common.widget.xrecyclerview.refresh.setHeaderDragListener
 import com.example.common.widget.xrecyclerview.refresh.setProgressTint
+import com.example.common.widget.xrecyclerview.refresh.setupLoadMore
+import com.example.common.widget.xrecyclerview.refresh.setupPullRefresh
+import com.example.common.widget.xrecyclerview.refresh.setupRefreshLoadMore
+import com.example.common.widget.xrecyclerview.refresh.setupStickyRefresh
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
@@ -172,27 +172,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
-     * 刷新页面监听
-     * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
-     */
-    fun setOnRefreshLoadMoreListener(listener: OnRefreshLoadMoreListener, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
-        refresh.init(listener, header, footer)
-    }
-
-    fun setOnRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null, immersive: Boolean = false) {
-        refresh.initHeaderOnlyPull(listener, header, immersive)
-    }
-
-    fun setOnLoadMoreListener(listener: OnLoadMoreListener, footer: RefreshFooter? = null) {
-        refresh.initFooterOnlyPull(listener, footer)
-    }
-
-    fun setOnStickyRefreshListener(listener: OnRefreshListener, header: RefreshHeader? = null) {
-        refresh.initStickyHeader(listener, header)
-    }
-
-    /**
-     * 刷新的一些操作
+     * 刷新 UI 操作
      */
     fun correctImmersiveDragRate(headerHeight: Int = 40.pt, dragScaleFactor: Float = 2.5f) {
         refresh.correctImmersiveDragRate(headerHeight, dragScaleFactor)
@@ -200,6 +180,26 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setProgressTint(@ColorRes color: Int) {
         refresh.setProgressTint(color)
+    }
+
+    /**
+     * 刷新页面监听
+     * 根据传入不同的监听，确定是否具备头和尾，无需在xml中指定
+     */
+    fun setupRefreshLoadMore(listener: OnRefreshLoadMoreListener, header: RefreshHeader? = null, footer: RefreshFooter? = null) {
+        refresh.setupRefreshLoadMore(listener, header, footer)
+    }
+
+    fun setupPullRefresh(listener: OnRefreshListener, header: RefreshHeader? = null, immersive: Boolean = false) {
+        refresh.setupPullRefresh(listener, header, immersive)
+    }
+
+    fun setupLoadMore(listener: OnLoadMoreListener, footer: RefreshFooter? = null) {
+        refresh.setupLoadMore(listener, footer)
+    }
+
+    fun setupStickyRefresh(listener: OnRefreshListener, header: RefreshHeader? = null, immersive: Boolean = false) {
+        refresh.setupStickyRefresh(listener, header, immersive)
     }
 
     fun setHeaderDragListener(listener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)) {
@@ -242,9 +242,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置空布局点击
      */
     fun setOnEmptyRefreshListener(listener: ((result: Boolean) -> Unit)) {
-        empty.setOnEmptyRefreshListener {
-            listener.invoke(it)
-        }
+        empty.setOnEmptyRefreshListener(listener)
     }
 
     /**
