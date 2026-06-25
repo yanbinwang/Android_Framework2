@@ -122,4 +122,13 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         binding.ivProgress.tint(color)
     }
 
+    /**
+     * 显式销毁，供外部在确定不再使用时调用
+     */
+    fun release() {
+        animation?.stop()
+        binding.ivProgress.setImageDrawable(null)
+        animation = null
+    }
+
 }

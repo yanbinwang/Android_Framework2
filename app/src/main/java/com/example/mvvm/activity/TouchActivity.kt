@@ -37,7 +37,7 @@ class TouchActivity : BaseTitleActivity<ActivityTouchBinding>(), OnRefreshLoadMo
         setOnBackPressedListener {
             close()
         }
-        mBinding?.xrvList?.setOnRefreshLoadMoreListener(this)
+        mBinding?.xrvList?.setupRefreshLoadMore(this)
         // 拖拽移动和左滑删除
         val callBack = ItemDecorationCallBack(mBinding?.adapter)
         // 要实现侧滑删除条目，把 false 改成 true 就可以了
