@@ -20,7 +20,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.applyTextStyle
 import com.example.common.utils.function.tintWithMutate
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.doOnDestroy
@@ -130,7 +130,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         if (!title.isNullOrEmpty()) {
             createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
                 TextView(context).also {
-                    it.setTheme(title, titleColor)
+                    it.applyTextStyle(title, titleColor)
                     it.textSize(R.dimen.textSize18)
                     it.bold(true)
                     it.size(WRAP_CONTENT, 44.pt)
@@ -321,7 +321,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<TextView>(key, {
             TextView(context).also {
-                it.setTheme(label, labelColor)
+                it.applyTextStyle(label, labelColor)
                 it.padding(start = 15.pt, end = 15.pt)
                 it.textSize(R.dimen.textSize14)
                 it.gravity = Gravity.CENTER

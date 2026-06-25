@@ -301,7 +301,7 @@ fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.applyTextStyle(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
@@ -313,54 +313,43 @@ fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTh
  */
 fun TextView?.highlightText(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
     this ?: return
-    val textToProcess = when (txt) {
-        is Int -> string(txt)
-        is String -> txt
-        else -> ""
-    }
-    val keywordToProcess = when (keyword) {
-        is Int -> string(keyword)
-        is String -> keyword
-        else -> ""
-    }
+    val content = resolveText(txt)
+    val target = resolveText(keyword)
     val span = ColorSpan(context.color(colorRes))
     setSpannable(if (spanAll) {
-        textToProcess.setSpanAll(keywordToProcess, span)
+        content.setSpanAll(target, span)
     } else {
-        textToProcess.setSpanFirst(keywordToProcess, span)
+        content.setSpanFirst(target, span)
     })
 }
 
 /**
  * 绑定可点击文本
  */
-fun TextView?.setClickableText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
+fun TextView?.linkText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
     this ?: return
-    val textToProcess = when (txt) {
-        is Int -> string(txt)
-        is String -> txt
-        else -> ""
-    }
-    var content: Spannable = SpannableString.valueOf(textToProcess)
-    keywords.forEach {
-        val (keywordText, colorRes, clickAction) = it
-        val keyword = when (keywordText) {
-            is Int -> string(keywordText)
-            is String -> keywordText
-            else -> ""
-        }
-        content = content.setSpanFirst(keyword, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
+    var spannable: Spannable = SpannableString.valueOf(resolveText(txt))
+    keywords.forEach { (keywordSource, colorRes, clickAction) ->
+        val target = resolveText(keywordSource)
+        spannable = spannable.setSpanFirst(target, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
             clickAction.invoke()
         })
     }
-    setSpannable(content)
+    setSpannable(spannable)
 }
 
-fun TextView?.setClickableText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
-    setClickableText(txt, *keywords.map {
-        val (keywordText, clickAction) = it
+fun TextView?.linkText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
+    linkText(txt, *keywords.map { (keywordText, clickAction) ->
         Triple(keywordText, colorRes, clickAction)
     }.toTypedArray())
+}
+
+private fun resolveText(source: Any): String {
+    return when (source) {
+        is Int -> string(source)
+        is String -> source
+        else -> ""
+    }
 }
 
 ///**

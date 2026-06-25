@@ -19,7 +19,7 @@ import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.setTheme
+import com.example.common.utils.function.applyTextStyle
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.appear
@@ -65,7 +65,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
     private val tvNick by lazy {
         TextView(this).apply {
             id = tvNickId
-            setTheme("老王", R.color.textPrimary)
+            applyTextStyle("老王", R.color.textPrimary)
             textSize(R.dimen.textSize12)
             bold(true)
             size(WRAP_CONTENT, WRAP_CONTENT)
