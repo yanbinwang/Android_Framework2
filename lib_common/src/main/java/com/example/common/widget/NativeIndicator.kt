@@ -55,7 +55,7 @@ class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<
      * 重写此方法表示部分标题字体字号样式等需要使用非默认配置
      * 需在调用bind（）方法前调取，一旦绑定就会执行，此时监听没赋值，控件会显示不出
      */
-    fun setRedraw(redraw: ((mBinding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
+    fun setRedraw(redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
         this.redraw = redraw
     }
 
