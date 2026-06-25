@@ -356,8 +356,8 @@ fun TextView?.linkText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) 
 }
 
 fun TextView?.linkText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
-    linkText(txt, *keywords.map { (keywordText, clickAction) ->
-        Triple(keywordText, colorRes, clickAction)
+    linkText(txt, *keywords.map { (keywordSource, clickAction) ->
+        Triple(keywordSource, colorRes, clickAction)
     }.toTypedArray())
 }
 
