@@ -176,6 +176,18 @@ fun Context.getPrimaryClip(): String {
 }
 
 /**
+ * 安全获取 MetaData Bundle 返回 null 表示未配置或读取失败
+ */
+fun Context.getMetaData(): Bundle? {
+    return try {
+        packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  *  获取android当前可用运行内存大小(byte)
  */
 fun Context.getAvailMemory(): Long {
