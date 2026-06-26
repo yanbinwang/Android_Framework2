@@ -106,7 +106,6 @@ abstract class BaseApplication : Application() {
         ServerConfig.init()
         // 注册网络监听
         NetWorkUtil.init(ProcessLifecycleOwner.get())
-//        initReceiver()
         // 防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         // 路由跳转初始化
@@ -135,12 +134,6 @@ abstract class BaseApplication : Application() {
         // 设置全局AOP拦截器 将 PageInterceptor 设置为全局唯一的路由拦截器
         setRouterInterceptor(PageInterceptor())
     }
-
-//    private fun initReceiver() {
-//        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
-//            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
-//        }, NetworkReceiver.filter)
-//    }
 
     private fun initListener() {
         // 所有继承了BaseActivity的页面在应用进程内都有关闭监听
