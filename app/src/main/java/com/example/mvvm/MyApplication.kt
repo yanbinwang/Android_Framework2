@@ -2,7 +2,7 @@ package com.example.mvvm
 
 import android.content.Context
 import com.example.common.BaseApplication
-import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.helper.ConfigHelper.pushToken
 import com.example.common.utils.toJson
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toArray
@@ -10,7 +10,6 @@ import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
-import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.utils.NotificationUtil
 import java.util.concurrent.atomic.AtomicBoolean
@@ -118,7 +117,7 @@ class MyApplication : BaseApplication() {
             }
             FireBaseUtil.tokenRefreshListener = {
                 "firebase token $it".logE
-                ConfigHelper.setDeviceToken(it)
+                pushToken = it
             }
         }
     }

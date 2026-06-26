@@ -31,15 +31,13 @@ object ConfigHelper {
         }
 
     /**
-     * firebase的设备token
+     * firebase 的设备 token
      */
-    fun setDeviceToken(value: String) {
-        deviceToken.set(value)
-    }
-
-    fun getDeviceToken(): String {
-        return deviceToken.get().orEmpty()
-    }
+    var pushToken: String
+        get() = deviceToken.get().orEmpty()
+        set(value) {
+            deviceToken.set(value)
+        }
 
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行

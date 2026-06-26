@@ -9,7 +9,7 @@ import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.reqBodyOf
 import com.example.common.network.repository.successful
-import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.helper.ConfigHelper.pushToken
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.logE
 import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
@@ -153,7 +153,7 @@ object FireBaseUtil {
      */
     suspend fun bind(isBind: Boolean, listener: (isBind: Boolean) -> Unit = {}) {
         if (!isBind) {
-            FireBaseApi.instance.getBindFireBaseApi(reqBodyOf("token" to ConfigHelper.getDeviceToken())).apply { listener.invoke(successful()) }
+            FireBaseApi.instance.getBindFireBaseApi(reqBodyOf("token" to pushToken)).apply { listener.invoke(successful()) }
         }
     }
 

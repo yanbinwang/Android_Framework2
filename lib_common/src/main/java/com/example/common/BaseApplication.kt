@@ -300,7 +300,7 @@ abstract class BaseApplication : Application() {
 //    }
 //
 //    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
-//        if (ConfigHelper.getPrivacyAgreed()) {
+//        if (isPrivacyPolicyAccepted) {
 //            if (isBaseLoaded) {
 ////            //友盟日志收集
 ////            initUM()
