@@ -120,7 +120,7 @@ abstract class BaseApplication : Application() {
         initSocket()
         // 全局进程
         initLifecycle()
-        // 初始化友盟/人脸识别->延后
+        // 初始化友盟/人脸识别 -> 延后
         initPrivacyAgreed()
     }
 
@@ -269,12 +269,12 @@ abstract class BaseApplication : Application() {
         })
     }
 
-    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
-        this.onStateChangedListener = onStateChangedListener
+    protected fun setOnStateChangedListener(listener: (isForeground: Boolean) -> Unit) {
+        this.onStateChangedListener = listener
     }
 
-    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+    protected fun setOnPrivacyAgreedListener(listener: (agreed: Boolean) -> Unit) {
+        this.onPrivacyAgreedListener = listener
     }
 
     fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
