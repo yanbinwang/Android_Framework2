@@ -5,8 +5,6 @@ import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData.privacyAgreed
 import com.example.framework.utils.function.value.toSafeLong

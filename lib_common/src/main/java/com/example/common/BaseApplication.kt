@@ -28,7 +28,6 @@ import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.helper.ConfigHelper
 import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
@@ -262,8 +261,8 @@ abstract class BaseApplication : Application() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                             false
-                        }
-                        if (!isAnyProcessForeground.orFalse) {
+                        }.orFalse
+                        if (!isAnyProcessForeground) {
                             isForeground.set(false)
 //                            EventCode.EVENT_BACKGROUND.post()
                             onStateChangedListener.invoke(false)
