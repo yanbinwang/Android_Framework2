@@ -125,7 +125,7 @@ abstract class BaseApplication : Application() {
         initSocket()
         // 全局进程
         initLifecycle()
-//        // 初始化友盟/人脸识别->延后
+//        // 初始化友盟/人脸识别 -> 延后
 //        initPrivacyAgreed()
     }
 
@@ -302,9 +302,9 @@ abstract class BaseApplication : Application() {
 //    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
 //        if (isPrivacyPolicyAccepted) {
 //            if (isBaseLoaded) {
-////            //友盟日志收集
+////            // 友盟日志收集
 ////            initUM()
-////            //支付宝人脸识别
+////            // 支付宝人脸识别
 ////            initVerify()
 //            }
 //            onPrivacyAgreedListener.invoke(true)
