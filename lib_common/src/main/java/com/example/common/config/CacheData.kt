@@ -24,7 +24,7 @@ object CacheData {
     internal val userBean = DataParcelableCache(USER_BEAN, UserBean::class.java)
 
     // 用户信息类
-    private val USER_INFO_BEAN = "user_info_bean"
+    private const val USER_INFO_BEAN = "user_info_bean"
     internal val userInfoBean = DataParcelableCache(USER_INFO_BEAN, UserInfoBean::class.java)
 
 }

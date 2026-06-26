@@ -29,6 +29,7 @@ import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -285,7 +286,7 @@ abstract class BaseApplication : Application() {
     }
 
     fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
-        if (ConfigHelper.getPrivacyAgreed()) {
+        if (isPrivacyPolicyAccepted) {
             if (isBaseLoaded) {
 //            // 友盟日志收集
 //            initUM()

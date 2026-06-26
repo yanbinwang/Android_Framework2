@@ -22,13 +22,11 @@ object ConfigHelper {
     /**
      * 存储是否已经同意告知书
      */
-    fun setPrivacyAgreed(value: Boolean) {
-        privacyAgreed.set(value)
-    }
-
-    fun getPrivacyAgreed(): Boolean {
-        return privacyAgreed.get()
-    }
+    var isPrivacyPolicyAccepted: Boolean
+        get() = privacyAgreed.get()
+        set(value) {
+            privacyAgreed.set(value)
+        }
 
     /**
      * 在进程中去寻找当前APP的信息，判断是否在运行
