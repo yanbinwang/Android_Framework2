@@ -32,7 +32,7 @@ import java.util.concurrent.atomic.AtomicReference
  */
 object I18nUtil {
     // 用於存儲項目中所有繼承I18nImpl的view
-    private val viewList = AtomicReference(ArrayList<WeakReference<I18nImpl>>())
+    private val viewList = mutableListOf<WeakReference<I18nImpl>>()
     // 語言包
     private val languageMap: ConcurrentHashMap<String, String>
         get() {
@@ -48,39 +48,53 @@ object I18nUtil {
      * 注册
      */
     fun register(textView: I18nImpl) {
-        viewList.get().add(textView.getWeakRef())
-        checkList()
+        if (viewList.any { it.get() === textView }) return
+        viewList.add(textView.getWeakRef())
+//        checkList()
     }
 
     /**
      * 解除注册
      */
     fun unregister(textView: I18nImpl) {
-        viewList.get().remove(textView.getWeakRef())
-        checkList()
+        // lazy 保证是同一实例，remove 能正确匹配
+        viewList.remove(textView.getWeakRef())
+//        checkList()
     }
 
-    /**
-     * 检查是否有已被回收的item
-     */
-    private fun checkList() {
-        viewList.get()
-            .filter { it.get() == null }
-            .forEach {
-                viewList.get().remove(it)
-            }
-    }
+//    /**
+//     * 检查是否有已被回收的item
+//     */
+//    private fun checkList() {
+//        viewList.get()
+//            .filter { it.get() == null }
+//            .forEach {
+//                viewList.get().remove(it)
+//            }
+//    }
 
     /**
      * 刷新全局语言
      * 對應view內實現語言的資源切換
      */
     fun refreshLanguage() {
-        checkList()
-        viewList.get()
-            .forEach {
-                it.get()?.refreshText()
+//        checkList()
+//        viewList.get()
+//            .forEach {
+//                it.get()?.refreshText()
+//            }
+        // Iterator.remove() 在 ArrayList 上是安全的，且无额外拷贝
+        val iterator = viewList.iterator()
+        while (iterator.hasNext()) {
+            val ref = iterator.next()
+            val view = ref.get()
+            if (view == null) {
+                // 防御性清理已回收的引用
+                iterator.remove()
+            } else {
+                view.refreshText()
             }
+        }
     }
 
     /**
