@@ -20,7 +20,7 @@ object ConfigHelper {
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
-     * 存储是否已经同意告知书
+     * 是否同意告知书
      */
     var isPrivacyPolicyAccepted: Boolean
         get() = privacyAgreed.get()
