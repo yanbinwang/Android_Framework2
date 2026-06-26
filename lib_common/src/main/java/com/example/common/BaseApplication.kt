@@ -61,7 +61,7 @@ import java.util.concurrent.atomic.AtomicLong
  */
 @SuppressLint("MissingPermission", "UnspecifiedRegisterReceiverFlag", "PrivateApi", "DiscouragedPrivateApi", "SoonBlockedPrivateApi")
 abstract class BaseApplication : Application() {
-    private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
+//    private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
 //    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
     private val excludedRouterPaths by lazy {
         listOf(
@@ -263,7 +263,7 @@ abstract class BaseApplication : Application() {
                             val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
                             // 此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
                             if (stampTimeDiff - nanoTimeDiff > 120.minute) {
-                                onStateChangedListener.invoke(true)
+//                                onStateChangedListener.invoke(true)
                             }
                             timeStamp = System.currentTimeMillis()
                             timeNano = System.nanoTime()
@@ -280,7 +280,7 @@ abstract class BaseApplication : Application() {
                         if (!isAnyProcessForeground) {
                             isForeground.set(false)
 //                            EventCode.EVENT_BACKGROUND.post()
-                            onStateChangedListener.invoke(false)
+//                            onStateChangedListener.invoke(false)
                             timeStamp = System.currentTimeMillis()
                             timeNano = System.nanoTime()
                         }
@@ -291,12 +291,12 @@ abstract class BaseApplication : Application() {
         })
     }
 
-//    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
-//        this.onStateChangedListener = onStateChangedListener
+//    protected fun setOnStateChangedListener(listener: (isForeground: Boolean) -> Unit) {
+//        onStateChangedListener = listener
 //    }
 //
-//    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-//        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+//    protected fun setOnPrivacyAgreedListener(listener: (agreed: Boolean) -> Unit) {
+//        onPrivacyAgreedListener = listener
 //    }
 //
 //    fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
