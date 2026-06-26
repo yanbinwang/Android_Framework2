@@ -81,14 +81,26 @@ val Number?.dpFloat: Float
     get() = dpFloat()
 
 /**
- * 获取Manifest中的参数
+ * 获取 AndroidManifest 中的参数
  */
-fun getManifestString(name: String): String {
-    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name, "").orEmpty()
+fun getManifestInt(name: String, default: Int = 0): Int {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name, default) ?: default
 }
 
-fun getManifestInt(name: String): Int {
-    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name, 0).orZero
+fun getManifestLong(name: String, default: Long = 0L): Long {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getLong(name, default) ?: default
+}
+
+fun getManifestDouble(name: String, default: Double = 0.0): Double {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getDouble(name, default) ?: default
+}
+
+fun getManifestBoolean(name: String, default: Boolean = false): Boolean {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getBoolean(name, default) ?: default
+}
+
+fun getManifestString(name: String, default: String = ""): String {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name, default) ?: default
 }
 
 /**
@@ -284,22 +296,22 @@ fun String?.setPrimaryClip(label: String = "Label") {
 }
 
 /**
- * 使用CardView时,4个角都会带有弧度,但是有些xml在绘制时,底部是不需要的
- * 可以外层套一个FrameLayout,背景设为透明,内部套CardView,cardBackgroundColor设为对应纯色或图片,然后调用该扩展
+ * 在 View 底部叠加一个指定高度的纯色矩形补丁
+ * 适用于修复圆角容器底部透底、衔接导航栏背景等场景
+ * @param colorRes 底部补丁颜色资源
+ * @param radius 圆角弧度
  */
-fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
+fun View?.applyBottomColorPatch(@ColorRes colorRes: Int, radius: Int) {
     this ?: return
-    val windowBackground = when (background) {
+    val baseDrawable = when (background) {
         is ColorDrawable -> background
         is BitmapDrawable, is VectorDrawable -> background
         else -> null
     } ?: color(R.color.appWindowBackground).toDrawable()
-    val bottomColor = color(color)
-    val bottomDrawable = NavigationBarDrawable(bottomColor)
-    bottomDrawable.paint.color = bottomColor
-    bottomDrawable.updateNavigationBarHeight(radius)
-    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
-    background = combinedDrawable
+    val patchDrawable = NavigationBarDrawable(color(colorRes)).apply {
+        updateNavigationBarHeight(radius)
+    }
+    background = LayerDrawable(arrayOf(baseDrawable, patchDrawable))
 }
 
 /**

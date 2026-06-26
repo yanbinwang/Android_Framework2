@@ -14,7 +14,6 @@ import com.example.common.utils.applyFullScreen
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
-import com.example.framework.utils.function.view.margin
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
 import com.therouter.router.Route

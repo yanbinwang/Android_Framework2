@@ -431,7 +431,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        })
 //
 //
-//        mBinding?.flCard.adjustRadiusDrawable(R.color.bgBlue,5.pt)
+//        mBinding?.flCard.applyBottomColorPatch(R.color.bgBlue,5.pt)
 //        launch {
 //            ImageLoader.instance.loadRoundedImageFromUrl(mBinding?.ivThumb,
 //                "https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg",
