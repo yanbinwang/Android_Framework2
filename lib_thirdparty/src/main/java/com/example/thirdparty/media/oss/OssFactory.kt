@@ -51,7 +51,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -67,13 +67,13 @@ class OssFactory private constructor() : CoroutineScope {
     // Oss基础类
     private var oss: OSS? = null
     // 对象锁，缩小范围减少开销
-    private val LOCK = Any()
+    private val dataLock = Any()
     // key -> 保全号（服务器唯一id）value->对应oss的传输类/协程
     private val ossMap by lazy { ConcurrentHashMap<String, OSSAsyncTask<ResumableUploadResult>?>() }
     private val ossProgressMap by lazy { ConcurrentHashMap<String, Int>() }
     private val ossJobMap by lazy { ConcurrentHashMap<String, Job>() }
     // 传入页面的lifecycle以及页面实现的OssImpl
-    private val ossImpl by lazy { AtomicReference(ArrayList<WeakReference<OssImpl>>()) }
+    private val ossImplList by lazy { CopyOnWriteArrayList<WeakReference<OssImpl>>() }
     // 协程整体，因全局文件上传都需要调取oss，故而无需考虑cancel问题（方法可补充，main中调取）
     private var initJob: Job? = null
     private val job = SupervisorJob()
@@ -111,7 +111,7 @@ class OssFactory private constructor() : CoroutineScope {
      * 3.接口失败或者上传失败时再次调取initialize（）重新赋值
      */
     fun initialize(block: () -> Unit = {}) {
-        synchronized(LOCK) {
+        synchronized(dataLock) {
             initJob?.cancel()
             initJob = launch {
                 flow {
@@ -164,11 +164,12 @@ class OssFactory private constructor() : CoroutineScope {
      * impl: OssImpl
      */
     fun bind(owner: LifecycleOwner, impl: OssImpl) {
+        if (ossImplList.any { it.get() === impl }) return
         val weakImpl = WeakReference(impl)
-        if (ossImpl.get().find { it == weakImpl } == null) {
-            ossImpl.get().add(weakImpl)
+        // addIfAbsent 保证原子性添加（双重保险）
+        if (ossImplList.addIfAbsent(weakImpl)) {
             owner.doOnDestroy {
-                ossImpl.get().remove(weakImpl)
+                ossImplList.remove(weakImpl)
             }
         }
     }
@@ -217,7 +218,7 @@ class OssFactory private constructor() : CoroutineScope {
         ossMap.clear()
         ossProgressMap.clear()
         ossJobMap.clear()
-        ossImpl.get().clear()
+        ossImplList.clear()
         // 取消页面协程
         initJob?.cancel()
 //        job.cancel()
@@ -237,7 +238,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(baoquan: String, sourcePath: String?, fileType: String) {
         sourcePath ?: return
-        synchronized(LOCK) {
+        synchronized(dataLock) {
             if (isInit()) {
                 // 校验是否上传
                 if (OssDBHelper.isUpload(baoquan)) return
@@ -430,8 +431,8 @@ class OssFactory private constructor() : CoroutineScope {
      * 接口回调方法
      */
     private fun callback(type: Int, baoquan: String, progress: Int = 0, success: Boolean = true) {
-        ossImpl.get().forEach {
-            it.get()?.apply {
+        ossImplList.forEach { ref ->
+            ref.get()?.apply {
                 when (type) {
                     0 -> onStart(baoquan)
                     1 -> onLoading(baoquan, progress)
@@ -468,7 +469,7 @@ class OssFactory private constructor() : CoroutineScope {
      */
     fun asyncResumableUpload(sourcePath: String?, onStart: () -> Unit = {}, onSuccess: (objectKey: String?) -> Unit = {}, onLoading: (progress: Int?) -> Unit = {}, onFailed: (result: String?) -> Unit = {}, onComplete: () -> Unit = {}, privately: Boolean = false) {
         sourcePath ?: return
-        synchronized(LOCK) {
+        synchronized(dataLock) {
             if (isInit()) {
                 onStart.invoke()
                 // 设置对应文件的断点文件存放路径
