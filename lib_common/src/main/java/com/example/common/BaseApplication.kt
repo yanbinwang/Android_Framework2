@@ -285,6 +285,9 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
+                    Lifecycle.Event.ON_DESTROY -> {
+                        source.lifecycle.removeObserver(this)
+                    }
                     else -> {}
                 }
             }
