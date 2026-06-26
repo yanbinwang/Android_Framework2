@@ -22,15 +22,13 @@ object ConfigHelper {
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
-     * 存储是否已经同意告知书
+     * 是否同意告知书
      */
-    fun setPrivacyAgreed(value: Boolean) {
-        privacyAgreed.set(value)
-    }
-
-    fun getPrivacyAgreed(): Boolean {
-        return privacyAgreed.get()
-    }
+    var isPrivacyPolicyAccepted: Boolean
+        get() = privacyAgreed.get()
+        set(value) {
+            privacyAgreed.set(value)
+        }
 
     /**
      * firebase的设备token
