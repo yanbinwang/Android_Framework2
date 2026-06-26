@@ -1,6 +1,8 @@
 package com.example.common.utils.helper
 
 import android.annotation.SuppressLint
+import android.app.ActivityManager
+import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.lifecycle.Lifecycle
@@ -29,22 +31,12 @@ object ConfigHelper {
         }
 
     /**
-     * 在进程中去寻找当前APP的信息，判断是否在运行
-     * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
+     * 检查 App 是否处于真正的前台交互状态
+     * 此方法仅判断前台交互性，不等同于 UI 可见性 (例如被半透明 Activity 覆盖时返回 false)
      */
-    fun appIsOnForeground(): Boolean {
-//        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
-//        for (process in processes) {
-//            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(context.packageName)) return true
-//        }
-//        return false
-        /**
-         * RESUMED : 前台，用户正在交互 -> true
-         * STARTED : 前台，但被透明Activity/对话框遮挡 -> true
-         * CREATED : 后台，所有页面不可见 -> false
-         * INITIALIZED : 冷启动瞬间，尚未分发 -> false
-         */
-        return ProcessLifecycleOwner.get().lifecycle.currentState >= Lifecycle.State.STARTED
+    fun isAppInForeground(): Boolean {
+        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
+        return processes.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && it.processName == context.packageName }
     }
 
     /**
