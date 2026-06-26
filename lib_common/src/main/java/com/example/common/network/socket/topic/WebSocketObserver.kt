@@ -6,22 +6,22 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.network.socket.topic.interf.SocketObserver
 import com.example.framework.utils.function.value.hasAnnotation
 import java.lang.ref.WeakReference
-import java.util.concurrent.atomic.AtomicReference
+import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * WebSocket生命周期管理，适用于多个界面多个wss订阅
  * 1) 写在BaseActivity中OnCreate -》 WebSocketObserver.addObserver(this)
- * 2) 写的Fragment中，如果是ViewPager2没太大问题，如果是FragmentManager的话，不建议写
+ * 2) 写的Fragment中，如果是 ViewPager2 没太大问题，如果是 FragmentManager 的话，不建议写
  */
 object WebSocketObserver : LifecycleEventObserver {
     // 用于存储页面生命周期的集合
-    private val atomicRefList by lazy { AtomicReference(ArrayList<WeakReference<LifecycleOwner>>()) }
+    private val ownerList by lazy { CopyOnWriteArrayList<WeakReference<LifecycleOwner>>() }
 
     /**
-     * 添加生命周期
-     * 只在onCreate主线程调取该方法,杜绝在子线程调取,避免引发ConcurrentModificationException
+     * 添加生命周期观察者
+     * 内部使用 CopyOnWriteArrayList 保证线程安全，支持多线程并发调用
+     * 推荐在 onCreate 等主线程生命周期中调用
      */
-    @JvmStatic
     fun addObserver(owner: LifecycleOwner) {
         add(owner)
     }
@@ -31,12 +31,10 @@ object WebSocketObserver : LifecycleEventObserver {
      */
     private fun add(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
-        val list = atomicRefList.get()
-        val isExisted = list.any { it.get() == owner }
-        if (isExisted) return
-        list.add(WeakReference(owner))
+        if (ownerList.any { it.get() === owner }) return
+        ownerList.addIfAbsent(WeakReference(owner))
         owner.lifecycle.addObserver(this)
-        list.removeAll { it.get() == null }
+        ownerList.removeAll { it.get() == null }
     }
 
     /**
@@ -44,9 +42,10 @@ object WebSocketObserver : LifecycleEventObserver {
      */
     private fun remove(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
-        val list = atomicRefList.get()
-        list.removeAll { it.get() == owner }
-        list.removeAll { it.get() == null }
+        ownerList.removeAll { ref ->
+            val target = ref.get()
+            target == null || target === owner
+        }
         owner.lifecycle.removeObserver(this)
     }
 
