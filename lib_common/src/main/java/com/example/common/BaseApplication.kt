@@ -276,8 +276,8 @@ abstract class BaseApplication : Application() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                             false
-                        }
-                        if (!isAnyProcessForeground.orFalse) {
+                        }.orFalse
+                        if (!isAnyProcessForeground) {
                             isForeground.set(false)
 //                            EventCode.EVENT_BACKGROUND.post()
                             onStateChangedListener.invoke(false)
