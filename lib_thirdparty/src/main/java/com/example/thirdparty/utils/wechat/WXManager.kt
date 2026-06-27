@@ -62,11 +62,11 @@ class WXManager private constructor() {
              * 1) 对比「包装的页面实例」，而非「WeakReference对象本身」，增加targetOwner == null 的判断，清理无效条目
              * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
              */
-            if (targetOwner == owner || targetOwner == null) {
+            if (targetOwner === owner || targetOwner == null) {
                 entry.value.unregisterApp()
                 iterator.remove()
                 // 仅在匹配到当前页面时break，清理无效条目时继续遍历
-                if (targetOwner == owner) {
+                if (targetOwner === owner) {
                     break
                 }
             }
