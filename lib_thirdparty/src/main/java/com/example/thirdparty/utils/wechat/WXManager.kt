@@ -1,6 +1,5 @@
 package com.example.thirdparty.utils.wechat
 
-import android.annotation.SuppressLint
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.config.Constants
@@ -14,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap
  * 每个 IWXAPI 实例的核心功能（调起微信、接收分享 / 登录回调、注册 AppId 等）完全独立且等效；
  * 即使 A 页面的 IWXAPI 实例、B 页面的 IWXAPI 实例同时存在，也不会出现 “抢占通信通道”“回调错乱” 的问题，微信 SDK 会正常处理所有有效实例的请求。
  */
-@SuppressLint("UnspecifiedRegisterReceiverFlag")
 class WXManager private constructor() {
     // 保证多页面并发调用 regToWx/unRegToWx 时的线程安全，避免 HashMap 在多线程下的并发修改异常
     private val wxApiMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, IWXAPI>() }
@@ -60,7 +58,10 @@ class WXManager private constructor() {
             val keyWeakRef = entry.key
             // 获取RefA包装的页面实例
             val targetOwner = keyWeakRef.get()
-            // 对比「包装的页面实例」，而非「WeakReference对象本身」，增加targetOwner == null 的判断，清理无效条目
+            /**
+             * 1) 对比「包装的页面实例」，而非「WeakReference对象本身」，增加targetOwner == null 的判断，清理无效条目
+             * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
+             */
             if (targetOwner == owner || targetOwner == null) {
                 entry.value.unregisterApp()
                 iterator.remove()
