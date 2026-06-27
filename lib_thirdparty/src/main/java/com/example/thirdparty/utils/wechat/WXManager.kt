@@ -26,7 +26,7 @@ class WXManager private constructor() {
      */
     fun regToWx(mActivity: FragmentActivity?): IWXAPI? {
         mActivity ?: return null
-        // 先查找当前页面是否已有有效api，直接复用
+        // 先查找当前页面是否已有有效 api，直接复用
         wxApiMap.forEach { (weakRef, api) ->
             val target = weakRef.get()
             if (target === mActivity) {
@@ -35,11 +35,11 @@ class WXManager private constructor() {
         }
         // 如果之前的 FragmentActivity 存在，取消并从集合中移除
         unRegToWx(mActivity)
-        // 通过WXAPIFactory工厂，获取IWXAPI的实例
+        // 通过 WXAPIFactory 工厂，获取IWXAPI的实例
         val api = WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true)
-        // 将应用的appId注册到微信
+        // 将应用的 appId 注册到微信
         api.registerApp(Constants.WX_APP_ID)
-        // 存储该api
+        // 存储该 api
         wxApiMap[WeakReference(mActivity)] = api
         // 返回该实例
         return api
@@ -54,9 +54,9 @@ class WXManager private constructor() {
         val iterator = wxApiMap.entries.iterator()
         while (iterator.hasNext()) {
             val entry = iterator.next()
-            // 取出存储时的WeakReference（RefA）
+            // 取出存储时的 WeakReference（RefA）
             val keyWeakRef = entry.key
-            // 获取RefA包装的页面实例
+            // 获取 RefA 包装的页面实例
             val targetOwner = keyWeakRef.get()
             /**
              * 1) 对比「包装的页面实例」，而非「WeakReference对象本身」，增加targetOwner == null 的判断，清理无效条目
@@ -84,3 +84,33 @@ class WXManager private constructor() {
     }
 
 }
+//class WXManager private constructor() {
+//    // 通过 WXAPIFactory 工厂，获取 IWXAPI 的实例
+//    private val api by lazy { WXAPIFactory.createWXAPI(BaseApplication.instance.applicationContext, Constants.WX_APP_ID, true) }
+//
+//    companion object {
+//        val instance by lazy { WXManager() }
+//
+//        @Volatile
+//        private var isRegister = false
+//    }
+//
+//    /**
+//     * 注册到微信
+//     */
+//    fun regToWx(): IWXAPI? {
+//        // 已注册直接返回，不重复注销注册
+//        if (isRegister) return api
+//        isRegister = api.registerApp(Constants.WX_APP_ID)
+//        return if (isRegister) api else null
+//    }
+//
+//    /**
+//     * Application的onTerminate或别处页面需要全局清空调取
+//     */
+//    fun unRegToWx() {
+//        isRegister = false
+//        api.unregisterApp()
+//    }
+//
+//}
