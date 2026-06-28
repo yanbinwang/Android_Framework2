@@ -17,7 +17,6 @@ import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAParser.ParseCompletion
 import com.opensource.svgaplayer.SVGAParser.PlayCallback
 import com.opensource.svgaplayer.SVGAVideoEntity
-import java.lang.ref.WeakReference
 import java.net.URL
 import java.util.concurrent.ConcurrentHashMap
 
@@ -175,7 +174,7 @@ fun PlayerView?.releasePlayerView() {
 /**
  * ExoPlayer -> 播放
  */
-private val exoMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, Player.Listener>() }
+private val exoMap by lazy { ConcurrentHashMap<LifecycleOwner, Player.Listener>() }
 
 fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -> Unit = {}) {
     val player = this ?: return
@@ -197,13 +196,13 @@ fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -
             if (state == Player.STATE_ENDED) {
                 onEnd()
                 // 播放结束同步清理map缓存
-                exoMap.remove(WeakReference(owner))
+                exoMap.remove(owner)
                 player.releasePlayer()
             }
         }
     }
     player.addListener(newListener)
-    exoMap[WeakReference(owner)] = newListener
+    exoMap[owner] = newListener
 }
 
 /**
@@ -211,35 +210,22 @@ fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -
  */
 fun ExoPlayer?.clearOwnerOldListener(owner: LifecycleOwner) {
     this ?: return
-    val wkOwner = WeakReference(owner)
     // 仅首次绑定页面销毁监听，避免重复注册Observer
-    if (!exoMap.containsKey(wkOwner)) {
+    if (!exoMap.containsKey(owner)) {
         owner.doOnDestroy {
             // 遍历map找到当前页面绑定的listener，反向拿到播放器并释放
-            exoMap.remove(wkOwner)?.let { listener ->
+            exoMap.remove(owner)?.let { listener ->
                 removeListener(listener)
                 releasePlayer()
             }
         }
     }
     // 清理当前页面历史监听
-    var oldListener: Player.Listener? = null
-    // 顺带清理已经销毁的页面弱引用垃圾数据
-    val removeKeys = mutableListOf<WeakReference<LifecycleOwner>>()
-    exoMap.forEach { (weakRef, listener) ->
-        val target = weakRef.get()
-        if (target === owner) {
-            oldListener = listener
-        } else if (target == null) {
-            removeKeys.add(weakRef)
-        }
-    }
-    // 清理失效页面缓存
-    removeKeys.forEach { exoMap.remove(it) }
+    val oldListener = exoMap.entries.find { it.key === owner }?.value
     // 移除旧监听 & 删除map记录
     oldListener?.let {
         removeListener(it)
-        exoMap.remove(wkOwner)
+        exoMap.remove(owner)
     }
 }
 
