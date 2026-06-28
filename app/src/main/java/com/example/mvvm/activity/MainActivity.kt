@@ -372,6 +372,11 @@ myClass.myProperty = "New Value"
 println(myClass.myProperty)
 }
 在这个例子中，MyDelegate 类实现了属性委托的 getValue 和 setValue 方法，MyClass 类的 myProperty 属性使用 MyDelegate 作为委托对象。当访问或修改 myProperty 属性时，会调用 MyDelegate 类的 getValue 或 setValue 方法。
+
+在使用 ConcurrentHashMap<key,value>时候,key要设置成 LifecycleOwner 时,单纯的 doOnDestroy 能满足需求则不需要包一层 WeakReference , 而工具类继承了 LifecycleEventObserver 则需要
+ 因为实现的回调 onStateChanged 中可能具备其余生命周期的操作 (参考 FunctionsLive 和 ServerLogObserver)
+
+
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
