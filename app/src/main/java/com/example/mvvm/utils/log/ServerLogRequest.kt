@@ -7,19 +7,19 @@ import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.safeGet
 import com.example.mvvm.utils.log.interf.LogRequest
 import java.lang.ref.WeakReference
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * 日志记录
  * 需要记录日志的activity和fragment加上isLogRequest注解
  */
 object ServerLogRequest : LifecycleEventObserver {
-    private val list by lazy { ArrayList<Pair<WeakReference<ServerLogProxy>, WeakReference<LifecycleOwner>>>() }
+    private val logMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, ServerLogProxy>() }
 
     // <editor-fold defaultstate="collapsed" desc="订阅相关">
     /**
-     * baseActivity中调取
+     * BaseActivity 中调取
      */
-    @JvmStatic
     fun addObserver(owner: LifecycleOwner) {
         add(owner)
     }
@@ -29,37 +29,12 @@ object ServerLogRequest : LifecycleEventObserver {
      */
     private fun add(owner: LifecycleOwner) {
         if (!owner.isLogRequest) return
-        list.add(WeakReference(ServerLogProxy()) to WeakReference(owner))
+        if (logMap.any { entry ->
+            val target = entry.key.get()
+            target === owner
+        }) return
+        logMap[WeakReference(owner)] = ServerLogProxy()
         owner.lifecycle.addObserver(this)
-    }
-
-    /**
-     * 页面关闭时销毁
-     */
-    private fun remove(owner: LifecycleOwner) {
-        if (!owner.isLogRequest) return
-        destroy(owner)
-        list.removeAll { it.second.get() == owner }
-        owner.lifecycle.removeObserver(this)
-    }
-
-    @JvmStatic
-    @Synchronized
-    private fun push(owner: LifecycleOwner) {
-        proxy(owner)?.push()
-    }
-
-    @JvmStatic
-    @Synchronized
-    private fun destroy(owner: LifecycleOwner) {
-        proxy(owner)?.destroy()
-    }
-
-    /**
-     * 获取当前绑定的生命周期的日志上传类
-     */
-    private fun proxy(owner: LifecycleOwner): ServerLogProxy? {
-        return list.filter { it.second.get() == owner }.safeGet(0)?.first?.get()
     }
 
     /**
@@ -75,16 +50,39 @@ object ServerLogRequest : LifecycleEventObserver {
             }
         }
     }
+
+    private fun remove(owner: LifecycleOwner) {
+        if (!owner.isLogRequest) return
+        destroy(owner)
+        logMap.entries.removeAll { entry ->
+            val target = entry.key.get()
+            target == null || target === owner
+        }
+        owner.lifecycle.removeObserver(this)
+    }
+
+    private fun push(owner: LifecycleOwner) {
+        logMap.entries.filter {
+            it.key.get() == owner
+        }.safeGet(0)?.value?.push()
+    }
+
+    private fun destroy(owner: LifecycleOwner) {
+        logMap.entries.filter {
+            it.key.get() == owner
+        }.safeGet(0)?.value?.destroy()
+    }
     // </editor-fold>
 
     /**
      * 要捕获记录的时候添加
      */
-    @JvmStatic
     @Synchronized
     fun LifecycleOwner?.record(type: Int?) {
         this ?: return
-        proxy(this)?.record(type)
+        logMap.entries.filter {
+            it.key.get() == this
+        }.safeGet(0)?.value?.record(type)
     }
 
 }

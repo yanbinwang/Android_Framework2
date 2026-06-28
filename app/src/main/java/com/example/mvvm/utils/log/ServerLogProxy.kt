@@ -33,8 +33,8 @@ class ServerLogProxy : CoroutineScope {
 
     /**
      * 记录操作
-     * 1.间隔小于10秒不做提交，只做操作记录
-     * 2.大于10秒做一次提交
+     * 1) 间隔小于10秒不做提交，只做操作记录
+     * 2) 大于10秒做一次提交
      */
     fun record(type: Int?) {
         serverLogMap[serverLogId] = ServerLog(1, type)
@@ -45,10 +45,10 @@ class ServerLogProxy : CoroutineScope {
 
     /**
      * 提交本地操作集合
-     * 页面onPause时会检测做一次提交
+     * 页面 onPause 时会检测做一次提交
      */
     fun push() {
-        //本地集合内已经都提交了，没必要再创建协程了
+        // 本地集合内已经都提交了，没必要再创建协程了
         if (serverLogMap.isEmpty()) return
         pushJob?.cancel()
         pushJob = launch {

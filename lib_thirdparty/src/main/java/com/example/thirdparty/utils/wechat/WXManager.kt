@@ -12,6 +12,9 @@ import java.util.concurrent.ConcurrentHashMap
  * 无论创建多少个 IWXAPI 实例（只要 AppId 一致），微信 SDK 内部都会关联到同一个应用的通信通道：
  * 每个 IWXAPI 实例的核心功能（调起微信、接收分享 / 登录回调、注册 AppId 等）完全独立且等效；
  * 即使 A 页面的 IWXAPI 实例、B 页面的 IWXAPI 实例同时存在，也不会出现 “抢占通信通道”“回调错乱” 的问题，微信 SDK 会正常处理所有有效实例的请求。
+ * ConcurrentHashMap:
+ *  Key -> 使用 WeakReference<LifecycleOwner>，满足需求：App退后台页面被系统回收后，GC 会回收页面对象，下次遍历自动移除无效条目
+ *  Value -> IWXAPI 不使用弱引用：实例生命周期跟随页面，页面销毁同步释放，无需额外弱引用包装
  */
 class WXManager private constructor() {
     // 保证多页面并发调用 regToWx/unRegToWx 时的线程安全，避免 HashMap 在多线程下的并发修改异常
@@ -27,15 +30,13 @@ class WXManager private constructor() {
     fun regToWx(mActivity: FragmentActivity?): IWXAPI? {
         mActivity ?: return null
         // 先查找当前页面是否已有有效 api，直接复用
-        wxApiMap.forEach { (weakRef, api) ->
-            val target = weakRef.get()
-            if (target === mActivity) {
-                return api
-            }
-        }
+        val existApi = wxApiMap.entries.find { entry ->
+            entry.key.get() === mActivity
+        }?.value
+        if (null != existApi) return existApi
         // 如果之前的 FragmentActivity 存在，取消并从集合中移除
         unRegToWx(mActivity)
-        // 通过 WXAPIFactory 工厂，获取IWXAPI的实例
+        // 通过 WXAPIFactory 工厂，获取 IWXAPI 的实例
         val api = WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true)
         // 将应用的 appId 注册到微信
         api.registerApp(Constants.WX_APP_ID)
@@ -50,31 +51,22 @@ class WXManager private constructor() {
      */
     fun unRegToWx(owner: LifecycleOwner?) {
         owner ?: return
-        // 遍历集合中所有值
-        val iterator = wxApiMap.entries.iterator()
-        while (iterator.hasNext()) {
-            val entry = iterator.next()
-            // 取出存储时的 WeakReference（RefA）
-            val keyWeakRef = entry.key
-            // 获取 RefA 包装的页面实例
-            val targetOwner = keyWeakRef.get()
-            /**
-             * 1) 对比「包装的页面实例」，而非「WeakReference对象本身」，增加targetOwner == null 的判断，清理无效条目
-             * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
-             */
-            if (targetOwner === owner || targetOwner == null) {
+        /**
+         * 1) 对比「包装的页面实例」，而非「 WeakReference 对象本身」，增加 targetOwner == null 的判断，清理无效条目
+         * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
+         */
+        wxApiMap.entries.removeAll { entry ->
+            val target = entry.key.get()
+            val needRemove = target == null || target === owner
+            if (needRemove) {
                 entry.value.unregisterApp()
-                iterator.remove()
-                // 仅在匹配到当前页面时break，清理无效条目时继续遍历
-                if (targetOwner === owner) {
-                    break
-                }
             }
+            needRemove
         }
     }
 
     /**
-     * Application的onTerminate或别处页面需要全局清空调取
+     * Application 的 onTerminate 或别处页面需要全局清空调取
      */
     fun unRegToWx() {
         wxApiMap.values.forEach { api ->
@@ -84,33 +76,3 @@ class WXManager private constructor() {
     }
 
 }
-//class WXManager private constructor() {
-//    // 通过 WXAPIFactory 工厂，获取 IWXAPI 的实例
-//    private val api by lazy { WXAPIFactory.createWXAPI(BaseApplication.instance.applicationContext, Constants.WX_APP_ID, true) }
-//
-//    companion object {
-//        val instance by lazy { WXManager() }
-//
-//        @Volatile
-//        private var isRegister = false
-//    }
-//
-//    /**
-//     * 注册到微信
-//     */
-//    fun regToWx(): IWXAPI? {
-//        // 已注册直接返回，不重复注销注册
-//        if (isRegister) return api
-//        isRegister = api.registerApp(Constants.WX_APP_ID)
-//        return if (isRegister) api else null
-//    }
-//
-//    /**
-//     * Application的onTerminate或别处页面需要全局清空调取
-//     */
-//    fun unRegToWx() {
-//        isRegister = false
-//        api.unregisterApp()
-//    }
-//
-//}
