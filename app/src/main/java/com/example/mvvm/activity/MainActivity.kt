@@ -376,8 +376,31 @@ println(myClass.myProperty)
  * ConcurrentHashMap:
  *  Key -> 使用 WeakReference<LifecycleOwner>，满足需求：App退后台页面被系统回收后，GC 会回收页面对象，下次遍历自动移除无效条目
  *  Value -> IWXAPI 不使用弱引用：实例生命周期跟随页面，页面销毁同步释放，无需额外弱引用包装
- * 在使用 ConcurrentHashMap<key,value>时候,key要设置成 LifecycleOwner 时,单纯的 doOnDestroy 能满足需求则不需要包一层 WeakReference , 而工具类继承了 LifecycleEventObserver 则需要
- * 因为实现的回调 onStateChanged 中可能具备其余生命周期的操作 (参考 FunctionsLive 和 ServerLogObserver)
+ * 是否使用 WeakReference<LifecycleOwner> 作为 Key，取决于你对 Key 的生命周期所有权 的定义：
+ * 方案一：使用 WeakReference 作为 Key（推荐用于全局/跨组件缓存）
+ * 适用场景：Map 的生命周期 ≥ LifecycleOwner（如单例 Manager、Application 级缓存）
+ * 优势：
+ * 即使 ON_DESTROY 未触发（后台杀进程），GC 回收 LifecycleOwner 后，WeakReference 自动失效，下次访问时 remove 即可，天然防泄漏。
+ * 不依赖任何生命周期回调的可靠性。
+ * 代价：每次 get/put 需要解包 WeakReference，且需处理 null 检查；遍历 map 时需过滤已回收的 entry。
+ * 典型实现：配合 ReferenceQueue 或在 get 时惰性清理。
+ * 方案二：使用强引用 + doOnDestroy 清理（仅限局部/短生命周期持有者）
+ * 适用场景：Map 本身的生命周期 ≤ LifecycleOwner（如 ViewModel 内部的临时状态、ViewBinding 关联数据）
+ * 前提条件：你必须能100%保证 Map 会在 LifecycleOwner 销毁前或同时被释放。
+ * 风险：若 Map 是静态/单例/长生命周期对象，强引用 Key + 仅靠 ON_DESTROY 清理 = 潜在内存泄漏。
+ *
+ *                   场景	                                            推荐方案	                               理由
+ * 全局单例 Manager（App 全程存活，如 WXManager、ServerLogRequest）	WeakReference<LifecycleOwner>	容器生命周期远超页面，依赖手动释放，兜底生命周期监听失效、忘记调用释放的玄学泄漏，靠 get()==null 延迟清扫
+ * EventBus 这类全局订阅总线（subscribe 内部自动绑定页面 doOnDestroy）	强引用 LifecycleOwner	        每次订阅强制绑定页面自销毁清理，ON_DESTROY 必然执行，不存在长期残留，无需弱引用兜底
+ * ViewModel 内部 ConcurrentHashMap	                            强引用 LifecycleOwner	        ViewModel 和页面同步销毁，不会长期驻留内存；订阅由页面侧 repeatOnLifecycle 自动断协程
+ * Activity/Fragment 局部成员变量 Map	                            强引用 LifecycleOwner	        页面销毁整个 Map 对象直接 GC 回收，不存在常驻内存泄漏，无需任何兜底
+ *
+ * 情况 1 → 必须 WeakReference
+ * 满足任意一条：
+ * 1）单例自身实现 LifecycleEventObserver，全部页面共用同一个全局生命周期监听；
+ * 2）全局 Manager，只对外提供获取实例方法，不会自动绑定页面销毁释放，全靠使用者手动调用清理。
+ * 情况 2 → 放心强引用
+ * 全局单例，但调用注册 / 播放 / 订阅方法时，会给当前页面单独绑定专属 doOnDestroy，页面销毁自动精准删缓存、释放资源，每条页面的清理逻辑完全隔离，不存在全局共享监听残留风险。
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {

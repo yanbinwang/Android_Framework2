@@ -6,6 +6,7 @@ import com.example.common.config.Constants
 import com.example.framework.utils.function.doOnDestroy
 import com.tencent.mm.opensdk.openapi.IWXAPI
 import com.tencent.mm.opensdk.openapi.WXAPIFactory
+import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -15,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap
  */
 class WXManager private constructor() {
     // 保证多页面并发调用 regToWx/unRegToWx 时的线程安全，避免 HashMap 在多线程下的并发修改异常
-    private val wxApiMap by lazy { ConcurrentHashMap<LifecycleOwner, IWXAPI>() }
+    private val wxApiMap by lazy { ConcurrentHashMap<WeakReference<LifecycleOwner>, IWXAPI>() }
 
     companion object {
         val instance by lazy { WXManager() }
@@ -28,7 +29,7 @@ class WXManager private constructor() {
         mActivity ?: return null
         // 先查找当前页面是否已有有效 api，直接复用
         val existApi = wxApiMap.entries.find { entry ->
-            entry.key === mActivity
+            entry.key.get() === mActivity
         }?.value
         if (null != existApi) return existApi
         // 如果之前的 FragmentActivity 存在，取消并从集合中移除
@@ -38,8 +39,8 @@ class WXManager private constructor() {
         // 将应用的 appId 注册到微信
         api.registerApp(Constants.WX_APP_ID)
         // 存储该 api
-        wxApiMap[mActivity] = api
-        // 添加销毁监听
+        wxApiMap[WeakReference(mActivity)] = api
+        // 添加销毁生命周期
         mActivity.doOnDestroy {
             unRegToWx(mActivity)
         }
@@ -52,7 +53,18 @@ class WXManager private constructor() {
      */
     fun unRegToWx(owner: LifecycleOwner?) {
         owner ?: return
-        wxApiMap.remove(owner)?.unregisterApp()
+        /**
+         * 1) 对比「包装的页面实例」，而非「 WeakReference 对象本身」，增加 targetOwner == null 的判断，清理无效条目
+         * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
+         */
+        wxApiMap.entries.removeAll { entry ->
+            val target = entry.key
+            val needRemove = target === owner
+            if (needRemove) {
+                entry.value.unregisterApp()
+            }
+            needRemove
+        }
     }
 
     /**
