@@ -389,18 +389,18 @@ println(myClass.myProperty)
  * 前提条件：你必须能100%保证 Map 会在 LifecycleOwner 销毁前或同时被释放。
  * 风险：若 Map 是静态/单例/长生命周期对象，强引用 Key + 仅靠 ON_DESTROY 清理 = 潜在内存泄漏。
  *
- *                   场景	                                            推荐方案	                               理由
- * 全局单例 Manager（App 全程存活，如 WXManager、ServerLogRequest）	WeakReference<LifecycleOwner>	容器生命周期远超页面，依赖手动释放，兜底生命周期监听失效、忘记调用释放的玄学泄漏，靠 get()==null 延迟清扫
- * EventBus 这类全局订阅总线（subscribe 内部自动绑定页面 doOnDestroy）	强引用 LifecycleOwner	        每次订阅强制绑定页面自销毁清理，ON_DESTROY 必然执行，不存在长期残留，无需弱引用兜底
- * ViewModel 内部 ConcurrentHashMap	                            强引用 LifecycleOwner	        ViewModel 和页面同步销毁，不会长期驻留内存；订阅由页面侧 repeatOnLifecycle 自动断协程
- * Activity/Fragment 局部成员变量 Map	                            强引用 LifecycleOwner	        页面销毁整个 Map 对象直接 GC 回收，不存在常驻内存泄漏，无需任何兜底
- *
- * 情况 1 → 必须 WeakReference
- * 满足任意一条：
- * 1）单例自身实现 LifecycleEventObserver，全部页面共用同一个全局生命周期监听；
- * 2）全局 Manager，只对外提供获取实例方法，不会自动绑定页面销毁释放，全靠使用者手动调用清理。
- * 情况 2 → 放心强引用
- * 全局单例，但调用注册 / 播放 / 订阅方法时，会给当前页面单独绑定专属 doOnDestroy，页面销毁自动精准删缓存、释放资源，每条页面的清理逻辑完全隔离，不存在全局共享监听残留风险。
+ * 一、优先强引用场景
+ * 仅前台页面临时使用、无跨页面持久资源、订阅 / 播放自带页面独立doOnDestroy清理：
+ * EventBus、ExoPlayer 播放器这类
+ * 业务只在页面前台生效，页面后台被杀后资源本身失去作用；
+ * 绝大多数正常退出会执行销毁清理，极低概率残留；
+ * 哈希 O (1) 存取，不用循环遍历 WeakReference，代码简洁。
+ * 二、一律弱引用兜底场景（线上稳妥优先）
+ * 满足任意一条直接套WeakReference<LifecycleOwner>
+ * 跨页面持久资源：微信 SDK、WebSocket 长连接、埋点统计、全局生命周期监听（实现 LifecycleEventObserver）；
+ * 存在后台驻留、进程保活、三方跨应用交互逻辑；
+ * 单例全局长期存活，依赖页面生命周期回调做持续业务；
+ * 担心低内存回收页面时ON_DESTROY监听丢失，不想赌系统生命周期完整性。
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
