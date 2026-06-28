@@ -373,10 +373,11 @@ println(myClass.myProperty)
 }
 在这个例子中，MyDelegate 类实现了属性委托的 getValue 和 setValue 方法，MyClass 类的 myProperty 属性使用 MyDelegate 作为委托对象。当访问或修改 myProperty 属性时，会调用 MyDelegate 类的 getValue 或 setValue 方法。
 
-在使用 ConcurrentHashMap<key,value>时候,key要设置成 LifecycleOwner 时,单纯的 doOnDestroy 能满足需求则不需要包一层 WeakReference , 而工具类继承了 LifecycleEventObserver 则需要
- 因为实现的回调 onStateChanged 中可能具备其余生命周期的操作 (参考 FunctionsLive 和 ServerLogObserver)
-
-
+ * ConcurrentHashMap:
+ *  Key -> 使用 WeakReference<LifecycleOwner>，满足需求：App退后台页面被系统回收后，GC 会回收页面对象，下次遍历自动移除无效条目
+ *  Value -> IWXAPI 不使用弱引用：实例生命周期跟随页面，页面销毁同步释放，无需额外弱引用包装
+ * 在使用 ConcurrentHashMap<key,value>时候,key要设置成 LifecycleOwner 时,单纯的 doOnDestroy 能满足需求则不需要包一层 WeakReference , 而工具类继承了 LifecycleEventObserver 则需要
+ * 因为实现的回调 onStateChanged 中可能具备其余生命周期的操作 (参考 FunctionsLive 和 ServerLogObserver)
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
