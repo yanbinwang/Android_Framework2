@@ -12,6 +12,7 @@ import java.util.concurrent.CopyOnWriteArrayList
  * WebSocket生命周期管理，适用于多个界面多个wss订阅
  * 1) 写在BaseActivity中OnCreate -》 WebSocketObserver.addObserver(this)
  * 2) 写的Fragment中，如果是 ViewPager2 没太大问题，如果是 FragmentManager 的话，不建议写
+ * 3) 全局唯一观察者绑定所有页面生命周期，存在解绑失败、监听残留导致页面无法 GC 的玄学场景 必须 WeakReference 包装 LifecycleOwner
  */
 object WebSocketObserver : LifecycleEventObserver {
     // 用于存储页面生命周期的集合
