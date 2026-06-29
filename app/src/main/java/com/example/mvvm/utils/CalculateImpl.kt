@@ -1,55 +1,54 @@
 package com.example.mvvm.utils
 
-import com.example.framework.utils.function.value.removeEndZero
-import com.example.framework.utils.function.value.toSafeBigDecimal
+import com.example.framework.utils.function.value.add
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.multiply
+import com.example.framework.utils.function.value.subtract
 import com.example.framework.utils.function.value.toSafeDouble
+import java.math.RoundingMode
 
 /**
- * @description 计算帮助类->一般来说不会用到，涉及到带有小数点的统一都用string接取，转换为BigDecimal计算最为精确
+ * @description 计算帮助类 -> 一般来说不会用到，涉及到带有小数点的统一都用string接取，转换为BigDecimal计算最为精确
  * @author yan
  */
 interface CalculateImpl {
 
-//    /**
-//     * 需要用到的页面继承当前接口
-//     * val a :Double?=0.0
-//     * val b :Double?=null
-//     * a  +  b
-//     */
-//    operator fun Double?.plus(other: Double?): Double {
-//        return (this ?: 0.0) + (other ?: 0.0)
-//    }
-
     /**
      * 加法
      */
-    operator fun Double?.plus(other: Double?): Double {
-        return toSafeBigDecimal().add(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
+    operator fun Number?.plus(other: Number?): Double {
+        return add(other).toSafeDouble()
     }
 
     /**
      * 减法
      */
-    operator fun Double?.minus(other: Double?): Double {
-        return toSafeBigDecimal().subtract(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
+    operator fun Number?.minus(other: Number?): Double {
+        return subtract(other).toSafeDouble()
     }
 
     /**
      * 乘法
      */
-    operator fun Double?.times(other: Double?): Double {
-        return toSafeBigDecimal().multiply(other.toSafeBigDecimal()).toPlainString().removeEndZero().toSafeDouble()
+    operator fun Number?.times(other: Number?): Double {
+        return multiply(other).toSafeDouble()
     }
 
     /**
-     * 除法->有误
+     * 除法
      */
-    operator fun Double?.div(other: Double?): Double {
-        return toSafeBigDecimal().divide(other.toSafeBigDecimal(), getScale(), getMode()).toPlainString().removeEndZero().toSafeDouble()
+    operator fun Number?.div(other: Number?): Double {
+        return divide(other, getScale(), getRoundingMode()).toSafeDouble()
     }
 
+    /**
+     * 保留小数位
+     */
     fun getScale(): Int
 
-    fun getMode(): Int
+    /**
+     * 取余方式
+     */
+    fun getRoundingMode(): RoundingMode
 
 }
