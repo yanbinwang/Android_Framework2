@@ -19,7 +19,7 @@ import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.base.BaseFragment
 import com.example.common.base.BaseTopSheetDialogFragment
 import com.example.common.base.page.Paging
-import com.example.common.base.page.getEmptyView
+import com.example.common.base.page.getEmptyLayout
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.manager.AppManager
@@ -155,7 +155,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         when (view) {
             // 传入 BaseTitleActivity 中写好的容器 viewGroup
             is FrameLayout -> {
-                tempEmpty = view.getEmptyView(1)
+                tempEmpty = view.getEmptyLayout(1)
                 tempEmpty?.setWindows(true)
             }
             // 界面上绘制好empty
