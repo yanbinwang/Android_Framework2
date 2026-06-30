@@ -35,16 +35,12 @@ import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
 /**
- * Created by android on 2017/8/7.
- *
  * @author Wyb
- * <p>
  * 数据为空时候显示的页面（适用于列表，详情等）
  * 情况如下：
- * <p>
- * 1.加载中-无按钮
- * 2.空数据-无按钮(特殊情况可显示按钮，回调跳转时可做配置)
- * 3.加载错误(无网络，服务器错误)-有按钮
+ * 1) 加载中 ->无按钮
+ * 2) 空数据 -> 无按钮 (特殊情况可显示按钮，回调跳转时可做配置)
+ * 3) 加载错误 有按钮 (无网络，服务器错误)
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
@@ -55,7 +51,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
-        //是否是全屏
+        // 是否是全屏
         context.withStyledAttributes(attrs, R.styleable.EmptyLayout) {
             fullScreen = getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
             if (fullScreen) {
@@ -72,12 +68,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                  *    app:layout_constraintStart_toStartOf="parent"
                  *    app:layout_constraintTop_toTopOf="parent" />
                  */
-                //创建 ImageView
+                // 创建 ImageView
                 ivLeft = ImageView(context).also {
                     it.id = generateViewId()
                     it.invisible()
                 }
-                //设置布局参数
+                // 设置布局参数
                 binding.clRoot.addView(ivLeft)
                 binding.clRoot.applyConstraints {
                     val viewId = ivLeft?.id ?: return@applyConstraints
@@ -86,16 +82,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }
                 ivLeft.margin(start = 5.pt)
             }
-            //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
+            // 部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
             val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
             setWindows(windows)
-            //默认是否传递点击
+            // 默认是否传递点击
             val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
             isClickable = clickable
         }
-        //绘制大小撑到最大/默认背景
+        // 绘制大小撑到最大/默认背景
         binding.root.size(MATCH_PARENT, MATCH_PARENT)
-        //点击事件/默认状态
+        // 点击事件/默认状态
         binding.tvRefresh.click {
             if (!isEmpty()) loading()
             listener?.invoke(isEmpty())
