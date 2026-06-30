@@ -81,13 +81,14 @@ object AccountHelper {
      */
     private fun setUserInfo(bean: UserInfoBean?) {
         bean ?: return
+        if (getUserInfo() == bean) return
         userInfoBean.set(bean)
     }
 
     /**
      * 获取用户信息对象
      */
-    private fun getUserInfo(): UserInfoBean {
+    fun getUserInfo(): UserInfoBean {
         return userInfoBean.get() ?: UserInfoBean()
     }
 
