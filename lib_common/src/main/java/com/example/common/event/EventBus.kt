@@ -246,6 +246,18 @@ class EventBus private constructor() {
         }
     }
 
+    fun posts(vararg events: Event) {
+        eventDispatchScope.launch {
+            try {
+                events.forEach {
+                    eventFlow.emit(it)
+                }
+            } catch (e: Exception) {
+                handleException(e)
+            }
+        }
+    }
+
     /**
      * 整体异常处理
      */
