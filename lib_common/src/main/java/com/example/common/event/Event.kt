@@ -1,5 +1,7 @@
 package com.example.common.event
 
+import com.example.framework.utils.function.value.toNewList
+
 /**
  * author: wyb
  * 传递事件类
@@ -53,6 +55,23 @@ class Code<T> {
          * 方便设置不重复的action,每次重启app数值都会重新累加，以此区分此次发送消息对象的唯一性
          */
         private var actionTime = 0
+
+        /**
+         * 全局批量自由组合多个Code+数据
+         * 缓冲满时，当前这条 emit 挂起 (目前配置 10 条)
+         * 等订阅消费腾出缓冲区、emit 恢复后，才会执行下一条事件；
+         * 同批次剩余事件只是排队延后，不会丢失、不会乱序，最终全部依次分发。
+         * [Code].posts(
+         *     PAY to "支付成功",
+         *     REFRESH to 123
+         * )
+         */
+        fun posts(vararg pairs: Pair<Code<*>, Any?>) {
+            val eventList = pairs.toList().toNewList { (code, data) ->
+                Event(code.action, data)
+            }
+            EventBus.instance.posts(*eventList.toTypedArray())
+        }
     }
 
     var action = actionTime++
