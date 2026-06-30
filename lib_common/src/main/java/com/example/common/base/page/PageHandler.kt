@@ -23,42 +23,43 @@ import com.therouter.TheRouter
 import com.therouter.router.Navigator
 import com.therouter.router.matchRouteMap
 
-
 /**
- * 列表页调取方法
+ * 列表页快速处理空数据状态
+ * @param count 列表数据条数
+ * @param resId 空态图片资源
+ * @param resText 空态提示文字资源
  */
-fun XRecyclerView?.setState(length: Int = 0, resId: Int? = null, resText: Int? = null) {
+fun XRecyclerView?.setListEmpty(count: Int = 0, resId: Int? = null, resText: Int? = null) {
     this ?: return
     finishRefreshing()
     // 判断集合长度，有长度不展示EmptyLayout只做提示
-    if (length <= 0) empty.setEmptyState(resId, resText)
+    if (count <= 0) empty.setEmptyUi(resId, resText)
 }
 
 /**
- * 页面工具类
- * 1.接口提示
- * 2.遮罩层操作
+ * 更新空白占位布局图文
+ * @param resId 空图资源
+ * @param resText 自定义提示文本字符串
+ * @param viewIndex 空布局所在子View下标
  */
-fun ViewGroup?.setEmptyState(resId: Int? = null, resText: Int? = null, index: Int = 1) {
+fun ViewGroup?.setEmptyUi(resId: Int? = null, resText: Int? = null, viewIndex: Int = 1) {
     this ?: return
-    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
+    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(viewIndex)
     emptyLayout?.error(resId, resText)
 }
 
 /**
- * 详情页
+ * 获取/自动创建空白占位布局
+ * @param viewIndex 空布局下标
  */
-fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
+fun ViewGroup?.getEmptyView(viewIndex: Int = 1): EmptyLayout? {
     this ?: return null
     return if (childCount <= 1) {
-        val empty = EmptyLayout(context).apply {
+        EmptyLayout(context).apply {
             onInflate()
-//            loading()
-        }
-        addView(empty)
-        empty
+        }.also{ addView(it) }
     } else {
-        getChildAt(index) as? EmptyLayout
+        getChildAt(viewIndex) as? EmptyLayout
     }
 }
 
