@@ -168,7 +168,7 @@ class EventBus private constructor() {
      * 无需手动 unregister，依赖 LifecycleOwner 的 scope 自动取消
      */
     fun subscribe(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
-        if (subscriptionJobs.containsKey(owner)) return
+        // 先构建订阅Job
         val subscribeJob = owner.lifecycleScope.launch {
             try {
                 eventFlow.collect { event ->
@@ -178,7 +178,12 @@ class EventBus private constructor() {
                 handleException(e)
             }
         }
-        subscriptionJobs[owner] = subscribeJob
+        // 原子存入：已存在直接返回旧Job，本次新建Job作废取消
+        val existedJob = subscriptionJobs.putIfAbsent(owner, subscribeJob)
+        if (existedJob != null) {
+            subscribeJob.cancel()
+            return
+        }
         owner.doOnDestroy {
             /**
              * 删除自身订阅
