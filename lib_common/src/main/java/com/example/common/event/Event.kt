@@ -61,10 +61,9 @@ class Code<T> {
          * 缓冲满时，当前这条 emit 挂起 (目前配置 10 条)
          * 等订阅消费腾出缓冲区、emit 恢复后，才会执行下一条事件；
          * 同批次剩余事件只是排队延后，不会丢失、不会乱序，最终全部依次分发。
-         * [Code].posts(
-         *     PAY to "支付成功",
-         *     REFRESH to 123
-         * )
+         * val PAY = Code<String>()
+         * val REFRESH = Code<Int>()
+         * Code.posts(PAY to "支付成功", REFRESH to 200)
          */
         fun posts(vararg pairs: Pair<Code<*>, Any?>) {
             val eventList = pairs.toList().toNewList { (code, data) ->
@@ -77,8 +76,24 @@ class Code<T> {
     var action = actionTime++
         private set
 
+    /**
+     * 单发，约束T
+     */
     fun post(obj: T? = null) {
         EventBus.instance.post(Event(action, obj))
+    }
+
+    /**
+     * 批量发同Action、同T类型数据，和泛型匹配
+     * 同一个事件批量发多条数据
+     * val PAY = Code<String>()
+     * PAY.posts("订单1", "订单2")
+     */
+    fun posts(vararg objs: T?) {
+        val eventList = objs.toList().toNewList { obj ->
+            Event(action, obj)
+        }
+        EventBus.instance.posts(*eventList.toTypedArray())
     }
 
 }
