@@ -1,21 +1,5 @@
 package com.example.topsheet
 
-/*
- * Copyright (C) 2015 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Parcel
@@ -29,11 +13,8 @@ import android.view.ViewGroup
 import androidx.annotation.IntDef
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.withStyledAttributes
-import androidx.core.os.ParcelableCompat
-import androidx.core.os.ParcelableCompatCreatorCallbacks
 import androidx.core.view.MotionEventCompat
 import androidx.core.view.NestedScrollingChild
-import androidx.core.view.VelocityTrackerCompat
 import androidx.core.view.ViewCompat
 import androidx.customview.view.AbsSavedState
 import androidx.customview.widget.ViewDragHelper
@@ -46,6 +27,9 @@ import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
 
+/**
+ * 继承自 CoordinatorLayout.Behavior。它实现了所有的物理交互逻辑：拖拽、嵌套滚动、惯性滑动、状态管理、边界计算等。它是 BottomSheetBehavior 的“垂直镜像版”
+ */
 @SuppressLint("PrivateResource")
 class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : CoordinatorLayout.Behavior<V>(context, attrs) {
     @State
@@ -70,48 +54,30 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
     private var mCallback: TopSheetCallback? = null
 
     companion object {
-        /**
-         * The bottom sheet is dragging.
-         */
+        // 隐藏触发阈值与摩擦系数
+        private const val HIDE_THRESHOLD = 0.5f
+        private const val HIDE_FRICTION = 0.1f
+
+        // 拖拽中
         const val STATE_DRAGGING = 1
-
-        /**
-         * The bottom sheet is settling.
-         */
+        // settling 动画中
         const val STATE_SETTLING = 2
-
-        /**
-         * The bottom sheet is expanded.
-         */
+        // 展开
         const val STATE_EXPANDED = 3
-
-        /**
-         * The bottom sheet is collapsed.
-         */
+        // 折叠
         const val STATE_COLLAPSED = 4
-
-        /**
-         * The bottom sheet is hidden.
-         */
+        // 隐藏
         const val STATE_HIDDEN = 5
-
         /**
-         * @hide
+         * 状态值约束注解
          */
         @IntDef(STATE_EXPANDED, STATE_COLLAPSED, STATE_DRAGGING, STATE_SETTLING, STATE_HIDDEN)
         @Retention(AnnotationRetention.SOURCE)
         annotation class State
 
-        private const val HIDE_THRESHOLD = 0.5f
-        private const val HIDE_FRICTION = 0.1f
-
         /**
-         * A utility function to get the [TopSheetBehavior] associated with the `view`.
-         *
-         * @param view The [View] with [TopSheetBehavior].
-         * @return The [TopSheetBehavior] associated with the `view`.
+         * 获取指定视图关联的TopSheetBehavior实例
          */
-        @JvmStatic
         fun <V : View> from(view: V): TopSheetBehavior<V> {
             val params = view.layoutParams
             require(params is CoordinatorLayout.LayoutParams) { "The view is not a child of CoordinatorLayout" }
@@ -120,19 +86,20 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
             return behavior as TopSheetBehavior<V>
         }
 
-        @JvmStatic
+        /**
+         * 数值范围约束工具方法
+         */
         fun constrain(amount: Int, low: Int, high: Int): Int {
             return if (amount < low) low else if (amount > high) high else amount
         }
 
-        @JvmStatic
         fun constrain(amount: Float, low: Float, high: Float): Float {
             return if (amount < low) low else if (amount > high) high else amount
         }
     }
 
     /**
-     * Default constructor for inflating TopSheetBehaviors from layout.
+     * 初始化行为参数：读取XML属性及系统滑动速度配置
      */
     init {
         context.withStyledAttributes(attrs, R.styleable.BottomSheetBehavior_Layout) {
@@ -144,14 +111,19 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         mMaximumVelocity = configuration.scaledMaximumFlingVelocity.toSafeFloat()
     }
 
+    /**
+     * 保存面板状态
+     */
     override fun onSaveInstanceState(parent: CoordinatorLayout, child: V): Parcelable? {
         return super.onSaveInstanceState(parent, child)?.let { SavedState(it, mState) }
     }
 
+    /**
+     * 恢复面板状态，中间态强制转为折叠态
+     */
     override fun onRestoreInstanceState(parent: CoordinatorLayout, child: V, state: Parcelable) {
         val ss = state as? SavedState
         ss?.superState?.let { super.onRestoreInstanceState(parent, child, it) }
-        // Intermediate states are restored as collapsed state
         mState = if (ss?.state == STATE_DRAGGING || ss?.state == STATE_SETTLING) {
             STATE_COLLAPSED
         } else {
@@ -159,14 +131,15 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
     }
 
+    /**
+     * 布局子视图：计算滑动边界并根据当前状态定位视图
+     */
     override fun onLayoutChild(parent: CoordinatorLayout, child: V, layoutDirection: Int): Boolean {
-        if (ViewCompat.getFitsSystemWindows(parent) && !ViewCompat.getFitsSystemWindows(child)) {
-            ViewCompat.setFitsSystemWindows(child, true)
+        if (parent.fitsSystemWindows && !child.fitsSystemWindows) {
+            child.fitsSystemWindows = true
         }
         val savedTop = child.top
-        // First let the parent lay it out
         parent.onLayoutChild(child, layoutDirection)
-        // Offset the bottom sheet
         mParentHeight = parent.height
         mMinOffset = max(-child.height.toSafeDouble(), -(child.height - mPeekHeight).toSafeDouble()).toSafeInt()
         mMaxOffset = 0
@@ -187,12 +160,14 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return true
     }
 
+    /**
+     * 拦截触摸事件：判断是否应接管手势拖拽
+     */
     override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: V, event: MotionEvent): Boolean {
         if (!child.isShown) {
             return false
         }
-        val action = MotionEventCompat.getActionMasked(event)
-        // Record the velocity
+        val action = event.actionMasked
         if (action == MotionEvent.ACTION_DOWN) {
             reset()
         }
@@ -204,14 +179,13 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 mTouchingScrollingChild = false
                 mActivePointerId = MotionEvent.INVALID_POINTER_ID
-                // Reset the ignore flag
                 if (mIgnoreEvents) {
                     mIgnoreEvents = false
                     return false
                 }
             }
             MotionEvent.ACTION_DOWN -> {
-                val initialX: Int = event.x.toSafeInt()
+                val initialX = event.x.toSafeInt()
                 mInitialY = event.y.toSafeInt()
                 val scroll = mNestedScrollingChildRef?.get()
                 if (scroll != null && parent.isPointInChildBounds(scroll, initialX, mInitialY)) {
@@ -224,13 +198,13 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         if (!mIgnoreEvents && mViewDragHelper?.shouldInterceptTouchEvent(event).orFalse) {
             return true
         }
-        // We have to handle cases that the ViewDragHelper does not capture the bottom sheet because
-        // it is not the top most view of its parent. This is not necessary when the touch event is
-        // happening over the scrolling content as nested scrolling logic handles that case.
         val scroll = mNestedScrollingChildRef?.get()
         return action == MotionEvent.ACTION_MOVE && scroll != null && !mIgnoreEvents && mState != STATE_DRAGGING && !parent.isPointInChildBounds(scroll, event.x.toSafeInt(), event.y.toSafeInt()) && abs((mInitialY - event.y).toSafeDouble()) > mViewDragHelper?.touchSlop.orZero
     }
 
+    /**
+     * 处理触摸事件：委托给ViewDragHelper执行拖拽逻辑
+     */
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, event: MotionEvent): Boolean {
         if (!child.isShown) {
             return false
@@ -239,10 +213,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         if (mState == STATE_DRAGGING && action == MotionEvent.ACTION_DOWN) {
             return true
         }
-        if (mViewDragHelper != null) {
-            mViewDragHelper?.processTouchEvent(event)
-        }
-        // Record the velocity
+        mViewDragHelper?.processTouchEvent(event)
         if (action == MotionEvent.ACTION_DOWN) {
             reset()
         }
@@ -250,8 +221,6 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
             mVelocityTracker = VelocityTracker.obtain()
         }
         mVelocityTracker?.addMovement(event)
-        // The ViewDragHelper tries to capture only the top-most View. We have to explicitly tell it
-        // to capture the bottom sheet in case it is not captured and the touch slop is passed.
         if (action == MotionEvent.ACTION_MOVE && !mIgnoreEvents) {
             if (abs((mInitialY - event.y).toSafeDouble()) > mViewDragHelper?.touchSlop.orZero) {
                 mViewDragHelper?.captureChildView(child, event.getPointerId(event.actionIndex))
@@ -260,6 +229,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return !mIgnoreEvents
     }
 
+    /**
+     * 嵌套滚动开始：重置滚动状态标记
+     */
     @Deprecated("Deprecated in Java")
     override fun onStartNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, directTargetChild: View, target: View, nestedScrollAxes: Int): Boolean {
         mLastNestedScrollDy = 0
@@ -267,6 +239,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return nestedScrollAxes and ViewCompat.SCROLL_AXIS_VERTICAL != 0
     }
 
+    /**
+     * 嵌套滚动预处理：在子视图滚动前消费偏移量以驱动面板滑动
+     */
     @Deprecated("Deprecated in Java")
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray) {
         val scrollingChild = mNestedScrollingChildRef?.get()
@@ -275,8 +250,8 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
         val currentTop = child.top
         val newTop = currentTop - dy
-        if (dy > 0) { // Upward
-            if (!ViewCompat.canScrollVertically(target, 1)) {
+        if (dy > 0) {
+            if (!target.canScrollVertically(1)) {
                 if (newTop >= mMinOffset || mHideable) {
                     consumed[1] = dy
                     ViewCompat.offsetTopAndBottom(child, -dy)
@@ -287,8 +262,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
                     setStateInternal(STATE_COLLAPSED)
                 }
             }
-        } else if (dy < 0) { // Downward
-            // Negative to check scrolling up, positive to check scrolling down
+        } else if (dy < 0) {
             if (newTop < mMaxOffset) {
                 consumed[1] = dy
                 ViewCompat.offsetTopAndBottom(child, -dy)
@@ -304,6 +278,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         mNestedScrolled = true
     }
 
+    /**
+     * 嵌套滚动结束：根据滚动方向和速度确定目标状态并启动动画
+     */
     @Deprecated("Deprecated in Java")
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View) {
         if (child.top == mMaxOffset) {
@@ -336,105 +313,72 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
         if (mViewDragHelper?.smoothSlideViewTo(child, child.left, top).orFalse) {
             setStateInternal(STATE_SETTLING)
-            ViewCompat.postOnAnimation(child, SettleRunnable(child, targetState))
+            child.postOnAnimation(SettleRunnable(child, targetState))
         } else {
             setStateInternal(targetState)
         }
         mNestedScrolled = false
     }
 
+    /**
+     * 嵌套Fling预处理：面板展开时允许子视图自行处理惯性滑动
+     */
     override fun onNestedPreFling(coordinatorLayout: CoordinatorLayout, child: V, target: View, velocityX: Float, velocityY: Float): Boolean {
         return target == mNestedScrollingChildRef?.get() && (mState != STATE_EXPANDED || super.onNestedPreFling(coordinatorLayout, child, target, velocityX, velocityY))
     }
 
     /**
-     * Sets the height of the bottom sheet when it is collapsed.
-     *
-     * @param peekHeight The height of the collapsed bottom sheet in pixels.
-     * @attr ref R.styleable#TopSheetBehavior_Params_behavior_peekHeight
+     * 设置/获取折叠状态下可见高度
      */
     fun setPeekHeight(peekHeight: Int?) {
         mPeekHeight = max(0.0, peekHeight?.toSafeDouble().orZero).toSafeInt()
-        //        mMaxOffset = mParentHeight - peekHeight;
+//        mMaxOffset = mParentHeight - peekHeight
         if (mViewRef?.get() != null) {
             mMinOffset = max(-mViewRef?.get()?.height.orZero.toSafeDouble(), -(mViewRef?.get()?.height.orZero - mPeekHeight).toSafeDouble()).toSafeInt()
         }
     }
 
-    /**
-     * Gets the height of the bottom sheet when it is collapsed.
-     *
-     * @return The height of the collapsed bottom sheet.
-     * @attr ref R.styleable#BottomSheetBehavior_Layout_behavior_peekHeight
-     */
     fun getPeekHeight(): Int {
         return mPeekHeight
     }
 
     /**
-     * Sets whether this bottom sheet can hide when it is swiped down.
-     *
-     * @param hideable `true` to make this bottom sheet hideable.
-     * @attr ref R.styleable#BottomSheetBehavior_Layout_behavior_hideable
+     * 设置/获取是否允许下滑隐藏
      */
     fun setHideable(hideable: Boolean) {
         mHideable = hideable
     }
 
-    /**
-     * Gets whether this bottom sheet can hide when it is swiped down.
-     *
-     * @return `true` if this bottom sheet can hide.
-     * @attr ref R.styleable#BottomSheetBehavior_Layout_behavior_hideable
-     */
     fun isHideable(): Boolean {
         return mHideable
     }
 
     /**
-     * Sets whether this bottom sheet should skip the collapsed state when it is being hidden
-     * after it is expanded once. Setting this to true has no effect unless the sheet is hideable.
-     *
-     * @param skipCollapsed True if the bottom sheet should skip the collapsed state.
-     * @attr ref R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
+     * 设置/获取隐藏时是否跳过折叠状态
      */
     fun setSkipCollapsed(skipCollapsed: Boolean) {
         mSkipCollapsed = skipCollapsed
     }
 
-    /**
-     * Sets whether this bottom sheet should skip the collapsed state when it is being hidden
-     * after it is expanded once.
-     *
-     * @return Whether the bottom sheet should skip the collapsed state.
-     * @attr ref R.styleable#BottomSheetBehavior_Layout_behavior_skipCollapsed
-     */
     fun getSkipCollapsed(): Boolean {
         return mSkipCollapsed
     }
 
     /**
-     * Sets a callback to be notified of bottom sheet events.
-     *
-     * @param callback The callback to notify when bottom sheet events occur.
+     * 设置面板状态与滑动回调
      */
     fun setTopSheetCallback(callback: TopSheetCallback) {
         mCallback = callback
     }
 
     /**
-     * Sets the state of the bottom sheet. The bottom sheet will transition to that state with
-     * animation.
-     *
-     * @param state One of [.STATE_COLLAPSED], [.STATE_EXPANDED], or
-     * [.STATE_HIDDEN].
+     * 设置面板状态（带动画过渡）
      */
     fun setState(@State state: Int) {
         if (state == mState) {
             return
         }
         if (mViewRef == null) {
-            // The view is not laid out yet; modify mState and let onLayoutChild handle it later
             if (state == STATE_COLLAPSED || state == STATE_EXPANDED || mHideable && state == STATE_HIDDEN) {
                 mState = state
             }
@@ -452,21 +396,21 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
         setStateInternal(STATE_SETTLING)
         if (mViewDragHelper?.smoothSlideViewTo(child, child.left, top).orFalse) {
-            ViewCompat.postOnAnimation(child, SettleRunnable(child, state))
+            child.postOnAnimation(SettleRunnable(child, state))
         }
     }
 
     /**
-     * Gets the current state of the bottom sheet.
-     *
-     * @return One of [.STATE_EXPANDED], [.STATE_COLLAPSED], [.STATE_DRAGGING],
-     * and [.STATE_SETTLING].
+     * 获取当前面板状态
      */
     @State
     fun getState(): Int {
         return mState
     }
 
+    /**
+     * 内部状态更新并分发回调
+     */
     private fun setStateInternal(@State state: Int) {
         if (mState == state) {
             return
@@ -478,6 +422,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
     }
 
+    /**
+     * 重置手势追踪状态
+     */
     private fun reset() {
         mActivePointerId = ViewDragHelper.INVALID_POINTER
         if (mVelocityTracker != null) {
@@ -486,6 +433,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
     }
 
+    /**
+     * 递归查找可嵌套滚动的子视图
+     */
     private fun findScrollingChild(view: View): View? {
         if (view is NestedScrollingChild) {
             return view
@@ -505,54 +455,67 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return null
     }
 
+    /**
+     * 获取Y轴滑动速度
+     */
     private fun getYVelocity(): Float {
         mVelocityTracker?.computeCurrentVelocity(1000, mMaximumVelocity)
-        return VelocityTrackerCompat.getYVelocity(mVelocityTracker, mActivePointerId)
+        return mVelocityTracker?.getYVelocity(mActivePointerId).orZero
     }
 
-    private val mDragCallback by lazy { object : ViewDragHelper.Callback() {
-        override fun tryCaptureView(child: View, pointerId: Int): Boolean {
-            if (mState == STATE_DRAGGING) {
-                return false
-            }
-            if (mTouchingScrollingChild) {
-                return false
-            }
-            if (mState == STATE_EXPANDED && mActivePointerId == pointerId) {
-                val scroll = mNestedScrollingChildRef?.get()
-                if (scroll != null && ViewCompat.canScrollVertically(scroll, -1)) {
-                    // Let the content scroll up
+    /**
+     * ViewDragHelper回调：定义拖拽捕获、位置约束及释放后的状态结算逻辑
+     */
+    private val mDragCallback by lazy {
+        object : ViewDragHelper.Callback() {
+            override fun tryCaptureView(child: View, pointerId: Int): Boolean {
+                if (mState == STATE_DRAGGING) {
                     return false
                 }
+                if (mTouchingScrollingChild) {
+                    return false
+                }
+                if (mState == STATE_EXPANDED && mActivePointerId == pointerId) {
+                    val scroll = mNestedScrollingChildRef?.get()
+                    if (scroll != null && scroll.canScrollVertically(-1)) {
+                        return false
+                    }
+                }
+                return mViewRef != null && mViewRef?.get() == child
             }
-            return mViewRef != null && mViewRef?.get() == child
-        }
 
-        override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
-            dispatchOnSlide(top)
-        }
-
-        override fun onViewDragStateChanged(state: Int) {
-            if (state == ViewDragHelper.STATE_DRAGGING) {
-                setStateInternal(STATE_DRAGGING)
+            override fun onViewPositionChanged(changedView: View, left: Int, top: Int, dx: Int, dy: Int) {
+                dispatchOnSlide(top)
             }
-        }
 
-        override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
-            val top: Int
-            @State
-            val targetState: Int
-            if (yvel > 0) { // Moving up
-                top = mMaxOffset
-                targetState = STATE_EXPANDED
-            } else if (mHideable && shouldHide(releasedChild, yvel)) {
-                top = -mViewRef?.get()?.height.orZero
-                targetState = STATE_HIDDEN
-            } else if (yvel == 0f) {
-                val currentTop = releasedChild.top
-                if (abs((currentTop - mMinOffset).toSafeDouble()) > abs((currentTop - mMaxOffset).toSafeDouble())) {
+            override fun onViewDragStateChanged(state: Int) {
+                if (state == ViewDragHelper.STATE_DRAGGING) {
+                    setStateInternal(STATE_DRAGGING)
+                }
+            }
+
+            override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
+                val top: Int
+                @State
+                val targetState: Int
+                if (yvel > 0) {
                     top = mMaxOffset
                     targetState = STATE_EXPANDED
+                } else if (mHideable && shouldHide(releasedChild, yvel)) {
+                    top = -mViewRef?.get()?.height.orZero
+                    targetState = STATE_HIDDEN
+                } else if (yvel == 0f) {
+                    val currentTop = releasedChild.top
+                    if (abs((currentTop - mMinOffset).toSafeDouble()) > abs((currentTop - mMaxOffset).toSafeDouble())) {
+                        top = mMaxOffset
+                        targetState = STATE_EXPANDED
+                    } else if (mSkipCollapsed) {
+                        top = -mViewRef?.get()?.height.orZero
+                        targetState = STATE_HIDDEN
+                    } else {
+                        top = mMinOffset
+                        targetState = STATE_COLLAPSED
+                    }
                 } else if (mSkipCollapsed) {
                     top = -mViewRef?.get()?.height.orZero
                     targetState = STATE_HIDDEN
@@ -560,38 +523,35 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
                     top = mMinOffset
                     targetState = STATE_COLLAPSED
                 }
-            } else if (mSkipCollapsed) {
-                top = -mViewRef?.get()?.height.orZero
-                targetState = STATE_HIDDEN
-            } else {
-                top = mMinOffset
-                targetState = STATE_COLLAPSED
+                if (mViewDragHelper?.settleCapturedViewAt(releasedChild.left, top).orFalse) {
+                    setStateInternal(STATE_SETTLING)
+                    releasedChild.postOnAnimation(SettleRunnable(releasedChild, targetState))
+                } else {
+                    setStateInternal(targetState)
+                }
             }
-            if (mViewDragHelper?.settleCapturedViewAt(releasedChild.left, top).orFalse) {
-                setStateInternal(STATE_SETTLING)
-                ViewCompat.postOnAnimation(releasedChild, SettleRunnable(releasedChild, targetState))
-            } else {
-                setStateInternal(targetState)
+
+            override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
+                return constrain(top, if (mHideable) -child.height else mMinOffset, mMaxOffset)
             }
-        }
 
-        override fun clampViewPositionVertical(child: View, top: Int, dy: Int): Int {
-            return constrain(top, if (mHideable) -child.height else mMinOffset, mMaxOffset)
-        }
+            override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
+                return child.left
+            }
 
-        override fun clampViewPositionHorizontal(child: View, left: Int, dx: Int): Int {
-            return child.left
-        }
-
-        override fun getViewVerticalDragRange(child: View): Int {
-            return if (mHideable) {
-                child.height
-            } else {
-                mMaxOffset - mMinOffset
+            override fun getViewVerticalDragRange(child: View): Int {
+                return if (mHideable) {
+                    child.height
+                } else {
+                    mMaxOffset - mMinOffset
+                }
             }
         }
-    }}
+    }
 
+    /**
+     * 计算并分发滑动偏移比例回调
+     */
     private fun dispatchOnSlide(top: Int) {
         val bottomSheet = mViewRef?.get()
         if (bottomSheet != null && mCallback != null) {
@@ -603,46 +563,51 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         }
     }
 
+    /**
+     * 判断当前滑动是否应触发隐藏
+     */
     private fun shouldHide(child: View, yvel: Float): Boolean {
         if (child.top > mMinOffset) {
-            // It should not hide, but collapse.
             return false
         }
         val newTop = child.top + yvel * HIDE_FRICTION
         return abs((newTop - mMinOffset).toSafeDouble()) / mPeekHeight.toSafeFloat() > HIDE_THRESHOLD
     }
 
+    /**
+     * 状态过渡动画执行器
+     */
     private inner class SettleRunnable(private val mView: View, @field:State private val mTargetState: Int) : Runnable {
         override fun run() {
             if (mViewDragHelper != null && mViewDragHelper?.continueSettling(true).orFalse) {
-                ViewCompat.postOnAnimation(mView, this)
+                mView.postOnAnimation(this)
             } else {
                 setStateInternal(mTargetState)
             }
         }
     }
 
+    /**
+     * 面板状态持久化Parcelable实现
+     */
     private class SavedState : AbsSavedState {
         @State
         var state: Int? = null
 
         companion object {
             @JvmField
-            val CREATOR = ParcelableCompat.newCreator(object : ParcelableCompatCreatorCallbacks<SavedState?> {
-                override fun createFromParcel(parcel: Parcel, loader: ClassLoader): SavedState {
-                    return SavedState(parcel, loader)
+            val CREATOR: Parcelable.Creator<SavedState> = object : Parcelable.Creator<SavedState> {
+                override fun createFromParcel(parcel: Parcel): SavedState {
+                    return SavedState(parcel)
                 }
 
                 override fun newArray(size: Int): Array<SavedState?> {
                     return arrayOfNulls(size)
                 }
-            })
+            }
         }
 
-        constructor(source: Parcel) : super(source, null)
-
-        constructor(source: Parcel, loader: ClassLoader?) : super(source, loader) {
-            //noinspection ResourceType
+        constructor(source: Parcel) : super(source, null) {
             state = source.readInt()
         }
 
@@ -657,27 +622,14 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
     }
 
     /**
-     * Callback for monitoring events about bottom sheets.
+     * 面板事件回调抽象类
      */
     abstract class TopSheetCallback {
-        /**
-         * Called when the bottom sheet changes its state.
-         *
-         * @param bottomSheet The bottom sheet view.
-         * @param newState    The new state. This will be one of [.STATE_DRAGGING],
-         * [.STATE_SETTLING], [.STATE_EXPANDED],
-         * [.STATE_COLLAPSED], or [.STATE_HIDDEN].
-         */
+
         abstract fun onStateChanged(bottomSheet: View, @State newState: Int)
 
-        /**
-         * Called when the bottom sheet is being dragged.
-         *
-         * @param bottomSheet The bottom sheet view.
-         * @param slideOffset The new offset of this bottom sheet within its range, from 0 to 1
-         * when it is moving upward, and from 0 to -1 when it moving downward.
-         */
         abstract fun onSlide(bottomSheet: View, slideOffset: Float)
+
     }
 
 }
