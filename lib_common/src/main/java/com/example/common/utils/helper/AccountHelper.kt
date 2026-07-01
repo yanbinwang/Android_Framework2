@@ -31,14 +31,13 @@ object AccountHelper {
     /**
      * 获取用户对象
      */
-    fun getUser(): UserBean {
+    private fun getUser(): UserBean {
         return userBean.get() ?: UserBean()
     }
 
     /**
      * 获取userid
      */
-    @JvmStatic
     fun getUserId(): String {
         return getUser().userId.orEmpty()
     }
@@ -46,7 +45,6 @@ object AccountHelper {
     /**
      * 获取token
      */
-    @JvmStatic
     fun getToken(): String {
         return getUser().token.orEmpty()
     }
@@ -54,7 +52,6 @@ object AccountHelper {
     /**
      * 是否通过实名认证
      */
-    @JvmStatic
     fun getIsReal(): Boolean {
         return getUser().isReal.orFalse
     }
@@ -62,7 +59,6 @@ object AccountHelper {
     /**
      * 存储手机号
      */
-    @JvmStatic
     fun setPhoneNumber(phoneNumber: String) {
         val bean = getUser()
         bean.phoneNumber = phoneNumber
@@ -72,7 +68,6 @@ object AccountHelper {
     /**
      * 获取手机号
      */
-    @JvmStatic
     fun getPhoneNumber(): String {
         return getUser().phoneNumber.orEmpty()
     }
@@ -82,17 +77,15 @@ object AccountHelper {
     /**
      * 存储用户信息对象
      */
-    @JvmStatic
     private fun setUserInfo(bean: UserInfoBean?) {
         bean ?: return
-        if (getUserInfo() == bean) return//重写equals和hashcode
+        if (getUserInfo() == bean) return
         userInfoBean.set(bean)
     }
 
     /**
      * 获取用户信息对象
      */
-    @JvmStatic
     fun getUserInfo(): UserInfoBean {
         return userInfoBean.get() ?: UserInfoBean()
     }
@@ -101,7 +94,6 @@ object AccountHelper {
      * 设置账户状态
      * 0冻结 1正常
      */
-    @JvmStatic
     fun setStatus(status: Int) {
         val bean = getUserInfo()
         bean.status = status
@@ -111,7 +103,6 @@ object AccountHelper {
     /**
      * 获取余额->balance+sendBalance
      */
-    @JvmStatic
     fun getLumpSum(): String {
         return getUserInfo().let {
             it.balance.add(it.sendBalance)
@@ -123,7 +114,6 @@ object AccountHelper {
     /**
      * 刷新个人信息
      */
-    @JvmStatic
     fun refresh(bean: UserInfoBean?, isPost: Boolean = true) {
         bean ?: return
         if (getUserInfo() == bean) return
@@ -134,7 +124,6 @@ object AccountHelper {
     /**
      * 是否登陆
      */
-    @JvmStatic
     fun isLogin(): Boolean {
         return getUser().let {
             !it.token.isNullOrEmpty()
@@ -144,7 +133,6 @@ object AccountHelper {
     /**
      * 登录成功调取（初始化一些登录后才进行的操作，第三方库初始化）
      */
-    @JvmStatic
     fun signIn(bean: UserBean?) {
         bean ?: return
         setUser(bean)
@@ -155,7 +143,6 @@ object AccountHelper {
      * MainActivity中注册EVENT_USER_LOGIN_OUT广播，关闭除其外的所有activity
      * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
      */
-    @JvmStatic
     fun signOut(isNavigation: Boolean = true) {
         userBean.del()
         userInfoBean.del()
