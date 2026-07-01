@@ -392,11 +392,11 @@ fun BigDecimal?.toFixed(fixed: Int, roundingMode: RoundingMode = RoundingMode.DO
  * val b = 1.6; fixed=2
  * ->1.6
  */
-fun Number?.toFixedWithoutZero(fixed: Int = 1, replenish: Boolean = true, roundingMode: RoundingMode = RoundingMode.DOWN): String {
+fun Number?.toFixedWithoutZero(fixed: Int = 1, keepTrailingZeros: Boolean = true, roundingMode: RoundingMode = RoundingMode.DOWN): String {
     // 设置小数位数，不进行四舍五入
     val result = this.toSafeBigDecimal().setScale(fixed, roundingMode)
     // 如果不需要补零，去掉末尾的零
-    return if (!replenish) {
+    return if (!keepTrailingZeros) {
         result.stripTrailingZeros().toPlainString()
     } else {
         result.toPlainString()
