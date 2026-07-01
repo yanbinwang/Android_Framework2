@@ -16,10 +16,10 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.function.pt
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityExit
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.elasticIn
+import com.example.framework.utils.function.view.elasticOut
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
 
@@ -46,7 +46,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     init {
         setOwnerActivity(activity)
-        initView(null)
+        initView()
         initEvent()
         initData()
     }
@@ -86,16 +86,16 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     override fun initEvent() {
         if (hasAnimation) {
-            //当布局show出来的时候执行开始动画
+            // 当布局show出来的时候执行开始动画
             setOnShowListener {
-                rootView?.startAnimation(context.elasticityEnter())
+                rootView?.startAnimation(context.elasticIn())
             }
-            //当布局销毁时执行结束动画
+            // 当布局销毁时执行结束动画
             setOnDismissListener {
-                rootView?.startAnimation(context.elasticityExit())
+                rootView?.startAnimation(context.elasticOut())
             }
         }
-        //默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
+        // 默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
         setDialogCancelable(false)
     }
 
@@ -116,6 +116,11 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         }
     }
 
+    /**
+     * dismiss ()
+     * 1) 只销毁：Window 窗口 / 从屏幕上移除
+     * 2) 完全不销毁：Dialog 对象本身 Binding 对象 / 所有 View（EditText、TextView、状态） / 设置的数据
+     */
     override fun dismiss() {
         if (!isShowing) return
         if (ownerActivity?.isFinishing.orFalse) return

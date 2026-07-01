@@ -229,7 +229,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     override fun onInflate() {
-        if (isInflate) addView(banner)
+        if (shouldInflate) addView(banner)
     }
 
     override fun onAttachedToWindow() {

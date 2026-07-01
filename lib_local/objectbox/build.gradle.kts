@@ -1,9 +1,12 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     id("io.objectbox")
 }
 
+@Suppress("DEPRECATION")
 android {
     namespace = "com.example.objectbox"
 
@@ -13,18 +16,24 @@ android {
 
     defaultConfig {
         minSdk = libs.versions.minSdkVersion.get().toInt()
-        targetSdk = libs.versions.targetSdkVersion.get().toInt()
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    kapt {
-        arguments {
-            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+        testInstrumentationRunner = libs.versions.testInstrumentationRunner.get()
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["objectbox.modelPath"] = "$projectDir/src/main/assets/dao/evidence.json"
+            }
         }
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+//    kapt {
+//        arguments {
+//            arg("objectbox.modelPath", "$projectDir/src/main/assets/dao/evidence.json")
+//        }
+//    }
+
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(JvmTarget.JVM_11)
+        }
     }
 
     compileOptions {

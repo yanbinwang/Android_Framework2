@@ -17,4 +17,42 @@
         <attr name="arc_bottom_text_size" format="dimension" />
     </declare-styleable>
 
+    <!-- 自定义评星控件 -->
+    <declare-styleable name="RatingBar">
+        <!-- 星星间距 -->
+        <attr name="starDistance" format="dimension" />
+        <!-- 星星大小 -->
+        <attr name="starSize" format="dimension" />
+        <!-- 星星总数 -->
+        <attr name="starCount" format="integer" />
+        <!-- 空心星星图标 -->
+        <attr name="starEmpty" format="reference" />
+        <!-- 实心星星图标 -->
+        <attr name="starFill" format="reference" />
+        <!-- 是否只允许整数评分（无半星） -->
+        <attr name="integerOnly" format="boolean" />
+    </declare-styleable>
+
+    <!-- 输入框 -->
+    <declare-styleable name="CodeInput">
+        <!-- 文字颜色 -->
+        <attr name="textColor" />
+        <!-- 文字大小 -->
+        <attr name="textSize" />
+        <!-- 输入类型 -->
+        <attr name="inputType" />
+        <!-- 输入框间距（横竖通用） -->
+        <attr name="itemSpacing" format="dimension" />
+        <!-- 输入框内边距 -->
+        <attr name="itemPadding" format="dimension" />
+        <!-- 验证码位数 -->
+        <attr name="boxCount" format="integer" />
+        <!-- 输入框宽/高 -->
+        <attr name="boxWidth" format="dimension" />
+        <attr name="boxHeight" format="dimension" />
+        <!-- 背景 -->
+        <attr name="boxBgNormal" format="reference" />
+        <attr name="boxBgFocus" format="reference" />
+    </declare-styleable>
+
 </resources>

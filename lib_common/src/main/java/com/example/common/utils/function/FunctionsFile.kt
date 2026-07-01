@@ -13,6 +13,7 @@ import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.util.Base64
+import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
@@ -47,11 +48,15 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  * MediaStore.Images.Media.insertImage 在Android 10+已废弃，且返回值不可靠
  * ACTION_MEDIA_SCANNER_SCAN_FILE 广播在Android 10+对外部存储部分路径失效
  */
-fun Context.insertImageResolver(file: File?) {
-    file ?: return
+fun Context.insertImageResolver(pathname: String?): Boolean {
+    return insertImageResolver(File(pathname.orEmpty()))
+}
+
+fun Context.insertImageResolver(file: File?): Boolean {
+    file ?: return false
     if (!file.exists() || !file.canRead()) {
         "文件不存在或不可读：${file.absolutePath}".logWTF
-        return
+        return false
     }
     // 适配 Android 10+（Scoped Storage）
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -61,6 +66,7 @@ fun Context.insertImageResolver(file: File?) {
         MediaStore.Images.Media.insertImage(contentResolver, file.absolutePath, file.name, null)
         sendBroadcast(Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, "file://${file.path}".toUri()))
     }
+    return true
 }
 
 /**
@@ -101,7 +107,8 @@ private fun Context.insertImageToMediaStoreQPlus(file: File) {
 fun Context.getApplicationIcon(): Bitmap? {
     try {
         packageManager.getApplicationIcon(Constants.APPLICATION_ID).apply {
-            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+//            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
+            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
             val canvas = Canvas(bitmap)
             setBounds(0, 0, intrinsicWidth, intrinsicHeight)
             draw(canvas)
@@ -158,6 +165,44 @@ fun String?.getFileLength(): Long {
     } catch (e: Exception) {
         e.printStackTrace()
         0L
+    }
+}
+
+/**
+ * 获取不包含后缀名的文件名
+ */
+fun String?.suffixName(): String {
+    this ?: return ""
+    if (!isPathExists()) return ""
+    return File(this).suffixName()
+}
+
+fun File?.suffixName(): String {
+    this ?: return ""
+    if (this == File("")) return ""
+    if (!exists() || !canRead()) return ""
+    return name.getFileNameWithoutSuffix()
+}
+
+/**
+ * 从文件名中剥离最后一个后缀
+ * // 假设文件路径是：/sdcard/wallets/my-wallet.json
+ * val file = File("/sdcard/wallets/my-wallet.json")
+ * println(file.name)        // 输出：my-wallet.json（带.json后缀）
+ * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
+ * println(file.parent)      // 输出：/sdcard/wallets（父目录）
+ */
+private fun String?.getFileNameWithoutSuffix(): String {
+    this ?: return ""
+    // 找到最后一个 "." 的位置
+    val lastDotIndex = lastIndexOf('.')
+    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
+    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
+    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
+        this.substring(0, lastDotIndex)
+    } else {
+        // 无有效后缀，直接返回原字符串
+        this
     }
 }
 
@@ -473,20 +518,22 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
  */
 fun File?.getFirstFileInDirectory(): String? {
     // 检查目录是否合法
-    if (this == null || !this.exists() || !this.isDirectory()) {
+    if (this == null || !this.exists() || !this.isDirectory) {
         "目录不存在或不是文件夹".logWTF
         return null
     }
     // 获取目录下所有文件/文件夹（过滤隐藏文件）
     val files = this.listFiles { file ->
         // 仅保留「非隐藏」且「是文件」的项（排除文件夹）
-        !file.isHidden() && file.isFile()
+        !file.isHidden && file.isFile
     }
     // 判断是否有文件，返回第一个文件的路径
     if (files != null && files.size > 0) {
-        // 按修改时间排序
-        // Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()));
-        // 返回第一个文件的绝对路径
+        /**
+         * 按修改时间排序
+         * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
+         * 返回第一个文件的绝对路径
+         */
         return files[0]?.absolutePath
     } else {
         "目录下无文件".logWTF
@@ -523,17 +570,65 @@ fun File?.getRealFileSuffix(): String {
 fun Uri?.getRealSourceSuffix(context: Context?): String {
     this ?: return ""
     val mContext = context ?: BaseApplication.instance.applicationContext
-    // 优先从 MediaStore 解析（适配 content:// 协议）
+    // 从媒体库DISPLAY_NAME中提取原始后缀
     val projection = arrayOf(MediaStore.MediaColumns.DISPLAY_NAME)
     mContext.contentResolver.query(this, projection, null, null, null)?.use { cursor ->
         if (cursor.moveToFirst()) {
-            val fileName = cursor.getString(0) ?: return ""
-            return fileName.substringAfterLast(".", "").lowercase()
+            val displayName = cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DISPLAY_NAME))
+            // 增加非空、长度校验，避免索引越界
+            if (!displayName.isNullOrEmpty() && displayName.length > 1 && displayName.contains(".")) {
+                val lastDotIndex = displayName.lastIndexOf(".")
+                // 确保后缀不是文件名的第一个字符（避免".filename"这种非法格式）
+                if (lastDotIndex > 0 && lastDotIndex < displayName.length - 1) {
+                    val suffix = displayName.substring(lastDotIndex)
+                    // 图片文件：保留正则校验，返回合规图片后缀
+                    if (suffix.matches(Regex("\\.(jpg|jpeg|png|bmp|webp)", RegexOption.IGNORE_CASE))) {
+                        return suffix
+                    }
+                    // 非图片文件跳过正则后，直接返回从DISPLAY_NAME提取的原始后缀
+                    return suffix
+                }
+            }
         }
     }
-    // 从 Uri 路径解析（适配 file:// 等协议）
-    val uriPath = this.path ?: return ""
-    return uriPath.substringAfterLast(".", "").lowercase()
+    // 通过MIME类型映射后缀（非图片默认兜底为通用二进制类型）
+    val mimeType = mContext.contentResolver.getType(this) ?: "application/octet-stream"
+    // 判断是否为图片MIME类型
+    val isImageMime = mimeType.startsWith("image/")
+    val extension = if (isImageMime) {
+        // 图片文件：保留原有图片MIME映射逻辑
+        when (mimeType) {
+            "image/webp" -> "webp"
+            "image/bmp" -> "bmp"
+            else -> MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "jpg"
+        }
+    } else {
+        // 非图片文件：通用MIME类型映射，返回真实后缀，不兜底为图片格式
+        MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType) ?: "tmp"
+    }
+    val standardSuffix = ".${extension.lowercase()}"
+    // 图片文件：保留二进制头部校验（非图片文件无需此步骤，直接返回standardSuffix）
+    if (!isImageMime) return standardSuffix
+    // 二进制头部校验（仅图片文件执行）
+    return try {
+        mContext.contentResolver.openInputStream(this)?.use { inputStream ->
+            val headerBytes = ByteArray(4)
+            val readLength = inputStream.read(headerBytes)
+            if (readLength >= 4) {
+                when {
+                    headerBytes[0] == 0x89.toByte() && headerBytes[1] == 0x50.toByte() && headerBytes[2] == 0x4E.toByte() && headerBytes[3] == 0x47.toByte() -> ".png"
+                    headerBytes[0] == 0xFF.toByte() && headerBytes[1] == 0xD8.toByte() && headerBytes[2] == 0xFF.toByte() -> ".jpg"
+                    headerBytes[0] == 0x52.toByte() && headerBytes[1] == 0x49.toByte() && headerBytes[2] == 0x46.toByte() && headerBytes[3] == 0x46.toByte() -> ".webp"
+                    else -> standardSuffix
+                }
+            } else {
+                standardSuffix
+            }
+        } ?: standardSuffix
+    } catch (e: Exception) {
+        e.printStackTrace()
+        standardSuffix
+    }
 }
 
 /**
@@ -546,7 +641,6 @@ fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
         "目录不存在或不是文件夹".logWTF
         return emptyList()
     }
-
     val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
     return allItems.map { it.absolutePath to it.isDirectory }
 }
@@ -662,39 +756,33 @@ private fun getFileFromCloudAlbum(context: Context, uri: Uri, prefix: String): F
          * }
          */
         context.contentResolver.openInputStream(uri)?.use { inputStream ->
-            val suffix = uri.lastPathSegment?.let {
-                if (it.contains(".")) {
-                    it.substring(it.lastIndexOf("."))
-                } else {
-                    ".tmp"
-                }
-            } ?: ".tmp"
-            // 生成临时文件
-            val tempFile = File.createTempFile(prefix, suffix, context.cacheDir)
-            // JVM退出时自动删除 (上传完成前不要手动删除)
-            tempFile.deleteOnExit()
-            FileOutputStream(tempFile).use { outputStream ->
+            // 获取真实后缀
+            val realSuffix = uri.getRealSourceSuffix(context)
+            // 先生成临时文件（避免直接创建带真实后缀的文件冲突）
+            val tempTmpFile = File.createTempFile(prefix, ".tmp", context.cacheDir)
+            tempTmpFile.deleteOnExit()
+            // 拷贝文件流到临时.tmp文件
+            FileOutputStream(tempTmpFile).use { outputStream ->
                 inputStream.copyTo(outputStream)
             }
-            tempFile
+            // 重命名文件：将.tmp替换为真实后缀（避免文件名冲突）
+            val realFileName = prefix + System.currentTimeMillis() + realSuffix
+            val realFile = File(context.cacheDir, realFileName)
+            val renameSuccess = tempTmpFile.renameTo(realFile)
+            // 返回重命名后的真实后缀文件（重命名失败则返回原.tmp文件）
+            if (renameSuccess) {
+                // 设置JVM退出自动删除
+                realFile.deleteOnExit()
+                realFile
+            } else {
+                tempTmpFile
+            }
         }
     } catch (e: Exception) {
         e.logWTF
         null
     }
 }
-
-///**
-// * 清理Uri转File生成的临时文件（按前缀匹配）
-// * context?.clearUriTempFiles("google_album_", "wechat_file_", "media_")
-// */
-//private fun Context.clearUriTempFiles(vararg prefixes: String) {
-//    cacheDir.listFiles()?.forEach { file ->
-//        if (prefixes.any { file.name.startsWith(it) }) {
-//            file.delete() // 同步删除，也可用deleteOnExit()延迟删除
-//        }
-//    }
-//}
 
 /**
  * 普通content://文件（媒体/共享文件）
@@ -816,7 +904,7 @@ internal fun File?.split(chunkSize: Long): MutableList<String> {
 private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
     // 源文件
     val file = File(filePath)
-//    //定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+//    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
 //    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
     val fileName = file.name.split(".")[0]
     // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
@@ -843,8 +931,8 @@ private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<St
 
 /**
  * 读取文件到文本（文本，找不到文件或读取错返回null）
- * kt中对File类做了readText扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
- * 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
+ * 1) kt中对File类做了'readText'扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
+ * 2) 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
  */
 internal fun File?.read(): String {
     this ?: return ""
@@ -916,7 +1004,7 @@ internal fun File?.getDuration(): Int {
     return try {
         player.setDataSource(absolutePath)
         player.prepare()
-        // 视频时长（毫秒）/1000=x秒
+        // 视频时长（毫秒）/ 1000 = x秒
         val duration = player.duration.orZero
         duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
     } catch (e: Exception) {

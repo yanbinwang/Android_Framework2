@@ -11,11 +11,18 @@
         android:paddingHorizontal="10pt"
         android:paddingVertical="5pt">
 
-        <ImageView
-            android:layout_width="20pt"
-            android:layout_height="20pt"
-            android:layout_gravity="center_vertical"
-            android:src="@mipmap/ic_launcher" />
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_icon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical">
+
+            <ImageView
+                android:layout_width="20pt"
+                android:layout_height="20pt"
+                android:src="@mipmap/ic_launcher" />
+
+        </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/tv_timer"

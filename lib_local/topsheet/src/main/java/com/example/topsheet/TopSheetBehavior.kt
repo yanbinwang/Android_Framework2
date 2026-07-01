@@ -28,6 +28,7 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import androidx.annotation.IntDef
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.withStyledAttributes
 import androidx.core.os.ParcelableCompat
 import androidx.core.os.ParcelableCompatCreatorCallbacks
 import androidx.core.view.MotionEventCompat
@@ -44,13 +45,11 @@ import com.example.framework.utils.function.value.toSafeInt
 import java.lang.ref.WeakReference
 import kotlin.math.abs
 import kotlin.math.max
-import androidx.core.content.withStyledAttributes
 
 @SuppressLint("PrivateResource")
 class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : CoordinatorLayout.Behavior<V>(context, attrs) {
-    private val HIDE_THRESHOLD = 0.5f
-    private val HIDE_FRICTION = 0.1f
-    private var mMaximumVelocity = 0f
+    @State
+    private var mState = STATE_EXPANDED
     private var mPeekHeight = 0
     private var mMinOffset = 0
     private var mMaxOffset = 0
@@ -58,13 +57,17 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
     private var mParentHeight = 0
     private var mActivePointerId = 0
     private var mInitialY = 0
+    private var mMaximumVelocity = 0f
     private var mHideable = false
     private var mSkipCollapsed = true
     private var mIgnoreEvents = false
     private var mTouchingScrollingChild = false
     private var mNestedScrolled = false
     private var mNestedScrollingChildRef: WeakReference<View>? = null
+    private var mViewRef: WeakReference<View>? = null
     private var mVelocityTracker: VelocityTracker? = null
+    private var mViewDragHelper: ViewDragHelper? = null
+    private var mCallback: TopSheetCallback? = null
 
     companion object {
         /**
@@ -99,6 +102,9 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         @Retention(AnnotationRetention.SOURCE)
         annotation class State
 
+        private const val HIDE_THRESHOLD = 0.5f
+        private const val HIDE_FRICTION = 0.1f
+
         /**
          * A utility function to get the [TopSheetBehavior] associated with the `view`.
          *
@@ -106,12 +112,12 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
          * @return The [TopSheetBehavior] associated with the `view`.
          */
         @JvmStatic
-        fun <V : View> from(view: V): TopSheetBehavior<V>? {
+        fun <V : View> from(view: V): TopSheetBehavior<V> {
             val params = view.layoutParams
             require(params is CoordinatorLayout.LayoutParams) { "The view is not a child of CoordinatorLayout" }
             val behavior = params.behavior
             require(behavior is TopSheetBehavior<*>) { "The view is not associated with TopSheetBehavior" }
-            return behavior as? TopSheetBehavior<V>?
+            return behavior as TopSheetBehavior<V>
         }
 
         @JvmStatic
@@ -122,23 +128,6 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         @JvmStatic
         fun constrain(amount: Float, low: Float, high: Float): Float {
             return if (amount < low) low else if (amount > high) high else amount
-        }
-
-        @State
-        private var mState = STATE_EXPANDED
-        private var mViewRef: WeakReference<View>? = null
-        private var mViewDragHelper: ViewDragHelper? = null
-        private var mCallback: TopSheetCallback? = null
-
-        private fun setStateInternal(@State state: Int) {
-            if (mState == state) {
-                return
-            }
-            mState = state
-            val bottomSheet = mViewRef?.get()
-            if (bottomSheet != null && mCallback != null) {
-                mCallback?.onStateChanged(bottomSheet, state)
-            }
         }
     }
 
@@ -199,7 +188,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
     }
 
     override fun onInterceptTouchEvent(parent: CoordinatorLayout, child: V, event: MotionEvent): Boolean {
-        if (!child.isShown()) {
+        if (!child.isShown) {
             return false
         }
         val action = MotionEventCompat.getActionMasked(event)
@@ -243,7 +232,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
     }
 
     override fun onTouchEvent(parent: CoordinatorLayout, child: V, event: MotionEvent): Boolean {
-        if (!child.isShown()) {
+        if (!child.isShown) {
             return false
         }
         val action = MotionEventCompat.getActionMasked(event)
@@ -278,6 +267,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return nestedScrollAxes and ViewCompat.SCROLL_AXIS_VERTICAL != 0
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onNestedPreScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View, dx: Int, dy: Int, consumed: IntArray) {
         val scrollingChild = mNestedScrollingChildRef?.get()
         if (target !== scrollingChild) {
@@ -314,6 +304,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         mNestedScrolled = true
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onStopNestedScroll(coordinatorLayout: CoordinatorLayout, child: V, target: View) {
         if (child.top == mMaxOffset) {
             setStateInternal(STATE_EXPANDED)
@@ -549,7 +540,8 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
 
         override fun onViewReleased(releasedChild: View, xvel: Float, yvel: Float) {
             val top: Int
-            @State val targetState: Int
+            @State
+            val targetState: Int
             if (yvel > 0) { // Moving up
                 top = mMaxOffset
                 targetState = STATE_EXPANDED
@@ -620,7 +612,7 @@ class TopSheetBehavior<V : View>(context: Context, attrs: AttributeSet) : Coordi
         return abs((newTop - mMinOffset).toSafeDouble()) / mPeekHeight.toSafeFloat() > HIDE_THRESHOLD
     }
 
-    private class SettleRunnable(private val mView: View, @State private val mTargetState: Int) : Runnable {
+    private inner class SettleRunnable(private val mView: View, @field:State private val mTargetState: Int) : Runnable {
         override fun run() {
             if (mViewDragHelper != null && mViewDragHelper?.continueSettling(true).orFalse) {
                 ViewCompat.postOnAnimation(mView, this)

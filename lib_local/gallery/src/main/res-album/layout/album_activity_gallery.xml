@@ -1,90 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    style="@style/Album.MatchParent"
-    android:background="@color/albumColorPrimaryBlack">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/albumGalleryBackground"
+    android:orientation="vertical">
 
-    <com.yanzhenjie.album.widget.photoview.FixViewPager
+    <com.example.common.widget.AppToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
-        style="@style/Album.MatchParent" />
+        android:layout_width="match_parent"
+        android:layout_height="0pt"
+        android:layout_weight="1"
+        android:overScrollMode="never"
+        android:scrollbars="none" />
 
-    <RelativeLayout
-        style="@style/Album.MatchParent"
-        android:fitsSystemWindows="true">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="34pt">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_layout"
-            style="@style/Album.AppBar.General.Transparent">
+        <RelativeLayout
+            android:id="@+id/layout_menu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/albumMenuBackground"
+            android:paddingHorizontal="10pt">
 
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                style="@style/Album.Toolbar.Dark">
+            <TextView
+                android:id="@+id/tv_duration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:drawablePadding="2pt"
+                android:gravity="center"
+                android:maxLines="1"
+                android:textColor="@color/galleryFontLight"
+                android:textSize="@dimen/textSize12"
+                android:visibility="gone"
+                app:drawableStartCompat="@mipmap/album_tag_video" />
 
-                <TextView
-                    android:id="@+id/tv_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:ellipsize="end"
-                    android:lines="1"
-                    android:scrollHorizontally="true"
-                    android:textSize="@dimen/album_sp_18"
-                    tools:text="@string/albumTitle"
-                    tools:textColor="@color/textWhite" />
+            <CheckBox
+                android:id="@+id/check_box"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:layout_centerVertical="true"
+                android:text="@string/album_check"
+                android:textColor="@color/galleryFontLight"
+                android:textSize="@dimen/textSize12" />
 
-            </androidx.appcompat.widget.Toolbar>
-
-        </com.google.android.material.appbar.AppBarLayout>
+        </RelativeLayout>
 
         <FrameLayout
-            style="@style/Album.WrapContent.WidthMatchParent"
-            android:layout_alignParentBottom="true">
+            android:id="@+id/layout_layer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/albumLayerDisabled">
 
-            <RelativeLayout
-                android:id="@+id/layout_bottom"
-                style="@style/Album.MatchParent.SheetBottom"
-                android:background="@color/albumSheetBottom">
-
-                <TextView
-                    android:id="@+id/tv_duration"
-                    style="@style/Album.WrapContent"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/album_dp_10"
-                    android:drawableStart="@drawable/album_tag_video_white"
-                    android:drawablePadding="@dimen/album_dp_4"
-                    android:gravity="center"
-                    android:maxLines="1"
-                    android:textColor="@color/albumFontLight"
-                    android:visibility="gone" />
-
-                <androidx.appcompat.widget.AppCompatCheckBox
-                    android:id="@+id/check_box"
-                    style="@style/Album.CheckBox.WrapContent"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="@dimen/album_dp_10"
-                    android:text="@string/album_check"
-                    android:textColor="@color/albumFontLight"
-                    android:textSize="@dimen/album_sp_16" />
-
-            </RelativeLayout>
-
-            <FrameLayout
-                android:id="@+id/layout_layer"
-                style="@style/Album.MatchParent.SheetBottom"
-                android:background="@color/albumSheetLayer">
-
-                <TextView
-                    style="@style/Album.WrapContent"
-                    android:layout_gravity="center"
-                    android:text="@string/album_item_unavailable"
-                    android:textColor="@color/albumFontLight"
-                    android:textSize="@dimen/album_sp_18" />
-
-            </FrameLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="@string/album_item_unavailable"
+                android:textColor="@color/galleryFontLight"
+                android:textSize="@dimen/textSize14" />
 
         </FrameLayout>
 
-    </RelativeLayout>
+    </FrameLayout>
 
-</FrameLayout>
+</LinearLayout>

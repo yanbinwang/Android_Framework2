@@ -34,13 +34,13 @@ import com.otaliastudios.cameraview.controls.Preview
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
 class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver: Boolean = false) : LifecycleEventObserver {
     private var isPictureShutter = false
-    private var sourcePath: String? = null // 源文件路径->拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径---》每次都会覆盖
+    private var sourcePath: String? = null // 源文件路径 (每次都会覆盖) -> 拍照模式记录的是上一次的图片路径，录像记录的是上一次预创建的路径
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
-    private val mSound by lazy { MediaActionSound() }
-    private val mReceiver by lazy { KeyEventReceiver() }
-    private val mContext get() = cvFinder?.context
+    private val sound by lazy { MediaActionSound() }
+    private val receiver by lazy { KeyEventReceiver() }
+    private val context get() = cvFinder?.context
 
     init {
         observer.lifecycle.addObserver(this)
@@ -149,7 +149,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //            val intentFilter = IntentFilter()
 //            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
 //            mContext?.registerReceiver(eventReceiver, intentFilter)
-            mContext.doOnReceiver(observer, mReceiver, IntentFilter().apply {
+            context.doOnReceiver(observer, receiver, IntentFilter().apply {
                 addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
                 addAction(Intent.ACTION_SCREEN_ON)
                 addAction(Intent.ACTION_SCREEN_OFF)
@@ -225,7 +225,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             return
         }
         cvFinder?.let {
-            mSound.play(MediaActionSound.SHUTTER_CLICK)
+            sound.play(MediaActionSound.SHUTTER_CLICK)
             isPictureShutter = false
             if (snapshot) {
                 it.takePictureSnapshot()
@@ -325,7 +325,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //                    } catch (_: Exception) {
 //                    }
 //                }
-                sourcePath = null
+                cvFinder?.clearCameraListeners()
                 cvFinder = null
                 source.lifecycle.removeObserver(this)
             }

@@ -1,8 +1,8 @@
 package com.example.common.utils
 
-import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -31,10 +31,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
-import com.example.common.utils.function.getManifestString
-import com.example.framework.utils.function.value.min
+import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.toSafeInt
 import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.math.max
 import kotlin.properties.Delegates
@@ -67,7 +65,8 @@ object ScreenUtil {
      * 获取屏幕宽度（px）
      * 根据屏幕方向返回宽度：竖屏时为 widthPixels，横屏时为 heightPixels（因横屏时宽高会交换）
      */
-    private fun screenWidth(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenWidth(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.widthPixels
         } else {
@@ -79,7 +78,8 @@ object ScreenUtil {
      * 获取屏幕高度（px）
      * 根据屏幕方向返回高度：竖屏时为 heightPixels，横屏时为 widthPixels
      */
-    private fun screenHeight(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenHeight(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.heightPixels
         } else {
@@ -91,90 +91,41 @@ object ScreenUtil {
      * 屏幕密度/比值(dpi值)
      * 返回屏幕密度（dpi），即 displayMetrics.densityDpi
      */
-    private fun screenDensity(context: Context = BaseApplication.instance): Int {
+    @JvmStatic
+    fun screenDensity(context: Context = BaseApplication.instance.applicationContext): Int {
         return context.resources.displayMetrics.densityDpi
     }
 
     /**
-     * 根据AutoSize设置来获取设定的宽度
-     * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
-     */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
-
-    /**
-     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值
-     * 计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+     * 根据颜色(资源ID)的亮度判断是否需要使用白色系统状态栏/导航栏图标
+     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
+     * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
      */
     @JvmStatic
-    fun getRealSize(length: Int): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(length: Double): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Int): Int {
-        return length * screenWidth(context) / designWidth
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Double): Int {
-        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+    fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
+        return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
     }
 
     /**
-     * 返回 Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
+     * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
      */
     @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Int): Float {
-        return getRealSizeFloat(context, length.toFloat())
-    }
-
-    @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Float): Float {
-        return length * screenWidth(context).toFloat() / designWidth.toFloat()
-    }
-
-    /**
-     * 获取顶部刘海高度（整个状态栏-->仅支持 Android 9.0+）
-     * @return 刘海高度（无刘海或不支持时返回 0）
-     */
-    @RequiresApi(Build.VERSION_CODES.P)
-    fun Activity?.getTopCutoutHeight(): Int {
-        this ?: return 0
-        // 获取 WindowInsets（可能为 null，需判空）
-        val windowInsets = window?.decorView?.rootWindowInsets
-        val displayCutout = windowInsets?.displayCutout ?: return 0
-        // 解析顶部刘海区域
-        var cutoutHeight = 0
-        displayCutout.boundingRects.forEach { rect ->
-            // 顶部刘海的 top 坐标为 0（状态栏起始位置）
-            if (rect.top == 0) {
-                // 只保留正数，负数说明无超出的刘海
-                val currentCutout = maxOf(cutoutHeight, rect.bottom)
-                cutoutHeight = max(0, currentCutout)
-            }
-        }
-        return cutoutHeight
+    fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
+        // 使用系统API获取相对亮度（0.0-1.0之间）
+        val luminance = calculateLuminance(backgroundColor)
+        // 亮度阈值，低于0.5认为是暗色背景，需要白色图标
+        return luminance < 0.5
     }
 
     /**
      * 是否具备底部导航栏
      * 如是扩展函数,view必须是window.decorView
      */
-    fun View.hasNavigationBar(): Boolean {
-        val insets = ViewCompat.getRootWindowInsets(this) ?: return false
+    @JvmStatic
+    fun hasNavigationBar(): Boolean {
+        val currentActivity = AppManager.currentActivity()
+        val decorView = currentActivity?.window?.decorView ?: return false
+        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return false
         return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 
@@ -237,27 +188,28 @@ object ScreenUtil {
         }
     }
 
-    /**
-     * 根据颜色(资源ID)的亮度判断是否需要使用白色系统状态栏/导航栏图标
-     * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
-     * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
-     */
-    @JvmStatic
-    fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
-        return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
-    }
+}
 
-    /**
-     * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
-     */
-    @JvmStatic
-    fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
-        // 使用系统API获取相对亮度（0.0-1.0之间）
-        val luminance = calculateLuminance(backgroundColor)
-        // 亮度阈值，低于0.5认为是暗色背景，需要白色图标
-        return luminance < 0.5
+/**
+ * 获取顶部刘海高度（整个状态栏 -> 仅支持 Android 9.0+）
+ * @return 刘海高度（无刘海或不支持时返回 0）
+ */
+@RequiresApi(Build.VERSION_CODES.P)
+fun Window.getTopInsetHeight(): Int {
+    // 获取 WindowInsets（可能为 null，需判空）
+    val windowInsets = decorView.rootWindowInsets
+    val displayCutout = windowInsets?.displayCutout ?: return 0
+    // 解析顶部刘海区域
+    var cutoutHeight = 0
+    displayCutout.boundingRects.forEach { rect ->
+        // 顶部刘海的 top 坐标为 0（状态栏起始位置）
+        if (rect.top == 0) {
+            // 只保留正数，负数说明无超出的刘海
+            val currentCutout = maxOf(cutoutHeight, rect.bottom)
+            cutoutHeight = max(0, currentCutout)
+        }
     }
-
+    return cutoutHeight
 }
 
 /**

@@ -1,15 +1,16 @@
 package com.example.framework.utils.function.value
 
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.GradientDrawable.OVAL
 import android.os.Bundle
 import android.os.Looper
-import android.view.View
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
+import com.example.framework.R
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -108,17 +109,63 @@ fun Class<*>.getSimpleName(name: String? = null): String {
 }
 
 /**
- * 减少本地背景文件的绘制，直接代码绘制
- * colorString 颜色字符 -> "#cf111111"
- * radius 圆角 -> 传入X.ptFloat,代码添加一个对应圆角的背景
+ * 获取正常颜色
  */
-fun createCornerDrawable(colorString: String, radius: Float = 0f): Drawable {
+@ColorInt
+fun ColorStateList.getNormalColor(): Int {
+    return defaultColor
+}
+
+/**
+ * 获取高亮颜色（按下/选中/勾选 都一样）
+ */
+@ColorInt
+fun ColorStateList.getHighLightColor(): Int {
+    return getColorForState(intArrayOf(android.R.attr.state_pressed), defaultColor)
+}
+
+/**
+ * 创建按钮/文本/背景的颜色状态选择器
+ * 统一处理：按下、选中、勾选 = 高亮色 | 默认 = 正常色
+ */
+fun createColorSelector(@ColorInt normal: Int, @ColorInt highLight: Int): ColorStateList {
+    val states = arrayOf(
+        // 勾选
+        intArrayOf(android.R.attr.state_checked),
+        // 按下
+        intArrayOf(android.R.attr.state_pressed),
+        // 选中
+        intArrayOf(android.R.attr.state_selected),
+        // 默认（所有其他情况）
+        intArrayOf()
+    )
+    val colors = intArrayOf(highLight, highLight, highLight, normal)
+    return ColorStateList(states, colors)
+}
+
+/**
+ * 创建带描边的圆角矩形 Drawable（适配服务器返回的颜色字符串,减少本地背景文件的绘制）
+ * @param colorString 背景色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @param radius 圆角半径（px，默认 0）
+ * @param strokeWidth 描边宽度（px，默认 -1 表示不绘制描边）
+ * @param strokeColor 描边颜色（ColorInt，默认透明，仅 strokeWidth > 0 时生效）
+ * @return 圆角矩形 Drawable
+ */
+fun createRectangleDrawable(colorString: String, radius: Float = 0f, strokeWidth: Int = -1, @ColorInt strokeColor: Int = Color.TRANSPARENT): Drawable {
     return GradientDrawable().apply {
         setColor(colorString.parseColor())
         cornerRadius = radius
+        if (-1 != strokeWidth) {
+            setStroke(strokeWidth, strokeColor)
+        }
     }
 }
 
+/**
+ * 创建圆形 Drawable（适配服务器返回的颜色字符串）
+ * @param colorString 颜色字符串（支持 #3/4/6/8 位格式，null 时用 parseColor 默认白色）
+ * @return 圆形 Drawable
+ */
 fun createOvalDrawable(colorString: String): Drawable {
     return GradientDrawable().apply {
         shape = OVAL
@@ -153,11 +200,11 @@ fun getMemInfo(): Long {
     var memory = 0L
     try {
         val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
-        //系统内存信息文件,读取meminfo第一行，系统总内存大小
+        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
         val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        //获得系统总内存，单位是KB
+        // 获得系统总内存，单位是KB
         val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-        //int值乘以1024转换为long类型
+        // int值乘以1024转换为long类型
         memory = systemMemory.toSafeLong() * 1024
         localBufferedReader.close()
     } catch (e: IOException) {

@@ -4,12 +4,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
+import android.os.Build
 import android.provider.Settings
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.coroutineScope
 import com.amap.api.location.AMapLocation
 import com.amap.api.location.AMapLocationClient
 import com.amap.api.location.AMapLocationClientOption
@@ -22,29 +22,26 @@ import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
 import com.example.common.widget.dialog.AppDialog
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.NotificationUtil.builder
 import com.example.thirdparty.utils.NotificationUtil.notificationId
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /**
  *  Created by wangyanbin
- *  定位-必须要有定位权限，否则定位失败，可以不开gps会走网络定位
- *  定位工具类写成class避免每次init都要初始化
- *  1.先实现回调
- *  2.key文件一定要校准
- *  3.选择3d地图定位套件
+ *  定位必须具备定位权限，否则定位失败，可以不开gps会走网络定位
+ *  1) 先实现回调 (页面ActivityResultRegistrar传入)
+ *  2) key文件一定要校准 (https://lbs.amap.com/api/)
+ *  3) 选择3d地图定位套件 (https://lbs.amap.com/api/android-sdk/download)
  */
 class LocationHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : AMapLocationListener, LifecycleEventObserver {
-    private var retry = false
-    private val retryTime = 8000L
-    private var locationClient: AMapLocationClient? = null
+    private var isLocating = false
+    private val retryDelay = 8000L
     private var listener: OnLocationListener? = null
-    private val result = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
-    private val manager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
-    private val mDialog by lazy { AppDialog(mActivity) }
+    private var locationClient: AMapLocationClient? = null
+    private val resultLauncher = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
+    private val locationManager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
 
     companion object {
         // 经纬度json->默认杭州
@@ -77,41 +74,15 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             // 如果设置其为true，setOnceLocation(boolean b)接口也会被设置为true，反之不会，默认为false。
             isOnceLocationLatest = true
             // 请求超时时间，单位是毫秒，默认30000毫秒，建议超时时间不要低于8000毫秒
-            httpTimeOut = retryTime
+            httpTimeOut = retryDelay
             // 开启地址解析
             isNeedAddress = true
         }
         // 设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
         // 启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
-//        locationClient?.enableBackgroundLocation(2001, mActivity.buildNotification())
         locationClient?.enableBackgroundLocation(notificationId, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
     }
-
-//    /**
-//     * 高德内部构建定位通知
-//     */
-//    private fun Context.buildNotification(): Notification {
-//        val builder: Notification.Builder?
-//        //Android O上对Notification进行了修改，如果设置的targetSDKVersion>=26建议使用此种方式创建通知栏
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            val notificationChannel = NotificationChannel(string(R.string.notificationChannelId), string(R.string.notificationChannelName), NotificationManager.IMPORTANCE_DEFAULT)
-//            notificationChannel.apply {
-//                enableLights(true) //是否在桌面icon右上角展示小圆点
-//                lightColor = Color.BLUE //小圆点颜色
-//                setShowBadge(true) //是否在久按桌面图标时显示此渠道的通知
-//            }
-//            (getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager)?.createNotificationChannel(notificationChannel)
-//            builder = Notification.Builder(this, string(R.string.notificationChannelId))
-//        } else {
-//            builder = Notification.Builder(this)
-//        }
-//        builder.setSmallIcon(R.mipmap.ic_launcher)
-//            .setContentTitle(APPLICATION_NAME)
-//            .setContentText(string(R.string.mapLocationLoading))
-//            .setWhen(System.currentTimeMillis())
-//        return builder.build()
-//    }
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
         if (aMapLocation != null && aMapLocation.errorCode == AMapLocation.LOCATION_SUCCESS) {
@@ -131,21 +102,20 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
      * 必须具备定位权限,不区分安卓版本！用于打卡，签到，地图矫正
      */
     fun start() {
-        if (retry) {
+        if (isLocating) {
             R.string.mapLocationProcessing.shortToast()
             return
         }
-        retry = true
-        mActivity.lifecycle.coroutineScope.launch {
-            delay(retryTime)
-            clear()
-        }
+        isLocating = true
+        schedule(mActivity, {
+            isLocating = false
+        }, retryDelay)
         try {
             locationClient?.startLocation()
         } catch (e: Exception) {
             e.printStackTrace()
             listener?.onLocationChanged(null, false)
-            clear()
+            isLocating = false
         }
     }
 
@@ -158,14 +128,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         // 结束定位(高德的isStart取到的不是实时的值,直接调取开始或停止内部api会做判断)
         locationClient?.stopLocation()
         // 清空消息
-        clear()
-    }
-
-    /**
-     * 清除消息队列
-     */
-    private fun clear() {
-        retry = false
+        isLocating = false
     }
 
     /**
@@ -179,26 +142,31 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     }
 
     /**
-     * flag->true表示定位成功，当不一定有定位对象，false表示定位失败，一定不会有定位对象
+     * 跳转设置gps
      */
-    fun setOnLocationListener(listener: OnLocationListener) {
-        this.listener = listener
+    fun settingGps(mDialog: AppDialog? = null): Boolean {
+        // 判断GPS模块是否开启，如果没有则开启
+        val isLocationEnabled = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            locationManager?.isLocationEnabled
+        } else {
+            locationManager?.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        }.orFalse
+        if (!isLocationEnabled) {
+            mDialog
+                ?.setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
+                ?.setDialogListener({
+                    resultLauncher.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                })
+                ?.show()
+        }
+        return isLocationEnabled
     }
 
     /**
-     * 跳转设置gps
+     * flag -> true表示定位成功，当不一定有定位对象，false表示定位失败，一定不会有定位对象
      */
-    fun settingGps(): Boolean {
-        // 判断GPS模块是否开启，如果没有则开启
-        return if (!manager?.isProviderEnabled(LocationManager.GPS_PROVIDER).orFalse) {
-            mDialog
-                .setParams(string(R.string.hint), string(R.string.mapGps), string(R.string.mapGpsGoSetting), string(R.string.cancel))
-                .setDialogListener({ result.launch(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)) })
-                .show()
-            false
-        } else {
-            true
-        }
+    fun setOnLocationListener(listener: OnLocationListener) {
+        this.listener = listener
     }
 
     /**
@@ -209,7 +177,8 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             Lifecycle.Event.ON_PAUSE -> stop()
             Lifecycle.Event.ON_DESTROY -> {
                 destroy()
-                result.unregister()
+                listener = null
+                resultLauncher.unregister()
                 source.lifecycle.removeObserver(this)
             }
             else -> {}

@@ -17,11 +17,13 @@ import com.example.mvvm.R
 import kotlin.math.cos
 import androidx.core.content.withStyledAttributes
 
+/**
+ * 进度条
+ */
 class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : View(context, attrs, defStyleAttr) {
-    private var textColor = 0
-    private var progress = 0
     private var max = 0
-    private var min_size = 0
+    private var progress = 0
+    private var textColor = 0
     private var finishedStrokeColor = 0
     private var unfinishedStrokeColor = 0
     private var strokeWidth = 0f
@@ -31,19 +33,8 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var textSize = 0f
     private var suffixTextPadding = 0f
     private var arcBottomHeight = 0f
-    private var default_text_size = 0f
-    private var default_suffix_padding = 0f
-    private var default_bottom_text_size = 0f
-    private var default_stroke_width = 0f
-    private var default_suffix_text_size = 0f
     private var suffixText = "%"
     private var bottomText = ""
-    private val default_max = 100
-    private val default_arc_angle = 360 * 0.7f //0.8改0.7
-    private val default_suffix_text = "%"
-    private val default_finished_color = Color.WHITE
-    private val default_unfinished_color = Color.rgb(72, 106, 176)
-    private val default_text_color = Color.rgb(66, 145, 241)
     private val rectF = RectF()
     private val paint by lazy { Paint() }
     private val textPaint by lazy { TextPaint() }
@@ -63,18 +54,23 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
         private const val INSTANCE_UNFINISHED_STROKE_COLOR = "unfinished_stroke_color"
         private const val INSTANCE_ARC_ANGLE = "arc_angle"
         private const val INSTANCE_SUFFIX = "suffix"
+
+        private var min_size = 100.pt
+        private var default_text_size = 40.ptFloat
+        private var default_suffix_padding = 0.ptFloat
+        private var default_bottom_text_size = 10.ptFloat
+        private var default_stroke_width = 4.ptFloat
+        private var default_suffix_text_size = 15.ptFloat
+        private val default_max = 100
+        private val default_arc_angle = 360 * 0.7f // 0.8改0.7
+        private val default_suffix_text = "%"
+        private val default_finished_color = Color.WHITE
+        private val default_unfinished_color = Color.rgb(72, 106, 176)
+        private val default_text_color = Color.rgb(66, 145, 241)
     }
 
     init {
-        //初始化默认属性
-        default_text_size = 18.ptFloat
-        min_size = 100.pt
-        default_text_size = 40.ptFloat
-        default_suffix_text_size = 15.ptFloat
-        default_suffix_padding = 0.ptFloat
-        default_bottom_text_size = 10.ptFloat
-        default_stroke_width = 4.ptFloat
-        //初始化配置属性
+        // 初始化配置属性
         context.withStyledAttributes(attrs, R.styleable.ArcProgress) {
             finishedStrokeColor = getColor(R.styleable.ArcProgress_arc_finished_color, default_finished_color)
             unfinishedStrokeColor = getColor(R.styleable.ArcProgress_arc_unfinished_color, default_unfinished_color)
@@ -90,7 +86,7 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
             bottomTextSize = getDimension(R.styleable.ArcProgress_arc_bottom_text_size, default_bottom_text_size)
             bottomText = getString(R.styleable.ArcProgress_arc_bottom_text).orEmpty()
         }
-        //初始化外侧及文字画笔
+        // 初始化外侧及文字画笔
         initPainters()
     }
 
@@ -100,7 +96,7 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     private fun initPainters() {
-        textPaint.setColor(textColor)
+        textPaint.color = textColor
         textPaint.textSize = textSize
         textPaint.isAntiAlias = true
         paint.color = default_unfinished_color

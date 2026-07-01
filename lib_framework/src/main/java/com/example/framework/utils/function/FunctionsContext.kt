@@ -40,8 +40,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.framework.utils.function.value.writeBundle
 import java.io.Serializable
 import java.util.WeakHashMap
 
@@ -58,35 +59,7 @@ fun Context.color(@ColorRes res: Int): Int {
  * 获取resources中的drawable
  */
 fun Context.drawable(@DrawableRes res: Int): Drawable? {
-    return ContextCompat.getDrawable(this, res)
-}
-
-/**
- * 获取资源文件id
- */
-@SuppressLint("ResourceType")
-fun Context.defTypeId(name: String, defType: String): Int {
-    return try {
-        resources.getIdentifier(name, defType, packageName)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    }
-}
-
-/**
- * 通过字符串获取drawable下的xml文件
- */
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(defTypeId(name, "drawable"))
-}
-
-
-/**
- * 通过字符串获取mipmap下的图片文件
- */
-fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(defTypeId(name, "mipmap"))
+    return ContextCompat.getDrawable(this, res)?.mutate()
 }
 
 /**
@@ -112,6 +85,15 @@ fun Context.dimen(@DimenRes res: Int): Float {
 /**
  * 获取Resources中的String
  */
+fun Context.string(@StringRes res: Int, vararg param: Int): String {
+    val args = param.toNewList { string(it) }.toTypedArray()
+    return String.format(string(res), args)
+}
+
+fun Context.string(@StringRes res: Int, vararg param: String): String {
+    return String.format(string(res), *param)
+}
+
 fun Context.string(@StringRes res: Int): String {
     return try {
         resources.getString(res)
@@ -123,6 +105,15 @@ fun Context.string(@StringRes res: Int): String {
 
 /**
  * 生成View
+ * @attachToRoot: 加载出来的布局，要不要立刻添加到 root（父容器）中
+ * 1) attachToRoot = true
+ *  把布局添加到 root 里面
+ *  返回值：root 本身
+ *  使用场景：立刻把布局加到父布局里
+ * 2) attachToRoot = false
+ *  不添加到 root 里 , 但会用 root 来计算正确的布局参数（LayoutParams）
+ *  返回值：加载的布局自己
+ *  使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
     return LayoutInflater.from(this).inflate(res, root)
@@ -130,6 +121,42 @@ fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
 
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View {
     return LayoutInflater.from(this).inflate(res, root, attachToRoot)
+}
+
+/**
+ * 获取资源文件id
+ */
+@SuppressLint("ResourceType")
+fun Context.defTypeId(name: String, defType: String): Int {
+    return try {
+        resources.getIdentifier(name, defType, packageName)
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0
+    }
+}
+
+/**
+ * 通过字符串获取drawable下的xml文件
+ */
+fun Context.defTypeDrawable(name: String): Drawable? {
+    return drawable(defTypeId(name, "drawable"))
+}
+
+/**
+ * 通过字符串获取mipmap下的图片文件
+ */
+fun Context.defTypeMipmap(name: String): Drawable? {
+    return drawable(defTypeId(name, "mipmap"))
+}
+
+/**
+ * 获取drawable下指定类型的xml文件 (LayerDrawable,BitmapDrawable,ColorDrawable,VectorDrawable等)
+ */
+inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: Int): T? {
+    this ?: return null
+    val drawable = ResourcesCompat.getDrawable(resources, res, theme)
+    return drawable as? T
 }
 
 /**
@@ -148,34 +175,43 @@ fun Context.getPrimaryClip(): String {
 }
 
 /**
+ * 安全获取 MetaData Bundle 返回 null 表示未配置或读取失败
+ */
+fun Context.getMetaData(): Bundle? {
+    return try {
+        packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  *  获取android当前可用运行内存大小(byte)
  */
 fun Context.getAvailMemory(): Long {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     val memoryInfo = ActivityManager.MemoryInfo()
-    manager?.getMemoryInfo(memoryInfo)
+    activityManager?.getMemoryInfo(memoryInfo)
     return memoryInfo.availMem
 }
 
 /**
  * 获取当前应用使用的内存大小(byte)
  */
-fun Context.sampleMemory(): Long {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    var memory = 0L
-    try {
-        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
-        if (memInfo?.size.orZero > 0) {
-            memInfo ?: return 0
-            val totalPss = memInfo[0].totalPss
-            if (totalPss >= 0) {
-                memory = totalPss.toSafeLong()
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
+fun Context.getSampleMemory(): Long {
+    return try {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()))
+        if (memInfo.isNullOrEmpty()) return 0L
+        val pssKb = memInfo[0].totalPss
+        // 异常设备可能返回负数 PSS，防御性取 0
+        if (pssKb <= 0) return 0L
+        // PSS 单位是 KB，转 Byte；用 Long 防溢出
+        pssKb.toLong() * 1024L
+    } catch (_: Exception) {
+        0L
     }
-    return memory * 1024
 }
 
 /**
@@ -281,39 +317,8 @@ fun Context?.isAccessibilityServiceEnabled(service: Class<*>): Boolean {
 }
 
 /**
- *  获取对应class类页面中intent的消息
+ *  获取对应Class类页面中Intent的消息
  */
-fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
-    val intent = Intent(this, cls)
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String? -> intent.putExtra(key, value)
-            is Bundle? -> intent.putExtra(key, value)
-            is IntArray? -> intent.putExtra(key, value)
-            is ByteArray? -> intent.putExtra(key, value)
-            is CharArray? -> intent.putExtra(key, value)
-            is LongArray? -> intent.putExtra(key, value)
-            is FloatArray? -> intent.putExtra(key, value)
-            is Parcelable? -> intent.putExtra(key, value)
-            is ShortArray? -> intent.putExtra(key, value)
-            is DoubleArray? -> intent.putExtra(key, value)
-            is BooleanArray? -> intent.putExtra(key, value)
-            is CharSequence? -> intent.putExtra(key, value)
-            is Serializable? -> intent.putExtra(key, value)
-        }
-    }
-    return intent
-}
-
 fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
     startActivity(getIntent(cls, *pairs).apply {
         if (this@startActivity is Application) {
@@ -326,59 +331,193 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
     startActivityForResult(getIntent(cls, *pairs), requestCode)
 }
 
+fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
+    val intent = Intent(this, cls)
+    val bundle = Bundle()
+    bundle.writeBundle(*pairs)
+    intent.putExtras(bundle)
+    return intent
+}
+
+fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
+    val intent = Intent()
+    val bundle = Bundle()
+    bundle.writeBundle(*pairs)
+    intent.putExtras(bundle)
+    setResult(resultCode, intent)
+    return this
+}
+
+fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
+    val bundle = Bundle()
+    bundle.writeBundle(*pairs)
+    arguments = bundle
+    return this
+}
+
+/**
+ * 判断当前页面是否有传递参数
+ */
+fun Activity.hasExtras(): Boolean {
+    return intent.extras != null
+}
+
+fun Fragment.hasArguments(): Boolean {
+    return arguments != null
+}
+
 /**
  * 页面间取值扩展
+ * 1) Intent 本身不为空，但 intent.extras 可能为 null, 没有传递参数时，extras 就是 null
+ * 2) inline：编译期把函数代码直接粘贴到调用处，省掉函数调用开销。
+ *    reified：靠 inline 帮忙，保留泛型真实类型，运行时不擦除。
  */
-fun Activity.intentString(key: String, default: String = "") = intent.getStringExtra(key) ?: default
+fun Activity.intentString(key: String, default: String = ""): String {
+    return intent.getStringExtra(key) ?: default
+}
 
-//fun Activity.intentStringNullable(key: String) = intent.getStringExtra(key)
+fun Activity.intentInt(key: String, default: Int = 0): Int {
+    return intent.getIntExtra(key, default)
+}
 
-fun Activity.intentInt(key: String, default: Int = 0) = intent.getIntExtra(key, default)
+fun Activity.intentLong(key: String, default: Long = 0L): Long {
+    return intent.getLongExtra(key, default)
+}
 
-fun Activity.intentFloat(key: String, default: Float = 0f) = intent.getFloatExtra(key, default)
+fun Activity.intentFloat(key: String, default: Float = 0f): Float {
+    return intent.getFloatExtra(key, default)
+}
 
-fun Activity.intentDouble(key: String, default: Double = 0.0) = intent.getDoubleExtra(key, default)
+fun Activity.intentDouble(key: String, default: Double = 0.0): Double {
+    return intent.getDoubleExtra(key, default)
+}
 
-fun Activity.intentBoolean(key: String, default: Boolean = false) = intent.getBooleanExtra(key, default)
+fun Activity.intentBoolean(key: String, default: Boolean = false): Boolean {
+    return intent.getBooleanExtra(key, default)
+}
 
-fun <T : Serializable> Activity.intentSerializable(key: String) = intent.getSerializableExtra(key) as? T
+fun Activity.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return intent.getStringArrayListExtra(key) ?: default
+}
 
-//fun <T : Serializable> Activity.intentSerializable(key: String, default: T) = intent.getSerializableExtra(key) as? T ?: default
+inline fun <reified T : Serializable> Activity.intentSerializable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getSerializableExtra(key, T::class.java)
+    } else {
+        intent.getSerializableExtra(key) as? T
+    }
+}
 
-fun <T : Parcelable> Activity.intentParcelable(key: String) = intent.getParcelableExtra(key) as? T
+inline fun <reified T : Serializable> Activity.intentSerializableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getSerializableExtra(name, ArrayList::class.java)
+    } else {
+        intent.getSerializableExtra(name)
+    } as? ArrayList<T>
+}
 
-fun Fragment.intentString(key: String, default: String = "") = arguments?.getString(key) ?: default
+inline fun <reified T : Parcelable> Activity.intentParcelable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getParcelableExtra(key, T::class.java)
+    } else {
+        intent.getParcelableExtra(key) as? T
+    }
+}
 
-//fun Fragment.intentStringNullable(key: String) = arguments?.getString(key)
-
-fun Fragment.intentInt(key: String, default: Int = 0) = arguments?.getInt(key, default)
-
-fun Fragment.intentFloat(key: String, default: Float = 0f) = arguments?.getFloat(key, default)
-
-fun Fragment.intentDouble(key: String, default: Double = 0.0) = arguments?.getDouble(key, default)
-
-fun Fragment.intentBoolean(key: String, default: Boolean = false) = arguments?.getBoolean(key, default)
-
-fun <T : Serializable> Fragment.intentSerializable(key: String) = arguments?.getSerializable(key) as? T
-
-//fun <T : Serializable> Fragment.intentSerializable(key: String, default: T) = arguments?.getSerializable(key) as? T ?: default
-
-fun <T : Parcelable> Fragment.intentParcelable(key: String) = arguments?.getParcelable(key) as? T
+inline fun <reified T : Parcelable> Activity.intentParcelableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        intent.getParcelableArrayListExtra(name, T::class.java)
+    } else {
+        intent.getParcelableArrayListExtra(name)
+    }
+}
 
 /**
- * 页面广播-》（Context.RECEIVER_EXPORTED 表示可以接收应用外部广播，Context.RECEIVER_NOT_EXPORTED 应用内部广播(否则安卓14报错)）
+ * Fragment 没有自己的 Intent，数据只能存在 arguments 这个 Bundle 里
+ */
+fun Fragment.intentString(key: String, default: String = ""): String {
+    return arguments?.getString(key) ?: default
+}
+
+fun Fragment.intentInt(key: String, default: Int = 0): Int {
+    return arguments?.getInt(key, default) ?: default
+}
+
+fun Fragment.intentLong(key: String, default: Long = 0L): Long {
+    return arguments?.getLong(key, default) ?: default
+}
+
+fun Fragment.intentFloat(key: String, default: Float = 0f): Float {
+    return arguments?.getFloat(key, default) ?: default
+}
+
+fun Fragment.intentDouble(key: String, default: Double = 0.0): Double {
+    return arguments?.getDouble(key, default) ?: default
+}
+
+fun Fragment.intentBoolean(key: String, default: Boolean = false): Boolean {
+    return arguments?.getBoolean(key, default) ?: default
+}
+
+fun Fragment.intentStringArrayList(key: String, default: ArrayList<String> = arrayListOf()): ArrayList<String> {
+    return arguments?.getStringArrayList(key) ?: default
+}
+
+inline fun <reified T : Serializable> Fragment.intentSerializable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getSerializable(key, T::class.java)
+    } else {
+        arguments?.getSerializable(key) as? T
+    }
+}
+
+inline fun <reified T : Serializable> Fragment.intentSerializableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getSerializable(name, ArrayList::class.java)
+    } else {
+        arguments?.getSerializable(name)
+    } as? ArrayList<T>
+}
+
+inline fun <reified T : Parcelable> Fragment.intentParcelable(key: String): T? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getParcelable(key, T::class.java)
+    } else {
+        arguments?.getParcelable(key)
+    }
+}
+
+inline fun <reified T : Parcelable> Fragment.intentParcelableArrayList(name: String): ArrayList<T>? {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        arguments?.getParcelableArrayList(name, T::class.java)
+    } else {
+        arguments?.getParcelableArrayList(name)
+    }
+}
+
+/**
+ * 页面广播
+ * 1) RECEIVER_EXPORTED 和 RECEIVER_NOT_EXPORTED 是 Android 13+ 注册广播时唯一需要选择的两个参数，没有其他常用替代值，否则报错 IllegalArgumentException
+ * 2) Context.RECEIVER_EXPORTED -> 表示可以接收应用外部广播
+ *    Context.RECEIVER_NOT_EXPORTED -> 应用内部广播
+ * 3) Android 13+ 要求显式设置 android:exported="true/false"，无默认；
+ *    Android 13- 默认 android:exported="true"（等价于 RECEIVER_EXPORTED）
+ * 4) 使用
  * mActivity.doOnReceiver(receiver, IntentFilter().apply {
- * addAction(RECEIVER_USB)
- * addAction(RECEIVER_USB_ATTACHED)
- * addAction(RECEIVER_USB_DETACHED)
+ *   addAction(RECEIVER_USB)
+ *   addAction(RECEIVER_USB_ATTACHED)
+ *   addAction(RECEIVER_USB_DETACHED)
  * })
  */
 @SuppressLint("UnspecifiedRegisterReceiverFlag")
-fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) {
+fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, intentFilter: IntentFilter, isExported: Boolean = true, end: () -> Unit = {}) {
     this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        registerReceiver(receiver, intentFilter, Context.RECEIVER_EXPORTED)
+        // 13+ 必须显式指定，二选一
+        val flag = if (isExported) Context.RECEIVER_EXPORTED else Context.RECEIVER_NOT_EXPORTED
+        registerReceiver(receiver, intentFilter, flag)
     } else {
+        // 13- 默认导出，如需不导出需在清单文件配置 android:exported="false"
         registerReceiver(receiver, intentFilter)
     }
     owner.doOnDestroy {
@@ -392,7 +531,9 @@ fun Context?.doOnReceiver(owner: LifecycleOwner?, receiver: BroadcastReceiver, i
     }
 }
 
-fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, end: () -> Unit = {}) = doOnReceiver(this, receiver, intentFilter, end)
+fun FragmentActivity?.doOnReceiver(receiver: BroadcastReceiver, intentFilter: IntentFilter, isExported: Boolean = true, end: () -> Unit = {}) {
+    doOnReceiver(this, receiver, intentFilter, isExported, end)
+}
 
 /**
  * 可在协程类里传入AppComActivity，然后init{}方法里调取，销毁内部的job

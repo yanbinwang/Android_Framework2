@@ -41,7 +41,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         timerBuilder?.stopCountDown(timerTag)
     }
 
-    fun start(tag: String? = "", second: Int = 60) {
+    fun start(tag: String? = "", millisInFuture: Int = 60) {
         if (!tag.isNullOrEmpty()) timerTag = tag
         timerBuilder?.startCountDown(timerTag, {
             disable()
@@ -49,7 +49,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         }, {
             enable()
             text = string(R.string.timerDisabled)
-        }, second.second)
+        }, millisInFuture.second)
     }
 
 }

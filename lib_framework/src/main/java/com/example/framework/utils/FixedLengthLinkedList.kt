@@ -4,71 +4,95 @@ import java.util.ArrayDeque
 import java.util.Deque
 
 /**
- * LinkedList类提供了一个可以动态调整长度的列表。
- * 1.如果你想要一个固定长度的列表，你可以使用ArrayDeque，它是LinkedList的固定长度版本，并且在大多数操作上具有更好的性能。
- * 2.在添加元素时，如果列表已满，则会从相应的末尾移除元素以保持固定长度。
+ * 基于ArrayDeque封装的线程安全定长双端队列
+ * 内部底层使用 ArrayDeque，读写性能优于 LinkedList
+ * 添加元素达到最大容量时，自动淘汰对应一端旧数据，维持固定长度
  */
-class FixedLengthLinkedList<T>(private val maxSize: Int = 0) {
-    private val deque: Deque<T> by lazy { ArrayDeque(maxSize) }
-    private val LOCK = Any()
+class FixedLengthLinkedList<T>(maxSize: Int = 10) {
+    // 自动容错：非法值 <=0 自动转为 10
+    private val maxSize = maxSize.coerceAtLeast(10)
+    // 安全锁
+    private val lock = Any()
+    // ArrayDeque 初始化极轻，无需预分配容量，内部自动扩容
+    private val deque: Deque<T> = ArrayDeque()
+
 
     /**
-     * 首位添加
+     * 头部添加元素
+     * 容量超出maxSize时，自动移除尾部最旧元素
      */
     fun addFirst(element: T) {
-        synchronized(LOCK) {
-            if (deque.size >= maxSize) {
-                deque.removeLast()
-            }
+        synchronized(lock) {
+            if (deque.size >= maxSize) deque.removeLast()
             deque.addFirst(element)
         }
     }
 
     /**
-     * 结尾添加
+     * 尾部添加元素
+     * 容量超出maxSize时，自动移除头部最旧元素
      */
     fun addLast(element: T) {
-        synchronized(LOCK) {
-            if (deque.size >= maxSize) {
-                deque.removeFirst()
-            }
+        synchronized(lock) {
+            if (deque.size >= maxSize) deque.removeFirst()
             deque.addLast(element)
         }
     }
 
     /**
-     * 首位删除
+     * 查看头部元素，不移除，空返回null
      */
-    fun removeFirst(): T? {
-        return synchronized(LOCK) {
-            try {
-                deque.removeFirst()
-            } catch (e: NoSuchElementException) {
-                null
-            }
-        }
+    fun peekFirstOrNull(): T? {
+        return synchronized(lock) { deque.peekFirst() }
     }
 
     /**
-     * 底部增加
+     * 查看尾部元素，不移除，空返回null
      */
-    fun removeLast(): T? {
-        return synchronized(LOCK) {
-            try {
-                deque.removeLast()
-            } catch (e: NoSuchElementException) {
-                null
-            }
-        }
+    fun peekLastOrNull(): T? {
+        return synchronized(lock) { deque.peekLast() }
     }
 
     /**
-     * 获取当前集合
+     * 移除头部，空返回null
+     */
+    fun removeFirstOrNull(): T? {
+        return synchronized(lock) { deque.pollFirst() }
+    }
+
+    /**
+     * 移除尾部，空返回null
+     */
+    fun removeLastOrNull(): T? {
+        return synchronized(lock) { deque.pollLast() }
+    }
+
+    /**
+     * 清空列表
+     */
+    fun clear() {
+        synchronized(lock) { deque.clear() }
+    }
+
+    /**
+     * 列表是否为空
+     */
+    fun isEmpty(): Boolean {
+        return synchronized(lock) { deque.isEmpty() }
+    }
+
+    /**
+     * 列表长度
+     */
+    fun getSize(): Int {
+        return synchronized(lock) { deque.size }
+    }
+
+    /**
+     * 线程安全的只读列表
      */
     fun getReadOnlyList(): List<T> {
-        return synchronized(LOCK) {
-            deque.toList()
-        }
+        return synchronized(lock) { deque.toList() }
     }
 
 }

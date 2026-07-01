@@ -6,14 +6,17 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Paint
+import android.graphics.Typeface
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.GradientDrawable
 import android.graphics.drawable.LayerDrawable
+import android.graphics.drawable.StateListDrawable
 import android.os.Build
+import android.os.SystemClock
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.view.Gravity
-import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -36,25 +39,34 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.AnimRes
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
+import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.content.ContextCompat
+import androidx.core.animation.doOnEnd
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import com.example.framework.utils.function.color
+import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.font
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.logE
@@ -69,9 +81,9 @@ import kotlin.math.abs
  * 防止重复点击
  * 默认500ms
  */
-fun View?.click(time: Long = 500L, click: (v: View) -> Unit) {
+fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
     if (this == null) return
-    this.setOnClickListener(object : OnMultiClickListener(time, click) {})
+    this.setOnClickListener(object : OnMultiClickListener(timeMS, click) {})
 }
 
 /**
@@ -85,8 +97,8 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
+fun ((View) -> Unit).clicks(vararg v: View?, timeMS: Long = 500L) {
+    val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
@@ -96,8 +108,8 @@ fun ((View) -> Unit).clicks(vararg v: View?, time: Long = 500L) {
     }
 }
 
-fun View.OnClickListener.clicks(vararg v: View?, time: Long = 500L) {
-    val listener = object : OnMultiClickListener(time) {
+fun View.OnClickListener.clicks(vararg v: View?, timeMS: Long = 500L) {
+    val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks.onClick(v)
         }
@@ -204,22 +216,85 @@ fun View?.clearBackground() {
 }
 
 /**
+ * 给 View 设置带圆角、按下、禁用状态的背景
+ * @normalColor 正常颜色
+ * @pressedColor 按下颜色
+ * @disabledColor 禁用颜色
+ * @radius 圆角半径
+ */
+fun View?.selectorRoundBackground(@ColorInt normalColor: Int, @ColorInt pressedColor: Int, @ColorInt disabledColor: Int, radius: Float) {
+    if (this == null) return
+    // 正常状态背景
+    val normalDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(normalColor)
+        cornerRadius = radius
+    }
+    // 按下状态背景
+    val pressedDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(pressedColor)
+        cornerRadius = radius
+    }
+    // 禁用状态背景
+    val disabledDrawable = GradientDrawable().apply {
+        shape = GradientDrawable.RECTANGLE
+        setColor(disabledColor)
+        cornerRadius = radius
+    }
+    // 状态选择器（StateListDrawable）
+    val stateListDrawable = StateListDrawable()
+    // 添加状态：优先级 禁用 > 按下 > 正常
+    stateListDrawable.addState(intArrayOf(-android.R.attr.state_enabled), disabledDrawable)
+    stateListDrawable.addState(intArrayOf(android.R.attr.state_pressed), pressedDrawable)
+    stateListDrawable.addState(intArrayOf(), normalDrawable)
+    // 设置给 View
+    this.background = stateListDrawable
+}
+
+/**
  * 设置margin，单位px
+ * marginStart/marginEnd 是系统提供的「相对布局属性」，在 LTR/RTL 布局下，系统会自动映射到 leftMargin/rightMargin，无需手动赋值同步
  */
 fun View?.margin(start: Int? = null, top: Int? = null, end: Int? = null, bottom: Int? = null) {
     if (this == null) return
     val lp = layoutParams as? ViewGroup.MarginLayoutParams ?: return
     start?.let {
         lp.marginStart = it
-        lp.leftMargin = it
     }
-    top?.let { lp.topMargin = it }
+    top?.let {
+        lp.topMargin = it
+    }
     end?.let {
         lp.marginEnd = it
-        lp.rightMargin = it
     }
-    bottom?.let { lp.bottomMargin = it }
+    bottom?.let {
+        lp.bottomMargin = it
+    }
     layoutParams = lp
+}
+
+fun View?.marginAll(margin: Int) {
+    if (this == null) return
+    margin(margin, margin, margin, margin)
+}
+
+/**
+ * 获取View的Margin，以默认左上右下（LTRB）的形式返回 IntArray，单位px
+ * 1) 优先返回 marginStart/marginEnd（兼容 XML 设置的横向Margin）
+ * 2) 纵向返回 marginTop/marginBottom，不受布局方向影响
+ */
+fun View?.marginLtrb(): IntArray {
+    if (this == null) return intArrayOf(0, 0, 0, 0)
+    // 获取MarginLayoutParams，获取失败则返回全0
+    val layoutParams = this.layoutParams as? ViewGroup.MarginLayoutParams ?: return intArrayOf(0, 0, 0, 0)
+    // 优先使用 marginStart/marginEnd，兜底 marginLeft/marginRight
+    val resolvedStart = layoutParams.marginStart
+    val resolvedEnd = layoutParams.marginEnd
+    val resolvedTop = layoutParams.topMargin
+    val resolvedBottom = layoutParams.bottomMargin
+    // 严格对齐「左上右下」顺序返回
+    return intArrayOf(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
 }
 
 /**
@@ -230,12 +305,26 @@ fun View?.padding(start: Int? = null, top: Int? = null, end: Int? = null, bottom
     setPaddingRelative(start ?: paddingStart, top ?: paddingTop, end ?: paddingEnd, bottom ?: paddingBottom)
 }
 
-/**
- * 设置padding，单位px
- */
 fun View?.paddingAll(padding: Int) {
     if (this == null) return
     setPaddingRelative(padding, padding, padding, padding)
+}
+
+/**
+ * 获取view的padding,以默认左上右下的形式返回
+ * 1) XML中设置paddingHorizontal -> 代码中能取到值 paddingStart 和 paddingEnd
+ * 2) XML中设置paddingVertical -> 代码中取到值 paddingTop 和 paddingBottom
+ */
+fun View?.paddingLtrb(): IntArray {
+    if (this == null) return intArrayOf(0, 0, 0, 0)
+    // 先判断是否启用相对内边距，再决定取值优先级
+    val resolvedStart = if (isPaddingRelative) paddingStart else paddingLeft
+    val resolvedEnd = if (isPaddingRelative) paddingEnd else paddingRight
+    // 纵向取值保持不变，不受布局方向和相对内边距影响
+    val resolvedTop = paddingTop
+    val resolvedBottom = paddingBottom
+    // 严格对齐「左上右下」
+    return intArrayOf(resolvedStart, resolvedTop, resolvedEnd, resolvedBottom)
 }
 
 /**
@@ -406,8 +495,8 @@ fun View?.getLifecycleOwner(): LifecycleOwner? {
 
 /**
  * 获取视图在屏幕上的顶部位置距离屏幕顶部的长度
- * location[0] 会被赋值为视图左上角的 x 坐标（水平位置）
- * location[1] 会被赋值为视图左上角的 y 坐标（垂直位置）
+ * 1) location[0] 会被赋值为视图左上角的 x 坐标（水平位置）
+ * 2) location[1] 会被赋值为视图左上角的 y 坐标（垂直位置）
  */
 fun View?.getScreenLocation(): IntArray {
     this ?: return intArrayOf(0, 0)
@@ -451,12 +540,37 @@ fun View?.vibrate(milliseconds: Long) {
 }
 
 /**
- * 动画隐藏view
+ * 透明度
+ * @param fromAlpha 0f-1f
+ * @param to 0f-1f
  */
-fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.alpha(fromAlpha: Float, toAlpha: Float, timeMS: Long, block: () -> Unit = {}) {
     if (this == null) return
-    if (!this.isVisible) return
-    if (time <= 0) {
+    cancelAnim()
+    val anim = AlphaAnimation(fromAlpha, toAlpha)
+    // 最终是不透明的,执行前保证显示
+    if (toAlpha == 1f) visible()
+    anim.fillAfter = false
+    anim.duration = timeMS
+    anim.interpolator = AccelerateInterpolator()
+    anim.doOnEnd {
+        if (toAlpha == 0f) {
+            gone()
+        } else {
+            visible()
+        }
+        block.invoke()
+    }
+    startAnimation(anim)
+}
+
+/**
+ * 动画隐藏View (动画完成后透明度回滚显示)
+ */
+fun View?.fade(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
+    if (this == null) return
+    if (!isVisible) return
+    if (timeMS <= 0) {
         gone()
         return
     }
@@ -468,54 +582,27 @@ fun View?.fade(time: Long = 500, cancelAnim: Boolean = true) {
         }
     }
     val anim = AlphaAnimation(1f, 0f)
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = time // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            gone()
-        }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
-    startAnimation(anim)
-}
-
-/**
- * 透明度
- * @param from 0f-1f
- * @param to 0f-1f
- */
-fun View?.alpha(from: Float, to: Float, timeMS: Long, endListener: (() -> Unit)? = null) {
-    this ?: return
-    animation?.setAnimationListener(null)
-    animation?.cancel()
-    val anim = AlphaAnimation(from, to)
-    if (to == 1f) visible()
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            endListener?.invoke() ?: if (to == 0f) {
-                gone()
-            } else {
-                visible()
-            }
-        }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
+    // 设置保持动画最后的状态 (回滚1f不做透明)
+    anim.fillAfter = false
+    // 设置动画时间
+    anim.duration = timeMS
+    // 设置插入器
+    anim.interpolator = AccelerateInterpolator()
+    // 设置监听
+    anim.doOnEnd {
+        gone()
+        block.invoke()
+    }
     startAnimation(anim)
 }
 
 /**
  * 动画显示view
  */
-fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.appear(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
     if (this == null) return
-    if (this.isVisible) return
-    if (time <= 0) {
+    if (isVisible) return
+    if (timeMS <= 0) {
         visible()
         return
     }
@@ -528,42 +615,20 @@ fun View?.appear(time: Long = 500, cancelAnim: Boolean = true) {
     }
     visible()
     val anim = AlphaAnimation(0f, 1f)
-    anim.fillAfter = false // 设置保持动画最后的状态
-    anim.duration = time // 设置动画时间
-    anim.interpolator = AccelerateInterpolator() // 设置插入器3
-    anim.setAnimationListener(object : Animation.AnimationListener {
-        override fun onAnimationEnd(animation: Animation?) {
-            visible()
-        }
-        override fun onAnimationStart(animation: Animation?) {}
-        override fun onAnimationRepeat(animation: Animation?) {}
-    })
-    startAnimation(anim)
-}
-
-/**
- * 展开页面按钮的动画，传入是否是展开状态
- */
-fun View?.rotate(default: Boolean = true): Boolean {
-    if (this == null) return false
-    if (animation != null) {
-        if (animation.hasStarted() && !animation.hasEnded()) return false
+    anim.fillAfter = false
+    anim.duration = timeMS
+    anim.interpolator = AccelerateInterpolator()
+    anim.doOnEnd {
+        visible()
+        block.invoke()
     }
-    val isRotate = tag as? Boolean ?: default
-    val startRot = if (isRotate) 180f else 0f
-    val endRot = if (isRotate) 0f else 180f
-    tag = !isRotate
-    val anim = AnimatorSet()
-    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startRot, endRot))
-    anim.duration = 500
-    anim.start()
-    return isRotate
+    startAnimation(anim)
 }
 
 /**
  * 旋轉
  */
-fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
+fun View?.rotate(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> Unit = {}) {
     if (this == null) return
     if (cancelAnim) {
         cancelAnim()
@@ -574,8 +639,30 @@ fun View?.rotate(time: Long = 500, cancelAnim: Boolean = true) {
     }
     val anim = AnimatorSet()
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
-    anim.duration = time
+    anim.duration = timeMS
+    anim.doOnEnd {
+        block.invoke()
+    }
     anim.start()
+}
+
+/**
+ * 展开页面按钮的动画，传入是否是展开状态
+ */
+fun View?.rotate(defaultState: Boolean = true): Boolean {
+    if (this == null) return false
+    if (animation != null) {
+        if (animation.hasStarted() && !animation.hasEnded()) return false
+    }
+    val currentRotated = tag as? Boolean ?: defaultState
+    val startDegree = if (currentRotated) 180f else 0f
+    val endDegree = if (currentRotated) 0f else 180f
+    tag = !currentRotated
+    val anim = AnimatorSet()
+    anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", startDegree, endDegree))
+    anim.duration = 500
+    anim.start()
+    return currentRotated
 }
 
 /**
@@ -585,10 +672,10 @@ fun View?.rotate(from: Float, to: Float, timeMS: Long, interpolator: Interpolato
     this ?: return
     animation?.cancel()
     val anim = RotateAnimation(from, to, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-    anim.fillAfter = true // 设置保持动画最后的状态
-    anim.duration = timeMS // 设置动画时间3
+    anim.fillAfter = true
+    anim.duration = timeMS
     if (repeat) anim.repeatCount = -1
-    anim.interpolator = interpolator // 设置插入器
+    anim.interpolator = interpolator
     startAnimation(anim)
 }
 
@@ -601,20 +688,14 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
     animation?.setAnimationListener(null)
     animation?.cancel()
     val anim = TranslateAnimation(type, xFrom, type, xTo, type, yFrom, type, yTo)
-    if (fillAfter) anim.fillAfter = true //设置保持动画最后的状态
-    anim.duration = timeMS //设置动画时间
-    anim.interpolator = interpolator //设置插入器
-    if (onEnd != null || onStart != null) {
-        anim.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationEnd(animation: Animation?) {
-                onEnd?.invoke()
-            }
-            override fun onAnimationStart(animation: Animation?) {
-                onStart?.invoke()
-            }
-            override fun onAnimationRepeat(animation: Animation?) {}
-        })
-    }
+    if (fillAfter) anim.fillAfter = true
+    anim.duration = timeMS
+    anim.interpolator = interpolator
+    anim.addListener(onEnd = {
+        onEnd?.invoke()
+    }, onStart = {
+        onStart?.invoke()
+    })
     startAnimation(anim)
 }
 
@@ -652,29 +733,17 @@ fun View?.loopAnimation(anim: Animation) {
             repeatCount = Animation.INFINITE
         }
         startAnimation(anim)
-        animation?.setAnimationListener(object : Animation.AnimationListener {
-            override fun onAnimationStart(animation: Animation?) {
-            }
-
-            override fun onAnimationEnd(animation: Animation?) {
-                startAnimation(anim)
-            }
-
-            override fun onAnimationRepeat(animation: Animation?) {
-            }
-        })
+        animation.doOnEnd {
+            startAnimation(anim)
+        }
     } catch (e: Exception) {
         e.logE
     }
 }
 
-/**
- * 动画循环
- */
-fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
+fun View?.loopAnimation(@AnimRes animRes: Int) {
     this ?: return
-    ctx ?: return
-    val anim = AnimationUtils.loadAnimation(ctx, animRes)
+    val anim = AnimationUtils.loadAnimation(context, animRes)
     loopAnimation(anim)
 }
 
@@ -684,7 +753,8 @@ fun View?.loopAnimation(ctx: Context?, @AnimRes animRes: Int) {
 fun View?.startAnimation(@AnimRes animRes: Int) {
     this ?: return
     val anim = AnimationUtils.loadAnimation(context, animRes)
-    clearAnimation()// 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
+    // 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
+    clearAnimation()
     startAnimation(anim)
 }
 
@@ -694,8 +764,10 @@ fun View?.startAnimation(@AnimRes animRes: Int) {
 fun View?.cancelAnimation() {
     this ?: return
     try {
-        animation?.setAnimationListener(null)// 仅移除监听器，动画继续
-        animation?.cancel()// 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
+        // 仅移除监听器，动画继续
+        animation?.setAnimationListener(null)
+        // 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
+        animation?.cancel()
     } catch (e: Exception) {
         e.logE
     }
@@ -722,26 +794,16 @@ fun View?.stopHardwareAccelerate() {
  */
 fun View?.focus() {
     if (this == null) return
-    isFocusable = true //设置输入框可聚集
-    isFocusableInTouchMode = true //设置触摸聚焦
-    requestFocus() //请求焦点
-    findFocus() //获取焦点
+    // 设置输入框可聚集
+    isFocusable = true
+    // 设置触摸聚焦
+    isFocusableInTouchMode = true
+    // 请求焦点
+    requestFocus()
+    // 获取焦点
+    findFocus()
 }
 
-///**
-// * 控件获取默认值
-// * trim { it <= ' ' }//避免某些特殊空格字符的被切除掉
-// */
-//fun View?.text(): String {
-//    return when (this) {
-//        is EditText -> text.toString().trim { it <= ' ' }
-//        is TextView -> text.toString().trim { it <= ' ' }
-//        is CheckBox -> text.toString().trim { it <= ' ' }
-//        is RadioButton -> text.toString().trim { it <= ' ' }
-//        is Button -> text.toString().trim { it <= ' ' }
-//        else -> ""
-//    }
-//}
 /**
  * 获取View的文本内容并进行自定义trim处理
  * @param trimPredicate 自定义trim规则，默认移除所有Unicode空白字符
@@ -764,13 +826,61 @@ fun View?.text(trimPredicate: (Char) -> Boolean = { it.isWhitespace() }, default
 }
 
 /**
+ * 反射获取 View 的 OnClickListener
+ */
+@SuppressLint("PrivateApi")
+fun View?.clickListener(): View.OnClickListener? {
+    return try {
+        val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
+        listenerInfoField.isAccessible = true
+        val listenerInfo = listenerInfoField.get(this)
+        val onClickField = listenerInfo.javaClass.getDeclaredField("mOnClickListener")
+        onClickField.isAccessible = true
+        onClickField.get(listenerInfo) as? View.OnClickListener
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 反射获取 View 的 OnLongClickListener
+ */
+@SuppressLint("PrivateApi")
+fun View?.longClickListener(): View.OnLongClickListener? {
+    return try {
+        val listenerInfoField = View::class.java.getDeclaredField("mListenerInfo")
+        listenerInfoField.isAccessible = true
+        val listenerInfo = listenerInfoField.get(this)
+        val longClickField = listenerInfo.javaClass.getDeclaredField("mOnLongClickListener")
+        longClickField.isAccessible = true
+        longClickField.get(listenerInfo) as? View.OnLongClickListener
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
  * header的onDragListener中关闭refresh的刷新前，先调用取消的action，告知系统手势离开屏幕，然后再关闭
  * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
  */
 fun ViewGroup?.actionCancel() {
     if (this == null) return
-    dispatchTouchEvent(MotionEvent.obtain(System.currentTimeMillis(), System.currentTimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0))
+    // 构造 ACTION_CANCEL 事件（必须回收，避免内存泄漏）
+    val cancelEvent = MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0f, 0f, 0)
+    // 分发取消事件（加try-catch避免极端场景崩溃）
+    try {
+        dispatchTouchEvent(cancelEvent)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    } finally {
+        // 无论是否异常，都回收事件
+        cancelEvent.recycle()
+    }
+//    // 清空 ItemTouchHelper 的选中状态（兜底）
+//    (itemTouchHelper as? YourItemTouchHelper)?.select(null, YourItemTouchHelper.ACTION_STATE_IDLE)
 }
 
 /**
@@ -786,17 +896,45 @@ fun ViewGroup?.foreachChild(loop: (View) -> Unit) {
 /**
  * 获取resources中的color
  */
-fun ViewGroup.color(@ColorRes res: Int) = ContextCompat.getColor(context, res)
+fun ViewGroup.color(@ColorRes res: Int): Int {
+    return context.color(res)
+}
 
 /**
  * 获取resources中的drawable
  */
-fun ViewGroup.drawable(@DrawableRes res: Int) = ContextCompat.getDrawable(context, res)
+fun ViewGroup.drawable(@DrawableRes res: Int): Drawable? {
+    return context.drawable(res)
+}
+
+/**
+ * 获取Resources中的font
+ */
+fun ViewGroup.font(@FontRes res: Int): Typeface? {
+    return context.font(res)
+}
+
+/**
+ * 获取Resources中的Dimes
+ */
+fun ViewGroup.dimen(@DimenRes res: Int): Float {
+    return context.dimen(res)
+}
 
 /**
  * 获取Resources中的String
  */
-fun ViewGroup.string(@StringRes res: Int) = context.string(res)
+fun ViewGroup.string(@StringRes res: Int, vararg param: Int): String {
+    return context.string(res, *param)
+}
+
+fun ViewGroup.string(@StringRes res: Int, vararg param: String): String {
+    return context.string(res, *param)
+}
+
+fun ViewGroup.string(@StringRes res: Int): String {
+    return context.string(res)
+}
 
 /**
  * 传入上下文获取绘制的item
@@ -808,13 +946,15 @@ fun ViewGroup.string(@StringRes res: Int) = context.string(res)
  *  view.size(MATCH_PARENT, WRAP_CONTENT)
  *  }
  */
-fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean) = LayoutInflater.from(context).inflate(res, this, attachToRoot)
+fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
+    return context.inflate(res, this, attachToRoot)
+}
 
 /**
  * 防止多次点击, 至少要500毫秒的间隔
  */
-abstract class OnMultiClickListener(private val time: Long = 500, var click: (v: View) -> Unit = {}) : View.OnClickListener {
-    private var lastClickTime: Long = 0
+abstract class OnMultiClickListener(private val timeMS: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+    private var lastClickTime: Long = 0L
 
     open fun onMultiClick(v: View) {
         click(v)
@@ -824,7 +964,7 @@ abstract class OnMultiClickListener(private val time: Long = 500, var click: (v:
     override fun onClick(v: View) {
         val currentTimeNano = System.nanoTime() / 1000000L
         // 超过点击间隔后再将lastClickTime重置为当前点击时间
-        if (currentTimeNano - lastClickTime >= time) {
+        if (currentTimeNano - lastClickTime >= timeMS) {
             lastClickTime = currentTimeNano
             onMultiClick(v)
         }
@@ -840,22 +980,22 @@ fun ImageView?.tint(@ColorRes res: Int) {
 }
 
 /**
- * 如果一个图片是在LayerDrawable内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
+ * 如果一个图片是在 LayerDrawable 内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
  */
-fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int): IntArray {
-    this ?: return intArrayOf(0, 0)
-    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable
-    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
-    val dimensions = bitmapDrawable?.let {
-        intArrayOf(it.intrinsicWidth, it.intrinsicHeight)
-    } ?: intArrayOf(0, 0)
-    size(dimensions[0], dimensions[1])
-    return intArrayOf(
-        layerDrawable?.getLayerInsetStart(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetTop(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetEnd(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetBottom(targetItemIndex).orZero
-    )
+fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) {
+    this ?: return
+    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable ?: return
+    val bitmapDrawable = layerDrawable.getDrawable(targetItemIndex) as? BitmapDrawable
+    // 提取目标图层的原始尺寸
+    val width = bitmapDrawable?.intrinsicWidth.orZero
+    val height = bitmapDrawable?.intrinsicHeight.orZero
+    size(width, height)
+    // 提取目标图层的 inset 作为外边距
+    val marginStart = layerDrawable.getLayerInsetStart(targetItemIndex)
+    val marginTop = layerDrawable.getLayerInsetTop(targetItemIndex)
+    val marginEnd = layerDrawable.getLayerInsetEnd(targetItemIndex)
+    val marginBottom = layerDrawable.getLayerInsetBottom(targetItemIndex)
+    margin(marginStart, marginTop, marginEnd, marginBottom)
 }
 
 /**
@@ -863,15 +1003,17 @@ fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int):
  * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
  * 设置setImageDrawable(null)
  */
-fun ImageView?.setDrawable(resId: Drawable?) {
+fun ImageView?.setDrawable(drawable: Drawable?) {
     this ?: return
-    setImageDrawable(resId)
+    setImageDrawable(drawable)
 }
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
-    //‌调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
-    //-1则会闪退报错
+    /**
+     * 调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+     * -1则会闪退报错
+     */
     setImageResource(resId)
 }
 
@@ -885,13 +1027,18 @@ fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
 }
 
 /**
- * 设置一个新的bitmap
+ * 用于存储每个 ImageView 的订阅状态
+ * 只要ImageView 被销毁 / 页面被销毁 / 没有任何地方强引用它 那么 GC 一来，WeakHashMap 就会把这条记录自动删掉
  */
-// 用于存储每个 ImageView 的订阅状态
 private val subscriptionMap by lazy { WeakHashMap<ImageView, AtomicBoolean>() }
 
+/**
+ * 设置一个新的bitmap
+ */
 fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
     if (this == null || bit == null) return
+    // 主动清理一次无效条目（GC 未及时回收的 / 实时干净，无残留）
+    subscriptionMap.entries.removeAll { !it.key.isAttachedToWindow }
     // 优先使用传入的 observer，否则自动获取当前 View 所在的 LifecycleOwner
     val targetObserver = observer ?: getLifecycleOwner()
     // 检查 Lifecycle 是否已销毁（避免给销毁的页面设置 Bitmap）
@@ -919,7 +1066,7 @@ fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
             subscriptionMap.remove(this)
         }
     }
-    // 设置新 Bitmap
+    // 设置新 Bitmap -> 等价于 setImageDrawable(BitmapDrawable(resources, bitmap))
     setImageBitmap(bit)
 }
 
@@ -942,8 +1089,11 @@ fun ImageView?.safeRecycle() {
  */
 fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
     this ?: return
-    setGroupIndicator(null)//去除右侧箭头
-    setOnGroupClickListener { _, _, _, _ -> true }//使列表不能点击收缩
+    // 去除右侧箭头
+    setGroupIndicator(null)
+    // 使列表不能点击收缩
+    setOnGroupClickListener { _, _, _, _ -> true }
+    // 设置折叠适配器
     setAdapter(adapter)
 }
 
@@ -969,42 +1119,176 @@ fun CardView?.init(cornerRadius: Float = 0f) {
 }
 
 /**
- * appbar监听
+ * 给 NestedScrollView 添加滚动透明度监听
+ * 滚动距离在 0 ~ menuHeight 之间时，alpha 从 0 平滑过渡到 1
+ * 滚动超过 menuHeight，alpha 固定为 1
+ * @param menuHeight 透明度渐变的总高度（阈值） -> 对应控件的高度
+ * @param func 透明度回调
  */
-fun AppBarLayout?.stateChanged(func: (state: AppBarStateChangeListener.State?) -> Unit?) {
+fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
+    // 空安全：如果 NestedScrollView 为 null，直接返回
     this ?: return
-    addOnOffsetChangedListener(object : AppBarStateChangeListener() {
-        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State?) {
-            func.invoke(state)
+    // 设置滚动监听
+    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+        // 防御性判断：防止高度为 0 导致除零异常
+        if (menuHeight <= 0) {
+            func(0f)
+            return@OnScrollChangeListener
         }
+        // 滚动距离 / 渐变高度 → 得到 0~1 的透明度
+        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
+        // 把计算好的透明度回调出去
+        func(alpha)
     })
 }
 
 /**
- * appbar是否显示折叠的监听，用于解决刷新套广告套控件卡顿的问题，需要注意绘制时，底部如果不使用
- * NestedScrollView或者viewpager2等带有滑动事件传递的控件，会造成只有顶部套的部分可以滑动
+ * 切换抽屉开关状态 (覆盖在界面上)
+ * 篩選欄的操作/禁止右侧主动滑出
+ * setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
  */
-abstract class AppBarStateChangeListener : AppBarLayout.OnOffsetChangedListener {
-    enum class State {
-        EXPANDED, COLLAPSED, IDLE//展开，折叠，中间
+fun DrawerLayout?.toggleDrawer(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    if (isDrawerOpen(gravity)) {
+        closeDrawer(gravity)
+    } else {
+        openDrawer(gravity)
+    }
+    return true
+}
+
+/**
+ * 抽屉是否打开
+ */
+fun DrawerLayout?.isDrawerOpened(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    return isDrawerOpen(gravity)
+}
+
+/**
+ * 按下返回键时处理抽屉逻辑
+ * @param gravity 抽屉方向
+ * @return true:已处理拦截返回键 false:未处理交给系统
+ */
+fun DrawerLayout?.handleBackPressed(gravity: Int = GravityCompat.START): Boolean {
+    this ?: return false
+    if (isDrawerOpened(gravity)) {
+        closeDrawer(gravity)
+        return true
+    }
+    return false
+}
+
+/**
+ * AppBarLayout 垂直滑动距离监听
+ */
+fun AppBarLayout?.setOnOffsetChangedListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (verticalOffset: Int) -> Unit = {}) {
+    this ?: return
+    val listener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+        func.invoke(verticalOffset)
+    }
+    addOnOffsetChangedListener(listener)
+    owner.doOnDestroy {
+        removeOnOffsetChangedListener(listener)
+    }
+}
+
+/**
+ * AppBarLayout 状态监听
+ * @Volatile
+ * private var appBarState = AppBarLayoutStateChangeListener.State.EXPANDED
+ * mBinding?.alHeader.stateChanged {
+ *    appBarState = it
+ * }
+ * // 获取一下当前列表处于什么状态
+ * when (appBarState) {
+ *     // 折叠状态 -> 根据底部列表值做特殊处理
+ *     AppBarLayoutStateChangeListener.State.COLLAPSED -> {
+ *         // 当列表为空（adapter.size ≤ 0）时，开启嵌套滚动（让用户滑动空白区域也能触发 AppBar 折叠 / 展开）
+ *         val childCount = mBinding?.adapter?.size().orZero
+ *         if (childCount <= 0) {
+ *             mBinding?.xrvList?.isNestedScrollingEnabled = true
+ *             mBinding?.xrvList?.refresh.disable()
+ *             mBinding?.refresh.enable()
+ *         } else {
+ *             mBinding?.xrvList?.isNestedScrollingEnabled = false
+ *             mBinding?.xrvList?.refresh.enable()
+ *             mBinding?.refresh.disable()
+ *         }
+ *     }
+ */
+fun AppBarLayout?.setOnStateChangedListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (state: AppBarLayoutStateChangeListener.State) -> Unit = {}) {
+    this ?: return
+    val listener = object : AppBarLayoutStateChangeListener() {
+        override fun onStateChanged(appBarLayout: AppBarLayout?, state: State) {
+            func.invoke(state)
+        }
+    }
+    addOnOffsetChangedListener(listener)
+    owner.doOnDestroy {
+        removeOnOffsetChangedListener(listener)
+    }
+}
+
+/**
+ * AppBarLayout是否显示折叠的监听,捕获其状态(系统并未提供)
+ */
+abstract class AppBarLayoutStateChangeListener : AppBarLayout.OnOffsetChangedListener {
+    // 默认状态 -> 展开
+    private var mCurrentState = State.EXPANDED
+
+    // 默认配置 (静态)
+    companion object {
+        // 基础像素容差（兜底最小值）
+        private const val BASE_TOLERANCE_PX = 5
+        // 动态容差比例（总滚动范围的5%，适配不同高度的AppBar）
+        private const val DYNAMIC_TOLERANCE_RATIO = 0.05f
+        // 状态锁定阈值：折叠/展开状态下，偏移变化小于该值不切换状态（防止抖动）
+        private const val STATE_LOCK_THRESHOLD = 0.02f
     }
 
-    private var mCurrentState = State.IDLE
+    // 状态枚举类
+    enum class State {
+        // 展开，折叠，中间
+        EXPANDED, COLLAPSED, IDLE
+    }
 
     override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
-        mCurrentState = if (verticalOffset == 0) {
-            if (mCurrentState != State.EXPANDED) onStateChanged(appBarLayout, State.EXPANDED)
-            State.EXPANDED
-        } else if (abs(verticalOffset) >= appBarLayout?.totalScrollRange.orZero) {
-            if (mCurrentState != State.COLLAPSED) onStateChanged(appBarLayout, State.COLLAPSED)
-            State.COLLAPSED
-        } else {
-            if (mCurrentState != State.IDLE) onStateChanged(appBarLayout, State.IDLE)
-            State.IDLE
+        // 布局未完成直接返回
+        val totalScrollRange = appBarLayout?.totalScrollRange ?: 0
+        // 判空避免后续计算出错
+        if (totalScrollRange == 0) return
+        // 动态容差：总滚动范围的5%（比如总高度1000px，容差50px）
+        val dynamicTolerance = (totalScrollRange * DYNAMIC_TOLERANCE_RATIO).toInt()
+        // 最终容差：取动态容差和基础像素容差的最大值（保底）
+        val finalTolerance = maxOf(BASE_TOLERANCE_PX, dynamicTolerance)
+        // 计算当前偏移占总范围的比例（0=展开，1=折叠）
+        val offsetRatio = abs(verticalOffset).toFloat() / totalScrollRange
+        // 折叠/展开状态下，偏移比例变化小于2% → 不切换状态（锁定）
+        val isStateLocked = when (mCurrentState) {
+            State.EXPANDED -> offsetRatio < STATE_LOCK_THRESHOLD
+            State.COLLAPSED -> (1 - offsetRatio) < STATE_LOCK_THRESHOLD
+            // 中间状态不锁定
+            State.IDLE -> false
+        }
+        // 锁定状态下，直接忽略本次偏移
+        if (isStateLocked) return
+        val newState = when {
+            // 展开判断：偏移量 ≤ 最终容差（基础+动态双保底）
+            abs(verticalOffset) <= finalTolerance -> State.EXPANDED
+            // 折叠判断：偏移量 ≥ 总范围 - 最终容差（双重保底，避免漏判）
+            abs(verticalOffset) >= (totalScrollRange - finalTolerance) -> State.COLLAPSED
+            // 中间状态
+            else -> State.IDLE
+        }
+        // 只有状态真正变化时才回调（避免重复）
+        if (newState != mCurrentState) {
+            mCurrentState = newState
+            onStateChanged(appBarLayout, newState)
         }
     }
 
-    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State?)
+    abstract fun onStateChanged(appBarLayout: AppBarLayout?, state: State)
 
 }
 

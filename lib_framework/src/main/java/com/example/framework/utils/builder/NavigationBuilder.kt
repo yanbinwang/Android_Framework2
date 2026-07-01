@@ -10,12 +10,12 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
-import com.example.framework.utils.PropertyAnimator.Companion.elasticityEnter
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
+import com.example.framework.utils.function.view.elasticIn
 import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
@@ -251,7 +251,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         }
         if (animation) {
             getItemView(tab)?.getChildAt(0)?.apply {
-                startAnimation(context.elasticityEnter())
+                startAnimation(context.elasticIn())
                 vibrate(50)
             }
         }

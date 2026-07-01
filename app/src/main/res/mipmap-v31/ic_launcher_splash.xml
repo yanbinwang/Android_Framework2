@@ -1,0 +1,11 @@
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 背景色 = 启动页背景色，用来"吃掉"白圈 -->
+    <background android:drawable="@color/appTheme"/>
+    <!-- 前景 = 显示的图标 -->
+    <foreground>
+        <!-- 四边各缩进 30%，视觉上约为原始的 40% 大小 -->
+        <inset
+            android:drawable="@mipmap/ic_launcher"
+            android:inset="35%" />
+    </foreground>
+</adaptive-icon>

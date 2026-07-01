@@ -16,8 +16,10 @@ import java.util.Locale
 import java.util.UUID
 
 /**
- * description 获取唯一设备标识的工具类
- * author yan
+ * 获取唯一设备标识的工具类 (拿取安装实例 ID)
+ * 1) 优先拼：IMEI + AndroidID + Serial + 硬件特征 → SHA1
+ * 2) 拿不到 → 用 本地随机 UUID（MMKV 存）
+ * 3) 卸载 / 清数据 → MMKV 没了 → 新 ID
  */
 @SuppressLint("MissingPermission", "HardwareIds")
 object DeviceIdUtil {

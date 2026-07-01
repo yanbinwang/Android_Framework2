@@ -9,8 +9,9 @@ import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshHeaderBinding
-import com.example.common.utils.function.pt
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.tint
@@ -31,27 +32,31 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
 @SuppressLint("RestrictedApi")
 class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshHeader {
     private var animation: AnimationDrawable? = null
-    private val mBinding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
+    private val binding by lazy { ViewRefreshHeaderBinding.bind(context.inflate(R.layout.view_refresh_header)) }
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
-//        mBinding.root.size(MATCH_PARENT, 40.pt)
-        mBinding.ivProgress.let {
+        binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loading)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
     }
 
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animation?.stop()
+    }
+
     override fun onInflate() {
-        if (isInflate) addView(mBinding.root)
+        if (shouldInflate) addView(binding.root)
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {
     }
 
     override fun getView(): View {
-        return mBinding.root
+        return binding.root
     }
 
     override fun getSpinnerStyle(): SpinnerStyle {
@@ -84,7 +89,9 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      * @param maxDragHeight 最大拖动高度
      */
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
-        animation?.start()//松开时才开始做动画
+        // 松开时才开始做动画
+        if (animation?.isRunning.orFalse) return
+        animation?.start()
     }
 
     override fun onStartAnimator(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
@@ -113,18 +120,33 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     }
 
     /**
-     * 顶部如果直接是刷新，需要让刷新的头在状态栏下方展示并刷新，故而调用此代码重新设置一下顶部的高度和padding
-     */
-    fun setStatusBarHeight(statusBarHeight: Int) {
-        //40*2.5
-        mBinding.root.size(MATCH_PARENT, 100.pt + statusBarHeight)
-    }
-
-    /**
      * 转圈颜色
      */
     fun setProgressTint(@ColorRes color: Int) {
-        mBinding.ivProgress.tint(color)
+        binding.ivProgress.tint(color)
+    }
+
+    /**
+     * 应用状态栏占位，重新计算并设置 Header 的总高度
+     * @param statusBarHeight 状态栏实际像素高度
+     * @param headerHeight 设计稿定义的纯刷新头部高度（px）
+     * @param dragScaleFactor 下拉放大倍率，默认 2.5
+     * 算式 : 40.pt (顶部高度) * 2.5 = 100.pt
+     * binding.root.size(MATCH_PARENT, 100.pt + statusBarHeight) -> 不传 headerHeight 的写法
+     */
+    fun applyStatusBarInset(statusBarHeight: Int, headerHeight: Int, dragScaleFactor: Float) {
+        val scaledHeaderHeight = (headerHeight * dragScaleFactor).toSafeInt()
+        val totalHeight = scaledHeaderHeight + statusBarHeight
+        binding.root.size(MATCH_PARENT, totalHeight)
+    }
+
+    /**
+     * 显式销毁，供外部在确定不再使用时调用
+     */
+    fun release() {
+        animation?.stop()
+        binding.ivProgress.setImageDrawable(null)
+        animation = null
     }
 
 }
