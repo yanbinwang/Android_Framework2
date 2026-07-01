@@ -1,6 +1,5 @@
 package com.example.common.utils.helper
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
@@ -14,7 +13,6 @@ import com.example.framework.utils.function.value.toSafeLong
  *  Created by wangyanbin
  *  应用配置工具类
  */
-@SuppressLint("StaticFieldLeak")
 object ConfigHelper {
     private val context by lazy { BaseApplication.instance.applicationContext }
     private val packageInfo by lazy { context.packageManager.getPackageInfo(getPackageName(), 0) }
@@ -44,7 +42,7 @@ object ConfigHelper {
      */
     fun isAppInForeground(): Boolean {
         val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
-        return processes.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && it.processName == context.packageName }
+        return processes.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && it.processName == getPackageName() }
     }
 
     /**
