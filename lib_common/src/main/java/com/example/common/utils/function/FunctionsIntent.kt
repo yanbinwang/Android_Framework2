@@ -187,8 +187,9 @@ fun Context?.pullUpManageStorageSetting() {
         val intent = Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION).apply {
             // 通过Uri定向到当前应用的设置项
             data = "package:${packageName}".toUri()
-            // 避免创建新任务栈，返回时能回到应用
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            // 创建新任务栈，返回时能回到应用
+//            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_NO_HISTORY or Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
         }
         startActivity(intent)
     } catch (e: Exception) {
@@ -290,13 +291,38 @@ fun Context?.pullUpNotification() {
 fun Context?.pullUpPackage(packageName: String) {
     this ?: return
     try {
-        val intent = packageManager.getLaunchIntentForPackage(packageName)
-        if (intent != null) {
-            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        if (null != intent && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
+        } else {
+            "打开外部应用失败".shortToast()
         }
     } catch (e: Exception) {
         e.printStackTrace()
+        "未找到可打开的应用".shortToast()
+    }
+}
+
+/**
+ * 打开 uri 指向的 app
+ */
+fun Context?.pullUpOtherApp(uri: Uri) {
+    this ?: return
+    try {
+        val intent = Intent(Intent.ACTION_VIEW, uri).apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        // 先检查是否有应用能处理该 Intent，避免抛出运行时异常
+        if (intent.resolveActivity(packageManager) != null) {
+            startActivity(intent)
+        } else {
+            "未找到可打开此链接的应用".shortToast()
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        "打开外部应用失败".shortToast()
     }
 }
 
@@ -335,8 +361,7 @@ fun Context?.toBrowser(url: String) {
 fun Context?.toMap(longitude: Double, latitude: Double) {
     this ?: return
     try {
-        val uri = "geo:${latitude},${longitude}".toUri()
-        startActivity(Intent(Intent.ACTION_VIEW, uri).apply {
+        startActivity(Intent(Intent.ACTION_VIEW, "geo:${latitude},${longitude}".toUri()).apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         })
     } catch (e: Exception) {
@@ -363,15 +388,16 @@ fun Context?.toPhone(tel: String) {
  */
 fun Context?.toSMS(text: String) {
     this ?: return
-    try {
-        startActivity(Intent(Intent.ACTION_VIEW).apply {
-            type = "vnd.android-dir/mms-sms"
-            putExtra("sms_body", text)
-            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        })
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
+//    try {
+//        startActivity(Intent(Intent.ACTION_VIEW).apply {
+//            type = "vnd.android-dir/mms-sms"
+//            putExtra("sms_body", text)
+//            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//        })
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//    }
+    toSMSApp("", text)
 }
 
 /**
@@ -395,9 +421,9 @@ fun Context?.toSMSApp(tel: String, text: String) {
 fun Context?.openZip(filePath: String) = openFile(filePath, "application/x-zip-compressed")
 
 /**
- * 打开world
+ * 打开word
  */
-fun Context?.openWorld(filePath: String) = openFile(filePath, "application/msword")
+fun Context?.openWord(filePath: String) = openFile(filePath, "application/msword")
 
 /**
  * 打开安装包
@@ -455,6 +481,7 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
             }, title))
         } catch (e: Exception) {
             e.printStackTrace()
+            "分享失败，请重试".shortToast()
         }
     }
 }

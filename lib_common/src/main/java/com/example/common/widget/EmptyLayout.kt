@@ -35,27 +35,23 @@ import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
 /**
- * Created by android on 2017/8/7.
- *
  * @author Wyb
- * <p>
  * 数据为空时候显示的页面（适用于列表，详情等）
  * 情况如下：
- * <p>
- * 1.加载中-无按钮
- * 2.空数据-无按钮(特殊情况可显示按钮，回调跳转时可做配置)
- * 3.加载错误(无网络，服务器错误)-有按钮
+ * 1) 加载中 ->无按钮
+ * 2) 空数据 -> 无按钮 (特殊情况可显示按钮，回调跳转时可做配置)
+ * 3) 加载错误 有按钮 (无网络，服务器错误)
  */
 @SuppressLint("InflateParams")
 class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
-    private val mBinding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
+    private val binding by lazy { ViewEmptyBinding.bind(context.inflate(R.layout.view_empty)) }
     private var fullScreen = false
     private var ivLeft: ImageView? = null
     private var state: EmptyLayoutState = EmptyLayoutState.Loading
     private var listener: ((result: Boolean) -> Unit)? = null
 
     init {
-        //是否是全屏
+        // 是否是全屏
         context.withStyledAttributes(attrs, R.styleable.EmptyLayout) {
             fullScreen = getBoolean(R.styleable.EmptyLayout_elEnableFullScreen, false)
             if (fullScreen) {
@@ -72,41 +68,41 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                  *    app:layout_constraintStart_toStartOf="parent"
                  *    app:layout_constraintTop_toTopOf="parent" />
                  */
-                //创建 ImageView
+                // 创建 ImageView
                 ivLeft = ImageView(context).also {
                     it.id = generateViewId()
                     it.invisible()
                 }
-                //设置布局参数
-                mBinding.clRoot.addView(ivLeft)
-                mBinding.clRoot.applyConstraints {
+                // 设置布局参数
+                binding.clRoot.addView(ivLeft)
+                binding.clRoot.applyConstraints {
                     val viewId = ivLeft?.id ?: return@applyConstraints
                     topToTopOf(viewId)
                     startToStartOf(viewId)
                 }
                 ivLeft.margin(start = 5.pt)
             }
-            //部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
+            // 部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
             val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
             setWindows(windows)
-            //默认是否传递点击
+            // 默认是否传递点击
             val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
             isClickable = clickable
         }
-        //绘制大小撑到最大/默认背景
-        mBinding.root.size(MATCH_PARENT, MATCH_PARENT)
-        //点击事件/默认状态
-        mBinding.tvRefresh.click {
+        // 绘制大小撑到最大/默认背景
+        binding.root.size(MATCH_PARENT, MATCH_PARENT)
+        // 点击事件/默认状态
+        binding.tvRefresh.click {
             if (!isEmpty()) loading()
             listener?.invoke(isEmpty())
         }
-        mBinding.root.clearClick()
+        binding.root.clearClick()
         loading()
         setBackgroundColor(color(R.color.bgDefault))
     }
 
     override fun onInflate() {
-        if (shouldInflate) addView(mBinding.root)
+        if (shouldInflate) addView(binding.root)
     }
 
     /**
@@ -123,9 +119,9 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         appear(300)
         state = EmptyLayoutState.Loading
         fullScreenState()
-        mBinding.ivEmpty.setResource(R.mipmap.bg_data_loading)
-        mBinding.tvEmpty.text = string(R.string.dataLoading)
-        mBinding.tvRefresh.gone()
+        binding.ivEmpty.setResource(R.mipmap.bg_data_loading)
+        binding.tvEmpty.text = string(R.string.dataLoading)
+        binding.tvRefresh.gone()
     }
 
     /**
@@ -135,14 +131,14 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         appear(300)
         state = EmptyLayoutState.Empty
         fullScreenState()
-        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
-        mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
-        mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
+        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
+        binding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
+        binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         if (!refreshText.isNullOrEmpty()) {
-            mBinding.tvRefresh.visible()
-            mBinding.tvRefresh.text = refreshText
+            binding.tvRefresh.visible()
+            binding.tvRefresh.text = refreshText
         } else {
-            mBinding.tvRefresh.gone()
+            binding.tvRefresh.gone()
         }
     }
 
@@ -154,16 +150,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
         appear(300)
         state = EmptyLayoutState.Error
         fullScreenState()
-        if (null != width && null != height) mBinding.ivEmpty.size(width.pt, height.pt)
+        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
         if (!isNetworkAvailable()) {
-            mBinding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
-            mBinding.tvEmpty.text = string(R.string.dataNetError)
+            binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
+            binding.tvEmpty.text = string(R.string.dataNetError)
         } else {
-            mBinding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_error)
-            mBinding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
+            binding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_error)
+            binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataError) else text
         }
-        if (!refreshText.isNullOrEmpty()) mBinding.tvRefresh.text = refreshText
-        mBinding.tvRefresh.visible()
+        if (!refreshText.isNullOrEmpty()) binding.tvRefresh.text = refreshText
+        binding.tvRefresh.visible()
     }
 
     /**
@@ -197,7 +193,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 获取当前根布局
      */
     fun getRoot(): View {
-        return mBinding.root
+        return binding.root
     }
 
     /**
@@ -222,7 +218,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun setWindows(windows: Boolean) {
         if (windows) {
-            mBinding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
+            binding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
         }
     }
 

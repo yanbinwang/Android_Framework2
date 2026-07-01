@@ -155,6 +155,13 @@ fun Bitmap?.getCenterPixelColor(): Int {
 /**
  * 1) decodeResource 读取到本地图片
  * 2) 通过 X.pt 转换想要的大小,调用该函数,取得特定的Icon
+ * 3) 使用方式
+ *   类型	                  创建方式	                          典型场景
+ * 资源引用	        Icon.createWithResource(pkg, resId)	     应用内 drawable/mipmap
+ * Bitmap	        Icon.createWithBitmap(bitmap)	         动态生成的图标
+ * Content URI	    Icon.createWithContentUri(uri)	         文件/数据库中的图标
+ * Data bytes	    Icon.createWithData(bytes, offset, len)	 内存中的原始图片数据
+ * Adaptive Icon	Icon.createWithAdaptiveBitmap(bitmap)	 支持自适应裁剪的图标
  */
 fun Bitmap?.getIcon(targetWidth: Int, targetHeight: Int): Icon? {
     this ?: return null
@@ -181,7 +188,7 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
     if (targetWidth == originalWidth && targetHeight == originalHeight) {
         return this
     }
-    // 计算缩放比例，保持图片原有比例
+    // 按传入的目标宽高独立计算 X/Y 轴缩放比，强制拉伸/缩放至指定尺寸
     val scaleWidth = targetWidth.toSafeFloat() / originalWidth.toSafeFloat()
     val scaleHeight = targetHeight.toSafeFloat() / originalHeight.toSafeFloat()
     val matrix = Matrix().apply {
@@ -317,7 +324,7 @@ fun Drawable?.getBitmap(): Bitmap? {
  * 安全获取Drawable
  */
 fun Drawable?.orEmpty(): Drawable {
-    return this ?: Color.TRANSPARENT.toDrawable()
+    return this ?: Color.TRANSPARENT.toDrawable().mutate()
 }
 
 /**

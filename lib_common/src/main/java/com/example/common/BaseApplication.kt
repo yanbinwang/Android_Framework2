@@ -28,7 +28,7 @@ import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.pt
-import com.example.common.utils.helper.ConfigHelper
+import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
@@ -106,7 +106,6 @@ abstract class BaseApplication : Application() {
         ServerConfig.init()
         // 注册网络监听
         NetWorkUtil.init(ProcessLifecycleOwner.get())
-//        initReceiver()
         // 防止短时间内多次点击，弹出多个activity 或者 dialog ，等操作
         registerActivityLifecycleCallbacks(ApplicationActivityLifecycleCallbacks())
         // 路由跳转初始化
@@ -121,7 +120,7 @@ abstract class BaseApplication : Application() {
         initSocket()
         // 全局进程
         initLifecycle()
-        // 初始化友盟/人脸识别->延后
+        // 初始化友盟/人脸识别 -> 延后
         initPrivacyAgreed()
     }
 
@@ -135,12 +134,6 @@ abstract class BaseApplication : Application() {
         // 设置全局AOP拦截器 将 PageInterceptor 设置为全局唯一的路由拦截器
         setRouterInterceptor(PageInterceptor())
     }
-
-//    private fun initReceiver() {
-//        doOnReceiver(ProcessLifecycleOwner.get(), NetworkReceiver().apply {
-//            listener = { if (it) EVENT_ONLINE.post() else EVENT_OFFLINE.post() }
-//        }, NetworkReceiver.filter)
-//    }
 
     private fun initListener() {
         // 所有继承了BaseActivity的页面在应用进程内都有关闭监听
@@ -261,8 +254,8 @@ abstract class BaseApplication : Application() {
                         } catch (e: Exception) {
                             e.printStackTrace()
                             false
-                        }
-                        if (!isAnyProcessForeground.orFalse) {
+                        }.orFalse
+                        if (!isAnyProcessForeground) {
                             isForeground.set(false)
 //                            EventCode.EVENT_BACKGROUND.post()
                             onStateChangedListener.invoke(false)
@@ -270,22 +263,25 @@ abstract class BaseApplication : Application() {
                             timeNano = System.nanoTime()
                         }
                     }
+                    Lifecycle.Event.ON_DESTROY -> {
+                        source.lifecycle.removeObserver(this)
+                    }
                     else -> {}
                 }
             }
         })
     }
 
-    protected fun setOnStateChangedListener(onStateChangedListener: (isForeground: Boolean) -> Unit) {
-        this.onStateChangedListener = onStateChangedListener
+    protected fun setOnStateChangedListener(listener: (isForeground: Boolean) -> Unit) {
+        this.onStateChangedListener = listener
     }
 
-    protected fun setOnPrivacyAgreedListener(onPrivacyAgreedListener: (agreed: Boolean) -> Unit) {
-        this.onPrivacyAgreedListener = onPrivacyAgreedListener
+    protected fun setOnPrivacyAgreedListener(listener: (agreed: Boolean) -> Unit) {
+        this.onPrivacyAgreedListener = listener
     }
 
     fun initPrivacyAgreed(isBaseLoaded: Boolean = true) {
-        if (ConfigHelper.getPrivacyAgreed()) {
+        if (isPrivacyPolicyAccepted) {
             if (isBaseLoaded) {
 //            // 友盟日志收集
 //            initUM()

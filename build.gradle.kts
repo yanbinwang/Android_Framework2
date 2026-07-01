@@ -1,6 +1,6 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    val objectbox = "5.0.1"
+    val objectbox = "5.4.2"
     dependencies {
         // 使用列表管理依赖
         val pluginDependencies = listOf(

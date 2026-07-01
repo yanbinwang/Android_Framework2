@@ -147,9 +147,6 @@ class PhotoViewAttacher : IPhotoView, OnTouchListener, OnGestureListener, OnGlob
         if (null != observer) observer.addOnGlobalLayoutListener(this)
         // 强制使用矩阵模式
         setImageViewScaleTypeMatrix(imageView)
-        if (imageView.isInEditMode) {
-            return
-        }
         // 创建手势检测器
         mScaleDragDetector = FroyoGestureDetector(imageView.context)
         mScaleDragDetector?.setOnGestureListener(this)

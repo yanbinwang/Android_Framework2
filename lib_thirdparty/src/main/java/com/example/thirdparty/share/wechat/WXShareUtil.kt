@@ -6,8 +6,6 @@ import android.graphics.BitmapFactory
 import androidx.core.graphics.scale
 import com.example.common.utils.function.safeRecycle
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logWTF
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -31,12 +29,12 @@ object WXShareUtil {
      * @return 转换后的字节数组，转换失败返回 null
      */
     @JvmStatic
-    fun bitmapToByteArray(bitmap: Bitmap?, needRecycle: Boolean?): ByteArray? {
+    fun bitmapToByteArray(bitmap: Bitmap, needRecycle: Boolean): ByteArray? {
         return try {
             ByteArrayOutputStream().use { outputStream ->
-                bitmap?.compress(CompressFormat.PNG, 100, outputStream)
+                bitmap.compress(CompressFormat.PNG, 100, outputStream)
                 if (needRecycle.orFalse) {
-                    bitmap?.safeRecycle()
+                    bitmap.safeRecycle()
                 }
                 outputStream.toByteArray()
             }
@@ -54,23 +52,18 @@ object WXShareUtil {
     @JvmStatic
     fun readHtmlFromUrl(url: String?): ByteArray? {
         url ?: return null
-        var inStream: InputStream? = null
-        val httpConnection = try {
-            val htmlUrl = URL(url)
-            val connection = htmlUrl.openConnection() as? HttpURLConnection
+        var inputStream: InputStream? = null
+        var httpConnection: HttpURLConnection? = null
+        try {
+            httpConnection = URL(url).openConnection() as? HttpURLConnection
             // 超时配置，避免卡死
-            connection?.apply {
+            httpConnection?.apply {
                 connectTimeout = 5000
                 readTimeout = 5000
                 requestMethod = "GET"
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-        try {
             if (httpConnection?.responseCode == HttpURLConnection.HTTP_OK) {
-                inStream = httpConnection.inputStream
+                inputStream = httpConnection.inputStream
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -78,7 +71,7 @@ object WXShareUtil {
             // 关闭 HTTP 连接，避免泄漏
             httpConnection?.disconnect()
         }
-        return inputStreamToByteArray(inStream)
+        return inputStreamToByteArray(inputStream)
     }
 
     /**
@@ -123,10 +116,10 @@ object WXShareUtil {
         val fileLength = file.length()
         var readLength = length
         if (readLength == -1) {
-            readLength = fileLength.toSafeInt()
+            readLength = fileLength.toInt()
         }
-        val offsetLong = offset.toSafeLong()
-        val readLengthLong = readLength.toSafeLong()
+        val offsetLong = offset.toLong()
+        val readLengthLong = readLength.toLong()
         "readBytesFromFile: offset=$offset, length=$readLength, offset+length=${offsetLong + readLengthLong}".logWTF(TAG)
         when {
             offset < 0 -> {
@@ -177,13 +170,12 @@ object WXShareUtil {
             // 计算采样率（避免 OOM）
             val scaleRatioY = options.outHeight * 1.0 / targetHeight
             val scaleRatioX = options.outWidth * 1.0 / targetWidth
-            "extractImageThumbnail: 目标尺寸=${targetWidth}x$targetHeight, 原图尺寸=${options.outWidth}x${options.outHeight}, 裁剪=$needCrop".logWTF(TAG)
-            "extractImageThumbnail: 缩放比例X=$scaleRatioX, Y=$scaleRatioY".logWTF(TAG)
+            "extractThumbNail: 目标尺寸=${targetWidth}x${targetHeight}, 原图尺寸=${options.outWidth}x${options.outHeight}, 裁剪=${needCrop}\n缩放比例X=${scaleRatioX}, Y=${scaleRatioY}".logWTF(TAG)
             // 基础采样率
             options.inSampleSize = when {
                 needCrop -> if (scaleRatioY > scaleRatioX) scaleRatioX else scaleRatioY // 裁剪取较小比例
                 else -> if (scaleRatioY < scaleRatioX) scaleRatioX else scaleRatioY    // 缩放取较大比例
-            }.toSafeInt().coerceAtLeast(1) // 确保采样率 >=1
+            }.toInt().coerceAtLeast(1) // 确保采样率 >=1
             // 二次校验采样率（防止解码后尺寸超出最大限制）
             while (options.outHeight * options.outWidth / options.inSampleSize > MAX_DECODE_PICTURE_SIZE) {
                 options.inSampleSize++
@@ -193,25 +185,25 @@ object WXShareUtil {
             var actualWidth = targetWidth
             if (needCrop) {
                 if (scaleRatioY > scaleRatioX) {
-                    actualHeight = (actualWidth * options.outHeight / options.outWidth.toDouble()).toSafeInt()
+                    actualHeight = (actualWidth * options.outHeight / options.outWidth.toDouble()).toInt()
                 } else {
-                    actualWidth = (actualHeight * options.outWidth / options.outHeight.toDouble()).toSafeInt()
+                    actualWidth = (actualHeight * options.outWidth / options.outHeight.toDouble()).toInt()
                 }
             } else {
                 if (scaleRatioY < scaleRatioX) {
-                    actualHeight = (actualWidth * options.outHeight / options.outWidth.toDouble()).toSafeInt()
+                    actualHeight = (actualWidth * options.outHeight / options.outWidth.toDouble()).toInt()
                 } else {
-                    actualWidth = (actualHeight * options.outWidth / options.outHeight.toDouble()).toSafeInt()
+                    actualWidth = (actualHeight * options.outWidth / options.outHeight.toDouble()).toInt()
                 }
             }
             // 真正解码图片
             options.inJustDecodeBounds = false
-            "extractImageThumbnail: 实际缩放尺寸=${actualWidth}x$actualHeight, 采样率=${options.inSampleSize}".logWTF(TAG)
+            "extractThumbNail: 实际缩放尺寸=${actualWidth}x$actualHeight, 采样率=${options.inSampleSize}".logWTF(TAG)
             var bitmap = BitmapFactory.decodeFile(imagePath, options) ?: run {
-                "extractImageThumbnail: 图片解码失败 - $imagePath".logWTF(TAG)
+                "extractThumbNail: 图片解码失败 - $imagePath".logWTF(TAG)
                 return null
             }
-            "extractImageThumbnail: 解码后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
+            "extractThumbNail: 解码后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
             // 缩放图片
             val scaledBitmap = bitmap.scale(actualWidth, actualHeight)
             bitmap.safeRecycle()
@@ -223,11 +215,11 @@ object WXShareUtil {
                 val croppedBitmap = Bitmap.createBitmap(bitmap, cropX, cropY, targetWidth, targetHeight)
                 bitmap.safeRecycle()
                 bitmap = croppedBitmap
-                "extractImageThumbnail: 裁剪后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
+                "extractThumbNail: 裁剪后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
             }
             bitmap
         } catch (e: OutOfMemoryError) {
-            "extractImageThumbnail: 解码图片OOM - ${e.message}, path=$imagePath".logWTF(TAG)
+            "extractThumbNail: 解码图片OOM - ${e.message}, path=$imagePath".logWTF(TAG)
             null
         } catch (e: Exception) {
             e.printStackTrace()

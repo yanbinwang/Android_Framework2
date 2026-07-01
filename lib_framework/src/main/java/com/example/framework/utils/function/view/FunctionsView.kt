@@ -56,6 +56,7 @@ import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.core.view.isVisible
+import androidx.core.widget.NestedScrollView
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
@@ -979,22 +980,22 @@ fun ImageView?.tint(@ColorRes res: Int) {
 }
 
 /**
- * 如果一个图片是在LayerDrawable内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
+ * 如果一个图片是在 LayerDrawable 内部的,通过代码设置该图片大小为xml内的设定大小,并返回该图片上下左右边距
  */
-fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int): IntArray {
-    this ?: return intArrayOf(0, 0)
-    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable
-    val bitmapDrawable = layerDrawable?.getDrawable(targetItemIndex) as? BitmapDrawable
-    val dimensions = bitmapDrawable?.let {
-        intArrayOf(it.intrinsicWidth, it.intrinsicHeight)
-    } ?: intArrayOf(0, 0)
-    size(dimensions[0], dimensions[1])
-    return intArrayOf(
-        layerDrawable?.getLayerInsetStart(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetTop(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetEnd(targetItemIndex).orZero,
-        layerDrawable?.getLayerInsetBottom(targetItemIndex).orZero
-    )
+fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) {
+    this ?: return
+    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable ?: return
+    val bitmapDrawable = layerDrawable.getDrawable(targetItemIndex) as? BitmapDrawable
+    // 提取目标图层的原始尺寸
+    val width = bitmapDrawable?.intrinsicWidth.orZero
+    val height = bitmapDrawable?.intrinsicHeight.orZero
+    size(width, height)
+    // 提取目标图层的 inset 作为外边距
+    val marginStart = layerDrawable.getLayerInsetStart(targetItemIndex)
+    val marginTop = layerDrawable.getLayerInsetTop(targetItemIndex)
+    val marginEnd = layerDrawable.getLayerInsetEnd(targetItemIndex)
+    val marginBottom = layerDrawable.getLayerInsetBottom(targetItemIndex)
+    margin(marginStart, marginTop, marginEnd, marginBottom)
 }
 
 /**
@@ -1002,9 +1003,9 @@ fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int):
  * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
  * 设置setImageDrawable(null)
  */
-fun ImageView?.setDrawable(resId: Drawable?) {
+fun ImageView?.setDrawable(drawable: Drawable?) {
     this ?: return
-    setImageDrawable(resId)
+    setImageDrawable(drawable)
 }
 
 fun ImageView?.setResource(@DrawableRes resId: Int) {
@@ -1065,7 +1066,7 @@ fun ImageView?.setBitmap(observer: LifecycleOwner?, bit: Bitmap?) {
             subscriptionMap.remove(this)
         }
     }
-    // 设置新 Bitmap
+    // 设置新 Bitmap -> 等价于 setImageDrawable(BitmapDrawable(resources, bitmap))
     setImageBitmap(bit)
 }
 
@@ -1094,6 +1095,51 @@ fun ExpandableListView?.init(adapter: BaseExpandableListAdapter) {
     setOnGroupClickListener { _, _, _, _ -> true }
     // 设置折叠适配器
     setAdapter(adapter)
+}
+
+/**
+ * 无阴影的CardView
+ */
+fun CardView?.init(cornerRadius: Float = 0f) {
+    this ?: return
+    // 阴影高度设为0
+    cardElevation = 0f
+    // 最大阴影高度设为0
+    maxCardElevation = 0f
+    // 兼容低版本的阴影属性
+    elevation = 0f
+    // 圆角半径（按需调整）
+    radius = cornerRadius
+    // 防止图片溢出圆角
+    preventCornerOverlap = true
+    // 无阴影时可关闭兼容padding
+    useCompatPadding = false
+    // 透明背景
+    setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+}
+
+/**
+ * 给 NestedScrollView 添加滚动透明度监听
+ * 滚动距离在 0 ~ menuHeight 之间时，alpha 从 0 平滑过渡到 1
+ * 滚动超过 menuHeight，alpha 固定为 1
+ * @param menuHeight 透明度渐变的总高度（阈值） -> 对应控件的高度
+ * @param func 透明度回调
+ */
+fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
+    // 空安全：如果 NestedScrollView 为 null，直接返回
+    this ?: return
+    // 设置滚动监听
+    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
+        // 防御性判断：防止高度为 0 导致除零异常
+        if (menuHeight <= 0) {
+            func(0f)
+            return@OnScrollChangeListener
+        }
+        // 滚动距离 / 渐变高度 → 得到 0~1 的透明度
+        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
+        // 把计算好的透明度回调出去
+        func(alpha)
+    })
 }
 
 /**
@@ -1134,28 +1180,21 @@ fun DrawerLayout?.handleBackPressed(gravity: Int = GravityCompat.START): Boolean
 }
 
 /**
- * 无阴影的CardView
+ * AppBarLayout 垂直滑动距离监听
  */
-fun CardView?.init(cornerRadius: Float = 0f) {
+fun AppBarLayout?.setOnOffsetChangedListener(owner: LifecycleOwner? = getLifecycleOwner(), func: (verticalOffset: Int) -> Unit = {}) {
     this ?: return
-    // 阴影高度设为0
-    cardElevation = 0f
-    // 最大阴影高度设为0
-    maxCardElevation = 0f
-    // 兼容低版本的阴影属性
-    elevation = 0f
-    // 圆角半径（按需调整）
-    radius = cornerRadius
-    // 防止图片溢出圆角
-    preventCornerOverlap = true
-    // 无阴影时可关闭兼容padding
-    useCompatPadding = false
-    // 透明背景
-    setCardBackgroundColor(resources.getColor(android.R.color.transparent, context.theme))
+    val listener = AppBarLayout.OnOffsetChangedListener { _, verticalOffset ->
+        func.invoke(verticalOffset)
+    }
+    addOnOffsetChangedListener(listener)
+    owner.doOnDestroy {
+        removeOnOffsetChangedListener(listener)
+    }
 }
 
 /**
- * AppBarLayout监听
+ * AppBarLayout 状态监听
  * @Volatile
  * private var appBarState = AppBarLayoutStateChangeListener.State.EXPANDED
  * mBinding?.alHeader.stateChanged {

@@ -5,7 +5,7 @@
         <!-- 作用：设置启动屏的背景颜色
              值类型：颜色资源（@color/xxx）或直接写色值（#FFFFFF）
              注意：必须是不透明颜色（alpha=100%），否则可能导致显示异常 -->
-        <item name="windowSplashScreenBackground">@color/bgDefault</item>
+        <item name="windowSplashScreenBackground">@color/appTheme</item>
         <!-- 作用：设置启动屏中央的图标（可静态可动画）
              支持类型：
                静态图标：VectorDrawable（推荐）或BitmapDrawable
@@ -15,11 +15,14 @@
                建议原始资源尺寸不小于 200×200dp，避免缩放模糊
                动画时长最长1000 毫秒（超过会被系统截断）
              最佳实践：使用矢量图（VectorDrawable）确保不同分辨率设备上的清晰度 -->
-        <item name="windowSplashScreenAnimatedIcon">@null</item>
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher_splash</item>
         <!-- 作用：设置图标的背景色（可选）
              适用场景：当图标与启动屏背景对比度较低时，可添加此背景提高辨识度
-             显示效果：会在图标背后显示一个圆形或方形背景（根据图标形状自适应）-->
-        <item name="windowSplashScreenIconBackgroundColor">@color/bgDefault</item>
+             显示效果：会在图标背后显示一个圆形或方形背景（根据图标形状自适应）
+             未设置 iconBackgroundColor -> Icon 容器大小 288dp	遮罩大小 410dp ( 25%~30% -> 28%)
+             设置了 iconBackgroundColor -> Icon 容器大小 240dp	遮罩大小 342dp ( 35% 合适)
+             -->
+        <item name="windowSplashScreenIconBackgroundColor">@color/appTheme</item>
         <!-- 作用：指定图标动画的显示时长
              取值范围：0-1000 毫秒（超过 1000 会被系统强制限制为 1000）
              注意：这个属性仅控制图标动画的播放时长，启动屏实际显示时间还受应用初始化速度影响

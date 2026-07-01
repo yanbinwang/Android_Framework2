@@ -82,7 +82,6 @@ class EventBus private constructor() {
 //    private val collectionJobs by lazy { ConcurrentHashMap<LifecycleOwner, Job>() }
 
     companion object {
-        @JvmStatic
         val instance by lazy { EventBus() }
 
 //        /**
@@ -169,7 +168,8 @@ class EventBus private constructor() {
      * 无需手动 unregister，依赖 LifecycleOwner 的 scope 自动取消
      */
     fun subscribe(owner: LifecycleOwner, onReceive: (event: Event) -> Unit) {
-        val newJob = owner.lifecycleScope.launch {
+        // 先构建订阅Job
+        val subscribeJob = owner.lifecycleScope.launch {
             try {
                 eventFlow.collect { event ->
                     onReceive(event)
@@ -178,12 +178,19 @@ class EventBus private constructor() {
                 handleException(e)
             }
         }
-        subscriptionJobs[owner] = newJob
+        // 原子存入：已存在直接返回旧Job，本次新建Job作废取消
+        val existedJob = subscriptionJobs.putIfAbsent(owner, subscribeJob)
+        if (existedJob != null) {
+            subscribeJob.cancel()
+            return
+        }
         owner.doOnDestroy {
-            // 删除自身订阅
-            // ConcurrentHashMap.remove(owner) 做了两件事：
-            // 1)从 map 中删除 owner 对应的键值对（即移除这个订阅任务的记录）
-            // 2)返回被删除的 Job 实例（如果存在的话）
+            /**
+             * 删除自身订阅
+             * ConcurrentHashMap.remove(owner) 做了两件事：
+             * 1) 从 map 中删除 owner 对应的键值对（即移除这个订阅任务的记录）
+             * 2) 返回被删除的 Job 实例（如果存在的话）
+             */
             subscriptionJobs.remove(owner)?.cancel()
         }
     }
@@ -233,6 +240,18 @@ class EventBus private constructor() {
         eventDispatchScope.launch {
             try {
                 eventFlow.emit(event)
+            } catch (e: Exception) {
+                handleException(e)
+            }
+        }
+    }
+
+    fun posts(vararg events: Event) {
+        eventDispatchScope.launch {
+            try {
+                events.forEach {
+                    eventFlow.emit(it)
+                }
             } catch (e: Exception) {
                 handleException(e)
             }

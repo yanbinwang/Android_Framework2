@@ -23,7 +23,7 @@ import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.function.color
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.load
+import com.example.common.utils.function.loadWebUrl
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.common.widget.advertising.Advertising
@@ -51,6 +51,7 @@ import com.example.framework.utils.function.view.initStaggeredVertical
 import com.example.framework.utils.function.view.linearGradient
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.spaceLimit
 import com.example.framework.utils.function.view.whiteListLimit
 
@@ -185,7 +186,7 @@ object BaseBindingAdapter {
                 val spannableKey = R.id.theme_spannable_tag
                 val oldSpannable = view.getTag(spannableKey) as? Spannable
                 if (oldSpannable != newSpannable) {
-                    view.text = newSpannable
+                    view.setSpannable(newSpannable)
                     view.setTag(spannableKey, newSpannable)
                 }
             }
@@ -593,7 +594,7 @@ object BaseBindingAdapter {
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_network_url", "web_need_header"], requireAll = false)
     fun bindingWebViewLoadUrl(view: WebView, networkUrl: String?, needHeader: Boolean?) {
-        view.load(networkUrl.orEmpty(), needHeader.orFalse)
+        view.loadWebUrl(networkUrl.orEmpty(), needHeader.orFalse)
     }
 
     /**
@@ -603,7 +604,7 @@ object BaseBindingAdapter {
     @SuppressLint("SetJavaScriptEnabled", "JavascriptInterface", "AddJavascriptInterface")
     @BindingAdapter(value = ["web_load_asset_url", "web_need_header"], requireAll = false)
     fun bindingWebViewLoadAssetUrl(view: WebView, assetPath: String?, needHeader: Boolean?) {
-        view.load("file:///android_asset/$assetPath", needHeader.orFalse)
+        view.loadWebUrl("file:///android_asset/$assetPath", needHeader.orFalse)
     }
     // </editor-fold>
 

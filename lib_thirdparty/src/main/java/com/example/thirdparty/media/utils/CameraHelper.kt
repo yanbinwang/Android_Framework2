@@ -38,9 +38,9 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     private var cvFinder: CameraView? = null
     private var onTakePictureListener: OnTakePictureListener? = null
     private var onTakeVideoListener: OnTakeVideoListener? = null
-    private val mSound by lazy { MediaActionSound() }
-    private val mReceiver by lazy { KeyEventReceiver() }
-    private val mContext get() = cvFinder?.context
+    private val sound by lazy { MediaActionSound() }
+    private val receiver by lazy { KeyEventReceiver() }
+    private val context get() = cvFinder?.context
 
     init {
         observer.lifecycle.addObserver(this)
@@ -149,7 +149,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
 //            val intentFilter = IntentFilter()
 //            intentFilter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
 //            mContext?.registerReceiver(eventReceiver, intentFilter)
-            mContext.doOnReceiver(observer, mReceiver, IntentFilter().apply {
+            context.doOnReceiver(observer, receiver, IntentFilter().apply {
                 addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS)
                 addAction(Intent.ACTION_SCREEN_ON)
                 addAction(Intent.ACTION_SCREEN_OFF)
@@ -225,7 +225,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
             return
         }
         cvFinder?.let {
-            mSound.play(MediaActionSound.SHUTTER_CLICK)
+            sound.play(MediaActionSound.SHUTTER_CLICK)
             isPictureShutter = false
             if (snapshot) {
                 it.takePictureSnapshot()

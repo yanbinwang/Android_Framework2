@@ -9,9 +9,9 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.bean.WebBundle
 import com.example.common.utils.WebUtil
 import com.example.common.utils.function.OnWebChangedListener
-import com.example.common.utils.function.load
-import com.example.common.utils.function.refresh
-import com.example.common.utils.function.setClient
+import com.example.common.utils.function.loadWebUrl
+import com.example.common.utils.function.reloadWebUrl
+import com.example.common.utils.function.setupWebClient
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.byHardwareAccelerate
@@ -39,13 +39,13 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     private fun addWebView() {
         webView?.byHardwareAccelerate()
         webView?.background(R.color.bgDefault)
-        //WebView与JS交互
+        // WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), webJsName)
-        webView?.setClient(mBinding?.pbWeb, {
-            //开始加载页面的操作...
+        webView?.setupWebClient(mBinding?.pbWeb, {
+            // 开始加载页面的操作...
             onPageStarted?.invoke()
         }, {
-            //加载完成后的操作...(不传标题则使用web加载的标题)
+            // 加载完成后的操作...(不传标题则使用web加载的标题)
             onPageFinished?.invoke(webView?.title?.trim())
 //            val url = webView?.url.orEmpty()
         }, object : OnWebChangedListener {
@@ -65,12 +65,16 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     /**
      * 加载页面
      */
-    fun load() = webView.load(bean?.getUrl().orEmpty(), true)
+    fun load() {
+        webView.loadWebUrl(bean?.getUrl().orEmpty(), true)
+    }
 
     /**
      * 刷新页面
      */
-    fun refresh() = webView.refresh()
+    fun refresh() {
+        webView.reloadWebUrl()
+    }
 
     /**
      * 返回点击
@@ -111,9 +115,9 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
+                mActivity.lifecycle.removeObserver(this)
                 webView?.removeJavascriptInterface(webJsName)
                 mBinding?.unbind()
-                mActivity.lifecycle.removeObserver(this)
             }
             else -> {}
         }

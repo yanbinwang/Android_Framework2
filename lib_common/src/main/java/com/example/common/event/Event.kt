@@ -1,31 +1,22 @@
 package com.example.common.event
 
+import com.example.framework.utils.function.value.toNewList
+
 /**
  * author: wyb
- * date: 2018/4/16.
  * 传递事件类
- * 1）广播每次发送，都会轮询一遍所有注册的页面
- * 2）故而只在指定页面订阅降低开销
+ * 1） 广播每次发送，都会轮询一遍所有注册的页面
+ * 2） 故而只在指定页面订阅降低开销
  */
-class Event(var action: Int, var value: Any? = null) {
-
-    fun setAction(action: Int): Event {
-        this.action = action
-        return this
-    }
-
-    fun setValue(value: Any?): Event {
-        this.value = value
-        return this
-    }
+data class Event(private val action: Int, private val value: Any? = null) {
 
     /**
      * 单个对象传递
      */
     fun <K> Event?.isEvent(code: Code<K>, block: K?.() -> Unit): Event? {
         this ?: return null
-        if (this.action == code.action) {
-            block(this.value as? K)
+        if (action == code.action) {
+            block(value as? K)
             return null
         }
         return this
@@ -36,8 +27,8 @@ class Event(var action: Int, var value: Any? = null) {
      */
     fun <K> Event?.isEvent(codes: List<Code<K>>, block: K?.() -> Unit): Event? {
         this ?: return null
-        if (codes.find { this.action == it.action } != null) {
-            block(this.value as? K)
+        if (codes.any { action == it.action }) {
+            block(value as? K)
             return null
         }
         return this
@@ -48,8 +39,8 @@ class Event(var action: Int, var value: Any? = null) {
      */
     fun Event?.isEventAny(codes: List<Code<*>>, block: Any?.() -> Unit): Event? {
         this ?: return null
-        if (codes.find { this.action == it.action } != null) {
-            block(this.value)
+        if (codes.any { action == it.action }) {
+            block(value)
             return null
         }
         return this
@@ -64,11 +55,45 @@ class Code<T> {
          * 方便设置不重复的action,每次重启app数值都会重新累加，以此区分此次发送消息对象的唯一性
          */
         private var actionTime = 0
+
+        /**
+         * 全局批量自由组合多个Code+数据
+         * 缓冲满时，当前这条 emit 挂起 (目前配置 10 条)
+         * 等订阅消费腾出缓冲区、emit 恢复后，才会执行下一条事件；
+         * 同批次剩余事件只是排队延后，不会丢失、不会乱序，最终全部依次分发。
+         * val PAY = Code<String>()
+         * val REFRESH = Code<Int>()
+         * Code.posts(PAY to "支付成功", REFRESH to 200)
+         */
+        fun posts(vararg pairs: Pair<Code<*>, Any?>) {
+            val eventList = pairs.toList().toNewList { (code, data) ->
+                Event(code.action, data)
+            }
+            EventBus.instance.posts(*eventList.toTypedArray())
+        }
     }
 
     var action = actionTime++
         private set
 
-    fun post(obj: T? = null) = EventBus.instance.post(Event(action, obj))
+    /**
+     * 单发，约束T
+     */
+    fun post(obj: T? = null) {
+        EventBus.instance.post(Event(action, obj))
+    }
+
+    /**
+     * 批量发同Action、同T类型数据，和泛型匹配
+     * 同一个事件批量发多条数据
+     * val PAY = Code<String>()
+     * PAY.posts("订单1", "订单2")
+     */
+    fun posts(vararg objs: T?) {
+        val eventList = objs.toList().toNewList { obj ->
+            Event(action, obj)
+        }
+        EventBus.instance.posts(*eventList.toTypedArray())
+    }
 
 }

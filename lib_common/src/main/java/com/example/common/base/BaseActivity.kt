@@ -71,6 +71,8 @@ import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.reflect.ParameterizedType
@@ -110,7 +112,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
     protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
+    protected val mActivityResult = mResultWrapper.registerResult {
+        onActivityResultListener?.invoke(it)
+    }
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -122,7 +126,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     companion object {
         @Volatile
-        var isAnyActivityStarting = false
+        var isAnyActivityStarting = false // 当前是否正在「启动一个新的 Activity」
         var onFinishListener: OnFinishListener? = null
 
         fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
@@ -140,6 +144,24 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             startActivityForResult(getIntent(cls, *pairs), requestCode)
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
+
+        /**
+         * 1) 跳转三方页面专用：临时关闭当前页面的 EdgeToEdge / 全屏沉浸属性
+         *  作用：让下一个页面不会继承你的全屏、状态栏透明、导航栏透明
+         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性 ! 使用该标记即可
+         *  作用：addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+         */
+//        @Suppress("DEPRECATION")
+//        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
+//            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
+//            WindowCompat.setDecorFitsSystemWindows(window, true)
+//            // 清除所有 LAYOUT_xxx 全屏标记
+//            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
+//            // 把系统栏恢复为不透明（防止三方页继承透明）
+//            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
+//            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
+//        }
     }
 
     /**
@@ -161,20 +183,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        // 先检测大屏设备，再执行父类的onCreate，避免布局加载
-        if (checkLargeScreen()) {
-            // 关闭所有Activity
-            finishAffinity()
-            // 终止进程（兼容所有安卓版本，捕获异常）
-            try {
-                killProcess(myPid())
-                exitProcess(0)
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-            // 如果检测到大屏设备，直接return，不执行后续逻辑
-            return
-        }
         /**
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
          * 状态栏:
@@ -207,6 +215,23 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             enableEdgeToEdge()
         }
         super.onCreate(savedInstanceState)
+        // 先检测大屏设备，避免布局加载
+        if (checkLargeScreen()) {
+            launch {
+                delay(800)
+                // 关闭所有Activity
+                finishAffinity()
+                // 终止进程（兼容所有安卓版本，捕获异常）
+                try {
+                    killProcess(myPid())
+                    exitProcess(0)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+            // 如果检测到大屏设备，直接return，不执行后续逻辑
+            return
+        }
         initBefore()
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
@@ -423,8 +448,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
+        for ((liveData, obs) in dataManager) {
+            liveData.removeObserver(obs)
         }
         dataManager.clear()
         mActivityResult.unregister()
@@ -442,13 +467,19 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      */
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
+        dataManager[this]?.let { oldObserver ->
+            removeObserver(oldObserver)
+        }
+        val storeObserver = Observer<Any?> { value ->
+            // 只是内部过滤空逻辑，不代表回调不会进来 null，入参本身依然是可空
             if (value != null) {
-                (value as? T)?.let { block(it) }
+                (value as? T)?.let {
+                    block(it)
+                }
             }
         }
-        dataManager[this] = observer
-        observe(this@BaseActivity, observer)
+        observe(this@BaseActivity, storeObserver)
+        dataManager[this] = storeObserver
     }
 
     /**

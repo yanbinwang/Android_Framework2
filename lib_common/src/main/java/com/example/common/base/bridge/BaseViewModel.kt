@@ -19,7 +19,7 @@ import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.base.BaseFragment
 import com.example.common.base.BaseTopSheetDialogFragment
 import com.example.common.base.page.Paging
-import com.example.common.base.page.getEmptyView
+import com.example.common.base.page.getEmptyLayout
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.manager.AppManager
@@ -29,7 +29,7 @@ import com.example.common.widget.EmptyLayout
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.common.widget.xrecyclerview.refresh.finishRefreshing
-import com.example.common.widget.xrecyclerview.refresh.getAutoRefreshTime
+import com.example.common.widget.xrecyclerview.refresh.getPullAnimDuration
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
@@ -141,42 +141,45 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     }
 
     /**
-     * 此处传入的是外层容器，而不是一个写好的EmptyView
-     * 继承BaseTitleActivity的页面传父类的ViewGroup
-     * 其余页面外层写FrameLayout，套上要使用的布局后再initView中调用该方法
+     * 绑定页面空布局、列表、下拉刷新控件
+     * @param view 根控件：FrameLayout/EmptyLayout/XRecyclerView/SmartRefreshLayout
+     * @param refresh 外部独立下拉刷新控件（优先级最高，会覆盖从view内部自动解析出的刷新
      */
     fun setExtraView(view: View?, refresh: SmartRefreshLayout? = null) {
         view ?: return
+        // 临时缓存，统一收集解析结果，refresh 仅存放从 view 自动解析到的刷新
+        var tempEmpty: EmptyLayout? = null
+        var tempRecycler: XRecyclerView? = null
+        var tempRefresh: SmartRefreshLayout? = null
         // 处理 view 的类型，设置 weakEmpty 和 weakRecycler
         when (view) {
-            // 传入BaseTitleActivity中写好的容器viewGroup
+            // 传入 BaseTitleActivity 中写好的容器 viewGroup
             is FrameLayout -> {
-                weakEmpty = WeakReference(view.getEmptyView(1))
-                mEmpty?.setWindows(true)
+                tempEmpty = view.getEmptyLayout(1)
+                tempEmpty?.setWindows(true)
             }
             // 界面上绘制好empty
-            is EmptyLayout -> weakEmpty = WeakReference(view)
+            is EmptyLayout -> {
+                tempEmpty = view
+            }
             // 传入用于刷新的empty
             is XRecyclerView -> {
-                weakRecycler = WeakReference(view)
-                weakEmpty = WeakReference(view.empty)
-                // 如果recyclerview是带有刷新的，且外层并未在该方法内注入refresh控件
-                if (view.isRefreshEnabled() && refresh == null) {
-                    weakRefresh = WeakReference(view.refresh)
-                }
+                tempRecycler = view
+                tempEmpty = view.empty
+                // 仅提取控件内置刷新，不做覆盖判断
+                if (view.isRefreshEnabled()) tempRefresh = view.refresh
             }
             // 外层下拉刷新的控件
             is SmartRefreshLayout -> {
-                // 仅在未显式传入 refresh 时从 view 中获取刷新控件
-                if (refresh == null) {
-                    weakRefresh = WeakReference(view)
-                }
+                tempRefresh = view
             }
         }
-        // 显式传入刷新控件时覆盖之前的设置
-        if (refresh != null) {
-            weakRefresh = WeakReference(refresh)
-        }
+        // 外部传入refresh > 自动解析的刷新
+        val finalRefresh = refresh ?: tempRefresh
+        // 仅非空控件才创建WeakReference，null直接赋值，减少对象分配
+        weakEmpty = tempEmpty?.let { WeakReference(it) }
+        weakRecycler = tempRecycler?.let { WeakReference(it) }
+        weakRefresh = finalRefresh?.let { WeakReference(it) }
     }
 
     /**
@@ -291,13 +294,13 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
      * 自动刷新控件浮现，记得setExtraView
      */
     protected suspend fun autoRefresh() {
-        delay(mRefresh?.getAutoRefreshTime().orZero)
+        delay(mRefresh?.getPullAnimDuration().orZero)
     }
 
     /**
      * 协程一旦启动，内部不调用cancel是会一直存在的，故而加一个管控
      */
-    protected inline fun Job.manageJob(key: String? = null) {
+    protected fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
         val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
         mJobKey.logWTF("manageJob")

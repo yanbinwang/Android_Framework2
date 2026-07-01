@@ -18,6 +18,7 @@ import android.text.TextWatcher
 import android.text.method.HideReturnsTransformationMethod
 import android.text.method.LinkMovementMethod
 import android.text.method.PasswordTransformationMethod
+import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -30,6 +31,7 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
+import androidx.annotation.FontRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -42,6 +44,7 @@ import com.example.framework.utils.NumberLimitFilter
 import com.example.framework.utils.SpaceInputFilter
 import com.example.framework.utils.WhiteListFilter
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.function.font
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.multiply
@@ -91,6 +94,18 @@ fun TextView?.bold(isBold: Boolean) {
 }
 
 /**
+ * 设置字体
+ * setTypeface(自定义字体, BOLD)：保留你的字体，只加粗
+ * defaultFromStyle(BOLD)：直接用系统默认字体
+ * setTypeface(font(R.font.font_bold), Typeface.NORMAL)
+ */
+fun TextView?.font(@FontRes res: Int? = null, style: Int = Typeface.NORMAL) {
+    this ?: return
+    val tf = if (res == null) null else context.font(res)
+    setTypeface(tf, style)
+}
+
+/**
  * 字重数值	对应名称（英文）	中文描述	      常见使用场景
  * 100	      Thin	         极细	     特殊设计感标题
  * 200	    Extra Light	     超轻	     轻量正文、辅助文字
@@ -102,7 +117,7 @@ fun TextView?.bold(isBold: Boolean) {
  * 800	   Extra Bold	     超粗	   大标题、强强调文字
  * 900	     Black	         特粗	     品牌名、醒目标题
  */
-fun TextView?.textFontWeight(weight: Int) {
+fun TextView?.fontWeight(weight: Int) {
     this ?: return
     val validWeight = weight.coerceIn(100, 900)
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -156,7 +171,7 @@ fun TextView?.randomTextColor() {
 }
 
 /**
- * 通过 dimens.xml 中定义的资源 ID，给 TextView 设置文字大小
+ * 通过 dimens.xml（里面写 pt/dp/sp 都行，AutoSize 适配） 中定义的资源 ID，给 TextView 设置文字大小
  * 不管资源里写的是什么单位，最终都转成像素（PX）给 TextView 用
  *
  * setTextSize(TypedValue.COMPLEX_UNIT_PX, ...)：
@@ -174,6 +189,7 @@ fun TextView?.textSize(@DimenRes res: Int) {
 }
 
 /**
+ * 项目 UI 还原专用，直接用 pt / dp 计算后的像素
  * 直接接收一个像素值（PX），并将其设置为 TextView 的文字大小
  * 使用扩展函数12.pt传入的话,会以设计图换算后的值为准设置给 TextView 用
  */
@@ -183,6 +199,7 @@ fun TextView?.pxTextSize(size: Float) {
 }
 
 /**
+ * 系统标准 sp 字体（跟随系统设置）
  * 将 value 按 SP 单位，结合当前页面的屏幕参数，转换为 PX
  */
 fun TextView?.spTextSize(value: Float) {
@@ -290,12 +307,10 @@ fun TextView?.matchText() {
 }
 
 /**
- * 获取textview文字占据的行数
+ * 获取textview文字占据的行数 (代码中在设置了text后调取 需要注意如果在list列表的话，数据不宜过多，会造成卡顿)
  * xml中设置属性：
  * android:ellipsize="end"
  * android:maxLines="2"
- * 代码中在设置了text后调取
- * 需要注意如果在list列表的话，数据不宜过多，会造成卡顿
  */
 inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int) -> Unit = {}) {
     if (this == null) {
@@ -304,7 +319,14 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
     }
     // 若 TextView 已经完成布局，直接获取省略字符数量
     doOnceAfterLayout {
-        val ellipsisCount = layout?.getEllipsisCount(lineCount - 1).orZero
+        /**
+         * 当 TextView 刚绑定数据但尚未完成测量，或者文本被设置为空字符串时，lineCount 可能返回 0。
+         * 此时 lineCount - 1 等于 -1，传入 layout?.getEllipsisCount(-1) 会直接抛出 ArrayIndexOutOfBoundsException。
+         * 虽然外层有 layout? 的空安全保护，但 layout 不为 null 且 lineCount == 0 是真实存在的状态，空安全拦不住这个异常
+         */
+        val ellipsisCount = layout?.run {
+            if (lineCount > 0) getEllipsisCount(lineCount - 1) else 0
+        }.orZero
         listener.invoke(ellipsisCount)
     }
 }
@@ -315,7 +337,10 @@ inline fun TextView?.getEllipsisCount(crossinline listener: (ellipsisCount: Int)
 fun TextView?.setSpannable(spannable: Spannable) {
     this ?: return
     text = spannable
-    movementMethod = LinkMovementMethod.getInstance()
+    // 仅按需启用 LinkMovementMethod
+    val hasClickable = spannable.getSpans(0, spannable.length, ClickableSpan::class.java).isNotEmpty()
+    movementMethod = if (hasClickable) LinkMovementMethod.getInstance() else null
+    // 高亮色统一清除
     clearHighlightColor()
 }
 
@@ -324,9 +349,7 @@ fun TextView?.setSpannable(spannable: Spannable) {
  */
 fun TextView?.clearHighlightColor() {
     this ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        highlightColor = Color.TRANSPARENT
-    }
+    highlightColor = Color.TRANSPARENT
 }
 
 /**
@@ -499,6 +522,11 @@ fun EditText?.multiply(number: String?) {
 fun EditText?.divide(number: String?, scale: Int = 0, roundingMode: RoundingMode = RoundingMode.DOWN) {
     this ?: return
     setText(getNumber().divide(number, scale, roundingMode))
+}
+
+fun EditText?.isZero(): Boolean {
+    this ?: return false
+    return getNumber() == "0"
 }
 
 /**

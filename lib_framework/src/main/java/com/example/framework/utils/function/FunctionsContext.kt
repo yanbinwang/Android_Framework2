@@ -40,9 +40,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toNewList
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.framework.utils.function.value.writeBundle
 import java.io.Serializable
 import java.util.WeakHashMap
 
@@ -175,12 +175,24 @@ fun Context.getPrimaryClip(): String {
 }
 
 /**
+ * 安全获取 MetaData Bundle 返回 null 表示未配置或读取失败
+ */
+fun Context.getMetaData(): Bundle? {
+    return try {
+        packageManager.getApplicationInfo(packageName, PackageManager.GET_META_DATA).metaData
+    } catch (e: PackageManager.NameNotFoundException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  *  获取android当前可用运行内存大小(byte)
  */
 fun Context.getAvailMemory(): Long {
-    val manager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     val memoryInfo = ActivityManager.MemoryInfo()
-    manager?.getMemoryInfo(memoryInfo)
+    activityManager?.getMemoryInfo(memoryInfo)
     return memoryInfo.availMem
 }
 
@@ -188,21 +200,18 @@ fun Context.getAvailMemory(): Long {
  * 获取当前应用使用的内存大小(byte)
  */
 fun Context.getSampleMemory(): Long {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-    var memory = 0L
-    try {
-        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()));
-        if (memInfo?.size.orZero > 0) {
-            memInfo ?: return 0
-            val totalPss = memInfo[0].totalPss
-            if (totalPss >= 0) {
-                memory = totalPss.toSafeLong()
-            }
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
+    return try {
+        val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+        val memInfo = activityManager?.getProcessMemoryInfo(intArrayOf(android.os.Process.myPid()))
+        if (memInfo.isNullOrEmpty()) return 0L
+        val pssKb = memInfo[0].totalPss
+        // 异常设备可能返回负数 PSS，防御性取 0
+        if (pssKb <= 0) return 0L
+        // PSS 单位是 KB，转 Byte；用 Long 防溢出
+        pssKb.toLong() * 1024L
+    } catch (_: Exception) {
+        0L
     }
-    return memory * 1024
 }
 
 /**
@@ -324,95 +333,24 @@ fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, 
 
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
     val intent = Intent(this, cls)
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String -> intent.putExtra(key, value)
-            is Bundle -> intent.putExtra(key, value)
-            is IntArray -> intent.putExtra(key, value)
-            is ByteArray -> intent.putExtra(key, value)
-            is CharArray -> intent.putExtra(key, value)
-            is LongArray -> intent.putExtra(key, value)
-            is FloatArray -> intent.putExtra(key, value)
-            is Parcelable -> intent.putExtra(key, value)
-            is ShortArray -> intent.putExtra(key, value)
-            is DoubleArray -> intent.putExtra(key, value)
-            is BooleanArray -> intent.putExtra(key, value)
-            is CharSequence -> intent.putExtra(key, value)
-            is Serializable -> intent.putExtra(key, value)
-        }
-    }
+    val bundle = Bundle()
+    bundle.writeBundle(*pairs)
+    intent.putExtras(bundle)
     return intent
 }
 
 fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
     val intent = Intent()
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> intent.putExtra(key, value)
-            is Byte -> intent.putExtra(key, value)
-            is Char -> intent.putExtra(key, value)
-            is Long -> intent.putExtra(key, value)
-            is Float -> intent.putExtra(key, value)
-            is Short -> intent.putExtra(key, value)
-            is Double -> intent.putExtra(key, value)
-            is Boolean -> intent.putExtra(key, value)
-            is String -> intent.putExtra(key, value)
-            is Bundle -> intent.putExtra(key, value)
-            is IntArray -> intent.putExtra(key, value)
-            is ByteArray -> intent.putExtra(key, value)
-            is CharArray -> intent.putExtra(key, value)
-            is LongArray -> intent.putExtra(key, value)
-            is FloatArray -> intent.putExtra(key, value)
-            is Parcelable -> intent.putExtra(key, value)
-            is ShortArray -> intent.putExtra(key, value)
-            is DoubleArray -> intent.putExtra(key, value)
-            is BooleanArray -> intent.putExtra(key, value)
-            is CharSequence -> intent.putExtra(key, value)
-            is Serializable -> intent.putExtra(key, value)
-        }
-    }
+    val bundle = Bundle()
+    bundle.writeBundle(*pairs)
+    intent.putExtras(bundle)
     setResult(resultCode, intent)
     return this
 }
 
 fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
     val bundle = Bundle()
-    pairs.forEach {
-        val key = it.first
-        when (val value = it.second) {
-            is Int -> bundle.putInt(key, value)
-            is Byte -> bundle.putByte(key, value)
-            is Char -> bundle.putChar(key, value)
-            is Long -> bundle.putLong(key, value)
-            is Float -> bundle.putFloat(key, value)
-            is Short -> bundle.putShort(key, value)
-            is Double -> bundle.putDouble(key, value)
-            is Boolean -> bundle.putBoolean(key, value)
-            is String -> bundle.putString(key, value)
-            is Bundle -> bundle.putBundle(key, value)
-            is IntArray -> bundle.putIntArray(key, value)
-            is ByteArray -> bundle.putByteArray(key, value)
-            is CharArray -> bundle.putCharArray(key, value)
-            is LongArray -> bundle.putLongArray(key, value)
-            is FloatArray -> bundle.putFloatArray(key, value)
-            is Parcelable -> bundle.putParcelable(key, value)
-            is ShortArray -> bundle.putShortArray(key, value)
-            is DoubleArray -> bundle.putDoubleArray(key, value)
-            is BooleanArray -> bundle.putBooleanArray(key, value)
-            is CharSequence -> bundle.putCharSequence(key, value)
-            is Serializable -> bundle.putSerializable(key, value)
-        }
-    }
+    bundle.writeBundle(*pairs)
     arguments = bundle
     return this
 }

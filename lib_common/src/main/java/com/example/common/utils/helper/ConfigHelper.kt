@@ -1,100 +1,86 @@
 package com.example.common.utils.helper
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData.privacyAgreed
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeLong
 
 /**
  *  Created by wangyanbin
  *  应用配置工具类
- *  application中尽量做一些第三方和项目工具的初始化，取值赋值静态变量容易丢失
- *  可以注入一个application，然后需要的时候再去调取方法取
  */
-@SuppressLint("StaticFieldLeak")
 object ConfigHelper {
-    private val mContext by lazy { BaseApplication.instance.applicationContext }
+    private val context by lazy { BaseApplication.instance.applicationContext }
+    private val packageInfo by lazy { context.packageManager.getPackageInfo(getPackageName(), 0) }
 
     // <editor-fold defaultstate="collapsed" desc="调取方法">
     /**
-     * 存储是否已经同意告知书
+     * 是否同意告知书
      */
-    fun setPrivacyAgreed(value: Boolean) {
-        privacyAgreed.set(value)
-    }
-
-    fun getPrivacyAgreed(): Boolean {
-        return privacyAgreed.get()
-    }
-
-    /**
-     * 在进程中去寻找当前APP的信息，判断是否在运行
-     * 100表示取的最大的任务数，info.topActivity表示当前正在运行的Activity，info.baseActivity表系统后台有此进程在运行
-     */
-    fun appIsOnForeground(): Boolean {
-        val processes = (mContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
-        for (process in processes) {
-            if (process.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && process.processName.equals(mContext.packageName)) return true
+    var isPrivacyPolicyAccepted: Boolean
+        get() = privacyAgreed.get()
+        set(value) {
+            privacyAgreed.set(value)
         }
-        return false
+
+    /**
+     * 检查 App 是否处于真正的前台交互状态
+     * 此方法仅判断前台交互性，不等同于 UI 可见性 (例如被半透明 Activity 覆盖时返回 false)
+     */
+    fun isAppInForeground(): Boolean {
+        val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
+        return processes.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && it.processName == getPackageName() }
     }
 
     /**
-     * 获取当前app version code
+     * 获取当前应用的 versionCode
      */
     fun getAppVersionCode(): Long {
-        var appVersionCode: Long = 0
-        try {
-            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
-            appVersionCode = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        return try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                 packageInfo.longVersionCode
             } else {
                 packageInfo.versionCode.toSafeLong()
             }
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
+            0L
         }
-        return appVersionCode
     }
 
     /**
-     * 获取当前app version name
+     * 获取当前应用的 versionName
      */
     fun getAppVersionName(): String {
-        var appVersionName = ""
-        try {
-            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
-            appVersionName = packageInfo.versionName.orEmpty()
+        return try {
+            packageInfo.versionName.orEmpty()
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
+            ""
         }
-        return appVersionName
     }
 
     /**
-     * 获取当前app 名称
+     * 获取当前应用的名称
      */
     fun getAppName(): String {
-        try {
-            val packageInfo = mContext.packageManager.getPackageInfo(mContext.packageName, 0)
-            val labelRes = packageInfo.applicationInfo?.labelRes.orZero
-            return mContext.resources.getString(labelRes)
+        return try {
+            val labelRes = packageInfo.applicationInfo?.labelRes ?: return ""
+            context.resources.getString(labelRes)
         } catch (e: Exception) {
             e.printStackTrace()
+            ""
         }
-        return ""
     }
 
     /**
-     * 获取当前app 包名
+     * 获取当前应用的包名
      */
     fun getPackageName(): String {
-        return mContext.packageName
+        return context.packageName
     }
     // </editor-fold>
 

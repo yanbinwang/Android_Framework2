@@ -80,9 +80,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var onGSYVideoPlayerListener: OnGSYVideoPlayerListener? = null
     private var onPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
     // 辅助工具类
-    private val mImmersionBar by lazy { ImmersionBar.with(mActivity) }
-    private val mBinding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
-    private val mGSYSampleCallBack by lazy {
+    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
+    private val binding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val gsySampleCallBack by lazy {
         object : GSYSampleCallBack() {
             override fun onStartPrepared(url: String?, vararg objects: Any?) {
                 super.onStartPrepared(url, *objects)
@@ -160,7 +160,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 // 可能部分机型会有问题,不过基本是兼容的
                 window.setStatusBarLightMode(false)
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-                    mImmersionBar?.apply {
+                    immersionBar?.apply {
                         reset()
                         statusBarDarkFont(false, 0.2f)
                         init()
@@ -300,7 +300,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     fun <T : StandardGSYVideoPlayer> bind(standardGSYVideoPlayer: T?, showTitle: Boolean = false, showBack: Boolean = false, showFullScreen: Boolean = false) {
         player = standardGSYVideoPlayer
-        player.initialize(mBinding.root, showTitle, showBack, showFullScreen)
+        player.initialize(binding.root, showTitle, showBack, showFullScreen)
         // 返回处理
         if (showBack) {
             player?.backButton.click {
@@ -381,19 +381,19 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             }
         }
         if (thumbUrl.isNullOrEmpty()) {
-            ImageLoader.instance.loadVideoFrameFromUrl(mBinding.ivThumb, url, onLoadStart = {
+            ImageLoader.instance.loadVideoFrameFromUrl(binding.ivThumb, url, onLoadStart = {
                 onLoadStartAction()
             }, onLoadComplete = {
                 if (it == null) {
                     // 如果Glide加载失败,采用视频工具类的suspendingThumbnail方法再次尝试进行加载
-                    mBinding.ivThumb.background(DEFAULT_RESOURCE)
+                    binding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
                     thumbJob = mActivity.lifecycleScope.launch {
                         val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(mActivity, url) }
                         if (null != bitmap) {
-                            mBinding.ivThumb.setBitmap(mActivity, bitmap)
+                            binding.ivThumb.setBitmap(mActivity, bitmap)
                         } else {
-                            mBinding.ivThumb.background(DEFAULT_MASK_RESOURCE)
+                            binding.ivThumb.background(DEFAULT_MASK_RESOURCE)
                         }
                         onLoadCompleteAction()
                     }
@@ -402,7 +402,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 }
             })
         } else {
-            ImageLoader.instance.loadImageFromUrl(mBinding.ivThumb, thumbUrl, onLoadStart = {
+            ImageLoader.instance.loadImageFromUrl(binding.ivThumb, thumbUrl, onLoadStart = {
                 onLoadStartAction()
             }, onLoadComplete = {
                 onLoadCompleteAction()
@@ -436,7 +436,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             // 是否边缓存，m3u8等无效
             .setCacheWithPlay(false)
             // 设置播放过程中的回调
-            .setVideoAllCallBack(mGSYSampleCallBack)
+            .setVideoAllCallBack(gsySampleCallBack)
             // 开启构建,绑定配置
             .build(player)
         // 如果需要自动播放,此时开启

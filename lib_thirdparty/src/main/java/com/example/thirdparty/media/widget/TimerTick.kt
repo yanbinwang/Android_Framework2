@@ -12,13 +12,12 @@ import android.view.WindowManager
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.function.ptFloat
-import com.example.common.utils.helper.ConfigHelper.appIsOnForeground
+import com.example.common.utils.helper.ConfigHelper.isAppInForeground
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.formatAsCountdown
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.second
 import com.example.framework.utils.function.value.toSafeInt
@@ -27,7 +26,7 @@ import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.init
-import com.example.framework.utils.function.view.padding
+import com.example.framework.utils.function.view.paddingAll
 import com.example.thirdparty.R
 import com.example.thirdparty.databinding.ViewTimeTickBinding
 
@@ -36,10 +35,10 @@ import com.example.thirdparty.databinding.ViewTimeTickBinding
  * @description 录屏小组件工具栏
  */
 @SuppressLint("ClickableViewAccessibility")
-class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: Boolean = true) {
+class TimerTick(mContext: Context, private val observer: LifecycleOwner, isMove: Boolean = true) {
     private val timer by lazy { TimerBuilder(observer) }
-    private val tickDialog by lazy { AlertDialog.Builder(mContext, R.style.AndDialogStyle).apply { setView(mBinding.root) }.create() }
-    private val mBinding by lazy { ViewTimeTickBinding.bind(mContext.inflate(R.layout.view_time_tick)) }
+    private val tickDialog by lazy { AlertDialog.Builder(mContext, R.style.AndDialogStyle).also { it.setView(binding.root) }.create() }
+    private val binding by lazy { ViewTimeTickBinding.bind(mContext.inflate(R.layout.view_time_tick)) }
 
     companion object {
         // 录制时的时间在应用回退到页面时赋值页面的时间
@@ -57,25 +56,25 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
         observer.doOnDestroy {
             destroy()
         }
-        //设置自定义的弹框
-        tickDialog?.apply {
+        // 设置自定义的弹框
+        tickDialog.apply {
             window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
             window?.setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-            window?.decorView?.padding(0, 0, 0, 0)
+            window?.decorView?.paddingAll(0)
             window?.decorView?.background(R.color.bgTransparent)
             setCancelable(false)
             setOnShowListener {
-                mBinding.root.gone()
+                binding.root.gone()
                 schedule(observer, {
                     // 半秒后做动画
-                    mBinding.root.appear()
+                    binding.root.appear()
                 }, 500)
             }
             setOnDismissListener {
-                mBinding.root.gone()
+                binding.root.gone()
             }
-            mBinding.cardIcon.init(5.ptFloat)
-            mBinding.root.doOnceAfterLayout { root ->
+            binding.cardIcon.init(5.ptFloat)
+            binding.root.doOnceAfterLayout { root ->
                 // 父View和子外层View就算配置了动画退到后台时照样会触发闪屏 , 故而在加载完成的瞬间直接隐藏
                 root.gone()
                 // 配置移动，只支持上下
@@ -85,8 +84,8 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
                 params?.verticalMargin = 0f
                 params?.height = root.measuredHeight
                 window?.attributes = params
-                if (move) {
-                    mBinding.root.setOnTouchListener(object : View.OnTouchListener {
+                if (isMove) {
+                    binding.root.setOnTouchListener(object : View.OnTouchListener {
                         private var lastX = 0
                         private var lastY = 0
                         private var paramX = 0
@@ -123,14 +122,16 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
         timer.startTask(TASK_DISPLAY_TICK_TAG, {
             timerSecond++
             // 每秒做一次检测，当程序退到后台显示计时器
-            if (null != tickDialog) {
-                if (!appIsOnForeground()) {
-                    if (!tickDialog?.isShowing.orFalse) tickDialog?.show()
-                } else {
-                    tickDialog?.dismiss()
+            if (!isAppInForeground()) {
+                if (!tickDialog.isShowing) {
+                    tickDialog.show()
+                }
+            } else {
+                if (tickDialog.isShowing) {
+                    tickDialog.dismiss()
                 }
             }
-            mBinding.tvTimer.text = (timerSecond - 1).second.formatAsCountdown()
+            binding.tvTimer.text = (timerSecond - 1).second.formatAsCountdown()
         })
     }
 
@@ -139,8 +140,8 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, move: B
      */
     fun destroy() {
         timerSecond = 0
-        tickDialog?.dismiss()
-        mBinding.unbind()
+        tickDialog.dismiss()
+        binding.unbind()
     }
 
 }

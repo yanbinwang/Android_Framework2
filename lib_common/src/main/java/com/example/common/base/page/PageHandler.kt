@@ -8,6 +8,8 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
+import com.example.common.base.BaseActivity
+import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
@@ -21,42 +23,43 @@ import com.therouter.TheRouter
 import com.therouter.router.Navigator
 import com.therouter.router.matchRouteMap
 
-
 /**
- * 列表页调取方法
+ * 列表页快速处理空数据状态
+ * @param count 列表数据条数
+ * @param resId 空态图片资源
+ * @param text 自定义空提示文本（原生字符串，非String资源id）
  */
-fun XRecyclerView?.setState(length: Int = 0, imgRes: Int? = null, text: String? = null) {
+fun XRecyclerView?.setListEmpty(count: Int = 0, resId: Int? = null, text: String? = null) {
     this ?: return
     finishRefreshing()
     // 判断集合长度，有长度不展示EmptyLayout只做提示
-    if (length <= 0) empty.setEmptyState(imgRes, text)
+    if (count <= 0) empty.setEmptyUi(resId, text)
 }
 
 /**
- * 页面工具类
- * 1.接口提示
- * 2.遮罩层操作
+ * 更新空白占位布局图文
+ * @param resId 空图资源
+ * @param text 自定义提示文本字符串
+ * @param viewIndex 空布局所在子View下标
  */
-fun ViewGroup?.setEmptyState(resId: Int? = null, text: String? = null, index: Int = 1) {
+fun ViewGroup?.setEmptyUi(resId: Int? = null, text: String? = null, viewIndex: Int = 1) {
     this ?: return
-    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(index)
+    val emptyLayout = if (this is EmptyLayout) this else getEmptyLayout(viewIndex)
     emptyLayout?.error(resId, text)
 }
 
 /**
- * 详情页
+ * 获取/自动创建空白占位布局
+ * @param viewIndex 空布局下标
  */
-fun ViewGroup?.getEmptyView(index: Int = 1): EmptyLayout? {
+fun ViewGroup?.getEmptyLayout(viewIndex: Int = 1): EmptyLayout? {
     this ?: return null
     return if (childCount <= 1) {
-        val empty = EmptyLayout(context).apply {
+        EmptyLayout(context).apply {
             onInflate()
-//            loading()
-        }
-        addView(empty)
-        empty
+        }.also{ addView(it) }
     } else {
-        getChildAt(index) as? EmptyLayout
+        getChildAt(viewIndex) as? EmptyLayout
     }
 }
 
@@ -99,6 +102,9 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
             } else {
                 activityResultValue.launch(intent, options)
             }
+            // 基类添加正在启动
+            val cls = navigator.getDestinationClass() ?: return@navigateWithInterceptors
+            if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }, {
         it?.printStackTrace()

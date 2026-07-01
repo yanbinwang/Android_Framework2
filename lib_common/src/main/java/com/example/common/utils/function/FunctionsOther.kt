@@ -2,7 +2,6 @@ package com.example.common.utils.function
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.pm.PackageManager
 import android.content.res.Resources
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
@@ -12,8 +11,6 @@ import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.VectorDrawable
 import android.text.Spannable
 import android.text.SpannableString
-import android.text.TextPaint
-import android.text.style.ClickableSpan
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
@@ -32,7 +29,6 @@ import androidx.core.widget.NestedScrollView
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
-import com.example.common.config.ServerConfig
 import com.example.common.utils.NavigationBarDrawable
 import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.ScreenUtil.screenWidth
@@ -43,12 +39,13 @@ import com.example.common.utils.function.ExtraNumber.ptFloat
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
-import com.example.framework.utils.ClickSpan
 import com.example.framework.utils.ColorSpan
+import com.example.framework.utils.LinkClickSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.drawable
+import com.example.framework.utils.function.getMetaData
 import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.string
@@ -65,15 +62,6 @@ import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
 
 //------------------------------------按钮，控件行为工具类------------------------------------
-/**
- * 对应的拼接区分本地和测试
- */
-val Int?.byServerUrl: String
-    get() = string(this.orZero).byServerUrl
-
-val String?.byServerUrl: String
-    get() = "${ServerConfig.serverUrl()}${this}"
-
 /**
  * 设计图尺寸转换为实际尺寸
  */
@@ -93,40 +81,26 @@ val Number?.dpFloat: Float
     get() = dpFloat()
 
 /**
- * 获取Manifest中的参数
+ * 获取 AndroidManifest 中的参数
  */
-fun getManifestString(name: String): String? {
-    val context = BaseApplication.instance.applicationContext
-    return context.packageManager.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA).metaData.get(name)?.toString()
+fun getManifestInt(name: String, default: Int = 0): Int {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getInt(name, default) ?: default
 }
 
-/**
- * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
- * "status_bar_height" → 状态栏高度
- * "navigation_bar_height" → 竖屏导航栏高度
- * "navigation_bar_height_landscape" → 横屏导航栏高度
- */
-fun getInternalDimensionSize(key: String): Int {
-    val context = BaseApplication.instance.applicationContext
-    val result = 0
-    try {
-        val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
-        if (resourceId > 0) {
-            val size = context.resources.getDimensionPixelSize(resourceId)
-            val size2 = Resources.getSystem().getDimensionPixelSize(resourceId)
-            return if (size2 >= size) {
-                size2
-            } else {
-                val densityOne = context.resources.displayMetrics.density
-                val densityTwo = Resources.getSystem().displayMetrics.density
-                val f = size * densityTwo / densityOne
-                (if (f >= 0) f + 0.5f else f - 0.5f).toInt()
-            }
-        }
-    } catch (_: Resources.NotFoundException) {
-        return 0
-    }
-    return result
+fun getManifestLong(name: String, default: Long = 0L): Long {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getLong(name, default) ?: default
+}
+
+fun getManifestDouble(name: String, default: Double = 0.0): Double {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getDouble(name, default) ?: default
+}
+
+fun getManifestBoolean(name: String, default: Boolean = false): Boolean {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getBoolean(name, default) ?: default
+}
+
+fun getManifestString(name: String, default: String = ""): String {
+    return BaseApplication.instance.applicationContext.getMetaData()?.getString(name, default) ?: default
 }
 
 /**
@@ -161,6 +135,36 @@ fun getNavigationBarHeight(): Int {
     } else {
         val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
         insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+    }
+}
+
+/**
+ * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
+ * "status_bar_height" → 状态栏高度
+ * "navigation_bar_height" → 竖屏导航栏高度
+ * "navigation_bar_height_landscape" → 横屏导航栏高度
+ */
+private fun getInternalDimensionSize(key: String): Int {
+    val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
+    if (resourceId <= 0) return 0
+    return try {
+        val context = BaseApplication.instance.applicationContext
+        val systemSize = Resources.getSystem().getDimensionPixelSize(resourceId)
+        val appSize = context.resources.getDimensionPixelSize(resourceId)
+        // 优先取较大值；若系统值更小，则按密度比补偿后四舍五入
+        if (systemSize >= appSize) {
+            systemSize
+        } else {
+            val densityCompensatedSize = appSize * Resources.getSystem().displayMetrics.density / context.resources.displayMetrics.density
+            // 刻意保留 ±0.5f 手写取整，不使用 roundToInt() 因为 roundToInt() 在 -0.5f 时结果为 0，而原版逻辑结果为 -1，必须保持逐 bit 一致以避免兼容性问题
+            (if (densityCompensatedSize >= 0) {
+                densityCompensatedSize + 0.5f
+            } else {
+                densityCompensatedSize - 0.5f
+            }).toInt()
+        }
+    } catch (_: Resources.NotFoundException) {
+        0
     }
 }
 
@@ -292,87 +296,76 @@ fun String?.setPrimaryClip(label: String = "Label") {
 }
 
 /**
- * 使用CardView时,4个角都会带有弧度,但是有些xml在绘制时,底部是不需要的
- * 可以外层套一个FrameLayout,背景设为透明,内部套CardView,cardBackgroundColor设为对应纯色或图片,然后调用该扩展
+ * 在 View 底部叠加一个指定高度的纯色矩形补丁
+ * 适用于修复圆角容器底部透底、衔接导航栏背景等场景
+ * @param colorRes 底部补丁颜色资源
+ * @param radius 圆角弧度
  */
-fun View?.adjustRadiusDrawable(@ColorRes color: Int, radius: Int) {
+fun View?.applyBottomColorPatch(@ColorRes colorRes: Int, radius: Int) {
     this ?: return
-    val windowBackground = when (background) {
+    val baseDrawable = when (background) {
         is ColorDrawable -> background
         is BitmapDrawable, is VectorDrawable -> background
         else -> null
     } ?: color(R.color.appWindowBackground).toDrawable()
-    val bottomColor = color(color)
-    val bottomDrawable = NavigationBarDrawable(bottomColor)
-    bottomDrawable.paint.color = bottomColor
-    bottomDrawable.updateNavigationBarHeight(radius)
-    val combinedDrawable = LayerDrawable(arrayOf(windowBackground, bottomDrawable))
-    background = combinedDrawable
-}
-
-/**
- * 设置textview内容当中某一段的颜色
- */
-fun TextView?.setSpan(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
-    this ?: return
-    val textToProcess = when (txt) {
-        is Int -> string(txt)
-        is String -> txt
-        else -> ""
+    val patchDrawable = NavigationBarDrawable(color(colorRes)).apply {
+        updateNavigationBarHeight(radius)
     }
-    val keywordToProcess = when (keyword) {
-        is Int -> string(keyword)
-        is String -> keyword
-        else -> ""
-    }
-    val span = ColorSpan(context.color(colorRes))
-    setSpannable(if (spanAll) {
-        textToProcess.setSpanAll(keywordToProcess, span)
-    } else {
-        textToProcess.setSpanFirst(keywordToProcess, span)
-    })
-}
-
-/**
- * 设置点击跳转
- */
-fun TextView?.setSpan(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
-    this ?: return
-    val textToProcess = when (txt) {
-        is Int -> string(txt)
-        is String -> txt
-        else -> ""
-    }
-    var content: Spannable = SpannableString.valueOf(textToProcess)
-    keywords.forEach {
-        val keyword = when (val res = it.first) {
-            is Int -> string(res)
-            is String -> res
-            else -> ""
-        }
-        content = content.setSpanFirst(keyword, ColorSpan(context.color(it.second)), ClickSpan(object : XClickableSpan() {
-            override fun onLinkClick(widget: View) {
-                it.third.invoke()
-            }
-        }))
-    }
-    setSpannable(content)
-}
-
-fun TextView?.setSpan(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
-    setSpan(txt, *keywords.map {
-        Triple(it.first, colorRes, it.second)
-    }.toTypedArray())
+    background = LayerDrawable(arrayOf(baseDrawable, patchDrawable))
 }
 
 /**
  * 设置显示内容和对应文本颜色
  */
-fun TextView?.setTheme(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
+fun TextView?.applyTextStyle(txt: String = "", @ColorRes colorRes: Int = R.color.appTheme, resId: Int = -1) {
     this ?: return
     text = txt
     textColor(colorRes)
     if (-1 != resId) background(resId)
+}
+
+/**
+ * 高亮某段文本
+ */
+fun TextView?.highlightText(txt: Any, keyword: Any, @ColorRes colorRes: Int = R.color.appTheme, spanAll: Boolean = false) {
+    this ?: return
+    val content = resolveText(txt)
+    val target = resolveText(keyword)
+    val span = ColorSpan(context.color(colorRes))
+    setSpannable(if (spanAll) {
+        content.setSpanAll(target, span)
+    } else {
+        content.setSpanFirst(target, span)
+    })
+}
+
+/**
+ * 绑定可点击文本
+ */
+fun TextView?.linkText(txt: Any, vararg keywords: Triple<Any, Int, () -> Unit>) {
+    this ?: return
+    var spannable: Spannable = SpannableString.valueOf(resolveText(txt))
+    keywords.forEach { (keywordSource, colorRes, clickAction) ->
+        val target = resolveText(keywordSource)
+        spannable = spannable.setSpanFirst(target, ColorSpan(color(colorRes)), LinkClickSpan(color(R.color.appTheme)) {
+            clickAction.invoke()
+        })
+    }
+    setSpannable(spannable)
+}
+
+fun TextView?.linkText(txt: Any, vararg keywords: Pair<Any, () -> Unit>, @ColorRes colorRes: Int = R.color.appTheme) {
+    linkText(txt, *keywords.map { (keywordSource, clickAction) ->
+        Triple(keywordSource, colorRes, clickAction)
+    }.toTypedArray())
+}
+
+private fun resolveText(source: Any): String {
+    return when (source) {
+        is Int -> string(source)
+        is String -> source
+        else -> ""
+    }
 }
 
 ///**
@@ -540,79 +533,21 @@ private fun getActualInputView(v: View?): EditText? {
 }
 
 /**
- * 联动滑动时某个控件显影，传入对应控件的高度（dp）
+ * px/dp 设计图换算
  */
-fun NestedScrollView?.addAlphaListener(menuHeight: Int, func: (alpha: Float) -> Unit?) {
-    this ?: return
-    setOnScrollChangeListener(NestedScrollView.OnScrollChangeListener { _, _, scrollY, _, _ ->
-        // 确保menuHeight不为0，避免除零异常
-        if (menuHeight <= 0) {
-            func(0f)
-            return@OnScrollChangeListener
-        }
-        // 计算透明度：在0到menuHeight范围内从0平滑过渡到1
-        val alpha = (scrollY.toFloat() / menuHeight).coerceIn(0f, 1f)
-        func(alpha)
-//        func.invoke(if (scrollY <= menuHeight / 2f) 0 + scrollY / (menuHeight / 4f) else 1f)
-    })
-}
-
-//private static final int SCROLL_THRESHOLD = 500;
-//
-//scrollView.setOnScrollChangeListener(new ViewTreeObserver.OnScrollChangedListener() {
-//    @Override
-//    public void onScrollChanged() {
-//        // 获取当前滚动的垂直距离（像素）
-//        int scrollY = scrollView.getScrollY();
-//        // 限制范围并计算透明度
-//        int clampedScrollY = Math.max(0, Math.min(scrollY, SCROLL_THRESHOLD));
-//        float alpha = (float) clampedScrollY / SCROLL_THRESHOLD;
-//        // 应用透明度
-//        backgroundBlock.setAlpha(alpha);
-//    }
-//})
-
-/**
- * 点击链接的span
- * "我已阅读《用户协议》和《隐私政策》".setSpanFirst("《用户协议》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击用户协议".logWTF
- *      }
- *  })).setSpanFirst("《隐私政策》",ClickSpan(object :XClickableSpan(){
- *      override fun onLinkClick(widget: View) {
- *          "点击隐私政策".logWTF
- *      }
- *  }))
- *  textView.movementMethod = android.text.method.LinkMovementMethod.getInstance()
- */
-abstract class XClickableSpan(private val colorRes: Int = R.color.appTheme) : ClickableSpan() {
-
-    abstract fun onLinkClick(widget: View)
-
-    override fun onClick(widget: View) {
-        onLinkClick(widget)
-    }
-
-    override fun updateDrawState(ds: TextPaint) {
-        super.updateDrawState(ds)
-        ds.color = color(colorRes)
-        ds.isUnderlineText = false
-    }
-}
-
 object ExtraNumber {
     /**
      * 根据AutoSize设置来获取设定的宽度
      * 从 Manifest 中获取配置的设计稿宽度（dp 单位），默认值为 375dp，用于尺寸适配计算
      */
-    private val designWidth by lazy { getManifestString("design_width_in_dp").toSafeInt(375) }
+    private val designWidth by lazy { getManifestInt("design_width_in_dp").toSafeInt(375) }
 
     /**
      * dp → 转成 手机真实像素 px
      */
-    fun Number?.dp(): Int {
+    fun Number?.dp(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return dpFloat().toInt()
+        return dpFloat(context).toInt()
     }
 
     fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
@@ -623,9 +558,9 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.pt(): Int {
+    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
         if (this == null) return 0
-        return getRealSize(this.toDouble())
+        return getRealSize(context, this.toDouble())
     }
 
     /**
@@ -637,49 +572,21 @@ object ExtraNumber {
     }
 
     /**
-     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
-     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。若输入值≤0 则返回 0，结果最小为 1 像素
+     * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
+     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。
      */
-    @JvmStatic
-    fun getRealSize(length: Int): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(length: Double): Int {
-        return if (length > 0) {
-            (length * screenWidth.toDouble() / designWidth).toInt().min(1)
-        } else {
-            0
-        }
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Int): Int {
-        return length * screenWidth(context) / designWidth
-    }
-
-    @JvmStatic
-    fun getRealSize(context: Context, length: Double): Int {
-        return (length * screenWidth(context).toDouble() / designWidth).toInt()
+    private fun getRealSize(context: Context, length: Double): Int {
+        if (length <= 0) return 0
+        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
     }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-    @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Int): Float {
-        return getRealSizeFloat(context, length.toFloat())
-    }
-
-    @JvmStatic
-    fun getRealSizeFloat(context: Context, length: Float): Float {
-        return length * screenWidth(context).toFloat() / designWidth.toFloat()
+    private fun getRealSizeFloat(context: Context, length: Float): Float {
+        if (length <= 0) return 0f
+        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
     }
 
 }

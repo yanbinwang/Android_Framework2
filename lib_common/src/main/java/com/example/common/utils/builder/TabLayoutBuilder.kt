@@ -193,6 +193,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
     }
 
+    constructor(observer: LifecycleOwner, tab: TabLayout?, vararg data: T) : this(observer, tab, data.toList())
+
     init {
         observer.doOnDestroy {
             tab?.removeOnTabSelectedListener(mTabListener)
@@ -235,6 +237,18 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         pager.adapter(adapter, orientation, userInputEnabled, pageLimit)
         mediator = pager.bind(tab)
         initEvent(default)
+    }
+
+    fun build(vararg data: T, default: Int = 0) {
+        build(data.toList(), default)
+    }
+
+    fun bind(fragmentBuilder: FragmentBuilder, vararg data: T, default: Int = 0) {
+        bind(fragmentBuilder, data.toList(), default)
+    }
+
+    fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, vararg data: T, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = true, default: Int = 0) {
+        bind(pager, adapter, data.toList(), orientation, userInputEnabled, pageLimit, default)
     }
 
     private fun initView(list: List<T>? = null) {

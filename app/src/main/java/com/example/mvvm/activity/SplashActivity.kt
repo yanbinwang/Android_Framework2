@@ -14,7 +14,6 @@ import com.example.common.utils.applyFullScreen
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.adjustLayerDrawable
 import com.example.framework.utils.function.view.alpha
-import com.example.framework.utils.function.view.margin
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivitySplashBinding
 import com.therouter.router.Route
@@ -134,9 +133,11 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
      */
     private fun adjustSplashUi() {
         if (!isHighVersion) {
-            mBinding?.ivSplash.let {
-                it.margin(top = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)[1])
-            }
+            mBinding?.ivSplash.adjustLayerDrawable(R.drawable.layout_list_splash, 1)
+//            mBinding?.ivSplash.let {
+//                val (_, top, _, _) = it.adjustLayerDrawable(R.drawable.layout_list_splash, 1)
+//                it.margin(top = top)
+//            }
         }
     }
 
