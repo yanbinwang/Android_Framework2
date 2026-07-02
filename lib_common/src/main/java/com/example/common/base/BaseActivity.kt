@@ -219,14 +219,16 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (checkLargeScreen()) {
             launch {
                 delay(800)
-                // 关闭所有Activity
-                finishAffinity()
-                // 终止进程（兼容所有安卓版本，捕获异常）
-                try {
-                    killProcess(myPid())
-                    exitProcess(0)
-                } catch (e: Exception) {
-                    e.printStackTrace()
+                if (!isFinishing && !isDestroyed) {
+                    // 关闭所有Activity
+                    finishAffinity()
+                    // 终止进程（兼容所有安卓版本，捕获异常）
+                    try {
+                        killProcess(myPid())
+                        exitProcess(0)
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
                 }
             }
             // 如果检测到大屏设备，直接return，不执行后续逻辑
