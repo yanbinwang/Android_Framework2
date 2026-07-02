@@ -12,10 +12,24 @@ import com.example.framework.utils.function.value.toSafeInt
 import java.util.Locale
 
 /**
- * @description 國家工具類
- * @author yan
+ * 语言选项工具类 (默认英语)
  */
 object LanguageUtil {
+
+    /**
+     * 設置語言
+     */
+    fun setLanguage(@Language packName: String) {
+        language.set(packName)
+    }
+
+    /**
+     * 獲取服务器需要的用於识别的语言名
+     */
+    @Language
+    fun getLanguage(): String {
+        return language.get() ?: en_US
+    }
 
     /**
      * 設置本機的語言
@@ -34,22 +48,7 @@ object LanguageUtil {
     }
 
     /**
-     * 設置語言
-     */
-    fun setLanguage(languageStr: String) {
-        language.set(languageStr)
-    }
-
-    /**
-     * @return 獲取服务器需要的用於识别的语言名
-     */
-    @Language
-    fun getLanguage(): String {
-        return language.get().orEmpty()
-    }
-
-    /**
-     * @return 获取目前选定语言包的本地json
+     * 获取目前选定语言的本地json
      */
     fun getLanguageLocalAsset(language: String? = getLanguage()): String {
         return when (language) {
@@ -61,15 +60,17 @@ object LanguageUtil {
     }
 
     /**
-     * 根據取到的手機語言切換對應語言包
+     * 根據取到的手機語言切換對應語言
      */
     fun resetLanguage() {
-        when (Locale.getDefault().language.lowercase()) {
-            "zh" -> language.set(zh_TW)
-            "en" -> language.set(en_US)
-            "in" -> language.set(in_ID)
-            else -> language.set(en_US)
-        }
+        setLanguage(
+            when (Locale.getDefault().language.lowercase()) {
+                "zh" -> zh_TW
+                "en" -> en_US
+                "in" -> in_ID
+                else -> en_US
+            }
+        )
     }
 
     /**

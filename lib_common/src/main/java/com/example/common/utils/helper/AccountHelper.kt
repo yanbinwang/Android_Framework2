@@ -6,8 +6,10 @@ import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.RouterPath
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
+import com.example.common.event.EventCode.EVENT_USER_LOGIN
+import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
+import com.example.common.network.socket.topic.WebSocketConnect
 import com.example.common.utils.manager.AppManager
-import com.example.common.utils.manager.CacheDataManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
 import com.therouter.TheRouter
@@ -112,13 +114,13 @@ object AccountHelper {
 
     // <editor-fold defaultstate="collapsed" desc="通用用户工具类方法">
     /**
-     * 刷新个人信息
+     * 刷新个人信息 (重写 equals 和 hashcode)
      */
     fun refresh(bean: UserInfoBean?, isPost: Boolean = true) {
         bean ?: return
         if (getUserInfo() == bean) return
         setUserInfo(bean)
-        if(isPost) EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
+        if (isPost) EVENT_USER_INFO_REFRESH.post(userInfoBean.get())
     }
 
     /**
@@ -136,6 +138,8 @@ object AccountHelper {
     fun signIn(bean: UserBean?) {
         bean ?: return
         setUser(bean)
+//        SupportUtil.logoutUser(true)
+//        EVENT_USER_LOGIN.post()
     }
 
     /**
@@ -143,17 +147,31 @@ object AccountHelper {
      * MainActivity中注册EVENT_USER_LOGIN_OUT广播，关闭除其外的所有activity
      * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
      */
-    fun signOut(isNavigation: Boolean = true) {
+    fun signOut() {
+        // 清除mmkv和默认配置的数据库等缓存数据
         userBean.del()
         userInfoBean.del()
-        CacheDataManager.clearCacheBySignOut()
+        AppManager.rebootTaskStackAndLaunchTarget(RouterPath.StartActivity)
+    }
+
+//    fun signOut(isNavigation: Boolean = true) {
+//        userBean.del()
+//        userInfoBean.del()
+//        SupportUtil.logoutUser(true)
 //        WebSocketConnect.disconnect()
 //        EVENT_USER_LOGIN_OUT.post()
-        AppManager.finishAllActivities()
-//        TheRouter.build(ARouterPath.StartActivity).navigation()
-        if (isNavigation) {
-            TheRouter.build(RouterPath.LoginActivity).navigation()
-        }
+//        if (isNavigation) {
+//            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
+//        }
+//    }
+
+    /**
+     * 登录时，有2个值是需要保证的，用户登录信息，基本信息
+     * 只要有一个接口报错，全部清空，反之依次存储
+     */
+    fun signError() {
+        userBean.del()
+        userInfoBean.del()
     }
     // </editor-fold>
 
