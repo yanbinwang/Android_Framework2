@@ -401,6 +401,9 @@ println(myClass.myProperty)
  * 存在后台驻留、进程保活、三方跨应用交互逻辑；
  * 单例全局长期存活，依赖页面生命周期回调做持续业务；
  * 担心低内存回收页面时ON_DESTROY监听丢失，不想赌系统生命周期完整性。
+ *
+ * 软引用：内存充足时，触发 GC 也保留；仅内存濒临 OOM 时才回收；更晚被回收
+ * 弱引用：无论内存充裕还是紧张，只要触发 GC 直接回收；更早被回收
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
