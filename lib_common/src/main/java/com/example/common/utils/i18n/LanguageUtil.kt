@@ -50,7 +50,7 @@ object LanguageUtil {
     /**
      * 获取目前选定语言的本地json
      */
-    fun getLanguageLocalAsset(language: String? = getLanguage()): String {
+    fun getLocalLanguageAsset(language: String? = getLanguage()): String {
         return when (language) {
             zh_TW -> zh_TW_PACK
             en_US -> en_US_PACK

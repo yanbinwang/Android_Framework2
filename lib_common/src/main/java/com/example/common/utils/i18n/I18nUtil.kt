@@ -168,7 +168,7 @@ object I18nUtil {
      * 讀取assets下的font字體文件
      */
     fun getLocalLanguageBean(language: String?): LanguageBean? {
-        val pack = LanguageUtil.getLanguageLocalAsset(language)
+        val pack = LanguageUtil.getLocalLanguageAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             assetManager.open(pack).use { stream ->
@@ -187,7 +187,7 @@ object I18nUtil {
      * 獲取本機語言包版本
      */
     fun getLocalLanguageVersion(language: String?): Int? {
-        val pack = LanguageUtil.getLanguageLocalAsset(language)
+        val pack = LanguageUtil.getLocalLanguageAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             // 打开指定语言包，失败直接返回0
