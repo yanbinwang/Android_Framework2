@@ -10,7 +10,6 @@ import com.example.common.config.I18nMap
 import com.example.common.event.EventCode.EVENT_LANGUAGE_CHANGE
 import com.example.common.utils.GsonUtil.getGsonInstance
 import com.example.common.utils.function.string
-import com.example.common.utils.i18n.LanguagePackAsset.Companion.en_US_PACK
 import com.example.common.widget.i18n.I18nImpl
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.isDebug
@@ -24,7 +23,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.atomic.AtomicReference
 
 /**
  * @description 國際化工具類
@@ -62,16 +60,12 @@ object I18nUtil {
 //        checkList()
     }
 
-//    /**
-//     * 检查是否有已被回收的item
-//     */
-//    private fun checkList() {
-//        viewList.get()
-//            .filter { it.get() == null }
-//            .forEach {
-//                viewList.get().remove(it)
-//            }
-//    }
+    /**
+     * 检查是否有已被回收的item
+     */
+    fun clearLanguage() {
+        viewList.removeAll { it.get() == null }
+    }
 
     /**
      * 刷新全局语言
@@ -177,12 +171,7 @@ object I18nUtil {
         val pack = LanguageUtil.getLanguageLocalAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
-            val inputStream = try {
-                assetManager.open(pack)
-            } catch (_: Exception) {
-                assetManager.open(en_US_PACK)
-            }
-            inputStream.use { stream ->
+            assetManager.open(pack).use { stream ->
                 InputStreamReader(stream, "UTF-8").use { reader ->
                     JsonReader(reader).use { jsonReader ->
                         getGsonInstance().fromJson(jsonReader, object : TypeToken<LanguageBean>() {}.type)
