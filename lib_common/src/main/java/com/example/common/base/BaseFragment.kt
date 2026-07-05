@@ -42,6 +42,7 @@ import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelChildren
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
@@ -89,7 +90,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
     val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected var lazyData = false
+    protected var isLazyLoadEnabled = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mResultWrapper = registerResultWrapper()
@@ -149,7 +150,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         super.onViewCreated(view, savedInstanceState)
         initView(savedInstanceState)
         initEvent()
-        if (!lazyData) initData()
+        if (!isLazyLoadEnabled) initData()
     }
 
     protected open fun isBindingEnabled(): Boolean {
@@ -209,16 +210,17 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     override fun onDestroyView() {
         super.onDestroyView()
         clearOnActivityResultListener()
-        mActivityResult.unregister()
-        mBinding?.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         for ((liveData, obs) in dataManager) {
             liveData.removeObserver(obs)
         }
         dataManager.clear()
+        mActivityResult.unregister()
+        mBinding?.unbind()
+        coroutineContext.cancelChildren()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
         job.cancel()
     }
     // </editor-fold>
@@ -237,7 +239,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             }
         }
         dataManager[this] = storeObserver
-        observe(this@BaseFragment, storeObserver)
+        observe(viewLifecycleOwner, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
