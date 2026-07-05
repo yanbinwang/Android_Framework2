@@ -464,8 +464,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
     /**
      * ViewModel 中定义无值事件（用 Unit 替代 Any）
-     * val reason by lazy { MutableLiveData<Unit>() } // 无值事件
-     * Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     *  val reason by lazy { MutableLiveData<Unit>() } // 无值事件
+     *  Unit 类型的 value 是 Unit 实例（非 null），会触发回调
+     * putIfAbsent：
+     * 1) Key 不存在：插入新值，返回 null。
+     * 2) Key 已存在：不覆盖，返回已存在的那个旧 Value 对象本身（绝对不是 null，也不是什么“空值”）
      */
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
