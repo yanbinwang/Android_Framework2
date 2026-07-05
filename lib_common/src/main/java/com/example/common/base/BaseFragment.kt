@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -40,17 +41,17 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.collections.component1
-import kotlin.collections.component2
 import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 /**
  * Created by WangYanBin on 2020/6/4.
@@ -84,12 +85,12 @@ import kotlin.coroutines.CoroutineContext
  */
 @Suppress("UNCHECKED_CAST")
 @SuppressLint("UseRequireInsteadOfGet")
-abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView, CoroutineScope {
+abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseView {
     val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
     val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    protected var lazyData = false
+    protected var isLazyLoadEnabled = false
     protected var mBinding: VDB? = null
     protected var mContext: Context? = null
     protected val mResultWrapper = registerResultWrapper()
@@ -98,8 +99,6 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {
@@ -149,7 +148,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         super.onViewCreated(view, savedInstanceState)
         initView(savedInstanceState)
         initEvent()
-        if (!lazyData) initData()
+        if (!isLazyLoadEnabled) initData()
     }
 
     protected open fun isBindingEnabled(): Boolean {
@@ -205,21 +204,18 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
      *
      * onDestroyView()：负责释放视图相关资源（View、Drawable、监听器等），与视图生命周期强绑定，是最安全的时机。
      * onDestroy()：负责释放Fragment 实例级资源（如全局监听器、服务连接等），仅在 Fragment 真正销毁时调用。
+     *
+     * onDestroyView() 已经承担了所有 View 相关的清理（LiveData、Binding、ActivityResult）。因此，onDestroy() 只应该处理“跨越了多次 View 重建、且与 Fragment 实例同生共死”的资源
      */
     override fun onDestroyView() {
         super.onDestroyView()
         clearOnActivityResultListener()
-        mActivityResult.unregister()
-        mBinding?.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         for ((liveData, obs) in dataManager) {
             liveData.removeObserver(obs)
         }
         dataManager.clear()
-        job.cancel()
+        mActivityResult.unregister()
+        mBinding?.unbind()
     }
     // </editor-fold>
 
@@ -237,7 +233,7 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
             }
         }
         dataManager[this] = storeObserver
-        observe(this@BaseFragment, storeObserver)
+        observe(viewLifecycleOwner, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
@@ -304,3 +300,15 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
     // </editor-fold>
 
 }
+
+fun Fragment.launch(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> Unit
+) = viewLifecycleOwner.lifecycleScope.launch(context, start, block)
+
+fun <T> Fragment.async(
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend CoroutineScope.() -> T
+) = viewLifecycleOwner.lifecycleScope.async(context, start, block)
