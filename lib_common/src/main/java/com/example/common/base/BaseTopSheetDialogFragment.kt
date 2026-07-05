@@ -47,16 +47,12 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logE
 import com.example.topsheet.TopSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 
 /**
  * @description
@@ -64,7 +60,7 @@ import kotlin.coroutines.CoroutineContext
  * 可实现顶部弹出后，导航栏于弹框一致
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialogFragment(), BaseImpl, BaseView {
     val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
@@ -80,8 +76,6 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {
@@ -206,17 +200,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
-        mActivityResult.unregister()
-        mBinding?.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         for ((liveData, obs) in dataManager) {
             liveData.removeObserver(obs)
         }
         dataManager.clear()
-        job.cancel()
+        mActivityResult.unregister()
+        mBinding?.unbind()
     }
     // </editor-fold>
 
@@ -234,7 +223,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             }
         }
         dataManager[this] = storeObserver
-        observe(this@BaseTopSheetDialogFragment, storeObserver)
+        observe(viewLifecycleOwner, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {

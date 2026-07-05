@@ -56,16 +56,12 @@ import com.example.framework.utils.logE
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.gyf.immersionbar.ImmersionBar
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.SupervisorJob
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
 import java.lang.ref.WeakReference
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
-import kotlin.coroutines.CoroutineContext
 
 /**
  * 底部弹框使用的dialog
@@ -76,7 +72,7 @@ import kotlin.coroutines.CoroutineContext
  * 每次都会重新新建,只需 setParams 其余会再走一次 initView (BaseTopSheetDialogFragment同理)
  */
 @Suppress("UNCHECKED_CAST")
-abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), CoroutineScope, BaseImpl, BaseView {
+abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), BaseImpl, BaseView {
     val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
     val mActivity: FragmentActivity? get() { return WeakReference(activity).get() ?: AppManager.currentActivity() as? FragmentActivity }
@@ -92,8 +88,6 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     private val loadingDialog by lazy { mActivity?.let { LoadingDialog(it) } }
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
     private val isShow: Boolean get() = dialog?.isShowing.orFalse && !isRemoving
-    private val job = SupervisorJob()
-    override val coroutineContext: CoroutineContext get() = Main.immediate + job
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onAttach(context: Context) {
@@ -311,17 +305,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         dialog?.window?.removeNavigationBarDrawable()
         clearOnActivityResultListener()
         clearOnWindowInsetsChanged()
-        mActivityResult.unregister()
-        mBinding?.unbind()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         for ((liveData, obs) in dataManager) {
             liveData.removeObserver(obs)
         }
         dataManager.clear()
-        job.cancel()
+        mActivityResult.unregister()
+        mBinding?.unbind()
     }
     // </editor-fold>
 
@@ -339,7 +328,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
             }
         }
         dataManager[this] = storeObserver
-        observe(this@BaseBottomSheetDialogFragment, storeObserver)
+        observe(viewLifecycleOwner, storeObserver)
     }
 
     protected fun setOnActivityResultListener(onActivityResultListener: ((result: ActivityResult) -> Unit)) {
