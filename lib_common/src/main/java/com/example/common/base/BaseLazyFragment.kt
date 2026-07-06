@@ -85,8 +85,9 @@ import androidx.databinding.ViewDataBinding
  * }
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var isDataLoadEnabled = true // 是否允许加载数据
-    private var hasConsumedFirstLoad = false // 是否已消费过首次加载机会（无论成功还是被禁用）
+    private var isDataLoadEnabled = true   // 是否允许加载数据
+    private var hasLoadedData = false      // 数据是否已真正加载
+    private var hasReachedResume = false   // 是否已经历过可见的 onResume
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -97,27 +98,32 @@ abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
     override fun onResume() {
         super.onResume()
         if (isHidden) return
-        tryFirstLoad()
+        if (!hasReachedResume) {
+            hasReachedResume = true
+            if (isDataLoadEnabled) {
+                initData()
+                hasLoadedData = true
+            }
+        }
     }
 
     /**
-     * 禁止页面展示后自动加载数据，后续依赖 EventBus 刷新
-     * 若首次加载机会尚未消费且当前允许加载，则立即触发
+     * 纯配置方法：仅更新加载开关，无任何副作用
+     * 通常在 new Fragment / Adapter 初始化时调用
      */
     open fun setDataLoadEnabled(enabled: Boolean) {
         isDataLoadEnabled = enabled
-        tryFirstLoad()
     }
 
     /**
-     * 首次加载的唯一入口
-     * 保证 initData() 最多执行一次，之后所有刷新走 EventBus
+     * 显式行为方法：手动触发首次加载（带防重入保护）
+     * 当外部决定"现在可以加载了"时主动调用
      */
-    private fun tryFirstLoad() {
-        if (hasConsumedFirstLoad) return
-        if (!isDataLoadEnabled) return
-        initData()
-        hasConsumedFirstLoad = true
+    open fun tryFirstLoad() {
+        if (isDataLoadEnabled && hasReachedResume && !hasLoadedData) {
+            initData()
+            hasLoadedData = true
+        }
     }
     // </editor-fold>
 
