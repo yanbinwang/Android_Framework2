@@ -114,7 +114,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             val minClickDelayTime = 500
             if (currentTime - lastClickTime > minClickDelayTime) {
                 lastClickTime = currentTime
-                if (onclick != null) onclick?.onClick(v)
+                onclick?.onClick(v)
             }
         }
     }
