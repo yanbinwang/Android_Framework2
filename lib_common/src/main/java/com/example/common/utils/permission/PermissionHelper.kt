@@ -28,27 +28,27 @@ class PermissionHelper(private val activity: FragmentActivity) {
     private val dialog by lazy { AppDialog(activity) }
     // 当前app内需要的所有权限组
     private val allPermsGroup = arrayOf(
-        LOCATION_GROUP,//定位
-        CAMERA_GROUP,//拍摄照片，录制视频
-        MICROPHONE_GROUP,//录制音频(腾讯x5)
-        STORAGE_GROUP)//访问照片。媒体。内容和文件
+        LOCATION_GROUP, // 定位
+        CAMERA_GROUP, // 拍摄照片，录制视频
+        MICROPHONE_GROUP, // 录制音频(腾讯x5)
+        STORAGE_GROUP) // 访问照片。媒体。内容和文件
 
     /**
      * 检测权限->6.0+系统做特殊处理(默认拿全部，可单独拿某个权限)
      * hasPrompt:系统默认所有权限的提示,如需拿取配置值外的权限,需写false
      */
-    fun requestPermissions(listener: (isGranted: Boolean, permissions: List<IPermission?>?) -> Unit = { _, _ -> }) {
+    fun requestPermissions(listener: (isGranted: Boolean, permissions: List<IPermission>?) -> Unit = { _, _ -> }) {
         requestPermissions(*allPermsGroup, listener = listener)
     }
 
-    fun requestPermissions(vararg groups: List<IPermission>, listener: (isGranted: Boolean, permissions: List<IPermission?>?) -> Unit = { _, _ -> }, hasPrompt: Boolean = true) {
+    fun requestPermissions(vararg groups: List<IPermission>, listener: (isGranted: Boolean, permissions: List<IPermission>?) -> Unit = { _, _ -> }, hasPrompt: Boolean = true) {
         XXPermissions.with(activity)
             .permissions(groups.toMutableList().flatten())
             .request(object : OnPermissionCallback {
                 /**
                  * allGranted->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到(同时onDenied会回调)
                  */
-                override fun onGranted(permissions: List<IPermission?>, allGranted: Boolean) {
+                override fun onGranted(permissions: List<IPermission>, allGranted: Boolean) {
                     if (allGranted) {
                         listener.invoke(true, null)
                     }
@@ -57,7 +57,7 @@ class PermissionHelper(private val activity: FragmentActivity) {
                 /**
                  * doNotAskAgain->被永久拒绝授权，请手动授予
                  */
-                override fun onDenied(permissions: List<IPermission?>, doNotAskAgain: Boolean) {
+                override fun onDenied(permissions: List<IPermission>, doNotAskAgain: Boolean) {
                     super.onDenied(permissions, doNotAskAgain)
                     listener.invoke(false, permissions)
                     if (hasPrompt) onDenied(permissions.toMutableList())
