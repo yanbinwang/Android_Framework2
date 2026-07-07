@@ -6,14 +6,13 @@ import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
 import com.example.common.network.socket.WebSocketProxy
 import com.example.common.utils.helper.AccountHelper.isLogin
-import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * 如果页面是需要订阅多个地址的，实现当前页面
  */
 class WebSocketTopic(private val socketUrl: String) {
     private val proxy by lazy { WebSocketProxy(socketUrl) } // 代理类
-    private val wssList by lazy { CopyOnWriteArrayList<String>() } // 页面所订阅的所有长连接集合
+    private val wssList by lazy { mutableListOf<String>() } // 页面所订阅的所有长连接集合
 
     companion object {
         internal var proxyListener: (url: String?, data: Message?) -> Unit = { _, _ -> }
