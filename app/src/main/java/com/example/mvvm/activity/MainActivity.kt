@@ -410,6 +410,17 @@ println(myClass.myProperty)
  * AtomicBoolean
  * compareAndSet(expect, update)	仅当当前值==expect时才替换	boolean（是否成功）
  * getAndSet(newValue)	无条件替换为新值	替换前的旧值
+ * // “如果是 false 就改成 true” 是 CPU 级别的单条指令
+ * // 只有第一个进来的回调能返回 true，其余全部返回 false
+ * if (isCallbackDone.compareAndSet(false, true)) {
+ *     doSomething()
+ * }
+ * compareAndSet(false, true)
+ * 1) 类似 get() 后如果是 false 就 set(true) 且整体返回 true (操作结果)
+ * 2) 只要 get() 不是 false 就不做替换 并且返回 false(操作结果)
+ *
+ * ConcurrentHashMap
+ * putIfAbsent(key, value)	“如果这个 key 不存在（expect=null），就放入 value（成功） 如果已经有值了，就不动，把现有的值返还（失败）”
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
