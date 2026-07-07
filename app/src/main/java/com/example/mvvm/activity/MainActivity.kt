@@ -406,6 +406,10 @@ println(myClass.myProperty)
  * 软引用 SoftReference：优先复用缓存，内存实在不够才批量清（大图、素材、临时数据缓存）
  * 软引用：内存充足时，触发 GC 也保留；仅内存濒临 OOM 时才回收；更晚被回收
  * 弱引用：无论内存充裕还是紧张，只要触发 GC 直接回收；更早被回收
+ *
+ * AtomicBoolean
+ * compareAndSet(expect, update)	仅当当前值==expect时才替换	boolean（是否成功）
+ * getAndSet(newValue)	无条件替换为新值	替换前的旧值
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
