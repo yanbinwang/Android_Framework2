@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
-import com.example.common.R
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.createRectangleDrawable
 import com.example.framework.utils.function.value.toSafeInt
@@ -13,7 +12,6 @@ import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.framework.utils.function.view.cancelAnim
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin

@@ -172,6 +172,13 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
     private var interpolator: Interpolator = AccelerateDecelerateInterpolator()
     private val animatorList = mutableListOf<Animator>()
 
+    companion object {
+        private val NUMBER_FORMAT = DecimalFormat("0.00").apply {
+            decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
+            roundingMode = RoundingMode.HALF_UP
+        }
+    }
+
     /**
      * 设置动画插值器（支持链式调用）
      * @param interpolator 动画速率插值器，如 [OvershootInterpolator]
@@ -190,12 +197,8 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
     fun animateTextNumber(start: Double, end: Double, suffix: String): ViewAnimator {
         // view !is TextView 已经包含了 view == null 的情况（因为 null 不属于任何非空类型）
         if (view !is TextView) return this
-        val df = DecimalFormat("0.00").apply {
-            decimalFormatSymbols = DecimalFormatSymbols(Locale.US)
-            roundingMode = RoundingMode.HALF_UP
-        }
         return createAnimator(start.toSafeFloat(), end.toSafeFloat()) { value ->
-            view.text = "${df.format(value)}$suffix"
+            view.text = "${NUMBER_FORMAT.format(value)}$suffix"
         }
     }
 
