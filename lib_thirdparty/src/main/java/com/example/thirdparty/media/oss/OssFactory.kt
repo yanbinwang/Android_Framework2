@@ -62,10 +62,10 @@ import kotlin.random.Random
  * 阿里oss文件上传
  */
 class OssFactory private constructor() : CoroutineScope {
-    // 是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
-    private var isAuthorize = AtomicBoolean(false)
     // Oss基础类
     private var oss: OSS? = null
+    // 是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
+    private var isAuthorize = AtomicBoolean(false)
     // 对象锁，缩小范围减少开销
     private val dataLock = Any()
     // key -> 保全号（服务器唯一id）value->对应oss的传输类/协程
