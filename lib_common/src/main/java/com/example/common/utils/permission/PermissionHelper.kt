@@ -14,7 +14,6 @@ import com.example.common.utils.permission.XXPermissionsGroup.LOCATION_GROUP
 import com.example.common.utils.permission.XXPermissionsGroup.MICROPHONE_GROUP
 import com.example.common.utils.permission.XXPermissionsGroup.STORAGE_GROUP
 import com.example.common.widget.dialog.AppDialog
-import com.hjq.permissions.OnPermissionCallback
 import com.hjq.permissions.XXPermissions
 import com.hjq.permissions.permission.base.IPermission
 
@@ -37,38 +36,33 @@ class PermissionHelper(private val activity: FragmentActivity) {
      * 检测权限->6.0+系统做特殊处理(默认拿全部，可单独拿某个权限)
      * hasPrompt:系统默认所有权限的提示,如需拿取配置值外的权限,需写false
      */
-    fun requestPermissions(listener: (isGranted: Boolean, permissions: List<IPermission?>?) -> Unit = { _, _ -> }) {
+    fun requestPermissions(listener: (isGranted: Boolean, permissions: List<IPermission>?) -> Unit = { _, _ -> }) {
         requestPermissions(*allPermsGroup, listener = listener)
     }
 
-    fun requestPermissions(vararg groups: List<IPermission>, listener: (isGranted: Boolean, permissions: List<IPermission?>?) -> Unit = { _, _ -> }, hasPrompt: Boolean = true) {
+    fun requestPermissions(vararg groups: List<IPermission>, listener: (isGranted: Boolean, permissions: List<IPermission>?) -> Unit = { _, _ -> }, hasPrompt: Boolean = true) {
         XXPermissions.with(activity)
             .permissions(groups.toMutableList().flatten())
-            .request(object : OnPermissionCallback {
-                /**
-                 * allGranted->标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到(同时onDenied会回调)
-                 */
-                override fun onGranted(permissions: List<IPermission?>, allGranted: Boolean) {
-                    if (allGranted) {
-                        listener.invoke(true, null)
+            .request { _, deniedList ->
+                // 标记是否是获取部分权限成功，部分未正常授予，true全拿，false部分拿到
+                val allGranted = deniedList.isEmpty()
+                if (allGranted) {
+                    listener.invoke(true, null)
+                } else {
+                    // 判断请求失败的权限是否被用户勾选了不再询问的选项
+//                    val doNotAskAgain = XXPermissions.isDoNotAskAgainPermissions(activity, deniedList)
+                    listener.invoke(false, deniedList)
+                    if (hasPrompt) {
+                        onDenied(deniedList.toMutableList())
                     }
                 }
-
-                /**
-                 * doNotAskAgain->被永久拒绝授权，请手动授予
-                 */
-                override fun onDenied(permissions: List<IPermission?>, doNotAskAgain: Boolean) {
-                    super.onDenied(permissions, doNotAskAgain)
-                    listener.invoke(false, permissions)
-                    if (hasPrompt) onDenied(permissions.toMutableList())
-                }
-            })
+            }
     }
 
     /**
      * 彈出授權彈框
      */
-    private fun onDenied(permissions: MutableList<IPermission?>) {
+    private fun onDenied(permissions: MutableList<IPermission>) {
         // 拼接用戶拒絕後的提示参数
         var reason = ""
         var subscript = 0
