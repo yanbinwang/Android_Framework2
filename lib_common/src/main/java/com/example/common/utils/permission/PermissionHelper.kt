@@ -63,8 +63,7 @@ class PermissionHelper(private val activity: FragmentActivity) {
     /**
      * 彈出授權彈框
      */
-    private fun onDenied(permissions: MutableList<IPermission?>?) {
-        if (permissions.isNullOrEmpty()) return
+    private fun onDenied(permissions: MutableList<IPermission?>) {
         // 拼接用戶拒絕後的提示参数
         var reason = ""
         var subscript = 0
