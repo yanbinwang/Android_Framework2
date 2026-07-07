@@ -25,8 +25,8 @@ class PermissionHelper(private val activity: FragmentActivity) {
     private val dialog by lazy { AppDialog(activity) }
     // 当前app内需要的所有权限组
     private val allPermsGroup = arrayOf(
-        CAMERA_GROUP,//拍摄照片，录制视频
-        STORAGE_GROUP)//访问照片。媒体。内容和文件
+        CAMERA_GROUP, // 拍摄照片，录制视频
+        STORAGE_GROUP) // 访问照片。媒体。内容和文件
 
     /**
      * 检测权限->6.0+系统做特殊处理(默认拿全部，可单独拿某个权限)
