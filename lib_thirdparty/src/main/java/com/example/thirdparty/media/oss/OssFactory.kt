@@ -52,6 +52,7 @@ import java.io.File
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CopyOnWriteArrayList
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -62,8 +63,7 @@ import kotlin.random.Random
  */
 class OssFactory private constructor() : CoroutineScope {
     // 是否获取授权->若一个线程修改了该变量的值，它会立刻把修改后的值刷新到主内存，同时会让其他线程中该变量的缓存副本失效。这样一来，其他线程在读取这个变量时，就会从主内存中读取到最新的值
-    @Volatile
-    private var isAuthorize = false
+    private var isAuthorize = AtomicBoolean(false)
     // Oss基础类
     private var oss: OSS? = null
     // 对象锁，缩小范围减少开销
@@ -117,15 +117,15 @@ class OssFactory private constructor() : CoroutineScope {
                 flow {
                     emit(request({ OssApi.instance.getOssTokenApi() }))
                 }.withHandling({
-                    isAuthorize = false
+                    isAuthorize.set(false)
                 }, {
                     block()
                     initJob?.cancel()
                     initJob = null
                 }).onStart {
-                    isAuthorize = false
+                    isAuthorize.set(false)
                 }.collect {
-                    isAuthorize = true
+                    isAuthorize.set(true)
                     oss = OSSClient(BaseApplication.instance.applicationContext, "https://oss-cn-shenzhen.aliyuncs.com", object : OSSFederationCredentialProvider() {
                         override fun getFederationToken(): OSSFederationToken {
                             return OSSFederationToken(it?.accessKeyId.orEmpty(), it?.accessKeySecret.orEmpty(), it?.securityToken.orEmpty(), it?.expiration.orEmpty())
@@ -143,11 +143,11 @@ class OssFactory private constructor() : CoroutineScope {
 
     /**
      * 校验oss是否初始化
-     * 1.请求正在进行的情况下，只会返回结果
-     * 2.请求不在进行，结果失败的情况下，会主动再发起一次初始化，此时可以设置是否有默认提示
+     * 1) 请求正在进行的情况下，只会返回结果
+     * 2) 请求不在进行，结果失败的情况下，会主动再发起一次初始化，此时可以设置是否有默认提示
      */
     fun isInit(isToast: Boolean = true): Boolean {
-        return if (!isAuthorize) {
+        return if (!isAuthorize.get()) {
             if (!initJob?.isActive.orFalse) {
                 if (isToast) "oss初始化失败，请稍后再试".shortToast()
                 initialize()
@@ -166,7 +166,12 @@ class OssFactory private constructor() : CoroutineScope {
     fun bind(owner: LifecycleOwner, impl: OssImpl) {
         if (ossImplList.any { it.get() === impl }) return
         val weakImpl = WeakReference(impl)
-        // addIfAbsent 保证原子性添加（双重保险）
+        /**
+         * addIfAbsent 保证原子性添加
+         * 我要添加一个新值 , 前提是它不在这个集合里
+         * 返回 true = “之前不在，加上”
+         * 返回 false = “已经在里面，没动”
+         */
         if (ossImplList.addIfAbsent(weakImpl)) {
             owner.doOnDestroy {
                 ossImplList.remove(weakImpl)
