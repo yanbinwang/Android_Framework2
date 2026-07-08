@@ -62,7 +62,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             }
         }
         binding.ivClear.click {
-            binding.etClear.setTextString("")
+            binding.etClear.setPlainText("")
         }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.ClearEditText) {
@@ -167,7 +167,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setTextString(text: String) {
-        binding.etClear.setTextString(text)
+        binding.etClear.setPlainText(text)
     }
 
     fun getText(): String {
@@ -191,7 +191,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun setHintString(text: String) {
-        binding.etClear.setHintString(text)
+        binding.etClear.setHintText(text)
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

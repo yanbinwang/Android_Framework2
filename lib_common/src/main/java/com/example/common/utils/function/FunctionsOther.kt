@@ -336,9 +336,9 @@ fun I18nTextView?.applyI18nTextStyle(resText: Int = -1, colorRes: Int = R.color.
     if (-1 != resId) background(resId)
 }
 
-fun I18nTextView?.applyI18nContent(i18nTextRes: Int, vararg contents: String) {
+fun I18nTextView?.applyI18nTextWithArgs(i18nTextRes: Int, vararg contents: String) {
     this ?: return
-    setI18nContent(i18nTextRes, *contents)
+    setI18nTextWithArgs(i18nTextRes, *contents)
 }
 
 /**

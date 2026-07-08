@@ -14,14 +14,14 @@ import java.lang.ref.WeakReference
 
 /**
  * @description 全局文字替換按钮
- * 设置内容请务必使用 setContent / setI18nContent
  * @author yan
+ * 设置内容请务必使用 [setI18nRes] / [setI18nTextWithArgs] 系列方法
  */
 @SuppressLint("CustomViewStyleable")
 class I18nButton @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : AppCompatButton(context, attrs, defStyleAttr), I18nImpl {
     private var i18nTextRes = -1
-    private var contents: Array<out String>? = null
-    private val weakReference: WeakReference<I18nImpl> by lazy { WeakReference(this) }
+    private var formatArgs: Array<out String>? = null
+    private val selfRef: WeakReference<I18nImpl> by lazy { WeakReference(this) }
 
     init {
         context.withStyledAttributes(attrs, R.styleable.I18n) {
@@ -41,72 +41,75 @@ class I18nButton @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * @string 纯字符串
+     * 设置纯文本，语言切换时不会自动刷新
+     * @text 纯字符串
      */
-    fun setTextString(string: String) {
-        this.contents = arrayOf()
+    fun setPlainText(text: String) {
+        this.formatArgs = arrayOf()
         this.i18nTextRes = -1
-        text = string
+        this.text = text
     }
 
     /**
-     * @span TextSpan/ColorSpan等特殊字符
+     * 设置 Spannable 文本，语言切换时不会自动刷新
+     * @spannable TextSpan/ColorSpan等特殊字符
      */
-    fun setTextString(span: Spannable) {
-        this.contents = arrayOf()
+    fun setSpannableText(spannable: Spannable) {
+        this.formatArgs = arrayOf()
         this.i18nTextRes = -1
-        text = span
+        this.text = spannable
     }
 
     /**
-     * @i18nTextRes 文字在string.xml种的資源地址
+     * @resId 文字在 string.xml 中的資源地址
      */
-    fun setI18nRes(@StringRes i18nTextRes: Int) {
-        this.i18nTextRes = i18nTextRes
-        refreshText()
+    fun setI18nRes(@StringRes resId: Int) {
+        this.i18nTextRes = resId
+        applyI18n()
     }
 
     /**
-     * 设置一组集合文字,并通过String类拼接
+     * 设置一组集合文字,并通过 String 类拼接
      */
-    fun setContent(vararg contents: String) {
-        this.contents = contents
-        refreshText()
+    fun setFormatArgs(vararg args: String) {
+        this.formatArgs = args
+        applyI18n()
     }
 
     /**
-     * 项目中部分文案采取%n$s方式拼接，在xml中配置對應文案，調用該方法直接替換%n$s的值
+     * 项目中部分文案采取 %n$s 方式拼接，在 xml 中配置對應文案，調用該方法直接替換 %n$s 的值
      */
-    fun setI18nContent(@StringRes i18nTextRes: Int, vararg contents: String) {
-        setI18nRes(i18nTextRes)
-        setContent(*contents)
+    fun setI18nTextWithArgs(@StringRes resId: Int, vararg args: String) {
+        this.i18nTextRes = resId
+        this.formatArgs = args
+        applyI18n()
     }
 
     /**
-     * 清除集合文字
+     * 重置集合文字
      */
-    fun clearI18n() {
-        this.contents = arrayOf()
+    fun resetI18n() {
         this.i18nTextRes = -1
+        this.formatArgs = arrayOf()
     }
 
-    override fun refreshText() {
-        contents.let { contents ->
-            when {
-                i18nTextRes < 0 -> {
-                }
-                contents.isNullOrEmpty() -> {
-                    text = i18String(i18nTextRes)
-                }
-                else -> {
-                    text = i18String(i18nTextRes, *contents)
+    override fun applyI18n() {
+        when {
+            i18nTextRes < 0 -> {
+            }
+            formatArgs.isNullOrEmpty() -> {
+                text = i18String(i18nTextRes)
+            }
+            else -> {
+                formatArgs?.let {
+                    text = i18String(i18nTextRes, *it)
                 }
             }
         }
     }
 
-    override fun getWeakRef(): WeakReference<I18nImpl> {
-        return weakReference
+    override fun getI18nRef(): WeakReference<I18nImpl> {
+        return selfRef
     }
 
 }

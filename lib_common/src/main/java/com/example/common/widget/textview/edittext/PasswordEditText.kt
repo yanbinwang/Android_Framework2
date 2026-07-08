@@ -105,7 +105,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setTextString(text: String) {
-        binding.etClear.setTextString(text)
+        binding.etClear.setPlainText(text)
     }
 
     fun getText(): String {
@@ -129,7 +129,7 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     fun setHintString(text: String) {
-        binding.etClear.setHintString(text)
+        binding.etClear.setHintText(text)
     }
 
     fun setHintTextColor(@ColorInt color: Int) {

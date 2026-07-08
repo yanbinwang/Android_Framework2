@@ -47,7 +47,7 @@ object I18nUtil {
      */
     fun register(textView: I18nImpl) {
         if (viewList.any { it.get() === textView }) return
-        viewList.add(textView.getWeakRef())
+        viewList.add(textView.getI18nRef())
 //        checkList()
     }
 
@@ -56,7 +56,7 @@ object I18nUtil {
      */
     fun unregister(textView: I18nImpl) {
         // lazy 保证是同一实例，remove 能正确匹配
-        viewList.remove(textView.getWeakRef())
+        viewList.remove(textView.getI18nRef())
 //        checkList()
     }
 
@@ -86,7 +86,7 @@ object I18nUtil {
                 // 防御性清理已回收的引用
                 iterator.remove()
             } else {
-                view.refreshText()
+                view.applyI18n()
             }
         }
     }
