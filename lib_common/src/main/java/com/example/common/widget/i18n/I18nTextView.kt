@@ -2,6 +2,7 @@ package com.example.common.widget.i18n
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -10,6 +11,7 @@ import android.text.style.ClickableSpan
 import android.util.AttributeSet
 import android.view.View
 import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import androidx.appcompat.widget.AppCompatTextView
 import androidx.core.content.withStyledAttributes
@@ -39,8 +41,11 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
     private var canSpanClick = true
     // 文本是否带下划线
     private var haveUnderline = false
-    // 高亮颜色
+    // 高亮文本颜色
     private var spanColor = intArrayOf(context.color(R.color.appTheme))
+    // 高亮色块颜色
+    @ColorInt
+    private var highlightColorValue = context.color(android.R.color.transparent)
     // 本地 res 路径 / 文本 整体span点击样式集合
     private var clickableI18nSpans: ArrayList<Pair<Int, () -> Unit>> = arrayListOf()
     private var clickableSpans: ArrayList<Pair<String, () -> Unit>> = arrayListOf()
@@ -148,10 +153,11 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
     /**
      * 设置自定义 Span 样式
      */
-    fun setSpanStyle(clickable: Boolean, haveUnderline: Boolean, @ColorInt vararg color: Int) {
+    fun setSpanStyle(clickable: Boolean, haveUnderline: Boolean, @ColorInt vararg color: Int, @ColorInt pressHighlightColor: Int = Color.TRANSPARENT) {
         this.spanColor = color
         this.canSpanClick = clickable
         this.haveUnderline = haveUnderline
+        this.highlightColorValue = pressHighlightColor
         applyI18n()
     }
 
@@ -232,8 +238,7 @@ open class I18nTextView @JvmOverloads constructor(context: Context, attrs: Attri
             isFocusableInTouchMode = false
             defaultMovementMethod
         }
-        highlightColor = context.color(R.color.appTheme) // 酌情添加
-//        highlightColor = Color.TRANSPARENT
+        highlightColor = highlightColorValue
     }
 
     override fun getI18nRef(): WeakReference<I18nImpl> {
