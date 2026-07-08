@@ -26,11 +26,10 @@ import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
 import com.example.common.utils.function.pullUpNotification
 import com.example.common.utils.function.safeRecycle
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
@@ -112,8 +111,8 @@ object NotificationUtil {
         notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         // 避免重复创建渠道（检查是否已存在）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = string(R.string.notificationChannelId)
-            val channelName = string(R.string.notificationChannelName)
+            val channelId = i18String(R.string.notificationChannelId)
+            val channelName = i18String(R.string.notificationChannelName)
             notificationManager?.createNotificationChannelIfNeeded(NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT))
         }
     }
@@ -162,7 +161,7 @@ object NotificationUtil {
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
-        val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
+        val builder = NotificationCompat.Builder(this, i18String(R.string.notificationChannelId))
             // 24dp × 24dp (约96px)
             .setSmallIcon(smallIconRes)
             // 64dp × 64dp (约144px)
@@ -340,7 +339,7 @@ class NotificationManager(private val mActivity: FragmentActivity, wrapper: Requ
             listener.invoke(true)
         } else {
             dialog
-                .setParams(string(R.string.hint), string(R.string.permissionNotification))
+                .setParams(i18String(R.string.hint), i18String(R.string.permissionNotification))
                 .setDialogListener({
                     mActivity.pullUpNotification()
                 }, {
