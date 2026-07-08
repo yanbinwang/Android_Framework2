@@ -46,6 +46,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
 
 /**
@@ -90,9 +91,9 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // 图片背景数组
     private var coverList = ArrayList<Pair<Boolean, Int>>()
     // 是否允许滑动
-    private var allowScroll = true
+    private var allowScroll = AtomicBoolean(true)
     // 是否自动滚动
-    private var autoScroll = true
+    private var autoScroll = AtomicBoolean(true)
     // 3个资源路径->圆点选中时的背景ID second：圆点未选中时的背景ID third：圆点间距 （圆点容器可为空写0）
     private var triple = Triple(createOvalDrawable("#3d81f2"), createOvalDrawable("#6e7ce2"), 10)
     // 协程 Job 控制滚动任务
@@ -110,40 +111,43 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
     // 图片适配器
     private val advAdapter by lazy { AdvertisingAdapter() }
     // 注册广告监听
-    private val callback by lazy { object : OnPageChangeCallback() {
-        // 当前选中的数组索引
-        private var curIndex = 0
-        // 上次选中的数组索引
-        private var oldIndex = 0
-        override fun onPageSelected(position: Int) {
-            super.onPageSelected(position)
-            // 切换圆点
-            curIndex = position % list.size
-            if (null != ovalLayout) {
-                if (list.size > 1) {
-                    ovalLayout?.getChildAt(oldIndex)?.background = triple.second
-                    ovalLayout?.getChildAt(curIndex)?.background = triple.first
-                    oldIndex = curIndex
+    private val callback by lazy {
+        object : OnPageChangeCallback() {
+            // 当前选中的数组索引
+            private var curIndex = 0
+            // 上次选中的数组索引
+            private var oldIndex = 0
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+                // 切换圆点
+                curIndex = position % list.size
+                if (null != ovalLayout) {
+                    if (list.size > 1) {
+                        ovalLayout?.getChildAt(oldIndex)?.background = triple.second
+                        ovalLayout?.getChildAt(curIndex)?.background = triple.first
+                        oldIndex = curIndex
+                    }
+                }
+                // 切换
+                onPagerCurrent?.invoke(curIndex)
+            }
+
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
+                super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                allowScroll.set(positionOffsetPixels == 0)
+                // 无需复杂容错，colorList已完整
+                if (coverList.safeSize > 0) {
+                    val mPosition = position % list.size
+                    if (mPosition >= coverList.size - 1) return
+                    val (selected, startColor) = coverList.safeGet(mPosition) ?: (false to 0)
+                    val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
+                    val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
+                    onPageScrolled?.invoke(selected to blendedColor)
                 }
             }
-            // 切换
-            onPagerCurrent?.invoke(curIndex)
         }
-
-        override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-            allowScroll = positionOffsetPixels == 0
-            // 无需复杂容错，colorList已完整
-            if (coverList.safeSize > 0) {
-                val mPosition = position % list.size
-                if (mPosition >= coverList.size - 1) return
-                val (selected, startColor) = coverList.safeGet(mPosition) ?: (false to 0)
-                val endColor = coverList.safeGet(mPosition + 1)?.second.orZero
-                val blendedColor = ColorUtils.blendARGB(startColor, endColor, positionOffset)
-                onPageScrolled?.invoke(selected to blendedColor)
-            }
-        }
-    }}
+    }
     // 回调方法
     private var onPagerClick: ((index: Int) -> Unit)? = null
     private var onPagerCurrent: ((index: Int) -> Unit)? = null
@@ -215,10 +219,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
             setOnTouchListener { _, event ->
                 when (event?.action) {
                     MotionEvent.ACTION_DOWN, MotionEvent.ACTION_MOVE -> {
-                        if (autoScroll) stopRoll()
+                        if (autoScroll.get()) stopRoll()
                     }
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        if (autoScroll) startRoll()
+                        if (autoScroll.get()) startRoll()
                     }
                 }
                 // 不拦截触摸事件，不影响用户滑动
@@ -315,7 +319,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 放在start方法之前调取，不然会走默认
      */
     override fun setConfiguration(radius: Int, localAsset: Boolean, scroll: Boolean, ovalList: Triple<Drawable, Drawable, Int>?, ovalLayout: LinearLayout?, barList: ArrayList<Pair<Boolean, Int>>?) {
-        this.autoScroll = scroll
+        this.autoScroll.set(scroll)
         this.ovalLayout = ovalLayout
         this.coverList = barList ?: ArrayList()
         this.advAdapter.setParams(radius, localAsset)
@@ -335,7 +339,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     fun startRoll() {
         // 不允许滚动 || 图片少于1张 → 直接返回
-        if (!autoScroll || list.size <= 1) return
+        if (!autoScroll.get() || list.size <= 1) return
         // 启动前先取消已有任务（避免重复启动）
         stopRoll()
         // 绑定生命周期：用 lifecycleOwner 的协程作用域，页面销毁时自动取消
@@ -353,7 +357,7 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }.flowOn(IO).collect {
                     // 切换到主线程更新 UI（ViewPager2 必须在主线程操作）
                     withContext(Main.immediate) {
-                        if (allowScroll) {
+                        if (allowScroll.get()) {
                             val current = banner?.currentItem.orZero
 //                            val position = if (current == 0 || current == Int.MAX_VALUE) absolutePosition else current + 1
 //                            banner?.currentItem = position

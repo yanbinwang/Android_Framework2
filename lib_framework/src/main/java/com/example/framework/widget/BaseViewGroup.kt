@@ -196,6 +196,9 @@ abstract class BaseViewGroup @JvmOverloads constructor(context: Context, attrs: 
 
     /**
      * 手动绑定 LifecycleOwner（用于代码创建的 View）
+     * 必须在 addView 之前调用，否则会因 isAdded=true 而被忽略。
+     * 适用场景：View 的挂载父容器与其业务生命周期归属不一致时
+     * 例如在 A 页面预创建 View 但需跟随 B 页面生命周期、全局悬浮窗需跟随特定 Fragment 等。若未手动绑定，将在 onAttachedToWindow 时自动从 ViewTree 中查找。
      */
     open fun addLifecycleOwner(owner: LifecycleOwner) {
         if (isAdded || lifecycleOwner != null) return
