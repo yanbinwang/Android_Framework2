@@ -26,9 +26,9 @@ class I18nEditText @JvmOverloads constructor(context: Context, attrs: AttributeS
     init {
         context.withStyledAttributes(attrs, R.styleable.I18n) {
             val textRes = getResourceId(R.styleable.I18n_android_text, -1)
-            if (textRes != -1) setText(textRes)
+            if (textRes != -1) setI18nRes(textRes)
             val hintRes = getResourceId(R.styleable.I18n_android_hint, -1)
-            if (hintRes != -1) setHint(hintRes)
+            if (hintRes != -1) setI18nHintRes(hintRes)
         }
         // 设置输入框可聚集
         isFocusable = true

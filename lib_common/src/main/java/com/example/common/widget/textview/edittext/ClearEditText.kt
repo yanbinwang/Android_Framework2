@@ -61,7 +61,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 afterTextChanged?.invoke(it)
             }
         }
-        binding.ivClear.click { binding.etClear.setTextString("") }
+        binding.ivClear.click {
+            binding.etClear.setTextString("")
+        }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.ClearEditText) {
             // 文本内容

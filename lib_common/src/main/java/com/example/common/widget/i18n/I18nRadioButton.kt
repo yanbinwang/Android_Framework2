@@ -26,7 +26,7 @@ class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: Attribu
     init {
         context.withStyledAttributes(attrs, R.styleable.I18n) {
             val textRes = getResourceId(R.styleable.I18n_android_text, -1)
-            if (textRes != -1) setText(textRes)
+            if (textRes != -1) setI18nRes(textRes)
         }
     }
 
