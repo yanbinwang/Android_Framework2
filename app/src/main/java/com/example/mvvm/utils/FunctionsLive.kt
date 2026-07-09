@@ -160,6 +160,30 @@ fun PlayerView?.bindExoPlayer(exoPlayer: ExoPlayer?) {
 }
 
 /**
+ * 创建 PlayerView + ExoPlayer，并插入容器
+ * @return 返回 ExoPlayer 引用，供调用方监听和播放
+ *
+ * // 一行创建 + 插入容器，同时拿到两个引用
+ * val (playerView, exoPlayer) = context.createAndAddPlayer(container)  ?: return
+ *
+ * // ExoPlayer 引用在手，播放、监听随意
+ * exoPlayer.playExoPlayer(owner, "intro.mp4", autoReleaseOnEnd = false) {
+ *     // 片头播完 → 切直播流 / 显示UI
+ * }
+ *
+ * // 销毁时各司其职
+ * playerView.releasePlayerView()   // View层：断开引用 + 移除
+ * exoPlayer.releasePlayer()        // Player层：stop + release
+ */
+fun Context?.createAndAddPlayer(container: ViewGroup): Pair<PlayerView, ExoPlayer>? {
+    this ?: return null
+    val exoPlayer = ExoPlayer.Builder(this).build()
+    val playerView = PlayerView(this).apply { bindExoPlayer(exoPlayer) }
+    container.addView(playerView)
+    return playerView to exoPlayer
+}
+
+/**
  * 销毁 PlayerView
  */
 fun PlayerView?.releasePlayerView() {
@@ -169,79 +193,6 @@ fun PlayerView?.releasePlayerView() {
     // 从父布局移除
     removeSelf()
 }
-
-///**
-// * ExoPlayer -> 播放
-// */
-//private val exoMap by lazy { ConcurrentHashMap<LifecycleOwner, Player.Listener>() }
-//
-//fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -> Unit = {}) {
-//    val player = this ?: return
-//    // 清理当前页面历史监听
-//    clearOwnerOldListener(owner)
-//    // 加载视频资源
-//    val uri = if (mp4Path.startsWith("http")) {
-//        mp4Path.toUri()
-//    } else {
-//        "asset:///$mp4Path".toUri()
-//    }
-//    val mediaItem = MediaItem.fromUri(uri)
-//    player.setMediaItem(mediaItem)
-//    player.prepare()
-//    player.play()
-//    // 强制新建监听，删除多余if判断
-//    val newListener = object : Player.Listener {
-//        override fun onPlaybackStateChanged(state: Int) {
-//            if (state == Player.STATE_ENDED) {
-//                onEnd()
-//                // 播放结束同步清理map缓存
-//                exoMap.remove(owner)
-//                player.releasePlayer()
-//            }
-//        }
-//    }
-//    player.addListener(newListener)
-//    exoMap[owner] = newListener
-//}
-//
-///**
-// * 清理指定页面旧监听，同时自动清除已销毁页面的垃圾弱引用缓存
-// */
-//fun ExoPlayer?.clearOwnerOldListener(owner: LifecycleOwner) {
-//    this ?: return
-//    // 仅首次绑定页面销毁监听，避免重复注册Observer
-//    if (!exoMap.containsKey(owner)) {
-//        owner.doOnDestroy {
-//            // 遍历map找到当前页面绑定的listener，反向拿到播放器并释放
-//            exoMap.remove(owner)?.let { listener ->
-//                removeListener(listener)
-//                releasePlayer()
-//            }
-//        }
-//    }
-//    // 清理当前页面历史监听
-//    val oldListener = exoMap.entries.find { it.key === owner }?.value
-//    // 移除旧监听 & 删除map记录
-//    oldListener?.let {
-//        removeListener(it)
-//        exoMap.remove(owner)
-//    }
-//}
-//
-///**
-// * ExoPlayer -> 销毁
-// * exoPlayer.releaseExoPlayer()    // 销毁播放器
-// * playerView.releasePlayerView()  // 销毁界面
-// */
-//fun ExoPlayer?.releasePlayer() {
-//    this ?: return
-//    // 停止播放
-//    stop()
-//    // 清空播放源
-//    setMediaItems(emptyList())
-//    // 官方销毁
-//    release()
-//}
 
 /**
  * 播放视频（片头/广告等）
@@ -269,7 +220,7 @@ fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, autoRelease
                 onEnd()
                 // 最后按需释放播放器（通知业务层：片头播完了，该切直播流了）
                 if (autoReleaseOnEnd) {
-                    this@playExoPlayer.releasePlayer()
+                    releasePlayer()
                 }
             }
         }
@@ -282,7 +233,9 @@ fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, autoRelease
         // 只有当前绑定的还是这个 owner 才清理
         if (currentOwnerRef?.get() === owner) {
             clearCurrentBinding(this)
-            releasePlayer()
+            if (autoReleaseOnEnd) {
+                releasePlayer()
+            }
         }
     }
 }
