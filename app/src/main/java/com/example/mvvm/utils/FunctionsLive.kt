@@ -17,8 +17,8 @@ import com.opensource.svgaplayer.SVGAParser
 import com.opensource.svgaplayer.SVGAParser.ParseCompletion
 import com.opensource.svgaplayer.SVGAParser.PlayCallback
 import com.opensource.svgaplayer.SVGAVideoEntity
+import java.lang.ref.WeakReference
 import java.net.URL
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * CountdownView 倒计时视图库 -> 应用于限时促销、活动倒计时、游戏计时等场景
@@ -140,7 +140,6 @@ fun Context?.createPlayerView(exoPlayer: ExoPlayer?): PlayerView? {
     this ?: return null
     val playerView = PlayerView(this)
     playerView.bindExoPlayer(exoPlayer)
-    // 返回view
     return playerView
 }
 
@@ -171,75 +170,143 @@ fun PlayerView?.releasePlayerView() {
     removeSelf()
 }
 
-/**
- * ExoPlayer -> 播放
- */
-private val exoMap by lazy { ConcurrentHashMap<LifecycleOwner, Player.Listener>() }
+///**
+// * ExoPlayer -> 播放
+// */
+//private val exoMap by lazy { ConcurrentHashMap<LifecycleOwner, Player.Listener>() }
+//
+//fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -> Unit = {}) {
+//    val player = this ?: return
+//    // 清理当前页面历史监听
+//    clearOwnerOldListener(owner)
+//    // 加载视频资源
+//    val uri = if (mp4Path.startsWith("http")) {
+//        mp4Path.toUri()
+//    } else {
+//        "asset:///$mp4Path".toUri()
+//    }
+//    val mediaItem = MediaItem.fromUri(uri)
+//    player.setMediaItem(mediaItem)
+//    player.prepare()
+//    player.play()
+//    // 强制新建监听，删除多余if判断
+//    val newListener = object : Player.Listener {
+//        override fun onPlaybackStateChanged(state: Int) {
+//            if (state == Player.STATE_ENDED) {
+//                onEnd()
+//                // 播放结束同步清理map缓存
+//                exoMap.remove(owner)
+//                player.releasePlayer()
+//            }
+//        }
+//    }
+//    player.addListener(newListener)
+//    exoMap[owner] = newListener
+//}
+//
+///**
+// * 清理指定页面旧监听，同时自动清除已销毁页面的垃圾弱引用缓存
+// */
+//fun ExoPlayer?.clearOwnerOldListener(owner: LifecycleOwner) {
+//    this ?: return
+//    // 仅首次绑定页面销毁监听，避免重复注册Observer
+//    if (!exoMap.containsKey(owner)) {
+//        owner.doOnDestroy {
+//            // 遍历map找到当前页面绑定的listener，反向拿到播放器并释放
+//            exoMap.remove(owner)?.let { listener ->
+//                removeListener(listener)
+//                releasePlayer()
+//            }
+//        }
+//    }
+//    // 清理当前页面历史监听
+//    val oldListener = exoMap.entries.find { it.key === owner }?.value
+//    // 移除旧监听 & 删除map记录
+//    oldListener?.let {
+//        removeListener(it)
+//        exoMap.remove(owner)
+//    }
+//}
+//
+///**
+// * ExoPlayer -> 销毁
+// * exoPlayer.releaseExoPlayer()    // 销毁播放器
+// * playerView.releasePlayerView()  // 销毁界面
+// */
+//fun ExoPlayer?.releasePlayer() {
+//    this ?: return
+//    // 停止播放
+//    stop()
+//    // 清空播放源
+//    setMediaItems(emptyList())
+//    // 官方销毁
+//    release()
+//}
 
-fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, onEnd: () -> Unit = {}) {
-    val player = this ?: return
-    // 清理当前页面历史监听
-    clearOwnerOldListener(owner)
-    // 加载视频资源
-    val uri = if (mp4Path.startsWith("http")) {
-        mp4Path.toUri()
-    } else {
-        "asset:///$mp4Path".toUri()
-    }
-    val mediaItem = MediaItem.fromUri(uri)
-    player.setMediaItem(mediaItem)
-    player.prepare()
-    player.play()
-    // 强制新建监听，删除多余if判断
-    val newListener = object : Player.Listener {
+/**
+ * 播放视频（片头/广告等）
+ * @param autoReleaseOnEnd 片头场景传 false，纯短视频场景传 true
+ */
+private var currentOwnerRef: WeakReference<LifecycleOwner>? = null
+private var currentListener: Player.Listener? = null
+
+fun ExoPlayer?.playExoPlayer(owner: LifecycleOwner, mp4Path: String, autoReleaseOnEnd: Boolean = true, onEnd: () -> Unit = {}) {
+    this ?: return
+    // 清理上一个页面的绑定和监听
+    clearCurrentBinding(this)
+    // 加载资源
+    val uri = if (mp4Path.startsWith("http")) mp4Path.toUri() else "asset:///$mp4Path".toUri()
+    setMediaItem(MediaItem.fromUri(uri))
+    prepare()
+    play()
+    // 创建并绑定新监听
+    val listener = object : Player.Listener {
         override fun onPlaybackStateChanged(state: Int) {
             if (state == Player.STATE_ENDED) {
+                // 先解绑，防止后续状态变化误触发
+                clearCurrentBinding(this@playExoPlayer)
+                // 再回调业务层（此时绑定已清理）
                 onEnd()
-                // 播放结束同步清理map缓存
-                exoMap.remove(owner)
-                player.releasePlayer()
+                // 最后按需释放播放器（通知业务层：片头播完了，该切直播流了）
+                if (autoReleaseOnEnd) {
+                    this@playExoPlayer.releasePlayer()
+                }
             }
         }
     }
-    player.addListener(newListener)
-    exoMap[owner] = newListener
+    addListener(listener)
+    currentListener = listener
+    currentOwnerRef = WeakReference(owner)
+    // 绑定生命周期销毁监听（仅当本次是新 owner 时）
+    owner.doOnDestroy {
+        // 只有当前绑定的还是这个 owner 才清理
+        if (currentOwnerRef?.get() === owner) {
+            clearCurrentBinding(this)
+            releasePlayer()
+        }
+    }
 }
 
 /**
- * 清理指定页面旧监听，同时自动清除已销毁页面的垃圾弱引用缓存
+ * 清理当前绑定（内部使用）
  */
-fun ExoPlayer?.clearOwnerOldListener(owner: LifecycleOwner) {
-    this ?: return
-    // 仅首次绑定页面销毁监听，避免重复注册Observer
-    if (!exoMap.containsKey(owner)) {
-        owner.doOnDestroy {
-            // 遍历map找到当前页面绑定的listener，反向拿到播放器并释放
-            exoMap.remove(owner)?.let { listener ->
-                removeListener(listener)
-                releasePlayer()
-            }
-        }
-    }
-    // 清理当前页面历史监听
-    val oldListener = exoMap.entries.find { it.key === owner }?.value
-    // 移除旧监听 & 删除map记录
-    oldListener?.let {
-        removeListener(it)
-        exoMap.remove(owner)
-    }
+private fun clearCurrentBinding(player: ExoPlayer) {
+    currentListener?.let { player.removeListener(it) }
+    currentListener = null
+    currentOwnerRef = null
 }
 
 /**
- * ExoPlayer -> 销毁
- * exoPlayer.releaseExoPlayer()    // 销毁播放器
- * playerView.releasePlayerView()  // 销毁界面
+ * 销毁播放器
  */
 fun ExoPlayer?.releasePlayer() {
     this ?: return
     // 停止播放
     stop()
+    // 清理绑定
+    clearCurrentBinding(this)
     // 清空播放源
     setMediaItems(emptyList())
-    // 官方销毁
+    // 销毁播放器
     release()
 }
