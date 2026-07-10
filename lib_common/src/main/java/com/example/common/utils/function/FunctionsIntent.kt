@@ -1,6 +1,7 @@
 package com.example.common.utils.function
 
 import android.app.Activity
+import android.app.PendingIntent
 import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
@@ -388,15 +389,6 @@ fun Context?.toPhone(tel: String) {
  */
 fun Context?.toSMS(text: String) {
     this ?: return
-//    try {
-//        startActivity(Intent(Intent.ACTION_VIEW).apply {
-//            type = "vnd.android-dir/mms-sms"
-//            putExtra("sms_body", text)
-//            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-//        })
-//    } catch (e: Exception) {
-//        e.printStackTrace()
-//    }
     toSMSApp("", text)
 }
 
@@ -685,4 +677,107 @@ fun getTaskLaunchBehind(): ActivityOptionsCompat {
  */
 fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
     return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
+}
+
+/**
+ * 创建跳转到 Activity 的 PendingIntent
+ *
+ * 用途：点击通知后打开指定页面。
+ * 适用场景：
+ * - 消息通知点击跳转到聊天详情页
+ * - 推送通知跳转到文章/商品详情
+ * - 画中画（PiP）窗口中的按钮触发页面跳转
+ *
+ * @param requestCode 请求码，用于区分不同的 PendingIntent。
+ *                    相同 Intent + 不同 requestCode = 不同的 PendingIntent；
+ *                    相同 Intent + 相同 requestCode = 同一个 PendingIntent（会被覆盖）。
+ * @param intent      目标 Activity 的 Intent
+ * @param flags       PendingIntent 标志位，如 FLAG_UPDATE_CURRENT
+ */
+fun Context.getActivityPendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
+    return PendingIntent.getActivity(this, requestCode, intent, getPendingIntentFlags(flags))
+}
+
+/**
+ * 创建发送广播的 PendingIntent
+ *
+ * 用途：触发一个 BroadcastReceiver，不启动任何 UI 组件。
+ * 适用场景：
+ * - 画中画（PiP）自定义按钮回调（如暂停/播放、关闭）
+ * - 通知栏自定义按钮（如"标记已读"、"删除"）
+ * - 定时任务 / AlarmManager 触发
+ *
+ * @param requestCode 请求码，用于区分不同的 PendingIntent
+ * @param intent      目标 BroadcastReceiver 的 Intent
+ * @param flags       PendingIntent 标志位，如 FLAG_UPDATE_CURRENT
+ */
+fun Context.getBroadcastPendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
+    return PendingIntent.getBroadcast(this, requestCode, intent, getPendingIntentFlags(flags))
+}
+
+/**
+ * 创建启动 Service 的 PendingIntent
+ *
+ * 用途：通过通知或外部组件启动后台 Service。
+ * 注意：Android 8.0+ 后台启动 Service 受限，若目标是前台服务请优先使用 [getForegroundServicePendingIntent]。
+ * 适用场景：
+ * - 通知栏按钮触发后台下载/上传任务
+ * - 媒体播放控制（兼容 API < 26 的设备）
+ * - 定位追踪等需要长期运行的后台任务
+ *
+ * @param requestCode 请求码，用于区分不同的 PendingIntent
+ * @param intent      目标 Service 的 Intent
+ * @param flags       PendingIntent 标志位，如 FLAG_UPDATE_CURRENT
+ */
+fun Context.getServicePendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
+    return PendingIntent.getService(this, requestCode, intent, getPendingIntentFlags(flags))
+}
+
+/**
+ * 创建启动前台服务的 PendingIntent（API 26+）
+ *
+ * 用途：专门用于启动 ForegroundService，内部自动处理 Android 8.0+ 的前台服务启动限制。
+ * 与 [getServicePendingIntent] 的区别：
+ * - 语义更明确，表明意图是启动前台服务而非普通后台服务
+ * - 系统会进行前台服务权限检查，避免隐式启动异常
+ * - 在 API < 26 设备上应降级使用 [getServicePendingIntent]
+ *
+ * 适用场景：
+ * - 音乐播放器通知栏的播放/暂停/切歌按钮
+ * - 运动类 App 通知栏的开始/停止记录按钮
+ * - 文件下载/上传进度通知的操作按钮
+ *
+ * @param requestCode 请求码，用于区分不同的 PendingIntent
+ * @param intent      目标 ForegroundService 的 Intent
+ * @param flags       PendingIntent 标志位，如 FLAG_UPDATE_CURRENT
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+fun Context.getForegroundServicePendingIntent(requestCode: Int, intent: Intent, flags: Int): PendingIntent {
+    return PendingIntent.getForegroundService(this, requestCode, intent, getPendingIntentFlags(flags))
+}
+
+/**
+ * 配置可变性
+ * FLAG_UPDATE_CURRENT
+ * 如果 PendingIntent 已经存在，系统会更新这个 PendingIntent 中的额外数据（Intent 中的 extra），
+ * 但不会改变 PendingIntent 的其他属性（如动作、数据、类型等）。也就是说，它会复用已有的 PendingIntent 实例，并更新其携带的数据
+ *
+ * FLAG_ONE_SHOT
+ * 标志表示这个 PendingIntent 只能被使用一次。一旦 PendingIntent 被触发，它就会被自动取消，后续再次尝试使用该 PendingIntent 时将不会生效
+ *
+ * FLAG_CANCEL_CURRENT
+ * 如果 PendingIntent 已经存在，会先取消该 PendingIntent，然后重新创建一个新的 PendingIntent。常用于需要确保每次使用的 PendingIntent 都是全新的场景
+ *
+ * FLAG_IMMUTABLE
+ * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改。
+ * 在 Android 12 及以上版本，对于一些特定的 PendingIntent 创建，要求必须使用 FLAG_IMMUTABLE 或 FLAG_MUTABLE 标志
+ */
+private fun getPendingIntentFlags(baseFlags: Int): Int {
+    return when {
+        Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
+            baseFlags or PendingIntent.FLAG_IMMUTABLE
+        }
+        else -> baseFlags
+    }
 }

@@ -16,12 +16,12 @@ import androidx.annotation.RequiresApi
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.shortToast
+import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.databinding.ActivityScreenBinding
-import com.example.thirdparty.utils.NotificationUtil.getBroadcastPendingIntent
 import com.therouter.router.Route
 
 /**
@@ -73,11 +73,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private fun enterPipMode() {
         // 播放按钮
 //        val playPending = PendingIntent.getBroadcast(this, 1, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val playPending = getBroadcastPendingIntent(Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
+        val playPending = getBroadcastPendingIntent(1, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
         val playAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "播放", playPending)
         // 暂停按钮
 //        val pausePending = PendingIntent.getBroadcast(this, 2, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        val pausePending = getBroadcastPendingIntent(Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
+        val pausePending = getBroadcastPendingIntent(2, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
         val pauseAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停", pausePending)
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
