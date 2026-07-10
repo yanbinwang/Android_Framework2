@@ -8,7 +8,6 @@ import com.example.common.network.factory.RetrofitFactory
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
 import com.example.common.network.repository.reqBodyOf
-import com.example.common.network.repository.successful
 import com.example.common.utils.helper.ConfigHelper.pushToken
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.logE
@@ -16,8 +15,6 @@ import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayS
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
-import com.google.firebase.dynamiclinks.ktx.dynamicLinks
-import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import okhttp3.RequestBody
 import retrofit2.http.Body
@@ -133,33 +130,48 @@ object FireBaseUtil {
      * 广告推广：在广告投放时运用深度链接，用户点击广告链接，若已安装应用，就会直接进入推广的页面；若未安装应用，下载安装后也能直接进入推广页面，增强用户体验和转化率。
      *
      */
+//    fun onDeepLink(activity: Activity, onSuccess: Uri.() -> Unit, onFailed: () -> Unit) {
+//        Firebase.dynamicLinks
+//            .getDynamicLink(activity.intent)
+//            .addOnSuccessListener(activity) { dynamicLinkData ->
+//                dynamicLinkData?.link?.onSuccess() ?: onFailed()
+//            }.addOnFailureListener(activity) { e ->
+//                e.logE
+//                onFailed()
+//            }.addOnCanceledListener {
+//                onFailed()
+//            }
+//    }
+    /**
+     * 深度链接处理（替代原 Firebase Dynamic Links）
+     * 现在改为直接读取 App Links 传入的 Intent Data
+     */
     fun onDeepLink(activity: Activity, onSuccess: Uri.() -> Unit, onFailed: () -> Unit) {
-        Firebase.dynamicLinks
-            .getDynamicLink(activity.intent)
-            .addOnSuccessListener(activity) { dynamicLinkData ->
-                dynamicLinkData?.link?.onSuccess() ?: onFailed()
-            }
-            .addOnFailureListener(activity) { e ->
-                e.logE
-                onFailed()
-            }
-            .addOnCanceledListener {
-                onFailed()
-            }
+        val uri = activity.intent?.data
+        // 增加域名白名单校验，防止恶意链接触发跳转
+        val supportedHosts = listOf("tradewills.com", "link.tradewills.com")
+        if (uri != null && uri.host in supportedHosts) {
+            // 处理完后清除 data，防止配置变更/旋转屏幕时重复触发
+            activity.intent.data = null
+            uri.onSuccess()
+        } else {
+            onFailed()
+        }
     }
 
     /**
-     * 绑定
+     * 与服务器绑定,接口成功代表绑定成功,本地也做操作
      */
-    suspend fun bind(isBind: Boolean, listener: (isBind: Boolean) -> Unit = {}) {
-        if (!isBind) {
-            FireBaseApi.instance.getBindFireBaseApi(reqBodyOf("token" to pushToken)).apply { listener.invoke(successful()) }
+    suspend fun getBindFireBaseApi() {
+        FireBaseApi.instance.getBindFireBaseApi(reqBodyOf("token" to pushToken)).let { response ->
+//            setIsBind(response.successful())
         }
     }
 
 }
 
-private interface FireBaseApi {
+internal interface FireBaseApi {
+
     companion object {
         val instance by lazy { RetrofitFactory.instance.createByServer(FireBaseApi::class.java) }
     }
@@ -169,4 +181,5 @@ private interface FireBaseApi {
      */
     @POST("api/platformUser/bindFireBase")
     suspend fun getBindFireBaseApi(@Body body: RequestBody): ApiResponse<EmptyBean>
+
 }

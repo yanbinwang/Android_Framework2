@@ -1,7 +1,7 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
-    val firebase = "2.9.5"
-    val gms = "4.3.15"
+    val firebase = "3.0.7"
+    val gms = "4.5.0"
     dependencies {
         // 使用列表管理依赖
         val pluginDependencies = listOf(
