@@ -37,6 +37,12 @@ class FirebaseService : FirebaseMessagingService() {
         serviceStateMap.remove(this::class.java)
     }
 
+    /**
+     * 虽然标记 @Deprecated，但这仍是接收 FCM 推送 Token 运行时轮换的唯一回调。
+     * 官方建议的 onRegistered() 返回的是 Installation ID，不能用于推送。
+     * 保留此方法作为兜底，主流程使用协程 FirebaseMessaging.token.await() 主动获取。
+     */
+    @Deprecated("Deprecated in Java")
     override fun onNewToken(token: String) {
         FireBaseUtil.tokenRefreshListener?.invoke(token)
     }
