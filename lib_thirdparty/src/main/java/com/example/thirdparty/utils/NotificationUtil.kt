@@ -24,6 +24,7 @@ import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.dp
+import com.example.common.utils.function.getActivityPendingIntent
 import com.example.common.utils.function.pullUpNotification
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.i18n.i18String
@@ -154,8 +155,8 @@ object NotificationUtil {
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
         largeIconRes: Int = R.mipmap.ic_push_large,
-        title: String = "",
-        text: String = "",
+        title: String? = "",
+        text: String? = "",
         argb: Int = R.color.textWhite,
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
@@ -193,10 +194,10 @@ object NotificationUtil {
         var pendingIntent: PendingIntent? = null
         if (intent != null) {
             // 创建通知栏跳转
-            pendingIntent = getActivityPendingIntent(intent, PendingIntent.FLAG_UPDATE_CURRENT)
+            pendingIntent = getActivityPendingIntent(requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
         }
         // 创建通知栏构建器
-        val notificationBuilder = builder(title = title.orEmpty(), text = text.orEmpty(), pendingIntent = pendingIntent)
+        val notificationBuilder = builder(title = title, text = text, pendingIntent = pendingIntent)
         if (!imageUrl.isNullOrEmpty()) {
             // 防止 Context 泄漏
             val context = WeakReference(this).get() ?: return
@@ -252,42 +253,6 @@ object NotificationUtil {
             }
         } else {
             notifyAction()
-        }
-    }
-
-    /**
-     * FLAG_UPDATE_CURRENT
-     * 如果 PendingIntent 已经存在，系统会更新这个 PendingIntent 中的额外数据（Intent 中的 extra），
-     * 但不会改变 PendingIntent 的其他属性（如动作、数据、类型等）。也就是说，它会复用已有的 PendingIntent 实例，并更新其携带的数据
-     *
-     * FLAG_ONE_SHOT
-     * 标志表示这个 PendingIntent 只能被使用一次。一旦 PendingIntent 被触发，它就会被自动取消，后续再次尝试使用该 PendingIntent 时将不会生效
-     *
-     * FLAG_CANCEL_CURRENT
-     * 如果 PendingIntent 已经存在，会先取消该 PendingIntent，然后重新创建一个新的 PendingIntent。常用于需要确保每次使用的 PendingIntent 都是全新的场景
-     *
-     * FLAG_IMMUTABLE
-     * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改。
-     * 在 Android 12 及以上版本，对于一些特定的 PendingIntent 创建，要求必须使用 FLAG_IMMUTABLE 或 FLAG_MUTABLE 标志
-     */
-    fun Context.getActivityPendingIntent(intent: Intent, flags: Int): PendingIntent {
-        return PendingIntent.getActivity(this, requestCode, intent, getPendingIntentFlags(flags))
-    }
-
-    fun Context.getBroadcastPendingIntent(intent: Intent, flags: Int): PendingIntent {
-        return PendingIntent.getBroadcast(this, requestCode, intent, getPendingIntentFlags(flags))
-    }
-
-    /**
-     * 配置可变性
-     */
-    private fun getPendingIntentFlags(baseFlags: Int): Int {
-        return when {
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-                // Android S 及以上必须显式指定可变性，推荐默认使用 FLAG_IMMUTABLE（更安全）
-                baseFlags or PendingIntent.FLAG_IMMUTABLE
-            }
-            else -> baseFlags
         }
     }
 
