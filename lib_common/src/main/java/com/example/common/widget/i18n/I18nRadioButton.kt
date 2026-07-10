@@ -10,6 +10,7 @@ import androidx.core.content.withStyledAttributes
 import com.example.common.R
 import com.example.common.utils.i18n.I18nUtil
 import com.example.common.utils.i18n.i18String
+import com.example.framework.utils.function.view.setSpannable
 import java.lang.ref.WeakReference
 
 /**
@@ -57,7 +58,7 @@ class I18nRadioButton @JvmOverloads constructor(context: Context, attrs: Attribu
     fun setSpannableText(spannable: Spannable) {
         this.formatArgs = arrayOf()
         this.i18nTextRes = -1
-        this.text = spannable
+        setSpannable(spannable)
     }
 
     /**
