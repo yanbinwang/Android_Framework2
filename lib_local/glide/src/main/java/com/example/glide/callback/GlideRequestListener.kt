@@ -5,8 +5,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 
 /**
@@ -15,9 +13,7 @@ import kotlinx.coroutines.launch
  * 协程执行完毕后自动释放资源，无内存泄漏风险。
  * Glide 的回调是单次触发（非长耗时任务），无需复杂的作用域管理
  */
-abstract class GlideRequestListener<R> : RequestListener<R> {
-    // 协程作用域
-    private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
+internal abstract class GlideRequestListener<R>(private val scope: CoroutineScope) : RequestListener<R> {
 
     init {
         scope.launch {
