@@ -31,7 +31,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         /**
          * delayMillis：延时时间（单位：毫秒）
          */
-        @JvmStatic
         fun schedule(observer: LifecycleOwner?, run: (() -> Unit), delayMillis: Long = 1000) {
             observer?.lifecycleScope?.launch {
                 delay(delayMillis)
@@ -93,8 +92,9 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * 计时（累加）-结束
      */
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
-        timerMap[tag]?.cancel()
-        timerMap.remove(tag)
+//        timerMap[tag]?.cancel()
+//        timerMap.remove(tag)
+        timerMap.remove(tag)?.cancel()
     }
 
     fun stopTask(vararg tags: String) {
@@ -132,8 +132,9 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * 倒计时-结束
      */
     fun stopCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG) {
-        countDownMap[tag]?.cancel()
-        countDownMap.remove(tag)
+//        countDownMap[tag]?.cancel()
+//        countDownMap.remove(tag)
+        countDownMap.remove(tag)?.cancel()
     }
 
     fun stopCountDown(vararg tags: String) {
