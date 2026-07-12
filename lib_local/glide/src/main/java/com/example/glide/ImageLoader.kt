@@ -46,8 +46,8 @@ import java.io.File
 
 /**
  * Created by WangYanBin on 2020/5/29.
- * 1.如果图片加载库使用Application上下文，Glide请求将不受Activity/Fragment生命周期控制。
- * 2.GlideModule在高版本已经不需要继承，写好打上注解全局就会应用（glide的依赖需要都引入）
+ * 1) 如果图片加载库使用 Application 上下文，Glide 请求将不受 Activity/Fragment 生命周期控制
+ * 2) GlideModule 在高版本已经不需要继承，写好打上注解全局就会应用（Glide的依赖需要都引入）
  */
 class ImageLoader private constructor() {
     private val scope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
@@ -214,7 +214,7 @@ class ImageLoader private constructor() {
                     .load(videoUrl.toUri())
                     .apply(options)
                     .smartFade(view)
-                    .listener(object : GlideRequestListener<Bitmap>() {
+                    .listener(object : GlideRequestListener<Bitmap>(scope) {
                         override fun onLoadStart() {
                             onLoadStart()
                         }
@@ -256,7 +256,7 @@ class ImageLoader private constructor() {
                 .apply(RequestOptions()
                     .skipMemoryCache(true)
                     .diskCacheStrategy(DiskCacheStrategy.NONE))
-                .addListener(object : GlideRequestListener<Drawable>() {
+                .addListener(object : GlideRequestListener<Drawable>(scope) {
                     override fun onLoadStart() {
                         scope.launch {
                             progressFlow.flowOn(Main.immediate).catch {
@@ -316,7 +316,7 @@ class ImageLoader private constructor() {
                 .placeholder(defaultResource)
                 .error(validErrorSource)
 //                .smartFade(view)
-                .listener(object : GlideRequestListener<Bitmap>() {
+                .listener(object : GlideRequestListener<Bitmap>(scope) {
                     override fun onLoadStart() {
                         view.gone()
                         onLoadStart()
@@ -505,7 +505,7 @@ class ImageLoader private constructor() {
                 .placeholder( defaultResource)
                 .error(validErrorSource)
                 .smartFade(view)
-                .listener(object : GlideRequestListener<Drawable>() {
+                .listener(object : GlideRequestListener<Drawable>(scope) {
                     override fun onLoadStart() {
                         onLoadStart()
                     }
@@ -582,7 +582,7 @@ class ImageLoader private constructor() {
         Glide.with(context)
             .downloadOnly()
             .load(imageUrl)
-            .listener(object : GlideRequestListener<File>() {
+            .listener(object : GlideRequestListener<File>(scope) {
                 override fun onLoadStart() {
                     onDownloadStart()
                 }
