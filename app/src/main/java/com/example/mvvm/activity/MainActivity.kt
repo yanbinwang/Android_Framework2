@@ -602,7 +602,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            },2000)
 //            navigation(RouterPath.LoginActivity)
 //            viewModel.getShare()
-//            navigation(ARouterPath.TestActivity2)
+//            navigation(RouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
             mPermission.requestPermissions { isGranted, _ ->

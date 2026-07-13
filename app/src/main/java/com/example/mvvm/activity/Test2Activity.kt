@@ -1,9 +1,5 @@
 package com.example.mvvm.activity
 
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ValueAnimator
 import android.os.Bundle
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -17,13 +13,14 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.function.applyTextStyle
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.applyTextStyle
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.applyConstraints
+import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
 import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.centerVertically
@@ -38,6 +35,7 @@ import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityTest2Binding
 import com.google.android.material.appbar.AppBarLayout
 import com.therouter.router.Route
@@ -45,11 +43,15 @@ import kotlin.math.abs
 
 @Route(path = RouterPath.TestActivity2)
 class Test2Activity : BaseActivity<ActivityTest2Binding>() {
+    private val minScale = 0.3f // 最小缩放比例
+    private val maxScale = 1.0f  // 最大缩放比例
+    private var initialScale = maxScale
+    private var initialTranslationX = 0f
+    private var initialTranslationY = 0f
     private val rootView by lazy { ConstraintLayout(this) }
     private val ivAvatarId by lazy { View.generateViewId() }
     private val tvNickId by lazy { View.generateViewId() }
-
-    //折叠后的小头像
+    // 折叠后的小头像
     private val ivAvatar by lazy {
         ImageView(this).apply {
             id = ivAvatarId
@@ -60,8 +62,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
 //            alpha = 0f
         }
     }
-
-    //折叠后的标题
+    // 折叠后的标题
     private val tvNick by lazy {
         TextView(this).apply {
             id = tvNickId
@@ -78,7 +79,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        initImmersionBar(false)
+//        initImmersionBar(false)
         initMenu()
     }
 
@@ -104,159 +105,61 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
         }
     }
 
-    private var isAnimating = false
-    private val minScale = 0.3f // 最小缩放比例
-    private val maxScale = 1.0f  // 最大缩放比例
-    private val maxTranslationX = -70f // 最大水平偏移量(向左为负)
-    private val maxTranslationY = 50f   // 最大垂直偏移量(向上为负)
-    private var initialScale = maxScale
-    private var initialTranslationX = 0f
-    private var initialTranslationY = 0f
 
     override fun initEvent() {
         super.initEvent()
         initialScale = mBinding?.llInfo?.scaleX.orZero
         initialTranslationX = mBinding?.llInfo?.translationX.orZero
         initialTranslationY = mBinding?.llInfo?.translationY.orZero
-        mBinding?.appbar?.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
-            private var isHide = false
-            override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
-                //UI缩放动画
-                val totalScrollRange = appBarLayout?.totalScrollRange.toSafeFloat()
-                val offset = abs(verticalOffset).toSafeFloat()
-                val percentage = offset / totalScrollRange
-//                // 计算目标缩放比例 (根据滚动百分比在minScale和maxScale之间线性插值)
-//                val targetScale = maxScale - (maxScale - minScale) * percentage
-//                // 计算目标平移量 (向上滚动时向左上方平移，向下滚动时复位)
-//                val targetTranslationX = initialTranslationX + (maxTranslationX * percentage)
-//                val targetTranslationY = initialTranslationY + (maxTranslationY * percentage)
-//                // 使用动画使变化过程更平滑
-//                if (!isAnimating && (mBinding?.llInfo?.scaleX != targetScale ||
-//                            mBinding?.llInfo?.translationX != targetTranslationX ||
-//                            mBinding?.llInfo?.translationY != targetTranslationY)) {
-//                    animateProperties(mBinding?.llInfo?.scaleX.orZero, targetScale,
-//                        mBinding?.llInfo?.translationX.orZero, targetTranslationX,
-//                        mBinding?.llInfo?.translationY.orZero, targetTranslationY)
-//                }
-                
-                //大头像是88pt小头像是44pt，所以低于0.5就无需再做了
-                val scaleOffset = 1 - percentage
-                if (scaleOffset > 0.4) {
-                    mBinding?.tvNick?.visible()
-                    mBinding?.llInfo?.scaleX = scaleOffset
-                    mBinding?.llInfo?.scaleY = scaleOffset
-                } else {
-                    mBinding?.tvNick?.invisible()
-                }
-                // 添加位置动画
-//                val maxTranslationX = 50f // 最大平移距离（可根据需要调整）
-                val maxTranslationX = screenWidth * 0.09f
-                mBinding?.llInfo?.translationX = -(percentage * maxTranslationX)
-//                val maxTranslationY = 40f
-                val maxTranslationY = screenHeight * 0.03f
-                mBinding?.llInfo?.translationY = percentage * maxTranslationY
 
-                //折叠/显式状态动画
-                val needHide = offset < totalScrollRange
-                if (needHide != isHide) {
-                    isHide = needHide
-                    initImmersionBar(!needHide)
-                    if (needHide) {
+        /**
+         * setScrimVisibleHeightTrigger(int height) 是 CollapsingToolbarLayout 提供的一个关键 API，用来精确控制 内容遮罩（Content Scrim）何时开始显示/隐藏
+         * 当背景图被折叠到看不见时，提供一个纯色背景，保证 Toolbar 上的文字/图标依然清晰可读
+         */
+        mBinding?.collapsingToolbar?.scrimVisibleHeightTrigger = getStatusBarHeight() + 44.pt
+
+        mBinding?.appbar?.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
+            private var isCollapsed = false  // true=已折叠, false=已展开
+
+            override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+                val totalRange = appBarLayout?.totalScrollRange ?: return
+                val offset = abs(verticalOffset).toSafeFloat()
+                val percentage = (offset / totalRange).coerceIn(0f, 1f)
+                // ========== 缩放 + 平移（连续变化，每帧都执行）==========
+                val scaleOffset = (1 - percentage).coerceIn(minScale, maxScale)
+                mBinding?.llInfo?.apply {
+                    scaleX = scaleOffset
+                    scaleY = scaleOffset
+                    translationX = -(percentage * screenWidth * 0.09f)
+                    translationY = percentage * screenHeight * 0.03f
+                }
+                // ========== 大头像(llInfo)的显隐（只在临界点切换一次）==========
+                val currentlyCollapsed = abs(verticalOffset) < totalRange
+                if (currentlyCollapsed != isCollapsed) {
+                    isCollapsed = currentlyCollapsed
+                    if (isCollapsed) {
+                        "执行展开".logWTF("wyb")
+                        initImmersionBar(false)
+                        // 展开 → 大头像淡入
                         mBinding?.llInfo.appear(100)
-                        ivAvatar.fade(100)
-                        tvNick.fade(100)
+                        ivAvatar.invisible()
+                        tvNick.invisible()
+                        mBinding?.toolbar.background(R.color.bgTransparent)
+                        mBinding?.toolbar.fade()
                     } else {
+                        "执行折叠".logWTF("wyb")
                         mBinding?.llInfo.fade(100)
-                        ivAvatar.appear(100)
-                        tvNick.appear(100)
+                        ivAvatar.visible()
+                        tvNick.visible()
+                        mBinding?.toolbar.background(R.color.bgDefault)
+                        mBinding?.toolbar.appear()
+                        initImmersionBar(true)
                     }
                 }
             }
-        })
-    }
 
-    /**
-     * 立即将视图重置为初始状态
-     */
-    fun resetWithoutAnimation() {
-        mBinding?.llInfo?.clearAnimation()
-        mBinding?.llInfo?.scaleX = initialScale
-        mBinding?.llInfo?.scaleY = initialScale
-        mBinding?.llInfo?.translationX = initialTranslationX
-        mBinding?.llInfo?.translationY = initialTranslationY
-    }
-
-    /**
-     * 立即将视图设置为最小缩放状态(无动画)
-     */
-    fun applyMinimumScaleWithoutAnimation() {
-        mBinding?.llInfo?.scaleX = minScale
-        mBinding?.llInfo?.scaleY = minScale
-        mBinding?.llInfo?.translationX = initialTranslationX + maxTranslationX
-        mBinding?.llInfo?.translationY = initialTranslationY + maxTranslationY
-    }
-
-    //    private fun animateScale(from: Float, to: Float) {
-//        val animator = ValueAnimator.ofFloat(from, to).apply {
-//            duration = 150
-//            addUpdateListener { animation ->
-//                val scale = animation.animatedValue as Float
-//                mBinding?.llInfo?.scaleX = scale
-//                mBinding?.llInfo?.scaleY = scale
-//            }
-//            addListener(object : AnimatorListenerAdapter() {
-//                override fun onAnimationStart(animation: Animator) {
-//                    isAnimating = true
-//                }
-//                override fun onAnimationEnd(animation: Animator) {
-//                    isAnimating = false
-//                }
-//            })
-//        }
-//        animator.start()
-//    }
-
-    private fun animateProperties(
-        fromScale: Float, toScale: Float,
-        fromTranslationX: Float, toTranslationX: Float,
-        fromTranslationY: Float, toTranslationY: Float
-    ) {
-        val scaleAnimator = ValueAnimator.ofFloat(fromScale, toScale).apply {
-            addUpdateListener { animation ->
-                val scale = animation.animatedValue as Float
-                mBinding?.llInfo?.scaleX = scale
-                mBinding?.llInfo?.scaleY = scale
-            }
         }
-
-        val translationXAnimator = ValueAnimator.ofFloat(fromTranslationX, toTranslationX).apply {
-            addUpdateListener { animation ->
-                val translation = animation.animatedValue as Float
-                mBinding?.llInfo?.translationX = translation
-            }
-        }
-
-        val translationYAnimator = ValueAnimator.ofFloat(fromTranslationY, toTranslationY).apply {
-            addUpdateListener { animation ->
-                val translation = animation.animatedValue as Float
-                mBinding?.llInfo?.translationY = translation
-            }
-        }
-        // 使用AnimatorSet确保动画同步进行
-        val animatorSet = AnimatorSet().apply {
-            playTogether(scaleAnimator, translationXAnimator, translationYAnimator)
-            duration = 150
-            addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationStart(animation: Animator) {
-                    isAnimating = true
-                }
-
-                override fun onAnimationEnd(animation: Animator) {
-                    isAnimating = false
-                }
-            })
-        }
-        animatorSet.start()
+        )
     }
 
 }
