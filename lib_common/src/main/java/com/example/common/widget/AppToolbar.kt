@@ -198,8 +198,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 1) 在xml中绘制AppToolbar
      * 2) 页面调用bind()方法传入Activity实现绑定
      */
-    fun setTransparent(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, onBack: () -> Unit = { finishHost() }): AppToolbar {
-        return setTitle(title, titleColor, R.color.bgTransparent, onBack = onBack)
+    fun setTransparent(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @TitleAlignment titleAlignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        return setTitle(title, titleColor, R.color.bgTransparent, titleAlignment = titleAlignment, onBack = onBack)
     }
 
     fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = { finishHost() }): AppToolbar {
