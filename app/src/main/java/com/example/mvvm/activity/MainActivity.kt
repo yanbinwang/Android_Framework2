@@ -602,21 +602,21 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            },2000)
 //            navigation(RouterPath.LoginActivity)
 //            viewModel.getShare()
-//            navigation(RouterPath.TestActivity2)
+            navigation(RouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
-            mPermission.requestPermissions { isGranted, _ ->
-                if (isGranted) {
-//                    pullUpImage()
-//                    gallery.takePicture(true){
-//                        it.shortToast()
-//                    }
-                    gallery.videoMultipleSelection()
-//                    gallery.imageSelection(hasDurban = true)
-//                    gallery.imageMultipleSelection(true)
-//                    navigation(ARouterPath.TestActivity)
-                }
-            }
+//            mPermission.requestPermissions { isGranted, _ ->
+//                if (isGranted) {
+////                    pullUpImage()
+////                    gallery.takePicture(true){
+////                        it.shortToast()
+////                    }
+//                    gallery.videoMultipleSelection()
+////                    gallery.imageSelection(hasDurban = true)
+////                    gallery.imageMultipleSelection(true)
+////                    navigation(ARouterPath.TestActivity)
+//                }
+//            }
 //            testDialog.show()
 //            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
 //                // 透明背景

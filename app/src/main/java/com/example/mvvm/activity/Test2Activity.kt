@@ -27,6 +27,7 @@ import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.fade
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.invisible
+import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.size
@@ -46,8 +47,6 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
     private val minScale = 0.3f // 最小缩放比例
     private val maxScale = 1.0f  // 最大缩放比例
     private var initialScale = maxScale
-    private var initialTranslationX = 0f
-    private var initialTranslationY = 0f
     private val rootView by lazy { ConstraintLayout(this) }
     private val ivAvatarId by lazy { View.generateViewId() }
     private val tvNickId by lazy { View.generateViewId() }
@@ -79,14 +78,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-//        initImmersionBar(false)
-        initMenu()
-    }
-
-    /**
-     * 初始化顶部菜单
-     */
-    private fun initMenu() {
+        // 初始化顶部菜单
         mBinding?.toolbar.size(height = 44.pt + getStatusBarHeight())
         mBinding?.toolbar?.clearToolbarCompletely()
         rootView.size(MATCH_PARENT, MATCH_PARENT)
@@ -103,21 +95,22 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
             topToTopOf(tvNickId, ivAvatarId)
             bottomToBottomOf(tvNickId, ivAvatarId)
         }
+        ivAvatar.margin(start = 5.pt)
     }
 
+    override fun initData() {
+        super.initData()
+        initialScale = mBinding?.llInfo?.scaleX.orZero
+    }
 
     override fun initEvent() {
         super.initEvent()
-        initialScale = mBinding?.llInfo?.scaleX.orZero
-        initialTranslationX = mBinding?.llInfo?.translationX.orZero
-        initialTranslationY = mBinding?.llInfo?.translationY.orZero
-
         /**
          * setScrimVisibleHeightTrigger(int height) 是 CollapsingToolbarLayout 提供的一个关键 API，用来精确控制 内容遮罩（Content Scrim）何时开始显示/隐藏
          * 当背景图被折叠到看不见时，提供一个纯色背景，保证 Toolbar 上的文字/图标依然清晰可读
          */
         mBinding?.collapsingToolbar?.scrimVisibleHeightTrigger = getStatusBarHeight() + 44.pt
-
+        // 设置监听
         mBinding?.appbar?.addOnOffsetChangedListener(object : AppBarLayout.OnOffsetChangedListener {
             private var isCollapsed = false  // true=已折叠, false=已展开
 
@@ -130,7 +123,14 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                 mBinding?.llInfo?.apply {
                     scaleX = scaleOffset
                     scaleY = scaleOffset
-                    translationX = -(percentage * screenWidth * 0.09f)
+//                    translationX = -(percentage * screenWidth * 0.09f)
+
+                    // 将缩放比例映射为平移进度
+                    // 当 scale=1.0 时，progress=0，translationX=0
+                    // 当 scale=minScale(0.3) 时，progress=1.0，translationX 精确到达你原来调好的终点
+                    val translateProgress = ((maxScale - scaleOffset) / (maxScale - minScale)).coerceIn(0f, 1f)
+                    translationX = -(translateProgress * screenWidth * 0.09f)
+
                     translationY = percentage * screenHeight * 0.03f
                 }
                 // ========== 大头像(llInfo)的显隐（只在临界点切换一次）==========
@@ -157,9 +157,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                     }
                 }
             }
-
-        }
-        )
+        })
     }
 
 }
