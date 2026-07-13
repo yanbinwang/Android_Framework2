@@ -125,9 +125,10 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * @tintColor -> 返回按钮覆盖色
      * @bgColor ->背景颜色
      * @hasShade -> 标题底部是否带阴影
+     * @showBackButton -> 是否显示左侧返回按钮，默认为 true
      * @onBack -> 默认左侧返回
      */
-    fun setCustomTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setCustomTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, showBackButton: Boolean = true, onBack: () -> Unit = { finishHost() }): AppToolbar {
         // 设置标题
         if (null != title) {
             createOrUpdateView<I18nTextView>(KEY_TITLE_TEXT, {
@@ -148,8 +149,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 }
             }
         }
-        // 设置返回后按钮
-        setLeftButton(resId, tintColor, onBack = onBack)
+        // 设置返回按钮
+        if (showBackButton) setLeftButton(resId, tintColor, onBack = onBack)
         // 设置背景色
         rootView.setBackgroundColor(context.color(bgColor))
         // 设置阴影
