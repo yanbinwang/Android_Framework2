@@ -16,7 +16,6 @@ import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.applyTextStyle
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.applyConstraints
@@ -44,9 +43,6 @@ import kotlin.math.abs
 
 @Route(path = RouterPath.TestActivity2)
 class Test2Activity : BaseActivity<ActivityTest2Binding>() {
-    private val minScale = 0.3f // 最小缩放比例
-    private val maxScale = 1.0f  // 最大缩放比例
-    private var initialScale = maxScale
     private val rootView by lazy { ConstraintLayout(this) }
     private val ivAvatarId by lazy { View.generateViewId() }
     private val tvNickId by lazy { View.generateViewId() }
@@ -58,7 +54,6 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
             size(44.pt, 44.pt)
             padding(10.pt, 10.pt, 10.pt, 10.pt)
             gone()
-//            alpha = 0f
         }
     }
     // 折叠后的标题
@@ -70,8 +65,14 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
             bold(true)
             size(WRAP_CONTENT, WRAP_CONTENT)
             gone()
-//            alpha = 0f
         }
+    }
+
+    companion object {
+        private const val MIN_SCALE = 0.3f
+        private const val MAX_SCALE = 1.0f
+        private const val TRANSLATE_X_FACTOR = 0.09f  // 水平终点系数
+        private const val TRANSLATE_Y_FACTOR = 0.03f  // 垂直终点系数
     }
 
     override fun isImmersionBarEnabled() = false
@@ -98,11 +99,6 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
         ivAvatar.margin(start = 5.pt)
     }
 
-    override fun initData() {
-        super.initData()
-        initialScale = mBinding?.llInfo?.scaleX.orZero
-    }
-
     override fun initEvent() {
         super.initEvent()
         /**
@@ -119,19 +115,16 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                 val offset = abs(verticalOffset).toSafeFloat()
                 val percentage = (offset / totalRange).coerceIn(0f, 1f)
                 // ========== 缩放 + 平移（连续变化，每帧都执行）==========
-                val scaleOffset = (1 - percentage).coerceIn(minScale, maxScale)
+                val scaleOffset = (1 - percentage).coerceIn(MIN_SCALE, MAX_SCALE)
                 mBinding?.llInfo?.apply {
                     scaleX = scaleOffset
                     scaleY = scaleOffset
-//                    translationX = -(percentage * screenWidth * 0.09f)
-
                     // 将缩放比例映射为平移进度
                     // 当 scale=1.0 时，progress=0，translationX=0
                     // 当 scale=minScale(0.3) 时，progress=1.0，translationX 精确到达你原来调好的终点
-                    val translateProgress = ((maxScale - scaleOffset) / (maxScale - minScale)).coerceIn(0f, 1f)
-                    translationX = -(translateProgress * screenWidth * 0.09f)
-
-                    translationY = percentage * screenHeight * 0.03f
+                    val translateProgress = ((MAX_SCALE - scaleOffset) / (MAX_SCALE - MIN_SCALE)).coerceIn(0f, 1f)
+                    translationX = -(translateProgress * screenWidth * TRANSLATE_X_FACTOR)
+                    translationY = percentage * screenHeight * TRANSLATE_Y_FACTOR
                 }
                 // ========== 大头像(llInfo)的显隐（只在临界点切换一次）==========
                 val currentlyCollapsed = abs(verticalOffset) < totalRange
