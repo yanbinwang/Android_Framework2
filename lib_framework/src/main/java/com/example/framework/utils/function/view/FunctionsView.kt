@@ -792,7 +792,7 @@ fun View?.cancelAnim() {
 }
 
 /**
- * 开启硬件加速
+ * 开启硬件加速 (用显存换帧率，只有当“不换显存就会掉帧”时才值得开)
  * 1) 空 Paint 在渲染结果上与 null 一致，但在性能开销上不等价
  * 2) 硬件层的 Paint 仅支持以下三类属性，传其他任何属性都会被静默忽略或导致回退软件渲染：
  * ColorFilter	   整体调色、暗黑模式适配、灰度化	 Shader（BitmapShader/GradientShader等）
