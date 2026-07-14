@@ -18,7 +18,7 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.view.elasticIn
+import com.example.framework.utils.function.view.bounceFadeIn
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
 
@@ -88,13 +88,12 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         // 当布局show出来的时候执行开始动画
         setOnShowListener {
             if (hasAnimation) {
-                rootView?.startAnimation(context.elasticIn())
+                rootView?.startAnimation(bounceFadeIn())
             }
             lifecycleListener?.onDialogShow()
         }
         // 当布局销毁时执行结束动画
         setOnDismissListener {
-//            rootView?.startAnimation(context.elasticOut())
             lifecycleListener?.onDialogDismiss()
         }
         // 默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）

@@ -13,7 +13,9 @@ import android.view.animation.AlphaAnimation
 import android.view.animation.Animation
 import android.view.animation.AnimationSet
 import android.view.animation.AnimationUtils
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.Interpolator
+import android.view.animation.OvershootInterpolator
 import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import android.widget.TextView
@@ -30,38 +32,36 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 /**
- * 弹性进入
+ * 多段缩放+淡入动画
  */
-fun Context.elasticIn(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(0.0f, 1.0f)
-        alpha.duration = 90
-        val scale1 = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale1.duration = 135
-        val scale2 = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale2.duration = 105
-        scale2.startOffset = 135
-        val scale3 = ScaleAnimation(0.95f, 1f, 0.95f, 1.0f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale3.duration = 60
-        scale3.startOffset = 240
-        addAnimation(alpha)
-        addAnimation(scale1)
-        addAnimation(scale2)
-        addAnimation(scale3)
-    }
-}
-
-/**
- * 弹性退出
- */
-fun Context.elasticOut(): AnimationSet {
-    return AnimationSet(this, null).apply {
-        val alpha = AlphaAnimation(1.0f, 0.0f)
-        alpha.duration = 150
-        val scale = ScaleAnimation(1.0f, 0.6f, 1.0f, 0.6f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-        scale.duration = 150
-        addAnimation(alpha)
-        addAnimation(scale)
+fun bounceFadeIn(): AnimationSet {
+    // true 表示共享同一个 interpolator
+    return AnimationSet(true).apply {
+        // 透明度：快速显现，避免缩放初期视觉空洞
+        addAnimation(AlphaAnimation(0f, 1f).apply {
+            duration = 120L
+            interpolator = DecelerateInterpolator(1.5f)
+        })
+        // 放大过冲：从缩小状态弹出到略大于目标尺寸
+        val overshootExpand = ScaleAnimation(0.8f, 1.05f, 0.8f, 1.05f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f).apply {
+            duration = 150L
+            interpolator = AccelerateDecelerateInterpolator()
+        }
+        // 回弹收缩：从过冲峰值回落至略小于目标尺寸
+        val reboundContract = ScaleAnimation(1.05f, 0.95f, 1.05f, 0.95f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f).apply {
+            duration = 120L
+            startOffset = 150L
+            interpolator = DecelerateInterpolator(1.2f)
+        }
+        // 归位稳定：从微缩状态回到精确目标尺寸，带极微小二次过冲
+        val settleToFinal = ScaleAnimation(0.95f, 1f, 0.95f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f).apply {
+            duration = 80L
+            startOffset = 270L
+            interpolator = OvershootInterpolator(0.5f)
+        }
+        addAnimation(overshootExpand)
+        addAnimation(reboundContract)
+        addAnimation(settleToFinal)
     }
 }
 
