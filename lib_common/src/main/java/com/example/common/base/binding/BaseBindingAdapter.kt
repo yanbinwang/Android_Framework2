@@ -53,6 +53,7 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.spaceLimit
+import com.example.framework.utils.function.view.startAnim
 import com.example.framework.utils.function.view.whiteListLimit
 
 /**
@@ -513,7 +514,7 @@ object BaseBindingAdapter {
         view.adapter = pagerAdapter
         view.offscreenPageLimit = pagerAdapter.count - 1
         view.currentItem = 0
-        view.startAnimation(bounceFadeIn())
+        view.startAnim(bounceFadeIn())
     }
 
     /**

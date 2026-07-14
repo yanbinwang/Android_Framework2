@@ -19,6 +19,7 @@ import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.bounceFadeIn
+import com.example.framework.utils.function.view.startAnim
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
 
@@ -88,7 +89,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         // 当布局show出来的时候执行开始动画
         setOnShowListener {
             if (hasAnimation) {
-                rootView?.startAnimation(bounceFadeIn())
+                rootView?.startAnim(bounceFadeIn())
             }
             lifecycleListener?.onDialogShow()
         }
