@@ -14,8 +14,6 @@ import com.example.common.utils.function.reloadWebUrl
 import com.example.common.utils.function.setupWebClient
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.background
-import com.example.framework.utils.function.view.byHardwareAccelerate
-import com.example.framework.utils.function.view.stopHardwareAccelerate
 import com.example.home.R
 import com.example.home.databinding.ActivityWebBinding
 import java.lang.ref.WeakReference
@@ -38,7 +36,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     }
 
     private fun addWebView() {
-        webView?.byHardwareAccelerate()
+//        webView?.byHardwareAccelerate()
         webView?.background(R.color.bgDefault)
         // WebView与JS交互
         webView?.addJavascriptInterface(WebJavaScriptObject(WeakReference(webImpl)), webJsName)
@@ -118,7 +116,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
             Lifecycle.Event.ON_DESTROY -> {
                 mActivity.lifecycle.removeObserver(this)
                 webView?.removeJavascriptInterface(webJsName)
-                webView?.stopHardwareAccelerate()
+//                webView?.stopHardwareAccelerate()
                 mBinding?.unbind()
             }
             else -> {}
