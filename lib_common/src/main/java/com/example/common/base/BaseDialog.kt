@@ -19,7 +19,6 @@ import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.elasticIn
-import com.example.framework.utils.function.view.elasticOut
 import com.example.framework.utils.logE
 import java.lang.reflect.ParameterizedType
 
@@ -40,6 +39,7 @@ import java.lang.reflect.ParameterizedType
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, themeResId: Int = R.style.DialogStyle, private val dialogWidth: Int = 320, private val dialogHeight: Int = WRAP_CONTENT, private val gravity: Int = CENTER, private val hasAnimation: Boolean = true) : AppCompatDialog(activity, themeResId), BaseImpl {
+    private var lifecycleListener: OnDialogLifecycleListener? = null
     protected var mBinding: VDB? = null
     protected val rootView get() = mBinding?.root
     protected val lifecycleOwner get() = ownerActivity as? LifecycleOwner
@@ -85,15 +85,17 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
     }
 
     override fun initEvent() {
-        if (hasAnimation) {
-            // 当布局show出来的时候执行开始动画
-            setOnShowListener {
+        // 当布局show出来的时候执行开始动画
+        setOnShowListener {
+            if (hasAnimation) {
                 rootView?.startAnimation(context.elasticIn())
             }
-            // 当布局销毁时执行结束动画
-            setOnDismissListener {
-                rootView?.startAnimation(context.elasticOut())
-            }
+            lifecycleListener?.onDialogShow()
+        }
+        // 当布局销毁时执行结束动画
+        setOnDismissListener {
+//            rootView?.startAnimation(context.elasticOut())
+            lifecycleListener?.onDialogDismiss()
         }
         // 默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
         setDialogCancelable(false)
@@ -128,7 +130,11 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         if (window?.windowManager == null) return
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
-        super.dismiss()
+        try {
+            super.dismiss()
+        } catch (e: Exception) {
+            e.logE
+        }
     }
 
     /**
@@ -138,7 +144,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
      */
     open fun setDialogCancelable(cancelable: Boolean) {
         setCancelable(cancelable)
-        setCanceledOnTouchOutside(cancelable)//新增
+        setCanceledOnTouchOutside(cancelable)
         if (cancelable) {
             setOnKeyListener(null)
         } else {
@@ -158,6 +164,23 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
      */
     open fun setType() {
         window?.setType(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY else WindowManager.LayoutParams.TYPE_SYSTEM_ALERT)
+    }
+
+    /**
+     * 设置生命周期监听器
+     * 替代直接调用 setOnShowListener / setOnDismissListener
+     */
+    open fun setOnDialogLifecycleListener(listener: OnDialogLifecycleListener?) {
+        this.lifecycleListener = listener
+    }
+
+    /**
+     * Dialog 生命周期监听接口
+     * 替代直接使用 setOnShowListener / setOnDismissListener，避免外部覆盖导致内部逻辑丢失
+     */
+    interface OnDialogLifecycleListener {
+        fun onDialogShow() {}
+        fun onDialogDismiss() {}
     }
     // </editor-fold>
 
