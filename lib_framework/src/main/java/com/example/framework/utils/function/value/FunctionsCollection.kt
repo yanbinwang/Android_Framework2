@@ -523,7 +523,7 @@ fun <T> Collection<T>?.toJsonObject(key: String): JSONObject? {
 /**
  * 列表对比筛选模式枚举
  */
-enum class ExtractMode {
+enum class SyncMode {
     // ========== 通用集合数学运算（通用列表对比，依赖equals/hashCode） ==========
     ONLY_SOURCE_UNIQUE,     // 调用方this独有（源差集 A-B）
     ONLY_TARGET_UNIQUE,     // 传入list独有（目标差集 B-A）
@@ -554,15 +554,15 @@ enum class ExtractMode {
  * union	    并集	保留「两个集合的所有元素，去重」	                A ∪ B     输出：[1, 2, 3, 4, 5, 6]（合并后去重，无重复元素）
  * subtract	    差集（相对差）	保留「当前集合有，但目标集合没有的元素」	A - B     输出：[1, 2]（A 有 1、2，B 没有）
  */
-fun <T> List<T>?.toDiffSet(list: List<T>, mode: ExtractMode = ExtractMode.SYMMETRIC_DIFF): List<T>? {
+fun <T> List<T>?.toDiffSet(list: List<T>, mode: SyncMode = SyncMode.SYMMETRIC_DIFF): List<T>? {
     this ?: return null
     val sourceSet = toSet()
     val targetSet = list.toSet()
     return when (mode) {
-        ExtractMode.ONLY_SOURCE_UNIQUE -> sourceSet subtract targetSet
-        ExtractMode.ONLY_TARGET_UNIQUE -> targetSet subtract sourceSet
-        ExtractMode.SYMMETRIC_DIFF -> (sourceSet union targetSet) subtract (sourceSet intersect targetSet)
-        ExtractMode.ONLY_INTERSECT -> sourceSet intersect targetSet
+        SyncMode.ONLY_SOURCE_UNIQUE -> sourceSet subtract targetSet
+        SyncMode.ONLY_TARGET_UNIQUE -> targetSet subtract sourceSet
+        SyncMode.SYMMETRIC_DIFF -> (sourceSet union targetSet) subtract (sourceSet intersect targetSet)
+        SyncMode.ONLY_INTERSECT -> sourceSet intersect targetSet
         else -> throw IllegalArgumentException("toDiffSet 不支持该模式：$mode")
     }.toList()
 }
@@ -570,13 +570,13 @@ fun <T> List<T>?.toDiffSet(list: List<T>, mode: ExtractMode = ExtractMode.SYMMET
 /**
  * 本地列表对比服务端列表，按匹配规则拆分交集/本地独有/服务独有子集
  * @this 本地缓存列表
- * @serverList 接口返回服务端基准列表
- * @isSameItem 判断两条记录是否为同一条业务数据，兼容 id/orderNo 各类主键匹配
- * @useServerWhenConflict 同一条数据冲突时，true 使用服务端数据，false 保留本地数据
- * @mode 返回数据模式：
- *      ONLY_INTERSECT 仅返回两边共存、更新后的交集数据
- *      ONLY_LOCAL_UNIQUE 仅返回本地独有数据
- *      ONLY_SERVER_UNIQUE 仅返回服务端独有数据
+ * @param serverList 服务端基准列表
+ * @param matchBy 判断两条记录是否为同一业务数据（通常按 id/orderNo）
+ * @param shouldUpdate 同一条数据冲突时，true=使用服务端数据，false=保留本地数据
+ * @param mode 返回数据模式：
+ *    ONLY_INTERSECT 仅返回两边共存、更新后的交集数据
+ *    ONLY_LOCAL_UNIQUE 仅返回本地独有数据
+ *    ONLY_SERVER_UNIQUE 仅返回服务端独有数据
  * 扩展组合（按需替换return）
  * 两边差集：serverUnique + localUnique
  * 全量合并：serverUnique + intersectList + localUnique
@@ -589,15 +589,15 @@ fun <T> List<T>?.toDiffSet(list: List<T>, mode: ExtractMode = ExtractMode.SYMMET
  * val conflict: (User, User) -> Boolean = { l, s -> l.amount != s.amount }
  *
  * // 共同交集
- * val intersect = localUsers.toExtract(serverUsers, matcher, conflict, ExtractMode.ONLY_INTERSECT)
+ * val intersect = localUsers.syncDiffWith(serverUsers, matcher, conflict, ExtractMode.ONLY_INTERSECT)
  * // [User(3,王五,350.0)]
  *
  * // 仅服务独有
- * val serverOnly = localUsers.toExtract(serverUsers, matcher, conflict)
+ * val serverOnly = localUsers.syncDiffWith(serverUsers, matcher, conflict)
  * // [User(1,张三,100.0), User(2,李四,200.0)]
  *
  * // 本地独有 + 服务独有
- * val localUnique = localUsers.toExtract(serverUsers, matcher, conflict, ExtractMode.ONLY_LOCAL_UNIQUE)
+ * val localUnique = localUsers.syncDiffWith(serverUsers, matcher, conflict, ExtractMode.ONLY_LOCAL_UNIQUE)
  * val diff = serverOnly + localUnique
  * // [张三,李四,赵六,孙七]
  *
@@ -605,26 +605,26 @@ fun <T> List<T>?.toDiffSet(list: List<T>, mode: ExtractMode = ExtractMode.SYMMET
  * val allData = serverOnly + intersect + localUnique
  * // [张三,李四,王五(350),赵六,孙七]
  */
-fun <T> List<T>?.toExtract(serverList: List<T>, isSameItem: (local: T, server: T) -> Boolean, useServerWhenConflict: (local: T, server: T) -> Boolean, mode: ExtractMode = ExtractMode.ONLY_SERVER_UNIQUE): List<T>? {
+fun <T> List<T>?.syncDiffWith(serverList: List<T>, matchBy: (local: T, server: T) -> Boolean, shouldUpdate: (local: T, server: T) -> Boolean, mode: SyncMode = SyncMode.ONLY_SERVER_UNIQUE): List<T>? {
     this ?: return null
     // 两边都存在的数据，按规则更新
     val intersectList = mapNotNull { localItem ->
-        val matchServer = serverList.firstOrNull { isSameItem(localItem, it) } ?: return@mapNotNull null
-        if (useServerWhenConflict(localItem, matchServer)) matchServer else localItem
+        val matchServer = serverList.firstOrNull { matchBy(localItem, it) } ?: return@mapNotNull null
+        if (shouldUpdate(localItem, matchServer)) matchServer else localItem
     }
     // 本地独有：本地有、服务端无匹配
     val localUnique = filter { localItem ->
-        serverList.none { isSameItem(localItem, it) }
+        serverList.none { matchBy(localItem, it) }
     }
     // 服务独有：服务端有、本地无匹配
     val serverUnique = serverList.filter { serverItem ->
-        none { isSameItem(it, serverItem) }
+        none { matchBy(it, serverItem) }
     }
     return when (mode) {
-        ExtractMode.ONLY_INTERSECT -> intersectList
-        ExtractMode.ONLY_LOCAL_UNIQUE -> localUnique
-        ExtractMode.ONLY_SERVER_UNIQUE -> serverUnique
-        else -> throw IllegalArgumentException("toExtract 不支持该模式：$mode，仅支持交集/本地独有/服务独有")
+        SyncMode.ONLY_INTERSECT -> intersectList
+        SyncMode.ONLY_LOCAL_UNIQUE -> localUnique
+        SyncMode.ONLY_SERVER_UNIQUE -> serverUnique
+        else -> throw IllegalArgumentException("syncDiffWith 不支持该模式：$mode，仅支持交集/本地独有/服务独有")
     }
 }
 
