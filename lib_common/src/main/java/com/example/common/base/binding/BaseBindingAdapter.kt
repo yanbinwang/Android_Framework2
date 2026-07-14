@@ -37,10 +37,10 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.blackListLimit
+import com.example.framework.utils.function.view.bounceFadeIn
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalLimit
-import com.example.framework.utils.function.view.elasticIn
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
@@ -513,7 +513,7 @@ object BaseBindingAdapter {
         view.adapter = pagerAdapter
         view.offscreenPageLimit = pagerAdapter.count - 1
         view.currentItem = 0
-        view.startAnimation(view.context.elasticIn())
+        view.startAnimation(bounceFadeIn())
     }
 
     /**
