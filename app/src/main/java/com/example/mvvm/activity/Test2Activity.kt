@@ -61,13 +61,12 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
         TextView(this).apply {
             id = tvNickId
             applyTextStyle("老王", R.color.textPrimary)
-            textSize(R.dimen.textSize12)
+            textSize(R.dimen.textSize14)
             bold(true)
             size(WRAP_CONTENT, WRAP_CONTENT)
             gone()
         }
     }
-
     companion object {
         private const val MIN_SCALE = 0.3f
         private const val MAX_SCALE = 1.0f
@@ -111,10 +110,32 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
             private var isCollapsed = false  // true=已折叠, false=已展开
 
             override fun onOffsetChanged(appBarLayout: AppBarLayout?, verticalOffset: Int) {
+                /**
+                 * 总滚动范围 (AppBarLayout 能够被折叠的最大高度差（单位 px）)
+                 * 计算方式：AppBarLayout 总高度 - Toolbar 固定高度(pinned height) -> 以 XML 为例，就是 212pt - (44pt + statusBarHeight)
+                 */
                 val totalRange = appBarLayout?.totalScrollRange ?: return
+                /**
+                 * 当前折叠偏移量
+                 * verticalOffset 是负数（向上滑动时从 0 递减到 -totalRange），取绝对值后变成从 0 → totalRange 的正向递增序列，方便后续计算
+                 */
                 val offset = abs(verticalOffset).toSafeFloat()
+                /**
+                 * 折叠进度 0→1
+                 * 0.0 = 完全展开
+                 * 1.0 = 完全折叠
+                 */
                 val percentage = (offset / totalRange).coerceIn(0f, 1f)
                 // ========== 缩放 + 平移（连续变化，每帧都执行）==========
+                /**
+                 * 缩放因子
+                 * 含义：当前帧 View 应该使用的 scaleX/scaleY 值。
+                 * (1 - percentage)：把折叠进度反转——展开时 scale=1.0，折叠时 scale 趋近 0。这是最基础的线性映射。
+                 * .coerceIn(MIN_SCALE, MAX_SCALE)：关键！ 不让 scale 无限缩小到 0，而是停在 MIN_SCALE（你之前算的 24f/88f ≈ 0.273f）。这保证了：
+                 * 折叠到最后阶段，头像大小锁定在小头像的目标尺寸
+                 * 不会出现 scale=0 导致的渲染异常
+                 * 在 MIN_SCALE ~ MAX_SCALE 之间保持平滑过渡
+                 */
                 val scaleOffset = (1 - percentage).coerceIn(MIN_SCALE, MAX_SCALE)
                 mBinding?.llInfo?.apply {
                     scaleX = scaleOffset
@@ -141,12 +162,12 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                         mBinding?.toolbar.fade()
                     } else {
                         "执行折叠".logWTF("wyb")
+                        initImmersionBar(true)
                         mBinding?.llInfo.fade(100)
                         ivAvatar.visible()
                         tvNick.visible()
                         mBinding?.toolbar.background(R.color.bgDefault)
                         mBinding?.toolbar.appear()
-                        initImmersionBar(true)
                     }
                 }
             }
