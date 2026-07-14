@@ -793,8 +793,32 @@ fun View?.cancelAnim() {
 
 /**
  * 开启硬件加速
+ * 1) 空 Paint 在渲染结果上与 null 一致，但在性能开销上不等价
+ * 2) 硬件层的 Paint 仅支持以下三类属性，传其他任何属性都会被静默忽略或导致回退软件渲染：
+ * ColorFilter	   整体调色、暗黑模式适配、灰度化	 Shader（BitmapShader/GradientShader等）
+ * MaskFilter	   边缘模糊、浮雕效果	         PathEffect（DashPathEffect等）
+ * Xfermode	       混合模式裁剪、圆角遮罩         StrokeCap / StrokeJoin / Style
+ * Alpha (0-255)   整层透明度	                 TextSize / Typeface / FontFeatureSettings
+ *
+ * // 场景1：View 整体灰度化（如未选中状态）
+ * val grayPaint = Paint().apply {
+ *     colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+ * }
+ * view.byHardwareAccelerate(grayPaint)
+ *
+ * // 场景2：View 整体暗化（如弹窗背景蒙层）
+ * val dimPaint = Paint().apply {
+ *     colorFilter = LightingColorFilter(0x888888, 0x000000)
+ * }
+ * view.byHardwareAccelerate(dimPaint)
+ *
+ * // 场景3：混合模式裁剪（如异形遮罩）
+ * val maskPaint = Paint().apply {
+ *     xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
+ * }
+ * view.byHardwareAccelerate(maskPaint)
  */
-fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
+fun View?.byHardwareAccelerate(paint: Paint? = null) {
     if (this == null) return
     setLayerType(View.LAYER_TYPE_HARDWARE, paint)
 }
@@ -804,7 +828,7 @@ fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
  */
 fun View?.stopHardwareAccelerate() {
     if (this == null) return
-    setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
+    setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 }
 
 /**

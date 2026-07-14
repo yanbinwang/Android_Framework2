@@ -17,6 +17,7 @@ import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.move
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.stopHardwareAccelerate
 import com.example.framework.utils.function.view.visible
 
 /**
@@ -73,6 +74,17 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         byHardwareAccelerate()
         viewCircle.byHardwareAccelerate()
         viewBgSelected.byHardwareAccelerate()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        // 先取消正在执行的动画，再释放硬件层
+        viewCircle.cancelAnim()
+        viewBgSelected.cancelAnim()
+        viewBg.cancelAnim()
+        stopHardwareAccelerate()
+        viewCircle.stopHardwareAccelerate()
+        viewBgSelected.stopHardwareAccelerate()
     }
 
     /**
