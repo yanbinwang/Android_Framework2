@@ -37,10 +37,10 @@ import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
-import com.example.framework.utils.function.value.ExtractMode
+import com.example.framework.utils.function.value.SyncMode
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toExtract
+import com.example.framework.utils.function.value.syncDiffWith
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
@@ -543,23 +543,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            }
 //            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
-            val allHaveList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+            val allHaveList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
                 localItem.id == serverItem.id
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
-            }, ExtractMode.ONLY_INTERSECT)
+            }, SyncMode.ONLY_INTERSECT)
             "共存数据:${allHaveList.toJson()}".logWTF("wyb")
-            val localDbList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+            val localDbList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
                 localItem.id == serverItem.id
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
-            }, ExtractMode.ONLY_LOCAL_UNIQUE)
+            }, SyncMode.ONLY_LOCAL_UNIQUE)
             "本地独有:${localDbList.toJson()}".logWTF("wyb")
-            val serverDbList = localUsers.toExtract(serverUsers,{localItem, serverItem ->
+            val serverDbList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
                 localItem.id == serverItem.id
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
-            }, ExtractMode.ONLY_SERVER_UNIQUE)
+            }, SyncMode.ONLY_SERVER_UNIQUE)
             "服务器独有:${serverDbList.toJson()}".logWTF("wyb")
 //            // 2s一跳,测试刷新
 //            timerBuilder.startTask("10086",{
