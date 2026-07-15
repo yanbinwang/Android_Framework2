@@ -197,7 +197,7 @@ fun Context?.getSlideOptions(): ActivityOptionsCompat? {
 fun FragmentActivity?.getNonePreview(): ActivityOptionsCompat? {
     this ?: return null
     return getNoneOptions().apply {
-        schedule(this@getNonePreview, {
+        schedule({
             finish()
         }, 500)
     }
@@ -206,7 +206,7 @@ fun FragmentActivity?.getNonePreview(): ActivityOptionsCompat? {
 fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
     this ?: return null
     return getFadeOptions().apply {
-        schedule(this@getFadePreview, {
+        schedule({
             finish()
         }, 500)
     }
@@ -215,7 +215,7 @@ fun FragmentActivity?.getFadePreview(): ActivityOptionsCompat? {
 fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
     this ?: return null
     return getSlideOptions().apply {
-        schedule(this@getSlidePreview, {
+        schedule({
             finish()
         }, 500)
     }

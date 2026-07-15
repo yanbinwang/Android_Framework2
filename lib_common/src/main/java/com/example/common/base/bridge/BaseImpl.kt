@@ -6,6 +6,7 @@ import androidx.annotation.ColorRes
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.gone
@@ -51,9 +52,13 @@ interface BaseImpl {
      */
     fun enabled(observer: LifecycleOwner, vararg views: View?, second: Long = -1L) {
         if (second <= 0) return
-        views.forEach { it.disable() }
-        TimerBuilder.schedule(observer, {
-            views.forEach { it.enable() }
+        views.forEach {
+            it.disable()
+        }
+        observer.schedule({
+            views.forEach {
+                it.enable()
+            }
         }, second)
     }
 
@@ -61,21 +66,27 @@ interface BaseImpl {
      * 控件显示
      */
     fun visible(vararg views: View?) {
-        views.forEach { it?.visible() }
+        views.forEach {
+            it?.visible()
+        }
     }
 
     /**
      * 控件隐藏（占位）
      */
     fun invisible(vararg views: View?) {
-        views.forEach { it?.invisible() }
+        views.forEach {
+            it?.invisible()
+        }
     }
 
     /**
      * 控件隐藏（不占位）
      */
     fun gone(vararg views: View?) {
-        views.forEach { it?.gone() }
+        views.forEach {
+            it?.gone()
+        }
     }
 
 }

@@ -355,7 +355,7 @@ object AppManager {
         // 跳转对应页面 (内部构建的跳转可能带有跳转参数,故而接口回调处理)
         block.invoke()
         // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-        schedule(ProcessLifecycleOwner.get(), {
+        ProcessLifecycleOwner.get().schedule({
             // 对应页面会被忽略关闭,如果block.invoke()拉起了此时就不会被关闭
             finishAllExcept(clazz)
         }, 500)
@@ -396,7 +396,7 @@ object AppManager {
                 block.invoke()
             }
             // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-            schedule(ProcessLifecycleOwner.get(), {
+            ProcessLifecycleOwner.get().schedule({
                 finishNotTargetActivity(*excludedList.toTypedArray())
             }, 500)
         }
