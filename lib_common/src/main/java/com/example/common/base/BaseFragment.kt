@@ -37,7 +37,6 @@ import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
-import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar

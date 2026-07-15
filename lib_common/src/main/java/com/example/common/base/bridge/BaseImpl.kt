@@ -5,7 +5,6 @@ import android.view.View
 import androidx.annotation.ColorRes
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.R
-import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
