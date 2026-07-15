@@ -132,7 +132,7 @@ internal class CameraActivity : AppCompatActivity() {
                 finish()
             }
             else -> {
-                schedule(this, {
+                schedule({
                     finish()
                 }, 500)
             }

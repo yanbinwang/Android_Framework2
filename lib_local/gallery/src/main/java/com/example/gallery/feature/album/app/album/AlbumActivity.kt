@@ -158,7 +158,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             val scanAction = { isNull: Boolean ->
                 var delayMillis = 500L
                 if (isNull) delayMillis = 1000L
-                schedule(this@AlbumActivity, {
+                schedule({
                     // 完成按钮是否显示
                     when (mChoiceMode) {
                         Album.MODE_MULTIPLE -> mView.setCompleteDisplay(true)
@@ -171,7 +171,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             // 没有图片 → 打开空页面
             if (mAlbumFolders[0].albumFiles.isEmpty()) {
                 // 延迟1秒关闭 loading，过渡更自然
-                schedule(this@AlbumActivity, {
+                schedule({
                     val intent = Intent(this@AlbumActivity, NullActivity::class.java)
                     intent.putExtras(getIntent())
                     startActivityForResult(intent, CODE_ACTIVITY_NULL)
@@ -208,7 +208,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 mCheckedList.add(file)
                 setCheckedCount()
                 // 插入行为结束,给予1s动画转圈过渡
-                schedule(this@AlbumActivity, {
+                schedule({
                     if (mChoiceMode == Album.MODE_SINGLE) {
                         callbackResult()
                     } else {
