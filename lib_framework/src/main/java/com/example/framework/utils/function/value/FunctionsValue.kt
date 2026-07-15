@@ -10,7 +10,6 @@ import android.os.Looper
 import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
-import com.example.framework.R
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
@@ -40,27 +39,42 @@ val Boolean?.orFalse get() = this ?: false
 val Boolean?.orTrue get() = this ?: true
 
 /**
- * 转Boolean
+ * 将任意类型安全转换为 Boolean
+ * - Boolean 类型：直接返回
+ * - Number 类型：非零为 true，零为 false
+ * - CharSequence 类型：委托给 [toSafeBoolean] 处理
+ * - 其他类型或 null：返回 default
  */
-fun Any?.toBoolean(default: Boolean = false) = this as? Boolean ?: default
-
-/**
- * 防空转换Boolean
- */
-fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
-    if (this.isNullOrEmpty() || this == ".") return default
-    return try {
-        this.toString().toBoolean()
-    } catch (e: Exception) {
-        e.printStackTrace()
-        default
+fun Any?.toBoolean(default: Boolean = false): Boolean {
+    return when (this) {
+        is Boolean -> this
+        is Number -> this.toInt() != 0
+        is CharSequence -> this.toSafeBoolean(default)
+        null -> default
+        else -> default
     }
 }
 
 /**
+ * 防空转换 Boolean
+ * - 空字符串 / "." → 返回 default
+ * - 匹配真值集合（"true"/"yes"/"y"/"1"，忽略大小写）→ true
+ * - 其他所有非空值 → false
+ */
+private val TRUE_VALUES = setOf("true", "yes", "y", "1")
+
+fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
+    if (this.isNullOrEmpty() || this == ".") return default
+    return this.toString().trim().lowercase() in TRUE_VALUES
+}
+
+/**
  * 判断某个对象上方是否具备某个注解
+ * 1) isAnnotationPresent 不会检查父类/接口上的注解。如果你的注解标在基类 Activity 上，子类调用此方法会返回 false。
+ * 2) 若需支持继承，应改用 AnnotationUtils.findAnnotation() (Spring) 或自行遍历 superclass chain
+ *
  * if (activity.hasAnnotation(SocketRequest::class.java)) {
- * SocketEventHelper.checkConnection(forceConnect = true)
+ *   SocketEventHelper.checkConnection(forceConnect = true)
  * }
  * //自定义一个注解
  * annotation class SocketRequest
@@ -68,12 +82,14 @@ fun CharSequence?.toSafeBoolean(default: Boolean = false): Boolean {
  */
 fun Any?.hasAnnotation(cls: Class<out Annotation>): Boolean {
     this ?: return false
+    // isAnnotationPresent 底层走反射，不适合在列表滚动、高频回调中使用。适合在初始化、路由注册、生命周期回调等低频场景
     return this::class.java.isAnnotationPresent(cls)
 }
 
 /**
- * 清空fragment缓存
+ * 清空 Fragment 缓存
  */
+@Suppress("RestrictedApi")
 fun Bundle?.clearFragmentSavedState() {
     this ?: return
     remove("android:support:fragments")
