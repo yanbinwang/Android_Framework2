@@ -1,6 +1,10 @@
 package com.example.framework.utils.builder
 
 import android.os.CountDownTimer
+import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.ViewDataBinding
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.doOnDestroy
@@ -29,16 +33,25 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         private const val COUNT_DOWN_DEFAULT_TAG = "COUNT_DOWN_DEFAULT"
 
         /**
-         * delayMillis：延时时间（单位：毫秒）
+         * @delayMillis：延时时间（单位：毫秒）
          */
-        fun schedule(observer: LifecycleOwner?, run: (() -> Unit), delayMillis: Long = 1000) {
-            observer?.lifecycleScope?.launch {
+        inline fun LifecycleCoroutineScope?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) {
+            this ?: return
+            launch {
                 delay(delayMillis)
                 withContext(Main.immediate) {
                     run()
                 }
             }
         }
+
+        inline fun AppCompatActivity?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleScope?.schedule(run, delayMillis)
+
+        inline fun Fragment?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleScope?.schedule(run, delayMillis)
+
+        inline fun LifecycleOwner?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleScope?.schedule(run, delayMillis)
+
+        inline fun ViewDataBinding?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleOwner?.lifecycleScope?.schedule(run, delayMillis)
     }
 
     init {
@@ -57,17 +70,18 @@ class TimerBuilder(private val observer: LifecycleOwner) {
 
     /**
      * 计时(累加)-开始
-     * delay（延迟时间）
+     *
+     * @delay（延迟时间）
      * 作用：表示任务首次执行前需要等待的时间（单位：毫秒）
      * 任务将在调用 schedule() 方法后延迟 2 秒（2000ms）执行第一次
      * timer.schedule(task, 2000, 3000);
      *
-     * period（周期时间）
+     * @period（周期时间）
      * 作用：表示任务每次执行完成后，下一次执行的间隔时间（单位：毫秒）
      * 任务首次执行延迟 2 秒，之后每隔 3 秒重复执行一次
      * timer.schedule(task, 2000, 3000);
      */
-    fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0, period: Long = 1000) {
+    fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0L, period: Long = 1000L) {
         // 先停止旧的任务
         stopTask(tag)
         if (timerMap[tag] == null) {
@@ -92,8 +106,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * 计时（累加）-结束
      */
     fun stopTask(tag: String = TASK_DEFAULT_TAG) {
-//        timerMap[tag]?.cancel()
-//        timerMap.remove(tag)
         timerMap.remove(tag)?.cancel()
     }
 
@@ -111,7 +123,7 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * countDownInterval:-》间隔时间
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
-    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.second, countDownInterval: Long = 1000) {
+    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.second, countDownInterval: Long = 1000L) {
         stopCountDown(tag)
         if (countDownMap[tag] == null) {
             countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
@@ -132,8 +144,6 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * 倒计时-结束
      */
     fun stopCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG) {
-//        countDownMap[tag]?.cancel()
-//        countDownMap.remove(tag)
         countDownMap.remove(tag)?.cancel()
     }
 

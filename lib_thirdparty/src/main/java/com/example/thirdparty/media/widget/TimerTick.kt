@@ -65,7 +65,7 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, isMove:
             setCancelable(false)
             setOnShowListener {
                 binding.root.gone()
-                schedule(observer, {
+                observer.schedule({
                     // 半秒后做动画
                     binding.root.appear()
                 }, 500)

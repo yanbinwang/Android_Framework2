@@ -107,7 +107,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             return
         }
         isLocating = true
-        schedule(mActivity, {
+        mActivity.schedule({
             isLocating = false
         }, retryDelay)
         try {

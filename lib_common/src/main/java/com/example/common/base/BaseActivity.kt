@@ -62,6 +62,7 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.common.widget.dialog.LoadingDialog
 import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.hasAnnotation
@@ -706,7 +707,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun showDialog(flag: Boolean, second: Long, block: () -> Unit) {
         loadingDialog.apply { setDialogCancelable(flag) }.show()
         if (second > 0) {
-            TimerBuilder.schedule(this, {
+            schedule({
                 hideDialog()
                 block.invoke()
             }, second)

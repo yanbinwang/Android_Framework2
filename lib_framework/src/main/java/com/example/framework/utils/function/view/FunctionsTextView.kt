@@ -43,7 +43,7 @@ import com.example.framework.utils.NoEmojiFilter
 import com.example.framework.utils.NumberLimitFilter
 import com.example.framework.utils.SpaceInputFilter
 import com.example.framework.utils.WhiteListFilter
-import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.font
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.divide
@@ -447,7 +447,7 @@ fun EditText?.onDone(listener: () -> Unit) {
 fun EditText?.showInput(observer: LifecycleOwner) {
     this ?: return
     focus()
-    TimerBuilder.schedule(observer, {
+    observer.schedule({
         showSoftKeyboard(context, this)
     }, 200)
 }

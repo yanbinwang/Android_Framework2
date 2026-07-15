@@ -115,7 +115,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                         // 执行完整全屏配置
                         window.applyFullScreen()
                         // 跳转页面
-                        schedule(this@SplashActivity, {
+                        schedule({
                             jump(true)
                         }, 500)
                         // 允许绘制
