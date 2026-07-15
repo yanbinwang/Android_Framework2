@@ -1,5 +1,6 @@
 package com.example.framework.utils.function.value
 
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -101,20 +102,17 @@ fun Bundle?.clearFragmentSavedState() {
  * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
  * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
  */
+private val COLOR_PATTERN = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
+
 @ColorInt
 fun String?.parseColor(defaultColor: Int = Color.WHITE): Int {
-    return this?.let { colorString ->
-        val colorPattern = Pattern.compile("^#([0-9A-Fa-f]{3}|[0-9A-Fa-f]{4}|[0-9A-Fa-f]{6}|[0-9A-Fa-f]{8})$")
-        if (colorPattern.matcher(colorString).matches()) {
-            try {
-                colorString.toColorInt()
-            } catch (_: IllegalArgumentException) {
-                defaultColor
-            }
-        } else {
-            defaultColor
-        }
-    } ?: defaultColor
+    this ?: return defaultColor
+    if (!COLOR_PATTERN.matcher(this).matches()) return defaultColor
+    return try {
+        toColorInt()
+    } catch (_: IllegalArgumentException) {
+        defaultColor
+    }
 }
 
 /**
@@ -213,31 +211,49 @@ fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
  * 获取android总运行内存大小(byte)
  */
 fun getMemInfo(): Long {
-    var memory = 0L
-    try {
-        val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
-        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
-        val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-        // 获得系统总内存，单位是KB
-        val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-        // int值乘以1024转换为long类型
-        memory = systemMemory.toSafeLong() * 1024
-        localBufferedReader.close()
-    } catch (e: IOException) {
+//    var memory = 0L
+//    try {
+//        val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
+//        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
+//        val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
+//        // 获得系统总内存，单位是KB
+//        val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
+//        // int值乘以1024转换为long类型
+//        memory = systemMemory.toSafeLong() * 1024
+//        localBufferedReader.close()
+//    } catch (e: IOException) {
+//        e.printStackTrace()
+//    }
+//    return memory
+    return try {
+        BufferedReader(FileReader("/proc/meminfo"), 8192).use { reader ->
+            val parts = reader.readLine().split("\\s+".toRegex())
+            parts.getOrNull(1)?.toLongOrNull()?.times(1024) ?: 0L
+        }
+    } catch (e: Exception) {
         e.printStackTrace()
+        0L
     }
-    return memory
 }
 
 /**
  * 获取手机cpu信息-报错或获取失败显示""
  */
 fun getCpuInfo(): String {
+//    return try {
+//        val localBufferedReader = BufferedReader(FileReader("/proc/cpuinfo"))
+//        val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
+//        localBufferedReader.close()
+//        return if ("0" == info || info.isEmpty()) "" else info
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//        ""
+//    }
     return try {
-        val localBufferedReader = BufferedReader(FileReader("/proc/cpuinfo"))
-        val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-        localBufferedReader.close()
-        return if ("0" == info || info.isEmpty()) "" else info
+        BufferedReader(FileReader("/proc/cpuinfo")).use { reader ->
+            val line = reader.readLine() ?: return@use ""
+            line.split(":\\s+".toRegex(), limit = 2).getOrNull(1)?.takeIf { it.isNotEmpty() && it != "0" } ?: ""
+        }
     } catch (e: Exception) {
         e.printStackTrace()
         ""
@@ -245,17 +261,54 @@ fun getCpuInfo(): String {
 }
 
 /**
- * 是否Root-报错或获取失败都为未Root
+ * 检测设备是否已 Root
+ * 综合判断：特征文件 + su 命令可用性 + 已知 Root 管理器包名
+ * 注意：此方法仅为启发式检测，无法做到 100% 准确，且可能被 SELinux/沙箱拦截
  */
 fun mobileIsRoot(): Boolean {
-    try {
-        for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
-            if (File(element + "su").exists()) return true
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
+//    try {
+//        for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
+//            if (File(element + "su").exists()) return true
+//        }
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//    }
+//    return false
+    return try {
+        // 传统路径检测（兼容老设备）
+        val legacyPaths = arrayOf(
+            "/system/bin/su", "/system/xbin/su", "/system/sbin/su",
+            "/sbin/su", "/vendor/bin/su", "/data/local/xbin/su",
+            "/data/local/bin/su"
+        )
+        if (legacyPaths.any { File(it).exists() }) return true
+
+        // 尝试执行 which su（Magisk 等方案通常能响应）
+        val process = Runtime.getRuntime().exec(arrayOf("which", "su"))
+        val result = process.inputStream.bufferedReader().use { it.readText() }
+        process.waitFor()
+        result.isNotBlank()
+    } catch (_: Exception) {
+        // SecurityException / IOException 等均视为未 Root
+        false
     }
-    return false
+}
+
+/**
+ * 增强版 Root 检测
+ * 注意：此方法为启发式检测，无法覆盖已隐藏包名的 Magisk/KSU/APatch 等现代方案
+ * @param context Application Context 即可
+ * @param extraRootPackages 额外的 Root 管理器包名集合（由业务方按需传入）
+ * @return true 表示检测到 Root 迹象
+ */
+fun mobileIsRootEnhanced(context: Context, extraRootPackages: Set<String> = emptySet()): Boolean {
+    if (mobileIsRoot()) return true
+    val knownPackages = setOf("com.topjohnwu.magisk", "me.weishu.kernelsu", "me.bmax.apatch") + extraRootPackages
+    return try {
+        context.packageManager.getInstalledPackages(0).any { it.packageName in knownPackages }
+    } catch (_: Exception) {
+        false
+    }
 }
 
 /**
