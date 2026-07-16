@@ -29,21 +29,22 @@ import kotlin.time.Duration.Companion.seconds
  * 获取毫秒值
  */
 // ========== 旧体系：返回 Long ==========
-val Int.hour: Long get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
-val Int.minute: Long get() = this * 1000L * 60     // 1分钟 = 60000毫秒
 val Int.second: Long get() = this * 1000L          // 1秒 = 1000毫秒
+val Int.minute: Long get() = this * 1000L * 60     // 1分钟 = 60000毫秒
+val Int.hour: Long get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
 val Int.day: Long get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
 val Int.week: Long get() = this * 7.day            // 1周 = 7天（复用day扩展）
 // ========== 新体系：复数命名，返回 Duration ==========
-val Int.hours: Duration get() = this.hours
-val Int.minutes: Duration get() = this.minutes
 val Int.seconds: Duration get() = this.seconds
+val Int.minutes: Duration get() = this.minutes
+val Int.hours: Duration get() = this.hours
 val Int.days: Duration get() = this.days
 val Int.weeks: Duration get() = (this * 7).days
 // ========== 桥梁：Duration → Long 各精度毫秒值 ==========
-val Duration.hrs: Long get() = inWholeHours
-val Duration.mins: Long get() = inWholeMinutes
+val Duration.ms: Long get() = inWholeMilliseconds
 val Duration.secs: Long get() = inWholeSeconds
+val Duration.mins: Long get() = inWholeMinutes
+val Duration.hrs: Long get() = inWholeHours
 val Duration.dys: Long get() = inWholeDays
 val Duration.wks: Long get() = inWholeDays / 7
 
