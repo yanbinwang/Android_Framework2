@@ -17,17 +17,35 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.floor
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 //------------------------------------日期时间工具类------------------------------------
 
 /**
  * 获取毫秒值
  */
-val Int.hour get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
-val Int.minute get() = this * 1000L * 60     // 1分钟 = 60000毫秒
-val Int.second get() = this * 1000L          // 1秒 = 1000毫秒
-val Int.day get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
-val Int.week get() = this * 7.day            // 1周 = 7天（复用day扩展）
+// ========== 旧体系：返回 Long ==========
+val Int.hour: Long get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
+val Int.minute: Long get() = this * 1000L * 60     // 1分钟 = 60000毫秒
+val Int.second: Long get() = this * 1000L          // 1秒 = 1000毫秒
+val Int.day: Long get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
+val Int.week: Long get() = this * 7.day            // 1周 = 7天（复用day扩展）
+// ========== 新体系：复数命名，返回 Duration ==========
+val Int.hours: Duration get() = this.hours
+val Int.minutes: Duration get() = this.minutes
+val Int.seconds: Duration get() = this.seconds
+val Int.days: Duration get() = this.days
+val Int.weeks: Duration get() = (this * 7).days
+// ========== 桥梁：Duration → Long 各精度毫秒值 ==========
+val Duration.hrs: Long get() = inWholeHours
+val Duration.mins: Long get() = inWholeMinutes
+val Duration.secs: Long get() = inWholeSeconds
+val Duration.dys: Long get() = inWholeDays
+val Duration.wks: Long get() = inWholeDays / 7
 
 /**
  * 服务器时间-推测的服务器接收时间
