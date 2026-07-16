@@ -248,7 +248,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * }
      */
     inline fun <reified T : View> setLeft(crossinline creator: () -> T, block: (T) -> Unit = {}): AppToolbar {
-        //margin属性是插入后才可以设置的
+        // margin属性是插入后才可以设置的
         createOrUpdateView(KEY_LEFT_CUSTOM_VIEW, creator) {
             startToStartOf(it)
             centerVertically(it)
