@@ -71,26 +71,26 @@ class TimerBuilder(private val observer: LifecycleOwner) {
     /**
      * 计时(累加)-开始
      *
-     * @delay（延迟时间）
+     * @delayMillis（延迟时间）
      * 作用：表示任务首次执行前需要等待的时间（单位：毫秒）
      * 任务将在调用 schedule() 方法后延迟 2 秒（2000ms）执行第一次
      * timer.schedule(task, 2000, 3000);
      *
-     * @period（周期时间）
+     * @periodMillis（周期时间）
      * 作用：表示任务每次执行完成后，下一次执行的间隔时间（单位：毫秒）
      * 任务首次执行延迟 2 秒，之后每隔 3 秒重复执行一次
      * timer.schedule(task, 2000, 3000);
      */
-    fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delay: Long = 0L, period: Long = 1000L) {
+    fun startTask(tag: String = TASK_DEFAULT_TAG, run: (() -> Unit), delayMillis: Long = 0L, periodMillis: Long = 1000L) {
         // 先停止旧的任务
         stopTask(tag)
         if (timerMap[tag] == null) {
             val job = observer.lifecycleScope.launch {
-                delay(delay)
+                delay(delayMillis)
                 flow {
                     while (true) {
                         emit(Unit)
-                        delay(period)
+                        delay(periodMillis)
                     }
                 }.flowOn(IO).collect {
                     withContext(Main.immediate) {
