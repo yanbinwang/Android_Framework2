@@ -22,6 +22,7 @@ import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.intentParcelableArrayList
 import com.example.common.utils.function.pt
+import com.example.common.utils.function.storageSizeFormat
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -38,6 +39,9 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.SyncMode
+import com.example.framework.utils.function.value.getCpuInfo
+import com.example.framework.utils.function.value.getMemInfo
+import com.example.framework.utils.function.value.mobileIsRoot
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.syncDiffWith
@@ -464,6 +468,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        "总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 

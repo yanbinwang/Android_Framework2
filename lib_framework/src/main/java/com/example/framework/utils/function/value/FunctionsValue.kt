@@ -14,7 +14,6 @@ import com.example.framework.BuildConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
-import java.io.IOException
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -208,23 +207,9 @@ fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
 }
 
 /**
- * 获取android总运行内存大小(byte)
+ * 获取 Android 总运行内存大小 (byte)
  */
 fun getMemInfo(): Long {
-//    var memory = 0L
-//    try {
-//        val localBufferedReader = BufferedReader(FileReader("/proc/meminfo"), 8192)
-//        // 系统内存信息文件,读取meminfo第一行，系统总内存大小
-//        val arrayOfString = localBufferedReader.readLine().split("\\s+".toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
-//        // 获得系统总内存，单位是KB
-//        val systemMemory = Integer.valueOf(arrayOfString[1]).toSafeInt()
-//        // int值乘以1024转换为long类型
-//        memory = systemMemory.toSafeLong() * 1024
-//        localBufferedReader.close()
-//    } catch (e: IOException) {
-//        e.printStackTrace()
-//    }
-//    return memory
     return try {
         BufferedReader(FileReader("/proc/meminfo"), 8192).use { reader ->
             val parts = reader.readLine().split("\\s+".toRegex())
@@ -237,22 +222,21 @@ fun getMemInfo(): Long {
 }
 
 /**
- * 获取手机cpu信息-报错或获取失败显示""
+ * 获取手机 CPU 型号 (ARMv7 Processor rev 3)
  */
 fun getCpuInfo(): String {
-//    return try {
-//        val localBufferedReader = BufferedReader(FileReader("/proc/cpuinfo"))
-//        val info = localBufferedReader.readLine().split(":\\s+".toRegex(), 2).toTypedArray()[1]
-//        localBufferedReader.close()
-//        return if ("0" == info || info.isEmpty()) "" else info
-//    } catch (e: Exception) {
-//        e.printStackTrace()
-//        ""
-//    }
     return try {
-        BufferedReader(FileReader("/proc/cpuinfo")).use { reader ->
-            val line = reader.readLine() ?: return@use ""
-            line.split(":\\s+".toRegex(), limit = 2).getOrNull(1)?.takeIf { it.isNotEmpty() && it != "0" } ?: ""
+        BufferedReader(FileReader("/proc/cpuinfo")).useLines { lines ->
+            // 优先取 model name (x86/部分ARM)，其次取 Processor (传统ARM)
+            lines
+                .firstOrNull {
+                    it.startsWith("model name") || it.startsWith("Processor")
+                }
+                ?.split(":\\s+".toRegex(), limit = 2)
+                ?.getOrNull(1)
+                ?.takeIf {
+                    it.isNotBlank()
+                } ?: ""
         }
     } catch (e: Exception) {
         e.printStackTrace()
@@ -266,30 +250,10 @@ fun getCpuInfo(): String {
  * 注意：此方法仅为启发式检测，无法做到 100% 准确，且可能被 SELinux/沙箱拦截
  */
 fun mobileIsRoot(): Boolean {
-//    try {
-//        for (element in arrayOf("/system/bin/", "/system/xbin/", "/system/sbin/", "/sbin/", "/vendor/bin/")) {
-//            if (File(element + "su").exists()) return true
-//        }
-//    } catch (e: Exception) {
-//        e.printStackTrace()
-//    }
-//    return false
     return try {
-        // 传统路径检测（兼容老设备）
-        val legacyPaths = arrayOf(
-            "/system/bin/su", "/system/xbin/su", "/system/sbin/su",
-            "/sbin/su", "/vendor/bin/su", "/data/local/xbin/su",
-            "/data/local/bin/su"
-        )
-        if (legacyPaths.any { File(it).exists() }) return true
-
-        // 尝试执行 which su（Magisk 等方案通常能响应）
-        val process = Runtime.getRuntime().exec(arrayOf("which", "su"))
-        val result = process.inputStream.bufferedReader().use { it.readText() }
-        process.waitFor()
-        result.isNotBlank()
+        val legacyPaths = arrayOf("/system/bin/su", "/system/xbin/su", "/sbin/su", "/vendor/bin/su", "/data/local/bin/su")
+        legacyPaths.any { File(it).exists() }
     } catch (_: Exception) {
-        // SecurityException / IOException 等均视为未 Root
         false
     }
 }
