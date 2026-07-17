@@ -11,6 +11,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.second
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
@@ -52,6 +53,19 @@ class TimerBuilder(private val observer: LifecycleOwner) {
         inline fun LifecycleOwner?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleScope?.schedule(run, delayMillis)
 
         inline fun ViewDataBinding?.schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L) = this?.lifecycleOwner?.lifecycleScope?.schedule(run, delayMillis)
+
+        /**
+         * 使用 GlobalScope 生命周期不可控，务必持有返回的 Job 并在合适时机 cancel
+         * 优先使用 LifecycleOwner/Fragment/AppCompatActivity 等扩展版本
+         */
+        inline fun schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L): Job {
+            return GlobalScope.launch {
+                delay(delayMillis)
+                withContext(Main.immediate) {
+                    run()
+                }
+            }
+        }
     }
 
     init {

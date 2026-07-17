@@ -28,21 +28,21 @@ import kotlin.time.Duration
  * 3) 如需 Duration 类型，请直接使用 Kotlin 标准库: 1.seconds, 2.minutes 等
  */
 // ========== 旧体系：返回 Long ==========
-val Int.second: Long get() = this * 1000L          // 1秒 = 1000毫秒
-val Int.minute: Long get() = this * 1000L * 60     // 1分钟 = 60000毫秒
-val Int.hour: Long get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
-val Int.day: Long get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
-val Int.week: Long get() = this * 7.day            // 1周 = 7天（复用day扩展）
+val Int.second: Long get() = this * 1000L           // 1秒 = 1000毫秒
+val Int.minute: Long get() = this * 1000L * 60L     // 1分钟 = 60000毫秒
+val Int.hour: Long get() = this * 1000L * 60L * 60L // 1小时 = 3600000毫秒
+val Int.day: Long get() = this * 24.hour            // 1天 = 24小时（复用hour扩展）
+val Int.week: Long get() = this * 7.day             // 1周 = 7天（复用day扩展）
 // ========== 桥梁：Duration → Long 各精度时间值（向下截断） ==========
 // 示例基准: val d = 1.hours + 30.minutes + 500.milliseconds
-val Duration.ns: Long get() = inWholeNanoseconds   // 总纳秒数 = 5400500000000
-val Duration.us: Long get() = inWholeMicroseconds  // 总微秒数 = 5400500000
-val Duration.ms: Long get() = inWholeMilliseconds  // 总毫秒数 = 5400500
-val Duration.secs: Long get() = inWholeSeconds     // 总秒数（截断）= 5400
-val Duration.mins: Long get() = inWholeMinutes     // 总分钟数（截断）= 90
-val Duration.hrs: Long get() = inWholeHours        // 总小时数（截断）= 1
-val Duration.dys: Long get() = inWholeDays         // 总天数 = 0
-val Duration.wks: Long get() = inWholeDays / 7     // 总周数 = 0
+val Duration.ns: Long get() = inWholeNanoseconds    // 总纳秒数 = 5400500000000
+val Duration.us: Long get() = inWholeMicroseconds   // 总微秒数 = 5400500000
+val Duration.ms: Long get() = inWholeMilliseconds   // 总毫秒数 = 5400500
+val Duration.secs: Long get() = inWholeSeconds      // 总秒数（截断）= 5400
+val Duration.mins: Long get() = inWholeMinutes      // 总分钟数（截断）= 90
+val Duration.hrs: Long get() = inWholeHours         // 总小时数（截断）= 1
+val Duration.dys: Long get() = inWholeDays          // 总天数 = 0
+val Duration.wks: Long get() = inWholeDays / 7      // 总周数 = 0
 
 /**
  * 服务器时间-推测的服务器接收时间
