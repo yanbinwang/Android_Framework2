@@ -17,6 +17,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ConcurrentHashMap
 
@@ -60,6 +61,16 @@ class TimerBuilder(private val observer: LifecycleOwner) {
          */
         inline fun schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L): Job {
             return GlobalScope.launch {
+                delay(delayMillis)
+                withContext(Main.immediate) {
+                    run()
+                }
+            }
+        }
+
+        @Deprecated(message = "禁止在主线程使用！这会直接 ANR。如需延时请使用 lifecycleScope.launch { delay() }", level = DeprecationLevel.ERROR)
+        inline fun blockingDelayThenRun(crossinline run: () -> Unit, delayMillis: Long = 1000L) {
+            runBlocking {
                 delay(delayMillis)
                 withContext(Main.immediate) {
                     run()
