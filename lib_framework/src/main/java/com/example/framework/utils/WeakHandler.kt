@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantLock
 
 /**
  *  Created by wangyanbin
- *  弱 Handler
+ *  弱 Handler (removeCallbacksAndMessages(null)可不写,用法与 Handler 一致)
  */
 class WeakHandler {
     private var mCallback: Handler.Callback? = null
