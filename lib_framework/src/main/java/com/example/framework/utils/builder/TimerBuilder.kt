@@ -8,7 +8,7 @@ import androidx.lifecycle.LifecycleCoroutineScope
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.secondsMs
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.GlobalScope
@@ -59,7 +59,7 @@ class TimerBuilder(private val observer: LifecycleOwner) {
          * 使用 GlobalScope 生命周期不可控，务必持有返回的 Job 并在合适时机 cancel
          * 优先使用 LifecycleOwner/Fragment/AppCompatActivity 等扩展版本
          */
-        inline fun schedule(crossinline run: () -> Unit, delayMillis: Long = 1000L): Job {
+        inline fun fireAndForgetSchedule(crossinline run: () -> Unit, delayMillis: Long = 1000L): Job {
             return GlobalScope.launch {
                 delay(delayMillis)
                 withContext(Main.immediate) {
@@ -148,7 +148,7 @@ class TimerBuilder(private val observer: LifecycleOwner) {
      * countDownInterval:-》间隔时间
      * 接收onTick（长）回调的时间间隔（单位：毫秒）
      */
-    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.second, countDownInterval: Long = 1000L) {
+    fun startCountDown(tag: String = COUNT_DOWN_DEFAULT_TAG, onTick: ((second: Long) -> Unit), onFinish: (() -> Unit), millisInFuture: Long = 1.secondsMs, countDownInterval: Long = 1000L) {
         stopCountDown(tag)
         if (countDownMap[tag] == null) {
             countDownMap[tag] = object : CountDownTimer(millisInFuture, countDownInterval) {
