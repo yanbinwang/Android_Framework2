@@ -282,7 +282,7 @@ object AppManager {
         // 获取当前进程的唯一LifecycleOwner,
         ProcessLifecycleOwner.get().lifecycleScope.launch(Main.immediate) {
             // 预留300毫秒,避免因页面未完全销毁就杀进程，导致资源释放不彻底
-            delay(300)
+            delay(300L)
             try {
                 Process.killProcess(Process.myPid())
                 // exitProcess(0)是Android隐藏API，替换为Java标准的System.exit(0)，兼容性更强

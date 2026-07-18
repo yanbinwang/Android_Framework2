@@ -148,8 +148,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 super.onEnterFullscreen(url, *objects)
                 // 进入全屏,拿取此时的播放器
                 val gsy = objects[1] as? GSYBaseVideoPlayer
-//            // 当前播放器的父容器
-//            val parentView = gsy?.parent as? FrameLayout
+//                // 当前播放器的父容器
+//                val parentView = gsy?.parent as? FrameLayout
                 // 通过播放器自带的工具类获取到当前的window对象
                 val window = CommonUtil.getActivityNestWrapper(gsy?.context).window
                 // 拿取到准确的状态栏高度(横竖屏高度是不一致的)
@@ -240,7 +240,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                         GSYVideoType.enableMediaCodecTexture()
                         PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                         CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                        delay(1000)
+                        delay(1000L)
                         player.enable()
                         player?.startPlayLogic()
                     }
@@ -267,27 +267,27 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 super.onComplete(url, *objects)
                 onGSYVideoPlayerListener?.onComplete(url, objects)
             }
-        }
-    }
 
-    private fun checkVisibilityChange(window: Window, childView: View?) {
-        childView ?: return
-        val isVisible = childView.isVisible
-        if (isVisible != lastVisible) {
-            lastVisible = isVisible
-            if (!isVisible) {
-                controllerToggle(window, false)
-            } else {
-                controllerToggle(window, true)
+            private fun checkVisibilityChange(window: Window, childView: View?) {
+                childView ?: return
+                val isVisible = childView.isVisible
+                if (isVisible != lastVisible) {
+                    lastVisible = isVisible
+                    if (!isVisible) {
+                        controllerToggle(window, false)
+                    } else {
+                        controllerToggle(window, true)
+                    }
+                }
             }
-        }
-    }
 
-    private fun controllerToggle(window: Window, isShow: Boolean) {
-        toggleJob?.cancel()
-        toggleJob = mActivity.lifecycleScope.launch {
-            delay(300)
-            window.controllerToggle(isShow)
+            private fun controllerToggle(window: Window, isShow: Boolean) {
+                toggleJob?.cancel()
+                toggleJob = mActivity.lifecycleScope.launch {
+                    delay(300L)
+                    window.controllerToggle(isShow)
+                }
+            }
         }
     }
 
@@ -370,7 +370,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 player?.startButton.disable()
                 thumbJob?.cancel()
                 thumbJob = mActivity.lifecycleScope.launch {
-                    delay(3000)
+                    delay(3000L)
                     player?.startButton.enable()
                 }
             }
@@ -440,7 +440,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             // 开启构建,绑定配置
             .build(player)
         // 如果需要自动播放,此时开启
-        if (setUpLazy) start()
+        if (setUpLazy) startPlayLogic()
     }
 
     /**
@@ -485,9 +485,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> resume()
-            Lifecycle.Event.ON_PAUSE -> pause()
-            Lifecycle.Event.ON_DESTROY -> destroy()
+            Lifecycle.Event.ON_RESUME -> onVideoResume()
+            Lifecycle.Event.ON_PAUSE -> onVideoPause()
+            Lifecycle.Event.ON_DESTROY -> onVideoDestroy()
             else -> {}
         }
     }
@@ -495,7 +495,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 播放-默认一次切内核的重试机会
      */
-    fun start() {
+    fun startPlayLogic() {
         isPrepared = false
         retryWithPlay = false
         player?.startPlayLogic()
@@ -504,7 +504,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 暂停
      */
-    fun pause() {
+    fun onVideoPause() {
         isPause = true
         player?.currentPlayer?.onVideoPause()
     }
@@ -512,15 +512,15 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 加载
      */
-    fun resume() {
+    fun onVideoResume(seek: Boolean = false) {
         isPause = false
-        player?.currentPlayer?.onVideoResume(false)
+        player?.currentPlayer?.onVideoResume(seek)
     }
 
     /**
      * 销毁
      */
-    fun destroy() {
+    fun onVideoDestroy() {
         clearOnGSYVideoPlayerListener()
         onPreDrawListener?.let { topContainer?.viewTreeObserver?.removeOnPreDrawListener(it) }
         orientationUtils?.releaseListener()

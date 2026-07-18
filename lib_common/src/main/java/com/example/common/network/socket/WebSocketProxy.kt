@@ -48,7 +48,7 @@ class WebSocketProxy(private val socketUrl: String) {
             disconnect()
             connectJob?.cancel()
             connectJob = owner.lifecycleScope.launch {
-                delay(1000)
+                delay(1000L)
                 connectNow(list)
             }
         } else {
