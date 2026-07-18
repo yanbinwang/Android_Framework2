@@ -207,7 +207,7 @@ object NotificationUtil {
             var bigLargeIcon: Bitmap? = null
             flow<Unit> {
                 // 5秒超时，根据实际图片大小调整
-                bitmap = withTimeoutOrNull(5000) {
+                bitmap = withTimeoutOrNull(5000L) {
                     BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) })
                 } ?: throw RuntimeException("图片下载超时或失败")
                 /**

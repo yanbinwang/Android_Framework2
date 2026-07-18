@@ -144,7 +144,7 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
     private fun initSplash() {
         launch(Main.immediate) {
             // Splash 只存在半秒
-            delay(500)
+            delay(500L)
             // Splash 展示完毕,调取后会系统会立即回调mSplashScreen?.setOnExitAnimationListener,同时执行下方的jump(true)
             mKeepOn.set(false)
             // 当前Activity是任务栈的根，执行相应逻辑

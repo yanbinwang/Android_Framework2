@@ -218,7 +218,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         // 先检测大屏设备，避免布局加载
         if (checkLargeScreen()) {
             launch {
-                delay(800)
+                delay(800L)
                 if (!isFinishing && !isDestroyed) {
                     // 关闭所有Activity
                     finishAffinity()
