@@ -520,7 +520,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     fun onVideoDestroy() {
         clearOnGSYVideoPlayerListener()
-        onPreDrawListener?.let { topContainer?.viewTreeObserver?.removeOnPreDrawListener(it) }
+        onPreDrawListener?.let {
+            topContainer?.viewTreeObserver?.removeOnPreDrawListener(it)
+        }
+        topContainer = null
         orientationUtils?.releaseListener()
         player?.currentPlayer?.release()
         player?.release()
