@@ -11,7 +11,7 @@ import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.color
-import com.example.framework.utils.function.value.hour
+import com.example.framework.utils.function.value.hoursMs
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toNewList
 import com.example.gallery.R
@@ -210,7 +210,7 @@ class MediaPicker(private val host: Any) {
     /**
      * 跳转至相机-录像
      */
-    fun recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
+    fun recordVideo(maxDurationMs: Long = 1.hoursMs, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
         context.recordVideo(maxDurationMs, maxSizeMb, quality) { albumPath ->
             listener.invoke(albumPath)
         }

@@ -34,7 +34,7 @@ import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
 import com.example.common.utils.builder.shortToast
-import com.example.framework.utils.function.value.hour
+import com.example.framework.utils.function.value.hoursMs
 import java.io.File
 import java.io.Serializable
 
@@ -144,7 +144,7 @@ fun Activity?.pullUpImage(requestCode: Int = RESULT_IMAGE): String? {
  * 3) 系统onActivityResult回调里if (requestCode == RESULT_IMAGE) 表示有回调,此时验证文件路径是否成功创建
  * 4) 三个参数基本失效, 国产 ROM 深度定制相机忽略了对应参数的兼容, Google 自家相机（Pixel）也在 2019 年移除了支持, 传输参数是没有任何意义的, 定制化相机需自行依赖三方库做限制
  */
-fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, requestCode: Int = RESULT_VIDEO): String? {
+fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hoursMs, maxSizeMb: Long = 10L, quality: Int = 0, requestCode: Int = RESULT_VIDEO): String? {
     this ?: return null
     val file = getOutputFile(StorageType.VIDEO)
     val intent = Intent(MediaStore.ACTION_VIDEO_CAPTURE)

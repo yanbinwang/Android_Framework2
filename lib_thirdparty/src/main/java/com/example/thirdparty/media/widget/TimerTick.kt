@@ -19,7 +19,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.formatAsCountdown
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.secondsMs
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.appear
 import com.example.framework.utils.function.view.background
@@ -131,7 +131,7 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, isMove:
                     tickDialog.dismiss()
                 }
             }
-            binding.tvTimer.text = (timerSecond - 1).second.formatAsCountdown()
+            binding.tvTimer.text = (timerSecond - 1).secondsMs.formatAsCountdown()
         })
     }
 

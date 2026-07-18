@@ -16,7 +16,7 @@ import com.example.common.utils.function.pullUpVideo
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
-import com.example.framework.utils.function.value.hour
+import com.example.framework.utils.function.value.hoursMs
 import com.example.gallery.R
 
 /**
@@ -29,7 +29,7 @@ internal class CameraActivity : AppCompatActivity() {
     private var mFilePath: String? = null
     private val mFunction by lazy { intentInt(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE) }
     private val mQuality by lazy { intentInt(CAMERA_QUALITY, 0) }
-    private val mLimitDuration by lazy { intentLong(CAMERA_DURATION, 1.hour) }
+    private val mLimitDuration by lazy { intentLong(CAMERA_DURATION, 1.hoursMs) }
     private val mLimitBytes by lazy { intentLong(CAMERA_BYTES, 10L) }
 
     companion object {
@@ -67,7 +67,7 @@ internal class CameraActivity : AppCompatActivity() {
         /**
          * 录像
          */
-        fun Context?.recordVideo(maxDurationMs: Long = 1.hour, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
+        fun Context?.recordVideo(maxDurationMs: Long = 1.hoursMs, maxSizeMb: Long = 10L, quality: Int = 0, listener: (albumPath: String) -> Unit = {}) {
             this ?: return
             onResult = {
                 listener.invoke(it)
