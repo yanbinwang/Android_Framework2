@@ -8,7 +8,7 @@ import com.example.common.R
 import com.example.common.utils.i18n.i18String
 import com.example.common.widget.i18n.I18nTextView
 import com.example.framework.utils.builder.TimerBuilder
-import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.secondsMs
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.getLifecycleOwner
@@ -49,7 +49,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         }, {
             enable()
             text = i18String(R.string.timerDisabled)
-        }, millisInFuture.second)
+        }, millisInFuture.secondsMs)
     }
 
 }

@@ -39,7 +39,7 @@ import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.DateFormat.resetServiceTime
 import com.example.framework.utils.function.value.isDebug
-import com.example.framework.utils.function.value.minute
+import com.example.framework.utils.function.value.minutesMs
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
@@ -262,7 +262,7 @@ abstract class BaseApplication : Application() {
                             val stampTimeDiff = System.currentTimeMillis() - timeStamp
                             val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
                             // 此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
-                            if (stampTimeDiff - nanoTimeDiff > 120.minute) {
+                            if (stampTimeDiff - nanoTimeDiff > 120.minutesMs) {
 //                                onStateChangedListener.invoke(true)
                             }
                             timeStamp = System.currentTimeMillis()
