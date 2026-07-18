@@ -168,7 +168,7 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
 suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targetHeight: Int = WRAP_CONTENT, isScale: Boolean = false, @ColorInt color: Int = Color.TRANSPARENT): Bitmap? {
     // 切换到主线程执行所有View操作（避免线程问题）
     return withContext(Main.immediate) {
-        withTimeoutOrNull(5000) {
+        withTimeoutOrNull(5000L) {
             try {
                 // 强制触发View测量/强制布局（确保View有位置和尺寸）
                 val mTargetHeight = if (targetHeight < 0) 0 else targetHeight
