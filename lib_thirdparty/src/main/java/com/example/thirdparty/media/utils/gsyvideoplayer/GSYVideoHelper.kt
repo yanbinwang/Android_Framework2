@@ -273,11 +273,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 val isVisible = childView.isVisible
                 if (isVisible != lastVisible) {
                     lastVisible = isVisible
-                    if (!isVisible) {
-                        controllerToggle(window, false)
-                    } else {
-                        controllerToggle(window, true)
-                    }
+                    controllerToggle(window, isVisible)
                 }
             }
 
@@ -325,13 +321,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 设置自定义标题
      */
-    fun setCustomTitle(layoutRes: Int) {
+    fun setCustomTitle(layoutRes: Int): View? {
         // 获取播放器标题
         val targetTv = player?.titleTextView
         // 获取标题父容器
         val parent = targetTv?.parent
         if (parent !is ViewGroup) {
-            return
+            return null
         }
         // 移除原来的标题
         parent.removeView(targetTv)
@@ -340,6 +336,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
 //        customView.layoutParams = targetTv.layoutParams
         // 添加 View（自动放在原位置）
         parent.addView(customView)
+        // 返回自定义整体容器
+        return customView
     }
 
     /**
