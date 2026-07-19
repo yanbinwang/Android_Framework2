@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.core.util.forEach
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -199,6 +200,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         observer.doOnDestroy {
             tab?.removeOnTabSelectedListener(mTabListener)
             mediator?.detach()
+            releaseTabViews()
             resetJob?.cancel()
             allowedJob?.cancel()
             selectJob?.cancel()
@@ -253,9 +255,13 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
     private fun initView(list: List<T>? = null) {
         tab?.removeAllTabs()
-        tabViews.clear()
-        if (null != list) tabList = list
-        tabList?.forEach { _ -> tab?.addTab(tab.newTab()) }
+        releaseTabViews()
+        if (null != list) {
+            tabList = list
+        }
+        tabList?.forEach { _ ->
+            tab?.addTab(tab.newTab())
+        }
     }
 
     /**
@@ -282,6 +288,17 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
         }
         // 如果设置了默认选择下标则做一个指定
         setSelect(default)
+    }
+
+    /**
+     * 释放所有 Tab Binding 并清空缓存
+     * 在重建和销毁时都必须调用
+     */
+    private fun releaseTabViews() {
+        tabViews.forEach { _, value ->
+            value.unbind()
+        }
+        tabViews.clear()
     }
 
     /**
