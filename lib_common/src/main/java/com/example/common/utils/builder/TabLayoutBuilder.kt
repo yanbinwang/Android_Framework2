@@ -306,11 +306,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
      * 设置每个 Tab 返回值
      */
     private fun setBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int) {
-        mBinding ?: return
         if (hasAction) {
-            val oldSelected = mBinding.root.getTag(R.id.theme_tab_selected) as? Boolean
+            val oldSelected = mBinding?.root?.getTag(R.id.theme_tab_selected) as? Boolean
             if (oldSelected != null && oldSelected == selected) return
-            mBinding.root.setTag(R.id.theme_tab_selected, selected)
+            mBinding?.root?.setTag(R.id.theme_tab_selected, selected)
         }
         onBindView(mBinding, item, selected, index)
     }
@@ -323,7 +322,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(mBinding: VDB, item: T?, selected: Boolean, index: Int)
+    protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
 
     /**
      * 获取上下文
