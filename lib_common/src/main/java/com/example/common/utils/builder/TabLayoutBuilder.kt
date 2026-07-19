@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.example.common.BaseApplication
+import com.example.common.R
 import com.example.framework.utils.builder.FragmentBuilder
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orZero
@@ -156,7 +157,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
             tab?.customView ?: return
             tab.position.orZero.apply {
                 // 子tab状态回调
-                onBindView(tabViews[this], tabList.safeGet(this), selected, this)
+                setBindView(tabViews[this], tabList.safeGet(this), selected, this)
                 // 下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
                 if (selected && 0 == bindMode) builder?.commit(this)
             }
@@ -184,7 +185,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
              * root.setTag(R.id.theme_tab_selected, selected)
              */
             for(index in 0 until tabViews.size()) {
-                onBindView(tabViews[index], tabList.safeGet(index), index == i, index)
+                setBindView(tabViews[index], tabList.safeGet(index), index == i, index)
             }
             // 选中当前页面
             if (0 == bindMode) builder?.commit(i)
@@ -228,8 +229,8 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
     /**
      * 注入viewpager2
-     * userInputEnabled:是否左右滑动
-     * pageLimit：是否预加载数据（懒加载为false）
+     * @userInputEnabled -> 是否左右滑动
+     * @pageLimit -> 是否预加载数据（懒加载为 false）
      */
     fun bind(pager: ViewPager2?, adapter: RecyclerView.Adapter<*>, list: List<T>? = null, orientation: Int = ViewPager2.ORIENTATION_HORIZONTAL, userInputEnabled: Boolean = true, pageLimit: Boolean = true, default: Int = 0) {
         bindMode = 1
@@ -265,7 +266,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
 
     /**
-     * 这个方法需要放在setupWithViewPager()后面
+     * 这个方法需要放在 setupWithViewPager() 后面
      */
     private fun initEvent(default: Int = 0) {
         for (i in 0 until mTabCount) {
@@ -276,7 +277,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
                 customView.size(WRAP_CONTENT, MATCH_PARENT)
                 view.isLongClickable = false
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) view.tooltipText = null
-                onBindView(bindView, tabList.safeGet(i), i == 0, i)
+                setBindView(bindView, tabList.safeGet(i), i == 0, i)
             }
         }
         tab?.addOnTabSelectedListener(mTabListener)
@@ -302,6 +303,19 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
 
     /**
+     * 设置每个 Tab 返回值
+     */
+    private fun setBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int) {
+        mBinding ?: return
+        if (hasAction) {
+            val oldSelected = mBinding.root.getTag(R.id.theme_tab_selected) as? Boolean
+            if (oldSelected != null && oldSelected == selected) return
+            mBinding.root.setTag(R.id.theme_tab_selected, selected)
+        }
+        onBindView(mBinding, item, selected, index)
+    }
+
+    /**
      * 回调方法，返回对应控件
      */
     protected abstract fun getBindView(): VDB
@@ -309,7 +323,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     /**
      * 设置数据
      */
-    protected abstract fun onBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int)
+    protected abstract fun onBindView(mBinding: VDB, item: T?, selected: Boolean, index: Int)
 
     /**
      * 获取上下文
@@ -341,7 +355,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
     /**
      * 设置选中下标
-     * 当调用select()方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
+     * 当调用 select() 方法选中一个不同的tab时，会触发addOnTabSelectedListener的回调；如果选中的是当前已经选中的tab，则不会触发
      */
     fun setSelect(index: Int, recreate: Boolean = false) {
         if (recreate) {
@@ -395,8 +409,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
 
     /**
-     * 还原对应下标的点击
-     * addClickAllowed后可还原
+     * 还原对应下标的点击 (clickAllowed 后可还原)
      */
     fun resetAllowed(index: Int) {
         hasAction = true
@@ -413,7 +426,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
     }
 
     /**
-     * 整个TabLayout的操作，拦截所有，改为自己的点击
+     * 整个 TabLayout 的操作，拦截所有，改为自己的点击
      * true拦截 false不拦截
      */
     fun setClickable(clickable: Boolean, listener: (() -> Unit)? = {}) {
