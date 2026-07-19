@@ -53,9 +53,9 @@ dependencies {
 //    // 调色盘 依赖
 //    api("androidx.palette:palette:1.0.0")
     // Glide 依赖
-    api("com.github.bumptech.glide:glide:5.0.7")
+    api("com.github.bumptech.glide:glide:5.0.9")
 //    kapt("com.github.bumptech.glide:compiler:5.0.5")
     // OkHttp 依赖
     api("com.squareup.okhttp3:okhttp:5.4.0")
-    implementation("com.github.bumptech.glide:okhttp3-integration:5.0.7")
+    implementation("com.github.bumptech.glide:okhttp3-integration:5.0.9")
 }
