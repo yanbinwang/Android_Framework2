@@ -21,7 +21,6 @@ import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.common.widget.textview.SpecialEditText
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.color

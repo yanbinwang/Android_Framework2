@@ -1,12 +1,10 @@
-package com.example.common.widget.textview
+package com.example.common.widget.textview.edittext
 
 import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.builder.shortToast
-import com.example.common.widget.textview.edittext.ClearEditText
-import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
