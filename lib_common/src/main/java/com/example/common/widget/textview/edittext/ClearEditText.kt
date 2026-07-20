@@ -53,7 +53,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             emojiLimit()
             addTextChangedListener {
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
-                binding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
+                binding.ivClear.visibility = if (it.isNullOrEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
             }
         }
@@ -223,7 +223,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun showBtn() {
         isShowBtn = true
-        binding.etClear.apply { if (text.isNotEmpty()) visible() else gone() }
+        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
     }
 
     fun addFilter(filter: InputFilter) {
