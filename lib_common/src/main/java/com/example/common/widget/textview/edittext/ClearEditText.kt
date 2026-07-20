@@ -44,7 +44,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     private var isDisabled = false // 是否不可操作
     private var isShowBtn = true // 是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
-    private var afterTextChanged: ((s: Editable?) -> Unit)? = null
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = binding.etClear
 
@@ -55,9 +54,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
                 binding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
-            }
-            doAfterTextChanged {
-                afterTextChanged?.invoke(it)
             }
         }
         binding.ivClear.click {
@@ -238,7 +234,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
-        this.afterTextChanged = listener
+        binding.etClear.doAfterTextChanged {
+            listener.invoke(it)
+        }
     }
 
     fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {

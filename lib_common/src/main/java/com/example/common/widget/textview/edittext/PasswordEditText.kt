@@ -14,6 +14,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.StringRes
 import androidx.core.content.withStyledAttributes
 import androidx.core.widget.addTextChangedListener
+import androidx.core.widget.doAfterTextChanged
 import com.example.common.R
 import com.example.common.databinding.ViewPasswordEditBinding
 import com.example.framework.utils.function.inflate
@@ -37,24 +38,24 @@ import com.example.framework.widget.BaseViewGroup
  * @author yan
  */
 class PasswordEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
-    private var hideRes = -1
     private var showRes = -1
+    private var hideRes = -1
     private var isShowBtn = true
     private val binding by lazy { ViewPasswordEditBinding.bind(context.inflate(R.layout.view_password_edit)) }
     val editText get() = binding.etClear
 
     init {
-        binding.etClear.emojiLimit()
         binding.etClear.apply {
+            emojiLimit()
             setOnKeyListener { _, keyCode, _ ->
-                if (keyCode == KeyEvent.KEYCODE_DEL) binding.etClear.setText("")
+                if (keyCode == KeyEvent.KEYCODE_DEL) {
+                    binding.etClear.setText("")
+                }
                 false
             }
         }
-        binding.ivShow.apply {
-            click {
-                setResource(Triple(binding.etClear.togglePasswordVisibility(), showRes, hideRes))
-            }
+        binding.ivShow.click {
+            binding.ivShow.setResource(Triple(binding.etClear.togglePasswordVisibility(), showRes, hideRes))
         }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.PasswordEditText) {
@@ -165,6 +166,12 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
 
     fun addTextChangedListener(listener: ((s: Editable?) -> Unit)) {
         binding.etClear.addTextChangedListener {
+            listener.invoke(it)
+        }
+    }
+
+    fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
+        binding.etClear.doAfterTextChanged {
             listener.invoke(it)
         }
     }
