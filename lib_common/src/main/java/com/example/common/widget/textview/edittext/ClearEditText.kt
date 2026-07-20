@@ -136,7 +136,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setEnabled() {
         isDisabled = false
-        isShowBtn = true
         binding.etClear.apply {
             isCursorVisible = true
             isFocusable = true
@@ -149,7 +148,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setDisabled() {
         isDisabled = true
-        isShowBtn = false
         binding.etClear.apply {
             isCursorVisible = false
             isFocusable = false
@@ -158,6 +156,16 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             textColor(R.color.textDisabled)
         }
         hideBtn()
+    }
+
+    private fun showBtn() {
+        isShowBtn = true
+        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
+    }
+
+    private fun hideBtn() {
+        isShowBtn = false
+        binding.ivClear.gone()
     }
 
     fun setText(@StringRes resid: Int) {
@@ -214,16 +222,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setMaxLength(maxLength: Int) {
         addFilter(LengthFilter(maxLength))
-    }
-
-    fun hideBtn() {
-        isShowBtn = false
-        binding.ivClear.gone()
-    }
-
-    fun showBtn() {
-        isShowBtn = true
-        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
     }
 
     fun addFilter(filter: InputFilter) {
