@@ -136,7 +136,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setEnabled() {
         isDisabled = false
-        isShowBtn = true
         binding.etClear.apply {
             isCursorVisible = true
             isFocusable = true
@@ -149,7 +148,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setDisabled() {
         isDisabled = true
-        isShowBtn = false
         binding.etClear.apply {
             isCursorVisible = false
             isFocusable = false
