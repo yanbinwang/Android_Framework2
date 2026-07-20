@@ -43,7 +43,7 @@ import com.example.framework.widget.BaseViewGroup
  */
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false // 是否不可操作
-    private var isShowBtn = true // 是否显示清除按钮
+    private var isShowBtn = true // 是否可操作清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = binding.etClear
@@ -58,7 +58,9 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             }
         }
         binding.ivClear.click {
-            binding.etClear.setText("")
+            if (isShowBtn) {
+                binding.etClear.setText("")
+            }
         }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.ClearEditText) {
@@ -134,7 +136,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setEnabled() {
         isDisabled = false
-        isShowBtn = false
+        isShowBtn = true
         binding.etClear.apply {
             isCursorVisible = true
             isFocusable = true
@@ -142,7 +144,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             isFocusableInTouchMode = true
             textColor(R.color.textPrimary)
         }
-        binding.ivClear.visible()
+        showBtn()
     }
 
     private fun setDisabled() {
@@ -155,7 +157,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             isFocusableInTouchMode = false
             textColor(R.color.textDisabled)
         }
-        binding.ivClear.gone()
+        hideBtn()
     }
 
     fun setText(@StringRes resid: Int) {
@@ -221,7 +223,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun showBtn() {
         isShowBtn = true
-        binding.etClear.apply { if (text.isNotEmpty()) visible() }
+        binding.etClear.apply { if (text.isNotEmpty()) visible() else gone() }
     }
 
     fun addFilter(filter: InputFilter) {
