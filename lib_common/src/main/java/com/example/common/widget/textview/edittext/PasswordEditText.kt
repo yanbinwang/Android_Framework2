@@ -176,14 +176,16 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
         }
     }
 
-    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun setOnFocusChangeListener(listener: ((v: View, hasFocus: Boolean) -> Unit)) {
         binding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             listener.invoke(v, hasFocus)
         }
     }
 
-    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        binding.etClear.setOnEditorActionListener(listener)
+    fun setOnEditorActionListener(listener: (v: TextView, actionId: Int, event: KeyEvent) -> Boolean) {
+        binding.etClear.setOnEditorActionListener { textView, actionId, event ->
+            listener(textView, actionId, event)
+        }
     }
 
 }

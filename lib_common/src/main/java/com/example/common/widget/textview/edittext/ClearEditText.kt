@@ -7,6 +7,7 @@ import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -239,14 +240,16 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         }
     }
 
-    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun setOnFocusChangeListener(listener: ((v: View, hasFocus: Boolean) -> Unit)) {
         binding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             listener.invoke(v, hasFocus)
         }
     }
 
-    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        binding.etClear.setOnEditorActionListener(listener)
+    fun setOnEditorActionListener(listener: (v: TextView, actionId: Int, event: KeyEvent) -> Boolean) {
+        binding.etClear.setOnEditorActionListener { textView, actionId, event ->
+            listener(textView, actionId, event)
+        }
     }
 
 }
