@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.forEach
+import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -168,7 +169,8 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         }
         // 去除长按的toast提示
         for (position in ids.indices) {
-            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).orZero)?.setOnLongClickListener { true }
+            val itemId = ids.safeGet(position) ?: continue
+            menuView?.getChildAt(position)?.findViewById<View>(itemId)?.setOnLongClickListener { true }
         }
         // 最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
         navigationView?.setOnItemSelectedListener { item ->
@@ -226,7 +228,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         // 获取当前选中的Item ID
         val currentItemId = navigationView?.selectedItemId
         // 要选中的Item ID
-        val toCurrentItemId = navigationView?.menu?.getItem(index)?.itemId.orZero
+        val toCurrentItemId = navigationView?.menu[index]?.itemId.orZero
         // 开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
         if (currentItemId == toCurrentItemId) return
         // 新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
@@ -238,11 +240,11 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
      * 仅当新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
      */
     private fun selectItem(index: Int) {
-        val menu = navigationView?.menu
-        if (index < menu?.size.orZero) {
+        val menu = navigationView?.menu ?: return
+        if (index < menu.size) {
             commitJob?.cancel()
             commitJob = observer.lifecycleScope.launch(Main.immediate) {
-                navigationView?.selectedItemId = menu?.getItem(index)?.itemId.orZero
+                navigationView.selectedItemId = menu[index].itemId
             }
         }
     }
@@ -277,16 +279,15 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
     /**
      * 对应下标需求对应不同的点击，改为自定义
      */
-    fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
+    fun clickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
         hasAction = true
         clickActions = ConcurrentHashMap(params.toMap())
     }
 
     /**
-     * 还原对应下标的点击
-     * addClickAllowed后可还原
+     * 还原对应下标的点击 (clickAllowed 后可还原)
      */
-    fun allowedReset(index: Int) {
+    fun resetAllowed(index: Int) {
         hasAction = true
         clickActions.remove(index)
     }
@@ -294,12 +295,16 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
     /**
      * 获取下标item
      */
-    fun getItemView(index: Int) = menuView?.getChildAt(index) as? BottomNavigationItemView
+    fun getItemView(index: Int): BottomNavigationItemView? {
+        return menuView?.getChildAt(index) as? BottomNavigationItemView
+    }
 
     /**
      * 获取当前选中的图片
      */
-    fun getItemImage(index: Int = 0) = getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+    fun getItemImage(index: Int = 0): ImageView? {
+        return getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+    }
 
     /**
      * 获取当前选中的下标
