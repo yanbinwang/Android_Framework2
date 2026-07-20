@@ -158,6 +158,16 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         hideBtn()
     }
 
+    private fun showBtn() {
+        isShowBtn = true
+        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
+    }
+
+    private fun hideBtn() {
+        isShowBtn = false
+        binding.ivClear.gone()
+    }
+
     fun setText(@StringRes resid: Int) {
         binding.etClear.setText(resid)
     }
@@ -212,16 +222,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     fun setMaxLength(maxLength: Int) {
         addFilter(LengthFilter(maxLength))
-    }
-
-    fun hideBtn() {
-        isShowBtn = false
-        binding.ivClear.gone()
-    }
-
-    fun showBtn() {
-        isShowBtn = true
-        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
     }
 
     fun addFilter(filter: InputFilter) {
