@@ -7,6 +7,7 @@ import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -45,7 +46,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     private var isDisabled = false // 是否不可操作
     private var isShowBtn = true // 是否显示清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
-    private var afterTextChanged: ((s: Editable?) -> Unit)? = null
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = binding.etClear
 
@@ -56,9 +56,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
                 binding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
-            }
-            doAfterTextChanged {
-                afterTextChanged?.invoke(it)
             }
         }
         binding.ivClear.click {
@@ -243,17 +240,21 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
-        this.afterTextChanged = listener
+        binding.etClear.doAfterTextChanged {
+            listener.invoke(it)
+        }
     }
 
-    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun setOnFocusChangeListener(listener: ((v: View, hasFocus: Boolean) -> Unit)) {
         binding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             listener.invoke(v, hasFocus)
         }
     }
 
-    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        binding.etClear.setOnEditorActionListener(listener)
+    fun setOnEditorActionListener(listener: (v: TextView, actionId: Int, event: KeyEvent) -> Boolean) {
+        binding.etClear.setOnEditorActionListener { textView, actionId, event ->
+            listener(textView, actionId, event)
+        }
     }
 
 }
