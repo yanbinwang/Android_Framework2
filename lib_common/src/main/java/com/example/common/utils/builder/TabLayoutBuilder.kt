@@ -155,7 +155,7 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
 
         private fun onTabBind(tab: TabLayout.Tab?, selected: Boolean) {
             tab?.customView ?: return
-            tab.position.orZero.apply {
+            tab.position.apply {
                 // 子tab状态回调
                 setBindView(tabViews[this], tabList.safeGet(this), selected, this)
                 // 下标对应的fragment显示,只有manager需要手动切，viewpager2在绑定时就已经实现了切换
