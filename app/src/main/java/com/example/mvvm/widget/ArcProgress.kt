@@ -17,6 +17,7 @@ import com.example.common.utils.function.ptFloat
 import com.example.mvvm.R
 import kotlin.math.cos
 import androidx.core.content.withStyledAttributes
+import kotlin.math.min
 
 /**
  * 进度条
@@ -50,8 +51,8 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
     private var suffixText = "%"
     private var bottomText = ""
     private val rectF = RectF()
-    private val paint by lazy { Paint() }
-    private val textPaint by lazy { TextPaint() }
+    private val strokePaint = Paint()
+    private val textPaint = TextPaint()
 
     companion object {
         private const val INSTANCE_STATE = "saved_instance"
@@ -69,11 +70,11 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
         private const val INSTANCE_ARC_ANGLE = "arc_angle"
         private const val INSTANCE_SUFFIX = "suffix"
 
-        private var min_size = 100.pt
-        private var default_text_size = 40.ptFloat
-        private var default_suffix_padding = 0.ptFloat
-        private var default_bottom_text_size = 10.ptFloat
+        private var default_minimum_size = 100.pt
         private var default_stroke_width = 4.ptFloat
+        private var default_suffix_padding = 1.ptFloat
+        private var default_text_size = 40.ptFloat
+        private var default_bottom_text_size = 10.ptFloat
         private var default_suffix_text_size = 15.ptFloat
         private val default_max = 100
         private val default_arc_angle = 360 * 0.7f // 180° 240° 270° -> 由设计图决定
@@ -125,37 +126,58 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
         textPaint.color = textColor
         textPaint.textSize = textSize
         textPaint.isAntiAlias = true
-        paint.color = unfinishedStrokeColor
-        paint.isAntiAlias = true
-        paint.strokeWidth = strokeWidth
-        paint.style = Paint.Style.STROKE
-        paint.strokeCap = Paint.Cap.ROUND
+        strokePaint.color = unfinishedStrokeColor
+        strokePaint.isAntiAlias = true
+        strokePaint.strokeWidth = strokeWidth
+        strokePaint.style = Paint.Style.STROKE
+        strokePaint.strokeCap = Paint.Cap.ROUND
     }
 
     /**
-     * 返回建议的最小高度，保证控件在 wrap_content 时不会过小。
+     * 返回建议的最小高度/宽度，保证控件在 wrap_content 时不会过小。
+     * 当 XML 里写 wrap_content 时，Android 的测量流程是这样的：
+     * MeasureSpec.UNSPECIFIED → getSuggestedMinimumWidth/Height() → 最终尺寸
      */
     override fun getSuggestedMinimumHeight(): Int {
-        return min_size
+        return default_minimum_size
     }
 
-    /**
-     * 返回建议的最小宽度，保证控件在 wrap_content 时不会过小。
-     */
     override fun getSuggestedMinimumWidth(): Int {
-        return min_size
+        return default_minimum_size
     }
 
     /**
      * 测量控件尺寸：根据 MeasureSpec 确定最终宽高，
      * 计算圆弧绘制区域 rectF、半径以及底部文字基线偏移量 arcBottomHeight。
+     *         ╭─────────────╮  ← strokeWidth/2 内缩
+     *        ╱               ╲
+     *       │                 │
+     *       │      进度数字     │
+     *       │                 │
+     *        ╲               ╱
+     *         ╰───╮     ╭───╯  ← 圆弧端点
+     *             │ gap │
+     *             ↓     ↓
+     *          arcBottomHeight   ← cos 公式算出的就是这个高度
+     *       ───────────────────  ← 底部文字基线
+     *       ───────────────────  ← View 底边
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        setMeasuredDimension(widthMeasureSpec, heightMeasureSpec)
-        val width = MeasureSpec.getSize(widthMeasureSpec)
-        rectF[strokeWidth / 2f, strokeWidth / 2f, width - strokeWidth / 2f] = MeasureSpec.getSize(heightMeasureSpec) - strokeWidth / 2f
-        val radius = width / 2f
+        // resolveSizeAndState 会自动处理 EXACTLY / AT_MOST / UNSPECIFIED
+        // 并在 AT_MOST 时正确使用 getSuggestedMinimumWidth/Height
+        val measuredWidth = resolveSizeAndState(suggestedMinimumWidth, widthMeasureSpec, 0)
+        val measuredHeight  = resolveSizeAndState(suggestedMinimumHeight, heightMeasureSpec, 0)
+        setMeasuredDimension(measuredWidth, measuredHeight)
+        // 从测量结果中提取纯像素尺寸（去掉 MEASURED_STATE 位）
+        val drawWidth = MeasureSpec.getSize(measuredWidth)
+        val drawHeight = MeasureSpec.getSize(measuredHeight)
+        // 计算圆弧的绘制矩形区域，四边各向内缩进 strokeWidth / 2
+        rectF.set(strokeWidth / 2f, strokeWidth / 2f, drawWidth - strokeWidth / 2f, drawHeight - strokeWidth / 2f)
+        // 取 View 宽度的一半作为半径
+        val radius = drawWidth / 2f
+        // 计算圆弧开口部分的半角
         val angle = (360 - arcAngle) / 2f
+        // 计算圆弧最低点到 View 底边的距离（即底部文字应该放在多高的位置）
         arcBottomHeight = radius * (1 - cos(angle / 180 * Math.PI)).toFloat()
     }
 
@@ -165,36 +187,75 @@ class ArcProgress @JvmOverloads constructor(context: Context, attrs: AttributeSe
      */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
+        /**
+         * 圆弧默认从 3 点钟方向（0°）开始顺时针画。270° 是 12 点钟方向（正上方）。减去 arcAngle / 2 让圆弧以正上方为中心对称展开。
+         * 比如 arcAngle=300°，则从 270-150=120° 画到 120+300=420°(即60°)，底部留出 60° 的开口
+         */
         val startAngle = 270 - arcAngle / 2f
+        // 已完成弧的扫过角度 = 进度比例 × 总弧度
         val finishedSweepAngle = progress / getMax().toFloat() * arcAngle
+        // 当 progress==0 时，finishedSweepAngle==0，理论上 drawArc 什么都不画。但某些 GPU 驱动/Android 版本在 sweep=0 时仍会画出起点处的一个像素点或短线头。把起始角移到 0.01f（几乎不可见的位置）来"藏"这个瑕疵
         var finishedStartAngle = startAngle
-        if (progress == 0) finishedStartAngle = 0.01f
-        paint.color = unfinishedStrokeColor
-        canvas.drawArc(rectF, startAngle, arcAngle, false, paint)
-        paint.color = finishedStrokeColor
-        canvas.drawArc(rectF, finishedStartAngle, finishedSweepAngle, false, paint)
-        val text = getProgress().toString()
-        // 硬编码的魔法数字偏移量 -> -5.ptFloat、-4.ptFloat + 2.ptFloat 是为了视觉对齐的手动补偿
-        if (text.isNotEmpty()) {
-            textPaint.color = textColor
+        if (progress == 0) {
+            finishedStartAngle = 0.01f
+        }
+        strokePaint.color = unfinishedStrokeColor
+        canvas.drawArc(rectF, startAngle, arcAngle, false, strokePaint)
+        strokePaint.color = finishedStrokeColor
+        canvas.drawArc(rectF, finishedStartAngle, finishedSweepAngle, false, strokePaint)
+        // 画进度数字 + 后缀
+        val progressText = getProgress().toString()
+        if (progressText.isNotEmpty()) {
+            // 测数字
             textPaint.textSize = textSize
-            val textHeight = textPaint.descent() + textPaint.ascent()
-            val textBaseline = (height - textHeight) / 2.0f - 5.ptFloat
-            canvas.drawText(text, (width - textPaint.measureText(text)) / 2.0f - 5.ptFloat, textBaseline, textPaint)
+            val textWidth = textPaint.measureText(progressText)
+            val textMetrics = textPaint.fontMetrics
+            // 测后缀
             textPaint.textSize = suffixTextSize
-            val suffixHeight = textPaint.descent() + textPaint.ascent()
-            canvas.drawText(suffixText, width / 2.0f + textPaint.measureText(text) / 2.0f - 4.ptFloat, textBaseline + textHeight - suffixHeight + 2.ptFloat, textPaint)
+            val suffixWidth = textPaint.measureText(suffixText)
+            val suffixMetrics = textPaint.fontMetrics
+            // 水平整体居中
+            val totalWidth = textWidth + suffixTextPadding + suffixWidth
+            val startX = (width - totalWidth) / 2f
+            // 底部对齐：取两者中较大的 bottom 作为统一基准
+            val maxBottom = maxOf(textMetrics.bottom, suffixMetrics.bottom)
+            /**
+             * 视觉补偿：填补纯数字需要的下行空间
+             * 系统默认 Roboto/San Francisco	0.25 ~ 0.35	下行空间适中
+             * 等宽数字字体 (DIN, Tabular)	0.15 ~ 0.25	下行空间本身较小
+             * 衬线体 (Serif)	0.35 ~ 0.45	下行装饰较多
+             */
+            val visualOffset = textMetrics.descent * 0.35f
+            val alignBottom = height / 2f + maxBottom / 2f + visualOffset
+            val textBaseline = alignBottom - textMetrics.bottom
+//            val suffixBaseline = alignBottom - suffixMetrics.bottom
+            // 数字的视觉中心 Y 坐标
+            val textCenterY = textBaseline + (textMetrics.ascent + textMetrics.descent) / 2f
+            // 后缀基线 = 数字中心 - 后缀自身的半高偏移
+            val suffixBaseline = textCenterY - (suffixMetrics.ascent + suffixMetrics.descent) / 2f
+            // 绘制（每次 drawText 前确保 textSize 正确）
+            textPaint.textSize = textSize
+            textPaint.color = textColor
+            canvas.drawText(progressText, startX, textBaseline, textPaint)
+            textPaint.textSize = suffixTextSize
+            canvas.drawText(suffixText, startX + textWidth + suffixTextPadding, suffixBaseline, textPaint)
         }
-        if (arcBottomHeight == 0f) {
+        // 圆弧底部缺口高度
+        if (arcBottomHeight <= 0f) {
             val radius = width / 2f
-            val angle = (360 - arcAngle) / 2f
-            arcBottomHeight = radius * (1 - cos(angle / 180 * Math.PI)).toFloat()
+            val gapAngleDeg = (360f - arcAngle) / 2f
+            val gapAngleRad = Math.toRadians(gapAngleDeg.toDouble())
+            arcBottomHeight = (radius * (1.0 - cos(gapAngleRad))).toFloat()
         }
-        if (getBottomText().isNotEmpty()) {
+        // 底部文字垂直居中绘制
+        val bottomText = getBottomText()
+        if (bottomText.isNotEmpty()) {
             textPaint.textSize = bottomTextSize
             textPaint.color = color(R.color.textSecondary)
+            val textWidth = textPaint.measureText(bottomText)
+            // -5.ptFloat 将文字往上提
             val bottomTextBaseline = height - arcBottomHeight - (textPaint.descent() + textPaint.ascent()) / 2 - 5.ptFloat
-            canvas.drawText(getBottomText(), (width - textPaint.measureText(getBottomText())) / 2.0f, bottomTextBaseline, textPaint)
+            canvas.drawText(bottomText, (width - textWidth) / 2f, bottomTextBaseline, textPaint)
         }
     }
 
