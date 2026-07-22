@@ -52,7 +52,6 @@ import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.setPrimaryClip
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.min
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
@@ -62,6 +61,7 @@ import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.setSpanAll
 import com.example.framework.utils.setSpanFirst
+import java.lang.ref.WeakReference
 
 //------------------------------------按钮，控件行为工具类------------------------------------
 /**
@@ -403,10 +403,10 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
     val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
     val hasNavigationBar = navigationBarHeight > 0
     // 0的情况有些特殊,可能是用户手动隐藏导航栏,存在底部导航栏的情况下是需要全屏的
-    if (hasNavigationBar || (!hasNavigationBar && hasIme)) {
+    if ((!hasNavigationBar && hasIme) || hasNavigationBar) {
         root.size(MATCH_PARENT, MATCH_PARENT)
     }
-    // 从 tag 中获取当前实例的 lastImeBottom，默认为 0
+    // 从 tag 中获取当前实例的 lastImeHeight，默认为 0
     val lastImeHeight = getTag(R.id.theme_ime_height_tag) as? Int ?: 0
     // 只有当任意值变化时，才触发回调（避免频繁调用）
     if (imeHeight != lastImeHeight) {
@@ -414,9 +414,9 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         setTag(R.id.theme_ime_height_tag, imeHeight)
         // 最外层父类布局的高度是不变的,此处拉取一次作为复位的计算值
         val parentHeight = (root?.parent as? ViewGroup)?.height ?: return
-        // 此处的root是mBinding.root,我们设置它缩小/放大就可以让NestedScrollView被挤压从而实现滚动
+        // 此处的 root 是 mBinding.root,我们设置它缩小/放大就可以让 NestedScrollView 被挤压从而实现滚动
         if (hasIme) {
-            // 重设外层父类大小/页面采用的是EdgeToEdge,一整个屏幕都是手机app的操作空间,所以要把系统弹出的输入法的底部高度加回去
+            // 重设外层父类大小/页面采用的是 EdgeToEdge,一整个屏幕都是手机app的操作空间,所以要把系统弹出的输入法的底部高度加回去
             root.size(height = parentHeight - imeHeight + navigationBarHeight)
             onImeShow.invoke(imeHeight)
         } else {
@@ -424,8 +424,12 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
             onImeDismiss.invoke()
         }
         root.doOnceAfterLayout {
+            // 立即转换为弱引用列表
+            val weakList = list.map { WeakReference(it) }
             // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
-            for (v in list) {
+            for (weakRef in weakList) {
+                // 已被回收则跳过
+                val v = weakRef.get() ?: continue
                 // 若不是输入类控件，直接跳过
                 val actualInputView = getActualInputView(v) ?: continue
                 // 用tag判断是否已绑定过焦点监听，避免重复注册
@@ -440,13 +444,18 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
                     if (hasFocus) {
                         // 延迟一小段时间（确保焦点稳定），再执行滚动
                         postDelayed({
+                            // View 已销毁则跳过
+                            if (!isAttachedToWindow) return@postDelayed
+                            // Lamba 内部会强持有对象,此处重新赋值
+                            val safeView = weakRef.get() ?: return@postDelayed
+                            val currentInputView = getActualInputView(safeView) ?: return@postDelayed
                             // 校验输入框是否至少部分在屏幕内
                             val screenRect = Rect()
                             // 屏幕可视区域（排除状态栏/软键盘）
-                            v?.getWindowVisibleDisplayFrame(screenRect)
+                            safeView.getWindowVisibleDisplayFrame(screenRect)
                             val viewRect = Rect()
                             // 输入框在屏幕上的可见区域
-                            v?.getGlobalVisibleRect(viewRect)
+                            safeView.getGlobalVisibleRect(viewRect)
                             // 输入框完全在屏幕外，跳过（避免无效计算）
                             if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
                             // 滑动控件的直接子View（内容容器）
@@ -454,16 +463,18 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
                             // 最大可滚动距离
                             val maxScrollY = (contentView?.height ?: height) - height
                             // 计算输入框在滑动控件内的相对坐标（初始状态）
-                            val inputLocation = v.getScreenLocation()
+                            val inputLocation = safeView.getScreenLocation()
                             val scrollLocation = getScreenLocation()
                             val inputYInScroll = inputLocation[1] - scrollLocation[1]
+                            // 设置新监听前，无条件清除上一个残留的滚动监听
+                            setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
                             // 定义滚动到顶后的处理逻辑
                             val onScrollFinished = {
                                 // 二次校验：输入框仍聚焦且滚动已到顶
-                                if (actualInputView.isFocused && scrollY <= 2) {
+                                if (currentInputView.isFocused && scrollY <= 2) {
                                     // 计算输入框在顶部状态下的位置（此时scrollY=0）
                                     val top = inputYInScroll
-                                    val bottom = top + v?.height.orZero
+                                    val bottom = top + safeView.height
                                     // 计算目标滚动位置（处理边界）
                                     val targetScrollY = when {
                                         top < statusBarHeight -> {
@@ -472,7 +483,7 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
                                         }
                                         bottom > height -> {
                                             // 底部边界：不大于最大可滚动距离
-                                            val temp = inputYInScroll + v?.height.orZero - height
+                                            val temp = inputYInScroll + safeView.height - height
                                             minOf(temp, maxScrollY)
                                         }
                                         else -> 0 // 无需滚动
