@@ -449,79 +449,164 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         }
         // 立即转换为弱引用列表
         val weakList = list.map { WeakReference(it) }
-        // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
-        for (weakRef in weakList) {
-            // 输入框获取焦点可能会滞后,此处使用 NestedScrollView 焦点监听, 循环覆盖赋值到最后一个 view 为止,之后不会再触发
-            setOnFocusChangeListener { _, hasFocus ->
-                // 只有获取焦点时才触发
-                if (hasFocus) {
-                    // 延迟一小段时间（确保焦点稳定），再执行滚动
-                    postDelayed({
-                        // View 已销毁则跳过
-                        if (!isAttachedToWindow) return@postDelayed
-                        // Lamba 内部会强持有对象,此处重新赋值
-                        val safeView = weakRef.get() ?: return@postDelayed
-                        val currentInputView = getActualInputView(safeView) ?: return@postDelayed
-                        // 校验输入框是否至少部分在屏幕内
-                        val screenRect = Rect()
-                        // 屏幕可视区域（排除状态栏/软键盘）
-                        safeView.getWindowVisibleDisplayFrame(screenRect)
-                        val viewRect = Rect()
-                        // 输入框在屏幕上的可见区域
-                        safeView.getGlobalVisibleRect(viewRect)
-                        // 输入框完全在屏幕外，跳过（避免无效计算）
-                        if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
-                        // 滑动控件的直接子View（内容容器）
-                        val contentView = getChildAt(0)
-                        // 最大可滚动距离
-                        val maxScrollY = (contentView?.height ?: height) - height
-                        // 计算输入框在滑动控件内的相对坐标（初始状态）
-                        val inputLocation = safeView.getScreenLocation()
-                        val scrollLocation = getScreenLocation()
-                        val inputYInScroll = inputLocation[1] - scrollLocation[1]
-                        // 设置新监听前，无条件清除上一个残留的滚动监听
-                        setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
-                        // 定义滚动到顶后的处理逻辑
-                        val onScrollFinished = {
-                            // 二次校验：输入框仍聚焦且滚动已到顶
-                            if (currentInputView.isFocused && scrollY <= 2) {
-                                // 计算输入框在顶部状态下的位置（此时scrollY=0）
-                                val top = inputYInScroll
-                                val bottom = top + safeView.height
-                                // 计算目标滚动位置（处理边界）
-                                val targetScrollY = when {
-                                    top < statusBarHeight -> {
-                                        // 顶部边界：不小于0
-                                        maxOf(inputYInScroll - statusBarHeight, 0)
-                                    }
-                                    bottom > height -> {
-                                        // 底部边界：不大于最大可滚动距离
-                                        val temp = inputYInScroll + safeView.height - height
-                                        minOf(temp, maxScrollY)
-                                    }
-                                    else -> 0 // 无需滚动
-                                }
-                                // 执行最终滚动
-                                smoothScrollTo(0, targetScrollY)
-                            }
-                            // 移除监听，避免内存泄漏
-                            setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
-                        }
-                        // 设置滚动监听，等待滚动到顶
-                        setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-                            // 当滚动到顶（scrollY == 0）且滚动状态停止（oldScrollY == scrollY）/ 允许 scrollY <= 2，视为已到顶
-                            if (scrollY <= 2 && oldScrollY == scrollY) {
-                                onScrollFinished()
-                            }
-                        }
-                        // 启动滚动到顶
-                        smoothScrollTo(0, 0)
-                    }, 50)
+        // 输入框获取焦点可能会滞后,此处使用 NestedScrollView 焦点监听, 只设置一次监听, 之后不会再触发
+        setOnFocusChangeListener { _, hasFocus ->
+            if (!hasFocus) return@setOnFocusChangeListener
+            // 动态获取当前真正持有焦点的 View
+            val focusedView = findFocus() ?: return@setOnFocusChangeListener
+            // 拿到真正的焦点 View
+            var current: View? = focusedView
+            // 匹配结果容器
+            var matchedRef: WeakReference<View?>? = null
+            // 从真正持有焦点的底层 View 出发，沿着父级链向上逐级查找，直到找到那个在 weakList 中注册过的自定义控件
+            while (current != null && matchedRef == null) {
+                matchedRef = weakList.firstOrNull { ref ->
+                    ref.get() === current
                 }
+                current = current.parent as? View
             }
+            // 如果遍历到根节点都没找到，说明当前获得焦点的 View 不属于我们管理的输入框集合
+            matchedRef ?: return@setOnFocusChangeListener
+            // 延迟一小段时间（确保焦点稳定），再执行滚动
+            postDelayed({
+                // View 已销毁则跳过
+                if (!isAttachedToWindow) return@postDelayed
+                // Lamba 内部会强持有对象,此处重新赋值
+                val safeView = matchedRef.get() ?: return@postDelayed
+                val currentInputView = getActualInputView(safeView) ?: return@postDelayed
+                // 校验输入框是否至少部分在屏幕内
+                val screenRect = Rect()
+                // 屏幕可视区域（排除状态栏/软键盘）
+                safeView.getWindowVisibleDisplayFrame(screenRect)
+                val viewRect = Rect()
+                // 输入框在屏幕上的可见区域
+                safeView.getGlobalVisibleRect(viewRect)
+                // 输入框完全在屏幕外，跳过（避免无效计算）
+                if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
+                // 滑动控件的直接子View（内容容器）
+                val contentView = getChildAt(0)
+                // 最大可滚动距离
+                val maxScrollY = (contentView?.height ?: height) - height
+                // 计算输入框在滑动控件内的相对坐标（初始状态）
+                val inputLocation = safeView.getScreenLocation()
+                val scrollLocation = getScreenLocation()
+                val inputYInScroll = inputLocation[1] - scrollLocation[1]
+                // 设置新监听前，无条件清除上一个残留的滚动监听
+                setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+                // 定义滚动到顶后的处理逻辑
+                val onScrollFinished = {
+                    // 二次校验：输入框仍聚焦且滚动已到顶
+                    if (currentInputView.isFocused && scrollY <= 2) {
+                        // 计算输入框在顶部状态下的位置（此时scrollY=0）
+                        val top = inputYInScroll
+                        val bottom = top + safeView.height
+                        // 计算目标滚动位置（处理边界）
+                        val targetScrollY = when {
+                            top < statusBarHeight -> {
+                                // 顶部边界：不小于0
+                                maxOf(inputYInScroll - statusBarHeight, 0)
+                            }
+                            bottom > height -> {
+                                // 底部边界：不大于最大可滚动距离
+                                val temp = inputYInScroll + safeView.height - height
+                                minOf(temp, maxScrollY)
+                            }
+                            else -> 0 // 无需滚动
+                        }
+                        // 执行最终滚动
+                        smoothScrollTo(0, targetScrollY)
+                    }
+                    // 移除监听，避免内存泄漏
+                    setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+                }
+                // 设置滚动监听，等待滚动到顶
+                setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+                    // 当滚动到顶（scrollY == 0）且滚动状态停止（oldScrollY == scrollY）/ 允许 scrollY <= 2，视为已到顶
+                    if (scrollY <= 2 && oldScrollY == scrollY) {
+                        onScrollFinished()
+                    }
+                }
+                // 启动滚动到顶
+                smoothScrollTo(0, 0)
+            }, 50)
         }
         // 标记“已绑定监听”，存入tag
         setTag(R.id.theme_input_focus_tag, true)
+//        // 立即转换为弱引用列表
+//        val weakList = list.map { WeakReference(it) }
+//        // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
+//        for (weakRef in weakList) {
+//            // 输入框获取焦点可能会滞后,此处使用 NestedScrollView 焦点监听, 循环覆盖赋值到最后一个 view 为止,之后不会再触发
+//            setOnFocusChangeListener { _, hasFocus ->
+//                // 只有获取焦点时才触发
+//                if (hasFocus) {
+//                    // 延迟一小段时间（确保焦点稳定），再执行滚动
+//                    postDelayed({
+//                        // View 已销毁则跳过
+//                        if (!isAttachedToWindow) return@postDelayed
+//                        // Lamba 内部会强持有对象,此处重新赋值
+//                        val safeView = weakRef.get() ?: return@postDelayed
+//                        val currentInputView = getActualInputView(safeView) ?: return@postDelayed
+//                        // 校验输入框是否至少部分在屏幕内
+//                        val screenRect = Rect()
+//                        // 屏幕可视区域（排除状态栏/软键盘）
+//                        safeView.getWindowVisibleDisplayFrame(screenRect)
+//                        val viewRect = Rect()
+//                        // 输入框在屏幕上的可见区域
+//                        safeView.getGlobalVisibleRect(viewRect)
+//                        // 输入框完全在屏幕外，跳过（避免无效计算）
+//                        if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
+//                        // 滑动控件的直接子View（内容容器）
+//                        val contentView = getChildAt(0)
+//                        // 最大可滚动距离
+//                        val maxScrollY = (contentView?.height ?: height) - height
+//                        // 计算输入框在滑动控件内的相对坐标（初始状态）
+//                        val inputLocation = safeView.getScreenLocation()
+//                        val scrollLocation = getScreenLocation()
+//                        val inputYInScroll = inputLocation[1] - scrollLocation[1]
+//                        // 设置新监听前，无条件清除上一个残留的滚动监听
+//                        setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+//                        // 定义滚动到顶后的处理逻辑
+//                        val onScrollFinished = {
+//                            // 二次校验：输入框仍聚焦且滚动已到顶
+//                            if (currentInputView.isFocused && scrollY <= 2) {
+//                                // 计算输入框在顶部状态下的位置（此时scrollY=0）
+//                                val top = inputYInScroll
+//                                val bottom = top + safeView.height
+//                                // 计算目标滚动位置（处理边界）
+//                                val targetScrollY = when {
+//                                    top < statusBarHeight -> {
+//                                        // 顶部边界：不小于0
+//                                        maxOf(inputYInScroll - statusBarHeight, 0)
+//                                    }
+//                                    bottom > height -> {
+//                                        // 底部边界：不大于最大可滚动距离
+//                                        val temp = inputYInScroll + safeView.height - height
+//                                        minOf(temp, maxScrollY)
+//                                    }
+//                                    else -> 0 // 无需滚动
+//                                }
+//                                // 执行最终滚动
+//                                smoothScrollTo(0, targetScrollY)
+//                            }
+//                            // 移除监听，避免内存泄漏
+//                            setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
+//                        }
+//                        // 设置滚动监听，等待滚动到顶
+//                        setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
+//                            // 当滚动到顶（scrollY == 0）且滚动状态停止（oldScrollY == scrollY）/ 允许 scrollY <= 2，视为已到顶
+//                            if (scrollY <= 2 && oldScrollY == scrollY) {
+//                                onScrollFinished()
+//                            }
+//                        }
+//                        // 启动滚动到顶
+//                        smoothScrollTo(0, 0)
+//                    }, 50)
+//                }
+//            }
+//        }
+//        // 标记“已绑定监听”，存入tag
+//        setTag(R.id.theme_input_focus_tag, true)
     }
 }
 
