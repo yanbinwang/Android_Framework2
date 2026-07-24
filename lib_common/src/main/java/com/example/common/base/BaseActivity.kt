@@ -271,10 +271,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      * 检测大屏设备
      * @return true-检测到大屏设备并弹出提示，false-正常设备
      */
-    private var checkedLargeScreen = false
     private fun checkLargeScreen(): Boolean {
-        if (checkedLargeScreen) return false
-        checkedLargeScreen = true
         // 页面销毁直接返回
         if (isFinishing || isDestroyed) return false
         // 判断是否为大屏设备（宽度≥600dp）
