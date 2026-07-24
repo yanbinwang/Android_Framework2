@@ -237,6 +237,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initBefore()
         if (needTransparentOwner) {
             overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+            /**
+             * 在 Android 8.0 (API 26) 中，Google 引入了一个非常严格的限制：如果 Activity 是透明的（translucent）或浮动的（floating），则不允许通过代码或 Manifest 指定屏幕方向
+             * 一旦违反，系统会在 onCreate → setRequestedOrientation 时直接抛出：java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation
+             * API 27+已修复，透明 Activity 又可以安全地设置 SCREEN_ORIENTATION_PORTRAIT 了
+             */
             requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
                 ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
             } else {
@@ -266,10 +271,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      * 检测大屏设备
      * @return true-检测到大屏设备并弹出提示，false-正常设备
      */
-    private var checkedLargeScreen = false
     private fun checkLargeScreen(): Boolean {
-        if (checkedLargeScreen) return false
-        checkedLargeScreen = true
         // 页面销毁直接返回
         if (isFinishing || isDestroyed) return false
         // 判断是否为大屏设备（宽度≥600dp）
