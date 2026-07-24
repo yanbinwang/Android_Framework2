@@ -1041,31 +1041,33 @@ fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) 
 }
 
 /**
- * 图片src资源
- * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
- * 设置setImageDrawable(null)
+ * 图片 src 资源
+ * setImageResource() 里面是 int 类型 无法使用 setImageResource 来清空图片,不过 Bitmap 可以设置为 null 从而达到设置为空的效果 -> 设置 setImageDrawable(null)
  */
 fun ImageView?.setDrawable(drawable: Drawable?) {
     this ?: return
     setImageDrawable(drawable)
 }
 
+/**
+ * 1) 调用 setImageResource(0) 会导致 ImageView 显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+ * 2) 调用 setImageResource(-1) 会闪退报错
+ * 3) 清空 ImageView 资源统一调用 setDrawable(null)
+ */
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
-    /**
-     * 调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
-     * -1则会闪退报错
-     */
     setImageResource(resId)
 }
 
 /**
- * 设置按钮显影图片
+ * 根据密码是否可见，切换对应的图标资源
+ * @param isVisible 密码当前是否可见
+ * @param visibleRes 密码可见时的图标（如：睁眼）
+ * @param hiddenRes 密码不可见时的图标（如：闭眼）
  */
-fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
+fun ImageView?.updatePasswordIcon(isVisible: Boolean, @DrawableRes visibleRes: Int, @DrawableRes hiddenRes: Int) {
     this ?: return
-    val (isDisplay, showRes, hideRes) = triple
-    setImageResource(if (!isDisplay) hideRes else showRes)
+    setImageResource(if (isVisible) visibleRes else hiddenRes)
 }
 
 /**

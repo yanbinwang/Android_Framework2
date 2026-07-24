@@ -27,9 +27,9 @@ import com.example.framework.utils.function.view.imeOptions
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
-import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.togglePasswordVisibility
+import com.example.framework.utils.function.view.updatePasswordIcon
 import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
@@ -55,7 +55,8 @@ class PasswordEditText @JvmOverloads constructor(context: Context, attrs: Attrib
             }
         }
         binding.ivShow.click {
-            binding.ivShow.setResource(Triple(binding.etClear.togglePasswordVisibility(), showRes, hideRes))
+            val isVisible = binding.etClear.togglePasswordVisibility()
+            binding.ivShow.updatePasswordIcon(isVisible, showRes, hideRes)
         }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.PasswordEditText) {
