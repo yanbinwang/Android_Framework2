@@ -174,6 +174,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 应用空状态固定高度
+     * 在 loading()/empty()/error() 展示空状态前调用
+     * 有数据后由 setRootSize(MATCH_PARENT) 恢复全屏
+     */
+    fun setFixedHeight(width: Int? = null) {
+        if (!emptyEnable || rootFixedHeight == -1 || !isAttachedToWindow) return
+        setRootSize(width, rootFixedHeight)
+    }
+
+    /**
      * 如果 XRecyclerView 并非全屏,而是处在某块布局下方的列表 (嵌套在 ScrollView + LinearLayout 上下结构内),数据为空时默认的大小需要做出一定的修正
      */
     fun applyWindowInsets(insets: WindowInsetsCompat) {
@@ -200,25 +210,6 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             rootFixedHeight = fixedHeight
             setRootSize(height = rootFixedHeight)
         }
-    }
-
-    /**
-     * 应用空状态固定高度
-     * 在 loading()/empty()/error() 展示空状态前调用
-     * 有数据后由 setRootSize(MATCH_PARENT) 恢复全屏
-     */
-    fun applyEmptyFixedHeight() {
-        if (!emptyEnable || rootFixedHeight == -1 || !isAttachedToWindow) return
-        setRootSize(height = rootFixedHeight)
-    }
-
-    /**
-     * 恢复全屏高度
-     * 在数据加载成功、展示列表前调用
-     * 与 applyEmptyFixedHeight() 配对使用
-     */
-    fun restoreFullHeight() {
-        setRootSize(height = MATCH_PARENT)
     }
 
     /**
