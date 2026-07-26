@@ -177,16 +177,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 如果 XRecyclerView 并非全屏,而是处在某块布局下方的列表 (嵌套在 ScrollView + LinearLayout 上下结构内),数据为空时默认的大小需要做出一定的修正
      */
     fun applyWindowInsets(insets: WindowInsetsCompat) {
-        // 未开启、未设置固定高度、加载中、或未挂载窗口时均跳过
-        if (!emptyEnable || rootFixedHeight == -1 || empty.isLoading() || !isAttachedToWindow) return
-        // 获取状态栏/导航栏高度
-        val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+        // 未开启、未设置固定高度、或未挂载窗口时均跳过
+        if (!emptyEnable || rootFixedHeight == -1 || !isAttachedToWindow) return
+        // 获取导航栏高度
         val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         // 获取控件距顶部高度
-        val locationHeight = getScreenLocation()[1]
-        // 页面使用 enableEdgeToEdge() 是全屏的
-        val fixedHeight = screenHeight - statusBarHeight - locationHeight - navigationBarHeight
-        if (rootFixedHeight != fixedHeight) {
+        val locationY = getScreenLocation()[1]
+        // 剩余可用高度 = 屏幕总高 - 控件距顶部的绝对距离 - 底部导航栏高度
+        val fixedHeight = screenHeight - locationY - navigationBarHeight
+        // 取配置值与动态计算值的较大者：配置值作为最小保底高度，计算值用于大屏/折叠屏等剩余空间更大的场景
+        if (rootFixedHeight != fixedHeight && rootFixedHeight < fixedHeight) {
             rootFixedHeight = fixedHeight
             root.size(MATCH_PARENT, rootFixedHeight)
         }
