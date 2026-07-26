@@ -8,9 +8,11 @@ import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
@@ -24,6 +26,7 @@ import com.example.common.widget.xrecyclerview.refresh.setupPullRefresh
 import com.example.common.widget.xrecyclerview.refresh.setupRefreshLoadMore
 import com.example.common.widget.xrecyclerview.refresh.setupStickyRefresh
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.getScreenLocation
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridHorizontal
@@ -153,7 +156,48 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置整体布局大小
      */
     fun setRootSize(width: Int? = null, height: Int? = null) {
-        root.size(width.pt, height.pt)
+        val finalWidth = width?.let {
+            if (it < 0) {
+                it
+            } else {
+                it.pt
+            }
+        } ?: MATCH_PARENT
+        val finalHeight = height?.let {
+            if (it < 0) {
+                it
+            } else {
+                it.pt
+            }
+        } ?: MATCH_PARENT
+        root.size(finalWidth, finalHeight)
+    }
+
+    /**
+     * 如果 XRecyclerView 并非全屏,而是处在某块布局下方的列表 (嵌套在 ScrollView + LinearLayout 上下结构内),数据为空时默认的大小需要做出一定的修正
+     */
+    fun applyWindowInsets(insets: WindowInsetsCompat) {
+        // 未开启、未设置固定高度、加载中、或未挂载窗口时均跳过
+        if (!emptyEnable || rootFixedHeight == -1 || empty.isLoading() || !isAttachedToWindow) return
+        // 获取状态栏/导航栏高度
+        val statusBarHeight = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+        val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        // 获取控件距顶部高度
+        val locationHeight = getScreenLocation()[1]
+        // 页面使用 enableEdgeToEdge() 是全屏的
+        val fixedHeight = screenHeight - statusBarHeight - locationHeight - navigationBarHeight
+        if (rootFixedHeight != fixedHeight) {
+            rootFixedHeight = fixedHeight
+            root.size(MATCH_PARENT, rootFixedHeight)
+        }
+    }
+
+    /**
+     * 获取当前计算后的固定高度
+     * @return 有效高度值；若未设置或未计算完成则返回 MATCH_PARENT
+     */
+    fun getFixedHeight(): Int {
+        return if (rootFixedHeight > 0) rootFixedHeight else MATCH_PARENT
     }
 
     /**
@@ -220,15 +264,22 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty.empty(resId, text, refreshText, width, height)
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.empty(resId, text, refreshText, iconWidth, iconHeight)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty.error(resId, text, refreshText, width, height)
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.error(resId, text, refreshText, iconWidth, iconHeight)
+    }
+
+    /**
+     * 整体遮罩，如果需要展示则显示，不然直接删除自身
+     */
+    fun finish(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.finish(isSuccessful, resId, text, refreshText, iconWidth, iconHeight)
     }
 
     /**

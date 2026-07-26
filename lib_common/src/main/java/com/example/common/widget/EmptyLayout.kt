@@ -127,11 +127,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         appear(300)
         state = EmptyLayoutState.Empty
         fullScreenState()
-        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
+        if (null != iconWidth && null != iconHeight) binding.ivEmpty.size(iconWidth.pt, iconHeight.pt)
         binding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         if (!refreshText.isNullOrEmpty()) {
@@ -146,11 +146,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         appear(300)
         state = EmptyLayoutState.Error
         fullScreenState()
-        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
+        if (null != iconWidth && null != iconHeight) binding.ivEmpty.size(iconWidth.pt, iconHeight.pt)
         if (!isNetworkAvailable()) {
             binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             binding.tvEmpty.text = string(R.string.dataNetError)
@@ -165,12 +165,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 针对首页的遮罩，如果需要展示则显示，不然直接删除自身
      */
-    fun completion(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun finish(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         if (isSuccessful) {
             removeSelf()
         } else {
             if (!exist()) return
-            error(resId, text, refreshText, width, height)
+            error(resId, text, refreshText, iconWidth, iconHeight)
         }
     }
 
@@ -198,8 +198,8 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     /**
      * 特殊用法，部分页面需要全屏的empty，带一个返回按钮
-     * 1.只需关闭页面直接调setBack（this）
-     * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
+     * 1) 只需关闭页面直接调setBack（this）
+     * 2) 返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
      */
     fun setFullScreen(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }) {
         ivLeft.also {
