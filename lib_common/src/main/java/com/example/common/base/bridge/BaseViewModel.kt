@@ -19,7 +19,7 @@ import com.example.common.base.BaseBottomSheetDialogFragment
 import com.example.common.base.BaseFragment
 import com.example.common.base.BaseTopSheetDialogFragment
 import com.example.common.base.page.Paging
-import com.example.common.base.page.getEmptyLayout
+import com.example.common.base.page.getEmptyView
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.utils.manager.AppManager
@@ -155,7 +155,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         when (view) {
             // 传入 BaseTitleActivity 中写好的容器 viewGroup
             is FrameLayout -> {
-                tempEmpty = view.getEmptyLayout(1)
+                tempEmpty = view.getEmptyView(1)
                 tempEmpty?.setWindows(true)
             }
             // 界面上绘制好empty
@@ -264,14 +264,14 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         mEmpty?.loading()
     }
 
-    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         finishRefreshing()
-        mEmpty?.empty(resId, resText, resRefreshText, width, height)
+        mEmpty?.empty(resId, resText, resRefreshText, iconWidth, iconHeight)
     }
 
-    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, width: Int? = null, height: Int? = null) {
+    fun error(resId: Int? = null, resText: Int? = null, resRefreshText: Int? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         finishRefreshing()
-        mEmpty?.error(resId, resText, resRefreshText, width, height)
+        mEmpty?.error(resId, resText, resRefreshText, iconWidth, iconHeight)
     }
 
     /**
