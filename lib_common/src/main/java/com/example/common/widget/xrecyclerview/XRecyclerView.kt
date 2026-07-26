@@ -181,6 +181,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         if (!emptyEnable || rootFixedHeight == -1 || !isAttachedToWindow) return
         // 获取导航栏高度
         val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        // 页面调用 setOnWindowInsetsChanged
+        applyWindowInsets(navigationBarHeight)
+    }
+
+    /**
+     * initView() 修正 initData() 前调用
+     */
+    fun applyWindowInsets(navigationBarHeight: Int) {
+        // 未开启、未设置固定高度、或未挂载窗口时均跳过
+        if (!emptyEnable || rootFixedHeight == -1 || !isAttachedToWindow) return
         // 获取控件距顶部高度
         val locationY = getScreenLocation()[1]
         // 剩余可用高度 = 屏幕总高 - 控件距顶部的绝对距离 - 底部导航栏高度
