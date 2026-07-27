@@ -190,6 +190,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     /**
+     * 接收系统 WindowInsets，提取导航栏高度后触发固定高度计算
      * 如果 XRecyclerView 并非全屏,而是处在某块布局下方的列表 (嵌套在 ScrollView + LinearLayout 上下结构内),数据为空时默认的大小需要做出一定的修正
      */
     fun applyWindowInsets(insets: WindowInsetsCompat) {
@@ -198,13 +199,14 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
         // 获取导航栏高度
         val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
         // 页面调用 setOnWindowInsetsChanged
-        applyWindowInsets(navigationBarHeight)
+        updateFixedHeight(navigationBarHeight)
     }
 
     /**
-     * initView() 修正 initData() 前调用
+     * 根据导航栏高度重新计算并应用列表固定高度
+     * initView() 中修正 initData() 前调用
      */
-    fun applyWindowInsets(navigationBarHeight: Int) {
+    fun updateFixedHeight(navigationBarHeight: Int) {
         if (!canApplyFixedHeight()) return
         // 获取控件距顶部高度
         val locationY = getScreenLocation()[1]
