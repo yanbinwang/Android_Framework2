@@ -8,8 +8,11 @@ import android.view.View
 import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.tint
@@ -33,6 +36,11 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
+        binding.root.doOnceAfterLayout {
+            it.getLifecycleOwner().doOnDestroy {
+                release()
+            }
+        }
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
@@ -43,11 +51,30 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-        animation?.stop()
+//        animation?.stop()
+        release()
     }
 
     override fun onInflate() {
         if (shouldInflate) addView(binding.root)
+    }
+
+    /**
+     * 设置数据全部加载完成，将不能再次触发加载功能
+     * @param noMoreData – 是否有更多数据
+     * @Returns: true 支持全部加载完成的状态显示 false 不支持
+     */
+    override fun setNoMoreData(noMoreData: Boolean): Boolean {
+        this.noMoreData = noMoreData
+        if (noMoreData) {
+            animation?.stop()
+            binding.tvMsg.visible()
+            binding.ivProgress.gone()
+        } else {
+            binding.tvMsg.gone()
+            binding.ivProgress.visible()
+        }
+        return true
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {
@@ -100,19 +127,6 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun autoOpen(duration: Int, dragRate: Float, animationOnly: Boolean): Boolean {
         return false
-    }
-
-    override fun setNoMoreData(noMoreData: Boolean): Boolean {
-        this.noMoreData = noMoreData
-        if (noMoreData) {
-            animation?.stop()
-            binding.tvMsg.visible()
-            binding.ivProgress.gone()
-        } else {
-            binding.tvMsg.gone()
-            binding.ivProgress.visible()
-        }
-        return true
     }
 
     /**
