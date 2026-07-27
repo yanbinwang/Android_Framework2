@@ -57,8 +57,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      */
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-//        animation?.stop()
-        release()
+        animation?.stop()
     }
 
     override fun onInflate() {
@@ -128,6 +127,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
     override fun onReleased(refreshLayout: RefreshLayout, height: Int, maxDragHeight: Int) {
         // 松开时才开始做动画
         if (animation?.isRunning.orFalse) return
+        animation?.selectDrawable(0)
         animation?.start()
     }
 
@@ -148,6 +148,7 @@ class ProjectRefreshHeader @JvmOverloads constructor(context: Context, attrs: At
      */
     override fun onFinish(refreshLayout: RefreshLayout, success: Boolean): Int {
         animation?.stop()
+        animation?.selectDrawable(0)
         return 0
     }
 

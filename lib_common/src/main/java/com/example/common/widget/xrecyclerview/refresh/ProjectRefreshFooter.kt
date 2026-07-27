@@ -51,8 +51,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
-//        animation?.stop()
-        release()
+        animation?.stop()
     }
 
     override fun onInflate() {
@@ -68,6 +67,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         this.noMoreData = noMoreData
         if (noMoreData) {
             animation?.stop()
+            animation?.selectDrawable(0)
             binding.tvMsg.visible()
             binding.ivProgress.gone()
         } else {
@@ -115,6 +115,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onFinish(refreshLayout: RefreshLayout, success: Boolean): Int {
         animation?.stop()
+        animation?.selectDrawable(0)
         return 0
     }
 
