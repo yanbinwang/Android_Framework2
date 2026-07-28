@@ -81,12 +81,13 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     init {
         context.withStyledAttributes(attrs, R.styleable.ExpandableLayout) {
             duration = getInt(R.styleable.ExpandableLayout_elDuration, DURATION).toLong()
-            expansion = if (getBoolean(R.styleable.ExpandableLayout_elExpanded, false)) 1f else 0f
             parallax = getFloat(R.styleable.ExpandableLayout_elParallax, 1f)
+            expansion = if (getBoolean(R.styleable.ExpandableLayout_elExpanded, false)) 1f else 0f
             orientation = getInt(R.styleable.ExpandableLayout_android_orientation, VERTICAL)
         }
-        state = if (expansion == 0f) State.COLLAPSED else State.EXPANDED
+        setDuration(duration)
         setParallax(parallax)
+        state = if (expansion == 0f) State.COLLAPSED else State.EXPANDED
     }
 
     /**
