@@ -268,8 +268,8 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
         state = when {
             expansion == 0f -> State.COLLAPSED
             expansion == 1f -> State.EXPANDED
-            delta < 0 -> State.COLLAPSING
-            delta > 0 -> State.EXPANDING
+            delta < 0f -> State.COLLAPSING
+            delta > 0f -> State.EXPANDING
             // 无变化，保留当前状态（防止极端情况）
             else -> state
         }
