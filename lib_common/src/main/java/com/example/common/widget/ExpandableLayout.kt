@@ -9,13 +9,12 @@ import android.os.Parcelable
 import android.util.AttributeSet
 import android.view.animation.Interpolator
 import android.widget.FrameLayout
-import android.widget.LinearLayout
+import androidx.appcompat.widget.LinearLayoutCompat.HORIZONTAL
+import androidx.appcompat.widget.LinearLayoutCompat.OrientationMode
+import androidx.appcompat.widget.LinearLayoutCompat.VERTICAL
 import androidx.core.content.withStyledAttributes
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator
 import com.example.common.R
-import com.example.framework.utils.function.value.orZero
-import kotlin.math.max
-import kotlin.math.min
 import kotlin.math.roundToInt
 
 /**
@@ -28,9 +27,9 @@ import kotlin.math.roundToInt
  *     android:id="@+id/expandable"
  *     android:layout_width="match_parent"
  *     android:layout_height="wrap_content"
- *     app:el_duration="500"
- *     app:el_expanded="false"
- *     app:el_parallax="0">
+ *     app:elDuration="500"
+ *     app:elExpanded="false"
+ *     app:elParallax="0">
  *     <!-- 子内容 -->
  * </ExpandableLayout>
  *
@@ -42,18 +41,24 @@ import kotlin.math.roundToInt
  * expandable.toggle()
  */
 class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : FrameLayout(context, attrs, defStyleAttr) {
+    // 展开 / 折叠动画的执行时长（单位：毫秒，ms
+    private var duration = 0L
+    // 展开 / 折叠动画的视差效果强度 (取值范围：0~1)
     private var parallax = 0f
+    // 控件状态 true:完全展开 / false:完全折叠 (0为假,非0为真,0f -> 完全折叠)
     private var expansion = 0f
+    // horizontal:水平方向展开 / 折叠 vertical:垂直方向展开 / 折叠
+    @OrientationMode
     private var orientation = VERTICAL
-    private var duration = DURATION
+    // 默认状态:完全折叠
     private var state = State.COLLAPSED
-    private var animator: ValueAnimator? = null
-    private var listener: OnExpansionUpdateListener? = null
+    // 动画插播
     private var interpolator: Interpolator = FastOutSlowInInterpolator()
+    private var animator: ValueAnimator? = null
+    // 状态监听
+    private var listener: ((expansionFraction: Float, state: State) -> Unit)? = null
 
     companion object {
-        private const val HORIZONTAL = 0
-        private const val VERTICAL = 1
         private const val DURATION = 300
         private const val KEY_SUPER_STATE = "super_state"
         private const val KEY_EXPANSION = "expansion"
@@ -75,10 +80,10 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      */
     init {
         context.withStyledAttributes(attrs, R.styleable.ExpandableLayout) {
-            duration = getInt(R.styleable.ExpandableLayout_el_duration, DURATION)
-            expansion = if (getBoolean(R.styleable.ExpandableLayout_el_expanded, false)) 1f else 0f
+            duration = getInt(R.styleable.ExpandableLayout_elDuration, DURATION).toLong()
+            expansion = if (getBoolean(R.styleable.ExpandableLayout_elExpanded, false)) 1f else 0f
+            parallax = getFloat(R.styleable.ExpandableLayout_elParallax, 1f)
             orientation = getInt(R.styleable.ExpandableLayout_android_orientation, VERTICAL)
-            parallax = getFloat(R.styleable.ExpandableLayout_el_parallax, 1f)
         }
         state = if (expansion == 0f) State.COLLAPSED else State.EXPANDED
         setParallax(parallax)
@@ -91,8 +96,8 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val bundle = Bundle()
-        expansion = if (isExpanded()) 1f else 0f
-        bundle.putFloat(KEY_EXPANSION, expansion)
+        // 纯只读快照，不影响 onMeasure / animateSize / setExpansion
+        bundle.putFloat(KEY_EXPANSION, if (isExpanded()) 1f else 0f)
         bundle.putParcelable(KEY_SUPER_STATE, superState)
         return bundle
     }
@@ -103,7 +108,7 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      */
     override fun onRestoreInstanceState(parcelable: Parcelable?) {
         if (parcelable is Bundle) {
-            expansion = parcelable.getFloat(KEY_EXPANSION).orZero
+            expansion = parcelable.getFloat(KEY_EXPANSION, 0f)
             state = if (expansion == 1f) State.EXPANDED else State.COLLAPSED
             val superState = parcelable.getParcelable<Parcelable>(KEY_SUPER_STATE)
             super.onRestoreInstanceState(superState)
@@ -122,15 +127,24 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
+     * 防止 View 销毁时动画泄漏
+     */
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        animator?.cancel()
+        animator = null
+    }
+
+    /**
      * 核心测量逻辑：根据当前 expansion 值计算实际显示尺寸，
      * 同时应用视差偏移（translationX/Y）给所有子 View。
      * 当 expansion 为 0 且尺寸为 0 时，将 visibility 设为 GONE 以避免占据空间。
      */
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-        val width = measuredWidth
-        val height = measuredHeight
-        val size = if (orientation == LinearLayout.HORIZONTAL) width else height
+        val targetWidth = measuredWidth
+        val targetHeight = measuredHeight
+        val size = if (orientation == HORIZONTAL) targetWidth else targetHeight
         visibility = if (expansion == 0f && size == 0) GONE else VISIBLE
         val expansionDelta = size - (size * expansion).roundToInt()
         if (parallax > 0) {
@@ -149,62 +163,51 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
             }
         }
         if (orientation == HORIZONTAL) {
-            setMeasuredDimension(width - expansionDelta, height)
+            setMeasuredDimension(targetWidth - expansionDelta, targetHeight)
         } else {
-            setMeasuredDimension(width, height - expansionDelta)
+            setMeasuredDimension(targetWidth, targetHeight - expansionDelta)
         }
     }
 
     /**
-     * 切换展开/折叠状态，默认带动画。
-     * 等价于 [toggle(true)]。
+     * 动态设置动画插值器。
+     * 仅对后续触发的动画生效。
+     * @param interpolator 自定义插值器实例。
      */
-    fun toggle() {
-        toggle(true)
+    fun setInterpolator(interpolator: Interpolator) {
+        this.interpolator = interpolator
     }
 
     /**
-     * 切换展开/折叠状态。
-     * @param animate 是否使用过渡动画；传 false 时立即跳到目标状态。
+     * 获取当前动画时长（毫秒）。
      */
-    fun toggle(animate: Boolean) {
-        if (isExpanded()) {
-            collapse(animate)
-        } else {
-            expand(animate)
-        }
+    fun getDuration(): Long {
+        return duration
     }
 
     /**
-     * 展开布局，默认带动画。
-     * 等价于 [expand(true)]。
+     * 动态设置动画时长。
+     * 仅对后续触发的动画生效，不影响正在播放的动画。
+     * @param duration 动画时长，单位毫秒。
      */
-    fun expand() {
-        expand(true)
+    fun setDuration(duration: Long) {
+        this.duration = duration
     }
 
     /**
-     * 展开布局。
-     * @param animate 是否使用过渡动画。
+     * 获取当前视差系数。
+     * @return 0f（无视差）到 1f（最大视差）之间的值。
      */
-    fun expand(animate: Boolean) {
-        setExpanded(true, animate)
+    fun getParallax(): Float {
+        return parallax
     }
 
     /**
-     * 折叠布局，默认带动画。
-     * 等价于 [collapse(true)]。
+     * 动态设置视差系数, 值会被自动钳制到 [0f, 1f] 范围内 (mParallax = min(1f, max(0f, mParallax)))
+     * @param parallax 视差系数，0 表示子 View 跟随容器同步移动，1 表示最大视差偏移。
      */
-    fun collapse() {
-        collapse(true)
-    }
-
-    /**
-     * 折叠布局。
-     * @param animate 是否使用过渡动画。
-     */
-    fun collapse(animate: Boolean) {
-        setExpanded(false, animate)
+    fun setParallax(parallax: Float) {
+        this.parallax = parallax.coerceIn(0f, 1f)
     }
 
     /**
@@ -216,44 +219,36 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
-     * 设置展开/折叠状态，默认带动画。
-     * 等价于 [setExpanded(expand, true)]。
-     * @param expand true 为展开，false 为折叠。
-     */
-    fun setExpanded(expand: Boolean) {
-        setExpanded(expand, true)
-    }
-
-    /**
      * 设置展开/折叠状态。
      * 如果目标状态与当前一致则忽略；若当前正处于动画中，会先取消旧动画再启动新动画。
      * @param expand true 为展开，false 为折叠。
-     * @param animate 是否使用过渡动画；传 false 时立即生效，不触发 OnExpansionUpdateListener 的中间回调。
+     * @param animate 是否使用过渡动画；默认为 true。传 false 时立即生效，不触发中间回调。
      */
-    fun setExpanded(expand: Boolean, animate: Boolean) {
+    fun setExpanded(expand: Boolean, animate: Boolean = true) {
         if (expand == isExpanded()) {
             return
         }
-        val targetExpansion = if (expand) 1 else 0
+        val targetExpansion = if (expand) 1f else 0f
         if (animate) {
             animateSize(targetExpansion)
         } else {
-            setExpansion(targetExpansion.toFloat())
+            setExpansion(targetExpansion)
         }
     }
 
     /**
      * 创建并启动从当前 expansion 到目标值的属性动画。
      * 每次调用都会取消上一次未完成的动画，保证不会出现多个动画叠加。
-     * @param targetExpansion 目标展开值，0 或 1。
+     * @param targetExpansion 目标展开比例，有效范围 [0f, 1f]。
      */
-    private fun animateSize(targetExpansion: Int) {
+    fun animateSize(targetExpansion: Float) {
         animator?.cancel()
-        animator = null
-        animator = ValueAnimator.ofFloat(expansion, targetExpansion.toFloat())
+        animator = ValueAnimator.ofFloat(expansion, targetExpansion)
         animator?.interpolator = interpolator
-        animator?.setDuration(duration.toLong())
-        animator?.addUpdateListener { valueAnimator -> setExpansion(valueAnimator.getAnimatedValue() as Float) }
+        animator?.setDuration(duration)
+        animator?.addUpdateListener { valueAnimator ->
+            setExpansion(valueAnimator.getAnimatedValue() as Float)
+        }
         animator?.addListener(ExpansionListener(targetExpansion))
         animator?.start()
     }
@@ -280,57 +275,14 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
         visibility = if (state == State.COLLAPSED) GONE else VISIBLE
         this.expansion = expansion
         requestLayout()
-        listener?.onExpansionUpdate(expansion, state)
-    }
-
-    /**
-     * 获取当前动画时长（毫秒）。
-     */
-    fun getDuration(): Int {
-        return duration
-    }
-
-    /**
-     * 动态设置动画时长。
-     * 仅对后续触发的动画生效，不影响正在播放的动画。
-     * @param duration 动画时长，单位毫秒。
-     */
-    fun setDuration(duration: Int) {
-        this.duration = duration
-    }
-
-    /**
-     * 动态设置动画插值器。
-     * 仅对后续触发的动画生效。
-     * @param interpolator 自定义插值器实例。
-     */
-    fun setInterpolator(interpolator: Interpolator) {
-        this.interpolator = interpolator
-    }
-
-    /**
-     * 获取当前视差系数。
-     * @return 0f（无视差）到 1f（最大视差）之间的值。
-     */
-    fun getParallax(): Float {
-        return parallax
-    }
-
-    /**
-     * 动态设置视差系数。
-     * 值会被自动钳制到 [0f, 1f] 范围内。
-     * @param parallax 视差系数，0 表示子 View 跟随容器同步移动，1 表示最大视差偏移。
-     */
-    fun setParallax(parallax: Float) {
-        var parallax = parallax
-        parallax = min(1f, max(0f, parallax))
-        this.parallax = parallax
+        listener?.invoke(expansion, state)
     }
 
     /**
      * 获取当前展开方向。
      * @return [HORIZONTAL] (0) 或 [VERTICAL] (1)。
      */
+    @OrientationMode
     fun getOrientation(): Int {
         return orientation
     }
@@ -339,7 +291,7 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * 动态设置展开方向。
      * @param orientation 必须为 0（水平）或 1（垂直），否则抛出 IllegalArgumentException。
      */
-    fun setOrientation(orientation: Int) {
+    fun setOrientation(@OrientationMode orientation: Int) {
         require(orientation in 0..1) { "Orientation must be either 0 (horizontal) or 1 (vertical)" }
         this.orientation = orientation
     }
@@ -356,8 +308,10 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * 注册展开进度监听器。
      * 动画过程中每帧都会回调，可用于联动其他 UI 元素（如箭头旋转、透明度渐变等）。
      * @param listener 监听器实例，传 null 可移除监听。
+     * @param expansionFraction 当前展开比例 [0f, 1f]。
+     * @param state 当前状态。
      */
-    fun setOnExpansionUpdateListener(listener: OnExpansionUpdateListener) {
+    fun setOnExpansionUpdateListener(listener: ((expansionFraction: Float, state: State) -> Unit)) {
         this.listener = listener
     }
 
@@ -372,29 +326,41 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
-     * 展开进度更新监听接口。
+     * 切换展开/折叠状态。
+     * @param animate 是否使用过渡动画；默认为 true。传 false 时立即跳到目标状态。
      */
-    interface OnExpansionUpdateListener {
-        /**
-         * 每帧动画更新时回调。
-         * @param expansionFraction 当前展开比例 [0f, 1f]。
-         * @param state 当前状态。
-         */
-        fun onExpansionUpdate(expansionFraction: Float, state: State)
+    fun toggle(animate: Boolean = true) {
+        setExpanded(!isExpanded(), animate)
+    }
+
+    /**
+     * 展开布局。
+     * @param animate 是否使用过渡动画；默认为 true。传 false 时立即展开。
+     */
+    fun expand(animate: Boolean = true) {
+        setExpanded(true, animate)
+    }
+
+    /**
+     * 折叠布局。
+     * @param animate 是否使用过渡动画；默认为 true。传 false 时立即折叠。
+     */
+    fun collapse(animate: Boolean = true) {
+        setExpanded(false, animate)
     }
 
     /**
      * 内部动画监听器，负责在动画开始/结束时正确更新 state，
      * 并在动画被取消时跳过终态赋值，防止状态与实际视觉不一致。
      */
-    private inner class ExpansionListener(private val targetExpansion: Int) : Animator.AnimatorListener {
+    private inner class ExpansionListener(private val targetExpansion: Float) : Animator.AnimatorListener {
         private var canceled = false
 
         /**
          * 动画开始时立即更新为过渡态（EXPANDING / COLLAPSING）
          */
         override fun onAnimationStart(animation: Animator) {
-            state = if (targetExpansion == 0) State.COLLAPSING else State.EXPANDING
+            state = if (targetExpansion == 0f) State.COLLAPSING else State.EXPANDING
         }
 
         /**
@@ -402,8 +368,8 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
          */
         override fun onAnimationEnd(animation: Animator) {
             if (!canceled) {
-                state = if (targetExpansion == 0) State.COLLAPSED else State.EXPANDED
-                setExpansion(targetExpansion.toFloat())
+                state = if (targetExpansion == 0f) State.COLLAPSED else State.EXPANDED
+                setExpansion(targetExpansion)
             }
         }
 
