@@ -1,6 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <!-- 伸缩控件 -->
+    <declare-styleable name="ExpandableLayout">
+        <!-- 展开 / 折叠动画的执行时长（单位：毫秒，ms） -->
+        <attr name="el_duration" format="integer" />
+        <!-- 在布局加载完成后的初始状态（true:完全展开 / false:完全折叠） -->
+        <attr name="el_expanded" format="boolean" />
+        <!-- 展开 / 折叠动画的视差效果强度 (取值范围：0~1)-->
+        <attr name="el_parallax" format="float" />
+        <!-- 复用系统属性 (horizontal:水平方向展开 / 折叠 vertical:垂直方向展开 / 折叠) -->
+        <attr name="android:orientation" />
+    </declare-styleable>
+
     <!-- 自定义EmptyLayout -->
     <declare-styleable name="EmptyLayout">
         <attr name="elEnableFullScreen" format="boolean" />
