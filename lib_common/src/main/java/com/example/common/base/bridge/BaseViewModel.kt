@@ -156,7 +156,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
             // 传入 BaseTitleActivity 中写好的容器 viewGroup
             is FrameLayout -> {
                 tempEmpty = view.getEmptyLayout(1)
-                tempEmpty?.setWindows(true)
+                tempEmpty?.setFullScreenOffset(true)
             }
             // 界面上绘制好empty
             is EmptyLayout -> {

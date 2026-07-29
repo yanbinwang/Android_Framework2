@@ -165,6 +165,12 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置整体布局大小
      */
     fun setRootSize(width: Int? = null, height: Int? = null) {
+        val lp = root.layoutParams
+        val targetWidth = width ?: MATCH_PARENT
+        val targetHeight = height ?: MATCH_PARENT
+        val widthChanged = lp.width != targetWidth
+        val heightChanged = lp.height != targetHeight
+        if (!widthChanged && !heightChanged) return
         root.size(resolveSize(width), resolveSize(height))
     }
 
