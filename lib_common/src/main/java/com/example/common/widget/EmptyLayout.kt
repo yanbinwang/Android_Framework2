@@ -81,12 +81,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }
                 ivLeft.margin(start = 5.pt)
             }
-            // 部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
-            val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
-            setWindows(windows)
             // 默认是否传递点击
             val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
             isClickable = clickable
+            // 部分情况下，头部的高度会被 AppToolbar 绘制，整体如果是在下方容器添加时，居中就还会被拉下去一块，故而减去这块
+            val immersiveCompensation = getBoolean(R.styleable.EmptyLayout_elImmersiveCompensation, false)
+            setFullScreenOffset(immersiveCompensation)
         }
         // 绘制大小撑到最大/默认背景
         binding.root.size(MATCH_PARENT, MATCH_PARENT)
@@ -216,10 +216,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 设置是否是窗口
+     * 窗口模式下，EmptyLayout 需覆盖整个页面（含沉浸式标题栏）。
+     * 内容区需上移以抵消「状态栏 + 设计稿标准Toolbar高度(44pt)」的偏移，
+     * 使空状态图标在可视区域内垂直居中。
      */
-    fun setWindows(windows: Boolean) {
-        if (windows) {
+    fun setFullScreenOffset(enable: Boolean) {
+        if (enable) {
             binding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
         }
     }
