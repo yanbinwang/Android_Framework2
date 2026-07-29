@@ -181,11 +181,16 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 应用空状态固定高度
-     * 在 loading()/empty()/error() 展示空状态前调用
-     * 有数据后由 setRootSize() 恢复全屏
+     * 1) 在 loading()/empty()/error() 展示空状态前调用
+     * 2) 有数据后由 setRootSize() 恢复全屏
      */
     fun applyFixedHeight(width: Int? = null) {
         if (!canApplyFixedHeight()) return
+        // 仅在宽高真正变化时才重新设置，避免 WindowInsets 重复分发时触发无意义的 requestLayout
+        val lp = root.layoutParams
+        val widthChanged = width != null && lp.width != width
+        val heightChanged = lp.height != configuredFixedHeight
+        if (!widthChanged && !heightChanged) return
         root.size(width, configuredFixedHeight)
     }
 
