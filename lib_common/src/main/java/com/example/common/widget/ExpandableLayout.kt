@@ -33,8 +33,8 @@ import kotlin.math.roundToInt
  *     <!-- 子内容 -->
  * </ExpandableLayout>
  *
- * expandable.setOnExpansionUpdateListener { fraction, state ->
- *     if (state == State.EXPANDED || state == State.COLLAPSED) {
+ * expandable.setOnExpansionChangeListener { fraction, state ->
+ *     if (state == State.EXPANDED || state == State.COLLAPSED) { -> isIdle()
  *         homeMoreTv.visibility = if (state == State.EXPANDED) View.GONE else View.VISIBLE
  *     }
  * }
@@ -81,12 +81,10 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     init {
         context.withStyledAttributes(attrs, R.styleable.ExpandableLayout) {
             duration = getInt(R.styleable.ExpandableLayout_elDuration, DURATION).toLong()
-            parallax = getFloat(R.styleable.ExpandableLayout_elParallax, 1f)
+            parallax = getFloat(R.styleable.ExpandableLayout_elParallax, 1f).coerceIn(0f, 1f)
             expansion = if (getBoolean(R.styleable.ExpandableLayout_elExpanded, false)) 1f else 0f
             orientation = getInt(R.styleable.ExpandableLayout_android_orientation, VERTICAL)
         }
-        setDuration(duration)
-        setParallax(parallax)
         state = if (expansion == 0f) State.COLLAPSED else State.EXPANDED
     }
 
@@ -97,7 +95,7 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     override fun onSaveInstanceState(): Parcelable {
         val superState = super.onSaveInstanceState()
         val bundle = Bundle()
-        // 纯只读快照，不影响 onMeasure / animateSize / setExpansion
+        // 动画进行中旋转屏幕 → 恢复为完全展开，纯只读快照，不影响 onMeasure / animateExpansionTo / applyExpansion
         bundle.putFloat(KEY_EXPANSION, if (isExpanded()) 1f else 0f)
         bundle.putParcelable(KEY_SUPER_STATE, superState)
         return bundle
@@ -208,7 +206,10 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * @param parallax 视差系数，0 表示子 View 跟随容器同步移动，1 表示最大视差偏移。
      */
     fun setParallax(parallax: Float) {
-        this.parallax = parallax.coerceIn(0f, 1f)
+        val clamped = parallax.coerceIn(0f, 1f)
+        if (this.parallax == clamped) return
+        this.parallax = clamped
+        requestLayout()
     }
 
     /**
@@ -226,14 +227,12 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * @param animate 是否使用过渡动画；默认为 true。传 false 时立即生效，不触发中间回调。
      */
     fun setExpanded(expand: Boolean, animate: Boolean = true) {
-        if (expand == isExpanded()) {
-            return
-        }
+        if (expand == isExpanded()) return
         val targetExpansion = if (expand) 1f else 0f
         if (animate) {
-            animateSize(targetExpansion)
+            animateExpansionTo(targetExpansion)
         } else {
-            setExpansion(targetExpansion)
+            applyExpansion(targetExpansion)
         }
     }
 
@@ -242,15 +241,45 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * 每次调用都会取消上一次未完成的动画，保证不会出现多个动画叠加。
      * @param targetExpansion 目标展开比例，有效范围 [0f, 1f]。
      */
-    fun animateSize(targetExpansion: Float) {
+    private fun animateExpansionTo(targetExpansion: Float) {
         animator?.cancel()
         animator = ValueAnimator.ofFloat(expansion, targetExpansion)
         animator?.interpolator = interpolator
         animator?.setDuration(duration)
         animator?.addUpdateListener { valueAnimator ->
-            setExpansion(valueAnimator.getAnimatedValue() as Float)
+            applyExpansion(valueAnimator.getAnimatedValue() as Float)
         }
-        animator?.addListener(ExpansionListener(targetExpansion))
+        animator?.addListener(object : Animator.AnimatorListener {
+            private var canceled = false
+
+            /**
+             * 动画开始时立即更新为过渡态（EXPANDING / COLLAPSING）
+             */
+            override fun onAnimationStart(animation: Animator) {
+                state = if (targetExpansion == 0f) State.COLLAPSING else State.EXPANDING
+            }
+
+            /**
+             * 动画正常结束时，强制将 state 和 expansion 设为目标终态，消除浮点精度误差
+             */
+            override fun onAnimationEnd(animation: Animator) {
+                if (!canceled) {
+                    state = if (targetExpansion == 0f) State.COLLAPSED else State.EXPANDED
+                    applyExpansion(targetExpansion)
+                }
+            }
+
+            /**
+             * 动画被取消时标记，阻止 onAnimationEnd 中的终态赋值
+             * onAnimationCancel 之后仍然会调用 onAnimationEnd
+             */
+            override fun onAnimationCancel(animation: Animator) {
+                canceled = true
+            }
+
+            override fun onAnimationRepeat(animation: Animator) {
+            }
+        })
         animator?.start()
     }
 
@@ -260,10 +289,8 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      * 并通过 requestLayout() 触发重新测量以反映新的尺寸。
      * @param expansion 目标展开比例，有效范围 [0f, 1f]。
      */
-    fun setExpansion(expansion: Float) {
-        if (this.expansion == expansion) {
-            return
-        }
+    private fun applyExpansion(expansion: Float) {
+        if (this.expansion == expansion) return
         val delta = expansion - this.expansion
         state = when {
             expansion == 0f -> State.COLLAPSED
@@ -294,7 +321,9 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      */
     fun setOrientation(@OrientationMode orientation: Int) {
         require(orientation in 0..1) { "Orientation must be either 0 (horizontal) or 1 (vertical)" }
+        if (this.orientation == orientation) return
         this.orientation = orientation
+        requestLayout()
     }
 
     /**
@@ -306,17 +335,6 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
-     * 注册展开进度监听器。
-     * 动画过程中每帧都会回调，可用于联动其他 UI 元素（如箭头旋转、透明度渐变等）。
-     * @param listener 监听器实例，传 null 可移除监听。
-     * @param expansionFraction 当前展开比例 [0f, 1f]。
-     * @param state 当前状态。
-     */
-    fun setOnExpansionUpdateListener(listener: ((expansionFraction: Float, state: State) -> Unit)) {
-        this.listener = listener
-    }
-
-    /**
      * 判断当前是否处于“展开”语义下。
      * 注意：EXPANDING（动画进行中）也返回 true，适用于按钮文案切换等场景；
      * 若需精确判断终态，请使用 [getState] 并与 [State.EXPANDED] 比较。
@@ -324,6 +342,14 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
      */
     fun isExpanded(): Boolean {
         return state == State.EXPANDING || state == State.EXPANDED
+    }
+
+    /**
+     * 是否处于稳定终态（完全展开或完全折叠）。
+     * 与 [isExpanded] 的区别：不包含动画进行中的过渡态。
+     */
+    fun isIdle(): Boolean {
+        return state == State.EXPANDED || state == State.COLLAPSED
     }
 
     /**
@@ -351,38 +377,14 @@ class ExpandableLayout @JvmOverloads constructor(context: Context, attrs: Attrib
     }
 
     /**
-     * 内部动画监听器，负责在动画开始/结束时正确更新 state，
-     * 并在动画被取消时跳过终态赋值，防止状态与实际视觉不一致。
+     * 注册展开进度监听器。
+     * 动画过程中每帧都会回调，可用于联动其他 UI 元素（如箭头旋转、透明度渐变等）。
+     * @param listener 监听器实例，传 null 可移除监听。
+     * @param expansionFraction 当前展开比例 [0f, 1f]。
+     * @param state 当前状态。
      */
-    private inner class ExpansionListener(private val targetExpansion: Float) : Animator.AnimatorListener {
-        private var canceled = false
-
-        /**
-         * 动画开始时立即更新为过渡态（EXPANDING / COLLAPSING）
-         */
-        override fun onAnimationStart(animation: Animator) {
-            state = if (targetExpansion == 0f) State.COLLAPSING else State.EXPANDING
-        }
-
-        /**
-         * 动画正常结束时，强制将 state 和 expansion 设为目标终态，消除浮点精度误差
-         */
-        override fun onAnimationEnd(animation: Animator) {
-            if (!canceled) {
-                state = if (targetExpansion == 0f) State.COLLAPSED else State.EXPANDED
-                setExpansion(targetExpansion)
-            }
-        }
-
-        /**
-         * 动画被取消时标记，阻止 onAnimationEnd 中的终态赋值
-         */
-        override fun onAnimationCancel(animation: Animator) {
-            canceled = true
-        }
-
-        override fun onAnimationRepeat(animation: Animator) {
-        }
+    fun setOnExpansionChangeListener(listener: ((expansionFraction: Float, state: State) -> Unit)) {
+        this.listener = listener
     }
 
 }
