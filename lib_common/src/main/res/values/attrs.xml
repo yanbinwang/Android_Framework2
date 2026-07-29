@@ -16,8 +16,8 @@
     <!-- 自定义EmptyLayout -->
     <declare-styleable name="EmptyLayout">
         <attr name="elEnableFullScreen" format="boolean" />
-        <attr name="elEnableWindow" format="boolean" />
         <attr name="elEnableClickable" format="boolean" />
+        <attr name="elImmersiveCompensation" format="boolean" />
     </declare-styleable>
 
     <!-- 自定义XRecyclerView -->
