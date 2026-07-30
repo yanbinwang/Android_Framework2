@@ -10,9 +10,10 @@ import java.util.concurrent.CopyOnWriteArrayList
 
 /**
  * WebSocket生命周期管理，适用于多个界面多个wss订阅
- * 1) 写在BaseActivity中OnCreate -》 WebSocketObserver.addObserver(this)
- * 2) 写的Fragment中，如果是 ViewPager2 没太大问题，如果是 FragmentManager 的话，不建议写
+ * 1) 写在 BaseActivity 中 OnCreate -> WebSocketObserver.addObserver(this)
+ * 2) 写的 Fragment 中，如果是 ViewPager2 没太大问题，如果是 FragmentManager 的话，不建议写
  * 3) 全局唯一观察者绑定所有页面生命周期，存在解绑失败、监听残留导致页面无法 GC 的玄学场景 必须 WeakReference 包装 LifecycleOwner
+ * 4) CopyOnWriteArrayList 每个 api 基本都带锁，不适用于高并发场景，需额外注意
  */
 object WebSocketObserver : LifecycleEventObserver {
     // 用于存储页面生命周期的集合
@@ -34,6 +35,12 @@ object WebSocketObserver : LifecycleEventObserver {
         if (!owner.isSocketObserver) return
         if (ownerList.any { it.get() === owner }) return
         ownerList.add(WeakReference(owner))
+        /**
+         * addIfAbsent 保证原子性添加 -> WeakReference 本身 equals 失效,此处直接使用 add
+         * 添加一个新值 , 前提是它不在这个集合里
+         * 返回 true = “之前不在，加上”
+         * 返回 false = “已经在里面，没动”
+         */
 //        ownerList.addIfAbsent(WeakReference(owner))
         owner.lifecycle.addObserver(this)
         ownerList.removeAll { it.get() == null }
