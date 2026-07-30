@@ -178,6 +178,7 @@ class OssFactory private constructor() : CoroutineScope {
                 ossImplList.remove(weakImpl)
             }
 //        }
+        ossImplList.removeAll { it.get() == null }
     }
 
     /**
