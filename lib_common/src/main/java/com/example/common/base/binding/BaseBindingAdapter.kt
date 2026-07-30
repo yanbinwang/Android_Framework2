@@ -161,6 +161,7 @@ object BaseBindingAdapter {
      * 特殊文本显示文本
      * @text:文本文案 -> "普通文本"
      * @spannable:高亮文本文案 -> TextSpan().add("高亮文本", ColorSpan(color(R.color.bgMain))).build()
+     * @isSpannableReplace:是否强替换 -> 默认 false 以两次 spannable.toString() 做对比, true 就强替换
      * @textColor:文本颜色 -> "文本颜色(@ColorRes):${R.color.bgBlack}"
      * @background:view背景 -> "背景:${R.drawable.shape_r20_grey}"
      * @visibility:view可见性 -> "可见性:${View.VISIBLE}"
@@ -170,8 +171,8 @@ object BaseBindingAdapter {
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingCompound(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+    @BindingAdapter(value = ["text", "spannable", "isSpannableReplace", "textColor", "background", "visibility"], requireAll = false)
+    fun bindingCompound(view: View, text: String?, spannable: Spannable?, isSpannableReplace: Boolean?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         if (view is TextView) {
             // 处理文本设置
             text?.let { newText ->
@@ -186,7 +187,12 @@ object BaseBindingAdapter {
             spannable?.let { newSpannable ->
                 val spannableKey = R.id.theme_spannable_tag
                 val oldSpannable = view.getTag(spannableKey) as? Spannable
-                if (oldSpannable != newSpannable) {
+                /**
+                 * Spannable 本身没有重写 equals 此处 toString() 只做字符串内容比较
+                 * 默认走 toString() 轻量比较，isSpannableReplace 为 true 时跳过比较强制赋值
+                 */
+                val shouldUpdate = isSpannableReplace.orFalse || oldSpannable?.toString() != newSpannable.toString()
+                if (shouldUpdate) {
                     view.setSpannable(newSpannable)
                     view.setTag(spannableKey, newSpannable)
                 }
@@ -312,7 +318,7 @@ object BaseBindingAdapter {
             applyDrawableBoundsAndTint(drawables, drawableTintColor, drawableWidth, drawableHeight)
             // 设置 TextView 的 CompoundDrawables
             view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
-//        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
+//            view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 间距
             drawablePadding?.let { view.compoundDrawablePadding = it.pt }
         }
