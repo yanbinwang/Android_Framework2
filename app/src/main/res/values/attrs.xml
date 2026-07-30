@@ -51,8 +51,8 @@
         <attr name="boxWidth" format="dimension" />
         <attr name="boxHeight" format="dimension" />
         <!-- 背景 -->
-        <attr name="boxBgNormal" format="reference" />
-        <attr name="boxBgFocus" format="reference" />
+        <attr name="boxBackgroundNormal" format="reference" />
+        <attr name="boxBackgroundFocused" format="reference" />
     </declare-styleable>
 
 </resources>
