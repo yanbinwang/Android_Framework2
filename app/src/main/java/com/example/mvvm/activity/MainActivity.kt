@@ -433,6 +433,11 @@ println(myClass.myProperty)
  * state.updateAndGet { old ->
  *     old.copy(isLoading = true)
  * }
+ *
+ * 变量级	AtomicBoolean / AtomicLong / AtomicReference<data class>	标志位、计数器、不可变状态整体替换
+ * 容器级	ConcurrentHashMap	高频 KV 存取、单步原子语义
+ * 复合操作级	ArrayList + synchronized	多步业务逻辑（去重+插入+截断）
+ * 特例	CopyOnWriteArrayList	读远多于写的全局监听器列表
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
