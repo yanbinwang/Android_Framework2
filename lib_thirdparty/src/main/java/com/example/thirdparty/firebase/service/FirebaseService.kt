@@ -27,15 +27,15 @@ class FirebaseService : FirebaseMessagingService() {
 //        }
 //    }
 
-    override fun onCreate() {
-        super.onCreate()
-        serviceStateMap[this::class.java] = true
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        serviceStateMap.remove(this::class.java)
-    }
+//    override fun onCreate() {
+//        super.onCreate()
+//        serviceStateMap[this::class.java] = true
+//    }
+//
+//    override fun onDestroy() {
+//        super.onDestroy()
+//        serviceStateMap.remove(this::class.java)
+//    }
 
     /**
      * 虽然标记 @Deprecated，但这仍是接收 FCM 推送 Token 运行时轮换的唯一回调。
