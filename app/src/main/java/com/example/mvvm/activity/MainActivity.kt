@@ -420,6 +420,19 @@ println(myClass.myProperty)
  *
  * ConcurrentHashMap
  * putIfAbsent(key, value)	“如果这个 key 不存在（expect=null），就放入 value（成功） 如果已经有值了，就不动，把现有的值返还（失败）”
+ *
+ * AtomicReference
+ * data class UiState(
+ *     val isLoading: Boolean,
+ *     val items: List<String>,
+ *     val error: String? = null
+ * )
+ * // 整体替换，天然原子
+ * val state = AtomicReference(UiState(false, emptyList()))
+ * // 更新时创建新实例，旧实例不被修改
+ * state.updateAndGet { old ->
+ *     old.copy(isLoading = true)
+ * }
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
