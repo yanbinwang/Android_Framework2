@@ -171,6 +171,7 @@ list.add(1) // 写操作复制数组
 for (num in list) { // 读操作无需加锁
 println(num)
 }
+
 2. 线程安全的 Map
 ConcurrentHashMap
 特点：分段锁机制，高并发性能，支持原子操作（如 putIfAbsent）。
@@ -180,6 +181,7 @@ import java.util.concurrent.ConcurrentHashMap
 val map = ConcurrentHashMap<String, Int>()
 map.put("key", 1) // 原子插入
 val value = map.getOrDefault("key", 0) // 原子读取
+
 3. 线程安全的 Queue
 ConcurrentLinkedQueue
 特点：基于链表的实现，无锁算法，适合高并发场景。
@@ -191,34 +193,32 @@ import java.util.concurrent.ArrayBlockingQueue
 val queue = ArrayBlockingQueue<Int>(10)
 queue.put(1) // 阻塞插入
 val num = queue.take() // 阻塞取出
+
 4. 线程安全的 Set
 ConcurrentHashMap.newKeySet()
 特点：基于 ConcurrentHashMap 实现的无序集合，支持高并发操作。
 CopyOnWriteArraySet
 特点：写操作复制数组，读操作无锁，适用于读多写少场景。
 
+二、基于 Kotlin 并发包
 方法一：基于用户对象的唯一性（完全相等）
 假设 User 类已正确重写 equals() 和 hashCode() 方法：
-
-kotlin
 data class User(val id: Int, val name: String) {
-override fun equals(other: Any?): Boolean {
-if (this === other) return true
-if (other is User) return id == other.id && name == other.name
-return false
-}
+ override fun equals(other: Any?): Boolean {
+  if (this === other) return true
+  if (other is User) return id == other.id && name == other.name
+  return false
+ }
 
-override fun hashCode(): Int {
-return Objects.hash(id, name)
-}
+ override fun hashCode(): Int {
+  return Objects.hash(id, name)
+ }
 }
 
 val list = listOf(User(1, "Alice"), User(2, "Bob"))
 val list2 = listOf(User(2, "Bob"), User(3, "Charlie"))
-
 // 1. 生成重复集合（在两个列表中都存在的用户）
 val repeated = list.toSet().intersection(list2.toSet())
-
 // 2. 生成不重复集合（只存在于一个列表中的用户）
 val allUsers = list.toSet().union(list2.toSet())
 val unique = allUsers.subtract(repeated)
@@ -226,19 +226,16 @@ val unique = allUsers.subtract(repeated)
 // 结果
 println("Repeated users: $repeated") // [User(id=2, name=Bob)]
 println("Unique users: $unique")     // [User(id=1, name=Alice), User(id=3, name=Charlie)]
+
 方法二：基于用户 ID 判断重复（推荐）
 如果 User 类的唯一标识是 id，可以提取 id 进行比较：
-
-kotlin
 data class User(val id: Int, val name: String)
 
 val list = listOf(User(1, "Alice"), User(2, "Bob"))
 val list2 = listOf(User(2, "Bob"), User(3, "Charlie"))
-
 // 1. 提取 ID 并生成重复集合
 val repeatedIds = list.map { it.id }.toSet().intersection(list2.map { it.id }.toSet())
 val repeatedUsers = list.filter { it.id in repeatedIds }.toSet()
-
 // 2. 生成不重复集合
 val uniqueUsers = list.filter { it.id not in repeatedIds }
 .plus(list2.filter { it.id not in repeatedIds })
@@ -247,21 +244,19 @@ val uniqueUsers = list.filter { it.id not in repeatedIds }
 // 结果
 println("Repeated users: $repeatedUsers") // [User(id=2, name=Bob)]
 println("Unique users: $uniqueUsers")     // [User(id=1, name=Alice), User(id=3, name=Charlie)]
+
 关键说明
 重复集合：使用集合的交集操作找出同时在两个列表中的用户。
 不重复集合：通过并集减去交集得到仅存在于一个列表中的用户。
 性能优化：转换为集合 (toSet()) 后操作时间复杂度更低（接近 O(1)）。
 最终代码
-kotlin
 data class User(val id: Int, val name: String)
 
 val list = listOf(User(1, "Alice"), User(2, "Bob"))
 val list2 = listOf(User(2, "Bob"), User(3, "Charlie"))
-
 // 方法一：基于对象相等性
 val repeated1 = list.toSet().intersection(list2.toSet())
 val unique1 = list.toSet().union(list2.toSet()).subtract(repeated1)
-
 // 方法二：基于 ID 判断
 val repeated2 = list.filter { it.id in list2.map { it.id }.toSet() }.toSet()
 val unique2 = (list + list2)
@@ -275,8 +270,8 @@ println("Unique users (method 1): $unique1")
 println("Repeated users (method 2): $repeated2")
 println("Unique users (method 2): $unique2")
 
-//关于Lifecycle和LifecycleOwner
-其中LifecycleOwner是Activity/Fragment所实现的生命周期管理，从中可以get到Lifecycle，而Lifecycle则可以获取到对应的生命周期回调
+关于 Lifecycle 和 LifecycleOwner
+其中 LifecycleOwner 是 Activity/Fragment 所实现的生命周期管理，从中可以 get 到 Lifecycle，而 Lifecycle 则可以获取到对应的生命周期回调
 在一些对上下文窗体不是很敏感的工具类里，可以用Lifecycle而非LifecycleOwner
 
 类委托
