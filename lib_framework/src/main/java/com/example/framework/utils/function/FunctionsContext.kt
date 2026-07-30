@@ -12,11 +12,13 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
+import android.os.IBinder
 import android.os.Parcelable
 import android.provider.Settings
 import android.text.TextUtils
@@ -41,10 +43,9 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleService
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toNewList
-import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.function.value.writeBundle
 import java.io.Serializable
-import java.util.WeakHashMap
+import java.util.concurrent.ConcurrentHashMap
 
 
 //------------------------------------context扩展函数类------------------------------------
@@ -245,6 +246,14 @@ fun Context.startService(cls: Class<out Service>, vararg pairs: Pair<String, Any
 
 fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        /**
+         * override fun onCreate() {
+         *     super.onCreate()
+         *     // 仅当通过 startForegroundService 启动时才需要！5秒内必须调用
+         *     // 如果只是被 bindService 绑定，这行完全不需要
+         *     startForeground(NOTIFICATION_ID, notification)
+         * }
+         */
         startForegroundService(getIntent(cls, *pairs))
     } else {
         startService(getIntent(cls, *pairs))
@@ -253,26 +262,96 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
 
 /**
  * 停止服务
+ * 1) stopSelf() — 服务自己停自己
+ * 2) stopService(Intent) — 别人来停服务
  */
-fun Context.stopService(cls: Class<out Service>) {
-    stopService(getIntent(cls))
+fun Context.stopService(cls: Class<out Service>): Boolean {
+    return stopService(getIntent(cls))
+}
+
+/**
+ * 绑定服务的扩展函数（带自动解绑保护）
+ * @param cls 服务类
+ * @param flags 绑定标志，默认 BIND_AUTO_CREATE
+ * @param onConnected 连接成功回调，返回 IBinder
+ * @param onDisconnected 断开连接回调（可选）
+ * @return ServiceConnection 对象，调用方可手动 unbind；若传入 LifecycleOwner 则自动解绑
+ */
+fun Context.bindService(cls: Class<out Service>, flags: Int = Context.BIND_AUTO_CREATE, lifecycleOwner: LifecycleOwner? = null, onConnected: (IBinder) -> Unit = {}, onDisconnected: () -> Unit = {}): ServiceConnection {
+    val connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName, binder: IBinder) {
+            onConnected(binder)
+        }
+
+        override fun onServiceDisconnected(name: ComponentName) {
+            // 仅在异常断开时调用（如服务进程崩溃），正常 unbind 不会触发
+            onDisconnected()
+        }
+    }
+    /**
+     * 日常必用:
+     * BIND_AUTO_CREATE: 服务不存在时自动创建 -> 默认选项，你的扩展函数默认值设这个就对了
+     * BIND_ADJUST_WITH_ACTIVITY: 绑定期间提升服务优先级，防止被系统杀掉 -> 前台 UI 强依赖的服务（如音乐播放、实时定位）
+     * 偶尔用到:
+     * BIND_NOT_FOREGROUND: 不让绑定的服务获得前台优先级 -> 后台同步、数据预加载等不重要的服务
+     * BIND_ABOVE_CLIENT: 服务优先级高于客户端 -> 客户端是后台任务，但服务需要更高存活率
+     * BIND_ALLOW_OOM_MANAGEMENT: 允许系统在内存紧张时杀掉该服务 -> 可恢复的非关键服务（如缓存预热）
+     * 几乎不用:
+     * BIND_WAIVE_PRIORITY: 绑定不影响服务优先级（极少用）
+     * BIND_IMPORTANT: 将服务视为重要进程（API 23+，已被 ADJUST_WITH_ACTIVITY 替代）
+     * BIND_EXTERNAL_SERVICE: 绑定外部应用的服务（跨应用 IPC 专用）
+     * BIND_INCLUDE_CAPABILITIES: 传递客户端权限给服务（安全敏感场景）
+     */
+    bindService(Intent(this, cls), connection, flags)
+    // 如果提供了 LifecycleOwner，自动在 onDestroy 时解绑，防止泄漏
+    lifecycleOwner.doOnDestroy {
+        unbindServiceOrIgnore(connection)
+    }
+    return connection
+}
+
+/**
+ * 停止服务
+ */
+fun Context.unbindServiceOrIgnore(connection: ServiceConnection) {
+    try {
+        unbindService(connection)
+    } catch (_: IllegalArgumentException) {
+        // 已经解绑或未成功绑定，忽略
+    }
 }
 
 /**
  * 检测服务是否正在运行
+ * WeakHashMap 的 key 是弱引用。当 Class 对象没有被强引用持有时，GC 回收后对应的 entry 会被自动清除。这意味着：
+ * 1) 服务明明还在运行，但 isServiceRunning() 返回 false
+ * 2) 行为不可预测，取决于 GC 时机
  */
-val serviceStateMap by lazy { WeakHashMap<Class<*>, Boolean>() } // 服务状态跟踪器（使用 WeakHashMap 避免内存泄漏）
+val serviceStateMap by lazy { ConcurrentHashMap<Class<*>, Boolean>() } // 服务状态跟踪器
 
 fun Context.isServiceRunning(serviceClass: Class<*>): Boolean {
-    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
     // 检查自维护的服务状态
     val isServiceMarkedRunning = serviceStateMap[serviceClass] ?: false
-    // 检查应用进程是否存活（避免进程被杀后状态未更新）
-    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
-        processInfo.uid == applicationInfo.uid &&
-                processInfo.processName == packageName &&
-                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+    // 获取页面管理器用于查询进程信息
+    val activityManager = getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
+//    // 检查应用进程是否存活（避免进程被杀后状态未更新）
+//    val isProcessAlive = activityManager?.runningAppProcesses?.any { processInfo ->
+//        processInfo.uid == applicationInfo.uid &&
+//                processInfo.processName == packageName &&
+//                processInfo.importance <= ActivityManager.RunningAppProcessInfo.IMPORTANCE_VISIBLE
+//    } ?: false
+    /**
+     *  检查应用主进程是否存活作为兜底校验：防止进程被系统强杀后 onDestroy 未执行导致 map 中残留脏数据
+     *  不限制 importance 级别，因为后台服务的进程重要性可能低于 IMPORTANCE_VISIBLE
+     */
+    val isProcessAlive = activityManager?.runningAppProcesses?.any {
+        it.uid == applicationInfo.uid && it.processName == packageName
     } ?: false
+    // 进程已死亡但 map 中仍有残留状态 → 主动清理，避免后续误判
+    if (!isProcessAlive) {
+        serviceStateMap.remove(serviceClass)
+    }
+    // 双重确认：自维护状态为 true 且进程确实存活，才判定服务正在运行
     return isServiceMarkedRunning && isProcessAlive
 }
 
@@ -287,7 +366,6 @@ abstract class TrackableLifecycleService : LifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-//        serviceStateMap[this::class.java] = false
         serviceStateMap.remove(this::class.java)
     }
 }
