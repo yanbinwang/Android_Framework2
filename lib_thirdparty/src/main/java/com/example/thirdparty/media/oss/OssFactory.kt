@@ -166,17 +166,18 @@ class OssFactory private constructor() : CoroutineScope {
     fun bind(owner: LifecycleOwner, impl: OssImpl) {
         if (ossImplList.any { it.get() === impl }) return
         val weakImpl = WeakReference(impl)
+        ossImplList.add(weakImpl)
         /**
          * addIfAbsent 保证原子性添加
          * 我要添加一个新值 , 前提是它不在这个集合里
          * 返回 true = “之前不在，加上”
          * 返回 false = “已经在里面，没动”
          */
-        if (ossImplList.addIfAbsent(weakImpl)) {
+//        if (ossImplList.addIfAbsent(weakImpl)) {
             owner.doOnDestroy {
                 ossImplList.remove(weakImpl)
             }
-        }
+//        }
     }
 
     /**

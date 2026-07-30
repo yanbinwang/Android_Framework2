@@ -33,7 +33,8 @@ object WebSocketObserver : LifecycleEventObserver {
     private fun add(owner: LifecycleOwner) {
         if (!owner.isSocketObserver) return
         if (ownerList.any { it.get() === owner }) return
-        ownerList.addIfAbsent(WeakReference(owner))
+        ownerList.add(WeakReference(owner))
+//        ownerList.addIfAbsent(WeakReference(owner))
         owner.lifecycle.addObserver(this)
         ownerList.removeAll { it.get() == null }
     }
