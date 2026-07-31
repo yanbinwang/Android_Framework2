@@ -96,17 +96,21 @@ import java.util.concurrent.atomic.AtomicInteger
 object NotificationUtil {
     // 通知栏管理
     private var notificationManager: NotificationManager? = null
-    // 切主线程-》使用 SupervisorJob允许子协程独立失败，不会因某个通知发送失败而取消整个作用域，若无需处理子协程异常，也可直接使用 CoroutineScope(Main)（默认使用 Job()，但 SupervisorJob 更安全
+    // 切主线程-》使用 SupervisorJob 允许子协程独立失败，不会因某个通知发送失败而取消整个作用域，若无需处理子协程异常，也可直接使用 CoroutineScope(Main)（默认使用 Job()，但 SupervisorJob 更安全
     private val notificationScope by lazy { CoroutineScope(SupervisorJob() + Main.immediate) }
     // 线程安全的 ID 生成（初始值 100，每次自增）
     private val notificationIdCounter by lazy { AtomicInteger(100) }
     private val requestCodeCounter by lazy { AtomicInteger(100) }
-    // 获取ID
+    /**
+     * 获取 ID
+     * 1) 短生命周期录屏服务（随页面开关）/普通推送通知 -> 自增 ID
+     * 2) 常驻前台服务 -> 固定 ID（<100）)
+     */
     val notificationId get() = notificationIdCounter.getAndIncrement()
     val requestCode get() = requestCodeCounter.getAndIncrement()
 
     /**
-     * BaseApplication中初始化
+     * BaseApplication 中初始化
      */
     fun init(applicationContext: Context) {
         notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
@@ -119,7 +123,12 @@ object NotificationUtil {
     }
 
     /**
-     * 避免重复创建渠道（Android 官方推荐）
+     * 避免重复创建渠道
+     * @param channelId 必须唯一，系统以此作为渠道的主键，相同 ID = 同一个渠道
+     * @param channelName 仅用于系统设置页面的展示文案，不参与身份识别
+     * val channel = NotificationChannel("my_channel_id", "我的渠道名", NotificationManager.IMPORTANCE_DEFAULT)
+     * val id: String = channel.id  // "my_channel_id"
+     * val name: CharSequence = channel.name // "我的渠道名"
      */
     @RequiresApi(Build.VERSION_CODES.O)
     fun NotificationManager.createNotificationChannelIfNeeded(channel: NotificationChannel) {
