@@ -29,7 +29,10 @@ import com.example.thirdparty.media.utils.DisplayHelper.Companion.isEncoderSuppo
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
+import com.example.thirdparty.utils.NotificationUtil.createNotificationChannelIfNeeded
 import com.example.thirdparty.utils.NotificationUtil.notificationId
+import com.example.thirdparty.utils.NotificationUtil.showSimpleNotification
+import java.util.Locale
 
 /**
  *  Created by wangyanbin
@@ -107,16 +110,18 @@ class DisplayService : TrackableLifecycleService() {
     override fun onCreate() {
         super.onCreate()
         // 创建符合Android 15要求的通知渠道
-        val channelId = string(R.string.notificationChannelId)
-        val channelName = string(R.string.notificationChannelName)
+        val channelId = "${string(R.string.notificationChannelId)}_${this.javaClass.simpleName.lowercase(Locale.getDefault())}"
+//        val channelName = string(R.string.notificationChannelName)
+        val channelName = "屏幕录制状态"
+        val channelDesc = "用于显示屏幕录制运行状态"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 录屏服务建议使用低重要性，避免打扰用户
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
-                description = "用于显示屏幕录制状态"
+                description = channelDesc
                 setSound(null, null) // 关闭通知声音
             }
             val notificationManager = getSystemService(NotificationManager::class.java)
-            notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannelIfNeeded(channel)
         }
         // 构建完整的通知
         val notification = NotificationCompat.Builder(this, channelId)
