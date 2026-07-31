@@ -77,8 +77,10 @@ class RecordingService : TrackableLifecycleService() {
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         // 创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
         wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
-        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
-        wakeLock?.acquire()
+        // 单点控制，关闭引用计数
+        wakeLock?.setReferenceCounted(false)
+        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放 2小时兜底，正常流程会在 onDestroy 主动释放
+        wakeLock?.acquire(2 * 60 * 60 * 1000L)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {

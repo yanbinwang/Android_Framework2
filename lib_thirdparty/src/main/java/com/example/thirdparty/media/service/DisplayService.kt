@@ -138,13 +138,19 @@ class DisplayService : TrackableLifecycleService() {
         } else {
             startForeground(NOTIFY_ID_SCREEN_RECORD, notification)
         }
-        //获取 PowerManager 实例
+        // 获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
-        //创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
+        // 创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
         wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "DisplayService:WakeLock")
-        //获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
-        wakeLock?.acquire()
-        //计时器挂载弹框
+        /**
+         * 在 setReferenceCounted(false) 模式下，每次调用 acquire(timeout) 内部都会先移除上一次的延迟释放消息，再发送一个新的。
+         * 无论上次是忘了 release、还是 release 失败了，只要这次调了 acquire(4h)：旧的超时定时器被取消，新的 4 小时倒计时从这一刻重新开始，锁的状态被刷新为"已持有 + 4小时后自动释放"
+         */
+        // 单点控制，关闭引用计数
+        wakeLock?.setReferenceCounted(false)
+        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放 2小时兜底，正常流程会在 onDestroy 主动释放
+        wakeLock?.acquire(2 * 60 * 60 * 1000L)
+        // 计时器挂载弹框
         timerTick.start()
     }
 
