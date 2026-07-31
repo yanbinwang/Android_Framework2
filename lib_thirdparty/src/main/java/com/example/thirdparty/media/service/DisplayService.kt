@@ -31,7 +31,9 @@ import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_SCREEN_RECORD
 import com.example.thirdparty.utils.NotificationUtil.createNotificationChannelIfNeeded
+import java.lang.ref.WeakReference
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  *  Created by wangyanbin
@@ -94,15 +96,15 @@ class DisplayService : TrackableLifecycleService() {
         /**
          * 是否是关闭页面，由外层传入，以此判断在服务OnDestroy的时候是否需要执行停止
          */
-        var isDestroy = false
+        var isDestroy = AtomicBoolean(false)
 
         /**
          * 回调监听
          */
-        private var listener: OnDisplayListener? = null
+        private var listener: WeakReference<OnDisplayListener>? = null
 
         fun setOnDisplayListener(listener: OnDisplayListener) {
-            this.listener = listener
+            this.listener = WeakReference(listener)
         }
     }
 
@@ -204,12 +206,12 @@ class DisplayService : TrackableLifecycleService() {
             display = projection?.createVirtualDisplay("mediaProjection", currentWidth, currentHeight, screenDensity, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, recorder?.surface, null, null)
             recorder?.start()
             // 仅在 start 成功后触发
-            listener?.onStart(folderPath)
+            listener?.get()?.onStart(folderPath)
         } catch (e: Exception) {
-            isDestroy = true
+            isDestroy.set(true)
             // 确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
             releaseDisplay()
-            listener?.onError(e)
+            listener?.get()?.onError(e)
             stopSelf()
         }
     }
@@ -218,15 +220,15 @@ class DisplayService : TrackableLifecycleService() {
      * 停止录制
      */
     private fun stopRecording() {
-        listener?.onShutter()
+        listener?.get()?.onShutter()
         recorder?.runCatching {
             // 阻塞直到文件写入完成
             stop()
             releaseDisplay()
         }?.onSuccess {
-            listener?.onStop()
+            listener?.get()?.onStop()
         }?.onFailure {
-            listener?.onError(it as? Exception)
+            listener?.get()?.onError(it as? Exception)
         }
     }
 
@@ -256,8 +258,8 @@ class DisplayService : TrackableLifecycleService() {
             }
         }
         wakeLock = null
-        if (isDestroy) {
-            isDestroy = false
+        if (isDestroy.get()) {
+            isDestroy.set(false)
             releaseDisplay()
             folderPath.deleteFile()
         } else {

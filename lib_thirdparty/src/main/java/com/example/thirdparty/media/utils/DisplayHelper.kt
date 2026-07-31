@@ -49,7 +49,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
      */
     private val result = registrar.registerResult {
         if (it.resultCode == RESULT_OK) {
-            DisplayService.isDestroy = false
+            DisplayService.isDestroy.set(false)
             mActivity.startForegroundService(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             mActivity.moveTaskToBack(true)
         } else {
@@ -335,7 +335,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
                 if (mActivity.isServiceRunning(DisplayService::class.java)) {
-                    DisplayService.isDestroy = true
+                    DisplayService.isDestroy.set(true)
                     stopScreen()
                 }
                 result.unregister()
