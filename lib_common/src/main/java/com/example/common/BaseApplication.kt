@@ -32,6 +32,7 @@ import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.framework.utils.function.serviceStateMap
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.DateFormat.resetServiceTime
@@ -93,6 +94,8 @@ abstract class BaseApplication : Application() {
         // 初次赋值
         lastClickTime.set(SystemClock.elapsedRealtime())
         isFirstLaunch.set(true)
+        // 进程重启后，所有服务必然已停止，直接清空
+        serviceStateMap.clear()
         // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
