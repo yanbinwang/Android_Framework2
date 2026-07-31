@@ -327,6 +327,7 @@ fun Context.unbindServiceOrIgnore(connection: ServiceConnection) {
 
 /**
  * 检测服务是否正在运行
+ * ConcurrentHashMap 的 key 是强引用,在 Application 里需要清空
  * WeakHashMap 的 key 是弱引用。当 Class 对象没有被强引用持有时，GC 回收后对应的 entry 会被自动清除。这意味着：
  * 1) 服务明明还在运行，但 isServiceRunning() 返回 false
  * 2) 行为不可预测，取决于 GC 时机
