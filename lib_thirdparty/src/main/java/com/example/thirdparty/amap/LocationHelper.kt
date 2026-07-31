@@ -25,8 +25,8 @@ import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_LOCATION
 import com.example.thirdparty.utils.NotificationUtil.builder
-import com.example.thirdparty.utils.NotificationUtil.notificationId
 
 /**
  *  Created by wangyanbin
@@ -80,8 +80,8 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         }
         // 设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
-        // 启动后台定位，第一个参数为通知栏ID，建议整个APP使用一个
-        locationClient?.enableBackgroundLocation(notificationId, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
+        // 启动后台定位，第一个参数为通知栏 ID，建议整个 APP 使用一个
+        locationClient?.enableBackgroundLocation(NOTIFY_ID_LOCATION, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
     }
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {

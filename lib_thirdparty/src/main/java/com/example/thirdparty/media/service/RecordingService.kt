@@ -15,7 +15,7 @@ import com.example.common.utils.function.deleteFile
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.NotificationUtil.notificationId
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_AUDIO_RECORD
 
 /**
  *  <service
@@ -67,9 +67,9 @@ class RecordingService : TrackableLifecycleService() {
             .build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            startForeground(NOTIFY_ID_AUDIO_RECORD, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         } else {
-            startForeground(notificationId, notification)
+            startForeground(NOTIFY_ID_AUDIO_RECORD, notification)
         }
         // 获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager

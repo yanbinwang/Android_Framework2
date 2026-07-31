@@ -29,9 +29,8 @@ import com.example.thirdparty.media.utils.DisplayHelper.Companion.isEncoderSuppo
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_SCREEN_RECORD
 import com.example.thirdparty.utils.NotificationUtil.createNotificationChannelIfNeeded
-import com.example.thirdparty.utils.NotificationUtil.notificationId
-import com.example.thirdparty.utils.NotificationUtil.showSimpleNotification
 import java.util.Locale
 
 /**
@@ -133,9 +132,9 @@ class DisplayService : TrackableLifecycleService() {
             .build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
+            startForeground(NOTIFY_ID_SCREEN_RECORD, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
         } else {
-            startForeground(notificationId, notification)
+            startForeground(NOTIFY_ID_SCREEN_RECORD, notification)
         }
         //获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager

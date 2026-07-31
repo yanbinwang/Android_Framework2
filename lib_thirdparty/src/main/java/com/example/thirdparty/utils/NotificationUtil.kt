@@ -109,6 +109,14 @@ object NotificationUtil {
      */
     val notificationId get() = notificationIdCounter.getAndIncrement()
     val requestCode get() = requestCodeCounter.getAndIncrement()
+    // 系统日志收集服务
+    const val NOTIFY_ID_SYSTEM_LOG = 1
+    // 高德定位前台服务
+    const val NOTIFY_ID_LOCATION = 2
+    // 录音前台服务
+    const val NOTIFY_ID_AUDIO_RECORD = 3
+    // 录屏前台服务
+    const val NOTIFY_ID_SCREEN_RECORD = 4
 
     /**
      * BaseApplication 中初始化
@@ -250,6 +258,12 @@ object NotificationUtil {
 
     /**
      * 创建通知栏
+     * 如果未来有业务实体的 ID 可能小于 100（比如某些内部测试订单、配置项）
+     * require 的语义是“条件为 true 时通过，为 false 时抛异常”
+     * fun showOrderNotification(orderId: Int, ...) {
+     *     require(orderId >= 1000) { "业务通知ID不应占用系统通知区间" }
+     *     // ...
+     * }
      */
     fun notify(id: Int, notification: Notification?) {
         notification ?: return
