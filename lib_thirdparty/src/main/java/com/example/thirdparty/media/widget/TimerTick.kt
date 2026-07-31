@@ -140,6 +140,7 @@ class TimerTick(mContext: Context, private val observer: LifecycleOwner, isMove:
      */
     fun destroy() {
         timerSecond = 0
+        timer.stopTask(TASK_DISPLAY_TICK_TAG)
         tickDialog.dismiss()
         binding.unbind()
     }
