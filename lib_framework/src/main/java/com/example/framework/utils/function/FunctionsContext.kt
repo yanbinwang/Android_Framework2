@@ -288,6 +288,10 @@ fun Context.bindService(cls: Class<out Service>, flags: Int = Context.BIND_AUTO_
             onDisconnected()
         }
     }
+    val bound = bindService(Intent(this, cls), connection, flags)
+    if (!bound) {
+        throw IllegalStateException("bindService 失败！请检查 ${cls.simpleName} 是否已在 AndroidManifest.xml 中声明")
+    }
     /**
      * 日常必用:
      * BIND_AUTO_CREATE: 服务不存在时自动创建 -> 默认选项，你的扩展函数默认值设这个就对了

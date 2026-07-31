@@ -35,6 +35,7 @@ import com.example.framework.utils.RadiusSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.builder.TimerBuilder
+import com.example.framework.utils.function.bindService
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
@@ -56,6 +57,7 @@ import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.service.MusicService
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.therouter.router.Route
@@ -478,10 +480,29 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
+    private var musicService: MusicService? = null
+
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         "总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
+        // 前台服务 + 绑定 = 同一个 Service 实例，两种身份叠加
+        // Android 的 Service 是单例模型（同一个进程内），无论调用多少次 startService / startForegroundService / bindService，系统都只会创建一个 MusicService 对象。这些操作只是改变了这个唯一实例的"状态标签"
+//        // 启动为前台服务（独立于绑定，负责保活+通知）
+//        val startIntent = Intent(this, MusicService::class.java)
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+//            startForegroundService(startIntent)
+//        } else {
+//            startService(startIntent)
+//        }
+        bindService(MusicService::class.java, lifecycleOwner = this, onConnected = { binder ->
+            val mBinder = binder as? MusicService.MusicBinder
+            mBinder?.play("https://example.com/song.mp3")
+            musicService = mBinder?.getService()
+        }, onDisconnected = {
+            musicService = null
+            "断开连接".logWTF("wyb")
+        })
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 

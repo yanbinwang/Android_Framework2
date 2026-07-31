@@ -321,6 +321,13 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone|mediaPlayback" />
+        <!-- 音频播放 -->
+        <service
+            android:name=".service.MusicService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
