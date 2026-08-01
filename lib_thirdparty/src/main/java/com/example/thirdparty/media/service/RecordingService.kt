@@ -17,6 +17,7 @@ import com.example.framework.utils.function.string
 import com.example.thirdparty.R
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_AUDIO_RECORD
 import java.lang.ref.WeakReference
+import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -48,12 +49,14 @@ class RecordingService : TrackableLifecycleService() {
     override fun onCreate() {
         super.onCreate()
         // 创建符合Android 15要求的通知渠道
-        val channelId = string(R.string.notificationChannelId)
-        val channelName = string(R.string.notificationChannelName)
+        val channelId = "${string(R.string.notificationChannelId)}_${this.javaClass.simpleName.lowercase(Locale.getDefault())}"
+//        val channelName = string(R.string.notificationChannelName)
+        val channelName = "音频录制状态"
+        val channelDesc = "用于显示音频录制状态"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 录屏服务建议使用低重要性，避免打扰用户
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
-                description = "用于显示音频录制状态"
+                description = channelDesc
                 setSound(null, null) // 关闭通知声音
             }
             val notificationManager = getSystemService(NotificationManager::class.java)
