@@ -18,6 +18,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import androidx.fragment.app.FragmentActivity
+import com.example.common.BaseApplication
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.suspendingDownloadPic
@@ -166,6 +167,7 @@ object NotificationUtil {
      * @param argb 通知栏颜色资源 ID，默认为 R.color.textWhite
      * @param autoCancel 点击通知后是否自动取消，默认为 true
      * @param sound 通知栏声音 Uri，默认为系统默认通知声音
+     * @param silent 是否静音，默认 false（有声） 此参数仅控制单次通知的声音，不影响通知渠道的默认声音设置
      * @param pendingIntent 点击通知后的跳转意图，默认为 null
      * @return 通知栏构建器实例
      */
@@ -177,6 +179,7 @@ object NotificationUtil {
         argb: Int = R.color.textWhite,
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
+        silent: Boolean = false,
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, i18String(R.string.notificationChannelId))
@@ -189,6 +192,7 @@ object NotificationUtil {
             .setColor(color(argb))
             .setAutoCancel(autoCancel)
             .setSound(sound)
+            .setSilent(silent)
             // 不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处 currentTimeStamp 做一个大致修正
             .setWhen(currentTimeStamp)
         if (null != pendingIntent) {
@@ -217,36 +221,35 @@ object NotificationUtil {
         val notificationBuilder = builder(title = title, text = text, pendingIntent = pendingIntent)
         if (!imageUrl.isNullOrEmpty()) {
             // 防止 Context 泄漏
-            val context = WeakReference(this).get() ?: return
+            val context = WeakReference(this).get() ?: BaseApplication.instance.applicationContext
             var bitmap: Bitmap? = null
-            var largeIcon: Bitmap? = null
-            var bigPicture: Bitmap? = null
-            var bigLargeIcon: Bitmap? = null
             flow<Unit> {
                 // 5秒超时，根据实际图片大小调整
                 bitmap = withTimeoutOrNull(5000L) {
                     BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) })
                 } ?: throw RuntimeException("图片下载超时或失败")
                 /**
-                 * setLargeIcon()	折叠状态下的左侧图标	64dp × 64dp	系统自动裁剪为圆形，建议提供正方形图片
-                 * bigPicture()	展开状态下的大图区域	256dp × 256dp	建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
-                 * bigLargeIcon()	展开状态下替代 setLargeIcon() 的图标	128dp × 128dp	可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
+                 * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
+                 * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
+                 * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
+                 * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
                  */
-                largeIcon = bitmap.scale(64.dp, 64.dp, false)
-                bigPicture = bitmap.scale(256.dp, 256.dp, false)
-                bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
+                val largeIcon = bitmap.scale(64.dp, 64.dp, false)
+                val bigPicture = bitmap.scale(256.dp, 256.dp, false)
+                val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
                 notificationBuilder
                     .setLargeIcon(largeIcon)
-                    .setStyle(NotificationCompat.BigPictureStyle().bigPicture(bigPicture).bigLargeIcon(bigLargeIcon))
+                    .setStyle(NotificationCompat.BigPictureStyle()
+                        .bigPicture(bigPicture)
+                        .bigLargeIcon(bigLargeIcon))
             }.withHandling({
+                // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
                 notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
             }, {
                 // 整体下载完成后，创建通知
                 notificationManager?.notify(notificationId, notificationBuilder.build())
+                // 回收不再被引用的原始大图
                 bitmap.safeRecycle()
-                largeIcon.safeRecycle()
-                bigPicture.safeRecycle()
-                bigLargeIcon.safeRecycle()
             }).launchIn(notificationScope)
         } else {
             // 没有图片的，直接创建通知
@@ -257,12 +260,16 @@ object NotificationUtil {
 
     /**
      * 创建通知栏
-     * 如果未来有业务实体的 ID 可能小于 100（比如某些内部测试订单、配置项）
-     * require 的语义是“条件为 true 时通过，为 false 时抛异常”
-     * fun showOrderNotification(orderId: Int, ...) {
-     *     require(orderId >= 1000) { "业务通知ID不应占用系统通知区间" }
-     *     // ...
-     * }
+     * @param id 推送 ID，相同会覆盖，不同则区分
+     * 1) 0–99：前台服务/系统级固定通知（录屏、定位等），预留充足
+     * 2) 100+：动态业务通知构建器自增区间 (从 100 自增到 Integer.MAX_VALUE，即使每秒推一条也要 68 年)
+     * 3) 1000+：订单等业务实体 ID 直接作为通知 ID
+     * 4) 如果未来有业务实体的 ID 可能小于 100（比如某些内部测试订单、配置项）
+     *  // require 的语义是“条件为 true 时通过，为 false 时抛异常”
+     *  fun showOrderNotification(orderId: Int, ...) {
+     *    require(orderId >= 1000) { "业务通知ID不应占用系统通知区间" }
+     *    // ...
+     *  }
      */
     fun notify(id: Int, notification: Notification?) {
         notification ?: return
@@ -316,10 +323,10 @@ object NotificationUtil {
 }
 
 /**
- * 通知弹框的Dialog要与页面强管理,不能使用object
+ * 通知弹框的 Dialog 要与页面强管理,不能使用 object
  * 可在基类中初始化
  */
-class NotificationManager(private val mActivity: FragmentActivity, wrapper: RequestPermissionRegistrar) {
+class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrapper: RequestPermissionRegistrar) {
     private val dialog by lazy { AppDialog(mActivity) }
     private var listener: (hasPermissions: Boolean) -> Unit = {}
     private val requestPermissionResult = wrapper.registerResult { isGranted ->
