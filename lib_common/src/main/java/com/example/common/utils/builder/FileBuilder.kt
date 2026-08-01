@@ -504,9 +504,21 @@ private suspend fun suspendingGlideDownload(mContext: Context, string: String, s
         if (null == file || !file.exists()) {
             it.resumeWithException(RuntimeException("下载失败"))
         } else {
-            file.copy(storeDir)
-            file.delete()
-            it.resume("${storeDir.absolutePath}/${file.name}")
+            // 必须拼接文件名，不能直接传目录
+            val targetFile = File(storeDir, file.name)
+            // 防御性检查：万一 Glide 返回的 name 与已有目录重名
+            // nameWithoutExtension: 用于获取文件名中去掉最后一个后缀（扩展名）之后的部分
+            if (targetFile.exists() && targetFile.isDirectory) {
+                val safeName = "${file.nameWithoutExtension}_${System.currentTimeMillis()}.${file.extension}"
+                val safeTarget = File(storeDir, safeName)
+                file.copyTo(safeTarget, true)
+                file.delete()
+                it.resume(safeTarget.absolutePath)
+            } else {
+                file.copyTo(targetFile, true)
+                file.delete()
+                it.resume(targetFile.absolutePath)
+            }
         }
     }
 }
