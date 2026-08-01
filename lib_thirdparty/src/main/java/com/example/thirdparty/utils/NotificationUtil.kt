@@ -103,6 +103,7 @@ object NotificationUtil {
     // 线程安全的 ID 生成（初始值 100，每次自增）
     private val notificationIdCounter by lazy { AtomicInteger(100) }
     private val requestCodeCounter by lazy { AtomicInteger(100) }
+
     /**
      * 获取 ID
      * 1) 短生命周期录屏服务（随页面开关）/普通推送通知 -> 自增 ID
@@ -110,6 +111,7 @@ object NotificationUtil {
      */
     val notificationId get() = notificationIdCounter.getAndIncrement()
     val requestCode get() = requestCodeCounter.getAndIncrement()
+
     // 系统日志收集服务
     const val NOTIFY_ID_SYSTEM_LOG = 1
     // 高德定位前台服务
@@ -146,7 +148,7 @@ object NotificationUtil {
     }
 
     /**
-     * 创建通知栏构建器
+     * 创建通知栏构建器 (普通通知样式)
      * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small
      * 必须设置：若不设置，通知将无法显示。
      * 尺寸要求：
@@ -169,6 +171,7 @@ object NotificationUtil {
      * @param autoCancel 点击通知后是否自动取消，默认为 true
      * @param sound 通知栏声音 Uri，默认为系统默认通知声音
      * @param silent 是否静音，默认 false（有声） 此参数仅控制单次通知的声音，不影响通知渠道的默认声音设置
+     * @param ongoing true 无法手动滑动删除 false 可以左滑/右滑清除
      * @param pendingIntent 点击通知后的跳转意图，默认为 null
      * @return 通知栏构建器实例
      */
@@ -181,6 +184,7 @@ object NotificationUtil {
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
         silent: Boolean = false,
+        ongoing: Boolean = false,
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
@@ -194,73 +198,180 @@ object NotificationUtil {
             .setAutoCancel(autoCancel)
             .setSound(sound)
             .setSilent(silent)
+            .setOngoing(ongoing)
             // 不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处 currentTimeStamp 做一个大致修正
             .setWhen(currentTimeStamp)
-        if (null != pendingIntent) {
-            builder.setContentIntent(pendingIntent)
+        pendingIntent?.let {
+            builder.setContentIntent(it)
         }
         return builder
     }
 
     /**
-     * 带图片/跳转的通知栏
+     * 长文本样式扩展
      */
-    fun Context?.showSimpleNotification(
-        title: String? = "",
-        text: String? = "",
-        imageUrl: String? = null,
-        intent: Intent? = null
-    ) {
-        this ?: return
-        // 确定是否具备跳转
-        var pendingIntent: PendingIntent? = null
-        if (intent != null) {
-            // 创建通知栏跳转
-            pendingIntent = getActivityPendingIntent(requestCode, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+    fun NotificationCompat.Builder.asBigText(
+        bigText: CharSequence,
+        bigContentTitle: CharSequence? = null,
+        summaryText: CharSequence? = null
+    ): NotificationCompat.Builder {
+        val style = NotificationCompat.BigTextStyle().bigText(bigText)
+        bigContentTitle?.let {
+            style.setBigContentTitle(it)
         }
-        // 创建通知栏构建器
-        val notificationBuilder = builder(title = title, text = text, pendingIntent = pendingIntent)
-        if (!imageUrl.isNullOrEmpty()) {
-            // 防止 Context 泄漏
-            val context = WeakReference(this).get() ?: BaseApplication.instance.applicationContext
-            var bitmap: Bitmap? = null
-            flow<Unit> {
-                // 5秒超时，根据实际图片大小调整
-                bitmap = withTimeoutOrNull(5000L) {
-                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) })
-                } ?: throw RuntimeException("图片下载超时或失败")
-                /**
-                 * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
-                 * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
-                 * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
-                 * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
-                 */
-                val largeIcon = bitmap.scale(64.dp, 64.dp, false)
-                val bigPicture = bitmap.scale(256.dp, 256.dp, false)
-                val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
-                notificationBuilder
-                    .setLargeIcon(largeIcon)
-                    .setStyle(NotificationCompat.BigPictureStyle()
-                        .bigPicture(bigPicture)
-                        .bigLargeIcon(bigLargeIcon))
-            }.withHandling({
-                // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
-                notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            }, {
-                // 整体下载完成后，创建通知
-                notificationManager?.notify(notificationId, notificationBuilder.build())
-                // 回收不再被引用的原始大图
-                bitmap.safeRecycle()
-            }).launchIn(notificationScope)
-        } else {
-            // 没有图片的，直接创建通知
-            notificationBuilder.setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            notify(notificationId, notificationBuilder.build())
+        summaryText?.let {
+            style.setSummaryText(it)
         }
+        return setStyle(style)
     }
 
     /**
-     * 创建通知栏
+     * 大图样式扩展（仅设置样式，不涉及图片下载）
+     */
+    fun NotificationCompat.Builder.asBigPicture(
+        picture: Bitmap,
+        bigLargeIcon: Bitmap? = null,
+        bigContentTitle: CharSequence? = null,
+        summaryText: CharSequence? = null
+    ): NotificationCompat.Builder {
+        val style = NotificationCompat.BigPictureStyle().bigPicture(picture)
+        bigLargeIcon?.let {
+            style.bigLargeIcon(it)
+        }
+        bigContentTitle?.let {
+            style.setBigContentTitle(it)
+        }
+        summaryText?.let {
+            style.setSummaryText(it)
+        }
+        return setStyle(style)
+    }
+
+    /**
+     * 发送纯文本通知
+     */
+    fun Context.buildTextNotification(
+        title: String,
+        text: String,
+        intent: Intent? = null,
+        summaryText: String? = null,
+        ongoing: Boolean = false,
+        notify: Boolean = true,
+        notifyId: Int? = null
+    ): Notification {
+        val pendingIntent = intent?.let {
+            getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
+            .asBigText(bigText = text, summaryText = summaryText)
+            .build()
+        if (notify) {
+            notification.notify(notifyId ?: notificationId)
+        }
+        return notification
+    }
+
+    /**
+     * 发送带网络图片的通知（异步下载 + 失败回退）
+     */
+    fun Context.buildImageNotification(
+        title: String,
+        text: String,
+        bitmap: Bitmap,
+        intent: Intent? = null,
+        summaryText: String? = null,
+        ongoing: Boolean = false,
+        notify: Boolean = true,
+        notifyId: Int? = null
+    ): Notification {
+        val pendingIntent = intent?.let {
+            getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+        /**
+         * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
+         * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
+         * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
+         * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
+         */
+        val largeIcon = bitmap.scale(64.dp, 64.dp, false)
+        val bigPicture = bitmap.scale(256.dp, 256.dp, false)
+        val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
+        val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
+            .setLargeIcon(largeIcon)
+            .asBigPicture(picture = bigPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
+            .build()
+        if (notify) {
+            notification.notify(notifyId ?: notificationId)
+        }
+        bitmap.safeRecycle()
+        return notification
+    }
+
+    fun Context?.buildImageNotification(
+        title: String,
+        text: String,
+        imageUrl: String? = null,
+        intent: Intent? = null,
+        summaryText: String? = null,
+        ongoing: Boolean = false,
+        notify: Boolean = true,
+        notifyId: Int? = null,
+        timeoutMs: Long = 5000L
+    ) {
+        this ?: return
+        val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
+        if (!imageUrl.isNullOrEmpty()) {
+            flow<Unit> {
+                // 防止 Context 泄漏
+                val context = WeakReference(this@buildImageNotification).get() ?: BaseApplication.instance.applicationContext
+                // 5秒超时，根据实际图片大小调整
+                val bitmap = withTimeoutOrNull(timeoutMs) {
+                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) })
+                } ?: throw RuntimeException("图片下载超时或失败")
+                buildImageNotification(title, text, bitmap, intent, summaryText, ongoing, notify, resolvedNotifyId)
+            }.withHandling({
+                // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
+                buildTextNotification(title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+            }).launchIn(notificationScope)
+        } else {
+            // 没有图片的，直接创建通知
+            buildTextNotification(title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+        }
+    }
+
+//    /**
+//     * 带有进度条的通知栏
+//     * 自定义布局 + DecoratedCustomViewStyle
+//     * 创建自定义布局 res/layout/notification_download_progress.xml
+//     *  <LinearLayout>
+//     *    <TextView android:id="@+id/tv_title" />
+//     *    <ProgressBar android:id="@+id/progress_bar" style="?android:attr/progressBarStyleHorizontal" />
+//     *    <TextView android:id="@+id/tv_percent" />
+//     *  </LinearLayout>
+//     */
+//    fun Context.buildDownloadProgressNotification(
+//        title: String,
+//        progress: Int,       // 0-100
+//        max: Int = 100,
+//        notifyId: Int        // ⚠️ 下载进度必须用固定ID，持续覆盖更新
+//    ): Notification {
+//        val remoteViews = RemoteViews(packageName, R.layout.notification_download_progress).apply {
+//            setTextViewText(R.id.tv_title, title)
+//            setProgressBar(R.id.progress_bar, max, progress, false)
+//            setTextViewText(R.id.tv_percent, "$progress%")
+//        }
+//        return builder(title = title, text = "$progress%", ongoing = true)
+//            .setStyle(NotificationCompat.DecoratedCustomViewStyle()) // 保留系统装饰
+//            .setCustomContentView(remoteViews)                       // 折叠态自定义视图
+//            .setOngoing(true)                                        // 下载中不可滑动删除
+//            .setOnlyAlertOnce(true)                                  // 🔑 关键：更新时不重复响铃/震动
+//            .build()
+//        // 3. 更新进度（相同 notifyId 覆盖）
+//        notificationManager?.notify(DOWNLOAD_NOTIFY_ID, notification)
+//    }
+
+    /**
+     * 创建通知栏 (更新使用相同 id)
      * @param id 推送 ID，相同会覆盖，不同则区分
      * 1) 0–99：前台服务/系统级固定通知（录屏、定位等），预留充足
      * 2) 100+：动态业务通知构建器自增区间 (从 100 自增到 Integer.MAX_VALUE，即使每秒推一条也要 68 年)
@@ -272,10 +383,10 @@ object NotificationUtil {
      *    // ...
      *  }
      */
-    fun notify(id: Int, notification: Notification?) {
-        notification ?: return
+    fun Notification?.notify(notifyId: Int) {
+        this ?: return
         val notifyAction = {
-            notificationManager?.notify(id, notification)
+            notificationManager?.notify(notifyId, this)
         }
         // 在主线程调用 notify（确保 UI 相关操作安全）
         if (!isMainThread) {
@@ -306,13 +417,13 @@ object NotificationUtil {
      *  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
      * 请求权限的实现（需在Activity中）
      * private val requestPermissionLauncher = mActivity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-     * if (isGranted) {
-     * startRecording()
-     * } else {
-     * if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-     * mActivity.navigateToNotificationSettings()
-     * }
-     * }
+     *   if (isGranted) {
+     *      startRecording()
+     *   } else {
+     *     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+     *       mActivity.navigateToNotificationSettings()
+     *     }
+     *   }
      * }
      */
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
