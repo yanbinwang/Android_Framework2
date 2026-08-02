@@ -17,15 +17,29 @@ import com.example.thirdparty.media.utils.MediaHelper
 import com.example.thirdparty.utils.NotificationUtil.buildMediaNotification
 
 class MusicService : TrackableLifecycleService() {
+    private val media by lazy { MediaHelper(this, false, false) }
 
     companion object {
         private const val NOTIFY_ID_MEDIA = 1001
-        var media: MediaHelper? = null
         var mediaSession: MediaSessionCompat? = null
     }
 
     override fun onCreate() {
         super.onCreate()
+        // 设置媒体监听
+        media.setOnPreparedListener {
+            mediaOnPlay()
+        }
+        media.setOnErrorListener { _, _, _ ->
+        }
+        media.setOnCompletionListener {
+            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+            refreshNotification()
+        }
+        media.addObserver(this)
+        // 设置资源
+        val fileUri = "https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/music/audio.mp3"
+        media.setDataSource(fileUri, false)
         // 初始化 MediaSession（实际项目中应在 PlaybackManager 中管理）
         mediaSession = MediaSessionCompat(this, "MusicService").apply {
             setCallback(object : MediaSessionCompat.Callback() {
@@ -34,9 +48,7 @@ class MusicService : TrackableLifecycleService() {
                  */
                 override fun onPlay() {
                     super.onPlay()
-                    media?.start()
-                    // 播放时必须更新状态为 STATE_PLAYING
-                    updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+                    mediaOnPlay()
                 }
 
                 /**
@@ -44,9 +56,7 @@ class MusicService : TrackableLifecycleService() {
                  */
                 override fun onPause() {
                     super.onPause()
-                    media?.pause()
-                    // 暂停时必须更新状态为 STATE_PAUSED
-                    updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+                    mediaOnPause()
                 }
 
                 /**
@@ -80,7 +90,19 @@ class MusicService : TrackableLifecycleService() {
             setPlaybackState(initialState)
         }
         // 创建通知
-        updateMediaNotification("歌曲/视频标题", "艺术家/频道名", decodeResource(R.mipmap.ic_launcher))
+        refreshNotification()
+    }
+
+    private fun mediaOnPlay() {
+        media.start()
+        // 播放时必须更新状态为 STATE_PLAYING
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+    }
+
+    private fun mediaOnPause() {
+        media.pause()
+        // 暂停时必须更新状态为 STATE_PAUSED
+        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
     }
 
     /**
@@ -93,9 +115,18 @@ class MusicService : TrackableLifecycleService() {
                 PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
         val playbackState = PlaybackStateCompat.Builder()
             .setActions(capabilities)
-            .setState(state, media?.getCurrentPosition().toSafeLong(), 1.0f)
+            .setState(state, media.getCurrentPosition().toSafeLong(), 1.0f)
             .build()
         mediaSession?.setPlaybackState(playbackState)
+    }
+
+    /**
+     * 仅在媒体信息变化或需要刷新通知UI时调用（重量，低频调用）
+     * onPlay/onPause → 只调 updatePlaybackState()
+     * onCompletion / 切歌 / 首次创建 → updatePlaybackState() + refreshNotification()
+     */
+    private fun refreshNotification() {
+        updateMediaNotification("歌曲/视频标题", "艺术家/频道名", decodeResource(R.mipmap.ic_launcher))
     }
 
     /**
@@ -134,8 +165,6 @@ class MusicService : TrackableLifecycleService() {
         super.onDestroy()
         mediaSession?.release()
         mediaSession = null
-        media?.release()
-        media = null
     }
 
 }

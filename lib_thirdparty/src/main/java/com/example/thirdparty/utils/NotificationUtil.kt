@@ -188,7 +188,7 @@ object NotificationUtil {
         largeIconRes: Int? = R.mipmap.ic_push_large,
         title: String? = null,
         text: String? = null,
-        argb: Int = R.color.textWhite,
+        argb: Int = R.color.appTheme,
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
         silent: Boolean = false,
@@ -418,9 +418,12 @@ object NotificationUtil {
         albumArt: Bitmap? = null,
         actions: List<NotificationCompat.Action>,
         compactActionIndices: IntArray = intArrayOf(1),
-        ongoing: Boolean = true
+        silent: Boolean = true,
+        ongoing: Boolean = true,
+        notify: Boolean = false,
+        notifyId: Int? = null
     ): Notification {
-        val builder = builder(title = title, text = artist, ongoing = ongoing)
+        val builder = builder(title = title, text = artist, silent = silent, ongoing = ongoing)
             .asMedia(token = token, showActionsInCompactView = compactActionIndices)
             // 媒体通知必须设置 Category
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -435,7 +438,12 @@ object NotificationUtil {
             // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
             builder.setLargeIcon(it)
         }
-        return builder.build()
+        // 是否开启
+        val notification = builder.build()
+        if (notify) {
+            notification.notify(notifyId ?: notificationId)
+        }
+        return notification
     }
 
 //    /**
