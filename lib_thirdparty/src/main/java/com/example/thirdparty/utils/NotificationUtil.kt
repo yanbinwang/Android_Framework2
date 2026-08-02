@@ -52,7 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 通知构建类
- *
  * application中使用
  * private fun initNotification() {
  *    NotificationUtil.init()
@@ -75,15 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setSummaryText(String)：设置图片下方的摘要
  * 适用场景：社交媒体、图片分享应用。
  *
- * 3. InboxStyle
- * 作用：以列表形式显示多条内容（类似邮件收件箱）。
- * 核心方法：
- * addLine(CharSequence)：添加一行内容（最多 7 行）
- * setBigContentTitle(String)：设置展开时的标题
- * setSummaryText(String)：设置底部摘要
- * 适用场景：邮件客户端、即时通讯应用。
- *
- * 4. MediaStyle
+ * 3. MediaStyle
  * 作用：专为媒体播放设计，显示播放控制按钮。
  * 核心方法：
  * setMediaSession(MediaSession.Token)：关联媒体会话
@@ -91,7 +82,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setShowCancelButton(boolean)：是否显示取消按钮
  * 适用场景：音乐播放器、视频应用。
  *
- * 5. DecoratedCustomViewStyle
+ * 4. DecoratedCustomViewStyle
  * 作用：增强自定义通知视图的显示效果，自动添加标准装饰（如小图标、时间）。
  * 核心方法：
  * 无特殊方法，需配合 setCustomContentView() 使用。
