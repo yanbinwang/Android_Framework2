@@ -1,4 +1,4 @@
-package com.example.mvvm.service
+package com.example.mvvm.service.music
 
 import com.example.framework.utils.function.TrackableLifecycleService
 

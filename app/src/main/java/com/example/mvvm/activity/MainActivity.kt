@@ -58,7 +58,6 @@ import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
 import com.example.mvvm.service.MusicBindService
-import com.example.mvvm.service.MusicService
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
 import com.therouter.router.Route
@@ -496,7 +495,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        } else {
 //            startService(startIntent)
 //        }
-        bindService(MusicService::class.java, lifecycleOwner = this, onConnected = { binder ->
+        bindService(MusicBindService::class.java, lifecycleOwner = this, onConnected = { binder ->
             val mBinder = binder as? MusicBindService.MusicBinder
             mBinder?.play("https://example.com/song.mp3")
             musicService = mBinder?.getService()
