@@ -1,71 +1,170 @@
 package com.example.mvvm.service
 
-import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Intent
 import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK
-import android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_MICROPHONE
-import android.os.Binder
+import android.graphics.Bitmap
 import android.os.Build
-import android.os.IBinder
-import android.os.PowerManager
+import android.support.v4.media.session.MediaSessionCompat
+import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
+import com.example.common.utils.function.decodeResource
 import com.example.framework.utils.function.TrackableLifecycleService
-import com.example.framework.utils.function.string
+import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logWTF
-import com.example.thirdparty.R
-import com.example.thirdparty.utils.NotificationUtil.notificationId
+import com.example.mvvm.R
+import com.example.mvvm.service.receiver.MediaPlaybackReceiver
+import com.example.mvvm.service.receiver.MediaPlaybackReceiver.Companion.createMediaAction
+import com.example.thirdparty.media.utils.MediaHelper
+import com.example.thirdparty.utils.NotificationUtil.buildMediaNotification
 
 class MusicService : TrackableLifecycleService() {
-    private val binder = MusicBinder()
+    private val media by lazy { MediaHelper(this, false, false) }
 
-//    override fun onCreate() {
-//        super.onCreate()
-//        // 创建符合Android 15要求的通知渠道
-//        val channelId = string(R.string.notificationChannelId)
-//        val channelName = string(R.string.notificationChannelName)
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            // 录屏服务建议使用低重要性，避免打扰用户
-//            val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
-//                description = "用于显示音频状态"
-//                setSound(null, null) // 关闭通知声音
-//            }
-//            val notificationManager = getSystemService(NotificationManager::class.java)
-//            notificationManager.createNotificationChannel(channel)
-//        }
-//        // 构建完整的通知
-//        val notification = NotificationCompat.Builder(this, channelId)
-//            .setContentTitle("正在播放") // 强制要求：标题
-//            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
-//            .setPriority(NotificationCompat.PRIORITY_LOW)
-//            .setOngoing(true) // 标记为持续通知，用户无法手动清除
-//            .setSilent(true) // 静音通知
-//            .build()
-//        // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-//            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
-//        } else {
-//            startForeground(notificationId, notification)
-//        }
-//    }
-
-    @SuppressLint("MissingSuperCall")
-    override fun onBind(intent: Intent): IBinder {
-        return binder
+    companion object {
+        private const val NOTIFY_ID_MEDIA = 1001
+        var mediaSession: MediaSessionCompat? = null
     }
 
-    inner class MusicBinder : Binder() {
-        fun getService(): MusicService {
-            return this@MusicService
+    override fun onCreate() {
+        super.onCreate()
+        // 设置媒体监听
+        media.setOnPreparedListener {
+            mediaOnPlay()
         }
-
-        fun play(url: String) {
-            "播放:${url}".logWTF("wyb")
+        media.setOnErrorListener { _, _, _ ->
         }
+        media.setOnCompletionListener {
+            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+            refreshNotification()
+        }
+        media.addObserver(this)
+        // 设置资源
+        val fileUri = "https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/music/audio.mp3"
+        media.setDataSource(fileUri, false)
+        // 初始化 MediaSession（实际项目中应在 PlaybackManager 中管理）
+        mediaSession = MediaSessionCompat(this, "MusicService").apply {
+            setCallback(object : MediaSessionCompat.Callback() {
+                /**
+                 * 开始播放逻辑
+                 */
+                override fun onPlay() {
+                    super.onPlay()
+                    mediaOnPlay()
+                }
 
-        fun pause() {
-            "暂停".logWTF("wyb")
+                /**
+                 * 暂停逻辑
+                 */
+                override fun onPause() {
+                    super.onPause()
+                    mediaOnPause()
+                }
+
+                /**
+                 * 下一首逻辑
+                 */
+                override fun onSkipToNext() {
+                    super.onSkipToNext()
+                    "下一首".logWTF("wyb")
+                }
+
+                /**
+                 * 上一首逻辑
+                 */
+                override fun onSkipToPrevious() {
+                    super.onSkipToPrevious()
+                    "上一首".logWTF("wyb")
+                }
+            })
+            // 激活 Session
+            isActive = true
+            // 设置支持的媒体按键（告诉系统能响应哪些按钮）
+            val capabilities = PlaybackStateCompat.ACTION_PLAY or
+                    PlaybackStateCompat.ACTION_PAUSE or
+                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+            // 设置初始状态（必须是 STOPPED 或 NONE，不能省略）
+            val initialState = PlaybackStateCompat.Builder()
+                .setActions(capabilities)
+                .setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f)
+                .build()
+            setPlaybackState(initialState)
+        }
+        // 创建通知
+        refreshNotification()
+    }
+
+    private fun mediaOnPlay() {
+        media.start()
+        // 播放时必须更新状态为 STATE_PLAYING
+        updatePlaybackState(PlaybackStateCompat.STATE_PLAYING)
+    }
+
+    private fun mediaOnPause() {
+        media.pause()
+        // 暂停时必须更新状态为 STATE_PAUSED
+        updatePlaybackState(PlaybackStateCompat.STATE_PAUSED)
+    }
+
+    /**
+     * 更新播放器状态
+     */
+    private fun updatePlaybackState(@PlaybackStateCompat.State state: Int) {
+        val capabilities = PlaybackStateCompat.ACTION_PLAY or
+                PlaybackStateCompat.ACTION_PAUSE or
+                PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
+                PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+        val playbackState = PlaybackStateCompat.Builder()
+            .setActions(capabilities)
+            .setState(state, media.getCurrentPosition().toSafeLong(), 1.0f)
+            .build()
+        mediaSession?.setPlaybackState(playbackState)
+    }
+
+    /**
+     * 仅在媒体信息变化或需要刷新通知UI时调用（重量，低频调用）
+     * onPlay/onPause → 只调 updatePlaybackState()
+     * onCompletion / 切歌 / 首次创建 → updatePlaybackState() + refreshNotification()
+     */
+    private fun refreshNotification() {
+        updateMediaNotification("歌曲/视频标题", "艺术家/频道名", decodeResource(R.mipmap.ic_launcher))
+    }
+
+    /**
+     * 当播放状态/歌曲变化时调用此方法更新通知
+     */
+    private fun updateMediaNotification(title: String, artist: String?, albumArt: Bitmap?) {
+        val token = mediaSession?.sessionToken ?: throw IllegalStateException("MediaSession 未初始化")
+        val notification = buildMediaNotification(
+            token = token,
+            title = title,
+            artist = artist,
+            albumArt = albumArt,
+            actions = createMediaActions(),
+            compactActionIndices = intArrayOf(1) // 折叠态只显示播放/暂停
+        )
+        // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            startForeground(NOTIFY_ID_MEDIA, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+        } else {
+            startForeground(NOTIFY_ID_MEDIA, notification)
         }
     }
+
+    /**
+     * 创建媒体播放控制按钮（通过广播触发）
+     */
+    private fun createMediaActions(): List<NotificationCompat.Action> {
+        return listOf(
+            createMediaAction(MediaPlaybackReceiver.ACTION_PREVIOUS, android.R.drawable.ic_media_previous, "上一首"),
+            createMediaAction(MediaPlaybackReceiver.ACTION_PLAY_PAUSE, android.R.drawable.ic_media_pause, "播放/暂停"),
+            createMediaAction(MediaPlaybackReceiver.ACTION_NEXT, android.R.drawable.ic_media_next, "下一首")
+        )
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mediaSession?.release()
+        mediaSession = null
+    }
+
 }

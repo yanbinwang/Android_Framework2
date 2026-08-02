@@ -12,6 +12,7 @@ import android.graphics.BitmapFactory
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
@@ -29,10 +30,11 @@ import com.example.common.utils.function.dp
 import com.example.common.utils.function.getActivityPendingIntent
 import com.example.common.utils.function.pullUpNotification
 import com.example.common.utils.function.safeRecycle
-import com.example.common.utils.i18n.i18String
+import com.example.common.utils.function.string
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy
+import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
@@ -50,7 +52,6 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 通知构建类
- *
  * application中使用
  * private fun initNotification() {
  *    NotificationUtil.init()
@@ -73,15 +74,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setSummaryText(String)：设置图片下方的摘要
  * 适用场景：社交媒体、图片分享应用。
  *
- * 3. InboxStyle
- * 作用：以列表形式显示多条内容（类似邮件收件箱）。
- * 核心方法：
- * addLine(CharSequence)：添加一行内容（最多 7 行）
- * setBigContentTitle(String)：设置展开时的标题
- * setSummaryText(String)：设置底部摘要
- * 适用场景：邮件客户端、即时通讯应用。
- *
- * 4. MediaStyle
+ * 3. MediaStyle
  * 作用：专为媒体播放设计，显示播放控制按钮。
  * 核心方法：
  * setMediaSession(MediaSession.Token)：关联媒体会话
@@ -89,7 +82,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setShowCancelButton(boolean)：是否显示取消按钮
  * 适用场景：音乐播放器、视频应用。
  *
- * 5. DecoratedCustomViewStyle
+ * 4. DecoratedCustomViewStyle
  * 作用：增强自定义通知视图的显示效果，自动添加标准装饰（如小图标、时间）。
  * 核心方法：
  * 无特殊方法，需配合 setCustomContentView() 使用。
@@ -128,8 +121,8 @@ object NotificationUtil {
         notificationManager = applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager
         // 避免重复创建渠道（检查是否已存在）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channelId = i18String(R.string.notificationChannelId)
-            val channelName = i18String(R.string.notificationChannelName)
+            val channelId = string(R.string.notificationChannelId)
+            val channelName = string(R.string.notificationChannelName)
             notificationManager?.createNotificationChannelIfNeeded(NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT))
         }
     }
@@ -149,7 +142,7 @@ object NotificationUtil {
 
     /**
      * 创建通知栏构建器 (普通通知样式)
-     * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small
+     * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small （必传）
      * 必须设置：若不设置，通知将无法显示。
      * 尺寸要求：
      * 推荐使用 24dp × 24dp 的矢量图标（VectorDrawable）。
@@ -157,7 +150,7 @@ object NotificationUtil {
      * 格式要求：
      * 仅支持 alpha 通道（即图标应为透明背景，系统会自动应用主题色）。
      * 推荐使用 AndroidX 的 VectorAsset 或 VectorDrawable。
-     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large
+     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large （可空）
      * 建议设置：提升通知辨识度（如显示用户头像、应用 Logo）。
      * 尺寸要求：
      * 常规通知：推荐 64dp × 64dp（系统会自动裁剪为圆形）。
@@ -165,8 +158,8 @@ object NotificationUtil {
      * 格式要求：
      * 支持任意格式（PNG、JPEG、Bitmap），但通常为正方形。
      * 背景建议透明，避免变形。
-     * @param title 通知栏标题，默认为空字符串
-     * @param text 通知栏内容，默认为空字符串
+     * @param title 通知栏标题，默认为空
+     * @param text 通知栏内容，默认为空
      * @param argb 通知栏颜色资源 ID，默认为 R.color.textWhite
      * @param autoCancel 点击通知后是否自动取消，默认为 true
      * @param sound 通知栏声音 Uri，默认为系统默认通知声音
@@ -193,9 +186,9 @@ object NotificationUtil {
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
         largeIconRes: Int? = R.mipmap.ic_push_large,
-        title: String? = "",
-        text: String? = "",
-        argb: Int = R.color.textWhite,
+        title: String? = null,
+        text: String? = null,
+        argb: Int = R.color.appTheme,
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
         silent: Boolean = false,
@@ -204,10 +197,10 @@ object NotificationUtil {
         category: String? = null,
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
-        val builder = NotificationCompat.Builder(this, i18String(R.string.notificationChannelId))
-            // 24dp × 24dp (约96px)
+        val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
+            // 24dp × 24dp (约 96px)
             .setSmallIcon(smallIconRes)
-            // 64dp × 64dp (约144px)
+            // 64dp × 64dp (约 144px)
             .apply {
                 largeIconRes?.let {
                     setLargeIcon(decodeResource(it))
@@ -274,27 +267,27 @@ object NotificationUtil {
         return setStyle(style)
     }
 
-//    /**
-//     * 媒体播放样式扩展（必须先创建并激活 MediaSession，否则通知无法响应播放控制， Style 不在 androidx.core 里，而是独立在 androidx.media 库中）
-//     * @param token MediaSession.Token，关联播放会话
-//     * @param showActionsInCompactView 折叠态显示的 Action 索引（对应 addAction 的顺序）
-//     *        例如传入 0,1,2 表示前三个按钮在折叠态可见，最多支持3个
-//     * @param showCancelButton Android 8.0以下显示取消按钮（高版本已废弃，传false即可）
-//     */
-//    fun NotificationCompat.Builder.asMedia(
-//        token: MediaSessionCompat.Token,
-//        vararg showActionsInCompactView: Int,
-//        showCancelButton: Boolean = false
-//    ): NotificationCompat.Builder {
-//        val style = androidx.media.app.NotificationCompat.MediaStyle()
-//            .setMediaSession(token)
-//            .setShowCancelButton(showCancelButton)
-//        if (showActionsInCompactView.isNotEmpty()) {
-//            style.setShowActionsInCompactView(*showActionsInCompactView)
-//        }
-//        return setStyle(style)
-//    }
-//
+    /**
+     * 媒体播放样式扩展（必须先创建并激活 MediaSession，否则通知无法响应播放控制， Style 不在 androidx.core 里，而是独立在 androidx.media 库中）
+     * @param token MediaSession.Token，关联播放会话
+     * @param showActionsInCompactView 折叠态显示的 Action 索引（对应 addAction 的顺序）
+     *        例如传入 0,1,2 表示前三个按钮在折叠态可见，最多支持3个
+     * @param showCancelButton Android 8.0以下显示取消按钮（高版本已废弃，传false即可）
+     */
+    fun NotificationCompat.Builder.asMedia(
+        token: MediaSessionCompat.Token,
+        vararg showActionsInCompactView: Int,
+        showCancelButton: Boolean = false
+    ): NotificationCompat.Builder {
+        val style = androidx.media.app.NotificationCompat.MediaStyle()
+            .setMediaSession(token)
+            .setShowCancelButton(showCancelButton)
+        if (showActionsInCompactView.isNotEmpty()) {
+            style.setShowActionsInCompactView(*showActionsInCompactView)
+        }
+        return setStyle(style)
+    }
+
 //    /**
 //     * 自定义视图样式扩展（保留系统标准装饰：小图标、时间、App名称等）
 //     * 适用场景：下载进度条、自定义播放器控件、复杂业务卡片
@@ -406,160 +399,53 @@ object NotificationUtil {
         }
     }
 
-//    /**
-//     * 构建媒体播放通知
-//     * 此方法仅构建通知，不负责启动前台服务
-//     * 调用方需在 ForegroundService 中通过 startForeground(notifyId, notification) 启动
-//     * @param token 必须由调用方传入，从你的 MediaSessionCompat 实例获取
-//     * @param title 歌曲/视频标题
-//     * @param artist 艺术家/频道名
-//     * @param albumArt 专辑封面（可选）
-//     * @param actions 播放控制按钮列表
-//     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停
-//     * @param ongoing 是否常驻不可删除
-//     *
-//     * 1. 定义广播 Action 常量 & 接收器
-//     * /**
-//     *  * 媒体播放广播接收器
-//     *  * ⚠️ 必须在 AndroidManifest.xml 中注册（Android 14+ 需指定 exported=false）
-//     *  */
-//     * class MediaPlaybackReceiver : BroadcastReceiver() {
-//     *     companion object {
-//     *         const val ACTION_PREVIOUS = "com.your.package.ACTION_PREVIOUS"
-//     *         const val ACTION_PLAY_PAUSE = "com.your.package.ACTION_PLAY_PAUSE"
-//     *         const val ACTION_NEXT = "com.your.package.ACTION_NEXT"
-//     *     }
-//     *
-//     *     override fun onReceive(context: Context, intent: Intent) {
-//     *         // 🔑 核心：将广播转发给 MediaSessionCompat.Callback
-//     *         // 你的 PlaybackManager/Service 应持有 MediaSessionCompat 实例并设置 Callback
-//     *         when (intent.action) {
-//     *             ACTION_PREVIOUS -> MusicService.mediaSession?.controller?.skipToPrevious()
-//     *             ACTION_PLAY_PAUSE -> {
-//     *                 val controller = MusicService.mediaSession?.controller ?: return
-//     *                 if (controller.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
-//     *                     controller.pause()
-//     *                 } else {
-//     *                     controller.play()
-//     *                 }
-//     *             }
-//     *             ACTION_NEXT -> MusicService.mediaSession?.controller?.skipToNext()
-//     *         }
-//     *     }
-//     * }
-//     * 2. 构建 Actions + 通知
-//     * /**
-//     *  * 创建媒体播放控制按钮（通过广播触发）
-//     *  */
-//     * fun Context.createMediaActions(): List<NotificationCompat.Action> {
-//     *     fun createAction(action: String, iconRes: Int, label: String): NotificationCompat.Action {
-//     *         val intent = Intent(this, MediaPlaybackReceiver::class.java).apply {
-//     *             this.action = action
-//     *         }
-//     *         val pendingIntent = PendingIntent.getBroadcast(
-//     *             this,
-//     *             action.hashCode(), // ← 用 action hashCode 作为 requestCode，确保每个按钮独立
-//     *             intent,
-//     *             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-//     *         )
-//     *         return NotificationCompat.Action.Builder(iconRes, label, pendingIntent).build()
-//     *     }
-//     *
-//     *     return listOf(
-//     *         createAction(MediaPlaybackReceiver.ACTION_PREVIOUS, R.drawable.ic_skip_previous, "上一首"),
-//     *         createAction(MediaPlaybackReceiver.ACTION_PLAY_PAUSE, R.drawable.ic_play_pause, "播放/暂停"),
-//     *         createAction(MediaPlaybackReceiver.ACTION_NEXT, R.drawable.ic_skip_next, "下一首")
-//     *     )
-//     * }
-//     *
-//     * /**
-//     *  * 在 ForegroundService 中启动媒体通知的完整示例
-//     *  */
-//     * class MusicService : Service() {
-//     *
-//     *     companion object {
-//     *         var mediaSession: MediaSessionCompat? = null
-//     *         private const val NOTIFY_ID_MEDIA = 1001
-//     *     }
-//     *
-//     *     override fun onCreate() {
-//     *         super.onCreate()
-//     *         // 初始化 MediaSession（实际项目中应在 PlaybackManager 中管理）
-//     *         mediaSession = MediaSessionCompat(this, "MusicService").apply {
-//     *             setCallback(object : MediaSessionCompat.Callback() {
-//     *                 override fun onPlay() { /* 开始播放逻辑 */ }
-//     *                 override fun onPause() { /* 暂停逻辑 */ }
-//     *                 override fun onSkipToNext() { /* 下一首逻辑 */ }
-//     *                 override fun onSkipToPrevious() { /* 上一首逻辑 */ }
-//     *             })
-//     *             isActive = true // ← 必须激活，否则通知控件无效
-//     *         }
-//     *     }
-//     *
-//     *     /**
-//     *      * 当播放状态/歌曲变化时调用此方法更新通知
-//     *      */
-//     *     fun updateMediaNotification(title: String, artist: String?, albumArt: Bitmap?) {
-//     *         val token = mediaSession?.sessionToken
-//     *             ?: throw IllegalStateException("MediaSession 未初始化")
-//     *
-//     *         val notification = buildMediaNotification(
-//     *             token = token,
-//     *             title = title,
-//     *             artist = artist,
-//     *             albumArt = albumArt,
-//     *             actions = createMediaActions(),
-//     *             compactActionIndices = intArrayOf(1), // 折叠态只显示播放/暂停
-//     *             ongoing = true
-//     *         )
-//     *
-//     *         startForeground(NOTIFY_ID_MEDIA, notification)
-//     *     }
-//     *
-//     *     override fun onDestroy() {
-//     *         mediaSession?.release()
-//     *         mediaSession = null
-//     *         super.onDestroy()
-//     *     }
-//     *
-//     *     override fun onBind(intent: Intent?): IBinder? = null
-//     * }
-//     * 3. Manifest 注册
-//     * <receiver
-//     *     android:name=".MediaPlaybackReceiver"
-//     *     android:exported="false">
-//     *     <intent-filter>
-//     *         <action android:name="com.your.package.ACTION_PREVIOUS" />
-//     *         <action android:name="com.your.package.ACTION_PLAY_PAUSE" />
-//     *         <action android:name="com.your.package.ACTION_NEXT" />
-//     *     </intent-filter>
-//     * </receiver>
-//     */
-//    fun Context.buildMediaNotification(
-//        token: MediaSessionCompat.Token,
-//        title: String,
-//        artist: String? = null,
-//        albumArt: Bitmap? = null,
-//        actions: List<NotificationCompat.Action>,
-//        compactActionIndices: IntArray = intArrayOf(1),
-//        ongoing: Boolean = true
-//    ): Notification {
-//        val builder = builder(title = title, text = artist, ongoing = ongoing)
-//            .asMedia(token = token, showActionsInCompactView = compactActionIndices)
-//            // 媒体通知必须设置 Category
-//            .setCategory(NotificationCompat.CATEGORY_SERVICE)
-//            // 锁屏可见性：公开显示播放控件
-//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-//        // 添加所有播放控制按钮
-//        actions.forEach { builder.addAction(it) }
-//        // 设置专辑封面（展开态大图 + 折叠态小图标）
-//        albumArt?.let {
-//            // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
-//            builder.setLargeIcon(it)
-//        }
-//        return builder.build()
-//    }
-//
+    /**
+     * 构建媒体播放通知
+     * 此方法仅构建通知，不负责启动前台服务
+     * 调用方需在 ForegroundService 中通过 startForeground(notifyId, notification) 启动
+     * @param token 必须由调用方传入，从你的 MediaSessionCompat 实例获取
+     * @param title 歌曲/视频标题
+     * @param artist 艺术家/频道名
+     * @param albumArt 专辑封面（可选）
+     * @param actions 播放控制按钮列表
+     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停
+     * @param ongoing 是否常驻不可删除
+     */
+    fun Context.buildMediaNotification(
+        token: MediaSessionCompat.Token,
+        title: String,
+        artist: String? = null,
+        albumArt: Bitmap? = null,
+        actions: List<NotificationCompat.Action>,
+        compactActionIndices: IntArray = intArrayOf(1),
+        silent: Boolean = true,
+        ongoing: Boolean = true,
+        notify: Boolean = false,
+        notifyId: Int? = null
+    ): Notification {
+        val builder = builder(title = title, text = artist, silent = silent, ongoing = ongoing)
+            .asMedia(token = token, showActionsInCompactView = compactActionIndices)
+            // 媒体通知必须设置 Category
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            // 锁屏可见性：公开显示播放控件
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+        // 添加所有播放控制按钮
+        actions.forEach {
+            builder.addAction(it)
+        }
+        // 设置专辑封面（展开态大图 + 折叠态小图标）
+        albumArt?.let {
+            // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
+            builder.setLargeIcon(it)
+        }
+        // 是否开启
+        val notification = builder.build()
+        if (notify) {
+            notification.notify(notifyId ?: notificationId)
+        }
+        return notification
+    }
+
 //    /**
 //     * 构建带进度条的通知（基于 DecoratedCustomViewStyle）
 //     * 此方法仅负责【创建/更新】通知，不负责发送
@@ -699,7 +585,7 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
             listener.invoke(true)
         } else {
             dialog
-                .setParams(i18String(R.string.hint), i18String(R.string.permissionNotification))
+                .setParams(string(R.string.hint), string(R.string.permissionNotification))
                 .setDialogListener({
                     mActivity.pullUpNotification()
                 }, {
