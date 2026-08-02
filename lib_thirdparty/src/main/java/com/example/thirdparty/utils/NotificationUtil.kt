@@ -15,6 +15,7 @@ import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationCompat.PRIORITY_DEFAULT
 import androidx.core.content.ContextCompat
 import androidx.core.graphics.scale
 import androidx.fragment.app.FragmentActivity
@@ -172,12 +173,27 @@ object NotificationUtil {
      * @param sound 通知栏声音 Uri，默认为系统默认通知声音
      * @param silent 是否静音，默认 false（有声） 此参数仅控制单次通知的声音，不影响通知渠道的默认声音设置
      * @param ongoing true 无法手动滑动删除 false 可以左滑/右滑清除
+     * @param priority 控制“视觉侵略性”
+     *  PRIORITY_MAX: 全屏弹出 + 声音 + 震动 + 常驻顶部 -> 来电、闹钟、紧急警报
+     *  PRIORITY_HIGH: 横幅弹出(Heads-Up) + 声音 + 排序靠前 -> IM消息、日程提醒、重要预警
+     *  PRIORITY_DEFAULT: 状态栏图标 + 下拉可见 + 默认排序 -> 普通资讯、应用更新
+     *  PRIORITY_LOW: 状态栏图标 + 下拉可见 + 无声音无震动 -> 前台服务、下载进度、媒体播放
+     *  PRIORITY_MIN: 仅在下拉列表底部显示，状态栏无图标 -> 后台同步完成、调试日志
+     * @param category 告诉系统“这是什么” 系统如何理解和分组这条通知
+     *  CATEGORY_MESSAGE: 人与人通信 -> IM、短信、邮件
+     *  CATEGORY_CALL: 通话 -> 来电、VoIP
+     *  CATEGORY_ALARM: 闹钟/计时器 -> 闹钟、倒计时
+     *  CATEGORY_EVENT: 日历事件 -> 会议提醒
+     *  CATEGORY_SERVICE: 后台/前台服务 -> 下载、上传、定位
+     *  CATEGORY_TRANSPORT: 媒体播放 -> MediaStyle 自动设置
+     *  CATEGORY_PROGRESS: 进度条 -> 文件传输、安装
+     *  CATEGORY_STATUS: 设备/账号状态 -> 电量低、登录异常
      * @param pendingIntent 点击通知后的跳转意图，默认为 null
      * @return 通知栏构建器实例
      */
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
-        largeIconRes: Int = R.mipmap.ic_push_large,
+        largeIconRes: Int? = R.mipmap.ic_push_large,
         title: String? = "",
         text: String? = "",
         argb: Int = R.color.textWhite,
@@ -185,13 +201,19 @@ object NotificationUtil {
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
         silent: Boolean = false,
         ongoing: Boolean = false,
+        priority: Int = PRIORITY_DEFAULT,
+        category: String? = null,
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
             // 24dp × 24dp (约96px)
             .setSmallIcon(smallIconRes)
             // 64dp × 64dp (约144px)
-            .setLargeIcon(decodeResource(largeIconRes))
+            .apply {
+                largeIconRes?.let {
+                    setLargeIcon(decodeResource(it))
+                }
+            }
             .setContentTitle(title)
             .setContentText(text)
             .setColor(color(argb))
@@ -199,8 +221,14 @@ object NotificationUtil {
             .setSound(sound)
             .setSilent(silent)
             .setOngoing(ongoing)
+            .setPriority(priority)
+            .setCategory(category)
             // 不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处 currentTimeStamp 做一个大致修正
             .setWhen(currentTimeStamp)
+        // 仅在显式传入非空值时设置，null 等同于"未分类"
+        category?.let {
+            builder.setCategory(it)
+        }
         pendingIntent?.let {
             builder.setContentIntent(it)
         }
@@ -247,6 +275,45 @@ object NotificationUtil {
         return setStyle(style)
     }
 
+//    /**
+//     * 媒体播放样式扩展（必须先创建并激活 MediaSession，否则通知无法响应播放控制， Style 不在 androidx.core 里，而是独立在 androidx.media 库中）
+//     * @param token MediaSession.Token，关联播放会话
+//     * @param showActionsInCompactView 折叠态显示的 Action 索引（对应 addAction 的顺序）
+//     *        例如传入 0,1,2 表示前三个按钮在折叠态可见，最多支持3个
+//     * @param showCancelButton Android 8.0以下显示取消按钮（高版本已废弃，传false即可）
+//     */
+//    fun NotificationCompat.Builder.asMedia(
+//        token: MediaSessionCompat.Token,
+//        vararg showActionsInCompactView: Int,
+//        showCancelButton: Boolean = false
+//    ): NotificationCompat.Builder {
+//        val style = androidx.media.app.NotificationCompat.MediaStyle()
+//            .setMediaSession(token)
+//            .setShowCancelButton(showCancelButton)
+//        if (showActionsInCompactView.isNotEmpty()) {
+//            style.setShowActionsInCompactView(*showActionsInCompactView)
+//        }
+//        return setStyle(style)
+//    }
+//
+//    /**
+//     * 自定义视图样式扩展（保留系统标准装饰：小图标、时间、App名称等）
+//     * 适用场景：下载进度条、自定义播放器控件、复杂业务卡片
+//     * @param contentView 折叠态自定义布局
+//     * @param bigContentView 展开态自定义布局（可选，不传则折叠/展开同布局）
+//     */
+//    fun NotificationCompat.Builder.asDecoratedCustomView(
+//        contentView: RemoteViews,
+//        bigContentView: RemoteViews? = null
+//    ): NotificationCompat.Builder {
+//        setStyle(NotificationCompat.DecoratedCustomViewStyle())
+//        setCustomContentView(contentView)
+//        bigContentView?.let {
+//            setCustomBigContentView(it)
+//        }
+//        return this
+//    }
+
     /**
      * 发送纯文本通知
      */
@@ -291,11 +358,12 @@ object NotificationUtil {
          * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
          * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
          * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
-         * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 可选，若不设置则默认使用 setLargeIcon() 的图标（64dp 会被放大）
+         * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 显式传入 null，告诉系统在展开态时清除右侧/左下角的图标
          */
         val largeIcon = bitmap.scale(64.dp, 64.dp, false)
         val bigPicture = bitmap.scale(256.dp, 256.dp, false)
-        val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
+//        val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
+        val bigLargeIcon = null
         val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
             .setLargeIcon(largeIcon)
             .asBigPicture(picture = bigPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
@@ -340,34 +408,220 @@ object NotificationUtil {
     }
 
 //    /**
-//     * 带有进度条的通知栏
-//     * 自定义布局 + DecoratedCustomViewStyle
-//     * 创建自定义布局 res/layout/notification_download_progress.xml
-//     *  <LinearLayout>
-//     *    <TextView android:id="@+id/tv_title" />
-//     *    <ProgressBar android:id="@+id/progress_bar" style="?android:attr/progressBarStyleHorizontal" />
-//     *    <TextView android:id="@+id/tv_percent" />
-//     *  </LinearLayout>
+//     * 构建媒体播放通知
+//     * 此方法仅构建通知，不负责启动前台服务
+//     * 调用方需在 ForegroundService 中通过 startForeground(notifyId, notification) 启动
+//     * @param token 必须由调用方传入，从你的 MediaSessionCompat 实例获取
+//     * @param title 歌曲/视频标题
+//     * @param artist 艺术家/频道名
+//     * @param albumArt 专辑封面（可选）
+//     * @param actions 播放控制按钮列表
+//     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停
+//     * @param ongoing 是否常驻不可删除
+//     *
+//     * 1. 定义广播 Action 常量 & 接收器
+//     * /**
+//     *  * 媒体播放广播接收器
+//     *  * ⚠️ 必须在 AndroidManifest.xml 中注册（Android 14+ 需指定 exported=false）
+//     *  */
+//     * class MediaPlaybackReceiver : BroadcastReceiver() {
+//     *     companion object {
+//     *         const val ACTION_PREVIOUS = "com.your.package.ACTION_PREVIOUS"
+//     *         const val ACTION_PLAY_PAUSE = "com.your.package.ACTION_PLAY_PAUSE"
+//     *         const val ACTION_NEXT = "com.your.package.ACTION_NEXT"
+//     *     }
+//     *
+//     *     override fun onReceive(context: Context, intent: Intent) {
+//     *         // 🔑 核心：将广播转发给 MediaSessionCompat.Callback
+//     *         // 你的 PlaybackManager/Service 应持有 MediaSessionCompat 实例并设置 Callback
+//     *         when (intent.action) {
+//     *             ACTION_PREVIOUS -> MusicService.mediaSession?.controller?.skipToPrevious()
+//     *             ACTION_PLAY_PAUSE -> {
+//     *                 val controller = MusicService.mediaSession?.controller ?: return
+//     *                 if (controller.playbackState?.state == PlaybackStateCompat.STATE_PLAYING) {
+//     *                     controller.pause()
+//     *                 } else {
+//     *                     controller.play()
+//     *                 }
+//     *             }
+//     *             ACTION_NEXT -> MusicService.mediaSession?.controller?.skipToNext()
+//     *         }
+//     *     }
+//     * }
+//     * 2. 构建 Actions + 通知
+//     * /**
+//     *  * 创建媒体播放控制按钮（通过广播触发）
+//     *  */
+//     * fun Context.createMediaActions(): List<NotificationCompat.Action> {
+//     *     fun createAction(action: String, iconRes: Int, label: String): NotificationCompat.Action {
+//     *         val intent = Intent(this, MediaPlaybackReceiver::class.java).apply {
+//     *             this.action = action
+//     *         }
+//     *         val pendingIntent = PendingIntent.getBroadcast(
+//     *             this,
+//     *             action.hashCode(), // ← 用 action hashCode 作为 requestCode，确保每个按钮独立
+//     *             intent,
+//     *             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+//     *         )
+//     *         return NotificationCompat.Action.Builder(iconRes, label, pendingIntent).build()
+//     *     }
+//     *
+//     *     return listOf(
+//     *         createAction(MediaPlaybackReceiver.ACTION_PREVIOUS, R.drawable.ic_skip_previous, "上一首"),
+//     *         createAction(MediaPlaybackReceiver.ACTION_PLAY_PAUSE, R.drawable.ic_play_pause, "播放/暂停"),
+//     *         createAction(MediaPlaybackReceiver.ACTION_NEXT, R.drawable.ic_skip_next, "下一首")
+//     *     )
+//     * }
+//     *
+//     * /**
+//     *  * 在 ForegroundService 中启动媒体通知的完整示例
+//     *  */
+//     * class MusicService : Service() {
+//     *
+//     *     companion object {
+//     *         var mediaSession: MediaSessionCompat? = null
+//     *         private const val NOTIFY_ID_MEDIA = 1001
+//     *     }
+//     *
+//     *     override fun onCreate() {
+//     *         super.onCreate()
+//     *         // 初始化 MediaSession（实际项目中应在 PlaybackManager 中管理）
+//     *         mediaSession = MediaSessionCompat(this, "MusicService").apply {
+//     *             setCallback(object : MediaSessionCompat.Callback() {
+//     *                 override fun onPlay() { /* 开始播放逻辑 */ }
+//     *                 override fun onPause() { /* 暂停逻辑 */ }
+//     *                 override fun onSkipToNext() { /* 下一首逻辑 */ }
+//     *                 override fun onSkipToPrevious() { /* 上一首逻辑 */ }
+//     *             })
+//     *             isActive = true // ← 必须激活，否则通知控件无效
+//     *         }
+//     *     }
+//     *
+//     *     /**
+//     *      * 当播放状态/歌曲变化时调用此方法更新通知
+//     *      */
+//     *     fun updateMediaNotification(title: String, artist: String?, albumArt: Bitmap?) {
+//     *         val token = mediaSession?.sessionToken
+//     *             ?: throw IllegalStateException("MediaSession 未初始化")
+//     *
+//     *         val notification = buildMediaNotification(
+//     *             token = token,
+//     *             title = title,
+//     *             artist = artist,
+//     *             albumArt = albumArt,
+//     *             actions = createMediaActions(),
+//     *             compactActionIndices = intArrayOf(1), // 折叠态只显示播放/暂停
+//     *             ongoing = true
+//     *         )
+//     *
+//     *         startForeground(NOTIFY_ID_MEDIA, notification)
+//     *     }
+//     *
+//     *     override fun onDestroy() {
+//     *         mediaSession?.release()
+//     *         mediaSession = null
+//     *         super.onDestroy()
+//     *     }
+//     *
+//     *     override fun onBind(intent: Intent?): IBinder? = null
+//     * }
+//     * 3. Manifest 注册
+//     * <receiver
+//     *     android:name=".MediaPlaybackReceiver"
+//     *     android:exported="false">
+//     *     <intent-filter>
+//     *         <action android:name="com.your.package.ACTION_PREVIOUS" />
+//     *         <action android:name="com.your.package.ACTION_PLAY_PAUSE" />
+//     *         <action android:name="com.your.package.ACTION_NEXT" />
+//     *     </intent-filter>
+//     * </receiver>
 //     */
-//    fun Context.buildDownloadProgressNotification(
+//    fun Context.buildMediaNotification(
+//        token: MediaSessionCompat.Token,
 //        title: String,
-//        progress: Int,       // 0-100
-//        max: Int = 100,
-//        notifyId: Int        // ⚠️ 下载进度必须用固定ID，持续覆盖更新
+//        artist: String? = null,
+//        albumArt: Bitmap? = null,
+//        actions: List<NotificationCompat.Action>,
+//        compactActionIndices: IntArray = intArrayOf(1),
+//        ongoing: Boolean = true
 //    ): Notification {
-//        val remoteViews = RemoteViews(packageName, R.layout.notification_download_progress).apply {
-//            setTextViewText(R.id.tv_title, title)
-//            setProgressBar(R.id.progress_bar, max, progress, false)
-//            setTextViewText(R.id.tv_percent, "$progress%")
+//        val builder = builder(title = title, text = artist, ongoing = ongoing)
+//            .asMedia(token = token, showActionsInCompactView = compactActionIndices)
+//            // 媒体通知必须设置 Category
+//            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+//            // 锁屏可见性：公开显示播放控件
+//            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+//        // 添加所有播放控制按钮
+//        actions.forEach { builder.addAction(it) }
+//        // 设置专辑封面（展开态大图 + 折叠态小图标）
+//        albumArt?.let {
+//            // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
+//            builder.setLargeIcon(it)
 //        }
-//        return builder(title = title, text = "$progress%", ongoing = true)
-//            .setStyle(NotificationCompat.DecoratedCustomViewStyle()) // 保留系统装饰
-//            .setCustomContentView(remoteViews)                       // 折叠态自定义视图
-//            .setOngoing(true)                                        // 下载中不可滑动删除
-//            .setOnlyAlertOnce(true)                                  // 🔑 关键：更新时不重复响铃/震动
+//        return builder.build()
+//    }
+//
+//    /**
+//     * 构建带进度条的通知（基于 DecoratedCustomViewStyle）
+//     * 此方法仅负责【创建/更新】通知，不负责发送
+//     * 调用方需自行持有 notifyId 并调用 notification.notify(notifyId) 进行覆盖更新
+//     * @param title 通知标题
+//     * @param progress 当前进度 (0-100)
+//     * @param max 最大进度值，默认 100
+//     * @param isIndeterminate true=不确定进度(循环动画)，false=确定进度
+//     * @param ongoing true=不可滑动删除(下载中)，false=可删除(下载完成/失败)
+//     * @param contentLayoutRes 自定义布局资源ID，需包含 R.id.tv_title, R.id.progress_bar, R.id.tv_percent
+//     *
+//     * // 下载开始时
+//     * val notifyId = NotificationUtil.notificationId
+//     * val notification = context.buildProgressNotification(
+//     *     title = "正在下载更新包",
+//     *     progress = 0,
+//     *     isIndeterminate = true,  // 初始阶段不确定进度
+//     *     ongoing = true
+//     * )
+//     * notification.notify(notifyId)
+//     * // 下载过程中（高频更新）
+//     * val updatedNotification = context.buildProgressNotification(
+//     *     title = "正在下载更新包",
+//     *     progress = currentProgress,
+//     *     isIndeterminate = false,
+//     *     ongoing = true
+//     * )
+//     * updatedNotification.notify(notifyId)  // 相同ID覆盖更新
+//     * // 下载完成
+//     * val completeNotification = context.buildProgressNotification(
+//     *     title = "下载完成",
+//     *     progress = 100,
+//     *     ongoing = false  // 允许用户滑动清除
+//     * )
+//     * completeNotification.notify(notifyId)
+//     */
+//    fun Context.buildProgressNotification(
+//        title: String,
+//        progress: Int,
+//        max: Int = 100,
+//        isIndeterminate: Boolean = false,
+//        ongoing: Boolean = true,
+//        @LayoutRes contentLayoutRes: Int = R.layout.notification_download_progress
+//    ): Notification {
+//        val remoteViews = RemoteViews(packageName, contentLayoutRes).apply {
+//            setTextViewText(R.id.tv_title, title)
+//            setProgressBar(R.id.progress_bar, max, progress, isIndeterminate)
+//            // 不确定进度时隐藏百分比文本
+//            if (!isIndeterminate) {
+//                setTextViewText(R.id.tv_percent, "${progress}%")
+//                setViewVisibility(R.id.tv_percent, View.VISIBLE)
+//            } else {
+//                setViewVisibility(R.id.tv_percent, View.GONE)
+//            }
+//        }
+//
+//        return builder(title = title, text = if (isIndeterminate) "准备中..." else "$progress%", ongoing = ongoing)
+//            .asDecoratedCustomView(contentView = remoteViews)
+//            // 更新进度时不重复响铃/震动/闪烁
+//            .setOnlyAlertOnce(true)
 //            .build()
-//        // 3. 更新进度（相同 notifyId 覆盖）
-//        notificationManager?.notify(DOWNLOAD_NOTIFY_ID, notification)
 //    }
 
     /**

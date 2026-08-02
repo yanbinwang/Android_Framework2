@@ -494,7 +494,7 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
         if (deleteDir) root.deleteDirectory()
         // 确保目录创建
         root.ensureDirExists()
-        // 开启Glide下载
+        // 开启 Glide 下载
         suspendingGlideDownload(mContext, string, storeDir)
     }
 }
@@ -510,7 +510,7 @@ private suspend fun suspendingGlideDownload(mContext: Context, string: String, s
             // 防御性检查：万一 Glide 返回的 name 与已有目录重名
             // nameWithoutExtension: 用于获取文件名中去掉最后一个后缀（扩展名）之后的部分
             if (targetFile.exists() && targetFile.isDirectory) {
-                val safeName = "${file.nameWithoutExtension}_${System.currentTimeMillis()}.${file.extension}"
+                val safeName = "${file.nameWithoutExtension}_${EN_YMDHMS.convert(Date())}.${file.extension}"
                 val safeTarget = File(storeDir, safeName)
                 file.copyTo(safeTarget, true)
                 file.delete()

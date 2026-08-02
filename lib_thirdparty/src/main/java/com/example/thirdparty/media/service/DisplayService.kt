@@ -30,9 +30,9 @@ import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewHeight
 import com.example.thirdparty.media.utils.DisplayHelper.Companion.previewWidth
 import com.example.thirdparty.media.widget.TimerTick
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_SCREEN_RECORD
+import com.example.thirdparty.utils.NotificationUtil.builder
 import com.example.thirdparty.utils.NotificationUtil.createNotificationChannelIfNeeded
 import java.lang.ref.WeakReference
-import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
@@ -111,9 +111,8 @@ class DisplayService : TrackableLifecycleService() {
     override fun onCreate() {
         super.onCreate()
         // 创建符合Android 15要求的通知渠道
-        val channelId = "${string(R.string.notificationChannelId)}_${this.javaClass.simpleName.lowercase(Locale.getDefault())}"
-//        val channelName = string(R.string.notificationChannelName)
-        val channelName = "屏幕录制状态"
+        val channelId = string(R.string.notificationChannelId)
+        val channelName = string(R.string.notificationChannelName)
         val channelDesc = "用于显示屏幕录制运行状态"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 录屏服务建议使用低重要性，避免打扰用户
@@ -125,13 +124,21 @@ class DisplayService : TrackableLifecycleService() {
             notificationManager.createNotificationChannelIfNeeded(channel)
         }
         // 构建完整的通知
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("正在录屏") // 强制要求：标题
-            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true) // 标记为持续通知，用户无法手动清除
-            .setSilent(true) // 静音通知
-            .build()
+//        val notification = NotificationCompat.Builder(this, channelId)
+//            .setContentTitle("正在录屏") // 强制要求：标题
+//            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
+//            .setPriority(NotificationCompat.PRIORITY_LOW)
+//            .setOngoing(true) // 标记为持续通知，用户无法手动清除
+//            .setSilent(true) // 静音通知
+//            .build()
+        val notification = builder(
+            largeIconRes = null,
+            title = "正在录屏",
+            autoCancel = false,
+            silent = true,
+            ongoing = true,
+            priority = NotificationCompat.PRIORITY_LOW
+        ).build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             startForeground(NOTIFY_ID_SCREEN_RECORD, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PROJECTION)
