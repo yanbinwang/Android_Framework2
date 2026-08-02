@@ -57,6 +57,7 @@ import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.service.MusicBindService
 import com.example.mvvm.service.MusicService
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
@@ -480,7 +481,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         return mode == AppOpsManager.MODE_ALLOWED
     }
 
-    private var musicService: MusicService? = null
+    private var musicService: MusicBindService? = null
 
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
@@ -496,7 +497,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            startService(startIntent)
 //        }
         bindService(MusicService::class.java, lifecycleOwner = this, onConnected = { binder ->
-            val mBinder = binder as? MusicService.MusicBinder
+            val mBinder = binder as? MusicBindService.MusicBinder
             mBinder?.play("https://example.com/song.mp3")
             musicService = mBinder?.getService()
         }, onDisconnected = {
