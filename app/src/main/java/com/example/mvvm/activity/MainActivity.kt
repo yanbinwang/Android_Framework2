@@ -495,14 +495,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        } else {
 //            startService(startIntent)
 //        }
-        bindService(MusicBindService::class.java, lifecycleOwner = this, onConnected = { binder ->
-            val mBinder = binder as? MusicBindService.MusicBinder
-            mBinder?.play("https://example.com/song.mp3")
-            musicService = mBinder?.getService()
-        }, onDisconnected = {
-            musicService = null
-            "断开连接".logWTF("wyb")
-        })
+//        bindService(MusicBindService::class.java, lifecycleOwner = this, onConnected = { binder ->
+//            val mBinder = binder as? MusicBindService.MusicBinder
+//            mBinder?.play("https://example.com/song.mp3")
+//            musicService = mBinder?.getService()
+//        }, onDisconnected = {
+//            musicService = null
+//            "断开连接".logWTF("wyb")
+//        })
+
+
+        mPermission.requestPermissions { isGranted, _ ->
+            if (isGranted) {
+                navigation(RouterPath.MediaActivity)
+            }
+        }
+
+
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 

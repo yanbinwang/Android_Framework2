@@ -15,6 +15,7 @@ object RouterPath {
     const val AdActivity = "/app/AdActivity"
     const val TouchActivity = "/app/TouchActivity"
     const val ScreenActivity = "/app/ScreenActivity"
+    const val MediaActivity = "/app/MediaActivity"
     // home模块
     const val LinkActivity = "/home/LinkActivity" // 推送跳转
     const val WebActivity = "/home/WebActivity" // 网页

@@ -259,6 +259,11 @@
             android:supportsPictureInPicture="true"
             android:windowSoftInputMode="stateHidden|adjustPan"
             tools:ignore="NewApi,UnusedAttribute" />
+        <activity
+            android:name=".activity.MediaActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************首页模块****************************************************** -->
         <!-- 推送 -->
         <activity
@@ -321,13 +326,29 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="microphone|mediaPlayback" />
-        <!-- 音频播放 -->
+        <!-- 绑定服务 -->
         <service
             android:name=".service.MusicBindService"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".service.MusicService"
+            android:configChanges="keyboardHidden|orientation|screenSize"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <!-- 音频播放广播 -->
+        <receiver
+            android:name=".service.receiver.MediaPlaybackReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="${PACKAGE_NAME}.ACTION_PREVIOUS" />
+                <action android:name="${PACKAGE_NAME}.ACTION_PLAY_PAUSE" />
+                <action android:name="${PACKAGE_NAME}.ACTION_NEXT" />
+            </intent-filter>
+        </receiver>
         <!-- ******************************************************解决安卓N+跳系统安装闪退****************************************************** -->
         <provider
             android:name="androidx.core.content.FileProvider"
