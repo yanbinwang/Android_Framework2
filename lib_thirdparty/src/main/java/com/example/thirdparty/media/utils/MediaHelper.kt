@@ -76,6 +76,9 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
         }
     }
 
+    /**
+     * 建立生命周期绑定
+     */
     fun addObserver(owner: LifecycleOwner) {
         owner.lifecycle.addObserver(this)
     }
