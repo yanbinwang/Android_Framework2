@@ -150,7 +150,7 @@ object NotificationUtil {
 
     /**
      * 创建通知栏构建器 (普通通知样式)
-     * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small
+     * @param smallIconRes 通知栏小图标资源 ID，默认为 R.mipmap.ic_push_small （必传）
      * 必须设置：若不设置，通知将无法显示。
      * 尺寸要求：
      * 推荐使用 24dp × 24dp 的矢量图标（VectorDrawable）。
@@ -158,7 +158,7 @@ object NotificationUtil {
      * 格式要求：
      * 仅支持 alpha 通道（即图标应为透明背景，系统会自动应用主题色）。
      * 推荐使用 AndroidX 的 VectorAsset 或 VectorDrawable。
-     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large
+     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large （可空）
      * 建议设置：提升通知辨识度（如显示用户头像、应用 Logo）。
      * 尺寸要求：
      * 常规通知：推荐 64dp × 64dp（系统会自动裁剪为圆形）。
@@ -166,8 +166,8 @@ object NotificationUtil {
      * 格式要求：
      * 支持任意格式（PNG、JPEG、Bitmap），但通常为正方形。
      * 背景建议透明，避免变形。
-     * @param title 通知栏标题，默认为空字符串
-     * @param text 通知栏内容，默认为空字符串
+     * @param title 通知栏标题，默认为空
+     * @param text 通知栏内容，默认为空
      * @param argb 通知栏颜色资源 ID，默认为 R.color.textWhite
      * @param autoCancel 点击通知后是否自动取消，默认为 true
      * @param sound 通知栏声音 Uri，默认为系统默认通知声音
@@ -194,8 +194,8 @@ object NotificationUtil {
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
         largeIconRes: Int? = R.mipmap.ic_push_large,
-        title: String? = "",
-        text: String? = "",
+        title: String? = null,
+        text: String? = null,
         argb: Int = R.color.textWhite,
         autoCancel: Boolean = true,
         sound: Uri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION),
@@ -206,9 +206,9 @@ object NotificationUtil {
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
-            // 24dp × 24dp (约96px)
+            // 24dp × 24dp (约 96px)
             .setSmallIcon(smallIconRes)
-            // 64dp × 64dp (约144px)
+            // 64dp × 64dp (约 144px)
             .apply {
                 largeIconRes?.let {
                     setLargeIcon(decodeResource(it))
@@ -422,7 +422,7 @@ object NotificationUtil {
 //     * 1. 定义广播 Action 常量 & 接收器
 //     * /**
 //     *  * 媒体播放广播接收器
-//     *  * ⚠️ 必须在 AndroidManifest.xml 中注册（Android 14+ 需指定 exported=false）
+//     *  * 必须在 AndroidManifest.xml 中注册（Android 14+ 需指定 exported=false）
 //     *  */
 //     * class MediaPlaybackReceiver : BroadcastReceiver() {
 //     *     companion object {
@@ -432,7 +432,7 @@ object NotificationUtil {
 //     *     }
 //     *
 //     *     override fun onReceive(context: Context, intent: Intent) {
-//     *         // 🔑 核心：将广播转发给 MediaSessionCompat.Callback
+//     *         // 将广播转发给 MediaSessionCompat.Callback
 //     *         // 你的 PlaybackManager/Service 应持有 MediaSessionCompat 实例并设置 Callback
 //     *         when (intent.action) {
 //     *             ACTION_PREVIOUS -> MusicService.mediaSession?.controller?.skipToPrevious()

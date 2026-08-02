@@ -323,7 +323,7 @@
             android:foregroundServiceType="microphone|mediaPlayback" />
         <!-- 音频播放 -->
         <service
-            android:name=".service.MusicService"
+            android:name=".service.MusicBindService"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:enabled="true"
             android:exported="false"
