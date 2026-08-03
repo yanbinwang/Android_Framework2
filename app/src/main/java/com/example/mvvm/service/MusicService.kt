@@ -16,33 +16,14 @@ import com.example.mvvm.R
 import com.example.mvvm.service.receiver.MediaPlaybackReceiver
 import com.example.mvvm.service.receiver.MediaPlaybackReceiver.Companion.createMediaAction
 import com.example.thirdparty.media.utils.MediaHelper
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_AUDIO_MEDIA
 import com.example.thirdparty.utils.NotificationUtil.buildMediaNotification
+import java.util.Locale
 
 class MusicService : TrackableLifecycleService() {
     private val media by lazy { MediaHelper(this, false, false) }
-
-    companion object {
-        private const val NOTIFY_ID_MEDIA = 1001
-        var mediaSession: MediaSessionCompat? = null
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-        // 生命周期绑定
-        media.addObserver(this)
-        // 媒体监听
-        media.setOnPreparedListener {
-            mediaOnPlay()
-        }
-        media.setOnErrorListener { _, _, _ ->
-            mediaOnStop()
-        }
-        media.setOnCompletionListener {
-            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
-            refreshNotification()
-        }
-        // 初始化 MediaSession（实际项目中应在 PlaybackManager 中管理）
-        mediaSession = MediaSessionCompat(this, "MusicService").apply {
+    private val mediaSession by lazy {
+        MediaSessionCompat(this, javaClass.simpleName.lowercase(Locale.getDefault())).apply {
             setCallback(object : MediaSessionCompat.Callback() {
                 /**
                  * 开始播放逻辑
@@ -64,30 +45,10 @@ class MusicService : TrackableLifecycleService() {
                     super.onStop()
                     mediaOnStop()
                 }
-
-//                /**
-//                 * 下一首逻辑
-//                 */
-//                override fun onSkipToNext() {
-//                    super.onSkipToNext()
-//                    "下一首".logWTF("wyb")
-//                }
-//
-//                /**
-//                 * 上一首逻辑
-//                 */
-//                override fun onSkipToPrevious() {
-//                    super.onSkipToPrevious()
-//                    "上一首".logWTF("wyb")
-//                }
             })
             // 激活 Session
             isActive = true
             // 设置支持的媒体按键（告诉系统能响应哪些按钮）
-//            val capabilities = PlaybackStateCompat.ACTION_PLAY or
-//                    PlaybackStateCompat.ACTION_PAUSE or
-//                    PlaybackStateCompat.ACTION_SKIP_TO_NEXT or
-//                    PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
             val capabilities = PlaybackStateCompat.ACTION_PLAY or PlaybackStateCompat.ACTION_PAUSE
             // 设置初始状态（必须是 STOPPED 或 NONE，不能省略）
             val initialState = PlaybackStateCompat.Builder()
@@ -95,6 +56,23 @@ class MusicService : TrackableLifecycleService() {
                 .setState(PlaybackStateCompat.STATE_STOPPED, 0, 1.0f)
                 .build()
             setPlaybackState(initialState)
+        }
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        // 生命周期绑定
+        media.addObserver(this)
+        // 媒体监听
+        media.setOnPreparedListener {
+            mediaOnPlay()
+        }
+        media.setOnErrorListener { _, _, _ ->
+            mediaOnStop()
+        }
+        media.setOnCompletionListener {
+            updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
+            refreshNotification()
         }
         // 创建通知
         refreshNotification()
@@ -128,7 +106,7 @@ class MusicService : TrackableLifecycleService() {
             .setActions(capabilities)
             .setState(state, media.getCurrentPosition().toSafeLong(), 1.0f)
             .build()
-        mediaSession?.setPlaybackState(playbackState)
+        mediaSession.setPlaybackState(playbackState)
     }
 
     /**
@@ -144,9 +122,8 @@ class MusicService : TrackableLifecycleService() {
      * 当播放状态/歌曲变化时调用此方法更新通知
      */
     private fun updateMediaNotification(title: String, artist: String?, albumArt: Bitmap?) {
-        val token = mediaSession?.sessionToken ?: throw IllegalStateException("MediaSession 未初始化")
         val notification = buildMediaNotification(
-            token = token,
+            token = mediaSession.sessionToken,
             title = title,
             artist = artist,
             albumArt = albumArt,
@@ -155,9 +132,9 @@ class MusicService : TrackableLifecycleService() {
         )
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            startForeground(NOTIFY_ID_MEDIA, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            startForeground(NOTIFY_ID_AUDIO_MEDIA, notification, FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         } else {
-            startForeground(NOTIFY_ID_MEDIA, notification)
+            startForeground(NOTIFY_ID_AUDIO_MEDIA, notification)
         }
     }
 
@@ -167,11 +144,7 @@ class MusicService : TrackableLifecycleService() {
     private fun createMediaActions(): List<NotificationCompat.Action> {
         return listOf(
 //            createMediaAction(MediaPlaybackReceiver.ACTION_PREVIOUS, android.R.drawable.ic_media_previous, "上一首"),
-            createMediaAction(
-                MediaPlaybackReceiver.ACTION_PLAY_PAUSE,
-                android.R.drawable.ic_media_pause,
-                "播放/暂停"
-            ),
+            createMediaAction(MediaPlaybackReceiver.ACTION_PLAY_PAUSE, android.R.drawable.ic_media_pause, "播放/暂停", mediaSession.sessionToken),
 //            createMediaAction(MediaPlaybackReceiver.ACTION_NEXT, android.R.drawable.ic_media_next, "下一首")
         )
     }
@@ -185,8 +158,7 @@ class MusicService : TrackableLifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
-        mediaSession?.release()
-        mediaSession = null
+        mediaSession.release()
     }
 
 }

@@ -113,6 +113,8 @@ object NotificationUtil {
     const val NOTIFY_ID_AUDIO_RECORD = 3
     // 录屏前台服务
     const val NOTIFY_ID_SCREEN_RECORD = 4
+    // 音频前台服务
+    const val NOTIFY_ID_AUDIO_MEDIA = 5
 
     /**
      * BaseApplication 中初始化
