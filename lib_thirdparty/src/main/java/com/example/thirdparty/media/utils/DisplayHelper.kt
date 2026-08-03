@@ -194,7 +194,7 @@ class DisplayHelper(private val mActivity: FragmentActivity, registrar: Activity
                 decorView.post {
                     val displayCutout = decorView.rootWindowInsets.displayCutout
                     val rectLists = displayCutout?.boundingRects
-                    if (null != rectLists && rectLists.size > 0) {
+                    if (!rectLists.isNullOrEmpty()) {
                         previewWidth = screenWidth - displayCutout.safeInsetLeft - displayCutout.safeInsetRight
                         previewHeight = screenHeight - displayCutout.safeInsetTop - displayCutout.safeInsetBottom
                     }
