@@ -38,15 +38,14 @@ import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.isMainThread
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.NotificationUtil.hasNotificationPermission
-import com.example.thirdparty.utils.NotificationUtil.requestNotificationPermission
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withTimeout
 import java.lang.ref.WeakReference
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -371,8 +370,8 @@ object NotificationUtil {
         return notification
     }
 
-    fun Context?.buildImageNotification(
-        largeIcon: Bitmap? = decodeResource(R.mipmap.ic_push_large),
+    fun Context.buildImageNotification(
+        largeIconUrl: String? = null,
         title: String,
         text: String,
         bigPictureUrl: String? = null,
@@ -383,25 +382,34 @@ object NotificationUtil {
         notifyId: Int? = null,
         timeoutMs: Long = 5000L
     ) {
-        this ?: return
         val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
-        if (!bigPictureUrl.isNullOrEmpty()) {
-            flow<Unit> {
-                // 防止 Context 泄漏
-                val context = WeakReference(this@buildImageNotification).get() ?: BaseApplication.instance.applicationContext
-                // 5秒超时，根据实际图片大小调整
-                val bigPicture = withTimeoutOrNull(timeoutMs) {
-                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, bigPictureUrl) })
-                } ?: throw RuntimeException("图片下载超时或失败")
-                buildImageNotification(largeIcon, title, text, bigPicture, intent, summaryText, ongoing, notify, resolvedNotifyId)
-            }.withHandling({
-                // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
-                buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
-            }).launchIn(notificationScope)
-        } else {
-            // 没有图片的，直接创建通知
-            buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+        // 没有大图 URL，直接走纯文本通知
+        if (bigPictureUrl.isNullOrEmpty()) {
+            buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
+            return
         }
+        flow<Unit> {
+            // 防止 Context 泄漏
+            val safeContext = WeakReference(this@buildImageNotification).get() ?: BaseApplication.instance.applicationContext
+            // 5秒超时，根据实际图片大小调整
+            val (largeIcon, bigPicture) = withTimeout(timeoutMs) {
+                val iconDeferred = async(Main.immediate) {
+                    if (!largeIconUrl.isNullOrEmpty()) {
+                        BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, largeIconUrl) }) ?: decodeResource(R.mipmap.ic_push_large)
+                    } else {
+                        decodeResource(R.mipmap.ic_push_large)
+                    }
+                }
+                val picDeferred = async(Main.immediate) {
+                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, bigPictureUrl) }) ?: throw IllegalStateException("BigPicture decode failed")
+                }
+                iconDeferred.await() to picDeferred.await()
+            }
+            buildImageNotification(largeIcon, title, text, bigPicture, intent, summaryText, ongoing, notify, resolvedNotifyId)
+        }.withHandling({
+            // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
+            buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
+        }).launchIn(notificationScope)
     }
 
     /**
@@ -522,7 +530,7 @@ object NotificationUtil {
 
     /**
      * 创建通知栏 (更新使用相同 id)
-     * @param id 推送 ID，相同会覆盖，不同则区分
+     * @param notifyId 推送 ID，相同会覆盖，不同则区分
      * 1) 0–99：前台服务/系统级固定通知（录屏、定位等），预留充足
      * 2) 100+：动态业务通知构建器自增区间 (从 100 自增到 Integer.MAX_VALUE，即使每秒推一条也要 68 年)
      * 3) 1000+：订单等业务实体 ID 直接作为通知 ID
@@ -548,40 +556,6 @@ object NotificationUtil {
         }
     }
 
-    /**
-     * 判断是否具备通知
-     */
-    fun Context?.hasNotificationPermission(): Boolean {
-        this ?: return false
-        // Android 13及以上需要检查POST_NOTIFICATIONS权限
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-        } else {
-            // Android 12及以下默认拥有通知权限
-            true
-        }
-    }
-
-    /**
-     * 通知权限(安卓13开始强制要求授予通知权限才能弹出通知)
-     *  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-     * 请求权限的实现（需在Activity中）
-     * private val requestPermissionLauncher = mActivity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-     *   if (isGranted) {
-     *      startRecording()
-     *   } else {
-     *     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-     *       mActivity.navigateToNotificationSettings()
-     *     }
-     *   }
-     * }
-     */
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
-    fun ActivityResultLauncher<String>?.requestNotificationPermission() {
-        this ?: return
-        launch(Manifest.permission.POST_NOTIFICATIONS)
-    }
-
 }
 
 /**
@@ -603,6 +577,42 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
                     listener.invoke(false)
                 })
                 .show()
+        }
+    }
+
+    companion object {
+        /**
+         * 判断是否具备通知
+         */
+        fun Context?.hasNotificationPermission(): Boolean {
+            this ?: return false
+            // Android 13及以上需要检查POST_NOTIFICATIONS权限
+            return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+            } else {
+                // Android 12及以下默认拥有通知权限
+                true
+            }
+        }
+
+        /**
+         * 通知权限(安卓13开始强制要求授予通知权限才能弹出通知)
+         *  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+         * 请求权限的实现（需在Activity中）
+         * private val requestPermissionLauncher = mActivity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+         *   if (isGranted) {
+         *      startRecording()
+         *   } else {
+         *     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+         *       mActivity.navigateToNotificationSettings()
+         *     }
+         *   }
+         * }
+         */
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+        fun ActivityResultLauncher<String>?.requestNotificationPermission() {
+            this ?: return
+            launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
 

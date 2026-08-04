@@ -144,7 +144,7 @@ class DisplayService : TrackableLifecycleService() {
 //            .setSilent(true) // 静音通知
 //            .build()
         val notification = builder(
-            largeIconRes = null,
+            largeIcon = null,
             title = "正在录屏",
             autoCancel = false,
             silent = true,
