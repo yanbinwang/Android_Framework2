@@ -8,13 +8,11 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
 import com.example.common.base.page.Extra
-import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.intentString
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.value.toSafeLong
-import com.example.mvvm.R
-import com.example.mvvm.service.receiver.MediaPlaybackReceiver
-import com.example.mvvm.service.receiver.MediaPlaybackReceiver.Companion.createMediaAction
+import com.example.mvvm.service.receiver.MusicPlaybackReceiver
+import com.example.mvvm.service.receiver.MusicPlaybackReceiver.Companion.createMediaAction
 import com.example.thirdparty.media.utils.MediaHelper
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_AUDIO_MEDIA
 import com.example.thirdparty.utils.NotificationUtil.buildMediaNotification
@@ -72,10 +70,10 @@ class MusicService : TrackableLifecycleService() {
         }
         media.setOnCompletionListener {
             updatePlaybackState(PlaybackStateCompat.STATE_STOPPED)
-            refreshNotification()
+            updateMediaNotification()
         }
-        // 创建通知
-        refreshNotification()
+        // 创建/更新通知
+        updateMediaNotification()
     }
 
     private fun mediaOnPlay() {
@@ -110,18 +108,13 @@ class MusicService : TrackableLifecycleService() {
     }
 
     /**
-     * 仅在媒体信息变化或需要刷新通知UI时调用（重量，低频调用）
-     * onPlay/onPause → 只调 updatePlaybackState()
-     * onCompletion / 切歌 / 首次创建 → updatePlaybackState() + refreshNotification()
-     */
-    private fun refreshNotification() {
-        updateMediaNotification("歌曲/视频标题", "艺术家/频道名", decodeResource(R.mipmap.ic_launcher))
-    }
-
-    /**
      * 当播放状态/歌曲变化时调用此方法更新通知
+     * 更新:
+     *  仅在媒体信息变化或需要刷新通知UI时调用（重量，低频调用）
+     *  onPlay/onPause → 只调 updatePlaybackState()
+     *  onCompletion / 切歌 / 首次创建 → updatePlaybackState() + updateMediaNotification()
      */
-    private fun updateMediaNotification(title: String, artist: String?, albumArt: Bitmap?) {
+    private fun updateMediaNotification(title: String = "", artist: String? = null, albumArt: Bitmap? = null) {
         val notification = buildMediaNotification(
             token = mediaSession.sessionToken,
             title = title,
@@ -143,9 +136,9 @@ class MusicService : TrackableLifecycleService() {
      */
     private fun createMediaActions(): List<NotificationCompat.Action> {
         return listOf(
-//            createMediaAction(MediaPlaybackReceiver.ACTION_PREVIOUS, android.R.drawable.ic_media_previous, "上一首"),
-            createMediaAction(MediaPlaybackReceiver.ACTION_PLAY_PAUSE, android.R.drawable.ic_media_pause, "播放/暂停", mediaSession.sessionToken),
-//            createMediaAction(MediaPlaybackReceiver.ACTION_NEXT, android.R.drawable.ic_media_next, "下一首")
+//            createMediaAction(MusicPlaybackReceiver.ACTION_PREVIOUS, android.R.drawable.ic_media_previous, "上一首"),
+            createMediaAction(MusicPlaybackReceiver.ACTION_PLAY_PAUSE, android.R.drawable.ic_media_pause, "播放/暂停", mediaSession.sessionToken),
+//            createMediaAction(MusicPlaybackReceiver.ACTION_NEXT, android.R.drawable.ic_media_next, "下一首")
         )
     }
 
@@ -158,6 +151,7 @@ class MusicService : TrackableLifecycleService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        media.release()
         mediaSession.release()
     }
 

@@ -410,8 +410,7 @@ object NotificationUtil {
      * @param artist 艺术家/频道名
      * @param albumArt 专辑封面（可选）
      * @param actions 播放控制按钮列表
-     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停
-     * @param ongoing 是否常驻不可删除
+     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停，根据传入的 IntArray 的下标决定默认值
      */
     fun Context.buildMediaNotification(
         token: MediaSessionCompat.Token,

@@ -4,7 +4,6 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.media.session.MediaSession
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
@@ -12,12 +11,11 @@ import com.example.common.base.page.Extra
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.common.utils.function.intentParcelable
 import com.example.common.utils.helper.ConfigHelper.getPackageName
-import com.example.mvvm.service.MusicService
 
 /**
  * 媒体播放广播接收器
  */
-class MediaPlaybackReceiver : BroadcastReceiver() {
+class MusicPlaybackReceiver : BroadcastReceiver() {
 
     companion object {
         val ACTION_PREVIOUS = "${getPackageName()}.ACTION_PREVIOUS"
@@ -28,7 +26,7 @@ class MediaPlaybackReceiver : BroadcastReceiver() {
          * 创建广播按钮
          */
         fun Context.createMediaAction(action: String, iconRes: Int, label: String, sessionToken: MediaSessionCompat.Token): NotificationCompat.Action {
-            val intent = Intent(this, MediaPlaybackReceiver::class.java).apply {
+            val intent = Intent(this, MusicPlaybackReceiver::class.java).apply {
                 this.action = action
                 this.putExtra(Extra.BUNDLE_BEAN, sessionToken)
             }
