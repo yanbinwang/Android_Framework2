@@ -113,6 +113,8 @@ object NotificationUtil {
     const val NOTIFY_ID_AUDIO_RECORD = 3
     // 录屏前台服务
     const val NOTIFY_ID_SCREEN_RECORD = 4
+    // 音频前台服务
+    const val NOTIFY_ID_AUDIO_MEDIA = 5
 
     /**
      * BaseApplication 中初始化
@@ -150,7 +152,7 @@ object NotificationUtil {
      * 格式要求：
      * 仅支持 alpha 通道（即图标应为透明背景，系统会自动应用主题色）。
      * 推荐使用 AndroidX 的 VectorAsset 或 VectorDrawable。
-     * @param largeIconRes 通知栏展开大图标资源 ID，默认为 R.mipmap.ic_push_large （可空）
+     * @param largeIcon 通知栏左侧大图标，默认为 R.mipmap.ic_push_large （可空）
      * 建议设置：提升通知辨识度（如显示用户头像、应用 Logo）。
      * 尺寸要求：
      * 常规通知：推荐 64dp × 64dp（系统会自动裁剪为圆形）。
@@ -185,7 +187,7 @@ object NotificationUtil {
      */
     fun Context.builder(
         smallIconRes: Int = R.mipmap.ic_push_small,
-        largeIconRes: Int? = R.mipmap.ic_push_large,
+        largeIcon: Bitmap? = decodeResource(R.mipmap.ic_push_large),
         title: String? = null,
         text: String? = null,
         argb: Int = R.color.appTheme,
@@ -197,13 +199,19 @@ object NotificationUtil {
         category: String? = null,
         pendingIntent: PendingIntent? = null
     ): NotificationCompat.Builder {
+        /**
+         * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
+         * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
+         * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
+         * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 显式传入 null，告诉系统在展开态时清除右侧/左下角的图标
+         */
         val builder = NotificationCompat.Builder(this, string(R.string.notificationChannelId))
             // 24dp × 24dp (约 96px)
             .setSmallIcon(smallIconRes)
             // 64dp × 64dp (约 144px)
             .apply {
-                largeIconRes?.let {
-                    setLargeIcon(decodeResource(it))
+                largeIcon?.let {
+                    setLargeIcon(it.scale(64.dp, 64.dp, false))
                 }
             }
             .setContentTitle(title)
@@ -214,13 +222,14 @@ object NotificationUtil {
             .setSilent(silent)
             .setOngoing(ongoing)
             .setPriority(priority)
-            .setCategory(category)
+            // 仅在显式传入非空值时设置，null 等同于"未分类"
+            .apply {
+                category?.let {
+                    setCategory(it)
+                }
+            }
             // 不主动调用setWhen则通知默认会使用通知被构建并发送时的时间戳，也就是大致相当于 System.currentTimeMillis() 所获取的当前时间，此处 currentTimeStamp 做一个大致修正
             .setWhen(currentTimeStamp)
-        // 仅在显式传入非空值时设置，null 等同于"未分类"
-        category?.let {
-            builder.setCategory(it)
-        }
         pendingIntent?.let {
             builder.setContentIntent(it)
         }
@@ -249,12 +258,12 @@ object NotificationUtil {
      * 大图样式扩展（仅设置样式，不涉及图片下载）
      */
     fun NotificationCompat.Builder.asBigPicture(
-        picture: Bitmap,
+        bigPicture: Bitmap,
         bigLargeIcon: Bitmap? = null,
         bigContentTitle: CharSequence? = null,
         summaryText: CharSequence? = null
     ): NotificationCompat.Builder {
-        val style = NotificationCompat.BigPictureStyle().bigPicture(picture)
+        val style = NotificationCompat.BigPictureStyle().bigPicture(bigPicture)
         bigLargeIcon?.let {
             style.bigLargeIcon(it)
         }
@@ -310,6 +319,7 @@ object NotificationUtil {
      * 发送纯文本通知
      */
     fun Context.buildTextNotification(
+        largeIcon: Bitmap? = decodeResource(R.mipmap.ic_push_large),
         title: String,
         text: String,
         intent: Intent? = null,
@@ -321,7 +331,7 @@ object NotificationUtil {
         val pendingIntent = intent?.let {
             getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
-        val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
+        val notification = builder(largeIcon = largeIcon, title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
             .asBigText(bigText = text, summaryText = summaryText)
             .build()
         if (notify) {
@@ -332,11 +342,13 @@ object NotificationUtil {
 
     /**
      * 发送带网络图片的通知（异步下载 + 失败回退）
+     * @param bigPicture 展开态大图。**注意：此方法会回收该 Bitmap，调用方不应在调用后继续使用**
      */
     fun Context.buildImageNotification(
+        largeIcon: Bitmap? = decodeResource(R.mipmap.ic_push_large),
         title: String,
         text: String,
-        bitmap: Bitmap,
+        bigPicture: Bitmap,
         intent: Intent? = null,
         summaryText: String? = null,
         ongoing: Boolean = false,
@@ -346,31 +358,24 @@ object NotificationUtil {
         val pendingIntent = intent?.let {
             getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
-        /**
-         * NotificationCompat.Builder 内部持有并传递给系统服务，手动回收会导致异步读取时出现空白或崩溃。交给系统 + GC 处理
-         * 1) setLargeIcon(): 折叠状态下的左侧图标 (64dp × 64dp) -> 系统自动裁剪为圆形，建议提供正方形图片
-         * 2) bigPicture(): 展开状态下的大图区域 (256dp × 256dp) -> 建议使用横向矩形（如 2:1 比例），否则可能被拉伸或裁剪
-         * 3) bigLargeIcon(): 展开状态下替代 setLargeIcon() 的图标 (128dp × 128dp) -> 显式传入 null，告诉系统在展开态时清除右侧/左下角的图标
-         */
-        val largeIcon = bitmap.scale(64.dp, 64.dp, false)
-        val bigPicture = bitmap.scale(256.dp, 256.dp, false)
+        val scaledPicture = bigPicture.scale(256.dp, 256.dp, false)
 //        val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
         val bigLargeIcon = null
-        val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
-            .setLargeIcon(largeIcon)
-            .asBigPicture(picture = bigPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
+        val notification = builder(largeIcon = largeIcon, title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
+            .asBigPicture(bigPicture = scaledPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
             .build()
         if (notify) {
             notification.notify(notifyId ?: notificationId)
         }
-        bitmap.safeRecycle()
+        bigPicture.safeRecycle()
         return notification
     }
 
     fun Context?.buildImageNotification(
+        largeIcon: Bitmap? = decodeResource(R.mipmap.ic_push_large),
         title: String,
         text: String,
-        imageUrl: String? = null,
+        bigPictureUrl: String? = null,
         intent: Intent? = null,
         summaryText: String? = null,
         ongoing: Boolean = false,
@@ -380,22 +385,22 @@ object NotificationUtil {
     ) {
         this ?: return
         val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
-        if (!imageUrl.isNullOrEmpty()) {
+        if (!bigPictureUrl.isNullOrEmpty()) {
             flow<Unit> {
                 // 防止 Context 泄漏
                 val context = WeakReference(this@buildImageNotification).get() ?: BaseApplication.instance.applicationContext
                 // 5秒超时，根据实际图片大小调整
-                val bitmap = withTimeoutOrNull(timeoutMs) {
-                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, imageUrl) })
+                val bigPicture = withTimeoutOrNull(timeoutMs) {
+                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(context, bigPictureUrl) })
                 } ?: throw RuntimeException("图片下载超时或失败")
-                buildImageNotification(title, text, bitmap, intent, summaryText, ongoing, notify, resolvedNotifyId)
+                buildImageNotification(largeIcon, title, text, bigPicture, intent, summaryText, ongoing, notify, resolvedNotifyId)
             }.withHandling({
                 // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
-                buildTextNotification(title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+                buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
             }).launchIn(notificationScope)
         } else {
             // 没有图片的，直接创建通知
-            buildTextNotification(title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+            buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
         }
     }
 
@@ -408,8 +413,7 @@ object NotificationUtil {
      * @param artist 艺术家/频道名
      * @param albumArt 专辑封面（可选）
      * @param actions 播放控制按钮列表
-     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停
-     * @param ongoing 是否常驻不可删除
+     * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停，根据传入的 IntArray 的下标决定默认值
      */
     fun Context.buildMediaNotification(
         token: MediaSessionCompat.Token,
@@ -433,7 +437,14 @@ object NotificationUtil {
         actions.forEach {
             builder.addAction(it)
         }
-        // 设置专辑封面（展开态大图 + 折叠态小图标）
+        /**
+         * MediaStyle 对 LargeIcon 有特殊处理：设置专辑封面（展开态大图 + 折叠态小图标）有封面时覆盖，无封面时保留底层默认的 App Logo
+         *  折叠态：LargeIcon 被裁剪为 64dp 圆形头像 → 正好匹配
+         *  展开态：MediaStyle 直接将 LargeIcon 作为专辑封面大图展示，不再限制 64dp，而是自适应容器宽度
+         * 当传入一张高分辨率专辑封面（比如 300×300）时：
+         *  折叠态自动裁切为 64dp 圆形
+         *  展开态以原始分辨率显示为大封面
+         */
         albumArt?.let {
             // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
             builder.setLargeIcon(it)

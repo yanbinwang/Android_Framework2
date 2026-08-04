@@ -5,15 +5,17 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.core.app.NotificationCompat
+import com.example.common.base.page.Extra
 import com.example.common.utils.function.getBroadcastPendingIntent
+import com.example.common.utils.function.intentParcelable
 import com.example.common.utils.helper.ConfigHelper.getPackageName
-import com.example.mvvm.service.MusicService
 
 /**
  * 媒体播放广播接收器
  */
-class MediaPlaybackReceiver : BroadcastReceiver() {
+class MusicPlaybackReceiver : BroadcastReceiver() {
 
     companion object {
         val ACTION_PREVIOUS = "${getPackageName()}.ACTION_PREVIOUS"
@@ -23,9 +25,10 @@ class MediaPlaybackReceiver : BroadcastReceiver() {
         /**
          * 创建广播按钮
          */
-        fun Context.createMediaAction(action: String, iconRes: Int, label: String): NotificationCompat.Action {
-            val intent = Intent(this, MediaPlaybackReceiver::class.java).apply {
+        fun Context.createMediaAction(action: String, iconRes: Int, label: String, sessionToken: MediaSessionCompat.Token): NotificationCompat.Action {
+            val intent = Intent(this, MusicPlaybackReceiver::class.java).apply {
                 this.action = action
+                this.putExtra(Extra.BUNDLE_BEAN, sessionToken)
             }
             // 用 action hashCode 作为 requestCode，确保每个按钮独立
             val pendingIntent = getBroadcastPendingIntent(action.hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -37,7 +40,8 @@ class MediaPlaybackReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         // 将广播转发给 MediaSessionCompat.Callback
         intent ?: return
-        val token = MusicService.mediaSession?.sessionToken ?: return
+//        val token = MusicService.mediaSession?.sessionToken ?: return
+        val token = intent.intentParcelable<MediaSessionCompat.Token>(Extra.BUNDLE_BEAN) ?: return
         val controller = MediaControllerCompat(context, token)
         when (intent.action) {
             ACTION_PREVIOUS -> {
