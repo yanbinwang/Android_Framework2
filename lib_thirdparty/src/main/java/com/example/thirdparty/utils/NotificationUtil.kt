@@ -251,12 +251,12 @@ object NotificationUtil {
      * 大图样式扩展（仅设置样式，不涉及图片下载）
      */
     fun NotificationCompat.Builder.asBigPicture(
-        picture: Bitmap,
+        bigPicture: Bitmap,
         bigLargeIcon: Bitmap? = null,
         bigContentTitle: CharSequence? = null,
         summaryText: CharSequence? = null
     ): NotificationCompat.Builder {
-        val style = NotificationCompat.BigPictureStyle().bigPicture(picture)
+        val style = NotificationCompat.BigPictureStyle().bigPicture(bigPicture)
         bigLargeIcon?.let {
             style.bigLargeIcon(it)
         }
@@ -360,7 +360,7 @@ object NotificationUtil {
         val bigLargeIcon = null
         val notification = builder(title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
             .setLargeIcon(largeIcon)
-            .asBigPicture(picture = bigPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
+            .asBigPicture(bigPicture = bigPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
             .build()
         if (notify) {
             notification.notify(notifyId ?: notificationId)
