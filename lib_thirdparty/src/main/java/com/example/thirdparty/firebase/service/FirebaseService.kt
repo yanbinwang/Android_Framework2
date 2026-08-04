@@ -1,12 +1,12 @@
 package com.example.thirdparty.firebase.service
 
+import com.example.common.utils.function.orNoData
 import com.example.common.utils.toJson
-import com.example.framework.utils.function.serviceStateMap
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationHandler
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationIntentGenerator
-import com.example.thirdparty.utils.NotificationUtil.showSimpleNotification
+import com.example.thirdparty.utils.NotificationUtil.buildImageNotification
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 
@@ -25,16 +25,6 @@ class FirebaseService : FirebaseMessagingService() {
 //        fun setOnDebuggingListener(listener: ((header: String?, method: String?, url: String?, params: String?, code: Int?, body: String?) -> Unit)) {
 //            this.debuggingListener = listener
 //        }
-//    }
-
-//    override fun onCreate() {
-//        super.onCreate()
-//        serviceStateMap[this::class.java] = true
-//    }
-//
-//    override fun onDestroy() {
-//        super.onDestroy()
-//        serviceStateMap.remove(this::class.java)
 //    }
 
     /**
@@ -72,11 +62,12 @@ class FirebaseService : FirebaseMessagingService() {
             val map = msg.data
             "msg:${msg.toJson()}\nmap:${map.toJson()}".logWTF
 //            debuggingListener?.invoke("", "PUSH", mapOf("messageId" to msg.messageId, "from" to msg.from, "sentTime" to msg.sentTime).toJson(), msg.notification.toJson(), 200, map.toJson())
-            showSimpleNotification(
-                msg.notification?.title,
-                msg.notification?.body,
-                msg.notification?.imageUrl?.toString(),
-                notificationIntentGenerator(this, map))
+            buildImageNotification(
+                title = msg.notification?.title.orNoData(),
+                text = msg.notification?.body.orNoData(),
+                bigPictureUrl = msg.notification?.imageUrl?.toString(),
+                intent = notificationIntentGenerator(this, map)
+            )
         }
     }
 
