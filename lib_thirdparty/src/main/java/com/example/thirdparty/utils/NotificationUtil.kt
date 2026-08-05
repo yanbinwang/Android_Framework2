@@ -351,6 +351,7 @@ object NotificationUtil {
         intent: Intent? = null,
         summaryText: String? = null,
         ongoing: Boolean = false,
+        clearBigLargeIcon: Boolean = true,
         notify: Boolean = true,
         notifyId: Int? = null
     ): Notification {
@@ -358,8 +359,12 @@ object NotificationUtil {
             getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
         val scaledPicture = bigPicture.scale(256.dp, 256.dp, false)
-//        val bigLargeIcon = bitmap.scale(128.dp, 128.dp, false)
-        val bigLargeIcon = null
+        // 不设置 null 则展开通知后左侧图标会为变大图缩略图，根据配置决定 bigLargeIcon
+        val bigLargeIcon = if (clearBigLargeIcon) {
+            null
+        } else {
+            largeIcon?.scale(128.dp, 128.dp, false)
+        }
         val notification = builder(largeIcon = largeIcon, title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
             .asBigPicture(bigPicture = scaledPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
             .build()
@@ -378,9 +383,10 @@ object NotificationUtil {
         intent: Intent? = null,
         summaryText: String? = null,
         ongoing: Boolean = false,
+        clearBigLargeIcon: Boolean = true,
+        timeoutMs: Long = 5000L,
         notify: Boolean = true,
-        notifyId: Int? = null,
-        timeoutMs: Long = 5000L
+        notifyId: Int? = null
     ) {
         val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
         // 没有大图 URL，直接走纯文本通知
@@ -405,7 +411,7 @@ object NotificationUtil {
                 }
                 iconDeferred.await() to picDeferred.await()
             }
-            buildImageNotification(largeIcon, title, text, bigPicture, intent, summaryText, ongoing, notify, resolvedNotifyId)
+            buildImageNotification(largeIcon, title, text, bigPicture, intent, summaryText, ongoing, clearBigLargeIcon, notify, resolvedNotifyId)
         }.withHandling({
             // 图片下载/处理失败时自动回退到 BigTextStyle 纯文本通知
             buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
