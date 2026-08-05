@@ -35,7 +35,6 @@ import com.example.framework.utils.RadiusSpan
 import com.example.framework.utils.SizeSpan
 import com.example.framework.utils.TextSpan
 import com.example.framework.utils.builder.TimerBuilder
-import com.example.framework.utils.function.bindService
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.intentParcelable
