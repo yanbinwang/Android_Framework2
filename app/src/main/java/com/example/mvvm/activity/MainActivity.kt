@@ -495,7 +495,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        } else {
 //            startService(startIntent)
 //        }
-//        bindService(MusicBindService::class.java, lifecycleOwner = this, onConnected = { binder ->
+//        bindServiceCompat(MusicBindService::class.java, lifecycleOwner = this, onConnected = { binder ->
 //            val mBinder = binder as? MusicBindService.MusicBinder
 //            mBinder?.play("https://example.com/song.mp3")
 //            musicService = mBinder?.getService()

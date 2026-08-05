@@ -6,9 +6,8 @@ import com.example.common.base.BaseTitleActivity
 import com.example.common.base.page.Extra
 import com.example.common.config.RouterPath
 import com.example.common.utils.permission.registerRequestPermissionWrapper
-import com.example.framework.utils.function.startForegroundService
-import com.example.framework.utils.function.startService
-import com.example.framework.utils.function.stopService
+import com.example.framework.utils.function.startServiceCompat
+import com.example.framework.utils.function.stopServiceCompat
 import com.example.framework.utils.function.view.clicks
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityMediaBinding
@@ -30,7 +29,7 @@ class MediaActivity : BaseTitleActivity<ActivityMediaBinding>(), View.OnClickLis
         clicks(mBinding?.tvStart, mBinding?.tvStop)
         notificationPermissionHelper.setOnNotificationListener {
             if (it) {
-                startForegroundService(MusicService::class.java, Extra.SOURCE to "https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/music/audio.mp3")
+                startServiceCompat(MusicService::class.java, Extra.SOURCE to "https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/music/audio.mp3")
             }
         }
     }
@@ -41,14 +40,14 @@ class MediaActivity : BaseTitleActivity<ActivityMediaBinding>(), View.OnClickLis
                 notificationPermissionHelper.pullUpNotification()
             }
             R.id.tv_stop -> {
-                stopService(MusicService::class.java)
+                stopServiceCompat(MusicService::class.java)
             }
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        stopService(MusicService::class.java)
+        stopServiceCompat(MusicService::class.java)
     }
 
 }

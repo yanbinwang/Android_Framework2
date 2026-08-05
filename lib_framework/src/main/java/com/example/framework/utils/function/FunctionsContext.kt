@@ -238,22 +238,14 @@ fun Context.isAvailable(packageName: String): Boolean {
 }
 
 /**
- * 开启服务
+ * 启动前台服务的统一入口
+ * Service 内部必须在 onCreate/onStartCommand 中 5s 内调用 startForeground()，否则系统会抛出 RemoteServiceException 并杀死进程
+ * - Android O+：自动使用 startForegroundService()，兼容前/后台调用
+ * - Android O-：回退到 startService()
  */
-fun Context.startService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
-    startService(getIntent(cls, *pairs))
-}
-
-fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
+fun Context.startServiceCompat(cls: Class<out Service>, vararg pairs: Pair<String, Any?>) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        /**
-         * override fun onCreate() {
-         *     super.onCreate()
-         *     // 仅当通过 startForegroundService 启动时才需要！5秒内必须调用
-         *     // 如果只是被 bindService 绑定，这行完全不需要
-         *     startForeground(NOTIFICATION_ID, notification)
-         * }
-         */
+        // Android O+ 在【后台】启动前台服务时，必须使用此 API，如果调用方确定处于前台，仍可使用普通 startService()，此处统一 startForegroundService()
         startForegroundService(getIntent(cls, *pairs))
     } else {
         startService(getIntent(cls, *pairs))
@@ -263,9 +255,9 @@ fun Context.startForegroundService(cls: Class<out Service>, vararg pairs: Pair<S
 /**
  * 停止服务
  * 1) stopSelf() — 服务自己停自己
- * 2) stopService(Intent) — 别人来停服务
+ * 2) stopService(Intent) — 外部组件停服务
  */
-fun Context.stopService(cls: Class<out Service>): Boolean {
+fun Context.stopServiceCompat(cls: Class<out Service>): Boolean {
     return stopService(getIntent(cls))
 }
 
@@ -273,11 +265,24 @@ fun Context.stopService(cls: Class<out Service>): Boolean {
  * 绑定服务的扩展函数（带自动解绑保护）
  * @param cls 服务类
  * @param flags 绑定标志，默认 BIND_AUTO_CREATE
+ *  日常必用:
+ *    BIND_AUTO_CREATE: 服务不存在时自动创建 -> 默认选项，你的扩展函数默认值设这个就对了
+ *    BIND_ADJUST_WITH_ACTIVITY: 绑定期间提升服务优先级，防止被系统杀掉 -> 前台 UI 强依赖的服务（如音乐播放、实时定位）
+ *  偶尔用到:
+ *    BIND_NOT_FOREGROUND: 不让绑定的服务获得前台优先级 -> 后台同步、数据预加载等不重要的服务
+ *    BIND_ABOVE_CLIENT: 服务优先级高于客户端 -> 客户端是后台任务，但服务需要更高存活率
+ *    BIND_ALLOW_OOM_MANAGEMENT: 允许系统在内存紧张时杀掉该服务 -> 可恢复的非关键服务（如缓存预热）
+ *  几乎不用:
+ *    BIND_WAIVE_PRIORITY: 绑定不影响服务优先级（极少用）
+ *    BIND_IMPORTANT: 将服务视为重要进程（API 23+，已被 ADJUST_WITH_ACTIVITY 替代）
+ *    BIND_EXTERNAL_SERVICE: 绑定外部应用的服务（跨应用 IPC 专用）
+ *    BIND_INCLUDE_CAPABILITIES: 传递客户端权限给服务（安全敏感场景）
+ * @param lifecycleOwner 传入后自动在 onDestroy 时解绑，防止泄漏；不传则需手动解绑
  * @param onConnected 连接成功回调，返回 IBinder
- * @param onDisconnected 断开连接回调（可选）
- * @return ServiceConnection 对象，调用方可手动 unbind；若传入 LifecycleOwner 则自动解绑
+ * @param onDisconnected 异常断开回调（正常 unbind 不会触发）
+ * @return ServiceConnection 对象，可用于手动 unbind
  */
-fun Context.bindService(cls: Class<out Service>, flags: Int = Context.BIND_AUTO_CREATE, lifecycleOwner: LifecycleOwner? = null, onConnected: (IBinder) -> Unit = {}, onDisconnected: () -> Unit = {}): ServiceConnection {
+fun Context.bindServiceCompat(cls: Class<out Service>, flags: Int = Context.BIND_AUTO_CREATE, lifecycleOwner: LifecycleOwner? = null, onConnected: (IBinder) -> Unit = {}, onDisconnected: () -> Unit = {}): ServiceConnection {
     val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName, binder: IBinder) {
             onConnected(binder)
@@ -292,32 +297,16 @@ fun Context.bindService(cls: Class<out Service>, flags: Int = Context.BIND_AUTO_
     if (!bound) {
         throw IllegalStateException("bindService 失败！请检查 ${cls.simpleName} 是否已在 AndroidManifest.xml 中声明")
     }
-    /**
-     * 日常必用:
-     * BIND_AUTO_CREATE: 服务不存在时自动创建 -> 默认选项，你的扩展函数默认值设这个就对了
-     * BIND_ADJUST_WITH_ACTIVITY: 绑定期间提升服务优先级，防止被系统杀掉 -> 前台 UI 强依赖的服务（如音乐播放、实时定位）
-     * 偶尔用到:
-     * BIND_NOT_FOREGROUND: 不让绑定的服务获得前台优先级 -> 后台同步、数据预加载等不重要的服务
-     * BIND_ABOVE_CLIENT: 服务优先级高于客户端 -> 客户端是后台任务，但服务需要更高存活率
-     * BIND_ALLOW_OOM_MANAGEMENT: 允许系统在内存紧张时杀掉该服务 -> 可恢复的非关键服务（如缓存预热）
-     * 几乎不用:
-     * BIND_WAIVE_PRIORITY: 绑定不影响服务优先级（极少用）
-     * BIND_IMPORTANT: 将服务视为重要进程（API 23+，已被 ADJUST_WITH_ACTIVITY 替代）
-     * BIND_EXTERNAL_SERVICE: 绑定外部应用的服务（跨应用 IPC 专用）
-     * BIND_INCLUDE_CAPABILITIES: 传递客户端权限给服务（安全敏感场景）
-     */
-    bindService(Intent(this, cls), connection, flags)
-    // 如果提供了 LifecycleOwner，自动在 onDestroy 时解绑，防止泄漏
     lifecycleOwner.doOnDestroy {
-        unbindServiceOrIgnore(connection)
+        unbindServiceCompat(connection)
     }
     return connection
 }
 
 /**
- * 停止服务
+ * 安全解绑服务，忽略未绑定/已解绑的异常
  */
-fun Context.unbindServiceOrIgnore(connection: ServiceConnection) {
+fun Context.unbindServiceCompat(connection: ServiceConnection) {
     try {
         unbindService(connection)
     } catch (_: IllegalArgumentException) {
