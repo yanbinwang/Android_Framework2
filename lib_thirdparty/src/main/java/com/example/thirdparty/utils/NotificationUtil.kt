@@ -339,6 +339,33 @@ object NotificationUtil {
         return notification
     }
 
+    fun Context.buildTextNotification(
+        largeIconUrl: String? = null,
+        title: String,
+        text: String,
+        intent: Intent? = null,
+        summaryText: String? = null,
+        ongoing: Boolean = false,
+        timeoutMs: Long = 5000L,
+        notify: Boolean = true,
+        notifyId: Int? = null
+    ) {
+        val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
+        flow<Unit> {
+            val safeContext = WeakReference(this@buildTextNotification).get() ?: BaseApplication.instance.applicationContext
+            val largeIcon = withTimeout(timeoutMs) {
+                if (!largeIconUrl.isNullOrEmpty()) {
+                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, largeIconUrl) }) ?: decodeResource(R.mipmap.ic_push_large)
+                } else {
+                    decodeResource(R.mipmap.ic_push_large)
+                }
+            }
+            buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
+        }.withHandling({
+            buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
+        }).launchIn(notificationScope)
+    }
+
     /**
      * 发送带网络图片的通知（异步下载 + 失败回退）
      * @param bigPicture 展开态大图。**注意：此方法会回收该 Bitmap，调用方不应在调用后继续使用**
