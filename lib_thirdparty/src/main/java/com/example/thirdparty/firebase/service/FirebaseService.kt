@@ -63,6 +63,7 @@ class FirebaseService : FirebaseMessagingService() {
             "msg:${msg.toJson()}\nmap:${map.toJson()}".logWTF
 //            debuggingListener?.invoke("", "PUSH", mapOf("messageId" to msg.messageId, "from" to msg.from, "sentTime" to msg.sentTime).toJson(), msg.notification.toJson(), 200, map.toJson())
             buildImageNotification(
+                largeIconUrl = msg.notification?.icon,
                 title = msg.notification?.title.orNoData(),
                 text = msg.notification?.body.orNoData(),
                 bigPictureUrl = msg.notification?.imageUrl?.toString(),
