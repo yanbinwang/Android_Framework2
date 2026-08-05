@@ -418,7 +418,7 @@ object NotificationUtil {
         val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
         // 没有大图 URL，直接走纯文本通知
         if (bigPictureUrl.isNullOrEmpty()) {
-            buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
+            buildTextNotification(largeIconUrl = largeIconUrl, title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
             return
         }
         flow<Unit> {
