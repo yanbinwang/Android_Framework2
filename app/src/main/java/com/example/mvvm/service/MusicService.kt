@@ -8,9 +8,11 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import androidx.core.app.NotificationCompat
 import com.example.common.base.page.Extra
+import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.intentString
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.value.toSafeLong
+import com.example.mvvm.R
 import com.example.mvvm.service.receiver.MusicPlaybackReceiver
 import com.example.mvvm.service.receiver.MusicPlaybackReceiver.Companion.createMediaAction
 import com.example.thirdparty.media.utils.MediaHelper
@@ -114,7 +116,10 @@ class MusicService : TrackableLifecycleService() {
      *  onPlay/onPause → 只调 updatePlaybackState()
      *  onCompletion / 切歌 / 首次创建 → updatePlaybackState() + updateMediaNotification()
      */
-    private fun updateMediaNotification(title: String = "", artist: String? = null, albumArt: Bitmap? = null) {
+    private fun updateMediaNotification() {
+        val title = "歌曲/视频标题"
+        val artist = "艺术家/频道名"
+        val albumArt = decodeResource(R.mipmap.ic_launcher)
         val notification = buildMediaNotification(
             token = mediaSession.sessionToken,
             title = title,
