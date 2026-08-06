@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
@@ -26,7 +25,6 @@ import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.get
-import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.font
@@ -35,7 +33,7 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
 /**
- * 读取mipmap下的图片
+ * 读取 mipmap 下的图片
  */
 fun Context?.decodeResource(id: Int): Bitmap? {
     this ?: return null
@@ -43,7 +41,7 @@ fun Context?.decodeResource(id: Int): Bitmap? {
 }
 
 /**
- * 获取asset下的图片
+ * 获取 asset 下的图片
  * "share/img_order_share_logo.webp".decodeAsset()
  * 配置高清解码参数
  * val options = BitmapFactory.Options().apply {
@@ -62,16 +60,11 @@ fun Context?.decodeAsset(filePath: String, opts: BitmapFactory.Options? = null):
     }
 }
 
-fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
-    this ?: return null
-    return BaseApplication.instance.applicationContext.decodeAsset(this, opts)
-}
-
 /**
- * 获取路径图片的宽高
- * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
+ * 获取路径图片的原始宽高（单位：原始像素，与设备密度无关）
+ * 选择图片等边裁剪时，可使用当前方法获取对应宽高
  */
-fun String?.decodeDimensions(): IntArray {
+fun String?.decodeOriginalDimensions(): IntArray {
     this ?: return intArrayOf(0, 0)
     val options = BitmapFactory.Options()
     // 不加载图片到内存，只获取图片的尺寸信息
@@ -83,20 +76,25 @@ fun String?.decodeDimensions(): IntArray {
     return intArrayOf(width, height)
 }
 
-fun BitmapDrawable?.decodeDimensions(): IntArray {
+/**
+ * 获取 BitmapDrawable 经过密度缩放后的显示尺寸（单位：px，受设备密度影响）
+ */
+fun BitmapDrawable?.decodeDisplayDimensions(): IntArray {
     this ?: return intArrayOf(0, 0)
-    return try {
-        intArrayOf(intrinsicWidth, intrinsicHeight)
-    } catch (e: Exception) {
-        e.printStackTrace()
+    val displayWidth = intrinsicWidth
+    val displayHeight = intrinsicHeight
+    // 负值表示 drawable 无固有尺寸（如纯色 ColorDrawable 误转）
+    return if (displayWidth >= 0 && displayHeight >= 0) {
+        intArrayOf(displayWidth, displayHeight)
+    } else {
         intArrayOf(0, 0)
     }
 }
 
 /**
- * 获取xml绘制的layer的其中一个图片的边距
+ * 获取 xml 绘制的 layer 的其中一个图片的边距
  */
-fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
+fun LayerDrawable?.getLayerInsets(targetItemIndex: Int): IntArray {
     this ?: return intArrayOf(0, 0, 0, 0)
     return try {
         intArrayOf(
@@ -115,13 +113,13 @@ fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
  * 判断一个路径地址是否为一张图片
  * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
  */
-fun String?.isValidImage(): Boolean {
+fun String?.isDecodableImage(): Boolean {
     return this?.let { path ->
         try {
             // 检查文件是否存在
             if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
-            val dimensions = path.decodeDimensions()
+            val dimensions = path.decodeOriginalDimensions()
             // 有效图片的宽高必须大于0
             dimensions[0] > 0 && dimensions[1] > 0
         } catch (e: Exception) {
