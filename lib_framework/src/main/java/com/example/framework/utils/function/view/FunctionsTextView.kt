@@ -29,6 +29,7 @@ import android.widget.EditText
 import android.widget.RadioButton
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.FontRes
@@ -214,7 +215,7 @@ fun TextView?.spTextSize(value: Float) {
  * 给 View 设置上下左右图片
  * drawables集合内引用drawable()扩展函数,加了mutate()安全隔离
  */
-fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, width: Int?, height: Int?, tintColor: Int?) {
+fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, width: Int?, height: Int?, @ColorInt tintColor: Int?) {
     if (this == null || drawables.size != 4) return
     // 图片间距
     drawablePadding?.let {
@@ -226,7 +227,7 @@ fun TextView?.applyDrawable(drawables: Array<Drawable?>, drawablePadding: Int?, 
             drawable?.setBounds(0, 0, width, height)
         }
         if (tintColor != null) {
-            drawable?.setTint(tintColor)
+            drawable?.mutate()?.setTint(tintColor)
         }
     }
     val left = drawables[0]
