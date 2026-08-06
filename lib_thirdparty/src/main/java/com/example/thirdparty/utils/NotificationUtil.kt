@@ -351,14 +351,14 @@ object NotificationUtil {
         notifyId: Int? = null
     ) {
         val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
+        if (largeIconUrl.isNullOrEmpty()) {
+            buildTextNotification(title = title, text = text, intent = intent, summaryText = summaryText, ongoing = ongoing, notify = notify, notifyId = resolvedNotifyId)
+            return
+        }
         flow<Unit> {
             val safeContext = WeakReference(this@buildTextNotification).get() ?: BaseApplication.instance.applicationContext
             val largeIcon = withTimeout(timeoutMs) {
-                if (!largeIconUrl.isNullOrEmpty()) {
-                    BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, largeIconUrl) }) ?: decodeResource(R.mipmap.ic_push_large)
-                } else {
-                    decodeResource(R.mipmap.ic_push_large)
-                }
+                BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, largeIconUrl) }) ?: decodeResource(R.mipmap.ic_push_large)
             }
             buildTextNotification(largeIcon, title, text, intent, summaryText, ongoing, notify, resolvedNotifyId)
         }.withHandling({
@@ -452,7 +452,7 @@ object NotificationUtil {
      * @param token 必须由调用方传入，从你的 MediaSessionCompat 实例获取
      * @param title 歌曲/视频标题
      * @param artist 艺术家/频道名
-     * @param albumArt 专辑封面（可选）
+     * @param albumArt 专辑封面（可选），为 null 时折叠态不显示大图标，展开态无封面背景
      * @param actions 播放控制按钮列表
      * @param compactActionIndices 折叠态显示的按钮索引，默认 [1] 即播放/暂停，根据传入的 IntArray 的下标决定默认值
      */
@@ -468,7 +468,7 @@ object NotificationUtil {
         notify: Boolean = false,
         notifyId: Int? = null
     ): Notification {
-        val builder = builder(title = title, text = artist, silent = silent, ongoing = ongoing)
+        val builder = builder(largeIcon = null, title = title, text = artist, silent = silent, ongoing = ongoing)
             .asMedia(token = token, showActionsInCompactView = compactActionIndices)
             // 媒体通知必须设置 Category
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
@@ -482,9 +482,17 @@ object NotificationUtil {
          * MediaStyle 对 LargeIcon 有特殊处理：设置专辑封面（展开态大图 + 折叠态小图标）有封面时覆盖，无封面时保留底层默认的 App Logo
          *  折叠态：LargeIcon 被裁剪为 64dp 圆形头像 → 正好匹配
          *  展开态：MediaStyle 直接将 LargeIcon 作为专辑封面大图展示，不再限制 64dp，而是自适应容器宽度
+         *
          * 当传入一张高分辨率专辑封面（比如 300×300）时：
          *  折叠态自动裁切为 64dp 圆形
          *  展开态以原始分辨率显示为大封面
+         *
+         * 媒体通知专辑封面切图规格
+         *  格式：PNG / WebP（支持透明通道）
+         *  比例：1:1 正方形
+         *  输出尺寸：512px × 512px（@xxxhdpi 基准）
+         *  安全区：四边各留 8px 内边距（防止 OEM 圆角裁切吞掉内容）
+         *  备注：此图同时用于通知栏小图标（圆形裁切）和展开态大封面，请勿在图中加圆形蒙版或固定圆角，系统会自动处理
          */
         albumArt?.let {
             // MediaStyle 展开时会自动使用 LargeIcon 作为封面，若需独立设置展开封面，可在此处额外处理
@@ -496,6 +504,35 @@ object NotificationUtil {
             notification.notify(notifyId ?: notificationId)
         }
         return notification
+    }
+
+    fun Context.buildMediaNotification(
+        token: MediaSessionCompat.Token,
+        title: String,
+        artist: String? = null,
+        albumArtUrl: String? = null,
+        actions: List<NotificationCompat.Action>,
+        compactActionIndices: IntArray = intArrayOf(1),
+        silent: Boolean = true,
+        ongoing: Boolean = true,
+        timeoutMs: Long = 5000L,
+        notify: Boolean = false,
+        notifyId: Int? = null
+    ) {
+        val resolvedNotifyId = if (notify) notifyId ?: notificationId else null
+        if (albumArtUrl.isNullOrEmpty()) {
+            buildMediaNotification(token, title, artist, null, actions, compactActionIndices, silent, ongoing, notify, resolvedNotifyId)
+            return
+        }
+        flow<Unit> {
+            val safeContext = WeakReference(this@buildMediaNotification).get() ?: BaseApplication.instance.applicationContext
+            val albumArt = withTimeout(timeoutMs) {
+                BitmapFactory.decodeFile(requestAffair { suspendingDownloadPic(safeContext, albumArtUrl) }) ?: throw IllegalStateException("AlbumArt decode failed")
+            }
+            buildMediaNotification(token, title, artist, albumArt, actions, compactActionIndices, silent, ongoing, notify, resolvedNotifyId)
+        }.withHandling({
+            buildMediaNotification(token, title, artist, null, actions, compactActionIndices, silent, ongoing, notify, resolvedNotifyId)
+        }).launchIn(notificationScope)
     }
 
 //    /**
