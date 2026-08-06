@@ -50,21 +50,23 @@ import java.util.concurrent.ConcurrentHashMap
 
 //------------------------------------context扩展函数类------------------------------------
 /**
- * 获取resources中的color
+ * 获取 resources 中的 color
  */
 fun Context.color(@ColorRes res: Int): Int {
     return ContextCompat.getColor(this, res)
 }
 
 /**
- * 获取resources中的drawable
+ * 获取 resources 中的 drawable
+ * 1) 如果只是设置图片展示 (只读取不修改)，不改 alpha/tint/colorFilter 等状态则不需要 mutate()
+ * 2) 只要在代码中动态修改一个 Drawable 的状态（alpha、tint、colorFilter 等），就必须先调用 mutate() 并使用其返回值，否则会污染全局共享缓存，导致难以排查的 UI Bug
  */
 fun Context.drawable(@DrawableRes res: Int): Drawable? {
     return ContextCompat.getDrawable(this, res)?.mutate()
 }
 
 /**
- * 獲取Typeface字體(res下新建一个font文件夹)
+ * 獲取 Typeface 字體(res下新建一个font文件夹)
  * ResourcesCompat.getFont(this, R.font.font_semi_bold)
  */
 fun Context.font(@FontRes res: Int): Typeface? {

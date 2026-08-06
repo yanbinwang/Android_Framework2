@@ -307,7 +307,7 @@ object BaseBindingAdapter {
                 view.textOff = newText
             }
         }
-        // 仅Drawable相关属性变化时，才执行Drawable加载/设置
+        // 仅 Drawable 相关属性变化时，才执行Drawable加载/设置
         if (!isOnlyTextChanged(oldConfig, newConfig)) {
             val startDrawable = newConfig.drawableStart?.let { drawable(it) }
             val topDrawable = newConfig.drawableTop?.let { drawable(it) }
