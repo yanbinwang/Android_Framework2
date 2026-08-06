@@ -26,6 +26,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.loadWebUrl
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
+import com.example.common.utils.function.tintWithMutate
 import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -350,12 +351,12 @@ object BaseBindingAdapter {
      * @param width Drawable宽度（px）
      * @param height Drawable高度（px）
      */
-    private fun applyDrawableBoundsAndTint(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
+    private fun applyDrawableBoundsAndTint(drawables: Array<Drawable?>, @ColorRes tintColor: Int?, width: Int?, height: Int?) {
         if (width != null && height != null) {
             for (drawable in drawables) {
                 drawable?.let {
                     it.setBounds(0, 0, width.pt, height.pt)
-                    if (null != tintColor) it.setTint(tintColor)
+                    if (null != tintColor) it.tintWithMutate(color(tintColor))
                 }
             }
         }
