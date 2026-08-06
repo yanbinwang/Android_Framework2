@@ -14,7 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.function.getFileFromUri
-import com.example.common.utils.function.isValidImage
+import com.example.common.utils.function.isDecodableImage
 import com.example.framework.utils.logWTF
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -192,7 +192,7 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
                 // 过滤非截图文件（通过路径关键词+文件有效性校验）
                 if (currentPath != lastFilePath) {
                     // 判断当前路径是否为图片，是的话捕获文件路径
-                    if (currentPath.isValidImage()) {
+                    if (currentPath.isDecodableImage()) {
                         val file = File(currentPath)
                         lastFilePath = currentPath
                         " \n生成图片的路径:$currentPath\n手机截屏的路径：${file.parent}".logWTF(TAG)

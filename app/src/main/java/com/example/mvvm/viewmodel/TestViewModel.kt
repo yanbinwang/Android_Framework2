@@ -22,14 +22,14 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.shortToast
 import com.example.common.utils.builder.suspendingSavePic
 import com.example.common.utils.builder.suspendingSaveView
-import com.example.common.utils.function.toServerUrl
 import com.example.common.utils.function.decodeAsset
-import com.example.common.utils.function.decodeDimensions
+import com.example.common.utils.function.decodeOriginalDimensions
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.getBitmap
 import com.example.common.utils.function.insertImageResolver
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.safeRecycle
+import com.example.common.utils.function.toServerUrl
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
@@ -317,7 +317,7 @@ class TestViewModel : BaseViewModel() {
                     inMutable = false
                 })
                 // 获取照片的实际宽高
-                val shotDimensions = sourcePath.decodeDimensions()
+                val shotDimensions = sourcePath.decodeOriginalDimensions()
                 // 生成父布局
                 val rootView = ConstraintLayout(it)
                 rootView.size(shotDimensions[0], shotDimensions[1])
