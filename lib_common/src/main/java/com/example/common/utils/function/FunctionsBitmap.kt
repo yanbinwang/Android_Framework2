@@ -248,23 +248,6 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     }
 }
 
-///**
-// * 按尺寸阈值进行图片压缩（宽≤720，高≤1280）
-// * 当宽超过720时按宽度比例缩放，当高超过1280时按高度比例缩放，两者都超时按宽比例缩放
-// * @return 压缩后的Bitmap，原Bitmap为空时返回null
-// */
-//fun Bitmap?.scaleBitmap(): Bitmap? {
-//    this ?: return null
-//    val maxWidth = 720f
-//    val maxHeight = 1280f
-//    val scale = when {
-//        width > maxWidth -> maxWidth / width
-//        height > maxHeight -> maxHeight / height
-//        else -> 1f
-//    }
-//    return scaleBitmap(scale, true)
-//}
-
 /**
  * Bitmap 安全着色（不修改原图，返回新的着色 Bitmap）
  */
