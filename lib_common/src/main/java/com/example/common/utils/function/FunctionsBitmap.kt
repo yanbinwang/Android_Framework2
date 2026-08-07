@@ -209,8 +209,9 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
         }
         resultBitmap
     } catch (e: Exception) {
-        e.printStackTrace()
         // 捕获可能的异常（如内存不足）
+        e.printStackTrace()
+        safeRecycle()
         null
     }
 }
@@ -226,7 +227,7 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     if (this == null || scale <= 0) {
         return null
     }
-    // 不创建、不回收，直接返回，不创建新图
+    // 不创建、不回收，直接返回
     if (scale == 1f) {
         return this
     }
@@ -242,6 +243,7 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
         resultBitmap
     } catch (e: Exception) {
         e.printStackTrace()
+        safeRecycle()
         null
     }
 }
