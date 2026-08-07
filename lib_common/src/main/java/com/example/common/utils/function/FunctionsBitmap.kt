@@ -23,6 +23,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.get
 import com.example.common.R
@@ -312,13 +313,6 @@ fun Bitmap?.safeRecycle() {
 }
 
 /**
- * 安全获取Bitmap的扩展函数
- */
-fun Drawable?.getBitmap(): Bitmap? {
-    return (this as? BitmapDrawable)?.bitmap
-}
-
-/**
  * 安全获取Drawable
  */
 fun Drawable?.orEmpty(): Drawable {
@@ -345,11 +339,15 @@ fun Drawable?.tintWithMutate(@ColorInt tintColor: Int) {
  */
 fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int = targetWidth): Drawable {
     // 校验参数有效性
-    if (targetWidth <= 0 || targetHeight <= 0 || intrinsicWidth <= 0 || intrinsicHeight <= 0) {
+    if (targetWidth <= 0 || targetHeight <= 0 || intrinsicWidth <= 0 || intrinsicHeight <= 0 || (targetWidth == intrinsicWidth && targetHeight == intrinsicHeight)) {
         return this
     }
-    // 按指定宽高缩放 Drawable
-    val sourceBitmap = toBitmap()
+    /**
+     * 按指定宽高缩放 Drawable 安全获取Bitmap的扩展函数:
+     * toBitmap() -> 会报错
+     * toBitmapOrNull() -> 不报错
+     */
+    val sourceBitmap = toBitmapOrNull() ?: return this
     val matrix = Matrix()
     val scaleWidth = targetWidth.toSafeFloat() / intrinsicWidth.toSafeFloat()
     val scaleHeight = targetHeight.toSafeFloat() / intrinsicHeight.toSafeFloat()
@@ -360,6 +358,7 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
         if (newBitmap !== sourceBitmap) {
             sourceBitmap.safeRecycle()
         }
+        // toDrawable() 每次都执行，表示"我要用这张图了"。而 if 判断负责的是"用完之后，有没有废弃的图需要清理"
         newBitmap.toDrawable(context.resources)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -367,35 +366,6 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
         sourceBitmap.safeRecycle()
         // 失败时返回原 Drawable
         this
-    }
-}
-
-fun Drawable.toBitmap(): Bitmap {
-    // 让 Drawable 拥有独立的状态，不会影响到其他使用同一个资源的 Drawable
-    mutate()
-    // 若本身是 BitmapDrawable，直接返回其 Bitmap（避免重复绘制）
-    if (this is BitmapDrawable) {
-        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
-        // 复制一份避免外部修改原 Bitmap
-        return bitmap.copy(config, true)
-    }
-    // 处理 intrinsic 尺寸为 0 的情况
-    val width = if (intrinsicWidth > 0) intrinsicWidth else 1
-    val height = if (intrinsicHeight > 0) intrinsicHeight else 1
-    // 根据透明度选择配置
-//    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-    val config = Bitmap.Config.ARGB_8888
-    return try {
-        val bitmap = createBitmap(width, height, config)
-        val canvas = Canvas(bitmap)
-        setBounds(0, 0, width, height)
-        draw(canvas)
-        bitmap
-    } catch (e: Exception) {
-        // 捕获内存不足等异常
-        e.printStackTrace()
-        // 极端情况返回最小 Bitmap
-        createBitmap(1, 1, config)
     }
 }
 

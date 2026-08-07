@@ -8,6 +8,7 @@ import android.view.View.generateViewId
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.core.graphics.drawable.toDrawable
 import androidx.lifecycle.viewModelScope
 import cn.bingoogolapple.qrcode.zxing.QRCodeEncoder
@@ -25,7 +26,6 @@ import com.example.common.utils.builder.suspendingSaveView
 import com.example.common.utils.function.decodeAsset
 import com.example.common.utils.function.decodeOriginalDimensions
 import com.example.common.utils.function.decodeResource
-import com.example.common.utils.function.getBitmap
 import com.example.common.utils.function.insertImageResolver
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.safeRecycle
@@ -289,7 +289,7 @@ class TestViewModel : BaseViewModel() {
                 // 将bitmap存至本地
                 val filePath = suspendingSavePic(shareBit)
                 // 回收所有引用的bitmap
-                rootView.background.getBitmap()?.safeRecycle()
+                rootView.background.toBitmapOrNull()?.safeRecycle()
                 ivQrCode.safeRecycle()
                 shareBg.safeRecycle()
                 qrBit.safeRecycle()
@@ -396,7 +396,7 @@ class TestViewModel : BaseViewModel() {
                 // 将bitmap存至本地
                 val filePath = suspendingSavePic(shareBit)
                 // 回收所有引用的bitmap
-                rootView.background.getBitmap()?.safeRecycle()
+                rootView.background.toBitmapOrNull()?.safeRecycle()
                 ivQrCode.safeRecycle()
                 shareBg.safeRecycle()
                 qrBit.safeRecycle()
