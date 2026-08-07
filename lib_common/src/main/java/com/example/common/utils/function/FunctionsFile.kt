@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
@@ -23,6 +22,7 @@ import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
+import com.example.framework.utils.function.value.toFixed
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.value.toSafeLong
 import com.example.framework.utils.logE
@@ -30,12 +30,10 @@ import com.example.framework.utils.logWTF
 import java.io.File
 import java.io.FileOutputStream
 import java.io.RandomAccessFile
-import java.math.BigDecimal
 import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.security.MessageDigest
-import kotlin.io.nameWithoutExtension
 
 /**
  * 各个单位换算
@@ -264,20 +262,11 @@ fun Number?.storageSizeFormat(): String {
     val kb = bytes / STORAGE_UNIT_BASE
     return when {
         kb < 1 -> "<1K"
-        kb < STORAGE_UNIT_BASE -> "${formatStorageValue(kb)}K"
-        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / STORAGE_UNIT_BASE)}M"
-        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}GB"
-        else -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}TB"
+        kb < STORAGE_UNIT_BASE -> "${kb.toFixed(2, RoundingMode.HALF_UP)}K"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${(kb / STORAGE_UNIT_BASE).toFixed(2, RoundingMode.HALF_UP)}M"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE)).toFixed(2, RoundingMode.HALF_UP)}GB"
+        else -> "${(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE)).toFixed(2, RoundingMode.HALF_UP)}TB"
     }
-}
-
-/**
- * 统一格式化存储大小数值（保留2位小数，四舍五入）
- */
-private fun formatStorageValue(value: Double): String {
-    return BigDecimal.valueOf(value)
-        .setScale(2, RoundingMode.HALF_UP)
-        .toPlainString()
 }
 
 /**
