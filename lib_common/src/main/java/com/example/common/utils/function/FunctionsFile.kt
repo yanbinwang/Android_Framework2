@@ -35,6 +35,7 @@ import java.math.BigDecimal.ROUND_HALF_UP
 import java.math.BigInteger
 import java.math.RoundingMode
 import java.security.MessageDigest
+import kotlin.io.nameWithoutExtension
 
 /**
  * 各个单位换算
@@ -171,40 +172,44 @@ fun String?.getFileLength(): Long {
 /**
  * 获取不包含后缀名的文件名
  */
-fun String?.suffixName(): String {
+fun String?.nameWithoutExtension(): String {
     this ?: return ""
-    if (!isPathExists()) return ""
-    return File(this).suffixName()
+    return File(this).nameWithoutExtension
 }
-
-fun File?.suffixName(): String {
-    this ?: return ""
-    if (this == File("")) return ""
-    if (!exists() || !canRead()) return ""
-    return name.getFileNameWithoutSuffix()
-}
-
-/**
- * 从文件名中剥离最后一个后缀
- * // 假设文件路径是：/sdcard/wallets/my-wallet.json
- * val file = File("/sdcard/wallets/my-wallet.json")
- * println(file.name)        // 输出：my-wallet.json（带.json后缀）
- * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
- * println(file.parent)      // 输出：/sdcard/wallets（父目录）
- */
-private fun String?.getFileNameWithoutSuffix(): String {
-    this ?: return ""
-    // 找到最后一个 "." 的位置
-    val lastDotIndex = lastIndexOf('.')
-    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
-    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
-    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
-        this.substring(0, lastDotIndex)
-    } else {
-        // 无有效后缀，直接返回原字符串
-        this
-    }
-}
+//fun String?.suffixName(): String {
+//    this ?: return ""
+//    if (!isPathExists()) return ""
+//    return File(this).suffixName()
+//}
+//
+//fun File?.suffixName(): String {
+//    this ?: return ""
+//    if (this == File("")) return ""
+//    if (!exists() || !canRead()) return ""
+//    return name.getFileNameWithoutSuffix()
+//}
+//
+///**
+// * 从文件名中剥离最后一个后缀
+// * // 假设文件路径是：/sdcard/wallets/my-wallet.json
+// * val file = File("/sdcard/wallets/my-wallet.json")
+// * println(file.name)        // 输出：my-wallet.json（带.json后缀）
+// * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
+// * println(file.parent)      // 输出：/sdcard/wallets（父目录）
+// */
+//private fun String?.getFileNameWithoutSuffix(): String {
+//    this ?: return ""
+//    // 找到最后一个 "." 的位置
+//    val lastDotIndex = lastIndexOf('.')
+//    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
+//    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
+//    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
+//        this.substring(0, lastDotIndex)
+//    } else {
+//        // 无有效后缀，直接返回原字符串
+//        this
+//    }
+//}
 
 /**
  * 文件本身的整体大小
@@ -217,7 +222,6 @@ fun String?.totalSize(): Long {
 
 fun File?.totalSize(): Long {
     this ?: return 0L
-    if (this == File("")) return 0L
     // 文件/目录不存在直接返回 0，避免无效遍历
     if (!exists() || !canRead()) return 0L
     // 如果是文件，直接返回大小（无需遍历）
@@ -232,7 +236,7 @@ fun File?.totalSize(): Long {
             mFile.length()
         }
     }
-    // 返回自身大小
+    // 返回所有子文件/子目录的内容大小总和（不含目录自身元数据）
     return size
 }
 
