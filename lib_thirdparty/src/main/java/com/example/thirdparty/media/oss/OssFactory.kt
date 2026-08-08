@@ -251,7 +251,7 @@ class OssFactory private constructor() : CoroutineScope {
                 if (OssDBHelper.isUpload(baoquan)) return
                 // 设置对应文件的断点文件存放路径
                 val file = File(sourcePath)
-                val fileName = file.name.split(".")[0]
+                val fileName = file.nameWithoutExtension
                 // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
                 val recordDirectory = "${file.parent}/${fileName}_record"
                 // 之前是否已经上传成功
@@ -481,7 +481,7 @@ class OssFactory private constructor() : CoroutineScope {
                 onStart.invoke()
                 // 设置对应文件的断点文件存放路径
                 val file = File(sourcePath)
-                val fileName = file.name.split(".")[0]
+                val fileName = file.nameWithoutExtension
                 // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
                 val storeDir = File(getStoragePath("选择的文件"))
                 val recordDirectory = "${storeDir.parent}/${fileName}_record"

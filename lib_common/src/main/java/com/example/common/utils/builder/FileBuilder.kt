@@ -11,8 +11,10 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
+import android.media.MediaPlayer
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.util.Base64
 import android.util.Patterns
 import android.view.View
 import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
@@ -32,25 +34,22 @@ import com.example.common.R
 import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.function.copy
 import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.ensureDirExists
-import com.example.common.utils.function.getBase64
-import com.example.common.utils.function.getDuration
-import com.example.common.utils.function.getHash
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.read
 import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
-import com.example.common.utils.function.split
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
+import com.example.framework.utils.function.value.divide
+import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.glide.ImageLoader
@@ -64,7 +63,11 @@ import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
+import java.io.RandomAccessFile
 import java.io.StringWriter
+import java.math.BigInteger
+import java.math.RoundingMode
+import java.security.MessageDigest
 import java.util.Date
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -72,12 +75,12 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 /**
- * 存储图片保存bitmap
- * root->图片保存路径
- * fileName->图片名称（扣除jpg和png的后缀）
- * deleteDir->是否清除目录
- * format->图片类型
- * quality->压缩率
+ * 存储图片保存 Bitmap
+ * @param root 图片保存路径
+ * @param fileName 图片名称（扣除jpg和png的后缀）
+ * @param deleteDir 是否清除目录
+ * @param format 图片类型
+ * @param quality 压缩率
  */
 suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
     return withContext(IO) {
@@ -112,7 +115,7 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("�
 }
 
 /**
- * 存储pdf
+ * 存储 pdf
  */
 suspend fun suspendingSavePDF(file: File): MutableList<String?> {
     val list = ArrayList<String?>()
@@ -151,15 +154,15 @@ suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
 }
 
 /**
- * 存储绘制的view->构建图片
- * 需要注意，如果直接写100而不是100.pt的话，是会直接100像素写死的，但是内部字体宽度大小也是像素，整体兼容性上会不是很好，而写成100.pt后，会根据手机宽高做一定的转化
+ * 存储绘制的 view -> 构建图片
+ * 如果直接写 100 而不是 100.pt 的话，是会直接 100 像素写死，但是内部字体宽度大小也是像素，整体兼容性上会不是很好，而写成 100.pt 后，会根据手机宽高做一定的转化
  * val view = ViewTestBinding.bind(inflate(R.layout.view_test)).root
- * view.measure(WRAP_CONTENT, WRAP_CONTENT)//不传height的时候要加，高改为view.measuredHeight
- * builder.saveViewJob(view, 100, 100, {
- * showDialog()
+ * view.measure(WRAP_CONTENT, WRAP_CONTENT) // 不传height的时候要加，高改为view.measuredHeight
+ *  builder.saveViewJob(view, 100, 100, {
+ *  showDialog()
  * }, {
- * hideDialog()
- * insertImageResolver(File(it.orEmpty()))
+ *  hideDialog()
+ *  insertImageResolver(File(it.orEmpty()))
  * })
  * 弹窗的 show() 是当前主线程消息，会优先执行，所以弹窗能正常弹出、转圈动画流畅；
  * View 操作被 post 到下一个消息队列，等弹窗渲染完成后再执行，即使耗时久，也不会让弹窗 “卡着不显示”；
@@ -290,14 +293,14 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
 
 /**
  * 读取图片的旋转角度:
- * 1)使用手机相机拍摄照片时，相机会在图片文件（如 JPEG）中嵌入一组 Exif 元数据，其中包含拍摄时的设备方向、焦距、时间等信息
- * 2)通过路径访问图片时，程序实际是在解析图片文件的二进制数据，从中提取出 Exif 区块中的Orientation值。这个值不是手机 “实时判断” 的，而是拍摄时就已经写入文件了
+ * 1) 使用手机相机拍摄照片时，相机会在图片文件（如 JPEG）中嵌入一组 Exif 元数据，其中包含拍摄时的设备方向、焦距、时间等信息
+ * 2) 通过路径访问图片时，程序实际是在解析图片文件的二进制数据，从中提取出 Exif 区块中的Orientation值。这个值不是手机 “实时判断” 的，而是拍摄时就已经写入文件了
  *
  * 读不出角度的常见原因:
- * 1)图片经过编辑、压缩或格式转换后，Exif 信息可能被清除
- * 2)部分相机应用未规范写入Orientation标签
- * 3)非相机拍摄的图片（如截图、网络图片）通常没有旋转角度信息
- * 4)Android 10 + 的文件权限限制，可能导致直接通过路径无法读取 Exif（需用输入流方式）
+ * 1) 图片经过编辑、压缩或格式转换后，Exif 信息可能被清除
+ * 2) 部分相机应用未规范写入Orientation标签
+ * 3) 非相机拍摄的图片（如截图、网络图片）通常没有旋转角度信息
+ * 4) Android 10 + 的文件权限限制，可能导致直接通过路径无法读取 Exif（需用输入流方式）
  */
 private fun readImageRotation(path: String): Int {
     return try {
@@ -323,7 +326,7 @@ private fun readRotationFromPath(path: String): Int {
 }
 
 /**
- * 从输入流读取旋转角度（适用于Android Q及以上）
+ * 从输入流读取旋转角度（适用于 Android Q 及以上）
  */
 @RequiresApi(Build.VERSION_CODES.Q)
 private fun readRotationFromStream(path: String): Int {
@@ -341,7 +344,7 @@ private fun readRotationFromStream(path: String): Int {
 }
 
 /**
- * 从ExifInterface中解析旋转角度
+ * 从 ExifInterface 中解析旋转角度
  */
 private fun getRotationFromExif(exif: ExifInterface): Int {
     val orientation = exif.getAttributeInt(TAG_ORIENTATION, ExifInterface.ORIENTATION_UNDEFINED)
@@ -373,10 +376,10 @@ suspend fun suspendingZip(sourcePath: String, zipPath: String): String {
 }
 
 /**
- * 压缩多个文件或目录到指定ZIP路径
+ * 压缩多个文件或目录到指定 ZIP 路径
  * @param sourcePaths 源文件或目录路径列表
- * @param zipPath 目标ZIP文件路径
- * @return 生成的ZIP文件路径
+ * @param zipPath 目标 ZIP 文件路径
+ * @return 生成的 ZIP 文件路径
  */
 suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
     return withContext(IO) {
@@ -389,15 +392,15 @@ suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
                 throw IOException("无法删除已存在的ZIP文件: $zipPath")
             }
         }
-        zipFiles(sourcePaths, zipPath)
+        addFilesToZip(sourcePaths, zipPath)
         zipPath
     }
 }
 
 /**
- * 压缩文件或目录列表到ZIP文件
+ * 压缩文件或目录列表到 ZIP 文件
  */
-private fun zipFiles(sourcePaths: List<String>, zipPath: String) {
+private fun addFilesToZip(sourcePaths: List<String>, zipPath: String) {
     ZipOutputStream(FileOutputStream(zipPath)).use { zipOut ->
         for (sourcePath in sourcePaths) {
             val sourceFile = File(sourcePath)
@@ -412,7 +415,7 @@ private fun zipFiles(sourcePaths: List<String>, zipPath: String) {
 }
 
 /**
- * 将单个文件添加到ZIP流
+ * 将单个文件添加到 ZIP 流
  */
 private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream) {
     file.inputStream().use { input ->
@@ -427,7 +430,7 @@ private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream)
 }
 
 /**
- * 递归将目录添加到ZIP流
+ * 递归将目录添加到 ZIP 流
  */
 private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputStream) {
     val entryPath = if (parentPath.isEmpty()) dir.name else "$parentPath/${dir.name}"
@@ -486,7 +489,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(mContext: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(context: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         // 存储目录文件
         val storeDir = File(root)
@@ -495,12 +498,12 @@ suspend fun suspendingDownloadPic(mContext: Context, string: String, root: Strin
         // 确保目录创建
         root.ensureDirExists()
         // 开启 Glide 下载
-        suspendingGlideDownload(mContext, string, storeDir)
+        suspendingGlideDownload(context, string, storeDir)
     }
 }
 
-private suspend fun suspendingGlideDownload(mContext: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
-    ImageLoader.instance.downloadImage(mContext, string) { file ->
+private suspend fun suspendingGlideDownload(context: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
+    ImageLoader.instance.downloadImage(context, string) { file ->
         // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
         if (null == file || !file.exists()) {
             it.resumeWithException(RuntimeException("下载失败"))
@@ -528,9 +531,92 @@ private suspend fun suspendingGlideDownload(mContext: Context, string: String, s
  * 文件分片
  */
 suspend fun suspendingFileSplit(sourcePath: String?, cutSize: Long): MutableList<String> {
-    sourcePath ?: return arrayListOf()
+    sourcePath ?: return mutableListOf()
     return withContext(IO) {
-        File(sourcePath).split(cutSize)
+        split(File(sourcePath), cutSize)
+    }
+}
+
+/**
+ * 将文件按指定大小分割为多个临时分片文件
+ * @param chunkSize 分割文件的大小
+ * @return 有序的分片文件绝对路径列表；若文件为空或无效则返回空列表
+ */
+private fun split(file: File, chunkSize: Long): MutableList<String> {
+    // 分割文件总大小
+    val fileLength = file.length()
+    // 长度校验
+    if (fileLength <= 0L) return mutableListOf()
+    // 向上取整计算总分片数
+    val numChunks = if (fileLength.mod(chunkSize) == 0L) {
+        fileLength.div(chunkSize)
+    } else {
+        fileLength.div(chunkSize).plus(1)
+    }.toSafeInt()
+    // 获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
+    val splitPaths = ArrayList<String>()
+    RandomAccessFile(file, "r").use { accessFile ->
+        // 文件的总大小
+        val totalLength = accessFile.length()
+        // 文件切片后每片的最大大小
+        val avgChunkSize = totalLength / numChunks
+        // 初始化偏移量
+        var currentOffset = 0L
+        // 开始切片
+        for (i in 0 until numChunks - 1) {
+            val begin = currentOffset
+            val end = (i + 1) * avgChunkSize
+            val (tmpFilePath, nextOffset) = write(file.absolutePath, i, begin, end)
+            currentOffset = nextOffset
+            splitPaths.add(tmpFilePath)
+        }
+        // 剩余部分（若存在）
+        if (totalLength - currentOffset > 0) {
+            splitPaths.add(write(file.absolutePath, numChunks - 1, currentOffset, totalLength).first)
+        }
+        // 确保返回的集合中不包含空路径
+        for (i in splitPaths.indices.reversed()) {
+            if (splitPaths.safeGet(i).isNullOrEmpty()) {
+                splitPaths.removeAt(i)
+            }
+        }
+    }
+    return splitPaths
+}
+
+/**
+ * 创建并写入临时分片文件
+ * @param filePath 源文件地址
+ * @param index    分片序号
+ * @param begin    起始字节偏移（包含）
+ * @param end      结束字节偏移（不包含）
+ * @return first: 分片文件绝对路径 second: 写入完成后的实际文件指针位置
+ */
+private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String, Long> {
+    // 源文件
+    val sourceFile = File(filePath)
+//    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
+//    val tmpFile = File("${sourceFile.parent}/${sourceFile.nameWithoutExtension}_${index}.tmp")
+    val baseFileName = sourceFile.nameWithoutExtension
+    // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
+    val recordDirectory = "${sourceFile.parent}/${baseFileName}_record"
+    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
+    val tmpFile = File("${recordDirectory}/${baseFileName}_${index}.tmp")
+    // 如果不存在，则创建一个或继续写入
+    return RandomAccessFile(tmpFile, "rw").use { output ->
+        RandomAccessFile(sourceFile, "r").use { input ->
+            // 申明具体每一文件的字节数组
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            // 从指定位置读取文件字节流
+            input.seek(begin)
+            // 判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
+            while (input.read(buffer).also { bytesRead = it } != -1 && input.filePointer <= end) {
+                output.write(buffer, 0, bytesRead)
+            }
+            // 关闭输入输出流,赋值
+            tmpFile.absolutePath to input.filePointer
+        }
     }
 }
 
@@ -540,7 +626,16 @@ suspend fun suspendingFileSplit(sourcePath: String?, cutSize: Long): MutableList
 suspend fun suspendingFileRead(sourcePath: String?): String {
     sourcePath ?: return ""
     return withContext(IO) {
-        File(sourcePath).read()
+        /**
+         * 读取文件到文本（文本，找不到文件或读取错返回null）
+         * kt 中对 File 类做了 'readText' 扩展，但是实现相当于将每行文本塞入 list 集合再从集合中读取，此项操作比较吃内存，官方注释也不推荐读取 2G 以上的文件，所以使用 java 的方法
+         */
+        File(sourcePath).bufferedReader().use { reader ->
+            val stringBuilder = StringBuilder()
+            var str: String?
+            while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
+            stringBuilder.toString()
+        }
     }
 }
 
@@ -550,7 +645,19 @@ suspend fun suspendingFileRead(sourcePath: String?): String {
 suspend fun suspendingFileCopy(sourcePath: String?, destPath: String?) {
     if (sourcePath == null || destPath == null) return
     withContext(IO) {
-        File(sourcePath).copy(File(destPath))
+        File(sourcePath).inputStream().channel.use { sourceChannel ->
+            File(destPath).outputStream().channel.use { destChannel ->
+                var position = 0L
+                val size = sourceChannel.size()
+                // 循环传输，直到所有字节都写完
+                while (position < size) {
+                    val transferred = destChannel.transferFrom(sourceChannel, position, size - position)
+                    // 防御性编程：如果底层返回0且未传完，跳出防止死循环
+                    if (transferred <= 0L) break
+                    position += transferred
+                }
+            }
+        }
     }
 }
 
@@ -560,7 +667,7 @@ suspend fun suspendingFileCopy(sourcePath: String?, destPath: String?) {
 suspend fun suspendingFileBase64(sourcePath: String?): String {
     sourcePath ?: return ""
     return withContext(IO) {
-        File(sourcePath).getBase64()
+        Base64.encodeToString(File(sourcePath).readBytes(), Base64.NO_WRAP)
     }
 }
 
@@ -570,19 +677,53 @@ suspend fun suspendingFileBase64(sourcePath: String?): String {
 suspend fun suspendingFileHash(sourcePath: String?): String {
     sourcePath ?: return ""
     return withContext(IO) {
-        File(sourcePath).getHash()
+        /**
+         * 获取文件 hash 值
+         * 满足 64 位哈希，不足则前位补0
+         */
+        File(sourcePath).inputStream().use { input ->
+            val sha = MessageDigest.getInstance("SHA-256")
+            val buffer = ByteArray(1024)
+            var bytesRead: Int
+            while (input.read(buffer).also { bytesRead = it } != -1) {
+                sha.update(buffer, 0, bytesRead)
+            }
+            BigInteger(1, sha.digest()).toString(16).padStart(64, '0')
+        }
     }
 }
 
 /**
  * 获取media文件的时长
- * 返回时长(音频，视频)->不支持在线音视频
+ * 返回时长(音频，视频) -> 不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
 suspend fun suspendingFileDuration(sourcePath: String?): Int {
     sourcePath ?: return 0
     return withContext(IO) {
-        File(sourcePath).getDuration()
+        File(sourcePath).let {
+            val player = MediaPlayer()
+            try {
+                player.setDataSource(it.absolutePath)
+                player.prepare()
+                // 视频时长（毫秒）/ 1000 = x秒
+                val duration = player.duration.orZero
+                duration.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                0
+            } finally {
+                try {
+                    player.apply {
+                        stop()
+                        reset()
+                        release()
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 }
 
@@ -654,12 +795,12 @@ fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false))
     }
     /**
      * 筛选逻辑优化
-     * 1) 仅保留txt文件
+     * 1) 仅保留 txt 文件
      * 2) 过滤空文件/全空白文件（自动删除）
      * 3) 按修改时间升序排序（优先上传旧日志）
      */
     return logDir.listFiles { file ->
-        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && file.isNonEmptyLogFile()
+        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && isNonEmptyLogFile(file)
     }?.sortedBy { it.lastModified() } ?: emptyList()
 }
 
@@ -667,29 +808,29 @@ fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false))
  * 检测文件是否为有效日志文件（非空+有实际内容）
  * @return true：文件非空且有有效内容；false：空文件（直接删除）
  */
-private fun File.isNonEmptyLogFile(): Boolean {
+private fun isNonEmptyLogFile(file: File): Boolean {
     // 快速校验文件大小（0字节直接删除）
-    if (length() == 0L) {
-        safeDelete()
+    if (file.length() == 0L) {
+        file.safeDelete()
         return false
     }
     // 校验是否有非空白内容（避免全是空格/换行的无效文件）
     return try {
         // 流式读取，仅判断是否存在非空白行，不加载全部内容（优化内存）
-        bufferedReader().use { reader ->
+        file.bufferedReader().use { reader ->
             // 最多读取前10行，避免超大空白文件耗时读取
             val hasValidContent = reader.lineSequence()
                 .take(10)
                 .any { line -> line.isNotBlank() }
             if (!hasValidContent) {
-                safeDelete()
+                file.safeDelete()
             }
             hasValidContent
         }
     } catch (e: IOException) {
         // 文件读取异常（如损坏、权限不足），视为无效文件
         e.printStackTrace()
-        safeDelete()
+        file.safeDelete()
         false
     } catch (e: SecurityException) {
         // 捕获权限异常（Android 13+ 分区存储场景）
