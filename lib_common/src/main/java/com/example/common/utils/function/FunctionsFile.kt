@@ -45,7 +45,7 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  */
 fun Context.insertImageResolver(pathname: String?): Boolean {
     if (pathname.isNullOrEmpty()) return false
-    return insertImageResolver(File(pathname))
+    return insertImageResolver(pathname.toSafeFile())
 }
 
 fun Context.insertImageResolver(file: File?): Boolean {
@@ -122,7 +122,7 @@ private const val STORAGE_UNIT_BASE = 1024.0
 
 fun String?.storageSizeFormat(): String {
     this ?: return ""
-    return File(this).storageSizeFormat()
+    return toSafeFile().storageSizeFormat()
 }
 
 fun File?.storageSizeFormat(): String {
@@ -159,18 +159,18 @@ fun String?.toSafeFile(): File? {
 /**
  * 获取字符串路径对应的文件/目录长度
  * 1) 若为文件：返回文件大小（字节）
- * 2) 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
+ * 2) 若为目录：返回 0L（目录本身无大小，需用 [getFileTotalSize] 统计子文件总大小）
  * 3) 路径为空/文件不存在/异常：返回 0L
  */
 fun String?.getFileLength(): Long {
     this ?: return 0L
+    return toSafeFile().getFileLength()
+}
+
+fun File?.getFileLength(): Long {
+    this ?: return 0L
     return try {
-        val file = toSafeFile() ?: return 0L
-        if (file.exists() && file.canRead()) {
-            file.length()
-        } else {
-            0L
-        }
+        if (isFile) length() else 0L
     } catch (e: Exception) {
         e.printStackTrace()
         0L
@@ -187,22 +187,28 @@ fun String?.getFileTotalSize(): Long {
 
 fun File?.getFileTotalSize(): Long {
     this ?: return 0L
-    // 文件/目录不存在直接返回 0，避免无效遍历
-    if (!exists() || !canRead()) return 0L
-    // 如果是文件，直接返回大小（无需遍历）
-    if (isFile) return length()
-    var size = 0L
-    // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
-    for (mFile in listFiles().orEmpty()) {
-        size += if (mFile.isDirectory) {
-            // 递归调用时要传 mFile
-            mFile.getFileTotalSize()
+    return try {
+        // 如果是文件，直接返回大小（无需遍历）
+        if (isFile) {
+            length()
         } else {
-            mFile.length()
+            // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
+            var size = 0L
+            for (file in listFiles().orEmpty()) {
+                size += if (file.isDirectory) {
+                    // 递归调用时要传 file
+                    file.getFileTotalSize()
+                } else {
+                    file.length()
+                }
+            }
+            // 返回所有子文件/子目录的内容大小总和（不含目录自身元数据）
+            size
         }
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0L
     }
-    // 返回所有子文件/子目录的内容大小总和（不含目录自身元数据）
-    return size
 }
 
 /**
@@ -213,7 +219,7 @@ fun File?.getFileTotalSize(): Long {
 fun String?.isFileWritableAndDeletable(): Boolean {
     this ?: return false
     // 文件是否可写（间接判断无独占写锁定）
-    val file = File(this)
+    val file = toSafeFile() ?: return false
     if (!file.exists() || !file.isFile) return false
     /**
      * 尝试以追加模式打开目标文件本身
@@ -232,11 +238,15 @@ fun String?.isFileWritableAndDeletable(): Boolean {
 }
 
 /**
- * 判断字符串路径对应的文件/目录是否存在
- * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
+ * 判断字符串路径对应的文件/目录是否存在（仅做存在性校验）
+ * 注意：本方法仅检查 [File.exists]，不包含可读/可写权限校验
+ * 1) 存在性与访问权限是两个独立的关注点。若在此处耦合 canRead()/canWrite()，会导致无法区分"路径未创建"与"权限不足"两种截然不同的错误语义，增加上层排查问题的难度
+ * 2) 如需确认路径是否可安全读写，在上层业务中结合具体 I/O 意图单独进行权限预检或直接 try-catch 实际 I/O 操作
+ * @return true：路径非空且对应的文件/目录在文件系统中已创建；false：路径为空或尚未创建
  */
 fun String?.isPathExists(): Boolean {
-    return toSafeFile()?.exists().orFalse
+    val file = toSafeFile() ?: return false
+    return file.exists()
 }
 
 /**
@@ -247,31 +257,18 @@ fun String?.isPathExists(): Boolean {
 fun String?.ensureDirExists(): String {
     // 空路径直接返回空
     this ?: return ""
-    // 去除首尾空格（避免路径含无效空格导致创建失败）
-    val dirPath = trim()
-    if (dirPath.isEmpty()) return ""
     // 取得文件类
-    val dirFile = File(dirPath)
+    val dirFile = toSafeFile() ?: return ""
+    // 目录已存在 → 直接返回绝对路径；路径存在但不是目录 → 返回空
     return try {
-        // 目录已存在 → 直接返回绝对路径
-        // 路径存在但不是目录 → 返回空
         if (dirFile.exists()) {
-            if (dirFile.isDirectory) {
-                dirFile.absolutePath
-            } else {
-                ""
-            }
+            if (dirFile.isDirectory) dirFile.absolutePath else ""
         } else {
-            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）
-            // 创建成功返回路径，失败返回空
-            if (dirFile.mkdirs()) {
-                dirFile.absolutePath
-            } else {
-                ""
-            }
+            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）；创建成功返回路径，失败返回空
+            if (dirFile.mkdirs()) dirFile.absolutePath else ""
         }
     } catch (e: Exception) {
-        // 捕获异常（权限不足、路径无效等）
+        // mkdirs() 不是完全安全的
         e.printStackTrace()
         ""
     }
@@ -300,7 +297,7 @@ fun String?.ensureDirExists(): String {
  */
 fun String?.nameWithoutExtension(): String {
     this ?: return ""
-    return File(this).nameWithoutExtension
+    return toSafeFile()?.nameWithoutExtension.orEmpty()
 }
 
 /**
@@ -308,7 +305,7 @@ fun String?.nameWithoutExtension(): String {
  */
 fun String?.extension(): String {
     this ?: return ""
-    return File(this).extension
+    return toSafeFile()?.extension.orEmpty()
 }
 
 /**
@@ -316,7 +313,7 @@ fun String?.extension(): String {
  */
 fun String?.parent(): String {
     this ?: return ""
-    return File(this).parent.orEmpty()
+    return toSafeFile()?.parent.orEmpty()
 }
 
 /**
@@ -324,8 +321,7 @@ fun String?.parent(): String {
  */
 fun String?.deleteFile(): Boolean {
     this ?: return false
-    if (!isPathExists()) return false
-    return File(this).safeDelete()
+    return toSafeFile()?.safeDelete().orFalse
 }
 
 /**
@@ -333,14 +329,13 @@ fun String?.deleteFile(): Boolean {
  */
 fun String?.deleteDirectory(): Boolean {
     this ?: return false
-    if (!isPathExists()) return false
-    return File(this).let {
+    return toSafeFile()?.let {
         if (it.isDirectory) {
             it.deleteRecursively()
         } else {
             it.safeDelete()
         }
-    }
+    }.orFalse
 }
 
 /**
@@ -389,48 +384,44 @@ fun File?.renameFile(newFileName: String): Boolean {
     this ?: return false
     // 仅对文件生效，避免目录误操作
     if (!exists() || !isFile) return false
-    val parentDir = parentFile ?: return false
     // 确保父目录存在（极端情况父目录被删除，避免重命名失败）
-    if (!parentDir.exists() && !parentDir.mkdirs()) {
-        return false
-    }
+    val parentDir = parentFile ?: return false
+    if (!parentDir.exists() && !parentDir.mkdirs()) return false
     // 创建目标文件（新路径 + 新文件名）
     val targetFile = File(parentDir, newFileName)
     // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
+    if (targetFile.exists()) return false
     // 执行重命名操作
     return renameTo(targetFile)
 }
 
 /**
- * 重命名文件（可改路径 + 文件名，更灵活）
+ * 移动文件到新路径（可改路径 + 文件名）
  * @param this 原始文件
  * @param targetFile 目标文件（包含新路径和新文件名）
- * @return 是否重命名成功
- * 若「原文件和目标文件在同一个分区」（如都在 /data/user/0/ 下）：仅修改文件的路径和名称，文件数据本身不移动（速度极快）；
- * 若「原文件和目标文件在不同分区」（如原文件在内部存储，目标在 SD 卡）：会先复制文件数据到新路径，再删除原文件（速度取决于文件大小）；
- * 无论哪种情况，最终只有一个文件存在（原文件会消失）
+ * @return 是否移动成功
+ * 同分区：仅修改路径和名称，速度极快；
+ * 跨分区：先复制再删除原文件，速度取决于文件大小；
+ * 无论哪种情况，成功后原文件消失，仅目标文件存在。
  */
-fun File?.renameFileTo(targetFile: File): Boolean {
+fun File?.moveFileTo(targetFile: File): Boolean {
     this ?: return false
-    if (!exists()) {
-        return false
+    if (!exists() || !isFile) return false
+    val targetParentDir = targetFile.parentFile ?: return false
+    if (!targetParentDir.exists() && !targetParentDir.mkdirs()) return false
+    // 目标已存在则不覆盖
+    if (targetFile.exists()) return false
+    // 优先尝试 rename（同分区零拷贝）
+    if (renameTo(targetFile)) return true
+    // 跨分区兜底：复制 + 删除
+    return try {
+        copyTo(targetFile, overwrite = false)
+        safeDelete()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        targetFile.safeDelete()
+        false
     }
-    // 确保目标文件的父目录存在
-    val targetParent = targetFile.parentFile
-    if (targetParent != null && !targetParent.exists()) {
-        // 创建父目录（包括所有必要的父目录）
-        if (!targetParent.mkdirs()) {
-            return false
-        }
-    }
-    // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
-    return renameTo(targetFile)
 }
 
 /**
@@ -488,50 +479,46 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
  */
 fun File?.getFirstFileInDirectory(): String? {
     // 检查目录是否合法
-    if (this == null || !this.exists() || !this.isDirectory) {
-        "目录不存在或不是文件夹".logWTF
-        return null
-    }
-    // 获取目录下所有文件/文件夹（过滤隐藏文件）
+    if (this == null || !this.exists() || !this.isDirectory) return null
+    /**
+     * 获取目录下所有文件/文件夹（过滤隐藏文件）
+     * 例子:
+     * 按修改时间排序
+     * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
+     */
     val files = this.listFiles { file ->
         // 仅保留「非隐藏」且「是文件」的项（排除文件夹）
         !file.isHidden && file.isFile
     }
     // 判断是否有文件，返回第一个文件的路径
-    if (files != null && files.size > 0) {
-        /**
-         * 按修改时间排序
-         * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
-         * 返回第一个文件的绝对路径
-         */
-        return files[0]?.absolutePath
+    return if (files != null && files.size > 0) {
+        files[0]?.absolutePath
     } else {
-        "目录下无文件".logWTF
-        return null
+        null
     }
 }
 
 /**
- * 获取文件的纯名称（去掉后缀，无后缀则返回完整文件名）
- * @return 纯文件名（小写可选，建议和后缀保持一致）
+ * 获取目录下【一级】所有可见项（文件+文件夹）的路径与类型
+ * @return Pair列表：First=绝对路径，Second=是否是文件夹（true=文件夹，false=文件）
+ * @note 仅遍历当前目录一级，不递归子目录；过滤隐藏文件
  */
-fun File?.getRealFileName(): String {
-    // 文件为空返回空
-    this ?: return ""
-    // 文件名本身为空返回空
-    val fileName = name ?: return ""
-    // 截取最后一个小数点前的内容（无小数点则返回完整文件名）
-    return fileName.substringBeforeLast(".", fileName).trim()
+fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
+    // 目录不存在或不是文件夹
+    if (this == null || !this.exists() || !this.isDirectory) return emptyList()
+    val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
+    return allItems.map { it.absolutePath to it.isDirectory }
 }
 
 /**
- * 解析文件的真实后缀（不含小数点，如 "jpg/png/tmp"）
- * @return 后缀字符串，无后缀返回空字符串
+ * 递归获取目录下【所有层级】的所有文件绝对路径（仅文件，不含文件夹）
+ * @return 所有子目录文件的绝对路径列表，无数据返回空列表
+ * @note 遍历当前目录+所有子目录；包含非隐藏文件（listFiles未过滤隐藏，保持原逻辑）
  */
-fun File?.getRealFileSuffix(): String {
-    this ?: return ""
-    val fileName = name ?: return ""
-    return fileName.substringAfterLast(".", "").lowercase().trim()
+fun File.getAllFilePathsRecursively(): List<String> {
+    if (exists().not() || isDirectory.not()) return emptyList()
+    val files = listFiles() ?: return emptyList()
+    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePathsRecursively() }
 }
 
 /**
@@ -602,32 +589,7 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
 }
 
 /**
- * 获取目录下【一级】所有可见项（文件+文件夹）的路径与类型
- * @return Pair列表：First=绝对路径，Second=是否是文件夹（true=文件夹，false=文件）
- * @note 仅遍历当前目录一级，不递归子目录；过滤隐藏文件
- */
-fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
-    if (this == null || !this.exists() || !this.isDirectory) {
-        "目录不存在或不是文件夹".logWTF
-        return emptyList()
-    }
-    val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
-    return allItems.map { it.absolutePath to it.isDirectory }
-}
-
-/**
- * 递归获取目录下【所有层级】的所有文件绝对路径（仅文件，不含文件夹）
- * @return 所有子目录文件的绝对路径列表，无数据返回空列表
- * @note 遍历当前目录+所有子目录；包含非隐藏文件（listFiles未过滤隐藏，保持原逻辑）
- */
-fun File.getAllFilePathsRecursively(): List<String> {
-    if (exists().not() || isDirectory.not()) return emptyList()
-    val files = listFiles() ?: return emptyList()
-    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePathsRecursively() }
-}
-
-/**
- * 通过uri获取到一个文件
+ * 通过 Uri 获取到一个文件
  */
 fun Uri?.getFileFromUri(context: Context?): File? {
     this ?: return null
