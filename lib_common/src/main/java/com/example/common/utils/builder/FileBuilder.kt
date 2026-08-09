@@ -34,8 +34,8 @@ import com.example.common.R
 import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
+import com.example.common.utils.function.cacheImageExtension
 import com.example.common.utils.function.deleteDirectory
-import com.example.common.utils.function.detectImageFormat
 import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
@@ -500,7 +500,7 @@ suspend fun suspendingDownloadPic(context: Context, imageUrl: String, root: Stri
         // 开启 Glide 下载
         val cacheFile = suspendingGlideDownload(context, imageUrl)
         // 后缀从 URL 拿，不依赖 cacheFile
-        val ext = cacheFile.detectImageFormat() ?: "jpg"
+        val ext = cacheFile.cacheImageExtension() ?: "jpg"
         val safeName = "${cacheFile.nameWithoutExtension}_${EN_YMDHMS.convert(Date())}.${ext}"
         val targetFile = File(storeDir, safeName)
         // 覆盖保存文件
