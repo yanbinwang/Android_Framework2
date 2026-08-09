@@ -49,7 +49,6 @@ import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.divide
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -688,7 +687,7 @@ suspend fun suspendingFileHash(sourcePath: String?): String {
 }
 
 /**
- * 获取media文件的时长
+ * 获取 media 文件的时长
  * 返回时长(音频，视频) -> 不支持在线音视频
  * 放在线程中读取，超时会导致卡顿或闪退
  */
@@ -701,21 +700,10 @@ suspend fun suspendingFileDuration(sourcePath: String?): Int {
                 player.setDataSource(it.absolutePath)
                 player.prepare()
                 // 视频时长（毫秒）/ 1000 = x秒
-                val duration = player.duration.orZero
-                duration.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
-            } catch (e: Exception) {
-                e.printStackTrace()
-                0
+                val durationMs = player.duration
+                durationMs.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
             } finally {
-                try {
-                    player.apply {
-                        stop()
-                        reset()
-                        release()
-                    }
-                } catch (e: Exception) {
-                    e.printStackTrace()
-                }
+                player.release()
             }
         }
     }
