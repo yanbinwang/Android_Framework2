@@ -3,6 +3,7 @@ package com.example.common.utils.function
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -361,6 +362,26 @@ fun File?.safeDelete(): Boolean {
         e.printStackTrace()
         false
     }
+}
+
+/**
+ * 通过读取文件头元信息检测图片的真实格式。
+ * 适用场景：Glide/Coil 等图片库下载的缓存文件通常无扩展名，
+ * 或 URL 本身不包含合法后缀时，用此方法从文件内容反推真实类型。
+ * 原理：利用 [BitmapFactory.Options.inJustDecodeBounds] 仅解析文件头，
+ * 不分配像素内存，IO 开销与手动读取魔数字节相当。
+ * @return 小写格式标识（如 "jpeg"、"png"、"webp"、"avif"），
+ *         无法识别或文件无效时返回 null
+ */
+fun File.detectImageFormat(): String? {
+    if (!exists() || !isFile || length() == 0L) return null
+    // 仅解码边界信息（宽高、MIME），不加载像素到内存
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeFile(absolutePath, options)
+    // outMimeType 格式为 "image/jpeg"、"image/webp" 等；解码失败时返回 "image/*"，需过滤掉
+    return options.outMimeType?.substringAfterLast('/')?.takeIf { it != "*" && it.isNotBlank() }
 }
 
 /**

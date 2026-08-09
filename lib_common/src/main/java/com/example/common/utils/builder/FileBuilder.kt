@@ -35,6 +35,7 @@ import com.example.common.network.CommonApi
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.deleteDirectory
+import com.example.common.utils.function.detectImageFormat
 import com.example.common.utils.function.ensureDirExists
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
@@ -489,40 +490,33 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(context: Context, string: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(context: Context, imageUrl: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         // 存储目录文件
         val storeDir = File(root)
-        // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
+        // 先判断是否需要清空目录，再判断是否存在
         if (deleteDir) root.deleteDirectory()
         // 确保目录创建
         root.ensureDirExists()
         // 开启 Glide 下载
-        suspendingGlideDownload(context, string, storeDir)
+        val cacheFile = suspendingGlideDownload(context, imageUrl)
+        // 后缀从 URL 拿，不依赖 cacheFile
+        val ext = cacheFile.detectImageFormat() ?: "jpg"
+        val safeName = "${cacheFile.nameWithoutExtension}_${EN_YMDHMS.convert(Date())}.${ext}"
+        val targetFile = File(storeDir, safeName)
+        // 覆盖保存文件
+        cacheFile.copyTo(targetFile, true)
+        // 返回绝对路径
+        targetFile.absolutePath
     }
 }
 
-private suspend fun suspendingGlideDownload(context: Context, string: String, storeDir: File) = suspendCancellableCoroutine {
-    ImageLoader.instance.downloadImage(context, string) { file ->
-        // 此处`file?.name`会包含glide下载图片的后缀（png,jpg,webp等）
+private suspend fun suspendingGlideDownload(context: Context, imageUrl: String) = suspendCancellableCoroutine {
+    ImageLoader.instance.downloadImage(context, imageUrl) { file ->
         if (null == file || !file.exists()) {
             it.resumeWithException(RuntimeException("下载失败"))
         } else {
-            // 必须拼接文件名，不能直接传目录
-            val targetFile = File(storeDir, file.name)
-            // 防御性检查：万一 Glide 返回的 name 与已有目录重名
-            // nameWithoutExtension: 用于获取文件名中去掉最后一个后缀（扩展名）之后的部分
-            if (targetFile.exists() && targetFile.isDirectory) {
-                val safeName = "${file.nameWithoutExtension}_${EN_YMDHMS.convert(Date())}.${file.extension}"
-                val safeTarget = File(storeDir, safeName)
-                file.copyTo(safeTarget, true)
-                file.delete()
-                it.resume(safeTarget.absolutePath)
-            } else {
-                file.copyTo(targetFile, true)
-                file.delete()
-                it.resume(targetFile.absolutePath)
-            }
+            it.resume(file)
         }
     }
 }
