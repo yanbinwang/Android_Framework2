@@ -11,6 +11,7 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
+import android.media.MediaMetadataRetriever
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.ParcelFileDescriptor
@@ -693,17 +694,28 @@ suspend fun suspendingFileHash(sourcePath: String?): String {
 suspend fun suspendingFileDuration(sourcePath: String?): Int {
     sourcePath ?: return 0
     return withContext(IO) {
-        File(sourcePath).let {
-            val player = MediaPlayer()
-            try {
-                player.setDataSource(it.absolutePath)
-                player.prepare()
-                // 视频时长（毫秒）/ 1000 = x秒
-                val durationMs = player.duration
-                durationMs.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
-            } finally {
-                player.release()
-            }
+//        File(sourcePath).let {
+//            val player = MediaPlayer()
+//            try {
+//                player.setDataSource(it.absolutePath)
+//                // 同步阻塞调用，如果文件较大或 I/O 较慢，会阻塞当前线程。确保这段代码不在主线程执行，成功即 PREPARED
+//                player.prepare()
+//                // 视频时长（毫秒）/ 1000 = x秒
+//                val durationMs = player.duration
+//                durationMs.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
+//            } finally {
+//                player.release()
+//            }
+//        }
+        // 仅读取容器头信息，只解析元数据，应用于仅需时长/封面/码率等元数据的场景
+        val retriever = MediaMetadataRetriever()
+        try {
+            retriever.setDataSource(sourcePath)
+            // 视频时长（毫秒）/ 1000 = x秒
+            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            durationMs?.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
+        } finally {
+            retriever.release()
         }
     }
 }
