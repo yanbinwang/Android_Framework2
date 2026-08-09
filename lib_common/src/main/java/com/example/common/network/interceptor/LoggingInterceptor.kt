@@ -19,7 +19,7 @@ import java.io.IOException
  * 1) 文件流/上传等不做拦截，否则会造成应用闪退（需手动在 excludedUrls 中添加过滤名单）
  * 2) 返回日志过长，会导致打印不完整 (日志上限最高为编译器 3500 字符)
  */
-class LoggingInterceptor : Interceptor {
+internal class LoggingInterceptor : Interceptor {
     private val utf8 by lazy { Charsets.UTF_8 }
     private val excludedUrls by lazy { arrayOf("user/uploadImg") }
 
