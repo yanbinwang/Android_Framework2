@@ -119,22 +119,37 @@ object AnrWatchdog : DefaultLifecycleObserver {
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun onSuspectedAnr(info: ApplicationExitInfo): AnrRecord {
-        val blockedDurationMs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
-            // 有 AnrInfo 时，用 timeoutMillis 作为近似值
-            info.anrInfo?.timeoutMillis
-        } else {
-            // 没有时，保持 0L，不要伪造
-            0L
-        }
         return AnrRecord(
             timestamp = info.timestamp,
             processName = info.processName,
             isConfirmed = true,
             source = "SystemExitInfo",
             description = info.description,
-            blockedDurationMs = blockedDurationMs,
+            blockedDurationMs = getBlockedDurationMs(info),
             currentActivity = AppManager.currentActivityName
         )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    private fun getBlockedDurationMs(info: ApplicationExitInfo): Long {
+        // 高版本权威值
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            info.anrInfo?.timeoutMillis?.let {
+                return it
+            }
+        }
+        // API 30-36 从 description 推断
+        if (info.reason == ApplicationExitInfo.REASON_ANR) {
+            val desc = info.description ?: ""
+            when {
+                desc.contains("Input dispatching", ignoreCase = true) -> return 5000L
+                desc.contains("Broadcast", ignoreCase = true)       -> return 10000L
+                desc.contains("Service", ignoreCase = true)         -> return 20000L
+                desc.contains("ContentProvider", ignoreCase = true) -> return 10000L
+            }
+        }
+        // 真拿不到
+        return 0L
     }
 
     private fun onSuspectedAnr(blockedMs: Long): AnrRecord {
