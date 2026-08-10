@@ -11,8 +11,6 @@ import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
-import android.media.MediaMetadataRetriever
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.ParcelFileDescriptor
 import android.util.Base64
@@ -48,7 +46,6 @@ import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
 import com.example.framework.utils.function.value.currentTimeStamp
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
@@ -66,7 +63,6 @@ import java.io.PrintWriter
 import java.io.RandomAccessFile
 import java.io.StringWriter
 import java.math.BigInteger
-import java.math.RoundingMode
 import java.security.MessageDigest
 import java.util.Date
 import java.util.zip.ZipEntry
@@ -682,40 +678,6 @@ suspend fun suspendingFileHash(sourcePath: String?): String {
                 sha.update(buffer, 0, bytesRead)
             }
             BigInteger(1, sha.digest()).toString(16).padStart(64, '0')
-        }
-    }
-}
-
-/**
- * 获取 media 文件的时长
- * 返回时长(音频，视频) -> 不支持在线音视频
- * 放在线程中读取，超时会导致卡顿或闪退
- */
-suspend fun suspendingFileDuration(sourcePath: String?): Int {
-    sourcePath ?: return 0
-    return withContext(IO) {
-//        File(sourcePath).let {
-//            val player = MediaPlayer()
-//            try {
-//                player.setDataSource(it.absolutePath)
-//                // 同步阻塞调用，如果文件较大或 I/O 较慢，会阻塞当前线程。确保这段代码不在主线程执行，成功即 PREPARED
-//                player.prepare()
-//                // 视频时长（毫秒）/ 1000 = x秒
-//                val durationMs = player.duration
-//                durationMs.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
-//            } finally {
-//                player.release()
-//            }
-//        }
-        // 仅读取容器头信息，只解析元数据，应用于仅需时长/封面/码率等元数据的场景
-        val retriever = MediaMetadataRetriever()
-        try {
-            retriever.setDataSource(sourcePath)
-            // 视频时长（毫秒）/ 1000 = x秒
-            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
-            durationMs?.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
-        } finally {
-            retriever.release()
         }
     }
 }
