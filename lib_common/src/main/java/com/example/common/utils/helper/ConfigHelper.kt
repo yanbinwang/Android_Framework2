@@ -1,16 +1,20 @@
 package com.example.common.utils.helper
 
 import android.app.ActivityManager
+import android.app.ApplicationExitInfo
 import android.content.Context
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.core.graphics.createBitmap
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData.privacyAgreed
 import com.example.common.config.Constants
 import com.example.framework.utils.function.value.toSafeLong
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.withContext
 
 /**
  *  Created by wangyanbin
@@ -37,6 +41,18 @@ object ConfigHelper {
     fun isAppInForeground(): Boolean {
         val processes = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.runningAppProcesses ?: return false
         return processes.any { it.importance == ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND && it.processName == getPackageName() }
+    }
+
+    /**
+     * @param pid 查所有进程。传具体 PID 则只查该进程；传 0 表示不限进程，返回该包名下所有历史进程的退出记录
+     * @param maxNum 最多返回条数。系统按时间倒序返回最近 N 条，传 10 就是拿最近 10 次退出记录
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    suspend fun getANRInfo(pid: Int = 0, maxNum: Int = 10): List<ApplicationExitInfo> {
+        return withContext(IO) {
+            val exitInfos = (context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.getHistoricalProcessExitReasons(getPackageName(), pid, maxNum).orEmpty()
+            exitInfos.filter { it.reason == ApplicationExitInfo.REASON_ANR }
+        }
     }
 
     /**
