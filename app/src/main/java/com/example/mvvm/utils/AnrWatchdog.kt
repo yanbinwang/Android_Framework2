@@ -119,13 +119,20 @@ object AnrWatchdog : DefaultLifecycleObserver {
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun onSuspectedAnr(info: ApplicationExitInfo): AnrRecord {
+        val blockedDurationMs = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.CINNAMON_BUN) {
+            // 有 AnrInfo 时，用 timeoutMillis 作为近似值
+            info.anrInfo?.timeoutMillis
+        } else {
+            // 没有时，保持 0L，不要伪造
+            0L
+        }
         return AnrRecord(
             timestamp = info.timestamp,
             processName = info.processName,
             isConfirmed = true,
             source = "SystemExitInfo",
             description = info.description,
-            blockedDurationMs = 0L,
+            blockedDurationMs = blockedDurationMs,
             currentActivity = AppManager.currentActivityName
         )
     }
@@ -162,17 +169,17 @@ object AnrWatchdog : DefaultLifecycleObserver {
  */
 data class AnrRecord(
     // 发生时间戳 (毫秒)
-    val timestamp: Long,
+    val timestamp: Long? = null,
     // 进程名 (如 "com.example.app" 或 "com.example.app:push")
-    val processName: String,
+    val processName: String? = null,
     /**
      * 是否为系统确认的真实 ANR。
      * - true: 高版本 ApplicationExitInfo 确认的系统级 ANR
      * - false: 低版本 Watchdog 检测到的"疑似"主线程阻塞
      */
-    val isConfirmed: Boolean,
+    val isConfirmed: Boolean? = null,
     // 数据来源标识，用于埋点区分 (如 "SystemExitInfo", "LegacyWatchdog")
-    val source: String,
+    val source: String? = null,
     // ANR 描述信息。高版本取系统 description，低版本可填 "Main thread blocked > 5s"
     val description: String? = null,
     /**
