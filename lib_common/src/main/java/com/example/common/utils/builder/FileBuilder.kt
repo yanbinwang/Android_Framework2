@@ -49,6 +49,7 @@ import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.value.toSafeLong
 import com.example.glide.ImageLoader
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -367,8 +368,8 @@ private fun getRotationFromExif(exif: ExifInterface): Int {
  * @param zipPath 目标ZIP文件路径
  * @return 生成的ZIP文件路径
  */
-suspend fun suspendingZip(sourcePath: String, zipPath: String): String {
-    return suspendingZip(listOf(sourcePath), zipPath)
+suspend fun suspendingZip(sourcePath: String, zipPath: String, onProgress: ((processedBytes: Long, totalBytes: Long) -> Unit)? = null): String {
+    return suspendingZip(listOf(sourcePath), zipPath, onProgress)
 }
 
 /**
@@ -377,7 +378,7 @@ suspend fun suspendingZip(sourcePath: String, zipPath: String): String {
  * @param zipPath 目标 ZIP 文件路径
  * @return 生成的 ZIP 文件路径
  */
-suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
+suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String, onProgress: ((processedBytes: Long, totalBytes: Long) -> Unit)? = null): String {
     return withContext(IO) {
         // 创建ZIP文件所在的目录，而不是ZIP文件本身
         val zipFile = File(zipPath)
@@ -386,23 +387,33 @@ suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
         if (zipFile.exists()) {
             if (!zipFile.delete()) throw IOException("无法删除已存在的ZIP文件: $zipPath")
         }
-        addToZip(sourcePaths, zipPath)
+        // 预计算总大小 & 已处理字节计数器
+        val totalBytes = sourcePaths.sumOf { path ->
+            File(path).walk().filter { it.isFile }.sumOf { it.length() }
+        }
+        var processedBytes = 0L
+        addToZip(sourcePaths, zipPath) { delta ->
+            processedBytes += delta
+            // 调用方刷新 UI 记得切换线程
+            onProgress?.invoke(processedBytes, totalBytes)
+        }
         zipPath
     }
 }
 
 /**
  * 压缩文件或目录列表到 ZIP 文件
+ * @param reportDelta 内部增量上报
  */
-private fun addToZip(sourcePaths: List<String>, zipPath: String) {
+private fun addToZip(sourcePaths: List<String>, zipPath: String, reportDelta: (Long) -> Unit) {
     ZipOutputStream(FileOutputStream(zipPath)).use { zipOut ->
         for (sourcePath in sourcePaths) {
             val sourceFile = File(sourcePath)
             if (!sourceFile.exists()) continue
             if (sourceFile.isFile) {
-                addFileToZip(sourceFile, sourceFile.name, zipOut)
+                addFileToZip(sourceFile, sourceFile.name, zipOut, reportDelta)
             } else if (sourceFile.isDirectory) {
-                addDirectoryToZip(sourceFile, "", zipOut)
+                addDirectoryToZip(sourceFile, "", zipOut, reportDelta)
             }
         }
     }
@@ -411,13 +422,15 @@ private fun addToZip(sourcePaths: List<String>, zipPath: String) {
 /**
  * 将单个文件添加到 ZIP 流
  */
-private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream) {
+private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream, reportDelta: (Long) -> Unit) {
     file.inputStream().use { input ->
         zipOut.putNextEntry(ZipEntry(entryName))
         val buffer = ByteArray(4096)
         var length: Int
         while (input.read(buffer).also { length = it } > 0) {
             zipOut.write(buffer, 0, length)
+            // 每批写入后上报增量
+            reportDelta(length.toLong())
         }
         zipOut.closeEntry()
     }
@@ -426,7 +439,7 @@ private fun addFileToZip(file: File, entryName: String, zipOut: ZipOutputStream)
 /**
  * 递归将目录添加到 ZIP 流
  */
-private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputStream) {
+private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputStream, reportDelta: (Long) -> Unit) {
     val entryPath = if (parentPath.isEmpty()) dir.name else "$parentPath/${dir.name}"
     // 添加目录条目（必须以斜杠结尾）
     zipOut.putNextEntry(ZipEntry("$entryPath/"))
@@ -434,9 +447,9 @@ private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputSt
     // 递归处理子文件和子目录
     dir.listFiles()?.forEach { file ->
         if (file.isFile) {
-            addFileToZip(file, "$entryPath/${file.name}", zipOut)
+            addFileToZip(file, "$entryPath/${file.name}", zipOut, reportDelta)
         } else if (file.isDirectory) {
-            addDirectoryToZip(file, entryPath, zipOut)
+            addDirectoryToZip(file, entryPath, zipOut, reportDelta)
         }
     }
 }
@@ -452,6 +465,8 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     filePath.deleteDirectory()
     // 创建一个安装的文件，开启io协程写入
     val file = File(filePath.ensureDirExists(), fileName)
+    // 前置提交时间
+    var lastEmitTime = 0L
     return withContext(IO) {
         try {
             // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
@@ -464,10 +479,16 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
                     var sum = 0L
                     while (((inputStream.read(buf)).also { len = it }) != -1) {
                         outputStream.write(buf, 0, len)
-                        sum += len.toLong()
-                        val progress = (sum * 1.0f / total * 100).toSafeInt()
-                        withContext(Main) {
-                            listener.invoke(progress)
+                        sum += len.toSafeLong()
+                        // 节流 + 切线程 绑定在一起，只有满足条件才切
+                        val now = System.currentTimeMillis()
+                        // 最多 60ms 刷新一次（≈16fps）
+                        if (now - lastEmitTime >= 60) {
+                            lastEmitTime = now
+                            val progress = (sum * 1.0f / total * 100).toSafeInt()
+                            withContext(Main) {
+                                listener.invoke(progress)
+                            }
                         }
                     }
                     outputStream.flush()
