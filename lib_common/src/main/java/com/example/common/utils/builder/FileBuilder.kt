@@ -384,11 +384,9 @@ suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
         zipFile.parentFile?.mkdirs()
         // 检查ZIP文件是否已存在，如果存在则删除
         if (zipFile.exists()) {
-            if (!zipFile.delete()) {
-                throw IOException("无法删除已存在的ZIP文件: $zipPath")
-            }
+            if (!zipFile.delete()) throw IOException("无法删除已存在的ZIP文件: $zipPath")
         }
-        addFilesToZip(sourcePaths, zipPath)
+        addToZip(sourcePaths, zipPath)
         zipPath
     }
 }
@@ -396,7 +394,7 @@ suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String): String {
 /**
  * 压缩文件或目录列表到 ZIP 文件
  */
-private fun addFilesToZip(sourcePaths: List<String>, zipPath: String) {
+private fun addToZip(sourcePaths: List<String>, zipPath: String) {
     ZipOutputStream(FileOutputStream(zipPath)).use { zipOut ->
         for (sourcePath in sourcePaths) {
             val sourceFile = File(sourcePath)
