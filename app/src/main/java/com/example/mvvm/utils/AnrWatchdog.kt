@@ -25,7 +25,6 @@ import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * ANR Watchdog (仅用于 API < 30 兜底)
- *
  * 低功耗特性：
  * 1) 仅在前台生效，后台自动停止，不消耗任何电量
  * 2) 基于 IdleHandler，不与主线程抢时间片
