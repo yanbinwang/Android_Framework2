@@ -13,7 +13,6 @@ import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.utils.NotificationUtil
 import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.system.exitProcess
 
 /**
  * Created by WangYanBin on 2020/8/14.
@@ -93,16 +92,16 @@ class MyApplication : BaseApplication() {
     }
 
     private fun initCrashHandler() {
-        // 设置全局异常处理器
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-//            // 1. 捕获异常并生成日志
-//            val crashLog = generateCrashLog(throwable, thread.let { it.name to it.id })
-//            // 2. 保存日志到本地文件
-//            saveCrashLogToFile(crashLog)
-            // 3.正常退出，不强行重启
-            android.os.Process.killProcess(android.os.Process.myPid())
-            exitProcess(0)
-        }
+//        // 设置全局异常处理器
+//        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+//            // 捕获异常并生成日志
+//            val crashLog = buildCrashContent(throwable, thread.let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) })
+//            // 保存日志到本地文件
+//            writeCrashReport(crashLog)
+//            // 正常退出，不强行重启
+//            android.os.Process.killProcess(android.os.Process.myPid())
+//            exitProcess(0)
+//        }
     }
 
     private fun initNotification() {
