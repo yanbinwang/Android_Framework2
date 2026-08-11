@@ -98,6 +98,9 @@ class MyApplication : BaseApplication() {
         }
     }
 
+    /**
+     * 三方库（如 Firebase Crashlytics、Bugly、Sentry）的 Handler 就会被 killProcess 截断，导致它们完全收不到崩溃
+     */
     private fun initCrashHandler() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
