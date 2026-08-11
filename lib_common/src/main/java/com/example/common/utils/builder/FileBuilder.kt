@@ -710,15 +710,17 @@ fun buildCrashContent(throwable: Throwable, thread: Pair<String, Long> = Thread.
     // 写入异常信息
     val exceptionInfo = try {
         StringWriter().use { sw ->
-            PrintWriter(sw).use { pw -> throwable.printStackTrace(pw) }
+            PrintWriter(sw).use { pw ->
+                throwable.printStackTrace(pw)
+            }
             sw.toString()
         }
     } catch (e: Throwable) {
         // printStackTrace 失败时的降级方案
         "${throwable.javaClass.name}: ${throwable.message}\n(堆栈打印失败: ${e.message})"
     }
-    val (threadName, threadId) = thread
     // 构建日志内容（包含设备信息和异常信息）
+    val (threadName, threadId) = thread
     return buildString {
         append("===== 崩溃时间: $currentTimeStamp =====\n")
         append("设备型号: ${Build.MODEL}\n")
