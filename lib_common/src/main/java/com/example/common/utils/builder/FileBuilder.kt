@@ -702,27 +702,28 @@ suspend fun suspendingFileHash(sourcePath: String?): String {
     }
 }
 
+// <editor-fold defaultstate="collapsed" desc="崩溃日志">
 /**
  * 生成崩溃日志内容
  */
-fun generateCrashLog(throwable: Throwable, thread: Pair<String, Long> = Thread.currentThread().let { it.name to it.id }): String {
-    val stringWriter = StringWriter()
-    val printWriter = PrintWriter(stringWriter)
+fun buildCrashContent(throwable: Throwable, thread: Pair<String, Long> = Thread.currentThread().let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) }): String {
     // 写入异常信息
-    throwable.printStackTrace(printWriter)
-    var cause = throwable.cause
-    while (cause != null) {
-        cause.printStackTrace(printWriter)
-        cause = cause.cause
+    val exceptionInfo = try {
+        StringWriter().use { sw ->
+            PrintWriter(sw).use { pw -> throwable.printStackTrace(pw) }
+            sw.toString()
+        }
+    } catch (e: Throwable) {
+        // printStackTrace 失败时的降级方案
+        "${throwable.javaClass.name}: ${throwable.message}\n(堆栈打印失败: ${e.message})"
     }
-    val exceptionInfo = stringWriter.toString()
-    printWriter.close()
+    val (threadName, threadId) = thread
     // 构建日志内容（包含设备信息和异常信息）
     return buildString {
         append("===== 崩溃时间: $currentTimeStamp =====\n")
         append("设备型号: ${Build.MODEL}\n")
         append("系统版本: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
-        append("崩溃线程: ${thread.first} (id: ${thread.second})\n")
+        append("崩溃线程: ${threadName} (id: ${threadId})\n")
         append("===== 异常信息 =====\n")
         append(exceptionInfo)
         append("\n===== 日志结束 =====\n\n")
@@ -732,7 +733,7 @@ fun generateCrashLog(throwable: Throwable, thread: Pair<String, Long> = Thread.c
 /**
  * 保存崩溃日志到本地文件
  */
-fun saveCrashLogToFile(logContent: String) {
+fun writeCrashReport(logContent: String) {
     try {
         // 获取存储路径（优先使用应用内部存储，避免权限问题）
         val logDir = File(getStoragePath("崩溃日志", false))
@@ -755,7 +756,7 @@ fun saveCrashLogToFile(logContent: String) {
 /**
  * 获取到所有存储崩溃日志的文件集合
  */
-fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false)): List<File> {
+fun fetchCrashFiles(logDirPath: String? = getStoragePath("崩溃日志", false)): List<File> {
     // 路径为空直接返回空列表
     logDirPath ?: return emptyList()
     // 验证目录是否存在
@@ -775,7 +776,7 @@ fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false))
      * 3) 按修改时间升序排序（优先上传旧日志）
      */
     return logDir.listFiles { file ->
-        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && isNonEmptyLogFile(file)
+        file.isFile && file.name.endsWith(".txt", ignoreCase = true) && isNonEmptyFile(file)
     }?.sortedBy { it.lastModified() } ?: emptyList()
 }
 
@@ -783,7 +784,7 @@ fun batchUploadLogs(logDirPath: String? = getStoragePath("崩溃日志", false))
  * 检测文件是否为有效日志文件（非空+有实际内容）
  * @return true：文件非空且有有效内容；false：空文件（直接删除）
  */
-private fun isNonEmptyLogFile(file: File): Boolean {
+private fun isNonEmptyFile(file: File): Boolean {
     // 快速校验文件大小（0字节直接删除）
     if (file.length() == 0L) {
         file.safeDelete()
@@ -813,3 +814,4 @@ private fun isNonEmptyLogFile(file: File): Boolean {
         false
     }
 }
+// </editor-fold>

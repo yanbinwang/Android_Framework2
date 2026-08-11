@@ -3,8 +3,8 @@ package com.example.mvvm
 import android.content.Context
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
-import com.example.common.utils.builder.generateCrashLog
-import com.example.common.utils.builder.saveCrashLogToFile
+import com.example.common.utils.builder.buildCrashContent
+import com.example.common.utils.builder.writeCrashReport
 import com.example.framework.utils.function.value.isDebug
 import com.example.gallery.utils.GlideLoader
 import com.example.mvvm.activity.MainActivity
@@ -101,9 +101,9 @@ class MyApplication : BaseApplication() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             // 捕获异常并生成日志
-            val crashLog = generateCrashLog(throwable, thread.let { it.name to it.id })
+            val crashLog = buildCrashContent(throwable, thread.let { it.name to it.id })
             // 保存日志到本地文件
-            saveCrashLogToFile(crashLog)
+            writeCrashReport(crashLog)
             // 正常退出，不强行重启
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(0)
