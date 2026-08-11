@@ -1,6 +1,7 @@
 package com.example.mvvm
 
 import android.content.Context
+import android.os.Build
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
 import com.example.common.utils.builder.buildCrashContent
@@ -101,7 +102,7 @@ class MyApplication : BaseApplication() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             // 捕获异常并生成日志
-            val crashLog = buildCrashContent(throwable, thread.let { it.name to it.id })
+            val crashLog = buildCrashContent(throwable, thread.let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) })
             // 保存日志到本地文件
             writeCrashReport(crashLog)
             // 正常退出，不强行重启
