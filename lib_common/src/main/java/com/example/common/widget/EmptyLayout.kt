@@ -203,7 +203,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 1) 只需关闭页面直接调setBack（this）
      * 2) 返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
      */
-    fun setFullScreen(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }) {
+    fun setFullScreen(activity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity?.finish() }) {
         ivLeft.also {
             it.setResource(resId)
             if (0 != tintColor) it.tint(tintColor)

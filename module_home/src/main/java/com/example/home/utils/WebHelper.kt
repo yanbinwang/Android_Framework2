@@ -21,17 +21,17 @@ import java.lang.ref.WeakReference
 /**
  * 网页帮助类
  */
-class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
+class WebHelper(private val activity: AppCompatActivity, private val mBinding: ActivityWebBinding?) : LifecycleEventObserver {
     private var bean: WebBundle? = null
     private var webImpl: WebImpl? = null
     private var onPageStarted: (() -> Unit)? = null
     private var onPageFinished: ((title: String?) -> Unit)? = null
     private val webJsName = "JSCallAndroid"
-    private val webUtil by lazy { WebUtil(mActivity, mBinding?.flWebRoot) }
+    private val webUtil by lazy { WebUtil(activity, mBinding?.flWebRoot) }
     private val webView get() = webUtil.getWebView()
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
         addWebView()
     }
 
@@ -86,7 +86,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
         if (webView?.canGoBack().orFalse) {
             webView?.goBack()
         } else {
-            mActivity.finish()
+            activity.finish()
         }
 //            }
 //        }
@@ -114,7 +114,7 @@ class WebHelper(private val mActivity: AppCompatActivity, private val mBinding: 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
             Lifecycle.Event.ON_DESTROY -> {
-                mActivity.lifecycle.removeObserver(this)
+                activity.lifecycle.removeObserver(this)
                 webView?.removeJavascriptInterface(webJsName)
 //                webView?.stopHardwareAccelerate()
                 mBinding?.unbind()
