@@ -13,13 +13,22 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.common.BaseApplication
+import com.example.common.utils.StorageUtil.getStoragePath
+import com.example.common.utils.function.getAllFilePathsRecursively
+import com.example.common.utils.function.safeDelete
 import com.example.common.utils.helper.ConfigHelper.getPackageName
 import com.example.common.utils.manager.AppManager
+import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
+import com.example.framework.utils.function.value.convert
+import com.example.framework.utils.function.value.currentTimeStamp
+import com.example.framework.utils.function.value.toNewList
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileWriter
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -73,24 +82,74 @@ object AnrWatchdog : DefaultLifecycleObserver {
         }
     }
 
+    fun writeANRReport(logContent: String) {
+        try {
+            // 获取存储路径（优先使用应用内部存储，避免权限问题）
+            val logDir = File(getStoragePath("超时日志", false))
+            if (!logDir.exists()) {
+                logDir.mkdirs()
+            }
+            // 日志文件名（以时间命名）
+            val fileName = "anr_${CN_YMDHMS.convert(currentTimeStamp)}.txt"
+            val logFile = File(logDir, fileName)
+            // 写入日志
+            FileWriter(logFile, true).use { writer ->
+                writer.write(logContent)
+                writer.flush()
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
     /**
-     * 上报日志
      * @param pid 查所有进程。传具体 PID 则只查该进程；传 0 表示不限进程，返回该包名下所有历史进程的退出记录
      * @param maxNum 最多返回条数。系统按时间倒序返回最近 N 条，传 10 就是拿最近 10 次退出记录
      */
-    fun submit(pid: Int = 0, maxNum: Int = 10, rsp: ((data: List<AnrRecord>) -> Unit)) {
-        ProcessLifecycleOwner.get().lifecycleScope.launch(Main.immediate) {
-            var data = ArrayList<AnrRecord>()
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+    fun fetchCrashFiles(logDirPath: String? = getStoragePath("超时日志", false), rsp: ((data: List<File>) -> Unit)) {
+        logDirPath ?: return rsp.invoke(emptyList())
+        val logDir = File(logDirPath)
+        if (!logDir.exists()) {
+            logDir.mkdirs()
+            return rsp.invoke(emptyList())
+        }
+        if (!logDir.isDirectory) {
+            return rsp.invoke(emptyList())
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            ProcessLifecycleOwner.get().lifecycleScope.launch(Main.immediate) {
                 withContext(IO) {
-                    val exitInfos = (BaseApplication.instance.applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.getHistoricalProcessExitReasons(getPackageName(), pid, maxNum).orEmpty()
-                    data = exitInfos.filter { it.reason == ApplicationExitInfo.REASON_ANR }.mapNotNull { onSuspectedAnr(it) }.toCollection(ArrayList())
+                    // 获取系统记录的最新 10 条 ANR 数据
+                    val anrEntries = try {
+                        (BaseApplication.instance.applicationContext.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager)?.getHistoricalProcessExitReasons(getPackageName(), 0, 10).orEmpty()
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        emptyList()
+                    }.filter { it.reason == ApplicationExitInfo.REASON_ANR }.mapNotNull { onSuspectedAnr(it) }
+                    // 取得本地存放 ANR 文件目录下的所有 txt 文件路径
+                    val anrCaches = logDir.getAllFilePathsRecursively()
+                    // 提取本地已有文件的 uniqueKey 集合（用于 O(1) 查重）
+                    val localKeySet = anrCaches.mapNotNull { path -> extractUniqueKey(File(path)) }.toHashSet()
+                    // 差集比对：仅对本地不存在的记录调用 writeANRReport
+                    anrEntries.forEach { record ->
+                        if (!localKeySet.contains(record.uniqueKey)) {
+                            // 仅在确认需要写入时，才调用 buildANRContent 生成字符串
+                            val content = buildANRContent(record)
+                            writeANRReport(content)
+                            localKeySet.add(record.uniqueKey)
+                        }
+                    }
+                    // 再次获取并返回
+                    val anrFiles = logDir.getAllFilePathsRecursively().toNewList { File(it) }
+                    withContext(Main) {
+                        rsp.invoke(anrFiles)
+                    }
                 }
-            } else {
-                data = ArrayList(anrMap.values)
-                anrMap.clear()
             }
-            rsp.invoke(data)
+        } else {
+            rsp.invoke(logDir.listFiles { file ->
+                file.isFile && file.name.endsWith(".txt", ignoreCase = true) && isNonEmptyFile(file)
+            }?.sortedBy { it.lastModified() } ?: emptyList())
         }
     }
 
@@ -118,14 +177,16 @@ object AnrWatchdog : DefaultLifecycleObserver {
      */
     @RequiresApi(Build.VERSION_CODES.R)
     private fun onSuspectedAnr(info: ApplicationExitInfo): AnrRecord {
+        val (threadName, threadId) = Thread.currentThread().let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) }
         return AnrRecord(
             timestamp = info.timestamp,
-            processName = info.processName,
-            isConfirmed = true,
             source = "SystemExitInfo",
-            description = info.description,
+            processName = info.processName,
+            threadName = threadName,
+            threadId = threadId,
             blockedDurationMs = getBlockedDurationMs(info),
-            currentActivity = AppManager.currentActivityName
+            currentActivity = AppManager.currentActivityName,
+            description = info.description
         )
     }
 
@@ -152,14 +213,16 @@ object AnrWatchdog : DefaultLifecycleObserver {
     }
 
     private fun onSuspectedAnr(blockedMs: Long): AnrRecord {
+        val (threadName, threadId) = Thread.currentThread().let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) }
         return AnrRecord(
             timestamp = System.currentTimeMillis(),
-            processName = getProcessName(),
-            isConfirmed = false,
             source = "LegacyWatchdog",
-            description = "Main thread blocked for ${blockedMs}ms",
+            processName = getProcessName(),
+            threadName = threadName,
+            threadId = threadId,
             blockedDurationMs = blockedMs,
-            currentActivity = AppManager.currentActivityName
+            currentActivity = AppManager.currentActivityName,
+            description = "Main thread blocked for ${blockedMs}ms"
         )
     }
 
@@ -176,6 +239,79 @@ object AnrWatchdog : DefaultLifecycleObserver {
         }
     }
 
+    /**
+     * 构建返回文本
+     */
+    private fun buildANRContent(data: AnrRecord): String {
+        return buildString {
+            append("===== ANR 时间: ${data.timestamp} =====\n")
+            append("设备型号: ${Build.MODEL}\n")
+            append("系统版本: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
+            append("数据来源: ${data.source}\n")
+            append("崩溃进程: ${data.processName}\n")
+            append("崩溃线程: ${data.threadName} (id: ${data.threadId})\n")
+            append("主线程阻塞时长: ${data.blockedDurationMs}\n")
+            append("顶层页面名称: ${data.currentActivity}\n")
+            append("===== 描述信息 =====\n")
+            append("${data.description}")
+            append("\n===== 日志结束 =====\n\n")
+        }
+    }
+
+    /**
+     * 从本地 ANR txt 文件中提取 uniqueKey
+     * 返回 null 表示文件格式异常或关键字段缺失
+     */
+    private fun extractUniqueKey(file: File): String? {
+        var timestamp: String? = null
+        var processName: String? = null
+        file.useLines { lines ->
+            for (line in lines) {
+                when {
+                    line.startsWith("===== ANR 时间:") -> {
+                        // 截取 ": " 之后、" =====" 之前的内容
+                        timestamp = line.substringAfter(": ", "").substringBefore(" =====").trim()
+                    }
+                    line.startsWith("崩溃进程:") -> {
+                        processName = line.substringAfter(": ", "").trim()
+                    }
+                }
+                // 两个字段都拿到了就提前退出，不用读完整个文件
+                if (timestamp != null && processName != null) break
+            }
+        }
+        return if (!timestamp.isNullOrEmpty() && !processName.isNullOrEmpty()) {
+            "${timestamp}_${processName}_ANR"
+        } else {
+            null
+        }
+    }
+
+    private fun isNonEmptyFile(file: File): Boolean {
+        if (file.length() == 0L) {
+            file.safeDelete()
+            return false
+        }
+        return try {
+            file.bufferedReader().use { reader ->
+                val hasValidContent = reader.lineSequence()
+                    .take(10)
+                    .any { line -> line.isNotBlank() }
+                if (!hasValidContent) {
+                    file.safeDelete()
+                }
+                hasValidContent
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
+            file.safeDelete()
+            false
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+            false
+        }
+    }
+
 }
 
 /**
@@ -184,18 +320,14 @@ object AnrWatchdog : DefaultLifecycleObserver {
 data class AnrRecord(
     // 发生时间戳 (毫秒)
     val timestamp: Long? = null,
-    // 进程名 (如 "com.example.app" 或 "com.example.app:push")
-    val processName: String? = null,
-    /**
-     * 是否为系统确认的真实 ANR。
-     * - true: 高版本 ApplicationExitInfo 确认的系统级 ANR
-     * - false: 低版本 Watchdog 检测到的"疑似"主线程阻塞
-     */
-    val isConfirmed: Boolean? = null,
     // 数据来源标识，用于埋点区分 (如 "SystemExitInfo", "LegacyWatchdog")
     val source: String? = null,
-    // ANR 描述信息。高版本取系统 description，低版本可填 "Main thread blocked > 5s"
-    val description: String? = null,
+    // 进程名 (如 "com.example.app" 或 "com.example.app:push")
+    val processName: String? = null,
+    // 崩溃线程
+    val threadName: String? = null,
+    // 崩溃线程 id
+    val threadId: Long? = null,
     /**
      * 主线程阻塞时长 (毫秒)。
      * - 低版本 Watchdog 直接提供
@@ -207,5 +339,15 @@ data class AnrRecord(
      * - 低版本 Watchdog 容易拿到
      * - 高版本系统不提供此字段，需从 trace 解析或留空
      */
-    val currentActivity: String? = null
-)
+    val currentActivity: String? = null,
+    // ANR 描述信息。高版本取系统 description，低版本可填 "Main thread blocked > 5s"
+    val description: String? = null
+) {
+    /**
+     * 跨数据源的统一去重键
+     * 低版本写入 txt 时也以此作为文件名/首行标识
+     * 高版本读取系统记录后，用此 key 与已上传集合比对
+     */
+    val uniqueKey: String
+        get() = "${timestamp}_${processName}_ANR"
+}
