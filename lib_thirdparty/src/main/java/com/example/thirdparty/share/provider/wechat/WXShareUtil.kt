@@ -1,4 +1,4 @@
-package com.example.thirdparty.share.wechat
+package com.example.thirdparty.share.provider.wechat
 
 import android.graphics.Bitmap
 import android.graphics.Bitmap.CompressFormat

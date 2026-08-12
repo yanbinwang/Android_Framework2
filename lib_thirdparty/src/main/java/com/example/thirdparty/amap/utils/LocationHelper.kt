@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap
+package com.example.thirdparty.amap.utils
 
 import android.app.Activity
 import android.content.Context

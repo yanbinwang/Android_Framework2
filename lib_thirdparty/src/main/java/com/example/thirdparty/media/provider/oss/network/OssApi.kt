@@ -1,9 +1,9 @@
-package com.example.thirdparty.media.oss.network
+package com.example.thirdparty.media.provider.oss.network
 
 import com.example.common.network.factory.RetrofitFactory
 import com.example.common.network.repository.ApiResponse
 import com.example.common.network.repository.EmptyBean
-import com.example.thirdparty.media.oss.bean.OssSts
+import com.example.thirdparty.media.provider.oss.bean.OssSts
 import okhttp3.RequestBody
 import retrofit2.http.Body
 import retrofit2.http.GET

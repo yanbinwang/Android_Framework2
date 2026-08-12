@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.oss
+package com.example.thirdparty.media.provider.oss
 
 import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.StorageUtil.getStoragePath

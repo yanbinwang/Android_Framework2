@@ -10,10 +10,10 @@ import com.example.framework.utils.function.value.isDebug
 import com.example.gallery.utils.GlideLoader
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
-import com.example.thirdparty.media.oss.OssDBHelper
-import com.example.thirdparty.media.oss.OssFactory
+import com.example.thirdparty.media.provider.oss.OssDBHelper
+import com.example.thirdparty.media.provider.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
-import com.example.thirdparty.utils.wechat.WXManager
+import com.example.thirdparty.wechat.WXManager
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.bean.AlbumConfig
 import io.objectbox.BoxStore

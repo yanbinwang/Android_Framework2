@@ -1,4 +1,4 @@
-package com.example.thirdparty.amap
+package com.example.thirdparty.amap.utils
 
 import android.os.Bundle
 import android.view.ViewGroup
@@ -8,7 +8,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.amap.api.location.AMapLocation
 import com.amap.api.maps.AMap
-import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
 import com.amap.api.maps.model.LatLng
 import com.example.amap.utils.moveToLatLng
@@ -18,7 +17,7 @@ import com.example.common.utils.permission.checkSelfLocation
 import com.example.common.utils.toObj
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.gone
-import com.example.thirdparty.amap.LocationHelper.Companion.aMapLatLng
+import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatLng
 
 /**
  *  Created by wangyanbin

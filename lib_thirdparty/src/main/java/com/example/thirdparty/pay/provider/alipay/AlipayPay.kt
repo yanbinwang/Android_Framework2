@@ -1,4 +1,4 @@
-package com.example.thirdparty.pay.utils.alipay
+package com.example.thirdparty.pay.provider.alipay
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
@@ -11,6 +11,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.isAvailable
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
+import com.example.thirdparty.pay.provider.alipay.bean.AlipayPayResult
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

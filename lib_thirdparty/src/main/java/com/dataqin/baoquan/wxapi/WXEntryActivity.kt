@@ -7,8 +7,7 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.utils.builder.shortToast
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.wechat.WXManager
-import com.tencent.mm.opensdk.constants.ConstantsAPI
+import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler

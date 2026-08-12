@@ -1,4 +1,4 @@
-package com.example.thirdparty.share.wechat.bean
+package com.example.thirdparty.share.provider.wechat.bean
 
 /**
  * 微信分享类

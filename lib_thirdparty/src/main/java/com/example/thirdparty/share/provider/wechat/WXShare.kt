@@ -1,4 +1,4 @@
-package com.example.thirdparty.share.wechat
+package com.example.thirdparty.share.provider.wechat
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -17,9 +17,9 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
-import com.example.thirdparty.share.wechat.WXShareUtil.bitmapToByteArray
-import com.example.thirdparty.share.wechat.bean.WXShareMessage
-import com.example.thirdparty.utils.wechat.WXManager
+import com.example.thirdparty.share.provider.wechat.WXShareUtil.bitmapToByteArray
+import com.example.thirdparty.share.provider.wechat.bean.WXShareMessage
+import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelmsg.SendMessageToWX
 import com.tencent.mm.opensdk.modelmsg.WXImageObject
 import com.tencent.mm.opensdk.modelmsg.WXMediaMessage

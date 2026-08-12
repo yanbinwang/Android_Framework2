@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.oss.bean
+package com.example.thirdparty.media.provider.oss.bean
 
 import com.example.common.utils.helper.AccountHelper
 import com.example.framework.utils.function.value.DateFormat

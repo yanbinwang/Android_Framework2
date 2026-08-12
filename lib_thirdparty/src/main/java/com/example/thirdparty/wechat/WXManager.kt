@@ -1,4 +1,4 @@
-package com.example.thirdparty.utils.wechat
+package com.example.thirdparty.wechat
 
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.LifecycleOwner

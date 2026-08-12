@@ -1,4 +1,4 @@
-package com.example.thirdparty.media.oss
+package com.example.thirdparty.media.provider.oss
 
 import androidx.lifecycle.LifecycleOwner
 import com.alibaba.sdk.android.oss.ClientConfiguration
@@ -35,9 +35,9 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
 import com.example.objectbox.dao.OssDB
-import com.example.thirdparty.media.oss.bean.OssSts.Companion.bucketName
-import com.example.thirdparty.media.oss.bean.OssSts.Companion.objectName
-import com.example.thirdparty.media.oss.network.OssApi
+import com.example.thirdparty.media.provider.oss.bean.OssSts.Companion.bucketName
+import com.example.thirdparty.media.provider.oss.bean.OssSts.Companion.objectName
+import com.example.thirdparty.media.provider.oss.network.OssApi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job

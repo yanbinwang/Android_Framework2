@@ -1,4 +1,4 @@
-package com.example.thirdparty.pay.utils.alipay
+package com.example.thirdparty.pay.provider.alipay.bean
 
 /**
  * 阿里支付绘制

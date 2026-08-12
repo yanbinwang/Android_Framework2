@@ -5,8 +5,8 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.base.bridge.BaseView
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.pay.bean.PayBean
-import com.example.thirdparty.pay.utils.alipay.AlipayPay
-import com.example.thirdparty.pay.utils.wechat.WXPay
+import com.example.thirdparty.pay.provider.alipay.AlipayPay
+import com.example.thirdparty.pay.provider.wechat.WXPay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
