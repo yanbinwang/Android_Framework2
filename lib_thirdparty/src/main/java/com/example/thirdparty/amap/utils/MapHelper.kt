@@ -36,10 +36,10 @@ import com.example.thirdparty.amap.utils.LocationHelper.Companion.aMapLatLng
  *     helper.aMap?.uiSettings?.isScrollGesturesEnabled = false
  * }
  */
-class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
+class MapHelper(private val activity: FragmentActivity, registrar: ActivityResultRegistrar) : LifecycleEventObserver {
     private var mapView: MapView? = null
     private val mapLatLng by lazy { aMapLatLng.get().toObj(LatLng::class.java) ?: LatLng(0.0, 0.0) } // 默认地图经纬度-杭州
-    private val location by lazy { LocationHelper(mActivity, registrar) }
+    private val location by lazy { LocationHelper(activity, registrar) }
     /**
      * 地址控件
      */
@@ -63,7 +63,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 绑定页面生命周期
      */
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
     }
 
     /**
@@ -130,7 +130,7 @@ class MapHelper(private val mActivity: FragmentActivity, registrar: ActivityResu
      * 地图定位
      */
     fun location() {
-        if (mActivity.checkSelfLocation()) {
+        if (activity.checkSelfLocation()) {
             location.start()
         }
     }

@@ -63,7 +63,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class GSYVideoHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
     // 播放/UI状态
     private var isPause = false
     private var isPrepared = false
@@ -80,8 +80,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var onGSYVideoPlayerListener: OnGSYVideoPlayerListener? = null
     private var onPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
     // 辅助工具类
-    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
-    private val binding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val immersionBar by lazy { ImmersionBar.with(activity) }
+    private val binding by lazy { ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val gsySampleCallBack by lazy {
         object : GSYSampleCallBack() {
             override fun onStartPrepared(url: String?, vararg objects: Any?) {
@@ -234,7 +234,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     retryWithPlay = true
                     player.disable()
                     restartJob?.cancel()
-                    restartJob = mActivity.lifecycleScope.launch {
+                    restartJob = activity.lifecycleScope.launch {
                         // 允许硬件解码，装载IJK播放器内核
 //                        GSYVideoType.enableMediaCodec()
                         GSYVideoType.enableMediaCodecTexture()
@@ -279,7 +279,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
 
             private fun controllerToggle(window: Window, isShow: Boolean) {
                 toggleJob?.cancel()
-                toggleJob = mActivity.lifecycleScope.launch {
+                toggleJob = activity.lifecycleScope.launch {
                     delay(300L)
                     window.controllerToggle(isShow)
                 }
@@ -288,7 +288,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     }
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
     }
 
     /**
@@ -300,13 +300,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         // 返回处理
         if (showBack) {
             player?.backButton.click {
-                mActivity.finish()
+                activity.finish()
             }
         }
         // 全屏处理
         if (showFullScreen) {
             // 外部辅助的旋转，帮助全屏
-            orientationUtils = OrientationUtils(mActivity, player)
+            orientationUtils = OrientationUtils(activity, player)
             // 初始化不打开外部的旋转
             orientationUtils?.isEnable = false
             // 直接横屏
@@ -367,7 +367,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             if (!setUpLazy) {
                 player?.startButton.disable()
                 thumbJob?.cancel()
-                thumbJob = mActivity.lifecycleScope.launch {
+                thumbJob = activity.lifecycleScope.launch {
                     delay(3000L)
                     player?.startButton.enable()
                 }
@@ -386,10 +386,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     // 如果Glide加载失败,采用视频工具类的suspendingThumbnail方法再次尝试进行加载
                     binding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
-                    thumbJob = mActivity.lifecycleScope.launch {
-                        val bitmap = withTimeoutOrNull(3000L) { suspendingThumbnail(mActivity, url) }
+                    thumbJob = activity.lifecycleScope.launch {
+                        val bitmap = withTimeoutOrNull(3000L) { suspendingThumbnail(activity, url) }
                         if (null != bitmap) {
-                            binding.ivThumb.setBitmap(mActivity, bitmap)
+                            binding.ivThumb.setBitmap(activity, bitmap)
                         } else {
                             binding.ivThumb.background(DEFAULT_MASK_RESOURCE)
                         }
@@ -453,7 +453,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     fun onBackPressed(): Boolean {
         orientationUtils?.backToProtVideo()
-        return GSYVideoManager.backFromWindowFull(mActivity)
+        return GSYVideoManager.backFromWindowFull(activity)
     }
 
     /**
@@ -467,7 +467,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * }
      */
     fun onConfigurationChanged(newConfig: Configuration) {
-        if (isPrepared && !isPause) player?.onConfigurationChanged(mActivity, newConfig, orientationUtils, true, true)
+        if (isPrepared && !isPause) player?.onConfigurationChanged(activity, newConfig, orientationUtils, true, true)
     }
 
     fun setOnGSYVideoPlayerListener(onGSYVideoPlayerListener: OnGSYVideoPlayerListener) {
@@ -531,7 +531,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         thumbJob?.cancel()
         toggleJob?.cancel()
         restartJob?.cancel()
-        mActivity.lifecycle.removeObserver(this)
+        activity.lifecycle.removeObserver(this)
     }
 
 }

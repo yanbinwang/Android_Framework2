@@ -52,7 +52,7 @@ import java.util.UUID
  *     shareWebPage("https://example.com")
  * }
  */
-class WXShare(private val mActivity: FragmentActivity) {
+class WXShare(private val activity: FragmentActivity) {
     // 事务协程
     private var configJob: Job? = null
     private var shareJob: Job? = null
@@ -61,9 +61,9 @@ class WXShare(private val mActivity: FragmentActivity) {
     // 分享信息
     private var shareMessage: WXShareMessage? = null
     // 获取页面协程上下文
-    private val scope get() = mActivity.lifecycleScope
+    private val scope get() = activity.lifecycleScope
     // 通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXManager.instance.regToWx(mActivity) }
+    private val wxApi by lazy { WXManager.instance.regToWx(activity) }
 
     companion object {
         // 微信分享缩略图尺寸要求（左侧 -> 100×100）
@@ -116,18 +116,22 @@ class WXShare(private val mActivity: FragmentActivity) {
                 } catch (e: Exception) {
                     throw RuntimeException("缩略图解码失败：${e.message}", e)
                 } ?: throw RuntimeException("缩略图解码结果为空")
+                // 字节流输出
+                val baos = ByteArrayOutputStream()
                 // 质量压缩（JPEG/PNG自适应，兼容透明图）
                 val compressFormat = if (bitmap.hasAlpha()) Bitmap.CompressFormat.PNG else Bitmap.CompressFormat.JPEG
-                val baos = ByteArrayOutputStream()
                 var quality = 100
+                // PNG：quality 参数无效，直接编码一次即可
                 bitmap.compress(compressFormat, quality, baos)
-                // 循环压缩直到符合大小（最低保留10%质量，避免过度压缩）
-                while (baos.toByteArray().size > maxSize && quality > 10) {
-                    quality -= 10
-                    baos.reset()
-                    bitmap.compress(compressFormat, quality, baos)
+                if (compressFormat == Bitmap.CompressFormat.JPEG) {
+                    // 循环压缩直到符合大小（最低保留10%质量，避免过度压缩）
+                    while (baos.toByteArray().size > maxSize && quality > 10) {
+                        quality -= 10
+                        baos.reset()
+                        bitmap.compress(compressFormat, quality, baos)
+                    }
                 }
-                // 安全回收Bitmap（避免内存泄漏）
+                // 安全回收 Bitmap（避免内存泄漏）
                 bitmap.safeRecycle()
                 // 最终校验 (极端情况仍超大小则截取)
                 baos.toByteArray().let { result ->
@@ -142,7 +146,7 @@ class WXShare(private val mActivity: FragmentActivity) {
     }
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             configJob?.cancel()
             shareJob?.cancel()
             // 清空缩略图数据，避免内存泄漏
@@ -159,7 +163,7 @@ class WXShare(private val mActivity: FragmentActivity) {
      * @needRecycle 是否强制重置已有缩略图
      * @block 配置完成后的分享回调
      */
-    fun config(mView: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, needRecycle: Boolean = false, block: (builder: WXShare) -> Unit = {}) {
+    fun config(view: BaseView? = null, message: WXShareMessage? = null, bitmap: Bitmap? = null, needRecycle: Boolean = false, block: (builder: WXShare) -> Unit = {}) {
         shareMessage = message ?: WXShareMessage()
         // 获取分享消息体的左侧图标
         if (needRecycle) thumbByte = null
@@ -168,14 +172,14 @@ class WXShare(private val mActivity: FragmentActivity) {
             null
         } else {
             // 外部传入了bitmap，优先用 / 无外部图 + 无有效缩略图 → 加载默认图
-            bitmap ?: mActivity.decodeResource(R.mipmap.ic_share)
+            bitmap ?: activity.decodeResource(R.mipmap.ic_share)
         }
         if (targetBmp != null) {
             configJob?.cancel()
             configJob = scope.launch(Main.immediate) {
                 flow {
                     emit(requestAffair { suspendingBuildThumb(targetBmp) })
-                }.withHandling(mView, end = {
+                }.withHandling(view, end = {
                     block.invoke(this@WXShare)
                 }, isShowToast = true).collect { thumbData ->
                     thumbByte = thumbData

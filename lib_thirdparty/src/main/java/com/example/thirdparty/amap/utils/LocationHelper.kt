@@ -35,13 +35,13 @@ import com.example.thirdparty.utils.NotificationUtil.builder
  *  2) key文件一定要校准 (https://lbs.amap.com/api/)
  *  3) 选择3d地图定位套件 (https://lbs.amap.com/api/android-sdk/download)
  */
-class LocationHelper(private val mActivity: FragmentActivity, registrar: ActivityResultRegistrar) : AMapLocationListener, LifecycleEventObserver {
+class LocationHelper(private val activity: FragmentActivity, registrar: ActivityResultRegistrar) : AMapLocationListener, LifecycleEventObserver {
     private var isLocating = false
     private val retryDelay = 8000L
     private var listener: OnLocationListener? = null
     private var locationClient: AMapLocationClient? = null
     private val resultLauncher = registrar.registerResult { listener?.onGpsSetting(it.resultCode == Activity.RESULT_OK) }
-    private val locationManager by lazy { mActivity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
+    private val locationManager by lazy { activity.getSystemService(Context.LOCATION_SERVICE) as? LocationManager }
 
     companion object {
         // 经纬度json->默认杭州
@@ -51,9 +51,9 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
     }
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
         // 初始化定位
-        locationClient = AMapLocationClient(mActivity)
+        locationClient = AMapLocationClient(activity)
         // 设置定位监听
         locationClient?.setLocationListener(this)
         // 初始化定位参数
@@ -81,7 +81,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
         // 设置定位参数
         locationClient?.setLocationOption(aMapLocationClientOption)
         // 启动后台定位，第一个参数为通知栏 ID，建议整个 APP 使用一个
-        locationClient?.enableBackgroundLocation(NOTIFY_ID_LOCATION, mActivity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
+        locationClient?.enableBackgroundLocation(NOTIFY_ID_LOCATION, activity.builder(title = APPLICATION_NAME, text = string(R.string.mapLocationLoading)).build())
     }
 
     override fun onLocationChanged(aMapLocation: AMapLocation?) {
@@ -107,7 +107,7 @@ class LocationHelper(private val mActivity: FragmentActivity, registrar: Activit
             return
         }
         isLocating = true
-        mActivity.schedule({
+        activity.schedule({
             isLocating = false
         }, retryDelay)
         try {

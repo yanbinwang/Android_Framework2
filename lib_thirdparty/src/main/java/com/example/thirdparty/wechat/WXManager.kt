@@ -25,24 +25,24 @@ class WXManager private constructor() {
     /**
      * 注册到微信
      */
-    fun regToWx(mActivity: FragmentActivity?): IWXAPI? {
-        mActivity ?: return null
+    fun regToWx(activity: FragmentActivity?): IWXAPI? {
+        activity ?: return null
         // 先查找当前页面是否已有有效 api，直接复用
         val existApi = wxApiMap.entries.find { entry ->
-            entry.key.get() === mActivity
+            entry.key.get() === activity
         }?.value
         if (null != existApi) return existApi
         // 如果之前的 FragmentActivity 存在，取消并从集合中移除
-        unRegToWx(mActivity)
+        unRegToWx(activity)
         // 通过 WXAPIFactory 工厂，获取 IWXAPI 的实例
-        val api = WXAPIFactory.createWXAPI(mActivity, Constants.WX_APP_ID, true)
+        val api = WXAPIFactory.createWXAPI(activity, Constants.WX_APP_ID, true)
         // 将应用的 appId 注册到微信
         api.registerApp(Constants.WX_APP_ID)
         // 存储该 api
-        wxApiMap[WeakReference(mActivity)] = api
+        wxApiMap[WeakReference(activity)] = api
         // 添加销毁生命周期
-        mActivity.doOnDestroy {
-            unRegToWx(mActivity)
+        activity.doOnDestroy {
+            unRegToWx(activity)
         }
         // 返回该实例
         return api

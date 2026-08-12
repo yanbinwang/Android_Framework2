@@ -632,8 +632,8 @@ object NotificationUtil {
  * 通知弹框的 Dialog 要与页面强管理,不能使用 object
  * 可在基类中初始化
  */
-class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrapper: RequestPermissionRegistrar) {
-    private val dialog by lazy { AppDialog(mActivity) }
+class NotificationPermissionHelper(private val activity: FragmentActivity, wrapper: RequestPermissionRegistrar) {
+    private val dialog by lazy { AppDialog(activity) }
     private var listener: (hasPermissions: Boolean) -> Unit = {}
     private val requestPermissionResult = wrapper.registerResult { isGranted ->
         if (isGranted) {
@@ -642,7 +642,7 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
             dialog
                 .setParams(string(R.string.hint), string(R.string.permissionNotification))
                 .setDialogListener({
-                    mActivity.pullUpNotification()
+                    activity.pullUpNotification()
                 }, {
                     listener.invoke(false)
                 })
@@ -669,12 +669,12 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
          * 通知权限(安卓13开始强制要求授予通知权限才能弹出通知)
          *  <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
          * 请求权限的实现（需在Activity中）
-         * private val requestPermissionLauncher = mActivity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+         * private val requestPermissionLauncher = activity.registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
          *   if (isGranted) {
          *      startRecording()
          *   } else {
          *     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-         *       mActivity.navigateToNotificationSettings()
+         *       activity.navigateToNotificationSettings()
          *     }
          *   }
          * }
@@ -687,7 +687,7 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
     }
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             requestPermissionResult.unregister()
         }
     }
@@ -696,7 +696,7 @@ class NotificationPermissionHelper(private val mActivity: FragmentActivity, wrap
      * 尝试拉起通知,如果未授予权限,回调监听里处理
      */
     fun pullUpNotification() {
-        if (mActivity.hasNotificationPermission()) {
+        if (activity.hasNotificationPermission()) {
             listener.invoke(true)
         } else {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

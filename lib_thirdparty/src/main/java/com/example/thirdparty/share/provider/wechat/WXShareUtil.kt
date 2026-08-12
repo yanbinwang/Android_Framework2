@@ -5,11 +5,9 @@ import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
 import androidx.core.graphics.scale
 import com.example.common.utils.function.safeRecycle
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logWTF
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.InputStream
 import java.io.RandomAccessFile
 import java.net.HttpURLConnection
 import java.net.URL
@@ -28,15 +26,14 @@ object WXShareUtil {
      * @param needRecycle 是否需要回收原 Bitmap（释放内存）
      * @return 转换后的字节数组，转换失败返回 null
      */
-    @JvmStatic
     fun bitmapToByteArray(bitmap: Bitmap, needRecycle: Boolean): ByteArray? {
         return try {
-            ByteArrayOutputStream().use { outputStream ->
-                bitmap.compress(CompressFormat.PNG, 100, outputStream)
+            ByteArrayOutputStream().use { output ->
+                bitmap.compress(CompressFormat.PNG, 100, output)
                 if (needRecycle) {
                     bitmap.safeRecycle()
                 }
-                outputStream.toByteArray()
+                output.toByteArray()
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -49,12 +46,10 @@ object WXShareUtil {
      * @param url 目标 URL 地址（可为空）
      * @return 读取到的字节数组，读取失败返回 null
      */
-    @JvmStatic
     fun readHtmlFromUrl(url: String?): ByteArray? {
         url ?: return null
-        var inputStream: InputStream? = null
         var httpConnection: HttpURLConnection? = null
-        try {
+        return try {
             httpConnection = URL(url).openConnection() as? HttpURLConnection
             // 超时配置，避免卡死
             httpConnection?.apply {
@@ -63,38 +58,24 @@ object WXShareUtil {
                 requestMethod = "GET"
             }
             if (httpConnection?.responseCode == HttpURLConnection.HTTP_OK) {
-                inputStream = httpConnection.inputStream
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        } finally {
-            // 关闭 HTTP 连接，避免泄漏
-            httpConnection?.disconnect()
-        }
-        return inputStreamToByteArray(inputStream)
-    }
-
-    /**
-     * 将 InputStream 转换为 ByteArray（逐字节读取）
-     * @param inputStream 输入流（可为空）
-     * @return 转换后的字节数组，转换失败返回 null
-     */
-    @JvmStatic
-    fun inputStreamToByteArray(inputStream: InputStream?): ByteArray? {
-        inputStream ?: return null
-        return try {
-            inputStream.use { stream ->
-                ByteArrayOutputStream().use { outputStream ->
-                    var currentByte: Int
-                    while ((stream.read().also { currentByte = it }) != -1) {
-                        outputStream.write(currentByte)
+                httpConnection.inputStream.use { input ->
+                    ByteArrayOutputStream().use { output ->
+                        var currentByte: Int
+                        while ((input.read().also { currentByte = it }) != -1) {
+                            output.write(currentByte)
+                        }
+                        output.toByteArray()
                     }
-                    outputStream.toByteArray()
                 }
+            } else {
+                null
             }
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        } finally {
+            // 关闭 HTTP 连接，避免泄漏
+            httpConnection?.disconnect()
         }
     }
 
@@ -105,7 +86,6 @@ object WXShareUtil {
      * @param length 读取长度（字节），传入 -1 表示读取整个文件
      * @return 读取到的字节数组，读取失败返回 null
      */
-    @JvmStatic
     fun readBytesFromFile(filePath: String?, offset: Int, length: Int): ByteArray? {
         filePath ?: return null
         val file = File(filePath)
@@ -143,8 +123,8 @@ object WXShareUtil {
             }
             resultBytes
         } catch (e: Exception) {
-            "readBytesFromFile: 读取失败 - ${e.message}, filePath=$filePath".logWTF(TAG)
             e.printStackTrace()
+            "readBytesFromFile: 读取失败 - ${e.message}, filePath=$filePath".logWTF(TAG)
             null
         }
     }
@@ -157,7 +137,6 @@ object WXShareUtil {
      * @param needCrop 是否裁剪为指定尺寸（true: 裁剪，false: 等比缩放）
      * @return 处理后的缩略图，处理失败返回 null
      */
-    @JvmStatic
     fun extractThumbNail(imagePath: String?, targetHeight: Int, targetWidth: Int, needCrop: Boolean): Bitmap? {
         if (imagePath.isNullOrEmpty() || targetHeight <= 0 || targetWidth <= 0) {
             return null
@@ -174,7 +153,7 @@ object WXShareUtil {
             // 基础采样率
             options.inSampleSize = when {
                 needCrop -> if (scaleRatioY > scaleRatioX) scaleRatioX else scaleRatioY // 裁剪取较小比例
-                else -> if (scaleRatioY < scaleRatioX) scaleRatioX else scaleRatioY    // 缩放取较大比例
+                else -> if (scaleRatioY < scaleRatioX) scaleRatioX else scaleRatioY // 缩放取较大比例
             }.toInt().coerceAtLeast(1) // 确保采样率 >=1
             // 二次校验采样率（防止解码后尺寸超出最大限制）
             while (options.outHeight * options.outWidth / options.inSampleSize > MAX_DECODE_PICTURE_SIZE) {

@@ -9,9 +9,9 @@ import com.example.thirdparty.R
 import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
 
-class WXPay(mActivity: FragmentActivity) {
+class WXPay(activity: FragmentActivity) {
     // 通过WXAPIFactory工厂，获取IWXAPI的实例
-    private val wxApi by lazy { WXManager.instance.regToWx(mActivity) }
+    private val wxApi by lazy { WXManager.instance.regToWx(activity) }
 
     /**
      * 发起支付时都将app注册一下，页面关闭时再注销

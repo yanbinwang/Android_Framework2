@@ -20,11 +20,11 @@ import kotlinx.coroutines.withContext
 /**
  * 支付宝支付
  */
-class AlipayPay(private val mActivity: FragmentActivity) {
+class AlipayPay(private val activity: FragmentActivity) {
     private var payJob: Job? = null
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             payJob?.cancel()
         }
     }
@@ -34,22 +34,22 @@ class AlipayPay(private val mActivity: FragmentActivity) {
      */
     fun launchPay(payInfo: String?) {
         // 未安装
-        if (!mActivity.isAvailable("com.eg.android.AlipayGphone")) {
+        if (!activity.isAvailable("com.eg.android.AlipayGphone")) {
             handlePayResult(R.string.alipayUnInstalled, 2)
             return
         }
         handlePayResult(R.string.payInitiate)
         payJob?.cancel()
-        payJob = mActivity.lifecycleScope.launch {
+        payJob = activity.lifecycleScope.launch {
             val payResult = try {
                 withContext(IO) {
                     // 双重校验：Activity 未销毁 + payInfo 合法
-                    if (mActivity.isFinishing || mActivity.isDestroyed || payInfo.isNullOrEmpty()) {
+                    if (activity.isFinishing || activity.isDestroyed || payInfo.isNullOrEmpty()) {
                         // 提前返回null，避免创建PayTask
                         null
                     } else {
                         // 构造PayTask 对象
-                        val payTask = PayTask(mActivity)
+                        val payTask = PayTask(activity)
                         // 调用支付接口，获取支付结果
                         payTask.pay(payInfo, true)
                     }

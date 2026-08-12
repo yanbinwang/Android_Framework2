@@ -13,13 +13,13 @@ import kotlinx.coroutines.launch
 /**
  * 支付类
  */
-class PayBuilder(private val mActivity: FragmentActivity, private val mView: BaseView? = null)  {
-    private val alipay by lazy { AlipayPay(mActivity) }
-    private val wechat by lazy { WXPay(mActivity) }
+class PayBuilder(private val activity: FragmentActivity, private val view: BaseView? = null)  {
+    private val alipay by lazy { AlipayPay(activity) }
+    private val wechat by lazy { WXPay(activity) }
     private var payJob: Job? = null
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             payJob?.cancel()
         }
     }
@@ -30,7 +30,7 @@ class PayBuilder(private val mActivity: FragmentActivity, private val mView: Bas
      */
     fun createPay(orderNo: String, type: String = "1") {
         payJob?.cancel()
-        payJob = mActivity.lifecycleScope.launch {
+        payJob = activity.lifecycleScope.launch {
 //            pay()
         }
     }

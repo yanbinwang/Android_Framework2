@@ -27,13 +27,13 @@ import java.io.File
  *  1.具备读写权限
  *  2.安卓10开始已淘汰MediaStore.MediaColumns.DATA方法，没法捕获绝对路径，只有通过RELATIVE_PATH捕获相对路径
  */
-//class ShotObserver(private val mActivity: FragmentActivity) : ContentObserver(null), LifecycleEventObserver {
+//class ShotObserver(private val activity: FragmentActivity) : ContentObserver(null), LifecycleEventObserver {
 //    private var filePath = ""//存储上一次捕获到的文件地址
 //    private var listener: (filePath: String?) -> Unit = { _ -> }
 //    private val TAG = "ScreenShotObserver"
 //
 //    init {
-//        mActivity.lifecycle.addObserver(this)
+//        activity.lifecycle.addObserver(this)
 //    }
 //
 //    override fun onChange(selfChange: Boolean) {
@@ -49,7 +49,7 @@ import java.io.File
 //            MediaStore.Images.Media.SIZE)
 //        var cursor: Cursor? = null
 //        try {
-//            cursor = mActivity.contentResolver?.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " desc")
+//            cursor = activity.contentResolver?.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, MediaStore.MediaColumns.DATE_MODIFIED + " desc")
 //            if (cursor != null) {
 //                if (cursor.moveToFirst()) {
 ////                    val contentUri = ContentUris.withAppendedId(
@@ -59,7 +59,7 @@ import java.io.File
 //                    // 获取监听的路径
 ////                    val queryPath = cursor.getString(cursor.getColumnIndex(MediaStore.MediaColumns.DATA))
 //                    val queryPath = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-//                        val sdPath = mActivity.getExternalFilesDir(null)?.absolutePath.orEmpty()
+//                        val sdPath = activity.getExternalFilesDir(null)?.absolutePath.orEmpty()
 //                        "${sdPath.split("Android")[0]}${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
 ////                        "/storage/emulated/0/${getQueryResult(cursor, columns[1])}${getQueryResult(cursor, columns[3])}"
 //                    } else {
@@ -110,14 +110,14 @@ import java.io.File
 //     */
 //    private fun register() {
 //        unregister()
-//        mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+//        activity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
 //    }
 //
 //    /**
 //     * 注销监听
 //     */
 //    private fun unregister() {
-//        mActivity.contentResolver?.unregisterContentObserver(this)
+//        activity.contentResolver?.unregisterContentObserver(this)
 //    }
 //
 //    /**
@@ -130,12 +130,12 @@ import java.io.File
 //}
 /**
  * 监听设备截屏/图片新增的观察者
- * @param mActivity 关联的Activity（需保证生命周期一致）
+ * @param activity 关联的Activity（需保证生命周期一致）
  * @param debounceTime 防抖时间（默认500ms，避免重复回调）
  * EAD_EXTERNAL_STORAGE 权限（Android 13 需 READ_MEDIA_IMAGES）
  */
 @SuppressLint("Range")
-class ShotObserver(private val mActivity: FragmentActivity, private val debounceTime: Long = 500L) : ContentObserver(Handler(Looper.getMainLooper())), LifecycleEventObserver {
+class ShotObserver(private val activity: FragmentActivity, private val debounceTime: Long = 500L) : ContentObserver(Handler(Looper.getMainLooper())), LifecycleEventObserver {
     // 存储上一次捕获到的文件地址
     private var lastFilePath = ""
     // 防抖用的延迟任务
@@ -148,17 +148,17 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
     }
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
     }
 
     override fun onChange(selfChange: Boolean) {
         super.onChange(selfChange)
         // 防抖：取消上次任务，延迟执行查询
         debounceJob?.cancel()
-        debounceJob = mActivity.lifecycleScope.launch {
+        debounceJob = activity.lifecycleScope.launch {
             delay(debounceTime)
             // 校验Activity是否存活，避免销毁后操作
-            if (mActivity.isFinishing || mActivity.isDestroyed) return@launch
+            if (activity.isFinishing || activity.isDestroyed) return@launch
             queryLatestImage()
         }
     }
@@ -173,7 +173,7 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
         // 查询最新1条图片记录（按时间倒序）
         val cursor = try {
             val sortOrder = "${MediaStore.Images.Media.DATE_ADDED} DESC"
-            mActivity.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder)
+            activity.contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, projection, null, null, sortOrder)
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -184,7 +184,7 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
                     // Android 10+：通过 ContentResolver 获取绝对路径（避免手动拼接）
                     val imageId = it.getLong(it.getColumnIndex(projection[0]))
                     val contentUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageId)
-                    contentUri.getFileFromUri(mActivity)?.absolutePath
+                    contentUri.getFileFromUri(activity)?.absolutePath
                 } else {
                     // 低版本仍用DATA字段
                     getQueryResult(it, projection[2])
@@ -239,14 +239,14 @@ class ShotObserver(private val mActivity: FragmentActivity, private val debounce
      */
     private fun register() {
         unregister()
-        mActivity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
+        activity.contentResolver?.registerContentObserver(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, true, this)
     }
 
     /**
      * 注销监听
      */
     private fun unregister() {
-        mActivity.contentResolver?.unregisterContentObserver(this)
+        activity.contentResolver?.unregisterContentObserver(this)
     }
 
 }
