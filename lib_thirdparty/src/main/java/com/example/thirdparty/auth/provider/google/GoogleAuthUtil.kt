@@ -1,4 +1,4 @@
-package com.example.thirdparty.auth.google
+package com.example.thirdparty.auth.provider.google
 
 import android.content.Context
 import android.util.Base64

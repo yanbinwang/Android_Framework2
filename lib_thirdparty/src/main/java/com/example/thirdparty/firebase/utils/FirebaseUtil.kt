@@ -11,7 +11,7 @@ import com.example.common.network.repository.reqBodyOf
 import com.example.common.utils.helper.ConfigHelper.pushToken
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.logE
-import com.example.thirdparty.auth.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
+import com.example.thirdparty.auth.provider.google.GoogleAuthUtil.Companion.isGooglePlayServicesAvailable
 import com.google.firebase.FirebaseApp
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
