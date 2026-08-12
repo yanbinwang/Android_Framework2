@@ -33,7 +33,7 @@ object WXShareUtil {
         return try {
             ByteArrayOutputStream().use { outputStream ->
                 bitmap.compress(CompressFormat.PNG, 100, outputStream)
-                if (needRecycle.orFalse) {
+                if (needRecycle) {
                     bitmap.safeRecycle()
                 }
                 outputStream.toByteArray()
