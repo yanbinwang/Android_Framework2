@@ -34,11 +34,11 @@ import kotlin.coroutines.cancellation.CancellationException
 ///**
 // * google三方登录
 // */
-//class GoogleAuthUtil(private val mActivity: FragmentActivity) {
+//class GoogleAuthUtil(private val activity: FragmentActivity) {
 //    private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
-//    private val mActivityResult = mActivity.registerResult { onActivityResultListener?.invoke(it) }
+//    private val activityResult = activity.registerResult { onActivityResultListener?.invoke(it) }
 //    private val mGoogleSignInClient by lazy {
-//        GoogleSignIn.getClient(mActivity, GoogleSignInOptions
+//        GoogleSignIn.getClient(activity, GoogleSignInOptions
 //            .Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
 //            .requestIdToken(GOOGLE_AUTH_API.orEmpty())
 //            .requestEmail()
@@ -50,16 +50,16 @@ import kotlin.coroutines.cancellation.CancellationException
 //    }
 //
 //    init {
-//        mActivity.doOnDestroy {
+//        activity.doOnDestroy {
 //            onActivityResultListener = null
-//            mActivityResult?.unregister()
+//            activityResult?.unregister()
 //        }
 //        signOut()
 //    }
 //
 //    fun signIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
 //        R.string.authInitiate.shortToast()
-//        val account = GoogleSignIn.getLastSignedInAccount(mActivity)
+//        val account = GoogleSignIn.getLastSignedInAccount(activity)
 //        when {
 //            account != null -> {
 //                if (account.id.isNullOrEmpty()) {
@@ -73,10 +73,10 @@ import kotlin.coroutines.cancellation.CancellationException
 //    }
 //
 //    private fun callSignIn(onSuccess: (bean: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit) {
-////        mActivity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+////        activity.registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
 ////            val task = GoogleSignIn.getSignedInAccountFromIntent(it.data)
 ////            handleSignInResult(task, onSuccess, onCancel, onFailed)
-//////            mActivity.clearOnActivityResultListener()
+//////            activity.clearOnActivityResultListener()
 ////            signOut()
 ////        }.launch(mGoogleSignInClient.signInIntent)
 //        if (null == onActivityResultListener) {
@@ -87,7 +87,7 @@ import kotlin.coroutines.cancellation.CancellationException
 //                signOut()
 //            }
 //        }
-//        mActivityResult?.launch(mGoogleSignInClient.signInIntent)
+//        activityResult?.launch(mGoogleSignInClient.signInIntent)
 //    }
 //
 //    private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>, onSuccess: (account: GoogleInfoBean) -> Unit, onCancel: () -> Unit, onFailed: () -> Unit, ) {
@@ -130,10 +130,10 @@ import kotlin.coroutines.cancellation.CancellationException
  * https://developer.android.google.cn/identity/sign-in/credential-manager-siwg?hl=zh-cn
  * https://blog.csdn.net/zll18201518375/article/details/138577963
  */
-class GoogleAuthUtil(private val mActivity: FragmentActivity) {
+class GoogleAuthUtil(private val activity: FragmentActivity) {
     private var signInJob: Job? = null
     private var signOutJob: Job? = null
-    private val credentialManager by lazy { CredentialManager.create(mActivity) }
+    private val credentialManager by lazy { CredentialManager.create(activity) }
 
     companion object {
         /**
@@ -166,7 +166,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
     }
 
     init {
-        mActivity.lifecycle.doOnDestroy {
+        activity.lifecycle.doOnDestroy {
             signInJob?.cancel()
             signOutJob?.cancel()
         }
@@ -186,13 +186,13 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
      * credentialManager.clearCredentialState(ClearCredentialStateRequest()) -> 挂起协程版
      */
     fun signIn(onSuccess: (bean: GoogleIdTokenCredential) -> Unit = {}, onCancel: () -> Unit = {}, onFailed: (String) -> Unit = {}) {
-        if (!mActivity.isGooglePlayServicesAvailable()) {
+        if (!activity.isGooglePlayServicesAvailable()) {
             R.string.authError.shortToast()
             return
         }
         R.string.authInitiate.shortToast()
         signInJob?.cancel()
-        signInJob = mActivity.lifecycleScope.launch(Main.immediate) {
+        signInJob = activity.lifecycleScope.launch(Main.immediate) {
             runCatching {
                 withContext(IO) {
                     // 执行登录前先进行登出
@@ -209,7 +209,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
                         .setNonce(generateNonce())
                         // 开始构建
                         .build()).build()
-                    credentialManager.getCredential(mActivity, request)
+                    credentialManager.getCredential(activity, request)
                 }
             }.onSuccess { response ->
                 handleSignInResult(response, onSuccess)
@@ -288,7 +288,7 @@ class GoogleAuthUtil(private val mActivity: FragmentActivity) {
      */
     fun signOut() {
         signOutJob?.cancel()
-        signOutJob = mActivity.lifecycleScope.launch(Main.immediate) {
+        signOutJob = activity.lifecycleScope.launch(Main.immediate) {
             runCatching {
                 withContext(IO) {
                     credentialManager.clearCredentialState(ClearCredentialStateRequest())
