@@ -704,7 +704,7 @@ suspend fun suspendingFileHash(sourcePath: String?): String {
 
 // <editor-fold defaultstate="collapsed" desc="崩溃日志">
 /**
- * 生成崩溃日志内容
+ * 生成崩溃日志内容 crash/CrashReporter
  */
 fun buildCrashContent(throwable: Throwable, thread: Pair<String, Long> = Thread.currentThread().let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) }): String {
     // 写入异常信息

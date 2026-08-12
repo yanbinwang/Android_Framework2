@@ -1,4 +1,4 @@
-package com.example.thirdparty.utils
+package com.example.thirdparty.media.utils
 
 import android.content.Context
 import android.graphics.Bitmap
