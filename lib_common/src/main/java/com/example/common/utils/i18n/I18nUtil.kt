@@ -191,9 +191,9 @@ object I18nUtil {
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             // 打开指定语言包，失败直接返回0
-            assetManager.open(pack).use { inputStream ->
+            assetManager.open(pack).use { input ->
                 // 指定UTF-8编码，避免系统默认编码问题；use自动关闭流
-                InputStreamReader(inputStream, Charsets.UTF_8).use { inputReader ->
+                InputStreamReader(input, Charsets.UTF_8).use { inputReader ->
                     BufferedReader(inputReader).use { reader ->
                         var count = 0
                         var version: Int? = null
