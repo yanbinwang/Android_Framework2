@@ -35,6 +35,7 @@ import com.example.common.utils.StorageUtil.getStoragePath
 import com.example.common.utils.function.cacheImageExtension
 import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.ensureDirExists
+import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.loadBitmap
 import com.example.common.utils.function.loadLayout
 import com.example.common.utils.function.pt
@@ -80,73 +81,79 @@ import kotlin.coroutines.resumeWithException
  * @param quality 压缩率
  */
 suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("保存图片"), fileName: String = EN_YMDHMS.convert(Date()), deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100): String? {
+    bitmap ?: return null
     return withContext(IO) {
-        if (null != bitmap) {
-            // 存储目录文件
-            val storeDir = File(root)
-            // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
-            if (deleteDir) root.deleteDirectory()
-            // 确保目录创建
-            root.ensureDirExists()
-            // 根据要保存的格式，返回对应后缀名->安卓只支持以下三种
-            val suffix = when (format) {
-                JPEG -> "jpg"
-                PNG -> "png"
-                WEBP -> "webp"
-                else -> "jpg"
-            }
-            // 在目录文件夹下生成一个新的图片
-            val file = File(storeDir, "${fileName}.${suffix}")
-            // 开流开始写入
-            file.outputStream().use { outputStream ->
-                //如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
-                bitmap.compress(format, if (format != PNG) quality else 100, outputStream)
-                outputStream.flush()
-                bitmap.safeRecycle()
-            }
-            file.absolutePath
-        } else {
-            null
+        // 存储目录文件
+        val storeDir = File(root)
+        // 先判断是否需要清空目录，再判断是否存在（不存在则创建）
+        if (deleteDir) root.deleteDirectory()
+        // 确保目录创建
+        root.ensureDirExists()
+        // 根据要保存的格式，返回对应后缀名 -> 安卓只支持以下三种
+        val suffix = when (format) {
+            JPEG -> "jpg"
+            PNG -> "png"
+            WEBP -> "webp"
+            else -> "jpg"
         }
+        // 在目录文件夹下生成一个新的图片
+        val file = File(storeDir, "${fileName}.${suffix}")
+        // 开流开始写入
+        file.outputStream().use { output ->
+            // 如果是Bitmap.CompressFormat.PNG，无论quality为何值，压缩后图片文件大小都不会变化
+            bitmap.compress(format, if (format != PNG) quality else 100, output)
+            // 强制将 bitmap.compress() 写入缓冲区的数据立即刷到磁盘文件中
+            output.flush()
+            // 回收原图
+            bitmap.safeRecycle()
+        }
+        // 返回生成的图片文件路径
+        file.absolutePath
     }
 }
 
 /**
  * 存储 pdf
  */
-suspend fun suspendingSavePDF(file: File): MutableList<String?> {
-    val list = ArrayList<String?>()
+suspend fun suspendingSavePDF(file: File): List<String> {
+    val list = ArrayList<String>()
     withContext(IO) {
-        PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)).use {
-            for (index in 0 until it.pageCount) {
-                val filePath = suspendingSavePDF(it, index)
-                list.add(filePath)
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { pfd ->
+            PdfRenderer(pfd).use { renderer ->
+                for (index in 0 until renderer.pageCount) {
+                    suspendingSavePDF(renderer, index)?.takeIf { it.isPathExists() }?.let { list.add(it) }
+                }
             }
         }
     }
     return list
 }
 
-suspend fun suspendingSavePDF(file: File, index: Int = 0): String? {
+suspend fun suspendingSavePDF(file: File, index: Int = 0): String {
     return withContext(IO) {
-        suspendingSavePDF(PdfRenderer(ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)), index)
+        ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY).use { pfd ->
+            PdfRenderer(pfd).use { renderer ->
+                suspendingSavePDF(renderer, index)?.takeIf { it.isPathExists() } ?: throw IllegalStateException("PDF page render failed: file=${file.name}, index=$index")
+            }
+        }
     }
 }
 
-suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
+private suspend fun suspendingSavePDF(renderer: PdfRenderer, index: Int = 0): String? {
     // 选择渲染哪一页的渲染数据
-    return renderer.use {
+    return renderer.let {
         if (index > it.pageCount - 1) return null
-        val page = it.openPage(index)
-        val width = page.width
-        val height = page.height
-        val bitmap = createBitmap(width, height)
-        val canvas = Canvas(bitmap)
-        canvas.drawColor(Color.WHITE)
-        canvas.drawBitmap(bitmap, 0f, 0f, null)
-        val rent = Rect(0, 0, width, height)
-        page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-        suspendingSavePic(bitmap)
+        it.openPage(index).use { page ->
+            val width = page.width
+            val height = page.height
+            val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+            val canvas = Canvas(bitmap)
+            canvas.drawColor(Color.WHITE)
+//        canvas.drawBitmap(bitmap, 0f, 0f, null)
+            val rent = Rect(0, 0, width, height)
+            page.render(bitmap, rent, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            suspendingSavePic(bitmap)
+        }
     }
 }
 
@@ -305,8 +312,8 @@ private fun readImageRotation(file: File): Int {
     return try {
         // 对于 Android Q 及以上版本，推荐使用 ExifInterface 的 InputStream 构造方法
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            file.inputStream().use { inputStream ->
-                getRotationFromExif(ExifInterface(inputStream))
+            file.inputStream().use { input ->
+                getRotationFromExif(ExifInterface(input))
             }
         } else {
             getRotationFromExif(ExifInterface(file.absolutePath))
@@ -450,12 +457,12 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
         val body = CommonApi.downloadInstance.getDownloadApi(downloadUrl)
         val buf = ByteArray(2048)
         val total = body.contentLength()
-        body.byteStream().use { inputStream ->
-            file.outputStream().use { outputStream ->
+        body.byteStream().use { input ->
+            file.outputStream().use { output ->
                 var len: Int
                 var sum = 0L
-                while (((inputStream.read(buf)).also { len = it }) != -1) {
-                    outputStream.write(buf, 0, len)
+                while (((input.read(buf)).also { len = it }) != -1) {
+                    output.write(buf, 0, len)
                     sum += len.toSafeLong()
                     // 节流 + 切线程 绑定在一起，只有满足条件才切
                     val now = System.currentTimeMillis()
@@ -468,7 +475,7 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
                         }
                     }
                 }
-                outputStream.flush()
+                output.flush()
                 file.path
             }
         }
