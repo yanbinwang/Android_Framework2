@@ -246,7 +246,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
         val rotatedBitmap = try {
             // 应用旋转角度
             val matrix = Matrix().apply {
-                postRotate(degree.toFloat())
+                postRotate(degree.toSafeFloat())
             }
             // 按原始尺寸旋转，第三个参数true=保持图片抗锯齿（更清晰）
             Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.width, originalBitmap.height, matrix, true)
@@ -279,7 +279,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
         // 删除原文件
         val success = rotatedFile.exists() && rotatedFile.length() > 0
         if (deleteDir && success) {
-            file.delete()
+            file.safeDelete()
         }
         // 返回旋转文件
         if (success) {
@@ -445,36 +445,32 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
     val file = File(filePath.ensureDirExists(), fileName)
     // 前置提交时间
     var lastEmitTime = 0L
+    // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
     return withContext(IO) {
-        try {
-            // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载(加try/catch为双保险，万一地址不正确应用就会闪退)
-            val body = CommonApi.downloadInstance.getDownloadApi(downloadUrl)
-            val buf = ByteArray(2048)
-            val total = body.contentLength()
-            body.byteStream().use { inputStream ->
-                file.outputStream().use { outputStream ->
-                    var len: Int
-                    var sum = 0L
-                    while (((inputStream.read(buf)).also { len = it }) != -1) {
-                        outputStream.write(buf, 0, len)
-                        sum += len.toSafeLong()
-                        // 节流 + 切线程 绑定在一起，只有满足条件才切
-                        val now = System.currentTimeMillis()
-                        // 最多 60ms 刷新一次（≈16fps）
-                        if (now - lastEmitTime >= 60) {
-                            lastEmitTime = now
-                            val progress = (sum * 1.0f / total * 100).toSafeInt()
-                            withContext(Main) {
-                                listener.invoke(progress)
-                            }
+        val body = CommonApi.downloadInstance.getDownloadApi(downloadUrl)
+        val buf = ByteArray(2048)
+        val total = body.contentLength()
+        body.byteStream().use { inputStream ->
+            file.outputStream().use { outputStream ->
+                var len: Int
+                var sum = 0L
+                while (((inputStream.read(buf)).also { len = it }) != -1) {
+                    outputStream.write(buf, 0, len)
+                    sum += len.toSafeLong()
+                    // 节流 + 切线程 绑定在一起，只有满足条件才切
+                    val now = System.currentTimeMillis()
+                    // 最多 60ms 刷新一次（≈16fps）
+                    if (now - lastEmitTime >= 60) {
+                        lastEmitTime = now
+                        val progress = (sum * 1.0f / total * 100).toSafeInt()
+                        withContext(Main) {
+                            listener.invoke(progress)
                         }
                     }
-                    outputStream.flush()
-                    file.path
                 }
+                outputStream.flush()
+                file.path
             }
-        } catch (e: Exception) {
-            throw e
         }
     }
 }
