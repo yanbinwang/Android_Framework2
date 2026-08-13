@@ -70,9 +70,9 @@ private fun Context.insertImageToMediaStoreQPlus(file: File) {
     uri ?: return
     // 写入文件内容到媒体库 Uri
     try {
-        contentResolver.openOutputStream(uri)?.use { outputStream ->
-            file.inputStream().use { inputStream ->
-                inputStream.copyTo(outputStream)
+        contentResolver.openOutputStream(uri)?.use { output ->
+            file.inputStream().use { input ->
+                input.copyTo(output)
             }
         }
         // 取消待处理标记，触发媒体库扫描
@@ -576,9 +576,9 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
     if (!isImageMime) return standardSuffix
     // 二进制头部校验（仅图片文件执行）
     return try {
-        mContext.contentResolver.openInputStream(this)?.use { inputStream ->
+        mContext.contentResolver.openInputStream(this)?.use { input ->
             val headerBytes = ByteArray(4)
-            val readLength = inputStream.read(headerBytes)
+            val readLength = input.read(headerBytes)
             if (readLength >= 4) {
                 when {
                     headerBytes[0] == 0x89.toByte() && headerBytes[1] == 0x50.toByte() && headerBytes[2] == 0x4E.toByte() && headerBytes[3] == 0x47.toByte() -> ".png"
@@ -695,15 +695,15 @@ private fun getFileFromCloudAlbum(context: Context, uri: Uri, prefix: String): F
          *     val realSuffix = tempUri.getRealSourceSuffix(this)
          * }
          */
-        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+        context.contentResolver.openInputStream(uri)?.use { input ->
             // 获取真实后缀
             val realSuffix = uri.getRealSourceSuffix(context)
             // 先生成临时文件（避免直接创建带真实后缀的文件冲突）
             val tempTmpFile = File.createTempFile(prefix, ".tmp", context.cacheDir)
             tempTmpFile.deleteOnExit()
             // 拷贝文件流到临时.tmp文件
-            FileOutputStream(tempTmpFile).use { outputStream ->
-                inputStream.copyTo(outputStream)
+            FileOutputStream(tempTmpFile).use { output ->
+                input.copyTo(output)
             }
             // 重命名文件：将.tmp替换为真实后缀（避免文件名冲突）
             val realFileName = prefix + System.currentTimeMillis() + realSuffix
