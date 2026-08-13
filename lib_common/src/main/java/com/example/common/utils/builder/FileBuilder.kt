@@ -226,65 +226,67 @@ suspend fun suspendingSaveView(view: View, targetWidth: Int = screenWidth, targe
 
 /**
  * 旋转图片
- * 修整部分图片方向不正常
- * 取得一个新的图片文件
+ * 修整部分图片方向不正常，取得一个新的图片文件
  */
-suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100, originalDegree: Int = -1): File? {
-    return try {
-        withContext(IO) {
-            val degree = if (-1 == originalDegree) {
-                readImageRotation(file.absolutePath)
-            } else {
-                originalDegree
-            }
-            // 如果不需要旋转，直接返回原文件
-            if (degree == 0) {
-                return@withContext file
-            }
-            // 解码图片,解码失败返回原文件
-            val originalBitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@withContext file
-            // 执行旋转
-            val rotatedBitmap = try {
-                // 应用旋转角度
-                val matrix = Matrix().apply {
-                    postRotate(degree.toSafeFloat())
-                }
-                // 按原始尺寸旋转，第三个参数true=保持图片抗锯齿（更清晰）
-                Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.width, originalBitmap.height, matrix, true)
-            } catch (e: Exception) {
-                // 旋转失败时返回原图（如内存不足）
-                e.printStackTrace()
-                originalBitmap
-            }
-            // 根据格式，返回对应后缀名->安卓只支持以下三种
-            val suffix = when (format) {
-                JPEG -> "jpg"
-                PNG -> "png"
-                WEBP -> "webp"
-                else -> "jpg"
-            }
-            // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
-            val rotatedFileName = file.name.replace(Regex("\\.${suffix}$"), "_rotated.${suffix}")
-            val rotatedFile = File(file.parent ?: getStoragePath("Save Image"), rotatedFileName)
-            // 保存旋转后的图片
-            rotatedFile.outputStream().use { outputStream ->
-                // 如果是PNG，无论quality为何值，压缩后图片文件大小都不会变化
-                val actualQuality = if (format == PNG) 100 else quality
-                rotatedBitmap.compress(format, actualQuality, outputStream)
-            }
-            // 回收资源
-            if (originalBitmap != rotatedBitmap) {
-                originalBitmap.safeRecycle()
-            }
-            rotatedBitmap.safeRecycle()
-            // 删除原文件
-            if (deleteDir && rotatedFile.exists() && file.exists()) {
-                file.delete()
-            }
-            if (rotatedFile.exists() && rotatedFile.length() > 0) rotatedFile else file
+suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bitmap.CompressFormat = JPEG, quality: Int = 100, originalDegree: Int = -1): File {
+    return withContext(IO) {
+        // 不传角度优先读取
+        val degree = if (-1 == originalDegree) {
+            readImageRotation(file)
+        } else {
+            originalDegree
         }
-    } catch (e: Exception) {
-        throw e
+        // 0不需要旋转，返回原文件
+        if (degree == 0) {
+            return@withContext file
+        }
+        // 解码图片,解码失败返回原文件
+        val originalBitmap = BitmapFactory.decodeFile(file.absolutePath) ?: return@withContext file
+        // 执行旋转
+        val rotatedBitmap = try {
+            // 应用旋转角度
+            val matrix = Matrix().apply {
+                postRotate(degree.toFloat())
+            }
+            // 按原始尺寸旋转，第三个参数true=保持图片抗锯齿（更清晰）
+            Bitmap.createBitmap(originalBitmap, 0, 0, originalBitmap.width, originalBitmap.height, matrix, true)
+        } catch (e: Exception) {
+            // 旋转失败时返回原图（如内存不足）
+            e.printStackTrace()
+            originalBitmap
+        }
+        // 根据格式，返回对应后缀名->安卓只支持以下三种
+        val suffix = when (format) {
+            JPEG -> "jpg"
+            PNG -> "png"
+            WEBP -> "webp"
+            else -> "jpg"
+        }
+        // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
+        val rotatedFileName = "${file.nameWithoutExtension}_rotated.$suffix"
+        val rotatedFile = File(file.parent ?: getStoragePath("Save Image"), rotatedFileName)
+        // 保存旋转后的图片
+        rotatedFile.outputStream().use { output ->
+            // 如果是 PNG，无论 quality 为何值，压缩后图片文件大小都不会变化
+            val actualQuality = if (format == PNG) 100 else quality
+            rotatedBitmap.compress(format, actualQuality, output)
+        }
+        // 回收资源
+        if (originalBitmap !== rotatedBitmap) {
+            originalBitmap.safeRecycle()
+        }
+        rotatedBitmap.safeRecycle()
+        // 删除原文件
+        val success = rotatedFile.exists() && rotatedFile.length() > 0
+        if (deleteDir && success) {
+            file.delete()
+        }
+        // 返回旋转文件
+        if (success) {
+            rotatedFile
+        } else {
+            file
+        }
     }
 }
 
@@ -299,44 +301,20 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
  * 3) 非相机拍摄的图片（如截图、网络图片）通常没有旋转角度信息
  * 4) Android 10 + 的文件权限限制，可能导致直接通过路径无法读取 Exif（需用输入流方式）
  */
-private fun readImageRotation(path: String): Int {
+private fun readImageRotation(file: File): Int {
     return try {
-        // 对于Android Q及以上版本，推荐使用ExifInterface的InputStream构造方法
+        // 对于 Android Q 及以上版本，推荐使用 ExifInterface 的 InputStream 构造方法
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            readRotationFromStream(path)
+            file.inputStream().use { inputStream ->
+                getRotationFromExif(ExifInterface(inputStream))
+            }
         } else {
-            readRotationFromPath(path)
+            getRotationFromExif(ExifInterface(file.absolutePath))
         }
     } catch (e: Exception) {
         // 输出异常以便调试
         e.printStackTrace()
         0
-    }
-}
-
-/**
- * 从文件路径读取旋转角度（适用于Android Q以下）
- */
-private fun readRotationFromPath(path: String): Int {
-    val exif = ExifInterface(path)
-    return getRotationFromExif(exif)
-}
-
-/**
- * 从输入流读取旋转角度（适用于 Android Q 及以上）
- */
-@RequiresApi(Build.VERSION_CODES.Q)
-private fun readRotationFromStream(path: String): Int {
-    // 对于Android Q及以上，使用输入流方式更可靠
-    return try {
-        File(path).inputStream().use { inputStream ->
-            val exif = ExifInterface(inputStream)
-            getRotationFromExif(exif)
-        }
-    } catch (e: IOException) {
-        e.printStackTrace()
-        // 尝试降级使用路径方式
-        readRotationFromPath(path)
     }
 }
 
