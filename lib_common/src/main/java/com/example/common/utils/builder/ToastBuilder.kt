@@ -202,17 +202,3 @@ fun String?.copy(label: String = "Label") {
     setPrimaryClip(label)
     showImageToast(R.mipmap.ic_toast, string(R.string.copySuccess))
 }
-
-///**
-// * 设置自定义toast提示view
-// */
-//fun setToastView(@DrawableRes resId: Int, message: String) {
-//    ToastBuilder.custom { context, toast ->
-//        toast.setGravity(Gravity.CENTER, 0, 0)
-//        toast.duration = Toast.LENGTH_SHORT
-//        val binding = ViewToastImageStyleBinding.bind(context.inflate(R.layout.view_toast_image_style))
-//        binding.ivType.setImageResource(resId)
-//        binding.tvLabel.text = message
-//        toast.view = binding.root
-//    }
-//}
