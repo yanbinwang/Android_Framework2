@@ -8,7 +8,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.bean.ServerLanguage
 import com.example.common.config.Constants.LANGUAGE_LIST
 import com.example.common.config.RouterPath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
@@ -60,7 +60,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             localPack?.let { result ->
                 result.version = bean.version
                 I18nUtil.setLanguagePack(language, result)
-                "语言切换成功".shortToast()
+                "语言切换成功".toast()
             }
         }
     }

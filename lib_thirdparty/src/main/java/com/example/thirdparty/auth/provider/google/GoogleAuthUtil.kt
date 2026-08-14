@@ -13,7 +13,7 @@ import androidx.credentials.exceptions.NoCredentialException
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.NetWorkUtil.isNetworkAvailable
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getManifestString
 import com.example.common.utils.i18n.i18String
 import com.example.framework.utils.function.doOnDestroy
@@ -187,10 +187,10 @@ class GoogleAuthUtil(private val activity: FragmentActivity) {
      */
     fun signIn(onSuccess: (bean: GoogleIdTokenCredential) -> Unit = {}, onCancel: () -> Unit = {}, onFailed: (String) -> Unit = {}) {
         if (!activity.isGooglePlayServicesAvailable()) {
-            R.string.authError.shortToast()
+            R.string.authError.toast()
             return
         }
-        R.string.authInitiate.shortToast()
+        R.string.authInitiate.toast()
         signInJob?.cancel()
         signInJob = activity.lifecycleScope.launch(Main.immediate) {
             runCatching {
@@ -264,12 +264,12 @@ class GoogleAuthUtil(private val activity: FragmentActivity) {
         when (e) {
             // 用户取消了通行密钥注册或检索
             is GetCredentialCancellationException, is CreateCredentialCancellationException -> {
-                R.string.authCancel.shortToast()
+                R.string.authCancel.toast()
                 onCancel()
             }
             // 无可用凭证，可引导用户注册
             is NoCredentialException -> {
-                R.string.authError.shortToast()
+                R.string.authError.toast()
                 onFailed("未找到可用账号")
             }
             // 协程取消，不处理
@@ -277,7 +277,7 @@ class GoogleAuthUtil(private val activity: FragmentActivity) {
             }
             // 其余无特殊操作一律回调失败
             else -> {
-                (if (!isNetworkAvailable()) R.string.authNetworkFail else R.string.authError).shortToast()
+                (if (!isNetworkAvailable()) R.string.authNetworkFail else R.string.authError).toast()
                 onFailed(e.message ?: "登录失败")
             }
         }
