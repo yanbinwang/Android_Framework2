@@ -78,6 +78,17 @@ object ToastBuilder {
     }
 
     /**
+     * 使用全局 defaultResBuilder 构建 Toast 实例供扩展函数在需要覆盖属性（如 gravity）时获取基线实例，不会修改全局 builder 本身，仅返回一个新创建的 Toast 对象
+     */
+    internal fun buildResToast(resId: Int, length: Int): Toast {
+        return defaultResBuilder(resId, length)
+    }
+
+    internal fun buildTextToast(message: String, length: Int): Toast {
+        return defaultTextBuilder(message, length)
+    }
+
+    /**
      * Application 中初始化全局的 Toast
      * 部分手機定制導致顯示不全，樣式不統一，故而再重寫一次，統一樣式
      */
@@ -168,15 +179,36 @@ object ToastBuilder {
 
 /**
  * String 字符串/文字 Res 引用提示
+ * @param gravity 可选，传入时覆盖全局默认位置；不传则保持 Application 中配置的默认 gravity
+ * @param xOffset 水平偏移量，仅在 gravity 非 null 时生效
+ * @param yOffset 垂直偏移量，仅在 gravity 非 null 时生效
  */
-fun Int?.toast(length: Int = Toast.LENGTH_SHORT) {
+fun Int?.toast(length: Int = Toast.LENGTH_SHORT, gravity: Int? = null, xOffset: Int = 0, yOffset: Int = 0) {
     this ?: return
-    ToastBuilder.show(this, length)
+    if (gravity == null) {
+        // 无覆盖需求，直接走全局默认 builder
+        ToastBuilder.show(this, length)
+    } else {
+        // 有覆盖需求：基于全局 builder 创建实例 → 覆盖 gravity → 作为自定义 builder 传入
+        ToastBuilder.show(this, length) { resId, len ->
+            ToastBuilder.buildResToast(resId, len).apply {
+                setGravity(gravity, xOffset, yOffset)
+            }
+        }
+    }
 }
 
-fun String?.toast(length: Int = Toast.LENGTH_SHORT) {
+fun String?.toast(length: Int = Toast.LENGTH_SHORT, gravity: Int? = null, xOffset: Int = 0, yOffset: Int = 0) {
     this ?: return
-    ToastBuilder.show(this, length)
+    if (gravity == null) {
+        ToastBuilder.show(this, length)
+    } else {
+        ToastBuilder.show(this, length) { message, len ->
+            ToastBuilder.buildTextToast(message, len).apply {
+                setGravity(gravity, xOffset, yOffset)
+            }
+        }
+    }
 }
 
 /**
