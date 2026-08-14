@@ -132,6 +132,23 @@ fun String?.isDecodableImage(): Boolean {
 }
 
 /**
+ * 根据压缩格式获取对应的文件后缀（不含点号）。
+ * 与 [Bitmap.CompressFormat.from] 互为逆向映射，
+ * 注意 from() 的入参为 MIME type 而非文件后缀。
+ */
+@Suppress("NewApi", "DEPRECATION")
+fun Bitmap.CompressFormat.suffix(): String {
+    return when (this) {
+        Bitmap.CompressFormat.JPEG -> "jpg"
+        Bitmap.CompressFormat.PNG -> "png"
+        Bitmap.CompressFormat.WEBP,
+        Bitmap.CompressFormat.WEBP_LOSSY,
+        Bitmap.CompressFormat.WEBP_LOSSLESS -> "webp"
+        else -> "jpg"
+    }
+}
+
+/**
  * 提取Bitmap在x轴中心点颜色
  */
 @ColorInt
