@@ -50,7 +50,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -280,7 +280,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val isPhysicalTablet = config.smallestScreenWidthDp >= 600
         // 只要是物理平板 → 直接拦截，不管是不是分屏
         if (isPhysicalTablet) {
-            "当前设备为平板/大屏设备，暂不支持使用".shortToast()
+            "当前设备为平板/大屏设备，暂不支持使用".toast()
         }
         return isPhysicalTablet
     }

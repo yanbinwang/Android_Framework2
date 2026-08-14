@@ -33,7 +33,7 @@ import com.example.common.base.page.ResultCode.RESULT_VIDEO
 import com.example.common.config.Constants
 import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.value.hoursMs
 import java.io.File
 import java.io.Serializable
@@ -298,11 +298,11 @@ fun Context?.pullUpPackage(packageName: String) {
         if (null != intent && intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            "打开外部应用失败".shortToast()
+            "打开外部应用失败".toast()
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        "未找到可打开的应用".shortToast()
+        "未找到可打开的应用".toast()
     }
 }
 
@@ -319,11 +319,11 @@ fun Context?.pullUpOtherApp(uri: Uri) {
         if (intent.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
-            "未找到可打开此链接的应用".shortToast()
+            "未找到可打开此链接的应用".toast()
         }
     } catch (e: Exception) {
         e.printStackTrace()
-        "打开外部应用失败".shortToast()
+        "打开外部应用失败".toast()
     }
 }
 
@@ -448,7 +448,7 @@ fun Context?.openFile(filePath: String, type: String) {
             })
         } catch (e: Exception) {
             e.printStackTrace()
-            "未找到合适的应用来打开此文件，请安装相关应用".shortToast()
+            "未找到合适的应用来打开此文件，请安装相关应用".toast()
         }
     }
 }
@@ -473,7 +473,7 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
             }, title))
         } catch (e: Exception) {
             e.printStackTrace()
-            "分享失败，请重试".shortToast()
+            "分享失败，请重试".toast()
         }
     }
 }
@@ -484,7 +484,7 @@ fun Context?.sendFile(filePath: String, fileType: String? = "*/*", title: String
 private fun File?.isFileValid(): Boolean {
     this ?: return false
     return if (!absolutePath.isPathExists()) {
-        R.string.sourcePathError.shortToast()
+        R.string.sourcePathError.toast()
         false
     } else {
         true
