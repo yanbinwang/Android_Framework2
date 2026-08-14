@@ -16,9 +16,7 @@ import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
-import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.toast
-import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
@@ -67,7 +65,6 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
 
 /**
@@ -512,14 +509,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
                 navigation(RouterPath.MediaActivity)
             }
         }
-        launch {
-            flow {
-                emit(suspendingDownloadPic(this@MainActivity,"https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg"))
-            }.withHandling(this@MainActivity).collect {
-                "下载完成".toast()
-            }
-        }
-
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 
