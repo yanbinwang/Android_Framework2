@@ -6,7 +6,7 @@ import com.alipay.sdk.app.PayTask
 import com.example.common.event.EventCode.EVENT_PAY_CANCEL
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.isAvailable
 import com.example.framework.utils.logWTF
@@ -86,7 +86,7 @@ class AlipayPay(private val activity: FragmentActivity) {
      * 统一处理
      */
     private fun handlePayResult(resId: Int, type: Int = -1) {
-        resId.shortToast()
+        resId.toast()
         when (type) {
             0 -> EVENT_PAY_SUCCESS.post()
             1 -> EVENT_PAY_CANCEL.post()

@@ -10,7 +10,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.utils.StorageUtil
 import com.example.common.utils.StorageUtil.StorageType.IMAGE
 import com.example.common.utils.StorageUtil.StorageType.VIDEO
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.value.orFalse
 import com.example.thirdparty.R
@@ -190,7 +190,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
     fun flash() {
         if (isTaking()) return
         if (cvFinder?.facing == Facing.FRONT) {
-            R.string.cameraFlashError.shortToast()
+            R.string.cameraFlashError.toast()
         } else {
             cvFinder?.let {
                 it.flash = if (it.flash == Flash.TORCH) {
@@ -221,7 +221,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      */
     fun takePicture(snapshot: Boolean = true) {
         if (isTaking()) {
-            R.string.cameraPictureShutter.shortToast()
+            R.string.cameraPictureShutter.toast()
             return
         }
         cvFinder?.let {
@@ -240,7 +240,7 @@ class CameraHelper(private val observer: LifecycleOwner, private val hasReceiver
      */
     fun takeVideo(snapshot: Boolean = true) {
         if (isTaking()) {
-            R.string.cameraVideoShutter.shortToast()
+            R.string.cameraVideoShutter.toast()
             return
         }
         cvFinder?.let {

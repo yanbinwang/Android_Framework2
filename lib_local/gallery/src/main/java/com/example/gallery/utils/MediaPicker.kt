@@ -6,7 +6,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.mb
 import com.example.common.utils.function.string
@@ -251,7 +251,7 @@ class MediaPicker(private val host: Any) {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     result.safeGet(0)?.also { file ->
                         if (file.size > megabyte.mb) {
-                            string(R.string.gallery_album_image_error, megabyte.mb.toString()).shortToast()
+                            string(R.string.gallery_album_image_error, megabyte.mb.toString()).toast()
                             return@also
                         }
                         file.path?.let { albumPath ->
@@ -304,7 +304,7 @@ class MediaPicker(private val host: Any) {
                 override fun onAction(result: ArrayList<AlbumFile>) {
                     result.safeGet(0)?.also { file ->
                         if (file.size > megabyte.mb) {
-                            string(R.string.gallery_album_video_error, megabyte.mb.toString()).shortToast()
+                            string(R.string.gallery_album_video_error, megabyte.mb.toString()).toast()
                             return@also
                         }
                         file.path?.let { albumPath ->

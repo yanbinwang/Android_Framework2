@@ -20,7 +20,7 @@ import com.example.common.network.repository.request
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.NetWorkUtil
 import com.example.common.utils.StorageUtil.getStoragePath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.deleteDirectory
 import com.example.common.utils.function.deleteFile
 import com.example.common.utils.function.getFileLength
@@ -149,7 +149,7 @@ class OssFactory private constructor() : CoroutineScope {
     fun isInit(isToast: Boolean = true): Boolean {
         return if (!isAuthorize.get()) {
             if (!initJob?.isActive.orFalse) {
-                if (isToast) "oss初始化失败，请稍后再试".shortToast()
+                if (isToast) "oss初始化失败，请稍后再试".toast()
                 initialize()
             }
             false

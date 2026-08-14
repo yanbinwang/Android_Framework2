@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.CompoundButton
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
@@ -221,7 +221,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 if (mFilterVisibility) {
                     addFileToListAction(this)
                 } else {
-                    R.string.album_take_file_unavailable.shortToast()
+                    R.string.album_take_file_unavailable.toast()
                     // 不可以直接取消弹框
                     dismissLoadingDialog()
                 }
@@ -269,7 +269,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit_camera
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit_camera
                 else -> R.string.unitNoData
-            }, "$mLimitCount").shortToast()
+            }, "$mLimitCount").toast()
             // 根据功能类型拍照/录像/选择
         } else {
             when (mFunction) {
@@ -303,7 +303,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, "$mLimitCount").shortToast()
+                }, "$mLimitCount").toast()
                 button?.isChecked = false
             } else {
                 albumFile.isChecked = true
@@ -351,7 +351,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
                 else -> R.string.unitNoData
-            }.shortToast()
+            }.toast()
         } else {
             callbackResult()
         }

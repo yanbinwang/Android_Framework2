@@ -8,7 +8,6 @@ import androidx.annotation.DrawableRes
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.databinding.ViewToastImageStyleBinding
-import com.example.common.utils.builder.ToastBuilder.showImageToast
 import com.example.common.utils.function.setPrimaryClip
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.inflate
@@ -93,20 +92,12 @@ object ToastBuilder {
     /**
      * 全局调取 Toast 方法
      */
-    fun short(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = this.defaultResBuilder) {
-        showToast(resId, Toast.LENGTH_SHORT, toastBuilder)
+    fun show(resId: Int, length: Int = Toast.LENGTH_SHORT, toastBuilder: ((Int, Int) -> Toast) = defaultResBuilder) {
+        showToast(resId, length, toastBuilder)
     }
 
-    fun short(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.defaultTextBuilder) {
-        showToast(message, Toast.LENGTH_SHORT, toastBuilder)
-    }
-
-    fun long(resId: Int, toastBuilder: ((resId: Int, length: Int) -> Toast) = this.defaultResBuilder) {
-        showToast(resId, Toast.LENGTH_LONG, toastBuilder)
-    }
-
-    fun long(message: String, toastBuilder: ((message: String, length: Int) -> Toast) = this.defaultTextBuilder) {
-        showToast(message, Toast.LENGTH_LONG, toastBuilder)
+    fun show(message: String, length: Int = Toast.LENGTH_SHORT, toastBuilder: ((String, Int) -> Toast) = defaultTextBuilder) {
+        showToast(message, length, toastBuilder)
     }
 
     /**
@@ -133,12 +124,12 @@ object ToastBuilder {
     /**
      * 自定义 Toast 的提示 View
      */
-    fun showCustom(length: Int, gravity: Int = Gravity.CENTER, customBuilder: (Context, Toast) -> Unit) {
+    fun showCustom(length: Int = Toast.LENGTH_SHORT, customBuilder: (Context, Toast) -> Unit) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         val ctx = appContext ?: return
         cancelToast()
         val toast = Toast.makeText(ctx, null, length)
-        toast.setGravity(gravity, 0, 0)
+        toast.setGravity(Gravity.CENTER, 0, 0)
         currentToast = WeakReference(toast)
         customBuilder(ctx, toast)
         toast.show()
@@ -176,28 +167,21 @@ object ToastBuilder {
 }
 
 /**
- * string地址/文字引用扩展
+ * String 字符串/文字 Res 引用提示
  */
-fun Int?.shortToast() {
+fun Int?.toast(length: Int = Toast.LENGTH_SHORT) {
     this ?: return
-    ToastBuilder.short(this)
+    ToastBuilder.show(this, length)
 }
 
-fun String?.shortToast() {
+fun String?.toast(length: Int = Toast.LENGTH_SHORT) {
     this ?: return
-    ToastBuilder.short(this)
+    ToastBuilder.show(this, length)
 }
 
-fun Int?.longToast() {
-    this ?: return
-    ToastBuilder.long(this)
-}
-
-fun String?.longToast() {
-    this ?: return
-    ToastBuilder.long(this)
-}
-
+/**
+ * 富文本提示
+ */
 fun String?.htmlToast(length: Int = Toast.LENGTH_SHORT) {
     this ?: return
     ToastBuilder.showHtmlToast(this, length)
@@ -209,5 +193,5 @@ fun String?.htmlToast(length: Int = Toast.LENGTH_SHORT) {
 fun String?.copyToast(label: String = "Label", length: Int = Toast.LENGTH_SHORT) {
     this ?: return
     setPrimaryClip(label)
-    showImageToast(R.mipmap.ic_toast, string(R.string.copySuccess), length)
+    ToastBuilder.showImageToast(R.mipmap.ic_toast, string(R.string.copySuccess), length)
 }

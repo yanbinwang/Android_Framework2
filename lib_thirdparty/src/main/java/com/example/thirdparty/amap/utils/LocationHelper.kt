@@ -17,7 +17,7 @@ import com.amap.api.location.AMapLocationListener
 import com.amap.api.maps.model.LatLng
 import com.example.common.config.Constants.APPLICATION_NAME
 import com.example.common.utils.DataStringCache
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.string
 import com.example.common.utils.toJson
@@ -103,7 +103,7 @@ class LocationHelper(private val activity: FragmentActivity, registrar: Activity
      */
     fun start() {
         if (isLocating) {
-            R.string.mapLocationProcessing.shortToast()
+            R.string.mapLocationProcessing.toast()
             return
         }
         isLocating = true

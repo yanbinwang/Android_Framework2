@@ -17,7 +17,7 @@ import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.network.repository.withHandling
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
@@ -516,7 +516,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             flow {
                 emit(suspendingDownloadPic(this@MainActivity,"https://qcloud.dpfile.com/pc/5Ct4AVJJv2aq5MjcUIeJ2STd0ZYkopTa4r99ekPIg6qMpU7jk1n9-dyjZitV3vvb.jpg"))
             }.withHandling(this@MainActivity).collect {
-                "下载完成".shortToast()
+                "下载完成".toast()
             }
         }
 
@@ -574,7 +574,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (it.resultCode == RESULT_OK) {
                 val tempUri = it.data?.data
                 val tempFile = tempUri.getFileFromUri(this)
-                tempFile?.absolutePath.shortToast()
+                tempFile?.absolutePath.toast()
 //                if (tempFile != null) {
 //                    // 获取源文件的真实后缀（比如从Uri/文件名解析）
 //                    tempUri.getRealSourceSuffix(this).shortToast()
@@ -867,12 +867,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         if (requestCode == RESULT_ALBUM) {
             data ?: return
             val mImageList = Durban.parseResult(data)
-            mImageList.safeGet(0).shortToast()
+            mImageList.safeGet(0).toast()
         }
         if (requestCode == RESULT_IMAGE) {
             val uri = data?.data
             val oriFile = uri.getFileFromUri(this)
-            "${oriFile?.absolutePath}".shortToast()
+            "${oriFile?.absolutePath}".toast()
         }
 //        if (requestCode == RESULT_ALBUM) {
 //            data ?: return

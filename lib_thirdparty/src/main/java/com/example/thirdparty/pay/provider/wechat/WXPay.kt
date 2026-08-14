@@ -2,7 +2,7 @@ package com.example.thirdparty.pay.provider.wechat
 
 import androidx.fragment.app.FragmentActivity
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.logWTF
 import com.example.thirdparty.R
@@ -48,7 +48,7 @@ class WXPay(activity: FragmentActivity) {
      * 统一处理
      */
     private fun handlePayResult(resId: Int, isFailure: Boolean = true) {
-        resId.shortToast()
+        resId.toast()
         if (isFailure) EVENT_PAY_FAILURE.post()
     }
 

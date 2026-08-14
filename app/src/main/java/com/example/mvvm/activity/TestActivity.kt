@@ -5,7 +5,7 @@ import android.view.View
 import android.view.View.OnClickListener
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.insertImageResolver
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.clicks
@@ -40,9 +40,9 @@ class TestActivity : BaseActivity<ActivityTestBinding>() ,OnClickListener{
 
             override fun onTaken(sourcePath: String?) {
                 if (insertImageResolver(sourcePath)) {
-                    "拍摄完成".shortToast()
+                    "拍摄完成".toast()
                 } else {
-                    R.string.responseError.shortToast()
+                    R.string.responseError.toast()
                 }
                 mBinding?.ivTake.enable()
             }

@@ -15,7 +15,7 @@ import android.util.Rational
 import androidx.annotation.RequiresApi
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.view.click
@@ -41,10 +41,10 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 ACTION_PLAY -> {
-                    "播放".shortToast()
+                    "播放".toast()
                 }
                 ACTION_PAUSE -> {
-                    "暂停".shortToast()
+                    "暂停".toast()
                 }
             }
         }

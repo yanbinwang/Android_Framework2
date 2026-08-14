@@ -8,7 +8,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.base.bridge.BaseView
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.withHandling
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.decodeResource
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.string
@@ -324,7 +324,7 @@ class WXShare(private val activity: FragmentActivity) {
     private fun <T : WXMediaMessage.IMediaObject> share(mediaObject: T, transaction: String, scene: Int) {
         // 未安装
         if (!wxApi?.isWXAppInstalled.orFalse) {
-            R.string.wechatUnInstalled.shortToast()
+            R.string.wechatUnInstalled.toast()
             return
         }
         // 版本不支持
@@ -335,7 +335,7 @@ class WXShare(private val activity: FragmentActivity) {
             false
         }
         if (!isWxSupport) {
-            R.string.wechatSupportError.shortToast()
+            R.string.wechatSupportError.toast()
             return
         }
         // 发起分享

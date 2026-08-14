@@ -8,7 +8,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.widget.dialog.LoadingDialog
@@ -34,7 +34,7 @@ class NormalPicHolder(private val activity: AppCompatActivity, private val bean:
         if (it.resultCode == RESULT_OK) {
             it?.data ?: return@registerForActivityResult
             val uri = it.data?.data
-            uri.getFileFromUri(activity)?.absolutePath.shortToast()
+            uri.getFileFromUri(activity)?.absolutePath.toast()
         }
     }
     private var value = ""

@@ -20,7 +20,7 @@ import com.example.common.network.repository.request
 import com.example.common.network.repository.requestAffair
 import com.example.common.network.repository.safeAs
 import com.example.common.network.repository.withHandling
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.builder.suspendingSavePic
 import com.example.common.utils.builder.suspendingSaveView
 import com.example.common.utils.function.decodeAsset
@@ -214,10 +214,10 @@ class TestViewModel : BaseViewModel() {
                 // 通过不同if判断生成对应的bitmap
                 emit(requestAffair { suspendingKolShare() })
             }.withHandling(mView, {
-                "分享失败".shortToast()
+                "分享失败".toast()
             }).collect { sourcePath ->
                 mContext?.insertImageResolver(File(sourcePath.orEmpty()))
-                "插入成功".shortToast()
+                "插入成功".toast()
             }
         }.manageJob()
     }

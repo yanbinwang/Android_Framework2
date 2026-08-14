@@ -13,7 +13,7 @@ import androidx.lifecycle.LifecycleOwner
 import com.example.common.base.page.Extra
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.ActivityResultRegistrar
 import com.example.common.utils.function.isPathExists
 import com.example.common.utils.function.pullUpOverlay
@@ -53,7 +53,7 @@ class DisplayHelper(private val activity: FragmentActivity, registrar: ActivityR
             activity.startServiceCompat(DisplayService::class.java, Extra.RESULT_CODE to it.resultCode, Extra.BUNDLE_BEAN to it.data)
             activity.moveTaskToBack(true)
         } else {
-            R.string.screenCancel.shortToast()
+            R.string.screenCancel.toast()
             isRecording = false
             listener?.onCancel()
         }
@@ -214,7 +214,7 @@ class DisplayHelper(private val activity: FragmentActivity, registrar: ActivityR
         // 开始进行录屏
         DisplayService.setOnDisplayListener(object : DisplayService.OnDisplayListener {
             override fun onStart(folderPath: String?) {
-                R.string.screenStart.shortToast()
+                R.string.screenStart.toast()
                 waitingTime = currentTimeNano - lastRefreshTime
                 lastRefreshTime = currentTimeNano
                 filePath = folderPath
@@ -256,7 +256,7 @@ class DisplayHelper(private val activity: FragmentActivity, registrar: ActivityR
 
             override fun onError(e: Exception?) {
                 // 有转圈动画记得关闭
-                R.string.screenError.shortToast()
+                R.string.screenError.toast()
                 isRecording = false
                 listener?.onCancel()
             }
