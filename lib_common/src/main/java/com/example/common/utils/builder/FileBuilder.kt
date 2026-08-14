@@ -12,6 +12,7 @@ import android.graphics.Matrix
 import android.graphics.Rect
 import android.graphics.pdf.PdfRenderer
 import android.os.Build
+import android.os.Looper
 import android.os.ParcelFileDescriptor
 import android.util.Base64
 import android.util.Patterns
@@ -43,6 +44,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.string
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
 import com.example.framework.utils.function.value.convert
@@ -348,21 +350,19 @@ private fun getRotationFromExif(exif: ExifInterface): Int {
 }
 
 /**
- * 压缩单个文件或目录到指定ZIP路径
- * @param sourcePath 源文件或目录路径
- * @param zipPath 目标ZIP文件路径
- * @return 生成的ZIP文件路径
+ * 压缩单个/多个文件或目录到指定 ZIP 路径
+ * @param sourcePath/sourcePaths 源文件或目录路径/列表，不存在的条目会被自动跳过
+ * @param zipPath 目标 ZIP 文件的完整路径（含文件名及 .zip 后缀），例如 "/storage/emulated/0/backup/archive.zip"
+ * @param onProgress 压缩进度回调，参数分别为已处理字节数和总字节数；默认 null 不回调。回调已在主线程触发，可直接更新 UI，无需手动切换线程
+ * @return 生成的 ZIP 文件绝对路径
+ * @throws IOException 当已存在的 ZIP 文件无法删除时抛出
  */
+private val mainWeakHandler by lazy { WeakHandler(Looper.getMainLooper()) }
+
 suspend fun suspendingZip(sourcePath: String, zipPath: String, onProgress: ((processedBytes: Long, totalBytes: Long) -> Unit)? = null): String {
     return suspendingZip(listOf(sourcePath), zipPath, onProgress)
 }
 
-/**
- * 压缩多个文件或目录到指定 ZIP 路径
- * @param sourcePaths 源文件或目录路径列表
- * @param zipPath 目标 ZIP 文件路径
- * @return 生成的 ZIP 文件路径
- */
 suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String, onProgress: ((processedBytes: Long, totalBytes: Long) -> Unit)? = null): String {
     return withContext(IO) {
         // 创建ZIP文件所在的目录，而不是ZIP文件本身
@@ -376,12 +376,24 @@ suspend fun suspendingZip(sourcePaths: List<String>, zipPath: String, onProgress
         val totalBytes = sourcePaths.sumOf { path ->
             File(path).walk().filter { it.isFile }.sumOf { it.length() }
         }
+        // 压缩带有压缩精度回调
+        var lastEmitTime = 0L
         var processedBytes = 0L
         addToZip(sourcePaths, zipPath) { delta ->
             processedBytes += delta
-            // 调用方刷新 UI 记得切换线程
+            val now = System.currentTimeMillis()
+            if (now - lastEmitTime >= 60) {
+                lastEmitTime = now
+                mainWeakHandler.post {
+                    onProgress?.invoke(processedBytes, totalBytes)
+                }
+            }
+        }
+        // 压缩结束后无条件补发最终进度，确保调用方一定能收到完成信号
+        mainWeakHandler.post {
             onProgress?.invoke(processedBytes, totalBytes)
         }
+        // 执行完毕返回压缩文件夹路径
         zipPath
     }
 }
@@ -440,16 +452,23 @@ private fun addDirectoryToZip(dir: File, parentPath: String, zipOut: ZipOutputSt
 }
 
 /**
- * 存储文件
+ * 下载文件到指定目录
+ * 该函数会在 IO 协程中执行下载，并通过节流机制（约60ms/次）在主线程回调进度。下载前会自动清除目标目录下的所有已有文件
+ * @param downloadUrl 可下载的链接，需符合 WEB_URL 正则格式
+ * @param parentPath 文件下载的父目录路径（下载前会清空该目录下所有文件）
+ * @param fileName 包含后缀名的完整文件名，例如 "abc.txt"
+ * @param listener 下载进度回调，参数 progress 取值范围 0-100，默认空实现
+ * @return 下载成功返回文件的绝对路径；若下载流异常或中断可能返回 null
+ * @throws RuntimeException 当 [downloadUrl] 不符合合法 URL 格式时抛出
  */
-suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
+suspend fun suspendingDownload(downloadUrl: String, parentPath: String, fileName: String, listener: (progress: Int) -> Unit = {}): String? {
     if (!Patterns.WEB_URL.matcher(downloadUrl).matches()) {
         throw RuntimeException(string(R.string.linkError))
     }
     // 清除目录下的所有文件
-    filePath.deleteDirectory()
+    parentPath.deleteDirectory()
     // 创建一个安装的文件，开启io协程写入
-    val file = File(filePath.ensureDirExists(), fileName)
+    val file = File(parentPath.ensureDirExists(), fileName)
     // 前置提交时间
     var lastEmitTime = 0L
     // 开启一个获取下载对象的协程，监听中如果对象未获取到，则中断携程，并且完成这一次下载
@@ -476,6 +495,16 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
                     }
                 }
                 output.flush()
+                // 确保调用方一定能收到 100%
+                val finalProgress = if (total > 0) {
+                    (sum * 1.0f / total * 100).toSafeInt()
+                } else {
+                    // contentLength 为 -1 时视为已完成
+                    100
+                }
+                withContext(Main) {
+                    listener.invoke(finalProgress)
+                }
                 file.path
             }
         }
@@ -485,14 +514,14 @@ suspend fun suspendingDownload(downloadUrl: String, filePath: String, fileName: 
 /**
  * 存储网络路径图片(下载url)
  */
-suspend fun suspendingDownloadPic(context: Context, imageUrl: String, root: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
+suspend fun suspendingDownloadPic(context: Context, imageUrl: String, parentPath: String = getStoragePath("保存图片"), deleteDir: Boolean = false): String {
     return withContext(IO) {
         // 存储目录文件
-        val storeDir = File(root)
+        val storeDir = File(parentPath)
         // 先判断是否需要清空目录，再判断是否存在
-        if (deleteDir) root.deleteDirectory()
+        if (deleteDir) parentPath.deleteDirectory()
         // 确保目录创建
-        root.ensureDirExists()
+        parentPath.ensureDirExists()
         // 开启 Glide 下载
         val cacheFile = suspendingGlideDownload(context, imageUrl)
         // 后缀从 URL 拿，不依赖 cacheFile
