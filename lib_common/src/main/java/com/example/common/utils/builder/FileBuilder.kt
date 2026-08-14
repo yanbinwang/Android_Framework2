@@ -44,6 +44,7 @@ import com.example.common.utils.function.safeDelete
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.scaleBitmap
 import com.example.common.utils.function.string
+import com.example.common.utils.function.suffix
 import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.function.value.DateFormat.CN_YMDHMS
 import com.example.framework.utils.function.value.DateFormat.EN_YMDHMS
@@ -92,12 +93,7 @@ suspend fun suspendingSavePic(bitmap: Bitmap?, root: String = getStoragePath("�
         // 确保目录创建
         root.ensureDirExists()
         // 根据要保存的格式，返回对应后缀名 -> 安卓只支持以下三种
-        val suffix = when (format) {
-            JPEG -> "jpg"
-            PNG -> "png"
-            WEBP -> "webp"
-            else -> "jpg"
-        }
+        val suffix = format.suffix()
         // 在目录文件夹下生成一个新的图片
         val file = File(storeDir, "${fileName}.${suffix}")
         // 开流开始写入
@@ -265,12 +261,7 @@ suspend fun suspendingDegree(file: File, deleteDir: Boolean = false, format: Bit
             originalBitmap
         }
         // 根据格式，返回对应后缀名->安卓只支持以下三种
-        val suffix = when (format) {
-            JPEG -> "jpg"
-            PNG -> "png"
-            WEBP -> "webp"
-            else -> "jpg"
-        }
+        val suffix = format.suffix()
         // 文件名：原图名 + "_rotated"（如 "photo.jpg" → "photo_rotated.jpg"）
         val rotatedFileName = "${file.nameWithoutExtension}_rotated.$suffix"
         val rotatedFile = File(file.parent ?: getStoragePath("保存图片"), rotatedFileName)
