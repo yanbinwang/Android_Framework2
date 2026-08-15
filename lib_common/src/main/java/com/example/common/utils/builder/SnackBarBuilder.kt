@@ -245,12 +245,12 @@ object SnackBarBuilder {
 
 }
 
-fun Int?.snackBar(root: View, length: Int = Toast.LENGTH_SHORT, action: SnackBarAction? = null) {
+fun Int?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, action: SnackBarAction? = null) {
     this ?: return
     SnackBarBuilder.show(root, this, length, action)
 }
 
-fun String?.snackBar(root: View, length: Int = Toast.LENGTH_SHORT, action: SnackBarAction? = null) {
+fun String?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, action: SnackBarAction? = null) {
     this ?: return
     SnackBarBuilder.show(root, this, length, action)
 }
