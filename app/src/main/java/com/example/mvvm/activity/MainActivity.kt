@@ -3,8 +3,10 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.content.Intent
+import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.common.BaseApplication.Companion.needOpenHome
@@ -16,6 +18,7 @@ import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
+import com.example.common.utils.builder.SnackBarBuilder
 import com.example.common.utils.builder.toast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
@@ -37,6 +40,7 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
+import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.SyncMode
 import com.example.framework.utils.function.value.getCpuInfo
@@ -56,9 +60,11 @@ import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
+import com.example.mvvm.databinding.ViewSnackbarImageStyleBinding
 import com.example.mvvm.service.MusicBindService
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
+import com.google.android.material.snackbar.Snackbar
 import com.therouter.router.Route
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -647,7 +653,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //            },2000)
 //            navigation(RouterPath.LoginActivity)
 //            viewModel.getShare()
-            navigation(RouterPath.TestActivity2)
+//            navigation(RouterPath.TestActivity2)
 //            it.rotate()
 //            mBinding?.finder?.onShutter()
 //            mPermission.requestPermissions { isGranted, _ ->
@@ -663,30 +669,23 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
 //            }
 //            testDialog.show()
-//            SnackBarBuilder.custom(it, Snackbar.LENGTH_LONG, { snackbar ->
-//                // 透明背景
-//                snackbar.setBackgroundTint(Color.TRANSPARENT)
-//                // 获取 Snackbar 的根视图
-//                val snackbarView = snackbar.view
-//                // 隐藏默认的文本和动作视图
-//                val snackbarText = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-//                snackbarText.gone()
-//                val snackbarAction = snackbarView.findViewById<TextView>(com.google.android.material.R.id.snackbar_action)
-//                snackbarAction.gone()
-//                // 加载自定义视图
-//                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
-//                binding.ivType.setImageResource(R.mipmap.ic_toast)
-//                binding.tvLabel.text = "复制成功"
-//                //父布局
-//                val root = snackbarView as? ViewGroup
-//                // 移除默认视图
-//                root?.removeAllViews()
-//                // 添加自定义视图
-//                root?.addView(binding.root)
-////                // 空出顶部导航栏
-////                binding.root.margin(top = getStatusBarHeight())
-//                return@custom snackbar
-//            }, true)
+            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar ->
+                // 透明背景
+                snackbar.setBackgroundTint(Color.TRANSPARENT)
+                // 获取 Snackbar 的根视图
+                val snackbarView = snackbar.view
+                // 加载自定义视图
+                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
+                binding.ivType.setImageResource(R.mipmap.ic_toast)
+                binding.tvLabel.text = "复制成功"
+                // 父布局
+                val root = snackbarView as? ViewGroup
+                // 移除默认视图
+                root?.removeAllViews()
+                // 添加自定义视图
+                root?.addView(binding.root)
+                return@showCustom snackbar
+            }, true)
         }
 
         val books = listOf(
