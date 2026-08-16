@@ -6,6 +6,8 @@ import android.app.Application
 import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.Lifecycle
@@ -26,6 +28,7 @@ import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
 import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.builder.SnackBarBuilder
 import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
 import com.example.common.utils.builder.ToastBuilder
@@ -199,74 +202,62 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initToast() {
-        ToastBuilder.setResToastBuilder { message, length ->
-            val toast = Toast(instance)
-            // 设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            // 设置显示时间
-            toast.duration = length
-            val view = TextView(instance)
-            view.text = i18String(message)
-            view.setBackgroundResource(R.drawable.shape_toast)
-//            view.background = drawable
-            view.minHeight = 40.pt
-            view.minWidth = 190.pt
-            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
-            view.gravity = Gravity.CENTER
-            view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.textWhite)
-            toast.view = view
-            return@setResToastBuilder toast
+        ToastBuilder.setResToastBuilder { resId, length ->
+            buildStyledToast(i18String(resId), length)
         }
         ToastBuilder.setTextToastBuilder { message, length ->
-            val toast = Toast(instance)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.duration = length
-            val view = TextView(instance)
-            view.text = message
-            view.setBackgroundResource(R.drawable.shape_toast)
-            view.minHeight = 40.pt
-            view.minWidth = 190.pt
-            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
-            view.gravity = Gravity.CENTER
-            view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.textWhite)
-            toast.view = view
-            return@setTextToastBuilder toast
+            buildStyledToast(message, length)
         }
+    }
+
+    private fun buildStyledToast(text: String, length: Int): Toast {
+        val toast = Toast(instance)
+        // 设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位
+        toast.setGravity(Gravity.CENTER, 0, 0)
+        toast.duration = length
+        val view = TextView(instance)
+        view.text = text
+        view.setBackgroundResource(R.drawable.shape_toast)
+        view.minHeight = 40.pt
+        view.minWidth = 190.pt
+        view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
+        view.gravity = Gravity.CENTER
+        view.textSize(R.dimen.textSize14)
+        view.textColor(R.color.textWhite)
+        toast.view = view
+        return toast
     }
 
     private fun initSnackBar() {
         SnackBarBuilder.setResSnackBarBuilder { view, resId, length, action ->
-            val snackbar = Snackbar.make(view, i18String(resId), length)
-            // 背景颜色
-            snackbar.setBackgroundTint(color(R.color.appTheme))
-            // 右侧按钮
-            if (null != action) {
-                when (action) {
-                    is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
-                    is SnackBarAction.ResText -> snackbar.setAction(i18String(action.resId), action.listener)
-                }
-//                // 定制俩 TextView 大小/样式
-//                val snackbarText = view.findViewById<SnackbarContentLayout>(R.id.snackbar_text)
-//                val snackbarAction = view.findViewById<SnackbarContentLayout>(R.id.snackbar_action)
-                // 文字颜色
-                snackbar.setActionTextColor(color(R.color.textWhite))
-            }
-            return@setResSnackBarBuilder snackbar
+            buildStyledSnackBar(view, i18String(resId), length, action)
         }
         SnackBarBuilder.setTextSnackBarBuilder { view, message, length, action ->
-            val snackbar = Snackbar.make(view, message, length)
-            snackbar.setBackgroundTint(color(R.color.appTheme))
-            if (null != action) {
-                when (action) {
-                    is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
-                    is SnackBarAction.ResText -> snackbar.setAction(i18String(action.resId), action.listener)
-                }
-                snackbar.setActionTextColor(color(R.color.textWhite))
-            }
-            return@setTextSnackBarBuilder snackbar
+            buildStyledSnackBar(view, message, length, action)
         }
+    }
+
+    private fun buildStyledSnackBar(view: View, text: String, length: Int, action: SnackBarAction?): Snackbar {
+        val snackbar = Snackbar.make(view, text, length)
+        val root = snackbar.view
+        val backgroundRes = R.color.appNavigationBar
+        val textRes = if (shouldUseWhiteSystemBarsForRes(backgroundRes)) R.color.textWhite else R.color.textBlack
+        // 提示内容
+        snackbar.setBackgroundTint(color(backgroundRes))
+        snackbar.setTextColor(color(textRes))
+        val snackbarText = root.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        snackbarText.textSize(R.dimen.textSize14)
+        // 提示按钮
+        if (null != action) {
+            when (action) {
+                is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
+                is SnackBarAction.ResText -> snackbar.setAction(i18String(action.resId), action.listener)
+            }
+            snackbar.setActionTextColor(color(action.actionTextColorRes ?: textRes))
+            val snackbarAction = root.findViewById<Button>(com.google.android.material.R.id.snackbar_action)
+            snackbarAction.textSize(R.dimen.textSize12)
+        }
+        return snackbar
     }
 
     private fun initSocket() {
