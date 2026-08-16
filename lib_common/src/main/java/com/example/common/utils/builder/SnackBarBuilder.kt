@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.Toast
+import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
 import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
@@ -59,12 +60,12 @@ object SnackBarBuilder {
     /**
      * 快捷创建 Text Action
      */
-    fun snackBarAction(text: String, onClick: () -> Unit): SnackBarAction {
-        return SnackBarAction.Text(text) { onClick() }
+    fun snackBarAction(text: String, @ColorRes actionTextColorRes: Int? = null, onClick: () -> Unit): SnackBarAction {
+        return SnackBarAction.Text(text, actionTextColorRes) { onClick() }
     }
 
-    fun snackBarAction(@StringRes resId: Int, onClick: () -> Unit): SnackBarAction {
-        return SnackBarAction.ResText(resId) { onClick() }
+    fun snackBarAction(@StringRes resId: Int, @ColorRes actionTextColorRes: Int? = null, onClick: () -> Unit): SnackBarAction {
+        return SnackBarAction.ResText(resId, actionTextColorRes) { onClick() }
     }
 
     /**
@@ -217,10 +218,11 @@ object SnackBarBuilder {
      */
     sealed interface SnackBarAction {
         val listener: View.OnClickListener
+        val actionTextColorRes: Int? // null 时跟随 textRes，非 null 时使用指定颜色
 
-        data class Text(val text: String, override val listener: View.OnClickListener) : SnackBarAction
+        data class Text(val text: String, override val actionTextColorRes: Int? = null, override val listener: View.OnClickListener) : SnackBarAction
 
-        data class ResText(@StringRes val resId: Int, override val listener: View.OnClickListener) : SnackBarAction
+        data class ResText(@StringRes val resId: Int, override val actionTextColorRes: Int? = null, override val listener: View.OnClickListener) : SnackBarAction
     }
 
 }

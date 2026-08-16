@@ -19,6 +19,8 @@ import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.SnackBarBuilder
+import com.example.common.utils.builder.SnackBarBuilder.snackBarAction
+import com.example.common.utils.builder.snackBar
 import com.example.common.utils.builder.toast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
@@ -510,11 +512,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //        })
 
 
-        mPermission.requestPermissions { isGranted, _ ->
-            if (isGranted) {
-                navigation(RouterPath.MediaActivity)
-            }
-        }
+//        mPermission.requestPermissions { isGranted, _ ->
+//            if (isGranted) {
+//                navigation(RouterPath.MediaActivity)
+//            }
+//        }
 //        overridePendingTransition(0, 0)
 //        BaseApplication.instance.initPrivacyAgreed()
 
@@ -669,15 +671,18 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
 //            }
 //            testDialog.show()
-            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar, snackbarView ->
-                // 加载自定义视图
-                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
-                binding.ivType.setImageResource(R.mipmap.ic_toast)
-                binding.tvLabel.text = "复制成功"
-                // 添加自定义视图
-                snackbarView?.addView(binding.root)
-                return@showCustom snackbar
-            }, true)
+            "fdsfsddsfsdfds".snackBar(it, action = snackBarAction("取消", R.color.cast_expanded_controller_ad_break_marker_color) {
+                "啊啊啊啊啊".toast()
+            })
+//            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar, snackbarView ->
+//                // 加载自定义视图
+//                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
+//                binding.ivType.setImageResource(R.mipmap.ic_toast)
+//                binding.tvLabel.text = "复制成功"
+//                // 添加自定义视图
+//                snackbarView?.addView(binding.root)
+//                return@showCustom snackbar
+//            }, true)
         }
 
         val books = listOf(
