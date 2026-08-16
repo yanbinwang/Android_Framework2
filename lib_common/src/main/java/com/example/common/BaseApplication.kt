@@ -10,6 +10,7 @@ import android.view.View
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.ColorRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -207,22 +208,21 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initSnackBar() {
-        SnackBarBuilder.setResSnackBarBuilder { view, resId, length, action ->
-            buildStyledSnackBar(view, string(resId), length, action)
+        SnackBarBuilder.setResSnackBarBuilder { view, resId, length, navigationBarColor, action ->
+            buildStyledSnackBar(view, string(resId), length, navigationBarColor, action)
         }
-        SnackBarBuilder.setTextSnackBarBuilder { view, message, length, action ->
-            buildStyledSnackBar(view, message, length, action)
+        SnackBarBuilder.setTextSnackBarBuilder { view, message, length, navigationBarColor, action ->
+            buildStyledSnackBar(view, message, length, navigationBarColor, action)
         }
     }
 
-    private fun buildStyledSnackBar(view: View, text: String, length: Int, action: SnackBarAction?): Snackbar {
+    private fun buildStyledSnackBar(view: View, text: String, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
         val snackbar = Snackbar.make(view, text, length)
         val root = snackbar.view
-        val backgroundRes = R.color.appNavigationBar
-        val textRes = if (shouldUseWhiteSystemBarsForRes(backgroundRes)) R.color.textWhite else R.color.textBlack
+        val textColorRes = if (shouldUseWhiteSystemBarsForRes(navigationBarColor)) R.color.textWhite else R.color.textBlack
         // 提示内容
-        snackbar.setBackgroundTint(color(backgroundRes))
-        snackbar.setTextColor(color(textRes))
+        snackbar.setBackgroundTint(color(navigationBarColor))
+        snackbar.setTextColor(color(textColorRes))
         val snackbarText = root.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
         snackbarText.textSize(R.dimen.textSize14)
         // 提示按钮
@@ -231,7 +231,7 @@ abstract class BaseApplication : Application() {
                 is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
                 is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
             }
-            snackbar.setActionTextColor(color(action.actionTextColorRes ?: textRes))
+            snackbar.setActionTextColor(color(action.actionTextColorRes ?: textColorRes))
             val snackbarAction = root.findViewById<Button>(com.google.android.material.R.id.snackbar_action)
             snackbarAction.textSize(R.dimen.textSize12)
         }

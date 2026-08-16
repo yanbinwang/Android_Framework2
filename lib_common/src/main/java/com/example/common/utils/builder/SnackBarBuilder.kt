@@ -9,6 +9,7 @@ import android.widget.FrameLayout
 import android.widget.Toast
 import androidx.annotation.ColorRes
 import androidx.annotation.StringRes
+import com.example.common.R
 import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
@@ -25,35 +26,35 @@ object SnackBarBuilder {
     /**
      * 传入引用 String 格式的 SnackBar
      */
-    private var defaultResBuilder: (root: View, resId: Int, length: Int, action: SnackBarAction?) -> Snackbar = { root, resId, length, _ ->
+    private var defaultResBuilder: (root: View, resId: Int, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar = { root, resId, length, _, _ ->
         Snackbar.make(root, resId, length)
     }
     /**
      * 传入文字的 SnackBar
      */
-    private var defaultTextBuilder: (root: View, message: String, length: Int, action: SnackBarAction?) -> Snackbar = { root, message, length, _ ->
+    private var defaultTextBuilder: (root: View, message: String, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar = { root, message, length, _, _ ->
         Snackbar.make(root, message, length)
     }
 
     /**
      * 使用全局 defaultResBuilder 构建 SnackBar 实例供扩展函数在需要覆盖属性（如 gravity）时获取基线实例，不会修改全局 builder 本身，仅返回一个新创建的 SnackBar 对象
      */
-    internal fun buildResToast(view: View, resId: Int, length: Int, action: SnackBarAction? = null): Snackbar {
-        return defaultResBuilder(view, resId, length, action)
+    internal fun buildResToast(view: View, resId: Int, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
+        return defaultResBuilder(view, resId, length, navigationBarColor, action)
     }
 
-    internal fun buildTextToast(view: View, message: String, length: Int, action: SnackBarAction? = null): Snackbar {
-        return defaultTextBuilder(view, message, length, action)
+    internal fun buildTextToast(view: View, message: String, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
+        return defaultTextBuilder(view, message, length, navigationBarColor, action)
     }
 
     /**
      * 全局的 SnackBar
      */
-    fun setResSnackBarBuilder(builder: (view: View, resId: Int, length: Int, action: SnackBarAction?) -> Snackbar) {
+    fun setResSnackBarBuilder(builder: (view: View, resId: Int, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) {
         defaultResBuilder = builder
     }
 
-    fun setTextSnackBarBuilder(builder: (view: View, message: String, length: Int, action: SnackBarAction?) -> Snackbar) {
+    fun setTextSnackBarBuilder(builder: (view: View, message: String, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) {
         defaultTextBuilder = builder
     }
 
@@ -76,27 +77,28 @@ object SnackBarBuilder {
      * 1) SnackBarAction.Text("撤销") { undo() }
      * 2) SnackBarAction.ResText(R.string.undo) { undo() }
      */
-    fun show(root: View, resId: Int, length: Int = Toast.LENGTH_SHORT, action: SnackBarAction? = null, snackBuilder: ((root: View, resId: Int, length: Int, action: SnackBarAction?) -> Snackbar) = defaultResBuilder) {
-        showSnackBar(root, resId, length, action, snackBuilder)
+    fun show(root: View, resId: Int, length: Int = Toast.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null, snackBuilder: ((root: View, resId: Int, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) = defaultResBuilder) {
+        showSnackBar(root, resId, length, navigationBarColor, action, snackBuilder)
     }
 
-    fun show(root: View, message: String, length: Int = Toast.LENGTH_SHORT, action: SnackBarAction? = null, snackBuilder: ((root: View, message: String, length: Int, action: SnackBarAction?) -> Snackbar) = defaultTextBuilder) {
-        showSnackBar(root, message, length, action, snackBuilder)
+    fun show(root: View, message: String, length: Int = Toast.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null, snackBuilder: ((root: View, message: String, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) = defaultTextBuilder) {
+        showSnackBar(root, message, length, navigationBarColor, action, snackBuilder)
     }
 
     /**
      * 显示 SnackBar 的公共方法
      * 系统级维持默认，底部弹出，可定制背景，textview大小等
      */
-    private fun <T> showSnackBar(root: View, input: T, length: Int, action: SnackBarAction? = null, builder: (View, T, Int, SnackBarAction?) -> Snackbar) {
+    private fun <T> showSnackBar(root: View, input: T, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?, builder: (View, T, Int, Int, SnackBarAction?) -> Snackbar) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
         if (when (input) {
-            is Int -> input == -1
-            is String -> input.isEmpty()
-            else -> false
-        }) return
+                is Int -> input == -1
+                is String -> input.isEmpty()
+                else -> false
+            }
+        ) return
         cancelSnackBar()
-        builder(root, input, length, action).apply {
+        builder(root, input, length, navigationBarColor, action).apply {
             currentSnackBar = WeakReference(this)
             show()
         }
@@ -227,12 +229,12 @@ object SnackBarBuilder {
 
 }
 
-fun Int?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, action: SnackBarAction? = null) {
+fun Int?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null) {
     this ?: return
-    SnackBarBuilder.show(root, this, length, action)
+    SnackBarBuilder.show(root, this, length, navigationBarColor, action)
 }
 
-fun String?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, action: SnackBarAction? = null) {
+fun String?.snackBar(root: View, length: Int = Snackbar.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null) {
     this ?: return
-    SnackBarBuilder.show(root, this, length, action)
+    SnackBarBuilder.show(root, this, length, navigationBarColor, action)
 }
