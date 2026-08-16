@@ -6,12 +6,9 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.StringRes
-import com.example.common.R
 import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
-import com.example.common.utils.function.color
 import com.google.android.material.snackbar.BaseTransientBottomBar.ANIMATION_MODE_FADE
 import com.google.android.material.snackbar.Snackbar
 import java.lang.ref.WeakReference
