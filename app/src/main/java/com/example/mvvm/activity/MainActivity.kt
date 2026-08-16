@@ -669,21 +669,13 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
 //            }
 //            testDialog.show()
-            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar ->
-                // 透明背景
-                snackbar.setBackgroundTint(Color.TRANSPARENT)
-                // 获取 Snackbar 的根视图
-                val snackbarView = snackbar.view
+            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar, snackbarView ->
                 // 加载自定义视图
                 val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))
                 binding.ivType.setImageResource(R.mipmap.ic_toast)
                 binding.tvLabel.text = "复制成功"
-                // 父布局
-                val root = snackbarView as? ViewGroup
-                // 移除默认视图
-                root?.removeAllViews()
                 // 添加自定义视图
-                root?.addView(binding.root)
+                snackbarView?.addView(binding.root)
                 return@showCustom snackbar
             }, true)
         }

@@ -26,7 +26,10 @@ import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
 import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
+import com.example.common.utils.builder.SnackBarBuilder
+import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
 import com.example.common.utils.builder.ToastBuilder
+import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
@@ -43,6 +46,7 @@ import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
+import com.google.android.material.snackbar.Snackbar
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import com.therouter.TheRouter
@@ -117,8 +121,9 @@ abstract class BaseApplication : Application() {
         initListener()
         // 全局刷新控件的样式
         initSmartRefresh()
-        // 全局toast
+        // 全局toast/snackbar
         initToast()
+        initSnackBar()
         // 初始化socket
         initSocket()
         // 全局进程
@@ -206,6 +211,39 @@ abstract class BaseApplication : Application() {
             view.textColor(R.color.textWhite)
             toast.view = view
             return@setTextToastBuilder toast
+        }
+    }
+
+    private fun initSnackBar() {
+        SnackBarBuilder.setResSnackBarBuilder { view, resId, length, action ->
+            val snackbar = Snackbar.make(view, string(resId), length)
+            // 背景颜色
+            snackbar.setBackgroundTint(color(R.color.appTheme))
+            // 右侧按钮
+            if (null != action) {
+                when (action) {
+                    is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
+                    is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+                }
+//                // 定制俩 TextView 大小/样式
+//                val snackbarText = view.findViewById<SnackbarContentLayout>(R.id.snackbar_text)
+//                val snackbarAction = view.findViewById<SnackbarContentLayout>(R.id.snackbar_action)
+                // 文字颜色
+                snackbar.setActionTextColor(color(R.color.textWhite))
+            }
+            return@setResSnackBarBuilder snackbar
+        }
+        SnackBarBuilder.setTextSnackBarBuilder { view, message, length, action ->
+            val snackbar = Snackbar.make(view, message, length)
+            snackbar.setBackgroundTint(color(R.color.appTheme))
+            if (null != action) {
+                when (action) {
+                    is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
+                    is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+                }
+                snackbar.setActionTextColor(color(R.color.textWhite))
+            }
+            return@setTextSnackBarBuilder snackbar
         }
     }
 
