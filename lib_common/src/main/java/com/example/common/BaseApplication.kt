@@ -238,14 +238,14 @@ abstract class BaseApplication : Application() {
 
     private fun initSnackBar() {
         SnackBarBuilder.setResSnackBarBuilder { view, resId, length, action ->
-            val snackbar = Snackbar.make(view, string(resId), length)
+            val snackbar = Snackbar.make(view, i18String(resId), length)
             // 背景颜色
             snackbar.setBackgroundTint(color(R.color.appTheme))
             // 右侧按钮
             if (null != action) {
                 when (action) {
                     is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
-                    is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+                    is SnackBarAction.ResText -> snackbar.setAction(i18String(action.resId), action.listener)
                 }
 //                // 定制俩 TextView 大小/样式
 //                val snackbarText = view.findViewById<SnackbarContentLayout>(R.id.snackbar_text)
@@ -261,7 +261,7 @@ abstract class BaseApplication : Application() {
             if (null != action) {
                 when (action) {
                     is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
-                    is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+                    is SnackBarAction.ResText -> snackbar.setAction(i18String(action.resId), action.listener)
                 }
                 snackbar.setActionTextColor(color(R.color.textWhite))
             }
