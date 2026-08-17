@@ -41,7 +41,7 @@
             android:maxLines="1"
             android:textColor="@color/galleryFontLight"
             android:textSize="@dimen/textSize12"
-            app:drawableStartCompat="@mipmap/album_tag_video" />
+            app:drawableStartCompat="@mipmap/album_ic_tag_video" />
 
     </RelativeLayout>
 
