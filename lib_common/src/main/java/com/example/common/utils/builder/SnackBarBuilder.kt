@@ -17,6 +17,10 @@ import java.lang.ref.WeakReference
 
 /**
  * Jetpack 提示框
+ * 1) Dialog / PopupWindow
+ * 通过 WindowManager.addView() 创建一个全新的、独立的 Window。系统要分配独立的 DecorView、LayoutParams、InputMethod 绑定等一整套窗口资源
+ * 2) Snackbar
+ * 寄生而非独立，不创建新 Window。只是往当前 Activity 的 DecorView（通常是 CoordinatorLayout 或其父容器）里 addView() 了一个普通的子 View。本质上就是一个带入场/出场动画的自定义 View，和普通按钮、TextView 没有本质区别
  */
 object SnackBarBuilder {
     /**
