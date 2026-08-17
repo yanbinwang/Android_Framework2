@@ -26,32 +26,27 @@ object LinkHandleUtil {
 //     *   }
 //     *  onResult-》是否处理，false的话启动页自己处理页面跳转
 //     */
-//    @JvmStatic
-//    fun tryJump(activity: ComponentActivity, resp: (Boolean) -> Unit = {}) = activity.execute {
-//        //获取intent中是否包含对应跳转的值
-//        if (intent.extras?.size().orZero <= 0 && intent.data == null) {
-//            resp.invoke(false)
-//            return@execute
-//        }
-////        // 查找是否是firebase的深度推送
-////        val isDynamicLink = intent.extras?.keySet()?.find {
-////            it.contains("DYNAMIC_LINK", true) || it.contains("dynamiclink", true)
-////        } != null
+//    fun tryJump(activity: ComponentActivity): Boolean {
+//        // 获取 Intent 中是否包含对应跳转的值
+//        if (activity.intent.extras?.size().orZero <= 0 && activity.intent.data == null) return false
+//    //        // 查找是否是 Firebase 的深度推送
+//    //        val isDynamicLink = intent.extras?.keySet()?.find {
+//    //            it.contains("DYNAMIC_LINK", true) || it.contains("dynamiclink", true)
+//    //        } != null
 //        // 先尝试走 FCM 推送
-//        if (handlePush(activity)) {
-//            resp.invoke(true)
-////        } else if (isDynamicLink) {
-////            // push失败，尝试 App Links 深度链接
-////            handleDeepLink(activity, resp)
+//        return if (handlePush(activity)) {
+//            true
+//    //        } else if (isDynamicLink) {
+//    //            // push 失败，尝试 App Links 深度链接
+//    //            handleDeepLink(activity, resp)
 //        } else {
-//            resp.invoke(false)
+//            false
 //        }
 //    }
 //
 //    /**
 //     * 处理普通推送
 //     */
-//    @JvmStatic
 //    fun handlePush(activity: ComponentActivity): Boolean {
 //        // 推送来源
 //        val linkType = activity.intentString("linkType").unicodeDecode() // 推送类别
@@ -81,7 +76,6 @@ object LinkHandleUtil {
 //     *     </intent-filter>
 //     * </activity>
 //     */
-//    @JvmStatic
 //    fun handleDeepLink(activity: ComponentActivity, resp: (Boolean) -> Unit = {}) = activity.execute {
 //        FireBaseUtil.onDeepLink(this, {
 //            try {

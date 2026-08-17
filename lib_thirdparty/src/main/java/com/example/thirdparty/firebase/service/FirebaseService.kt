@@ -6,6 +6,7 @@ import com.example.framework.utils.logWTF
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationHandler
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationIntentGenerator
+import com.example.thirdparty.utils.NotificationPermissionHelper.Companion.hasNotificationPermission
 import com.example.thirdparty.utils.NotificationUtil.buildImageNotification
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
@@ -62,11 +63,13 @@ class FirebaseService : FirebaseMessagingService() {
             val map = msg.data
             "msg:${msg.toJson()}\nmap:${map.toJson()}".logWTF
 //            debuggingListener?.invoke("", "PUSH", mapOf("messageId" to msg.messageId, "from" to msg.from, "sentTime" to msg.sentTime).toJson(), msg.notification.toJson(), 200, map.toJson())
+            if (!hasNotificationPermission()) return
+            val notification = msg.notification ?: return
             buildImageNotification(
-                largeIconUrl = msg.notification?.icon,
-                title = msg.notification?.title.orNoData(),
-                text = msg.notification?.body.orNoData(),
-                bigPictureUrl = msg.notification?.imageUrl?.toString(),
+                largeIconUrl = notification.icon,
+                title = notification.title.orNoData(),
+                text = notification.body.orNoData(),
+                bigPictureUrl = notification.imageUrl?.toString(),
                 intent = notificationIntentGenerator(this, map)
             )
         }
