@@ -39,7 +39,7 @@ object SnackBarBuilder {
     /**
      * 使用全局 defaultResBuilder 构建 SnackBar 实例供扩展函数在需要覆盖属性（如 gravity）时获取基线实例，不会修改全局 builder 本身，仅返回一个新创建的 SnackBar 对象
      */
-    internal fun buildResToast(view: View, resId: Int, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
+    internal fun buildResToast(view: View, @StringRes resId: Int, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
         return defaultResBuilder(view, resId, length, navigationBarColor, action)
     }
 
@@ -71,13 +71,13 @@ object SnackBarBuilder {
 
     /**
      * @param length
-     * 1) SHORT/LONG → 轻反馈，带一点上下文，自动消失
+     * 1) SHORT/LONG → 轻反馈，带一点上下文，自动消失 ≈ 2000ms / 3500ms
      * 2) INDEFINITE → 需要用户"做点什么"才能继续
      * @param action
      * 1) SnackBarAction.Text("撤销") { undo() }
      * 2) SnackBarAction.ResText(R.string.undo) { undo() }
      */
-    fun show(root: View, resId: Int, length: Int = Toast.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null, snackBuilder: ((root: View, resId: Int, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) = defaultResBuilder) {
+    fun show(root: View, @StringRes resId: Int, length: Int = Toast.LENGTH_SHORT, @ColorRes navigationBarColor: Int = R.color.appNavigationBar, action: SnackBarAction? = null, snackBuilder: ((root: View, resId: Int, length: Int, navigationBarColor: Int, action: SnackBarAction?) -> Snackbar) = defaultResBuilder) {
         showSnackBar(root, resId, length, navigationBarColor, action, snackBuilder)
     }
 
