@@ -44,9 +44,17 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
         // 开启谷歌全屏模式
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // 设置相册整体动画
+        // 设置相册整体动画 (Activity 内部的 View 层级（内容区域）栈内 Activity 之间的共享元素过渡或内容过渡)
         setActivityAnimations()
-        // 强制补动画（外部跳转生效）
+        /**
+         * 强制补动画（外部跳转生效）
+         * 主要处理 Activity 作为整体被创建/销毁时 的窗口级过渡：
+         * 1) 外部（如通知栏、桌面、其他App）启动该 Activity
+         * 2) 栈内正常 startActivity() 且目标 Activity 不在栈中（新建实例）
+         * 3) finish() 退出时
+         * 不生效场景：
+         * 1) FLAG_ACTIVITY_REORDER_TO_FRONT / singleTask 复用已有实例时，因为 Activity 没有被重新创建，Window 级别的 pending transition 不会被触发 (onNewIntent 里无法用它补动画)
+         */
         overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -111,13 +119,19 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
      */
     protected fun <T> MutableLiveData<T>?.observe(block: T.() -> Unit) {
         this ?: return
-        val observer = Observer<Any?> { value ->
+        dataManager[this]?.let { oldObserver ->
+            removeObserver(oldObserver)
+        }
+        val storeObserver = Observer<Any?> { value ->
+            // 只是内部过滤空逻辑，不代表回调不会进来 null，入参本身依然是可空
             if (value != null) {
-                (value as? T)?.let { block(it) }
+                (value as? T)?.let {
+                    block(it)
+                }
             }
         }
-        dataManager[this] = observer
-        observe(this@BaseActivity, observer)
+        observe(this@BaseActivity, storeObserver)
+        dataManager[this] = storeObserver
     }
 
     /**
@@ -221,8 +235,8 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
         clearOnBackPressedListener()
         clearOnWindowInsetsChanged()
         AppManager.removeActivity(this)
-        for ((key, value) in dataManager) {
-            key.removeObserver(value)
+        for ((liveData, obs) in dataManager) {
+            liveData.removeObserver(obs)
         }
         dataManager.clear()
     }

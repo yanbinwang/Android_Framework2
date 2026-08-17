@@ -50,10 +50,10 @@ internal class CameraActivity : AppCompatActivity() {
         // 禁用过渡动画
         overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
-        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
         // 拿取默认传递的路径
         mCameraFilePath = intentString(Album.KEY_INPUT_FILE_PATH)
