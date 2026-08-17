@@ -5,6 +5,7 @@ import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
 import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.databinding.ViewToastImageStyleBinding
@@ -55,17 +56,6 @@ object ToastBuilder {
     private var currentToast: WeakReference<Toast>? = null
     /**
      * 传入引用 String 格式的 Toast
-     * ToastBuilder.short(R.string.homeRecommendedQuestsReceiveSuccess) { resId, length ->
-     *   val toast = Toast.makeText(MyApplication.instance, null, length)
-     *   toast?.setGravity(Gravity.CENTER, 0, 0)
-     *   toast?.duration = length
-     *   val view = BaseApplication.instance.inflate(R.layout.toast_home_quest_success)
-     *   view.imgIcon.setImageResource(R.mipmap.icon_home_quest_dialog_coupon)
-     *   view.txtTitle.setI18nRes(resId)
-     *   view.txtAmount.text = "$" + bean.rewardNum
-     *   toast?.view = view
-     *   toast
-     * }
      */
     private var defaultResBuilder: (resId: Int, length: Int) -> Toast = { resId, length ->
         Toast.makeText(appContext, resId, length)
@@ -80,7 +70,7 @@ object ToastBuilder {
     /**
      * 使用全局 defaultResBuilder 构建 Toast 实例供扩展函数在需要覆盖属性（如 gravity）时获取基线实例，不会修改全局 builder 本身，仅返回一个新创建的 Toast 对象
      */
-    internal fun buildResToast(resId: Int, length: Int): Toast {
+    internal fun buildResToast(@StringRes resId: Int, length: Int): Toast {
         return defaultResBuilder(resId, length)
     }
 
@@ -103,7 +93,7 @@ object ToastBuilder {
     /**
      * 全局调取 Toast 方法
      */
-    fun show(resId: Int, length: Int = Toast.LENGTH_SHORT, toastBuilder: ((Int, Int) -> Toast) = defaultResBuilder) {
+    fun show(@StringRes resId: Int, length: Int = Toast.LENGTH_SHORT, toastBuilder: ((Int, Int) -> Toast) = defaultResBuilder) {
         showToast(resId, length, toastBuilder)
     }
 
@@ -134,6 +124,17 @@ object ToastBuilder {
 
     /**
      * 自定义 Toast 的提示 View
+     * ToastBuilder.showCustom { resId, length ->
+     *   val toast = Toast.makeText(MyApplication.instance, null, length)
+     *   toast?.setGravity(Gravity.CENTER, 0, 0)
+     *   toast?.duration = length
+     *   val view = BaseApplication.instance.inflate(R.layout.toast_home_quest_success)
+     *   view.imgIcon.setImageResource(R.mipmap.icon_home_quest_dialog_coupon)
+     *   view.txtTitle.setI18nRes(resId)
+     *   view.txtAmount.text = "$" + bean.rewardNum
+     *   toast?.view = view
+     *   toast
+     * }
      */
     fun showCustom(length: Int = Toast.LENGTH_SHORT, customBuilder: (Context, Toast) -> Unit) {
         if (Looper.getMainLooper() != Looper.myLooper()) return
