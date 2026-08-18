@@ -17,6 +17,7 @@ import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
+import com.example.common.config.Constants
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.SnackBarBuilder
 import com.example.common.utils.builder.SnackBarBuilder.snackBarAction
@@ -492,7 +493,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        "总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
+        "设备id:${Constants.DEVICE_ID}\n总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
         // 前台服务 + 绑定 = 同一个 Service 实例，两种身份叠加
         // Android 的 Service 是单例模型（同一个进程内），无论调用多少次 startService / startForegroundService / bindService，系统都只会创建一个 MusicService 对象。这些操作只是改变了这个唯一实例的"状态标签"
 //        // 启动为前台服务（独立于绑定，负责保活+通知）
