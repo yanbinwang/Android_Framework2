@@ -26,6 +26,8 @@ import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityScreenBinding
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.therouter.router.Route
 
@@ -35,6 +37,7 @@ import com.therouter.router.Route
 @RequiresApi(Build.VERSION_CODES.O)
 @Route(path = RouterPath.ScreenActivity)
 class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
+    // 是否是小窗
     private var isInPip = false
     private val gsyHelper by lazy { GSYVideoHelper(this) }
 
@@ -50,10 +53,12 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 ACTION_PLAY -> {
                     "播放".toast()
                     gsyHelper.startPlayLogic()
+                    forceHideAllWidget()
                 }
                 ACTION_PAUSE -> {
                     "暂停".toast()
                     gsyHelper.onVideoPause()
+                    forceHideAllWidget()
                 }
             }
         }
@@ -85,13 +90,21 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 
     /**
      * 进入画中画模式 核心方法
+     * 1. 点击小窗本体 → 回到全屏
+     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
+     * 同时 Activity 会走 onPictureInPictureModeChanged 然后走 onResume()
+     * 这是关键区分点
+     * 2. 点击关闭按钮（X）
+     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
+     * 不会走 onResume()，而是直接走 onStop(),然后走 onPictureInPictureModeChanged
+     * 说明用户不想回来了
      */
     private fun enterPipMode() {
         // 播放按钮
-        val playPending = getBroadcastPendingIntent(1, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
+        val playPending = getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
         val playAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "播放", playPending)
         // 暂停按钮
-        val pausePending = getBroadcastPendingIntent(2, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
+        val pausePending = getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
         val pauseAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停", pausePending)
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
@@ -110,30 +123,68 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         enterPictureInPictureMode(params)
     }
 
+    override fun onResume() {
+        super.onResume()
+        "onResume".logWTF("wyb")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        "onStop".logWTF("wyb")
+    }
+
+//    private var isPlaying = false
+//
+//    // 每次状态变化时，重新构建 action 并更新 PiP 参数
+//    private fun updatePipActions() {
+//        val action = if (isPlaying) {
+//            // 暂停按钮
+//            RemoteAction(
+//                Icon.createWithResource(this, R.drawable.ic_pause),
+//                "暂停", "暂停播放", pausePendingIntent
+//            )
+//        } else {
+//            // 播放按钮
+//            RemoteAction(
+//                Icon.createWithResource(this, R.drawable.ic_play),
+//                "播放", "继续播放", playPendingIntent
+//            )
+//        }
+//
+//        val params = PictureInPictureParams.Builder()
+//            .setAspectRatio(Rational(16, 9))
+//            .setActions(listOf(action))
+//            .build()
+//
+//        setPictureInPictureParams(params)  // 🔑 关键：用这个API动态更新，不需要重新进入PiP
+//    }
+
     // 监听进入/退出画中画状态
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        "===== isInPip=$isInPictureInPictureMode =====".logWTF("wyb")
+        "onPipChanged: isInPip=$isInPictureInPictureMode".logWTF("wyb")
         isInPip = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
-            mBinding?.gsyPlayer?.dismissControlTime = 0
             forceHideAllWidget()
         } else {
-            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-                // 恢复全屏：Activity 已经回到前台
-                mBinding?.tvStart.visible()
-                mBinding?.gsyPlayer?.dismissControlTime = 2500
-                forceChangeUiToNormal()
-            } else {
-                // 关闭小窗：Activity 没有回到 Resumed，即将 onStop/onDestroy
-                gsyHelper.onVideoDestroy()
-            }
+//            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+//                // 恢复全屏：Activity 已经回到前台
+//                mBinding?.tvStart.visible()
+//                forceChangeUiToNormal()
+//            } else {
+//                // 关闭小窗：Activity 没有回到 Resumed，即将 onStop/onDestroy
+////                gsyHelper.onVideoDestroy()
+//                finish()
+//            }
+            mBinding?.tvStart.visible()
+            forceChangeUiToNormal()
         }
     }
 
     private fun forceHideAllWidget() {
+        mBinding?.gsyPlayer?.dismissControlTime = 0
         try {
             val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("hideAllWidget")
             method.isAccessible = true
@@ -144,6 +195,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     }
 
     private fun forceChangeUiToNormal() {
+        mBinding?.gsyPlayer?.dismissControlTime = 2500
         try {
             val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("changeUiToNormal")
             method.isAccessible = true
