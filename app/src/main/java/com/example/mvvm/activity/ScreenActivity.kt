@@ -19,6 +19,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.framework.utils.function.doOnReceiver
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
@@ -127,12 +128,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     override fun onResume() {
         super.onResume()
         "onResume".logWTF("wyb")
-        val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
-        if (currentPosition > 0) {
-            mBinding?.gsyPlayer?.seekOnStart = currentPosition
-            mBinding?.gsyPlayer?.startPlayLogic()
-//            mBinding?.gsyPlayer?.seekTo()
-        }
     }
 
     override fun onStop() {
@@ -160,13 +155,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 //                "播放", "继续播放", playPendingIntent
 //            )
 //        }
-//
 //        val params = PictureInPictureParams.Builder()
 //            .setAspectRatio(Rational(16, 9))
 //            .setActions(listOf(action))
 //            .build()
-//
-//        setPictureInPictureParams(params)  // 🔑 关键：用这个API动态更新，不需要重新进入PiP
+//        setPictureInPictureParams(params)  // 用这个API动态更新，不需要重新进入PiP
 //    }
 
     // 监听进入/退出画中画状态
@@ -178,9 +171,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
             forceHideAllWidget()
+            resetPlaying()
         } else {
             mBinding?.tvStart.visible()
             forceChangeUiToNormal()
+            resetPlaying()
         }
     }
 
@@ -203,6 +198,15 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             method.invoke(mBinding?.gsyPlayer)
         } catch (e: Exception) {
             e.printStackTrace()
+        }
+    }
+
+    private fun resetPlaying() {
+        val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
+        if (currentPosition > 0 && mBinding?.gsyPlayer?.isInPlayingState.orFalse) {
+//                mBinding?.gsyPlayer?.seekOnStart = currentPosition
+//                mBinding?.gsyPlayer?.startPlayLogic()
+            mBinding?.gsyPlayer?.seekTo(currentPosition)
         }
     }
 
