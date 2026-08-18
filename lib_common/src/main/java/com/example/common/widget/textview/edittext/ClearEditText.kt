@@ -93,7 +93,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val maxLine = getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
-                binding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
+//                binding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
             } else {
                 binding.etClear.isSingleLine = true
                 binding.etClear.maxLines = 1
