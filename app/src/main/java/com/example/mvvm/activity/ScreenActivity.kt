@@ -22,7 +22,10 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
 import com.example.mvvm.databinding.ActivityScreenBinding
+import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
+import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
 import com.therouter.router.Route
+import kotlin.getValue
 
 /**
  * 画中画 (仅8.0+支持)
@@ -30,6 +33,7 @@ import com.therouter.router.Route
 @RequiresApi(Build.VERSION_CODES.O)
 @Route(path = RouterPath.ScreenActivity)
 class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
+    private val gsyHelper by lazy { GSYVideoHelper(this) }
 
     companion object {
         const val ACTION_PLAY = "ACTION_PLAY"
@@ -42,9 +46,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             when (intent?.action) {
                 ACTION_PLAY -> {
                     "播放".toast()
+                    gsyHelper.startPlayLogic()
                 }
                 ACTION_PAUSE -> {
                     "暂停".toast()
+                    gsyHelper.onVideoPause()
                 }
             }
         }
@@ -52,12 +58,13 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        // 注册点击事件接收
-        val filter = IntentFilter().apply {
+        // 注册画中画按钮点击事件广播
+        doOnReceiver(this, pipReceiver, IntentFilter().apply {
             addAction(ACTION_PLAY)
             addAction(ACTION_PAUSE)
-        }
-        doOnReceiver(this, pipReceiver, filter)
+        })
+        gsyHelper.bind(mBinding?.gsyPlayer, showFullScreen = true)
+        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
     }
 
     override fun initEvent() {
@@ -65,6 +72,12 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         mBinding?.tvStart.click {
             enterPipMode()
         }
+        gsyHelper.setOnGSYVideoPlayerListener(object : OnGSYVideoPlayerListener {
+            override fun onQuitFullscreen(url: String?, vararg objects: Any?) {
+                super.onQuitFullscreen(url, *objects)
+                initImmersionBar()
+            }
+        })
     }
 
     /**
@@ -72,11 +85,9 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
      */
     private fun enterPipMode() {
         // 播放按钮
-//        val playPending = PendingIntent.getBroadcast(this, 1, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val playPending = getBroadcastPendingIntent(1, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
         val playAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "播放", playPending)
         // 暂停按钮
-//        val pausePending = PendingIntent.getBroadcast(this, 2, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
         val pausePending = getBroadcastPendingIntent(2, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
         val pauseAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停", pausePending)
         // 设置画中画窗口
@@ -85,6 +96,12 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             .setAspectRatio(Rational(16, 9))
             // 底部两个按钮
             .setActions(listOf(playAction, pauseAction))
+//            .apply {
+//                // Android 12+ 允许自动进入PiP，跳过全屏过渡
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//                    setAutoEnterEnabled(true)
+//                }
+//            }
             .build()
         // 进入画中画
         enterPictureInPictureMode(params)
@@ -96,10 +113,20 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
+            mBinding?.gsyPlayer?.fullscreenButton.gone()
         } else {
             // 退出小窗：恢复全屏UI、恢复控制器
             mBinding?.tvStart.visible()
+            mBinding?.gsyPlayer?.fullscreenButton.visible()
         }
     }
+
+//    override fun onResume() {
+//        super.onResume()
+//        // 进页面直接小窗
+//        window.decorView.post {
+//            enterPipMode()
+//        }
+//    }
 
 }

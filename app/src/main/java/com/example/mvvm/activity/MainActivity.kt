@@ -3,10 +3,8 @@ package com.example.mvvm.activity
 import android.annotation.SuppressLint
 import android.app.AppOpsManager
 import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.view.ViewGroup
 import androidx.annotation.RequiresApi
 import androidx.core.graphics.drawable.toBitmapOrNull
 import com.example.common.BaseApplication.Companion.needOpenHome
@@ -17,18 +15,14 @@ import com.example.common.base.page.ResultCode.RESULT_ALBUM
 import com.example.common.base.page.ResultCode.RESULT_FINISH
 import com.example.common.base.page.ResultCode.RESULT_IMAGE
 import com.example.common.bean.UserBean
-import com.example.common.config.Constants
 import com.example.common.config.RouterPath
-import com.example.common.utils.builder.SnackBarBuilder
-import com.example.common.utils.builder.SnackBarBuilder.snackBarAction
-import com.example.common.utils.builder.snackBar
 import com.example.common.utils.builder.toast
 import com.example.common.utils.function.drawable
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.intentParcelableArrayList
+import com.example.common.utils.function.jumpToAppInfoSetting
 import com.example.common.utils.function.pt
-import com.example.common.utils.function.storageSizeFormat
 import com.example.common.utils.toJson
 import com.example.common.utils.toList
 import com.example.common.utils.toObj
@@ -43,12 +37,8 @@ import com.example.framework.utils.TextSpan
 import com.example.framework.utils.builder.TimerBuilder
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.dimen
-import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.value.SyncMode
-import com.example.framework.utils.function.value.getCpuInfo
-import com.example.framework.utils.function.value.getMemInfo
-import com.example.framework.utils.function.value.mobileIsRoot
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.syncDiffWith
@@ -63,11 +53,9 @@ import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
 import com.example.mvvm.bean.TestBean
 import com.example.mvvm.databinding.ActivityMainBinding
-import com.example.mvvm.databinding.ViewSnackbarImageStyleBinding
 import com.example.mvvm.service.MusicBindService
 import com.example.mvvm.viewmodel.TestViewModel
 import com.example.mvvm.widget.dialog.TestBottomDialog
-import com.google.android.material.snackbar.Snackbar
 import com.therouter.router.Route
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.asFlow
@@ -493,7 +481,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
     @SuppressLint("RestrictedApi")
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        "设备id:${Constants.DEVICE_ID}\n总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
+//        "设备id:${Constants.DEVICE_ID}\n总运行内存大小:${getMemInfo().storageSizeFormat()}\ncpu信息:${getCpuInfo()}\n设备是否已 Root:${mobileIsRoot()}".logWTF("wyb")
         // 前台服务 + 绑定 = 同一个 Service 实例，两种身份叠加
         // Android 的 Service 是单例模型（同一个进程内），无论调用多少次 startService / startForegroundService / bindService，系统都只会创建一个 MusicService 对象。这些操作只是改变了这个唯一实例的"状态标签"
 //        // 启动为前台服务（独立于绑定，负责保活+通知）
@@ -586,15 +574,15 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
         }
         mBinding?.codeInput?.focusNow(this)
         mBinding?.ivArrow.click {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//                if (isPipEnabled()) {
-//                    navigation(RouterPath.ScreenActivity)
-//                } else {
-//                    jumpToAppInfoSetting()
-//                }
-//            } else {
-//                "当前系统版本不支持画中画".shortToast()
-//            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                if (isPipEnabled()) {
+                    navigation(RouterPath.ScreenActivity)
+                } else {
+                    jumpToAppInfoSetting()
+                }
+            } else {
+                "当前系统版本不支持画中画".toast()
+            }
 //            navigation(RouterPath.TouchActivity, Extra.RESULT_CODE to RESULT_FINISH)
 //            mActivityResult.pullUpAlbum()
             val allHaveList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
@@ -672,9 +660,9 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
 //                }
 //            }
 //            testDialog.show()
-            "fdsfsddsfsdfds".snackBar(it, action = snackBarAction("取消", R.color.cast_expanded_controller_ad_break_marker_color) {
-                "啊啊啊啊啊".toast()
-            })
+//            "fdsfsddsfsdfds".snackBar(it, action = snackBarAction("取消", R.color.cast_expanded_controller_ad_break_marker_color) {
+//                "啊啊啊啊啊".toast()
+//            })
 //            SnackBarBuilder.showCustom(it, Snackbar.LENGTH_LONG, { snackbar, snackbarView ->
 //                // 加载自定义视图
 //                val binding = ViewSnackbarImageStyleBinding.bind(this.inflate(R.layout.view_snackbar_image_style))

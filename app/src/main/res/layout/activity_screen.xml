@@ -4,14 +4,12 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgMain">
+        android:background="@color/bgBlack">
 
-        <TextView
+        <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+            android:id="@+id/gsy_player"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="画中画"
-            android:textSize="@dimen/textSize40" />
+            android:layout_height="match_parent" />
 
         <TextView
             android:id="@+id/tv_start"

@@ -12,7 +12,7 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -50,7 +50,7 @@ suspend fun suspendingOrientationAndRotation(context: Context, videoSource: Any)
     // 初始化返回结果：默认未知方向，旋转0度
     val result = intArrayOf(ORIENTATION_UNKNOWN, 0)
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext result
@@ -127,7 +127,7 @@ suspend fun suspendingCalculateHeight(context: Context, videoSource: Any, target
         "目标宽度无效：$targetWidth".logWTF(TAG)
         return 1
     }
-    return withContext(Dispatchers.Main.immediate) {
+    return withContext(Main.immediate) {
         // 获取视频宽高比
         val videoRatio = getDisplayAspectRatio(context, videoSource)
         // 计算目标高度（确保为正数）
@@ -143,7 +143,7 @@ suspend fun suspendingCalculateHeight(context: Context, videoSource: Any, target
  */
 private suspend fun getDisplayAspectRatio(context: Context, videoSource: Any): Float {
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext 0f
@@ -190,7 +190,7 @@ suspend fun suspendingThumbnail(context: Context, videoSource: Any, timeUs: Long
         return null
     }
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext null
