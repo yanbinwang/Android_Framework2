@@ -13,6 +13,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Rational
 import androidx.annotation.RequiresApi
+import androidx.lifecycle.Lifecycle
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.toast
@@ -21,11 +22,12 @@ import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityScreenBinding
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.therouter.router.Route
-import kotlin.getValue
 
 /**
  * 画中画 (仅8.0+支持)
@@ -110,14 +112,40 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     // 监听进入/退出画中画状态
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        "===== isInPip=$isInPictureInPictureMode =====".logWTF("wyb")
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
-            mBinding?.gsyPlayer?.fullscreenButton.gone()
+            forceHideAllWidget()
         } else {
-            // 退出小窗：恢复全屏UI、恢复控制器
-            mBinding?.tvStart.visible()
-            mBinding?.gsyPlayer?.fullscreenButton.visible()
+            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
+                // 恢复全屏：Activity 已经回到前台
+                mBinding?.tvStart.visible()
+                changeUiToNormal()
+            } else {
+                // 关闭小窗：Activity 没有回到 Resumed，即将 onStop/onDestroy
+                gsyHelper.onVideoDestroy()
+            }
+        }
+    }
+
+    private fun forceHideAllWidget() {
+        try {
+            val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("hideAllWidget")
+            method.isAccessible = true
+            method.invoke(mBinding?.gsyPlayer)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+    }
+
+    private fun changeUiToNormal() {
+        try {
+            val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("changeUiToNormal")
+            method.isAccessible = true
+            method.invoke(mBinding?.gsyPlayer)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
