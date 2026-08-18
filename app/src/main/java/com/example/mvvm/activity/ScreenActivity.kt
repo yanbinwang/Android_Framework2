@@ -35,6 +35,7 @@ import com.therouter.router.Route
 @RequiresApi(Build.VERSION_CODES.O)
 @Route(path = RouterPath.ScreenActivity)
 class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
+    private var isInPip = false
     private val gsyHelper by lazy { GSYVideoHelper(this) }
 
     companion object {
@@ -113,15 +114,18 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         "===== isInPip=$isInPictureInPictureMode =====".logWTF("wyb")
+        isInPip = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
+            mBinding?.gsyPlayer?.dismissControlTime = 0
             forceHideAllWidget()
         } else {
             if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
                 // 恢复全屏：Activity 已经回到前台
                 mBinding?.tvStart.visible()
-                changeUiToNormal()
+                mBinding?.gsyPlayer?.dismissControlTime = 2500
+                forceChangeUiToNormal()
             } else {
                 // 关闭小窗：Activity 没有回到 Resumed，即将 onStop/onDestroy
                 gsyHelper.onVideoDestroy()
@@ -139,7 +143,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         }
     }
 
-    private fun changeUiToNormal() {
+    private fun forceChangeUiToNormal() {
         try {
             val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("changeUiToNormal")
             method.isAccessible = true
