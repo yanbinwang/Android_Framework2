@@ -19,6 +19,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.framework.utils.function.doOnReceiver
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
@@ -126,11 +127,20 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     override fun onResume() {
         super.onResume()
         "onResume".logWTF("wyb")
+        val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
+        if (currentPosition > 0) {
+            mBinding?.gsyPlayer?.seekOnStart = currentPosition
+            mBinding?.gsyPlayer?.startPlayLogic()
+//            mBinding?.gsyPlayer?.seekTo()
+        }
     }
 
     override fun onStop() {
         super.onStop()
         "onStop".logWTF("wyb")
+        if (isInPip) {
+            finish()
+        }
     }
 
 //    private var isPlaying = false
@@ -169,15 +179,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             mBinding?.tvStart.gone()
             forceHideAllWidget()
         } else {
-//            if (lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) {
-//                // 恢复全屏：Activity 已经回到前台
-//                mBinding?.tvStart.visible()
-//                forceChangeUiToNormal()
-//            } else {
-//                // 关闭小窗：Activity 没有回到 Resumed，即将 onStop/onDestroy
-////                gsyHelper.onVideoDestroy()
-//                finish()
-//            }
             mBinding?.tvStart.visible()
             forceChangeUiToNormal()
         }
