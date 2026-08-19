@@ -30,7 +30,10 @@ import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
+import com.example.thirdparty.utils.NotificationUtil.requestCode
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING_BUFFERING_START
 import com.therouter.router.Route
 
 /**
@@ -41,6 +44,8 @@ import com.therouter.router.Route
 class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     // 是否是小窗
     private var isInPip = false
+    private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
+    private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val gsyHelper by lazy { GSYVideoHelper(this) }
 
     companion object {
@@ -54,13 +59,19 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             when (intent?.action) {
                 ACTION_PLAY -> {
                     "播放".toast()
-                    gsyHelper.startPlayLogic()
+                    if (mBinding?.gsyPlayer?.isInPlayingState.orFalse) {
+                        mBinding?.gsyPlayer?.onVideoResume(true)
+                    } else {
+                        gsyHelper.startPlayLogic()
+                    }
                     forceHideAllWidget()
+                    updatePipActions(true)
                 }
                 ACTION_PAUSE -> {
                     "暂停".toast()
                     gsyHelper.onVideoPause()
                     forceHideAllWidget()
+                    updatePipActions(false)
                 }
             }
         }
@@ -87,6 +98,21 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 super.onQuitFullscreen(url, *objects)
                 initImmersionBar()
             }
+
+            override fun onPlayError(url: String?, vararg objects: Any?) {
+                super.onPlayError(url, *objects)
+                updatePipActions(false)
+            }
+
+            override fun onComplete(url: String?, vararg objects: Any?) {
+                super.onComplete(url, *objects)
+                updatePipActions(false)
+            }
+
+            override fun onAutoComplete(url: String?, vararg objects: Any?) {
+                super.onAutoComplete(url, *objects)
+                updatePipActions(false)
+            }
         })
     }
 
@@ -102,32 +128,51 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
      * 说明用户不想回来了
      */
     private fun enterPipMode() {
-        // 播放按钮
-        val playPending = getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT)
-        val playAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "播放", playPending)
-        // 暂停按钮
-        val pausePending = getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT)
-        val pauseAction = RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停", pausePending)
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
             // 宽高比 比如 16:9 / 4:3
             .setAspectRatio(Rational(16, 9))
             // 底部两个按钮
-            .setActions(listOf(playAction, pauseAction))
-//            .apply {
-//                // Android 12+ 允许自动进入PiP，跳过全屏过渡
-//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-//                    setAutoEnterEnabled(true)
-//                }
-//            }
+//            .setActions(listOf(playAction, pauseAction))
+            .setActions(listOf(getPipAction(false)))
             .build()
         // 进入画中画
         enterPictureInPictureMode(params)
     }
 
+    // 每次状态变化时，重新构建 action 并更新 PiP 参数
+    private fun updatePipActions(isPause: Boolean) {
+        if (!isInPip) return
+        val params = PictureInPictureParams.Builder()
+            .setAspectRatio(Rational(16, 9))
+            .setActions(listOf(getPipAction(isPause)))
+            .build()
+        // 用这个API动态更新，不需要重新进入PiP
+        setPictureInPictureParams(params)
+    }
+
+    private fun getPipAction(isPause: Boolean):RemoteAction {
+        return if (isPause) {
+            // 暂停按钮
+            RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停播放", pausePending)
+        } else {
+            // 播放按钮
+            RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "继续播放", playPending)
+        }
+    }
+
     override fun onResume() {
         super.onResume()
+//        // 进页面直接小窗
+//        window.decorView.post {
+//            enterPipMode()
+//        }
         "onResume".logWTF("wyb")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        "onPause".logWTF("wyb")
     }
 
     override fun onStop() {
@@ -137,30 +182,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             finish()
         }
     }
-
-//    private var isPlaying = false
-//
-//    // 每次状态变化时，重新构建 action 并更新 PiP 参数
-//    private fun updatePipActions() {
-//        val action = if (isPlaying) {
-//            // 暂停按钮
-//            RemoteAction(
-//                Icon.createWithResource(this, R.drawable.ic_pause),
-//                "暂停", "暂停播放", pausePendingIntent
-//            )
-//        } else {
-//            // 播放按钮
-//            RemoteAction(
-//                Icon.createWithResource(this, R.drawable.ic_play),
-//                "播放", "继续播放", playPendingIntent
-//            )
-//        }
-//        val params = PictureInPictureParams.Builder()
-//            .setAspectRatio(Rational(16, 9))
-//            .setActions(listOf(action))
-//            .build()
-//        setPictureInPictureParams(params)  // 用这个API动态更新，不需要重新进入PiP
-//    }
 
     // 监听进入/退出画中画状态
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
@@ -203,19 +224,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 
     private fun resetPlaying() {
         val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
-        if (currentPosition > 0 && mBinding?.gsyPlayer?.isInPlayingState.orFalse) {
+        if (mBinding?.gsyPlayer?.isInPlayingState.orFalse) {
 //                mBinding?.gsyPlayer?.seekOnStart = currentPosition
 //                mBinding?.gsyPlayer?.startPlayLogic()
             mBinding?.gsyPlayer?.seekTo(currentPosition)
         }
     }
-
-//    override fun onResume() {
-//        super.onResume()
-//        // 进页面直接小窗
-//        window.decorView.post {
-//            enterPipMode()
-//        }
-//    }
 
 }
