@@ -2,8 +2,6 @@ package com.example.mvvm.widget
 
 import android.content.Context
 import android.util.AttributeSet
-import com.example.framework.utils.function.view.fade
-import com.example.framework.utils.function.view.visible
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 
 class SmartVideoPlayer : StandardGSYVideoPlayer {
@@ -81,8 +79,24 @@ class SmartVideoPlayer : StandardGSYVideoPlayer {
 //        super.changeUiToClear()
 //    }
 
+    /**
+     * 小屏重写状态,避免 UI 闪屏
+     */
+    override fun setStateAndUi(state: Int) {
+        super.setStateAndUi(state)
+        if (isInPipMode) {
+            cancelDismissControlViewTimer()
+            dismissControlTime = 0
+            hideAllWidget()
+        }
+    }
+
+    /**
+     *
+     */
     fun changeUiToPip() {
         if (isInPipMode) {
+            cancelDismissControlViewTimer()
             dismissControlTime = 0
             hideAllWidget()
         } else {

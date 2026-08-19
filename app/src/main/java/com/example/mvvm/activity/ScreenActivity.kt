@@ -123,14 +123,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
      * 说明用户不想回来了
      */
     private fun enterPipMode() {
-        // 进入画中画隐藏 UI
-        mBinding?.gsyPlayer?.changeUiToPip()
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
             // 宽高比 比如 16:9 / 4:3
             .setAspectRatio(Rational(16, 9))
-            // 底部两个按钮
-//            .setActions(listOf(playAction, pauseAction))
+            // 底部按钮
             .setActions(listOf(getPipAction(false)))
             .build()
         // 进入画中画
