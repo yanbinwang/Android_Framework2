@@ -6,7 +6,7 @@
         android:layout_height="match_parent"
         android:background="@color/bgBlack">
 
-        <com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
+        <com.example.mvvm.widget.SmartVideoPlayer
             android:id="@+id/gsy_player"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

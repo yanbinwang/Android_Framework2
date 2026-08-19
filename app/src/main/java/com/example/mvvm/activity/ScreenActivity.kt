@@ -188,6 +188,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         "onPipChanged: isInPip=$isInPictureInPictureMode".logWTF("wyb")
         isInPip = isInPictureInPictureMode
+        mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
