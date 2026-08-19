@@ -63,7 +63,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoHelper(private val activity: FragmentActivity) : LifecycleEventObserver {
+class GSYVideoHelper(private val activity: FragmentActivity, private val autoResume: Boolean = true, private val autoPause: Boolean = true) : LifecycleEventObserver {
     // 播放/UI状态
     private var isPause = false
     private var isPrepared = false
@@ -483,8 +483,8 @@ class GSYVideoHelper(private val activity: FragmentActivity) : LifecycleEventObs
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> onVideoResume()
-            Lifecycle.Event.ON_PAUSE -> onVideoPause()
+            Lifecycle.Event.ON_RESUME -> if (autoResume) onVideoResume()
+            Lifecycle.Event.ON_PAUSE -> if (autoPause) onVideoPause()
             Lifecycle.Event.ON_DESTROY -> onVideoDestroy()
             else -> {}
         }
