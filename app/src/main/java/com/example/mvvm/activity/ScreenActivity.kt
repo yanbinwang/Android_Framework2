@@ -22,7 +22,6 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
-import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityScreenBinding
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
@@ -44,12 +43,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val gsyHelper by lazy { GSYVideoHelper(this, false, false) }
-
-    companion object {
-        const val ACTION_PLAY = "ACTION_PLAY"
-        const val ACTION_PAUSE = "ACTION_PAUSE"
-    }
-
     // 接收按钮点击事件
     private val pipReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -72,6 +65,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 }
             }
         }
+    }
+
+    companion object {
+        const val ACTION_PLAY = "ACTION_PLAY"
+        const val ACTION_PAUSE = "ACTION_PAUSE"
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -114,12 +112,76 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     }
 
     /**
+     * 监听进入/退出画中画状态
+     */
+    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
+        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+        isInPip = isInPictureInPictureMode
+        mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
+        if (isInPictureInPictureMode) {
+            // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
+            mBinding?.tvStart.gone()
+            mBinding?.gsyPlayer?.changeUiToPip()
+            // 如果播放器处于处于活跃的播放生命周期内且播放状态此时是正在播放的情况下,小屏也会自动播放
+            if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && mBinding?.gsyPlayer?.currentState == CURRENT_STATE_PLAYING) {
+                mBinding?.gsyPlayer?.onVideoResume(true)
+                updatePipActions(true)
+            }
+        } else {
+            if (isInPipClose) {
+                finish()
+            } else {
+                mBinding?.tvStart.visible()
+                mBinding?.gsyPlayer?.changeUiToPip()
+                // 如果是大屏,获取一下此时播放的下标
+                val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
+                // 如果播放器处于活跃的播放生命周期内,直接移动到对应播放时间点
+                if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && currentPosition > 0) {
+//                    mBinding?.gsyPlayer?.seekOnStart = currentPosition
+//                    mBinding?.gsyPlayer?.startPlayLogic()
+                    mBinding?.gsyPlayer?.seekTo(currentPosition)
+                }
+            }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        // 进页面直接小窗
+//        window.decorView.post {
+//            enterPipMode()
+//        }
+        if (!isInPip) {
+            gsyHelper.onVideoResume()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!isInPip) {
+            gsyHelper.onVideoPause()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        if (isInPip) {
+            isInPipClose = true
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        gsyHelper.onVideoDestroy()
+    }
+
+    /**
      * 进入画中画模式 核心方法
-     * 1. 点击小窗本体 → 回到全屏
+     * 1) 点击小窗本体 → 回到全屏
      * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
      * 同时 Activity 会走 onPictureInPictureModeChanged 然后走 onResume()
      * 这是关键区分点
-     * 2. 点击关闭按钮（X）
+     * 2) 点击关闭按钮（X）
      * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
      * 不会走 onResume()，而是直接走 onStop(),然后走 onPictureInPictureModeChanged
      * 说明用户不想回来了
@@ -151,6 +213,9 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         setPictureInPictureParams(params)
     }
 
+    /**
+     * 获取画中画按钮
+     */
     private fun getPipAction(isPause: Boolean): RemoteAction {
         return if (isPause) {
             // 暂停按钮
@@ -159,57 +224,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             // 播放按钮
             RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "继续播放", playPending)
         }
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        // 进页面直接小窗
-//        window.decorView.post {
-//            enterPipMode()
-//        }
-        "onResume".logWTF("wyb")
-    }
-
-    override fun onStop() {
-        super.onStop()
-        "onStop".logWTF("wyb")
-        if (isInPip) {
-            isInPipClose = true
-        }
-    }
-
-    // 监听进入/退出画中画状态
-    override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
-        super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        "onPipChanged: isInPip=$isInPictureInPictureMode".logWTF("wyb")
-        isInPip = isInPictureInPictureMode
-        mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
-        if (isInPictureInPictureMode) {
-            // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
-            mBinding?.tvStart.gone()
-            mBinding?.gsyPlayer?.changeUiToPip()
-            // 如果播放器处于处于活跃的播放生命周期内且播放状态此时是正在播放的情况下,小屏也会自动播放
-            if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && mBinding?.gsyPlayer?.currentState == CURRENT_STATE_PLAYING) {
-                mBinding?.gsyPlayer?.onVideoResume(true)
-                updatePipActions(true)
-            }
-        } else {
-            if (isInPipClose) {
-                finish()
-            } else {
-                mBinding?.tvStart.visible()
-                mBinding?.gsyPlayer?.changeUiToPip()
-                // 如果是大屏,获取一下此时播放的下标
-                val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
-                // 如果播放器处于活跃的播放生命周期内,直接移动到对应播放时间点
-                if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && currentPosition > 0) {
-//                    mBinding?.gsyPlayer?.seekOnStart = currentPosition
-//                    mBinding?.gsyPlayer?.startPlayLogic()
-                    mBinding?.gsyPlayer?.seekTo(currentPosition)
-                }
-            }
-        }
-
     }
 
 }
