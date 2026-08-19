@@ -13,7 +13,6 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Rational
 import androidx.annotation.RequiresApi
-import androidx.lifecycle.Lifecycle
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.utils.builder.toast
@@ -30,10 +29,6 @@ import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
-import com.example.thirdparty.utils.NotificationUtil.requestCode
-import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING_BUFFERING_START
 import com.therouter.router.Route
 
 /**
@@ -64,13 +59,13 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                     } else {
                         gsyHelper.startPlayLogic()
                     }
-                    forceHideAllWidget()
+                    mBinding?.gsyPlayer?.changeUiToPip()
                     updatePipActions(true)
                 }
                 ACTION_PAUSE -> {
                     "暂停".toast()
                     gsyHelper.onVideoPause()
-                    forceHideAllWidget()
+                    mBinding?.gsyPlayer?.changeUiToPip()
                     updatePipActions(false)
                 }
             }
@@ -128,6 +123,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
      * 说明用户不想回来了
      */
     private fun enterPipMode() {
+        // 进入画中画隐藏 UI
+        mBinding?.gsyPlayer?.changeUiToPip()
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
             // 宽高比 比如 16:9 / 4:3
@@ -140,7 +137,9 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         enterPictureInPictureMode(params)
     }
 
-    // 每次状态变化时，重新构建 action 并更新 PiP 参数
+    /**
+     * 画中画模式中，每次状态变化时，重新构建 action 并更新 PiP 参数
+     */
     private fun updatePipActions(isPause: Boolean) {
         if (!isInPip) return
         val params = PictureInPictureParams.Builder()
@@ -170,11 +169,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         "onResume".logWTF("wyb")
     }
 
-    override fun onPause() {
-        super.onPause()
-        "onPause".logWTF("wyb")
-    }
-
     override fun onStop() {
         super.onStop()
         "onStop".logWTF("wyb")
@@ -192,35 +186,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
-            forceHideAllWidget()
-            resetPlaying()
         } else {
             mBinding?.tvStart.visible()
-            forceChangeUiToNormal()
-            resetPlaying()
         }
-    }
-
-    private fun forceHideAllWidget() {
-        mBinding?.gsyPlayer?.dismissControlTime = 0
-        try {
-            val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("hideAllWidget")
-            method.isAccessible = true
-            method.invoke(mBinding?.gsyPlayer)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    private fun forceChangeUiToNormal() {
-        mBinding?.gsyPlayer?.dismissControlTime = 2500
-        try {
-            val method = StandardGSYVideoPlayer::class.java.getDeclaredMethod("changeUiToNormal")
-            method.isAccessible = true
-            method.invoke(mBinding?.gsyPlayer)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        mBinding?.gsyPlayer?.changeUiToPip()
+        resetPlaying()
     }
 
     private fun resetPlaying() {

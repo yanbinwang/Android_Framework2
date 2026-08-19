@@ -2,6 +2,8 @@ package com.example.mvvm.widget
 
 import android.content.Context
 import android.util.AttributeSet
+import com.example.framework.utils.function.view.fade
+import com.example.framework.utils.function.view.visible
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 
 class SmartVideoPlayer : StandardGSYVideoPlayer {
@@ -36,67 +38,57 @@ class SmartVideoPlayer : StandardGSYVideoPlayer {
 //            }
 //        }
 //    }
+//
+//    /**
+//     * 准备阶段
+//     */
+//    override fun changeUiToPrepareingClear() {
+//        super.changeUiToPrepareingClear()
+//    }
+//
+//    /**
+//     * 播放阶段
+//     */
+//    override fun changeUiToPlayingClear() {
+//        super.changeUiToPlayingClear()
+//    }
+//
+//    /**
+//     * 缓冲阶段
+//     */
+//    override fun changeUiToPlayingBufferingClear() {
+//        super.changeUiToPlayingBufferingClear()
+//    }
+//
+//    /**
+//     * 暂停阶段
+//     */
+//    override fun changeUiToPauseClear() {
+//        super.changeUiToPauseClear()
+//    }
+//
+//    /**
+//     * 完成阶段
+//     */
+//    override fun changeUiToCompleteClear() {
+//        super.changeUiToCompleteClear()
+//    }
+//
+//    /**
+//     * 完全隐藏
+//     */
+//    override fun changeUiToClear() {
+//        super.changeUiToClear()
+//    }
 
-    /**
-     * 准备阶段
-     */
-    override fun changeUiToPrepareingClear() {
+    fun changeUiToPip() {
         if (isInPipMode) {
-            changeUiToClear()
+            dismissControlTime = 0
+            hideAllWidget()
         } else {
-            super.changeUiToPrepareingClear()
+            dismissControlTime = 2500
+            changeUiToNormal()
         }
-    }
-
-    /**
-     * 播放阶段
-     */
-    override fun changeUiToPlayingClear() {
-        if (isInPipMode) {
-            changeUiToClear()
-        } else {
-            super.changeUiToPlayingClear()
-        }
-    }
-
-    /**
-     * 缓冲阶段
-     */
-    override fun changeUiToPlayingBufferingClear() {
-        if (isInPipMode) {
-            changeUiToClear()
-        } else {
-            super.changeUiToPlayingBufferingClear()
-        }
-    }
-
-    /**
-     * 暂停阶段
-     */
-    override fun changeUiToPauseClear() {
-        if (isInPipMode) {
-            changeUiToClear()
-        } else {
-            super.changeUiToPauseClear()
-        }
-    }
-
-    /**
-     * 完成阶段
-     */
-    override fun changeUiToCompleteClear() {
-        if (isInPipMode) {
-            changeUiToClear()
-        } else {
-            super.changeUiToCompleteClear()
-        }
-    }
-
-    /**
-     * 完全隐藏
-     */
-    override fun changeUiToClear() {
-        super.changeUiToClear()
     }
 
 }
