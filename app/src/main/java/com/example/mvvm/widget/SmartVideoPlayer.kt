@@ -100,8 +100,9 @@ class SmartVideoPlayer : StandardGSYVideoPlayer {
             dismissControlTime = 0
             hideAllWidget()
         } else {
+            resolveUIState(0)
             dismissControlTime = 2500
-            changeUiToNormal()
+//            changeUiToNormal()
         }
     }
 
