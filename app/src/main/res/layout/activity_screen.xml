@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/bgBlack">
+        android:background="@color/bgBlack"
+        android:orientation="vertical">
 
         <com.example.mvvm.widget.SmartVideoPlayer
             android:id="@+id/gsy_player"
+            statusBar_margin="@{true}"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content"
+            tools:layout_height="280pt" />
 
         <TextView
             android:id="@+id/tv_start"
@@ -17,12 +21,13 @@
             android:layout_width="120pt"
             android:layout_height="48pt"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/shape_default"
+            android:layout_marginTop="10pt"
+            android:background="@drawable/shape_r5_blue"
             android:gravity="center"
-            android:text="启用"
-            android:textColor="@color/textPrimary"
+            android:text="画中画"
+            android:textColor="@color/textWhite"
             android:textSize="@dimen/textSize16" />
 
-    </FrameLayout>
+    </LinearLayout>
 
 </layout>

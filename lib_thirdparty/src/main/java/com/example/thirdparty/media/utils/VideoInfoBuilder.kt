@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.math.RoundingMode
+import kotlin.math.abs
 
 /**
  * 视频横竖屏判断工具类
@@ -319,4 +320,33 @@ suspend fun suspendingDuration(context: Context, videoSource: Any?): Int {
             retriever.release()
         }
     }
+}
+
+/**
+ * 仅包含 Android PiP 合法且主流的标准宽高比
+ * 合法范围：1:2.4 ~ 2.4:1
+ */
+private val PIP_LANDSCAPE_RATIOS = listOf(
+    21 to 9,   // 2.33:1 电影/带鱼屏
+    20 to 9,   // 2.22:1 主流手机全屏
+    16 to 9,   // 1.78:1 传统视频
+    3 to 2,    // 1.5:1  平板/相机
+    4 to 3,    // 1.33:1 老视频
+    1 to 1     // 1:1    正方形
+)
+
+private val PIP_PORTRAIT_RATIOS = listOf(
+    9 to 21,   // 0.43:1
+    9 to 20,   // 0.45:1
+    9 to 16,   // 0.56:1
+    2 to 3,    // 0.67:1
+    3 to 4,    // 0.75:1
+    1 to 1
+)
+
+fun getPipAspectRatio(displayWidth: Int, displayHeight: Int): Pair<Int, Int> {
+    if (displayWidth <= 0 || displayHeight <= 0) return 16 to 9
+    val ratio = displayWidth.toFloat() / displayHeight.toFloat()
+    val candidates = if (ratio >= 1f) PIP_LANDSCAPE_RATIOS else PIP_PORTRAIT_RATIOS
+    return candidates.minByOrNull { (w, h) -> abs(w.toFloat() / h.toFloat() - ratio) } ?: (16 to 9)
 }

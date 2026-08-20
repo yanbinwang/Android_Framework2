@@ -12,20 +12,34 @@ import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.RequiresApi
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
+import com.example.common.network.repository.requestAffair
+import com.example.common.network.repository.safeAs
+import com.example.common.network.repository.withHandling
+import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.getBroadcastPendingIntent
+import com.example.common.utils.function.getStatusBarHeight
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
+import com.example.framework.utils.logWTF
 import com.example.mvvm.databinding.ActivityScreenBinding
+import com.example.thirdparty.media.utils.getPipAspectRatio
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
+import com.example.thirdparty.media.utils.suspendingCalculateHeight
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
 import com.therouter.router.Route
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.launch
 
 /**
  * 画中画 (仅8.0+支持)
@@ -34,12 +48,18 @@ import com.therouter.router.Route
 @Route(path = RouterPath.ScreenActivity)
 class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     // 是否是小窗
-    private var isInPip = false
+    private var isPipMode = false
     // 是否点击小窗关闭
-    private var isInPipClose = false
+    private var isPipClose = false
+    // 小窗按钮
     private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
+    // 播放器帮助类
     private val gsyHelper by lazy { GSYVideoHelper(this, false, false) }
+    // 播放地址
+    private val videoUrl = "https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4"
+    private val statusBarHeight = getStatusBarHeight()
+    private var videoHeight = 280.pt
     // 接收按钮点击事件
     private val pipReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -73,7 +93,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             addAction(ACTION_PAUSE)
         })
         gsyHelper.bind(mBinding?.gsyPlayer, showFullScreen = true)
-        gsyHelper.setUrl("https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4")
     }
 
     override fun initEvent() {
@@ -104,16 +123,36 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         })
     }
 
+    override fun initData() {
+        super.initData()
+        launch {
+            flow {
+                emit(requestAffair { suspendingCalculateHeight(this@ScreenActivity, videoUrl) })
+            }.withHandling({
+                mBinding?.gsyPlayer.size(height = videoHeight)
+            }, {
+                gsyHelper.setUrl(videoUrl)
+            }).collect {
+                videoHeight = it
+                val ratio = getPipAspectRatio(ScreenUtil.screenWidth, it)
+                "高度:${it}\n宽度:${ScreenUtil.screenWidth}\n比率:${ratio.first}:${ratio.second}".logWTF("wyb")
+                mBinding?.gsyPlayer.size(height = it)
+            }
+        }
+    }
+
     /**
      * 监听进入/退出画中画状态
      */
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
-        isInPip = isInPictureInPictureMode
+        isPipMode = isInPictureInPictureMode
         mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
+            mBinding?.gsyPlayer?.margin(top = 0)
+            mBinding?.gsyPlayer?.size(height = MATCH_PARENT)
             mBinding?.gsyPlayer?.changeUiToPip()
             // 当前播放器回到全屏时,如果处于实际播放状态
             if (gsyHelper.isActuallyPlaying()) {
@@ -121,10 +160,12 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 updatePipActions(true)
             }
         } else {
-            if (isInPipClose) {
+            if (isPipClose) {
                 finish()
             } else {
                 mBinding?.tvStart.visible()
+                mBinding?.gsyPlayer?.margin(top = statusBarHeight)
+                mBinding?.gsyPlayer?.size(height = videoHeight)
                 mBinding?.gsyPlayer?.changeUiToPip()
                 // 如果已产生有效播放进度
                 if (gsyHelper.hasValidPlaybackProgress()) {
@@ -140,22 +181,22 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 //        window.decorView.post {
 //            enterPipMode()
 //        }
-        if (!isInPip) {
+        if (!isPipMode) {
             gsyHelper.onVideoResume()
         }
     }
 
     override fun onPause() {
         super.onPause()
-        if (!isInPip) {
+        if (!isPipMode) {
             gsyHelper.onVideoPause()
         }
     }
 
     override fun onStop() {
         super.onStop()
-        if (isInPip) {
-            isInPipClose = true
+        if (isPipMode) {
+            isPipClose = true
         }
     }
 
@@ -168,12 +209,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
      * 进入画中画模式 核心方法
      * 1) 点击小窗本体 → 回到全屏
      * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
-     * 同时 Activity 会走 onPictureInPictureModeChanged 然后走 onResume()
-     * 这是关键区分点
+     * Activity 生命周期 : onPictureInPictureModeChanged -> onResume()
+     *
      * 2) 点击关闭按钮（X）
      * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
-     * 不会走 onResume()，而是直接走 onStop(),然后走 onPictureInPictureModeChanged
-     * 说明用户不想回来了
+     * Activity 生命周期 : 不会走 onResume()，直接走 onStop() -> onPictureInPictureModeChanged 并且停在此处
      */
     private fun enterPipMode() {
         // 设置画中画窗口
@@ -185,15 +225,15 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             .build()
         // 进入画中画
         enterPictureInPictureMode(params)
-        isInPip = true
-        isInPipClose = false
+        isPipMode = true
+        isPipClose = false
     }
 
     /**
      * 画中画模式中，每次状态变化时，重新构建 action 并更新 PiP 参数
      */
     private fun updatePipActions(isPause: Boolean) {
-        if (!isInPip) return
+        if (!isPipMode) return
         val params = PictureInPictureParams.Builder()
             .setAspectRatio(Rational(16, 9))
             .setActions(listOf(getPipAction(isPause)))
