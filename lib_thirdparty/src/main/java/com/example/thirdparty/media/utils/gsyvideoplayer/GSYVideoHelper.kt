@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.function.color
 import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
@@ -47,6 +48,7 @@ import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -509,8 +511,9 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val autoRes
 
     /**
      * 加载
+     * 检查播放器是否处于 “因生命周期被临时暂停” 的状态（即之前调用过 onVideoPause()）。如果是，则直接调用底层的 start() 继续播放；如果传参 seek = true，还会尝试恢复到暂停前的进度
      */
-    fun onVideoResume(seek: Boolean = false) {
+    fun onVideoResume(seek: Boolean = true) {
         isPause = false
         player?.currentPlayer?.onVideoResume(seek)
     }
@@ -532,6 +535,70 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val autoRes
         toggleJob?.cancel()
         restartJob?.cancel()
         activity.lifecycle.removeObserver(this)
+    }
+
+    /**
+     * 拖动进度条
+     * 1) seekTo() 在 GSYVideoPlayer（以及底层 IJKPlayer/ExoPlayer）中是一个纯定位操作。它只负责把播放指针移动到指定时间点，绝不会改变当前的播放/暂停状态
+     *  如果播放器当前是 播放中 → seekTo 后继续播放（从新位置开始）
+     *  如果播放器当前是 暂停中 → seekTo 后仍然保持暂停（画面停留在新位置的帧上）
+     *  如果播放器当前是 未准备/已停止 → seekTo 可能无效或被缓存到 seekOnStart 等下一次 prepare 时生效
+     * 2) seekOnStart：不是立即 seek，而是把目标进度“寄存”起来。无论播放器当前是否已 prepared、是否被 release 重建，它都会在下一次 onPrepared 回调成功后自动执行 seek
+     * 3) startPlayLogic()：触发完整的播放流程（设置 URL → prepare → start），最终一定会走到播放状态
+     * @param currentPosition 当前播放进度 -> player?.currentPositionWhenPlaying
+     */
+    fun seekTo(currentPosition: Long = currentPosition(), setUpLazy: Boolean = true) {
+        if (setUpLazy) {
+            player?.seekOnStart = currentPosition
+            startPlayLogic()
+        } else {
+            player?.seekTo(currentPosition)
+        }
+    }
+
+    /**
+     * 尝试恢复播放
+     */
+    fun resumeOrRestart(seek: Boolean = true) {
+        if (isInPlayingState()) {
+            onVideoResume(seek)
+        } else {
+            startPlayLogic()
+        }
+    }
+
+    /**
+     * 获取当前播放器进度
+     */
+    fun currentPosition(): Long {
+        return player?.currentPositionWhenPlaying.orZero
+    }
+
+    /**
+     * 判断播放器是否正处于实际播放状态
+     * 仅当画面/声音正在输出时为 true
+     * 排除：暂停、缓冲、准备中、已停止
+     * 用途：决定"恢复进度后要不要自动播放"
+     */
+    fun isActuallyPlaying(): Boolean {
+        return player?.isInPlayingState.orFalse && player?.currentState == GSYVideoView.CURRENT_STATE_PLAYING
+    }
+
+    /**
+     * 判断播放器是否处于处于活跃的播放生命周期内
+     */
+    fun isInPlayingState(): Boolean {
+        return player?.isInPlayingState.orFalse
+    }
+
+    /**
+     * 判断播放器是否存活且已产生有效播放进度
+     * 包含：正在播放 + 暂停中但有进度
+     * 排除：刚初始化未播放、已释放、无进度
+     * 用途：决定"要不要恢复/保存进度"
+     */
+    fun hasValidPlaybackProgress(): Boolean {
+        return player?.isInPlayingState.orFalse && (player?.currentPositionWhenPlaying ?: 0L) > 0
     }
 
 }

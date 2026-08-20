@@ -17,8 +17,6 @@ import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.framework.utils.function.doOnReceiver
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.visible
@@ -27,7 +25,6 @@ import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
-import com.shuyu.gsyvideoplayer.video.base.GSYVideoView.CURRENT_STATE_PLAYING
 import com.therouter.router.Route
 
 /**
@@ -49,11 +46,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             when (intent?.action) {
                 // 播放
                 ACTION_PLAY -> {
-                    if (mBinding?.gsyPlayer?.isInPlayingState.orFalse) {
-                        mBinding?.gsyPlayer?.onVideoResume(true)
-                    } else {
-                        gsyHelper.startPlayLogic()
-                    }
+                    gsyHelper.resumeOrRestart()
                     mBinding?.gsyPlayer?.changeUiToPip()
                     updatePipActions(true)
                 }
@@ -122,9 +115,9 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.tvStart.gone()
             mBinding?.gsyPlayer?.changeUiToPip()
-            // 如果播放器处于处于活跃的播放生命周期内且播放状态此时是正在播放的情况下,小屏也会自动播放
-            if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && mBinding?.gsyPlayer?.currentState == CURRENT_STATE_PLAYING) {
-                mBinding?.gsyPlayer?.onVideoResume(true)
+            // 当前播放器回到全屏时,如果处于实际播放状态
+            if (gsyHelper.isActuallyPlaying()) {
+                gsyHelper.onVideoResume()
                 updatePipActions(true)
             }
         } else {
@@ -133,13 +126,9 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             } else {
                 mBinding?.tvStart.visible()
                 mBinding?.gsyPlayer?.changeUiToPip()
-                // 如果是大屏,获取一下此时播放的下标
-                val currentPosition = mBinding?.gsyPlayer?.currentPositionWhenPlaying.orZero
-                // 如果播放器处于活跃的播放生命周期内,直接移动到对应播放时间点
-                if (mBinding?.gsyPlayer?.isInPlayingState.orFalse && currentPosition > 0) {
-//                    mBinding?.gsyPlayer?.seekOnStart = currentPosition
-//                    mBinding?.gsyPlayer?.startPlayLogic()
-                    mBinding?.gsyPlayer?.seekTo(currentPosition)
+                // 如果已产生有效播放进度
+                if (gsyHelper.hasValidPlaybackProgress()) {
+                    gsyHelper.seekTo()
                 }
             }
         }
