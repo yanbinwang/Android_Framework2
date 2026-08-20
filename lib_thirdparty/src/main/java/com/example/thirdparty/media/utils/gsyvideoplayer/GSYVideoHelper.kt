@@ -591,14 +591,4 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val autoRes
         return player?.isInPlayingState.orFalse
     }
 
-    /**
-     * 判断播放器是否存活且已产生有效播放进度
-     * 包含：正在播放 + 暂停中但有进度
-     * 排除：刚初始化未播放、已释放、无进度
-     * 用途：决定"要不要恢复/保存进度"
-     */
-    fun hasValidPlaybackProgress(): Boolean {
-        return player?.isInPlayingState.orFalse && (player?.currentPositionWhenPlaying ?: 0L) > 0
-    }
-
 }

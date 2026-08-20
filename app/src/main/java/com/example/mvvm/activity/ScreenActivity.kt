@@ -17,7 +17,6 @@ import androidx.annotation.RequiresApi
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
 import com.example.common.network.repository.requestAffair
-import com.example.common.network.repository.safeAs
 import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.getBroadcastPendingIntent
@@ -51,6 +50,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private var isPipMode = false
     // 是否点击小窗关闭
     private var isPipClose = false
+    // 是否点击小窗复位
+    private var isPipScale = false
     // 小窗按钮
     private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
@@ -143,6 +144,13 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 
     /**
      * 监听进入/退出画中画状态
+     * 1) 点击小窗本体 → 回到全屏
+     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
+     * Activity 生命周期 : onPictureInPictureModeChanged -> onResume()
+     *
+     * 2) 点击关闭按钮（X）
+     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
+     * Activity 生命周期 : 不会走 onResume()，直接走 onStop() -> onPictureInPictureModeChanged 并且停在此处
      */
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
@@ -168,9 +176,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 mBinding?.gsyPlayer?.size(height = videoHeight)
                 mBinding?.gsyPlayer?.changeUiToPip()
                 // 如果已产生有效播放进度
-                if (gsyHelper.hasValidPlaybackProgress()) {
-                    gsyHelper.seekTo()
-                }
+                isPipScale = true
+                gsyHelper.seekTo(setUpLazy = false)
             }
         }
     }
@@ -182,7 +189,11 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 //            enterPipMode()
 //        }
         if (!isPipMode) {
-            gsyHelper.onVideoResume()
+            if (isPipScale) {
+                isPipScale = false
+            } else {
+                gsyHelper.onVideoResume()
+            }
         }
     }
 
@@ -206,16 +217,12 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     }
 
     /**
-     * 进入画中画模式 核心方法
-     * 1) 点击小窗本体 → 回到全屏
-     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
-     * Activity 生命周期 : onPictureInPictureModeChanged -> onResume()
-     *
-     * 2) 点击关闭按钮（X）
-     * 触发 onPictureInPictureModeChanged(isInPip = false, ...)
-     * Activity 生命周期 : 不会走 onResume()，直接走 onStop() -> onPictureInPictureModeChanged 并且停在此处
+     * 进入画中画模式
      */
     private fun enterPipMode() {
+        isPipMode = true
+        isPipClose = false
+        isPipScale = false
         // 设置画中画窗口
         val params = PictureInPictureParams.Builder()
             // 宽高比 比如 16:9 / 4:3
@@ -225,8 +232,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             .build()
         // 进入画中画
         enterPictureInPictureMode(params)
-        isPipMode = true
-        isPipClose = false
     }
 
     /**
