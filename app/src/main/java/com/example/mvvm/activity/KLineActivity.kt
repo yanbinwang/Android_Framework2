@@ -43,8 +43,12 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         clicks(mBinding?.tvMa, mBinding?.tvBoll, mBinding?.tvMainHide, mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr, mBinding?.tvSubHide, mBinding?.tvFen, mBinding?.tvK)
         viewModel.list.observe {
             this ?: return@observe
-            datas = this.subList(0, 500).toArrayList()
+            // 1) K线绘制性能瓶颈：Canvas 一次性绘制上千根K线+5条均线+BOLL轨道会明显掉帧，500是一个经验阈值，保证滑动流畅
+            // 2) 屏幕实际可见量有限：手机横屏最多显示60~100根K线，500条足够覆盖"加载更多"之前的可视区域+缓冲
+//            datas = this.subList(0, 500).toArrayList()
 //            DataHelper.calculate(datas)
+            datas = this.take(500).toArrayList()
+
             adapter.addFooterData(datas)
             adapter.notifyDataSetChanged()
         }
