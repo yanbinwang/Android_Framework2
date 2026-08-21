@@ -1,33 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/bgBlack"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <com.example.mvvm.widget.SmartVideoPlayer
-            android:id="@+id/gsy_player"
-            statusBar_margin="@{true}"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout_height="280pt" />
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_start"
-            statusBar_margin="@{true}"
-            android:layout_width="120pt"
-            android:layout_height="48pt"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="10pt"
-            android:background="@drawable/shape_r5_blue"
-            android:gravity="center"
-            android:text="画中画"
-            android:textColor="@color/textWhite"
-            android:textSize="@dimen/textSize16" />
+            <com.example.mvvm.widget.SmartVideoPlayer
+                android:id="@+id/gsy_player"
+                statusBar_margin="@{true}"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:layout_height="280pt" />
 
-    </LinearLayout>
+            <LinearLayout
+                android:id="@+id/ll_root"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_horizontal"
+                android:padding="10pt">
+
+                <TextView
+                    android:id="@+id/tv_start"
+                    android:layout_width="120pt"
+                    android:layout_height="48pt"
+                    android:background="@drawable/shape_r5_blue"
+                    android:gravity="center"
+                    android:text="画中画"
+                    android:textColor="@color/textWhite"
+                    android:textSize="@dimen/textSize16" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <com.example.common.widget.AppToolbar
+            android:id="@+id/title_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.example.common.widget.EmptyLayout
+            android:id="@+id/empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:elEnableFullScreen="true"
+            tools:visibility="gone" />
+
+    </FrameLayout>
 
 </layout>

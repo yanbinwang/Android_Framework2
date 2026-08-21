@@ -15,30 +15,24 @@ import android.util.Rational
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.annotation.RequiresApi
 import com.example.common.base.BaseActivity
+import com.example.common.base.bridge.viewModels
 import com.example.common.config.RouterPath
-import com.example.common.network.repository.requestAffair
-import com.example.common.network.repository.withHandling
-import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.common.utils.function.getStatusBarHeight
-import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnReceiver
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
-import com.example.framework.utils.logWTF
+import com.example.home.R
 import com.example.mvvm.databinding.ActivityScreenBinding
-import com.example.thirdparty.media.utils.getPipAspectRatio
+import com.example.mvvm.viewmodel.ScreenViewModel
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
-import com.example.thirdparty.media.utils.suspendingCalculateHeight
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_STOP
 import com.therouter.router.Route
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.launch
 
 /**
  * 画中画 (仅8.0+支持)
@@ -52,15 +46,15 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private var isPipClose = false
     // 是否点击小窗复位
     private var isPipScale = false
+    // 视频高度
+    private var videoHeight = 0
+    // 导航栏原始高度
+    private val statusBarHeight = getStatusBarHeight()
     // 小窗按钮
     private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
     // 播放器帮助类
     private val gsyHelper by lazy { GSYVideoHelper(this, false, false) }
-    // 播放地址
-    private val videoUrl = "https://stream7.iqilu.com/10339/upload_transcode/202002/09/20200209105011F0zPoYzHry.mp4"
-    private val statusBarHeight = getStatusBarHeight()
-    private var videoHeight = 280.pt
     // 接收按钮点击事件
     private val pipReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -80,6 +74,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             }
         }
     }
+    private val viewModel: ScreenViewModel by viewModels()
 
     companion object {
         const val ACTION_PLAY = "ACTION_PLAY"
@@ -88,16 +83,21 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
 
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
+        mBinding?.titleRoot
+            ?.setLeftButton(tintColor = R.color.bgWhite)
+            ?.bind(this)
+        gsyHelper.bind(mBinding?.gsyPlayer, showFullScreen = true)
+        viewModel.setExtraView(mBinding?.empty)
+    }
+
+    override fun initEvent() {
+        super.initEvent()
         // 注册画中画按钮点击事件广播
         doOnReceiver(this, pipReceiver, IntentFilter().apply {
             addAction(ACTION_PLAY)
             addAction(ACTION_PAUSE)
         })
-        gsyHelper.bind(mBinding?.gsyPlayer, showFullScreen = true)
-    }
-
-    override fun initEvent() {
-        super.initEvent()
+        mBinding?.empty?.setFullScreen(this)
         mBinding?.tvStart.click {
             enterPipMode()
         }
@@ -122,24 +122,21 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 updatePipActions(false)
             }
         })
+        viewModel.setOnEmptyRefreshListener {
+            viewModel.getPageInfo()
+        }
+        viewModel.videoHeight.observe {
+            videoHeight = this
+            mBinding?.gsyPlayer.size(height = this)
+        }
+        viewModel.pageInfo.observe {
+            gsyHelper.setUrl(this)
+        }
     }
 
     override fun initData() {
         super.initData()
-        launch {
-            flow {
-                emit(requestAffair { suspendingCalculateHeight(this@ScreenActivity, videoUrl) })
-            }.withHandling({
-                mBinding?.gsyPlayer.size(height = videoHeight)
-            }, {
-                gsyHelper.setUrl(videoUrl)
-            }).collect {
-                videoHeight = it
-                val ratio = getPipAspectRatio(ScreenUtil.screenWidth, it)
-                "高度:${it}\n宽度:${ScreenUtil.screenWidth}\n比率:${ratio.first}:${ratio.second}".logWTF("wyb")
-                mBinding?.gsyPlayer.size(height = it)
-            }
-        }
+        viewModel.getPageInfo()
     }
 
     /**
@@ -158,7 +155,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
-            mBinding?.tvStart.gone()
+            mBinding?.llRoot.gone()
+            mBinding?.titleRoot.gone()
             mBinding?.gsyPlayer?.margin(top = 0)
             mBinding?.gsyPlayer?.size(height = MATCH_PARENT)
             mBinding?.gsyPlayer?.changeUiToPip()
@@ -171,7 +169,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             if (isPipClose) {
                 finish()
             } else {
-                mBinding?.tvStart.visible()
+                mBinding?.llRoot.visible()
+                mBinding?.titleRoot.visible()
                 mBinding?.gsyPlayer?.margin(top = statusBarHeight)
                 mBinding?.gsyPlayer?.size(height = videoHeight)
                 mBinding?.gsyPlayer?.changeUiToPip()
