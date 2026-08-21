@@ -336,40 +336,57 @@ object DataHelper {
     }
 
     /**
-     * 计算MA BOLL RSI KDJ MACD
+     * 计算所有技术指标的统一入口
+     * 按依赖顺序依次调用各指标计算方法，确保被依赖的指标（如MA）先于依赖它的指标（如BOLL）计算
      */
     fun calculate(data: MutableList<KLineChartBean>?) {
         data ?: return
+        // MA必须最先计算，BOLL等指标依赖MA20的值
         calculateMA(data)
         calculateMACD(data)
         calculateBOLL(data)
         calculateRSI(data)
         calculateKDJ(data)
         calculateWR(data)
+        // 成交量均线独立于价格指标，最后计算
         calculateVolumeMA(data)
     }
 
-    private fun calculateVolumeMA(entries: MutableList<KLineChartBean>) {
+    /**
+     * 计算成交量均线（VOL MA5 / MA10）
+     * 采用与价格 MA 相同的滑动窗口累加法，避免重复循环求和
+     */
+    private fun calculateVolumeMA(data: MutableList<KLineChartBean>) {
+        // 两条成交量均线的滑动累加和
         var volumeMa5 = 0f
         var volumeMa10 = 0f
-        for (i in entries.indices) {
-            val entry = entries[i]
+        for (i in data.indices) {
+            val entry = data[i]
+            // 将当前成交量累加到两条均线的和中
             volumeMa5 += entry.getVolume()
             volumeMa10 += entry.getVolume()
+            // ---------- VOL MA5 ----------
             if (i == 4) {
+                // 第5根K线（索引4）：首次凑齐5个数据，计算初始VOL MA5
                 entry.mMA5Volume = (volumeMa5 / 5f)
             } else if (i > 4) {
-                volumeMa5 -= entries[i - 5].getVolume()
+                // 后续K线：滑出最旧的一个成交量，保持窗口大小为5
+                volumeMa5 -= data[i - 5].getVolume()
                 entry.mMA5Volume = volumeMa5 / 5f
             } else {
+                // 前4根K线：数据不足，VOL MA5无效
                 entry.mMA5Volume = 0f
             }
+            // ---------- VOL MA10 ----------
             if (i == 9) {
+                // 第10根K线（索引9）：首次凑齐10个数据，计算初始VOL MA10
                 entry.mMA10Volume = volumeMa10 / 10f
             } else if (i > 9) {
-                volumeMa10 -= entries[i - 10].getVolume()
+                // 后续K线：滑出最旧的一个成交量，保持窗口大小为10
+                volumeMa10 -= data[i - 10].getVolume()
                 entry.mMA10Volume = volumeMa10 / 10f
             } else {
+                // 前9根K线：数据不足，VOL MA10无效
                 entry.mMA10Volume = 0f
             }
         }

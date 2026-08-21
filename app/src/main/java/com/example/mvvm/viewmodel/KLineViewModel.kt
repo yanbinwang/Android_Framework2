@@ -25,9 +25,8 @@ class KLineViewModel : BaseViewModel() {
 
     fun getAll() {
         launch {
-            val data = ArrayList<KLineChartBean>()
             flow {
-                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean->
+                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
                     val entity = KLineChartBean()
                     entity.let {
                         it.mClose = bean.Close.toSafeFloat()
@@ -39,16 +38,16 @@ class KLineViewModel : BaseViewModel() {
                     }
                     entity
                 }
+                // 整体/赋值后端数据
                 DataHelper.calculate(list)
+                // 检出/赋值 UI
                 emit(list)
             }.withHandling(end = {
                 uiManage.postValue(false)
             }).onStart {
                 uiManage.postValue(true)
             }.collect {
-                data.clear()
-                data.addAll(it.orEmpty())
-                list.postValue(data)
+                list.postValue(it)
             }
         }
     }
@@ -56,7 +55,7 @@ class KLineViewModel : BaseViewModel() {
     fun getData(offset: Int, size: Int) {
         launch {
             flow {
-                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean->
+                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
                     val entity = KLineChartBean()
                     entity.let {
                         it.mClose = bean.Close.toSafeFloat()
@@ -75,7 +74,6 @@ class KLineViewModel : BaseViewModel() {
             }).onStart {
                 uiManage.postValue(true)
             }.collect {
-                it ?: return@collect
                 val data = ArrayList<KLineChartBean>()
                 val start = max(0, it.size - 1 - offset - size)
                 val stop = min(it.size, it.size - offset)

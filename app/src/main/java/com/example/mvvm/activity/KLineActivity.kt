@@ -10,10 +10,9 @@ import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
 import com.example.klinechart.adapter.KLineChartAdapter
-import com.example.klinechart.widget.draw.Status
 import com.example.klinechart.bean.KLineChartBean
 import com.example.klinechart.utils.formatter.DateFormatter
-import com.example.klinechart.utils.DataHelper
+import com.example.klinechart.widget.draw.Status
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
 import com.example.mvvm.viewmodel.KLineViewModel
@@ -43,8 +42,9 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         super.initEvent()
         clicks(mBinding?.tvMa, mBinding?.tvBoll, mBinding?.tvMainHide, mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr, mBinding?.tvSubHide, mBinding?.tvFen, mBinding?.tvK)
         viewModel.list.observe {
-            datas = this?.subList(0, 500).orEmpty().toArrayList()
-            DataHelper.calculate(datas)
+            this ?: return@observe
+            datas = this.subList(0, 500).toArrayList()
+//            DataHelper.calculate(datas)
             adapter.addFooterData(datas)
             adapter.notifyDataSetChanged()
         }
