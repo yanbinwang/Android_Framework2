@@ -114,6 +114,9 @@ object NotificationUtil {
     const val NOTIFY_ID_SCREEN_RECORD = 4
     // 音频前台服务
     const val NOTIFY_ID_AUDIO_MEDIA = 5
+    // 画中画播放/暂停
+    const val NOTIFY_ID_PIP_PLAY = 6
+    const val NOTIFY_ID_PIP_STOP = 7
 
     /**
      * BaseApplication 中初始化

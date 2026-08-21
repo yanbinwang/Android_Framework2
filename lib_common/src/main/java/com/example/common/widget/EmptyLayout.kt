@@ -209,6 +209,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
             if (0 != tintColor) it.tint(tintColor)
             it.size(44.pt, 44.pt)
             it.padding(10.pt, 10.pt, 10.pt, 10.pt)
+            it.margin(top = getStatusBarHeight())
             click {
                 onClick.invoke()
             }
@@ -221,7 +222,7 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 使空状态图标在可视区域内垂直居中。
      */
     fun setFullScreenOffset(enable: Boolean) {
-        if (enable) {
+        if (enable && !fullScreen) {
             binding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
         }
     }
