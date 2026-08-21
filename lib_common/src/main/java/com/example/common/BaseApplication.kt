@@ -6,8 +6,11 @@ import android.app.Application
 import android.os.Build
 import android.os.SystemClock
 import android.view.Gravity
+import android.view.View
+import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import androidx.annotation.ColorRes
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
@@ -26,22 +29,28 @@ import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_DEAL
 import com.example.common.network.socket.SocketEventCode.EVENT_SOCKET_FUNDS
 import com.example.common.network.socket.topic.WebSocketTopic
 import com.example.common.utils.NetWorkUtil
+import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.utils.builder.SnackBarBuilder
+import com.example.common.utils.builder.SnackBarBuilder.SnackBarAction
 import com.example.common.utils.builder.ToastBuilder
+import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.common.utils.helper.ConfigHelper.isPrivacyPolicyAccepted
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshHeader
+import com.example.framework.utils.function.serviceStateMap
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.DateFormat.clearThreadLocalCache
 import com.example.framework.utils.function.value.DateFormat.resetServiceTime
 import com.example.framework.utils.function.value.isDebug
-import com.example.framework.utils.function.value.minute
+import com.example.framework.utils.function.value.minutesMs
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.glide.ImageLoader
+import com.google.android.material.snackbar.Snackbar
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import com.tencent.mmkv.MMKV
 import com.therouter.TheRouter
@@ -93,6 +102,8 @@ abstract class BaseApplication : Application() {
         // 初次赋值
         lastClickTime.set(SystemClock.elapsedRealtime())
         isFirstLaunch.set(true)
+        // 进程重启后，所有服务必然已停止，直接清空
+        serviceStateMap.clear()
         // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
@@ -114,8 +125,9 @@ abstract class BaseApplication : Application() {
         initListener()
         // 全局刷新控件的样式
         initSmartRefresh()
-        // 全局toast
+        // 全局toast/snackbar
         initToast()
+        initSnackBar()
         // 初始化socket
         initSocket()
         // 全局进程
@@ -169,41 +181,61 @@ abstract class BaseApplication : Application() {
     }
 
     private fun initToast() {
-        ToastBuilder.setResToastBuilder { message, length ->
-            val toast = Toast(instance)
-            // 设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位，
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            // 设置显示时间
-            toast.duration = length
-            val view = TextView(instance)
-            view.text = string(message)
-            view.setBackgroundResource(R.drawable.shape_toast)
-//            view.background = drawable
-            view.minHeight = 40.pt
-            view.minWidth = 190.pt
-            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
-            view.gravity = Gravity.CENTER
-            view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.textWhite)
-            toast.view = view
-            return@setResToastBuilder toast
+        ToastBuilder.setResToastBuilder { resId, length ->
+            buildStyledToast(string(resId), length)
         }
         ToastBuilder.setTextToastBuilder { message, length ->
-            val toast = Toast(instance)
-            toast.setGravity(Gravity.CENTER, 0, 0)
-            toast.duration = length
-            val view = TextView(instance)
-            view.text = message
-            view.setBackgroundResource(R.drawable.shape_toast)
-            view.minHeight = 40.pt
-            view.minWidth = 190.pt
-            view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
-            view.gravity = Gravity.CENTER
-            view.textSize(R.dimen.textSize14)
-            view.textColor(R.color.textWhite)
-            toast.view = view
-            return@setTextToastBuilder toast
+            buildStyledToast(message, length)
         }
+    }
+
+    private fun buildStyledToast(text: String, length: Int): Toast {
+        val toast = Toast(instance)
+        // 设置Toast要显示的位置，居中，X轴偏移0个单位，Y轴偏移0个单位
+        toast.setGravity(Gravity.CENTER, 0, 0)
+        toast.duration = length
+        val view = TextView(instance)
+        view.text = text
+        view.setBackgroundResource(R.drawable.shape_toast)
+        view.minHeight = 40.pt
+        view.minWidth = 190.pt
+        view.padding(start = 20.pt, end = 20.pt, top = 5.pt, bottom = 5.pt)
+        view.gravity = Gravity.CENTER
+        view.textSize(R.dimen.textSize14)
+        view.textColor(R.color.textWhite)
+        toast.view = view
+        return toast
+    }
+
+    private fun initSnackBar() {
+        SnackBarBuilder.setResSnackBarBuilder { view, resId, length, navigationBarColor, action ->
+            buildStyledSnackBar(view, string(resId), length, navigationBarColor, action)
+        }
+        SnackBarBuilder.setTextSnackBarBuilder { view, message, length, navigationBarColor, action ->
+            buildStyledSnackBar(view, message, length, navigationBarColor, action)
+        }
+    }
+
+    private fun buildStyledSnackBar(view: View, text: String, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
+        val snackbar = Snackbar.make(view, text, length)
+        val root = snackbar.view
+        val textColorRes = if (shouldUseWhiteSystemBarsForRes(navigationBarColor)) R.color.textWhite else R.color.textBlack
+        // 提示内容
+        snackbar.setBackgroundTint(color(navigationBarColor))
+        snackbar.setTextColor(color(textColorRes))
+        val snackbarText = root.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        snackbarText.textSize(R.dimen.textSize14)
+        // 提示按钮
+        if (null != action) {
+            when (action) {
+                is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
+                is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+            }
+            snackbar.setActionTextColor(color(action.actionTextColorRes ?: textColorRes))
+            val snackbarAction = root.findViewById<Button>(com.google.android.material.R.id.snackbar_action)
+            snackbarAction.textSize(R.dimen.textSize12)
+        }
+        return snackbar
     }
 
     private fun initSocket() {
@@ -240,7 +272,7 @@ abstract class BaseApplication : Application() {
                             val stampTimeDiff = System.currentTimeMillis() - timeStamp
                             val nanoTimeDiff = (System.nanoTime() - timeNano) / 1000000L
                             // 此处多个第三方可重新初始化(超过120分钟就重新初始化，避免过期)
-                            if (stampTimeDiff - nanoTimeDiff > 120.minute) {
+                            if (stampTimeDiff - nanoTimeDiff > 120.minutesMs) {
                                 onStateChangedListener.invoke(true)
                             }
                             timeStamp = System.currentTimeMillis()

@@ -6,7 +6,7 @@ import com.example.common.network.repository.ApiCode.FAILURE
 import com.example.common.network.repository.ApiCode.SUCCESS
 import com.example.common.network.repository.ApiCode.TOKEN_EXPIRED
 import com.example.common.utils.NetWorkUtil
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.string
 import com.example.common.utils.helper.AccountHelper
 import com.example.common.utils.toJson
@@ -228,7 +228,7 @@ fun String?.responseToast() {
         } else {
             this
         }
-    }).shortToast()
+    }).toast()
 }
 
 /**

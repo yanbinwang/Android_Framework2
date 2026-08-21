@@ -7,14 +7,17 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.common.base.binding.adapter.BaseAdapter.BaseItemType.BEAN
 import com.example.common.base.binding.adapter.BaseAdapter.BaseItemType.LIST
 import com.example.common.base.bridge.BaseViewModel
-import com.example.framework.utils.function.value.ExtractMode
+import com.example.framework.utils.function.value.SyncMode
 import com.example.framework.utils.function.value.findIndexOf
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSet
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.value.toExtract
+import com.example.framework.utils.function.value.syncDiffWith
 import com.example.framework.utils.function.view.click
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.withContext
 import java.util.Collections
 
 /**
@@ -260,8 +263,8 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     /**
      * 以服务器数据为基准，同步本地 RecyclerView 数据（删本地独有、更新重合变更、插入服务独有 -> 更新+新增+删除）
      * @param list 服务器数据（基准数据）
-     * @param isSameItem 唯一标识匹配规则：判断（本地元素，服务器元素）是否为同一元素（如按id匹配）
-     * @param useServerWhenConflict 判断是否需要更新：同一标识下，（本地元素，服务器元素）是否有差异（有差异才更新）
+     * @param matchBy 唯一标识匹配规则：判断（本地元素，服务器元素）是否为同一元素（如按id匹配）
+     * @param shouldUpdate 判断是否需要更新：同一标识下，（本地元素，服务器元素）是否有差异（有差异才更新）
      *
      * 最终列表完全对齐服务端完整顺序，服务端是什么排序，界面就显示什么排序，本地旧多余数据删掉、重合数据用服务端覆盖、缺失的按服务下标补进去
      * 本地旧：[A,C]
@@ -295,59 +298,63 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
      *     }
      * )
      */
-    @Synchronized
-    fun notify(list: List<T>?, isSameItem: ((local: T, server: T) -> Boolean), useServerWhenConflict: ((local: T, server: T) -> Boolean)) {
+    suspend fun notify(list: List<T>?, matchBy: ((local: T, server: T) -> Boolean), shouldUpdate: ((local: T, server: T) -> Boolean)) {
         if (null == list || itemType != LIST) return
-        // 服务器列表
-        val originalServerList = list
-        // 本地列表
-        val localSnapshot = list()
-        // 本地、服务两边都存在
-        val intersectUpdateList = localSnapshot.toExtract(originalServerList, isSameItem, useServerWhenConflict, ExtractMode.ONLY_INTERSECT).orEmpty()
-        // 本地有、服务无匹配
-        val localNeedDelete = localSnapshot.toExtract(originalServerList, isSameItem, useServerWhenConflict, ExtractMode.ONLY_LOCAL_UNIQUE).orEmpty()
-        // 服务有、本地无匹配
-        val serverNeedAdd = localSnapshot.toExtract(originalServerList, isSameItem, useServerWhenConflict, ExtractMode.ONLY_SERVER_UNIQUE).orEmpty()
-        // 批量删除本地独有数据（倒序删，防止下标错乱）
-        val deleteIndexList = localNeedDelete
-            .map { delItem ->
-                localSnapshot.findIndexOf { snap ->
-                    isSameItem(delItem, snap)
+        withContext(IO) {
+            // 服务器列表
+            val originalServerList = list
+            // 本地列表
+            val localSnapshot = list()
+            // 本地、服务两边都存在
+            val intersectUpdateList = localSnapshot.syncDiffWith(originalServerList, matchBy, shouldUpdate, SyncMode.ONLY_INTERSECT).orEmpty()
+            // 本地有、服务无匹配
+            val localNeedDelete = localSnapshot.syncDiffWith(originalServerList, matchBy, shouldUpdate, SyncMode.ONLY_LOCAL_UNIQUE).orEmpty()
+            // 服务有、本地无匹配
+            val serverNeedAdd = localSnapshot.syncDiffWith(originalServerList, matchBy, shouldUpdate, SyncMode.ONLY_SERVER_UNIQUE).orEmpty()
+            // 批量删除本地独有数据（倒序删，防止下标错乱）
+            val deleteIndexList = localNeedDelete
+                .map { delItem ->
+                    localSnapshot.findIndexOf { snap ->
+                        matchBy(delItem, snap)
+                    }
+                }
+                .filter { it != -1 }
+                /**
+                 * 对数字集合做降序排序：数字从大 → 小重新排列
+                 * val indexList = listOf(1, 3, 2)
+                 * val desc = indexList.sortedDescending()
+                 * // 输出 [3, 2, 1]
+                 */
+                .sortedDescending()
+            // 整理完毕刷新UI
+            withContext(Main.immediate) {
+                deleteIndexList.forEach {
+                    removed(it)
+                }
+                /**
+                 * 仅对真正有变更的重合项原地局部刷新
+                 * 此时列表已删除完毕，实时读取当前data真实下标，修复旧版快照下标失效bug
+                 */
+                intersectUpdateList.forEach { newServerItem ->
+                    val realIndex = data.findIndexOf { localItem ->
+                        matchBy(localItem, newServerItem)
+                    }
+                    if (realIndex != -1) {
+                        changed(realIndex, newServerItem)
+                    }
+                }
+                // 新增条目按服务端原始下标逐个插入，还原服务完整排序
+                serverNeedAdd.forEach { addItem ->
+                    val targetPos = originalServerList.findIndexOf { serverItem ->
+                        matchBy(addItem, serverItem)
+                    }
+                    val safePos = when {
+                        targetPos >= 0 && targetPos <= size() -> targetPos
+                        else -> size()
+                    }
+                    insert(safePos, addItem)
                 }
             }
-            .filter { it != -1 }
-            /**
-             * 对数字集合做降序排序：数字从大 → 小重新排列
-             * val indexList = listOf(1, 3, 2)
-             * val desc = indexList.sortedDescending()
-             * // 输出 [3, 2, 1]
-             */
-            .sortedDescending()
-        deleteIndexList.forEach {
-            removed(it)
-        }
-        /**
-         * 仅对真正有变更的重合项原地局部刷新
-         * 此时列表已删除完毕，实时读取当前data真实下标，修复旧版快照下标失效bug
-         */
-        intersectUpdateList.forEach { newServerItem ->
-            val realIndex = data.findIndexOf { localItem ->
-                isSameItem(localItem, newServerItem)
-            }
-            if (realIndex != -1) {
-                changed(realIndex, newServerItem)
-            }
-        }
-        // 新增条目按服务端原始下标逐个插入，还原服务完整排序
-        serverNeedAdd.forEach { addItem ->
-            val targetPos = originalServerList.findIndexOf { serverItem ->
-                isSameItem(addItem, serverItem)
-            }
-            val safePos = when {
-                targetPos >= 0 && targetPos <= size() -> targetPos
-                else -> size()
-            }
-            insert(safePos, addItem)
         }
     }
 

@@ -8,7 +8,7 @@ import androidx.appcompat.widget.AppCompatTextView
 import com.example.common.R
 import com.example.common.utils.function.string
 import com.example.framework.utils.builder.TimerBuilder
-import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.secondsMs
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
 import com.example.framework.utils.function.view.getLifecycleOwner
@@ -49,7 +49,7 @@ class TimerTextView @JvmOverloads constructor(context: Context, attrs: Attribute
         }, {
             enable()
             text = string(R.string.timerDisabled)
-        }, millisInFuture.second)
+        }, millisInFuture.secondsMs)
     }
 
 }

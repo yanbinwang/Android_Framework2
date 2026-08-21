@@ -357,7 +357,7 @@ class SpaceTextWatcher @JvmOverloads constructor(private val view: WeakReference
         mLocation = mLocation.coerceIn(0, str.length)
         s.replace(0, s.length, str)
         try {
-            Selection.setSelection(mDesTxt!!.text, mLocation)
+            Selection.setSelection(mDesTxt?.text, mLocation)
         } catch (e: Exception) {
             e.printStackTrace()
         }

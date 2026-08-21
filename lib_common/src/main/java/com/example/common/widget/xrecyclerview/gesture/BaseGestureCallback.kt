@@ -115,7 +115,7 @@ abstract class BaseGestureCallback {
                 return flags
             }
             flags = flags and masked.inv()
-            if (layoutDirection == ViewCompat.LAYOUT_DIRECTION_LTR) {
+            if (layoutDirection == View.LAYOUT_DIRECTION_LTR) {
                 flags = flags or (masked shr 2)
                 return flags
             } else {

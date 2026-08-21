@@ -8,9 +8,9 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.common.event.EventCode.EVENT_PAY_CANCEL
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.wechat.WXManager
+import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
@@ -77,7 +77,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
      * 统一处理
      */
     private fun results(resId: Int, type: Int = -1) {
-        resId.shortToast()
+        resId.toast()
         when (type) {
             0 -> EVENT_PAY_SUCCESS.post()
             1 -> EVENT_PAY_CANCEL.post()

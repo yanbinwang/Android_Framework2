@@ -282,7 +282,7 @@ object AppManager {
         // 获取当前进程的唯一LifecycleOwner,
         ProcessLifecycleOwner.get().lifecycleScope.launch(Main.immediate) {
             // 预留300毫秒,避免因页面未完全销毁就杀进程，导致资源释放不彻底
-            delay(300)
+            delay(300L)
             try {
                 Process.killProcess(Process.myPid())
                 // exitProcess(0)是Android隐藏API，替换为Java标准的System.exit(0)，兼容性更强
@@ -355,7 +355,7 @@ object AppManager {
         // 跳转对应页面 (内部构建的跳转可能带有跳转参数,故而接口回调处理)
         block.invoke()
         // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-        schedule(ProcessLifecycleOwner.get(), {
+        ProcessLifecycleOwner.get().schedule({
             // 对应页面会被忽略关闭,如果block.invoke()拉起了此时就不会被关闭
             finishAllExcept(clazz)
         }, 500)
@@ -396,7 +396,7 @@ object AppManager {
                 block.invoke()
             }
             // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
-            schedule(ProcessLifecycleOwner.get(), {
+            ProcessLifecycleOwner.get().schedule({
                 finishNotTargetActivity(*excludedList.toTypedArray())
             }, 500)
         }

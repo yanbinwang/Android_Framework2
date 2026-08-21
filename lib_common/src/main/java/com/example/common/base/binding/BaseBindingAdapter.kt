@@ -26,6 +26,7 @@ import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.loadWebUrl
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
+import com.example.common.utils.function.tintWithMutate
 import com.example.common.widget.advertising.Advertising
 import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -37,10 +38,10 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.adapter
 import com.example.framework.utils.function.view.blackListLimit
+import com.example.framework.utils.function.view.bounceFadeIn
 import com.example.framework.utils.function.view.clearBackground
 import com.example.framework.utils.function.view.clearHighlightColor
 import com.example.framework.utils.function.view.decimalLimit
-import com.example.framework.utils.function.view.elasticIn
 import com.example.framework.utils.function.view.emojiLimit
 import com.example.framework.utils.function.view.initGridHorizontal
 import com.example.framework.utils.function.view.initGridVertical
@@ -53,6 +54,7 @@ import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.spaceLimit
+import com.example.framework.utils.function.view.startAnim
 import com.example.framework.utils.function.view.whiteListLimit
 
 /**
@@ -160,6 +162,7 @@ object BaseBindingAdapter {
      * 特殊文本显示文本
      * @text:文本文案 -> "普通文本"
      * @spannable:高亮文本文案 -> TextSpan().add("高亮文本", ColorSpan(color(R.color.bgMain))).build()
+     * @isSpannableReplace:是否强替换 -> 默认 false 以两次 spannable.toString() 做对比, true 就强替换
      * @textColor:文本颜色 -> "文本颜色(@ColorRes):${R.color.bgBlack}"
      * @background:view背景 -> "背景:${R.drawable.shape_r20_grey}"
      * @visibility:view可见性 -> "可见性:${View.VISIBLE}"
@@ -169,8 +172,8 @@ object BaseBindingAdapter {
      * textview.setMatchText()
      */
     @JvmStatic
-    @BindingAdapter(value = ["text", "spannable", "textColor", "background", "visibility"], requireAll = false)
-    fun bindingCompound(view: View, text: String?, spannable: Spannable?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
+    @BindingAdapter(value = ["text", "spannable", "isSpannableReplace", "textColor", "background", "visibility"], requireAll = false)
+    fun bindingCompound(view: View, text: String?, spannable: Spannable?, isSpannableReplace: Boolean?, @ColorRes textColor: Int?, @DrawableRes background: Int?, visibility: Int?) {
         if (view is TextView) {
             // 处理文本设置
             text?.let { newText ->
@@ -185,7 +188,12 @@ object BaseBindingAdapter {
             spannable?.let { newSpannable ->
                 val spannableKey = R.id.theme_spannable_tag
                 val oldSpannable = view.getTag(spannableKey) as? Spannable
-                if (oldSpannable != newSpannable) {
+                /**
+                 * Spannable 本身没有重写 equals 此处 toString() 只做字符串内容比较
+                 * 默认走 toString() 轻量比较，isSpannableReplace 为 true 时跳过比较强制赋值
+                 */
+                val shouldUpdate = isSpannableReplace.orFalse || oldSpannable?.toString() != newSpannable.toString()
+                if (shouldUpdate) {
                     view.setSpannable(newSpannable)
                     view.setTag(spannableKey, newSpannable)
                 }
@@ -299,7 +307,7 @@ object BaseBindingAdapter {
                 view.textOff = newText
             }
         }
-        // 仅Drawable相关属性变化时，才执行Drawable加载/设置
+        // 仅 Drawable 相关属性变化时，才执行Drawable加载/设置
         if (!isOnlyTextChanged(oldConfig, newConfig)) {
             val startDrawable = newConfig.drawableStart?.let { drawable(it) }
             val topDrawable = newConfig.drawableTop?.let { drawable(it) }
@@ -311,7 +319,7 @@ object BaseBindingAdapter {
             applyDrawableBoundsAndTint(drawables, drawableTintColor, drawableWidth, drawableHeight)
             // 设置 TextView 的 CompoundDrawables
             view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
-//        view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
+//            view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 间距
             drawablePadding?.let { view.compoundDrawablePadding = it.pt }
         }
@@ -343,12 +351,12 @@ object BaseBindingAdapter {
      * @param width Drawable宽度（px）
      * @param height Drawable高度（px）
      */
-    private fun applyDrawableBoundsAndTint(drawables: Array<Drawable?>, tintColor: Int?, width: Int?, height: Int?) {
+    private fun applyDrawableBoundsAndTint(drawables: Array<Drawable?>, @ColorRes tintColor: Int?, width: Int?, height: Int?) {
         if (width != null && height != null) {
             for (drawable in drawables) {
                 drawable?.let {
                     it.setBounds(0, 0, width.pt, height.pt)
-                    if (null != tintColor) it.setTint(tintColor)
+                    if (null != tintColor) it.tintWithMutate(color(tintColor))
                 }
             }
         }
@@ -513,7 +521,7 @@ object BaseBindingAdapter {
         view.adapter = pagerAdapter
         view.offscreenPageLimit = pagerAdapter.count - 1
         view.currentItem = 0
-        view.startAnimation(view.context.elasticIn())
+        view.startAnim(bounceFadeIn())
     }
 
     /**

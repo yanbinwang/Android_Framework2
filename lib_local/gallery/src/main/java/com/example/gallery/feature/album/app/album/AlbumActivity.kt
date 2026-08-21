@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.CompoundButton
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
@@ -158,7 +158,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             val scanAction = { isNull: Boolean ->
                 var delayMillis = 500L
                 if (isNull) delayMillis = 1000L
-                schedule(this@AlbumActivity, {
+                schedule({
                     // 完成按钮是否显示
                     when (mChoiceMode) {
                         Album.MODE_MULTIPLE -> mView.setCompleteDisplay(true)
@@ -171,7 +171,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
             // 没有图片 → 打开空页面
             if (mAlbumFolders[0].albumFiles.isEmpty()) {
                 // 延迟1秒关闭 loading，过渡更自然
-                schedule(this@AlbumActivity, {
+                schedule({
                     val intent = Intent(this@AlbumActivity, NullActivity::class.java)
                     intent.putExtras(getIntent())
                     startActivityForResult(intent, CODE_ACTIVITY_NULL)
@@ -208,7 +208,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 mCheckedList.add(file)
                 setCheckedCount()
                 // 插入行为结束,给予1s动画转圈过渡
-                schedule(this@AlbumActivity, {
+                schedule({
                     if (mChoiceMode == Album.MODE_SINGLE) {
                         callbackResult()
                     } else {
@@ -221,7 +221,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 if (mFilterVisibility) {
                     addFileToListAction(this)
                 } else {
-                    R.string.album_take_file_unavailable.shortToast()
+                    R.string.album_take_file_unavailable.toast()
                     // 不可以直接取消弹框
                     dismissLoadingDialog()
                 }
@@ -269,7 +269,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit_camera
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit_camera
                 else -> R.string.unitNoData
-            }, "$mLimitCount").shortToast()
+            }, "$mLimitCount").toast()
             // 根据功能类型拍照/录像/选择
         } else {
             when (mFunction) {
@@ -303,7 +303,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                     Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_limit
                     Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_limit
                     else -> R.string.unitNoData
-                }, "$mLimitCount").shortToast()
+                }, "$mLimitCount").toast()
                 button?.isChecked = false
             } else {
                 albumFile.isChecked = true
@@ -351,7 +351,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                 Album.FUNCTION_CHOICE_VIDEO -> R.string.album_check_video_little
                 Album.FUNCTION_CHOICE_ALBUM -> R.string.album_check_album_little
                 else -> R.string.unitNoData
-            }.shortToast()
+            }.toast()
         } else {
             callbackResult()
         }

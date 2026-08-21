@@ -51,7 +51,7 @@ import kotlin.math.max
  *  * }
  *  */
  * fun onBackPressed(): Boolean {
- *     return GSYVideoManager.backFromWindowFull(mActivity)
+ *     return GSYVideoManager.backFromWindowFull(activity)
  * }
  */
 fun XRecyclerView?.setOnScrollListener(activity: FragmentActivity, playTag: String, listener: ((position: Int) -> Unit)) {

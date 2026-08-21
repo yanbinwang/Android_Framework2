@@ -6,14 +6,18 @@ import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.Build
 import com.example.common.utils.ScreenUtil
+import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.matchesRegex
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logWTF
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.math.RoundingMode
+import kotlin.math.abs
 
 /**
  * 视频横竖屏判断工具类
@@ -47,7 +51,7 @@ suspend fun suspendingOrientationAndRotation(context: Context, videoSource: Any)
     // 初始化返回结果：默认未知方向，旋转0度
     val result = intArrayOf(ORIENTATION_UNKNOWN, 0)
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext result
@@ -124,7 +128,7 @@ suspend fun suspendingCalculateHeight(context: Context, videoSource: Any, target
         "目标宽度无效：$targetWidth".logWTF(TAG)
         return 1
     }
-    return withContext(Dispatchers.Main.immediate) {
+    return withContext(Main.immediate) {
         // 获取视频宽高比
         val videoRatio = getDisplayAspectRatio(context, videoSource)
         // 计算目标高度（确保为正数）
@@ -140,7 +144,7 @@ suspend fun suspendingCalculateHeight(context: Context, videoSource: Any, target
  */
 private suspend fun getDisplayAspectRatio(context: Context, videoSource: Any): Float {
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext 0f
@@ -187,7 +191,7 @@ suspend fun suspendingThumbnail(context: Context, videoSource: Any, timeUs: Long
         return null
     }
     val retriever = MediaMetadataRetriever()
-    return withContext(Dispatchers.IO) {
+    return withContext(IO) {
         try {
             // 调用独立的 setDataSource 函数，失败直接返回 null
             if (!setDataSource(context, retriever, videoSource)) return@withContext null
@@ -229,13 +233,13 @@ suspend fun suspendingThumbnail(context: Context, videoSource: Any, timeUs: Long
  * 独立设置视频源（捕获分支内异常，确保返回 Boolean 不崩溃）
  * @return 成功设置返回 true，失败返回 false
  */
-private fun setDataSource(context: Context, retriever: MediaMetadataRetriever, videoSource: Any): Boolean {
+private fun setDataSource(context: Context, retriever: MediaMetadataRetriever, videoSource: Any, headers: Map<String, String> = emptyMap()): Boolean {
     return try {
         when (videoSource) {
             is String -> {
                 if (videoSource.matchesRegex("^https?://.*")) {
-                    // 网络视频：捕获无效 URL、网络异常等情况
-                    retriever.setDataSource(videoSource, hashMapOf())
+                    // 网络视频：捕获无效 URL、网络异常等情况，如果服务端有防盗链/Cookie需求，预留 headers 参数
+                    retriever.setDataSource(videoSource, headers)
                     true
                 } else {
                     val file = File(videoSource)
@@ -254,10 +258,10 @@ private fun setDataSource(context: Context, retriever: MediaMetadataRetriever, v
             }
             is File -> {
                 if (!videoSource.exists() || !videoSource.canRead()) {
-                    "文件不存在或无读取权限：${videoSource.path}".logWTF(TAG)
+                    "文件不存在或无读取权限：${videoSource.absolutePath}".logWTF(TAG)
                     return false
                 }
-                retriever.setDataSource(videoSource.path)
+                retriever.setDataSource(videoSource.absolutePath)
                 true
             }
             else -> {
@@ -281,4 +285,68 @@ private fun getMediaDimensions(retriever: MediaMetadataRetriever): IntArray {
     } catch (e: Exception) {
         throw e
     }
+}
+
+/**
+ * 获取 media 文件的时长
+ * 返回时长(音频，视频) -> 不支持在线音视频
+ * 放在线程中读取，超时会导致卡顿或闪退
+ */
+suspend fun suspendingDuration(context: Context, videoSource: Any?): Int {
+    videoSource ?: return 0
+    return withContext(IO) {
+//        File(sourcePath).let {
+//            val player = MediaPlayer()
+//            try {
+//                player.setDataSource(it.absolutePath)
+//                // 同步阻塞调用，如果文件较大或 I/O 较慢，会阻塞当前线程。确保这段代码不在主线程执行，成功即 PREPARED
+//                player.prepare()
+//                // 视频时长（毫秒）/ 1000 = x秒
+//                val durationMs = player.duration
+//                durationMs.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
+//            } finally {
+//                player.release()
+//            }
+//        }
+        // 仅读取容器头信息，只解析元数据，应用于仅需时长/封面/码率等元数据的场景
+        val retriever = MediaMetadataRetriever()
+        try {
+            if (!setDataSource(context, retriever, videoSource)) return@withContext 0
+//            retriever.setDataSource(sourcePath)
+            // 视频时长（毫秒）/ 1000 = x秒
+            val durationMs = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)?.toLongOrNull()
+            durationMs?.divide(1000, roundingMode = RoundingMode.HALF_UP).toSafeInt()
+        } finally {
+            retriever.release()
+        }
+    }
+}
+
+/**
+ * 仅包含 Android PiP 合法且主流的标准宽高比
+ * 合法范围：1:2.4 ~ 2.4:1
+ */
+private val PIP_LANDSCAPE_RATIOS = listOf(
+    21 to 9,   // 2.33:1 电影/带鱼屏
+    20 to 9,   // 2.22:1 主流手机全屏
+    16 to 9,   // 1.78:1 传统视频
+    3 to 2,    // 1.5:1  平板/相机
+    4 to 3,    // 1.33:1 老视频
+    1 to 1     // 1:1    正方形
+)
+
+private val PIP_PORTRAIT_RATIOS = listOf(
+    9 to 21,   // 0.43:1
+    9 to 20,   // 0.45:1
+    9 to 16,   // 0.56:1
+    2 to 3,    // 0.67:1
+    3 to 4,    // 0.75:1
+    1 to 1
+)
+
+fun getPipAspectRatio(displayWidth: Int, displayHeight: Int): Pair<Int, Int> {
+    if (displayWidth <= 0 || displayHeight <= 0) return 16 to 9
+    val ratio = displayWidth.toFloat() / displayHeight.toFloat()
+    val candidates = if (ratio >= 1f) PIP_LANDSCAPE_RATIOS else PIP_PORTRAIT_RATIOS
+    return candidates.minByOrNull { (w, h) -> abs(w.toFloat() / h.toFloat() - ratio) } ?: (16 to 9)
 }

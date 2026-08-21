@@ -16,15 +16,15 @@ import androidx.lifecycle.LifecycleOwner
  * 来电监听
  */
 @RequiresApi(Build.VERSION_CODES.S)
-class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEventObserver {
-    private val manager by lazy { mActivity.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager }
+class TelephonyObserver(private val activity: FragmentActivity) : LifecycleEventObserver {
+    private val manager by lazy { activity.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager }
     private val phoneState by lazy { MyPhoneStateListener() }
     private val callState by lazy { MyCallStateListener() }
     private val highVersion get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
     private var listener: OnTelephonyListener? = null
 
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
     }
 
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
@@ -34,7 +34,7 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
             Lifecycle.Event.ON_DESTROY -> {
                 unregister()
                 listener = null
-                mActivity.lifecycle.removeObserver(this)
+                activity.lifecycle.removeObserver(this)
             }
             else -> {}
         }
@@ -43,7 +43,7 @@ class TelephonyObserver(private val mActivity: FragmentActivity) : LifecycleEven
     private fun register() {
         unregister()
         if (highVersion) {
-            manager?.registerTelephonyCallback(mActivity.mainExecutor, callState)
+            manager?.registerTelephonyCallback(activity.mainExecutor, callState)
         } else {
             manager?.listen(phoneState, PhoneStateListener.LISTEN_CALL_STATE)
         }

@@ -7,6 +7,7 @@ import android.text.InputFilter.LengthFilter
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.Gravity
+import android.view.KeyEvent
 import android.view.View
 import android.widget.TextView
 import androidx.annotation.ColorInt
@@ -42,9 +43,8 @@ import com.example.framework.widget.BaseViewGroup
  */
 class ClearEditText @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), SpecialEditText {
     private var isDisabled = false // 是否不可操作
-    private var isShowBtn = true // 是否显示清除按钮
+    private var isShowBtn = true // 是否可操作清除按钮
     private var onTextChanged: ((s: Editable?) -> Unit)? = null
-    private var afterTextChanged: ((s: Editable?) -> Unit)? = null
     private val binding by lazy { ViewClearEditBinding.bind(context.inflate(R.layout.view_clear_edit)) }
     val editText get() = binding.etClear
 
@@ -53,15 +53,14 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             emojiLimit()
             addTextChangedListener {
                 if (isDisabled || !isShowBtn) return@addTextChangedListener
-                binding.ivClear.visibility = if (it.toString().isEmpty()) GONE else VISIBLE
+                binding.ivClear.visibility = if (it.isNullOrEmpty()) GONE else VISIBLE
                 onTextChanged?.invoke(it)
-            }
-            doAfterTextChanged {
-                afterTextChanged?.invoke(it)
             }
         }
         binding.ivClear.click {
-            binding.etClear.setText("")
+            if (isShowBtn) {
+                binding.etClear.setText("")
+            }
         }
         // 以下属性在xml中前缀使用app:调取
         context.withStyledAttributes(attrs, R.styleable.ClearEditText) {
@@ -94,7 +93,7 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             val maxLine = getInt(R.styleable.ClearEditText_maxLine, -1)
             if (minLine > 0 || maxLine > 0) {
                 binding.etClear.isSingleLine = false
-                binding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
+//                binding.etClear.setPaddingRelative(0, 10.pt, 0, 10.pt)
             } else {
                 binding.etClear.isSingleLine = true
                 binding.etClear.maxLines = 1
@@ -137,7 +136,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
 
     private fun setEnabled() {
         isDisabled = false
-        isShowBtn = false
         binding.etClear.apply {
             isCursorVisible = true
             isFocusable = true
@@ -145,12 +143,11 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             isFocusableInTouchMode = true
             textColor(R.color.textPrimary)
         }
-        binding.ivClear.visible()
+        showBtn()
     }
 
     private fun setDisabled() {
         isDisabled = true
-        isShowBtn = false
         binding.etClear.apply {
             isCursorVisible = false
             isFocusable = false
@@ -158,6 +155,16 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
             isFocusableInTouchMode = false
             textColor(R.color.textDisabled)
         }
+        hideBtn()
+    }
+
+    private fun showBtn() {
+        isShowBtn = true
+        binding.ivClear.visibility = if (binding.etClear.text.isNullOrEmpty()) GONE else VISIBLE
+    }
+
+    private fun hideBtn() {
+        isShowBtn = false
         binding.ivClear.gone()
     }
 
@@ -217,16 +224,6 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
         addFilter(LengthFilter(maxLength))
     }
 
-    fun hideBtn() {
-        isShowBtn = false
-        binding.ivClear.gone()
-    }
-
-    fun showBtn() {
-        isShowBtn = true
-        binding.etClear.apply { if (text.isNotEmpty()) visible() }
-    }
-
     fun addFilter(filter: InputFilter) {
         val filters = binding.etClear.filters.copyOf(binding.etClear.filters.size + 1)
         filters[filters.size - 1] = filter
@@ -238,17 +235,21 @@ class ClearEditText @JvmOverloads constructor(context: Context, attrs: Attribute
     }
 
     fun doAfterTextChanged(listener: ((s: Editable?) -> Unit)) {
-        this.afterTextChanged = listener
+        binding.etClear.doAfterTextChanged {
+            listener.invoke(it)
+        }
     }
 
-    fun setOnFocusChangeListener(listener: ((v: View?, hasFocus: Boolean?) -> Unit)) {
+    fun setOnFocusChangeListener(listener: ((v: View, hasFocus: Boolean) -> Unit)) {
         binding.etClear.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
             listener.invoke(v, hasFocus)
         }
     }
 
-    fun setOnEditorActionListener(listener: TextView.OnEditorActionListener) {
-        binding.etClear.setOnEditorActionListener(listener)
+    fun setOnEditorActionListener(listener: (v: TextView, actionId: Int, event: KeyEvent) -> Boolean) {
+        binding.etClear.setOnEditorActionListener { textView, actionId, event ->
+            listener(textView, actionId, event)
+        }
     }
 
 }

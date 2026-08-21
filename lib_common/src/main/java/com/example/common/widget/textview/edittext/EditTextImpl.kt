@@ -4,7 +4,7 @@ import android.view.View
 import android.widget.EditText
 import androidx.annotation.StringRes
 import androidx.lifecycle.LifecycleOwner
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.value.ELFormat.EMAIL
 import com.example.framework.utils.function.value.ELFormat.MOBILE
 import com.example.framework.utils.function.value.ELFormat.PASSWORD
@@ -46,7 +46,7 @@ interface EditTextImpl {
         return if (!isNullOrEmpty()) {
             true
         } else {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             false
         }
     }
@@ -66,7 +66,7 @@ interface EditTextImpl {
         return if (length in min..max) {
             true
         } else {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             false
         }
     }
@@ -84,11 +84,11 @@ interface EditTextImpl {
     fun String?.checkPassReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             return false
         }
         if (!matchesRegex(PASSWORD)) {
-            if (-1 != res2) res2.shortToast()
+            if (-1 != res2) res2.toast()
             return false
         }
         return true
@@ -118,11 +118,11 @@ interface EditTextImpl {
     fun String?.checkEmailReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             return false
         }
         if (matchesRegex(EMAIL)) return true
-        if (-1 != res2) res2.shortToast()
+        if (-1 != res2) res2.toast()
         return false
     }
     // </editor-fold>
@@ -139,11 +139,11 @@ interface EditTextImpl {
     fun String?.checkMobileReg(@StringRes res: Int = -1, @StringRes res2: Int = -1): Boolean {
         this ?: return false
         if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             return false
         }
         if (!matchesRegex(MOBILE)) {
-            if (-1 != res2) res2.shortToast()
+            if (-1 != res2) res2.toast()
             return false
         }
         return true
@@ -162,11 +162,11 @@ interface EditTextImpl {
     fun String?.checkVerifyReg(@StringRes res: Int = -1, @StringRes res2: Int = -1, length: Int = 6): Boolean {
         this ?: return false
         if (!notEmpty()) {
-            if (-1 != res) res.shortToast()
+            if (-1 != res) res.toast()
             return false
         }
         if (this.length != length) {
-            if (-1 != res2) res2.shortToast()
+            if (-1 != res2) res2.toast()
             return false
         }
         return true

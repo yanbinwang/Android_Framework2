@@ -40,5 +40,6 @@
     <color name="tabIndicator">#2e61df</color>
     <!-- 验证界面密码背景 -->
     <color name="bgCode">#F9FAFB</color>
-    <color name="strokeCode">#FFAF0E</color>
+    <color name="strokeCodePressed">#FFAF0E</color>
+    <color name="strokeCodeNormal">#6c6c6c</color>
 </resources>

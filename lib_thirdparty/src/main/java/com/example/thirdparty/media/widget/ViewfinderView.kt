@@ -14,6 +14,7 @@ import android.view.animation.Animation
 import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.toSafeFloat
+import com.example.framework.utils.function.view.startAnim
 
 /**
  * Created by wangyanbin
@@ -21,9 +22,9 @@ import com.example.framework.utils.function.value.toSafeFloat
  */
 @SuppressLint("DrawAllocation")
 class ViewfinderView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : View(context, attrs) {
-    private val screenRate = 20.pt//四个边角的长度
-    private val cornerWidth = 1.pt //四个边角的粗细
-    private val paint = Paint()//画笔对象
+    private val screenRate = 20.pt // 四个边角的长度
+    private val cornerWidth = 1.pt // 四个边角的粗细
+    private val paint = Paint() // 画笔对象
 
     override fun onDraw(canvas: Canvas) {
         val frame = Rect(0, 0, width, height)
@@ -62,7 +63,7 @@ class ViewfinderView @JvmOverloads constructor(context: Context, attrs: Attribut
             override fun onAnimationStart(animation: Animation?) {}
             override fun onAnimationRepeat(animation: Animation?) {}
         })
-        startAnimation(anim)
+        startAnim(anim)
     }
 
 }

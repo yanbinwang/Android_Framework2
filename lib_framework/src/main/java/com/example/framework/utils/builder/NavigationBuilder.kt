@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import androidx.core.view.forEach
+import androidx.core.view.get
 import androidx.core.view.size
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -15,7 +16,8 @@ import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
-import com.example.framework.utils.function.view.elasticIn
+import com.example.framework.utils.function.view.bounceFadeIn
+import com.example.framework.utils.function.view.startAnim
 import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
@@ -27,64 +29,88 @@ import java.util.concurrent.ConcurrentHashMap
 
 /**
  *  Created by wangyanbin
- *  导航栏帮助类,支持viewpage2绑定，fragment绑定
- *  builder.setOnItemSelectedListener { index, currentItem ->
- *  if (index == 2 && !isLogin()) {
- *  navigation(ARouterPath.LoginActivity)
- *  builder.selectedItem(currentItem)
- *  } else {
- *  if (!builder.isRepeat(index)) builder.selected(index)
- *  }
- *  }
+ *  导航栏帮助类 (支持 ViewPage2/Fragment 绑定)
  *
- *  <com.google.android.material.bottomnavigation.BottomNavigationView
- *  android:id="@+id/bnv_menu"
- *  android:layout_width="match_parent"
- *  android:layout_height="50pt"
- *  android:layout_gravity="bottom"
- *  android:background="@color/bgWhite"
- *  app:itemBackground="@null"
- *  app:itemIconSize="20pt"
- *  app:itemTextAppearanceActive="@style/BottomActiveText"
- *  app:itemTextAppearanceInactive="@style/BottomInactiveText"
- *  app:labelVisibilityMode="labeled"
- *  app:menu="@menu/menu_main_item" />
+ *  <menu xmlns:android="http://schemas.android.com/apk/res/android">
+ *     <item
+ *         android:id="@+id/nav_home"      <!-- ids[0] -->
+ *         android:icon="@drawable/ic_home"
+ *         android:title="首页" />
+ *     <item
+ *         android:id="@+id/nav_discover"  <!-- ids[1] -->
+ *         android:icon="@drawable/ic_discover"
+ *         android:title="发现" />
+ *     <item
+ *         android:id="@+id/nav_message"   <!-- ids[2] -->
+ *         android:icon="@drawable/ic_message"
+ *         android:title="消息" />
+ *     <item
+ *         android:id="@+id/nav_mine"      <!-- ids[3] -->
+ *         android:icon="@drawable/ic_mine"
+ *         android:title="我的" />
+ * </menu>
  *
- *  <!--没有选中的样式-->
- *  <style name="BottomInactiveText">
- *  <item name="android:textColor">@color/homeTextUnselected</item>
- *  <item name="android:textStyle">bold</item>
- *  <item name="android:textSize">@dimen/textSize10</item>
- *  </style>
+ * val ids = listOf(
+ *     R.id.nav_home,
+ *     R.id.nav_discover,
+ *     R.id.nav_message,
+ *     R.id.nav_mine
+ * )
+ * val builder = NavigationBuilder(
+ *     observer = this,
+ *     navigationView = binding.bottomNav,
+ *     ids = ids
+ * )
+ * builder.setOnItemSelectedListener { index, currentItem ->
+ *    if (index == 2 && !isLogin()) {
+ *        navigation(ARouterPath.LoginActivity)
+ *        builder.selectedItem(currentItem)
+ *    } else {
+ *        if (!builder.isRepeat(index)) builder.selected(index)
+ *    }
+ * }
  *
+ * <com.google.android.material.bottomnavigation.BottomNavigationView
+ *     android:id="@+id/bnv_menu"
+ *     android:layout_width="match_parent"
+ *     android:layout_height="50pt"
+ *     android:layout_gravity="bottom"
+ *     android:background="@color/bgWhite"
+ *     app:itemBackground="@null"
+ *     app:itemIconSize="20pt"
+ *     app:itemTextAppearanceActive="@style/BottomActiveText"
+ *     app:itemTextAppearanceInactive="@style/BottomInactiveText"
+ *     app:labelVisibilityMode="labeled"
+ *     app:menu="@menu/menu_main_item" />
+ *
+ * <!--没有选中的样式-->
+ * <style name="BottomInactiveText">
+ *      <item name="android:textColor">@color/homeTextUnselected</item>
+ *      <item name="android:textStyle">bold</item>
+ *      <item name="android:textSize">@dimen/textSize10</item>
+ * </style>
  *  <!--选中的样式-->
- *  <style name="BottomActiveText">
- *  <item name="android:textColor">@color/homeTextSelected</item>
- *  <item name="android:textStyle">bold</item>
- *  <item name="android:textSize">@dimen/textSize10</item>
- *  </style>
+ * <style name="BottomActiveText">
+ *      <item name="android:textColor">@color/homeTextSelected</item>
+ *      <item name="android:textStyle">bold</item>
+ *      <item name="android:textSize">@dimen/textSize10</item>
+ * </style>
  *
- *  方案一：通过 MenuItem 直接修改（最简单）
- * 如果你只是想修改菜单项的文本，可以直接通过 BottomNavigationView 的 menu 对象来操作：
- *
- * kotlin
+ * 方案一：通过 MenuItem 直接修改
+ * 如果想修改菜单项的文本，直接通过 BottomNavigationView 的 menu 对象来操作：
  * val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
- *
  * // 获取指定位置的菜单项（例如修改第2个菜单项，下标从0开始）
  * val menuItem = bottomNavigationView.menu.getItem(1)
  * menuItem.title = "新的文字" // 设置新的标题文字
  *
  * 方案二：自定义 BottomNavigationView 样式
- * 如果你需要更灵活地控制文字样式（如字体、大小、颜色等），可以通过自定义样式实现：
- *
- * kotlin
+ * 如果需要更灵活地控制文字样式（如字体、大小、颜色等），通过自定义样式实现：
  * // 先定义一个自定义样式
  * <style name="CustomBottomNavigationText" parent="Widget.Design.BottomNavigationView">
  *     <item name="android:textSize">12sp</item>
  *     <item name="android:textColor">@color/custom_color_state_list</item>
  *     <!-- 其他样式属性 -->
  * </style>
- *
  * // 在布局文件中应用样式
  * <com.google.android.material.bottomnavigation.BottomNavigationView
  *     android:id="@+id/bottom_navigation"
@@ -93,34 +119,26 @@ import java.util.concurrent.ConcurrentHashMap
  *     app:itemTextAppearanceActive="@style/CustomBottomNavigationText"
  *     app:itemTextAppearanceInactive="@style/CustomBottomNavigationText"
  *     app:menu="@menu/bottom_nav_menu" />
- *
  * // 然后在代码中修改文字
  * bottomNavigationView.menu.getItem(1).title = "自定义文字"
  *
- * 方案三：使用反射获取子 View 修改（高级方法）
- * 如果你需要完全自定义某个菜单项的视图，可以通过反射获取内部视图：
- *
- * kotlin
+ * 方案三：使用反射获取子 View 修改
+ * 如果需要完全自定义某个菜单项的视图，通过反射获取内部视图：
  * // 获取 BottomNavigationMenuView
  * val menuView = bottomNavigationView.getChildAt(0) as BottomNavigationMenuView
- *
  * // 获取指定位置的菜单项视图（例如第2个菜单项）
  * if (index >= 0 && index < menuView.childCount) {
  *     val itemView = menuView.getChildAt(index) as BottomNavigationItemView
- *
  *     // 修改文字（注意：这种方式依赖于内部实现，可能在不同版本的Material Design库中变化）
  *     val smallLabel = itemView.findViewById<TextView>(com.google.android.material.R.id.smallLabel)
  *     val largeLabel = itemView.findViewById<TextView>(com.google.android.material.R.id.largeLabel)
- *
  *     smallLabel.text = "新的小文字"
  *     largeLabel.text = "新的大文字"
  * }
  *
  * 方案四：使用 BottomNavigationView 的 Tab 配置（如果结合 ViewPager）
- * 如果你使用 BottomNavigationView 结合 ViewPager2，可以通过 TabLayoutMediator 来配置：
- *
- * kotlin
- * // 假设你已经设置了 ViewPager2 和 BottomNavigationView
+ * 如果使用 BottomNavigationView 结合 ViewPager2，通过 TabLayoutMediator 来配置：
+ * // 假设已经设置 ViewPager2 和 BottomNavigationView
  * TabLayoutMediator(bottomNavigationView, viewPager) { tab, position ->
  *     // 根据位置设置不同的文字
  *     tab.text = when(position) {
@@ -151,7 +169,8 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         }
         // 去除长按的toast提示
         for (position in ids.indices) {
-            menuView?.getChildAt(position)?.findViewById<View>(ids.safeGet(position).orZero)?.setOnLongClickListener { true }
+            val itemId = ids.safeGet(position) ?: continue
+            menuView?.getChildAt(position)?.findViewById<View>(itemId)?.setOnLongClickListener { true }
         }
         // 最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
         navigationView?.setOnItemSelectedListener { item ->
@@ -209,7 +228,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         // 获取当前选中的Item ID
         val currentItemId = navigationView?.selectedItemId
         // 要选中的Item ID
-        val toCurrentItemId = navigationView?.menu?.getItem(index)?.itemId.orZero
+        val toCurrentItemId = navigationView?.menu[index]?.itemId.orZero
         // 开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
         if (currentItemId == toCurrentItemId) return
         // 新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
@@ -221,11 +240,11 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
      * 仅当新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
      */
     private fun selectItem(index: Int) {
-        val menu = navigationView?.menu
-        if (index < menu?.size.orZero) {
+        val menu = navigationView?.menu ?: return
+        if (index < menu.size) {
             commitJob?.cancel()
             commitJob = observer.lifecycleScope.launch(Main.immediate) {
-                navigationView?.selectedItemId = menu?.getItem(index)?.itemId.orZero
+                navigationView.selectedItemId = menu[index].itemId
             }
         }
     }
@@ -251,7 +270,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         }
         if (animation) {
             getItemView(tab)?.getChildAt(0)?.apply {
-                startAnimation(context.elasticIn())
+                startAnim(bounceFadeIn())
                 vibrate(50)
             }
         }
@@ -260,16 +279,15 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
     /**
      * 对应下标需求对应不同的点击，改为自定义
      */
-    fun addClickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
+    fun clickAllowed(vararg params: Pair<Int, (() -> Unit)>) {
         hasAction = true
         clickActions = ConcurrentHashMap(params.toMap())
     }
 
     /**
-     * 还原对应下标的点击
-     * addClickAllowed后可还原
+     * 还原对应下标的点击 (clickAllowed 后可还原)
      */
-    fun allowedReset(index: Int) {
+    fun resetAllowed(index: Int) {
         hasAction = true
         clickActions.remove(index)
     }
@@ -277,12 +295,16 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
     /**
      * 获取下标item
      */
-    fun getItemView(index: Int) = menuView?.getChildAt(index) as? BottomNavigationItemView
+    fun getItemView(index: Int): BottomNavigationItemView? {
+        return menuView?.getChildAt(index) as? BottomNavigationItemView
+    }
 
     /**
      * 获取当前选中的图片
      */
-    fun getItemImage(index: Int = 0) = getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+    fun getItemImage(index: Int = 0): ImageView? {
+        return getItemView(index)?.findViewById(R.id.navigation_bar_item_icon_view) as? ImageView
+    }
 
     /**
      * 获取当前选中的下标

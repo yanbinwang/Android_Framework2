@@ -3,7 +3,7 @@ package com.example.home.utils
 import android.webkit.JavascriptInterface
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.common.utils.function.toBrowser
 import com.example.framework.utils.function.doOnDestroy
 import kotlinx.coroutines.Dispatchers.Main
@@ -38,7 +38,7 @@ class WebJavaScriptObject(private val webImpl: WeakReference<WebImpl>) {
     fun toast(value: String?) {
         webJob?.cancel()
         webJob = scope?.launch(Main.immediate) {
-            value.shortToast()
+            value.toast()
         }
     }
 

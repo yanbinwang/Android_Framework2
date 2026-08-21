@@ -1,18 +1,19 @@
 package com.example.mvvm
 
 import android.content.Context
+import android.os.Build
 import com.amap.api.services.core.ServiceSettings
 import com.example.common.BaseApplication
-import com.example.common.utils.builder.generateCrashLog
-import com.example.common.utils.builder.saveCrashLogToFile
+import com.example.common.utils.builder.buildCrashContent
+import com.example.common.utils.builder.writeCrashReport
 import com.example.framework.utils.function.value.isDebug
 import com.example.gallery.utils.GlideLoader
 import com.example.mvvm.activity.MainActivity
 import com.example.objectbox.dao.MyObjectBox
-import com.example.thirdparty.media.oss.OssDBHelper
-import com.example.thirdparty.media.oss.OssFactory
+import com.example.thirdparty.media.provider.oss.OssDBHelper
+import com.example.thirdparty.media.provider.oss.OssFactory
 import com.example.thirdparty.utils.NotificationUtil
-import com.example.thirdparty.utils.wechat.WXManager
+import com.example.thirdparty.wechat.WXManager
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.bean.AlbumConfig
 import io.objectbox.BoxStore
@@ -97,13 +98,16 @@ class MyApplication : BaseApplication() {
         }
     }
 
+    /**
+     * 三方库（如 Firebase Crashlytics、Bugly、Sentry）的 Handler 就会被 killProcess 截断，导致它们完全收不到崩溃
+     */
     private fun initCrashHandler() {
         // 设置全局异常处理器
         Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
             // 捕获异常并生成日志
-            val crashLog = generateCrashLog(throwable, thread.let { it.name to it.id })
+            val crashLog = buildCrashContent(throwable, thread.let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) })
             // 保存日志到本地文件
-            saveCrashLogToFile(crashLog)
+            writeCrashReport(crashLog)
             // 正常退出，不强行重启
             android.os.Process.killProcess(android.os.Process.myPid())
             exitProcess(0)

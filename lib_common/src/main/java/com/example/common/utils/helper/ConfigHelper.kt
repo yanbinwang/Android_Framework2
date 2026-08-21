@@ -3,9 +3,13 @@ package com.example.common.utils.helper
 import android.app.ActivityManager
 import android.content.Context
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Build
+import androidx.core.graphics.createBitmap
 import com.example.common.BaseApplication
 import com.example.common.config.CacheData.privacyAgreed
+import com.example.common.config.Constants
 import com.example.framework.utils.function.value.toSafeLong
 
 /**
@@ -73,6 +77,30 @@ object ConfigHelper {
         } catch (e: Exception) {
             e.printStackTrace()
             ""
+        }
+    }
+
+    /**
+     * 获取当前应用的图标
+     */
+    fun getAppIcon(): Bitmap? {
+        return try {
+            context.packageManager.getApplicationIcon(Constants.APPLICATION_ID).let { drawable ->
+                val width = drawable.intrinsicWidth
+                val height = drawable.intrinsicHeight
+                require(width > 0 && height > 0) {
+                    "Invalid icon intrinsic size: ${width}x${height}"
+                }
+                // targetSdk 37: 必须使用 ARGB_8888，RGB_565 已被 Canvas 绘制管线弃用
+                val bitmap = createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                val canvas = Canvas(bitmap)
+                drawable.setBounds(0, 0, width, height)
+                drawable.draw(canvas)
+                bitmap
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 

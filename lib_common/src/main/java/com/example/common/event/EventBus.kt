@@ -178,7 +178,13 @@ class EventBus private constructor() {
                 handleException(e)
             }
         }
-        // 原子存入：已存在直接返回旧Job，本次新建Job作废取消
+        /**
+         * putIfAbsent -> 原子存入：已存在直接返回旧 Job，本次新建 Job 作废取消
+         * 1) 简单“有就跳过，没有就放” -> putIfAbsent（单步原子，够用）
+         * 2) 需要基于旧值计算新值 -> computeIfAbsent / merge（整个计算+写入原子）
+         * 3) 插入后必须确认“是我插的” -> putIfAbsent + 返回值判断（但要接受“插完可能被别人删掉”的事实）
+         * 4) 多步复合操作（读+改+写） -> compute / synchronized(map)（ConcurrentHashMap 无法保证跨方法原子性）
+         */
         val existedJob = subscriptionJobs.putIfAbsent(owner, subscribeJob)
         if (existedJob != null) {
             subscribeJob.cancel()

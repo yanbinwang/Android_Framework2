@@ -7,7 +7,7 @@ import com.example.account.R
 import com.example.account.databinding.ActivityLoginBinding
 import com.example.common.base.BaseActivity
 import com.example.common.config.RouterPath
-import com.example.framework.utils.function.view.startAnimation
+import com.example.framework.utils.function.view.startAnim
 import com.therouter.router.Route
 import java.util.Locale
 
@@ -17,7 +17,7 @@ class LoginActivity : BaseActivity<ActivityLoginBinding>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         //背景微动画
-        mBinding?.ivLoginBg?.startAnimation(if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL) {
+        mBinding?.ivLoginBg?.startAnim(if (TextUtilsCompat.getLayoutDirectionFromLocale(Locale.getDefault()) == LayoutDirection.RTL) {
             R.anim.set_login_translate_rtl
         } else {
             R.anim.set_login_translate

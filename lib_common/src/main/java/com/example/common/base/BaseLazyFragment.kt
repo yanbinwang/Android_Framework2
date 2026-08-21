@@ -6,7 +6,7 @@ import androidx.databinding.ViewDataBinding
 
 /**
  * Created by WangYanBin on 2020/6/10.
- * 数据懒加载，当界面不可展示时，不执行加载数据的方法
+ * 数据懒加载，当界面不可展示时，不执行加载数据的方法 (Viewpager2专用)
  *
  * 1）ViewPager2(isAdded如果是无缓存模式下记得做判断，但如果只有2个页面无需判断，因为默认不管如何都是加载左右两个页面，3个及以上需要管控)
  * 1.子页面在适配器加载出来时只会加载当前下标页面的onResume方法，比如2个子页面，一开始适配器加载出来只会执行第一个页面的onResume方法
@@ -85,37 +85,44 @@ import androidx.databinding.ViewDataBinding
  * }
  */
 abstract class BaseLazyFragment<VDB : ViewDataBinding> : BaseFragment<VDB>() {
-    private var hasLoad = false // 页面是否被加载
-    private var canLoad = true // 数据是否允许加载
-    private var loaded = false // 数据是否被加载
+    private var isDataLoadEnabled = true   // 是否允许加载数据
+    private var hasLoadedData = false      // 数据是否已真正加载
+    private var hasReachedResume = false   // 是否已经历过可见的 onResume
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        lazyData = true
+        isLazyLoadEnabled = true
         super.onViewCreated(view, savedInstanceState)
     }
 
     override fun onResume() {
         super.onResume()
         if (isHidden) return
-        if (!hasLoad) {
-            if (canLoad) {
+        if (!hasReachedResume) {
+            hasReachedResume = true
+            if (isDataLoadEnabled) {
                 initData()
-                loaded = true
+                hasLoadedData = true
             }
-            hasLoad = true
         }
     }
 
     /**
-     * 禁止页面展示后加载数据，使用eventbug去刷新对应接口
-     * 适用于Manager管理fragment的情况
+     * 纯配置方法：仅更新加载开关，无任何副作用
+     * 通常在 new Fragment / Adapter 初始化时调用
      */
-    open fun setCanLoadData(flag: Boolean) {
-        canLoad = flag
-        if (canLoad && hasLoad && !loaded) {
+    open fun setDataLoadEnabled(enabled: Boolean) {
+        isDataLoadEnabled = enabled
+    }
+
+    /**
+     * 显式行为方法：手动触发首次加载（带防重入保护）
+     * 当外部决定"现在可以加载了"时主动调用
+     */
+    open fun tryFirstLoad() {
+        if (isDataLoadEnabled && hasReachedResume && !hasLoadedData) {
             initData()
-            loaded = true
+            hasLoadedData = true
         }
     }
     // </editor-fold>

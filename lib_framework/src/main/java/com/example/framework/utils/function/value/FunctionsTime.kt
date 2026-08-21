@@ -17,17 +17,32 @@ import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
 import kotlin.math.floor
+import kotlin.time.Duration
 
 //------------------------------------日期时间工具类------------------------------------
 
 /**
- * 获取毫秒值
+ * 时间扩展工具
+ * 1) 旧体系: Int.secondsMs/minutesMs/hoursMs/daysMs/weeksMs → Long(毫秒)
+ * 2) 桥梁: Duration.inNs/inUs/inMs/inSecs/inMins/inHrs/inDays/inWeeks → Long(对应单位截断值)
+ * 3) 如需 Duration 类型，请直接使用 Kotlin 标准库: 1.seconds, 2.minutes 等
  */
-val Int.hour get() = this * 1000L * 60 * 60  // 1小时 = 3600000毫秒
-val Int.minute get() = this * 1000L * 60     // 1分钟 = 60000毫秒
-val Int.second get() = this * 1000L          // 1秒 = 1000毫秒
-val Int.day get() = this * 24.hour           // 1天 = 24小时（复用hour扩展）
-val Int.week get() = this * 7.day            // 1周 = 7天（复用day扩展）
+// ========== 旧体系：返回 Long ==========
+val Int.secondsMs: Long get() = this * 1000L           // 1秒 = 1000毫秒
+val Int.minutesMs: Long get() = this * 1000L * 60L     // 1分钟 = 60000毫秒
+val Int.hoursMs: Long get() = this * 1000L * 60L * 60L // 1小时 = 3600000毫秒
+val Int.daysMs: Long get() = this * 24.hoursMs         // 1天 = 24小时（复用hour扩展）
+val Int.weeksMs: Long get() = this * 7.daysMs          // 1周 = 7天（复用day扩展）
+// ========== 桥梁：Duration → Long 各精度时间值（向下截断） ==========
+// 示例基准: val d = 1.hours + 30.minutes + 500.milliseconds
+val Duration.inNs: Long get() = inWholeNanoseconds     // 总纳秒数 = 5400500000000
+val Duration.inUs: Long get() = inWholeMicroseconds    // 总微秒数 = 5400500000
+val Duration.inMs: Long get() = inWholeMilliseconds    // 总毫秒数 = 5400500
+val Duration.inSecs: Long get() = inWholeSeconds       // 总秒数（截断）= 5400
+val Duration.inMins: Long get() = inWholeMinutes       // 总分钟数（截断）= 90
+val Duration.inHrs: Long get() = inWholeHours          // 总小时数（截断）= 1
+val Duration.inDays: Long get() = inWholeDays          // 总天数 = 0
+val Duration.inWeeks: Long get() = inWholeDays / 7     // 总周数 = 0
 
 /**
  * 服务器时间-推测的服务器接收时间
@@ -98,11 +113,11 @@ fun Long?.formatAsCountdown(showMin: Boolean = true, showSec: Boolean = true): S
         showMin && !showSec -> "00:00"
         else -> "00"
     }
-    val hour = this / 1.hour
+    val hour = this / 1.hoursMs
     if (!showMin) return hour.toString()
-    val minute = (this % 1.hour) / 1.minute
+    val minute = (this % 1.hoursMs) / 1.minutesMs
     if (!showSec) return "${hour.padZero(false)}:${minute.padZero(true)}"
-    val second = (this % 1.minute) / 1.second
+    val second = (this % 1.minutesMs) / 1.secondsMs
     return "${hour.padZero(false)}:${minute.padZero(true)}:${second.padZero(true)}"
 }
 
@@ -174,7 +189,7 @@ fun Date?.isToday(): Boolean {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
-        val tomorrow = today + 1.day
+        val tomorrow = today + 1.daysMs
         val thisTime = this.time
         thisTime in today..<tomorrow
     } catch (e: Exception) {

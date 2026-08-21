@@ -3,38 +3,23 @@ package com.example.common.utils.function
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.PixelFormat
-import android.media.MediaPlayer
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
-import android.util.Base64
 import android.webkit.MimeTypeMap
 import androidx.annotation.RequiresApi
-import androidx.core.graphics.createBitmap
 import androidx.core.net.toUri
 import com.example.common.BaseApplication
-import com.example.common.config.Constants
-import com.example.framework.utils.function.value.divide
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.function.value.safeGet
-import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.value.toFixed
 import com.example.framework.utils.function.value.toSafeLong
-import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import java.io.File
 import java.io.FileOutputStream
-import java.io.RandomAccessFile
-import java.math.BigDecimal
-import java.math.BigDecimal.ROUND_HALF_UP
-import java.math.BigInteger
 import java.math.RoundingMode
-import java.security.MessageDigest
 
 /**
  * 各个单位换算
@@ -49,15 +34,14 @@ val Number.tb get() = this.toSafeLong() * 1024L * 1024L * 1024L * 1024L
  * ACTION_MEDIA_SCANNER_SCAN_FILE 广播在Android 10+对外部存储部分路径失效
  */
 fun Context.insertImageResolver(pathname: String?): Boolean {
-    return insertImageResolver(File(pathname.orEmpty()))
+    if (pathname.isNullOrEmpty()) return false
+    return insertImageResolver(pathname.toSafeFile())
 }
 
 fun Context.insertImageResolver(file: File?): Boolean {
     file ?: return false
-    if (!file.exists() || !file.canRead()) {
-        "文件不存在或不可读：${file.absolutePath}".logWTF
-        return false
-    }
+    // 文件不存在或不可读
+    if (!file.exists() || !file.canRead()) return false
     // 适配 Android 10+（Scoped Storage）
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         insertImageToMediaStoreQPlus(file)
@@ -85,9 +69,9 @@ private fun Context.insertImageToMediaStoreQPlus(file: File) {
     uri ?: return
     // 写入文件内容到媒体库 Uri
     try {
-        contentResolver.openOutputStream(uri)?.use { outputStream ->
-            file.inputStream().use { inputStream ->
-                inputStream.copyTo(outputStream)
+        contentResolver.openOutputStream(uri)?.use { output ->
+            file.inputStream().use { input ->
+                input.copyTo(output)
             }
         }
         // 取消待处理标记，触发媒体库扫描
@@ -102,25 +86,6 @@ private fun Context.insertImageToMediaStoreQPlus(file: File) {
 }
 
 /**
- * 获取app的图标
- */
-fun Context.getApplicationIcon(): Bitmap? {
-    try {
-        packageManager.getApplicationIcon(Constants.APPLICATION_ID).apply {
-//            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565)
-            val bitmap = createBitmap(intrinsicWidth, intrinsicHeight, Bitmap.Config.ARGB_8888)
-            val canvas = Canvas(bitmap)
-            setBounds(0, 0, intrinsicWidth, intrinsicHeight)
-            draw(canvas)
-            return bitmap
-        }
-    } catch (e: Exception) {
-        e.printStackTrace()
-    }
-    return null
-}
-
-/**
  * 获取当前手机缓存目录下的缓存文件大小,
  * @return 返回格式化后的缓存大小字符串，如 "2.5M"
  */
@@ -129,7 +94,7 @@ fun Context?.getFormattedCacheSize(): String {
     this ?: return formattedSize
     // 安全获取缓存目录，计算总大小并格式化
     cacheDir?.takeIf { it.exists() }?.apply {
-        val totalCacheBytes = totalSize()
+        val totalCacheBytes = getFileTotalSize()
         formattedSize = if (totalCacheBytes > 0) {
             storageSizeFormat()
         } else {
@@ -140,103 +105,6 @@ fun Context?.getFormattedCacheSize(): String {
 }
 
 /**
- * 判断字符串路径对应的文件/目录是否存在
- * @return true：路径非空且对应的文件/目录存在；false：路径为空或不存在
- */
-fun String?.isPathExists(): Boolean {
-    this ?: return false
-    val trimmedPath = trim()
-    if (trimmedPath.isEmpty()) return false
-    return File(trimmedPath).exists()
-}
-
-/**
- * 获取字符串路径对应的文件/目录长度
- * 1) 若为文件：返回文件大小（字节）
- * 2) 若为目录：返回 0L（目录本身无大小，需用 getTotalSize() 统计子文件总大小）
- * 3) 路径为空/文件不存在/异常：返回 0L
- */
-fun String?.getFileLength(): Long {
-    this ?: return 0L
-    return try {
-        if (!isPathExists()) return 0L
-        val file = File(this)
-        if (file.exists() && file.canRead()) file.length() else 0L
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0L
-    }
-}
-
-/**
- * 获取不包含后缀名的文件名
- */
-fun String?.suffixName(): String {
-    this ?: return ""
-    if (!isPathExists()) return ""
-    return File(this).suffixName()
-}
-
-fun File?.suffixName(): String {
-    this ?: return ""
-    if (this == File("")) return ""
-    if (!exists() || !canRead()) return ""
-    return name.getFileNameWithoutSuffix()
-}
-
-/**
- * 从文件名中剥离最后一个后缀
- * // 假设文件路径是：/sdcard/wallets/my-wallet.json
- * val file = File("/sdcard/wallets/my-wallet.json")
- * println(file.name)        // 输出：my-wallet.json（带.json后缀）
- * println(file.path)        // 输出：/sdcard/wallets/my-wallet.json（完整路径）
- * println(file.parent)      // 输出：/sdcard/wallets（父目录）
- */
-private fun String?.getFileNameWithoutSuffix(): String {
-    this ?: return ""
-    // 找到最后一个 "." 的位置
-    val lastDotIndex = lastIndexOf('.')
-    // lastDotIndex > 0 → 避免 "." 是第一个字符（如 .hidden.json）
-    // lastDotIndex < length - 1 → 避免后缀是空（如 "my-wallet."）
-    return if (lastDotIndex > 0 && lastDotIndex < this.length - 1) {
-        this.substring(0, lastDotIndex)
-    } else {
-        // 无有效后缀，直接返回原字符串
-        this
-    }
-}
-
-/**
- * 文件本身的整体大小
- */
-fun String?.totalSize(): Long {
-    this ?: return 0L
-    if (!isPathExists()) return 0L
-    return File(this).totalSize()
-}
-
-fun File?.totalSize(): Long {
-    this ?: return 0L
-    if (this == File("")) return 0L
-    // 文件/目录不存在直接返回 0，避免无效遍历
-    if (!exists() || !canRead()) return 0L
-    // 如果是文件，直接返回大小（无需遍历）
-    if (isFile) return length()
-    var size = 0L
-    // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
-    for (mFile in listFiles().orEmpty()) {
-        size += if (mFile.isDirectory) {
-            // 递归调用时要传 mFile
-            mFile.totalSize()
-        } else {
-            mFile.length()
-        }
-    }
-    // 返回自身大小
-    return size
-}
-
-/**
  * 获取对应大小的文字
  * 新api --> Formatter.formatFileSize()
  */
@@ -244,7 +112,7 @@ private const val STORAGE_UNIT_BASE = 1024.0
 
 fun String?.storageSizeFormat(): String {
     this ?: return ""
-    return File(this).storageSizeFormat()
+    return toSafeFile().storageSizeFormat()
 }
 
 fun File?.storageSizeFormat(): String {
@@ -260,57 +128,76 @@ fun Number?.storageSizeFormat(): String {
     val kb = bytes / STORAGE_UNIT_BASE
     return when {
         kb < 1 -> "<1K"
-        kb < STORAGE_UNIT_BASE -> "${formatStorageValue(kb)}K"
-        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / STORAGE_UNIT_BASE)}M"
-        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}GB"
-        else -> "${formatStorageValue(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE))}TB"
+        kb < STORAGE_UNIT_BASE -> "${kb.toFixed(2, RoundingMode.HALF_UP)}K"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${(kb / STORAGE_UNIT_BASE).toFixed(2, RoundingMode.HALF_UP)}M"
+        kb < STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE -> "${(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE)).toFixed(2, RoundingMode.HALF_UP)}GB"
+        else -> "${(kb / (STORAGE_UNIT_BASE * STORAGE_UNIT_BASE * STORAGE_UNIT_BASE)).toFixed(2, RoundingMode.HALF_UP)}TB"
     }
 }
 
 /**
- * 统一格式化存储大小数值（保留2位小数，四舍五入）
+ * 将路径字符串安全地转换为 File 对象
+ * - null / 空串 / 纯空白 → 返回 null
+ * - 其他情况 → trim 后返回 File（不涉及 I/O）
  */
-private fun formatStorageValue(value: Double): String {
-    return BigDecimal.valueOf(value)
-        .setScale(2, RoundingMode.HALF_UP)
-        .toPlainString()
+fun String?.toSafeFile(): File? {
+    this ?: return null
+    val trimmed = trim()
+    return if (trimmed.isEmpty()) null else File(trimmed)
 }
 
 /**
- * 确保目录存在（不存在则创建），返回目录绝对路径
- * mkdirs():创建目录（文件夹）
- * createNewFile():创建文件
+ * 获取字符串路径对应的文件/目录长度
+ * 1) 若为文件：返回文件大小（字节）
+ * 2) 若为目录：返回 0L（目录本身无大小，需用 [getFileTotalSize] 统计子文件总大小）
+ * 3) 路径为空/文件不存在/异常：返回 0L
  */
-fun String?.ensureDirExists(): String {
-    // 空路径直接返回空
-    this ?: return ""
-    // 去除首尾空格（避免路径含无效空格导致创建失败）
-    val dirPath = trim()
-    if (dirPath.isEmpty()) return ""
-    // 取得文件类
-    val dir = File(dirPath)
+fun String?.getFileLength(): Long {
+    this ?: return 0L
+    return toSafeFile().getFileLength()
+}
+
+fun File?.getFileLength(): Long {
+    this ?: return 0L
     return try {
-        // 目录已存在 → 直接返回绝对路径
-        if (dir.exists()) {
-            if (dir.isDirectory) {
-                dir.absolutePath
-            } else {
-                // 路径存在但不是目录 → 返回空
-                ""
-            }
+        if (isFile) length() else 0L
+    } catch (e: Exception) {
+        e.printStackTrace()
+        0L
+    }
+}
+
+/**
+ * 文件本身的整体大小
+ */
+fun String?.getFileTotalSize(): Long {
+    this ?: return 0L
+    return toSafeFile().getFileTotalSize()
+}
+
+fun File?.getFileTotalSize(): Long {
+    this ?: return 0L
+    return try {
+        // 如果是文件，直接返回大小（无需遍历）
+        if (isFile) {
+            length()
         } else {
-            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）
-            if (dir.mkdirs()) {
-                dir.absolutePath
-            } else {
-                // 创建成功返回路径，失败返回空
-                ""
+            // 遍历子文件（orEmpty() 处理 listFiles() 返回 null 的情况）
+            var size = 0L
+            for (file in listFiles().orEmpty()) {
+                size += if (file.isDirectory) {
+                    // 递归调用时要传 file
+                    file.getFileTotalSize()
+                } else {
+                    file.length()
+                }
             }
+            // 返回所有子文件/子目录的内容大小总和（不含目录自身元数据）
+            size
         }
     } catch (e: Exception) {
-        // 捕获异常（权限不足、路径无效等）
         e.printStackTrace()
-        ""
+        0L
     }
 }
 
@@ -321,30 +208,102 @@ fun String?.ensureDirExists(): String {
  */
 fun String?.isFileWritableAndDeletable(): Boolean {
     this ?: return false
-    // 文件是否存在
-    if (!isPathExists()) return false
     // 文件是否可写（间接判断无独占写锁定）
-    val file = File(this)
-    if (!file.canWrite()) return false
-    // 尝试创建临时文件（进一步确认目录无锁定）
-    val parentDir = file.parentFile ?: return false
-    val tempFile = File(parentDir, "temp_check_lock_${System.currentTimeMillis()}.tmp")
+    val file = toSafeFile() ?: return false
+    if (!file.exists() || !file.isFile) return false
+    /**
+     * 尝试以追加模式打开目标文件本身
+     * 1) 如果文件被其他进程独占锁定，此处会抛 IOException
+     * 2) 在父目录创建临时文件只能证明"父目录可写"，不能证明目标文件本身没有被独占锁定。
+     *   例如一个视频正在被播放器占用，canWrite() 可能仍返回 true，且父目录也能创建临时文件，但实际删除该视频会失败
+     */
     return try {
-        // 无论创建成功与否，最终都要删除临时文件（防残留）
-        val createSuccess = tempFile.createNewFile()
-        createSuccess
-    } catch (e: SecurityException) {
-        // 捕获“权限不足”异常（部分机型/目录可能限制创建临时文件）
-        e.printStackTrace()
-        false
+        // 仅测试能否打开，不写入任何数据
+        FileOutputStream(file, true).use {}
+        true
     } catch (e: Exception) {
-        // 捕获未知异常
         e.printStackTrace()
         false
-    } finally {
-        // 确保临时文件被删除，不残留
-        tempFile.safeDelete()
     }
+}
+
+/**
+ * 判断字符串路径对应的文件/目录是否存在（仅做存在性校验）
+ * 注意：本方法仅检查 [File.exists]，不包含可读/可写权限校验
+ * 1) 存在性与访问权限是两个独立的关注点。若在此处耦合 canRead()/canWrite()，会导致无法区分"路径未创建"与"权限不足"两种截然不同的错误语义，增加上层排查问题的难度
+ * 2) 如需确认路径是否可安全读写，在上层业务中结合具体 I/O 意图单独进行权限预检或直接 try-catch 实际 I/O 操作
+ * @return true：路径非空且对应的文件/目录在文件系统中已创建；false：路径为空或尚未创建
+ */
+fun String?.isPathExists(): Boolean {
+    val file = toSafeFile() ?: return false
+    return file.exists()
+}
+
+/**
+ * 确保目录存在（不存在则创建），返回目录绝对路径
+ * mkdirs():创建目录（文件夹）
+ * createNewFile():创建文件
+ */
+fun String?.ensureDirExists(): String {
+    // 空路径直接返回空
+    this ?: return ""
+    // 取得文件类
+    val dirFile = toSafeFile() ?: return ""
+    // 目录已存在 → 直接返回绝对路径；路径存在但不是目录 → 返回空
+    return try {
+        if (dirFile.exists()) {
+            if (dirFile.isDirectory) dirFile.absolutePath else ""
+        } else {
+            // 目录不存在 → 创建多级目录（mkdirs() 支持多级）；创建成功返回路径，失败返回空
+            if (dirFile.mkdirs()) dirFile.absolutePath else ""
+        }
+    } catch (e: Exception) {
+        // mkdirs() 不是完全安全的
+        e.printStackTrace()
+        ""
+    }
+}
+
+/**
+ * 获取不包含后缀名的文件名
+ * // 假设文件路径是：/sdcard/wallets/my-wallet.json
+ * val file = File("/sdcard/wallets/my-wallet.json")
+ * println(file.name)                 // 输出：my-wallet.json（带后缀的文件名）
+ * println(file.path)                 // 输出：/sdcard/wallets/my-wallet.json（原始传入路径）
+ * println(file.absolutePath)         // 输出：/sdcard/wallets/my-wallet.json（绝对路径）
+ * println(file.parent)               // 输出：/sdcard/wallets（父目录）
+ * println(file.nameWithoutExtension) // 输出：my-wallet（不含后缀的文件名）
+ * println(file.extension)            // 输出：json（后缀名，不带点号）
+ *
+ * path 与 absolutePath 区别
+ * // 传入绝对路径 → 两者相同
+ * val f1 = File("/sdcard/wallets/my-wallet.json")
+ * println(f1.path)                   // 输出：/sdcard/wallets/my-wallet.json
+ * println(f1.absolutePath)           // 输出：/sdcard/wallets/my-wallet.json
+ * // 传入相对路径 → 两者不同
+ * val f2 = File("wallets/my-wallet.json")
+ * println(f2.path)                   // 输出：wallets/my-wallet.json
+ * println(f2.absolutePath)           // 输出：/data/user/0/com.example.app/files/wallets/my-wallet.json
+ */
+fun String?.nameWithoutExtension(): String {
+    this ?: return ""
+    return toSafeFile()?.nameWithoutExtension.orEmpty()
+}
+
+/**
+ * 获取文件后缀名
+ */
+fun String?.extension(): String {
+    this ?: return ""
+    return toSafeFile()?.extension.orEmpty()
+}
+
+/**
+ * 获取文件父目录
+ */
+fun String?.parent(): String {
+    this ?: return ""
+    return toSafeFile()?.parent.orEmpty()
 }
 
 /**
@@ -352,8 +311,7 @@ fun String?.isFileWritableAndDeletable(): Boolean {
  */
 fun String?.deleteFile(): Boolean {
     this ?: return false
-    if (!isPathExists()) return false
-    return File(this).safeDelete()
+    return toSafeFile()?.safeDelete().orFalse
 }
 
 /**
@@ -361,14 +319,13 @@ fun String?.deleteFile(): Boolean {
  */
 fun String?.deleteDirectory(): Boolean {
     this ?: return false
-    if (!isPathExists()) return false
-    return File(this).let {
+    return toSafeFile()?.let {
         if (it.isDirectory) {
             it.deleteRecursively()
         } else {
             it.safeDelete()
         }
-    }
+    }.orFalse
 }
 
 /**
@@ -377,7 +334,6 @@ fun String?.deleteDirectory(): Boolean {
 fun File?.safeDelete(): Boolean {
     // 避免空路径文件
     this ?: return false
-    if (this == File("")) return false
     return try {
         /**
          * deleteRecursively() 核心能力（Kotlin 标准库）：
@@ -395,10 +351,9 @@ fun File?.safeDelete(): Boolean {
         } else {
             /**
              * 极端场景兜底，尝试强制删除（文件被系统/其他App占用）
-             * 当调用 file.deleteOnExit() 时，JVM 会将该文件的路径添加到一个内部注册表中（本质是一个线程安全的集合）
-             * 当 JVM 正常终止（比如 App 正常退出、进程被系统正常回收）时，会遍历这个注册表，尝试删除所有注册的文件
-             * 删除顺序与注册顺序相反（先注册的后删除）
-             * 仅对「文件」有效，对「目录」无效（目录需手动删除或用 deleteRecursively()）
+             * 1) 当调用 file.deleteOnExit() 时，JVM 会将该文件的路径添加到一个内部注册表中（本质是一个线程安全的集合）
+             * 2) 当 JVM 正常终止（比如 App 正常退出、进程被系统正常回收）时，会遍历这个注册表，尝试删除所有注册的文件，删除顺序与注册顺序相反（先注册的后删除）
+             * 3) 仅对「文件」有效，对「目录」无效（目录需手动删除或用 deleteRecursively()）
              */
             deleteOnExit()
             false
@@ -407,6 +362,23 @@ fun File?.safeDelete(): Boolean {
         e.printStackTrace()
         false
     }
+}
+
+/**
+ * 从图片缓存文件的二进制头推断真实扩展名。
+ * 专用于 Glide/Coil 等图片库产生的无后缀缓存文件。
+ * 若文件已有可信后缀，应优先使用 [File.extension]。
+ * @return 小写扩展名（如 "jpeg"、"webp"），无法识别时返回 null
+ */
+fun File.cacheImageExtension(): String? {
+    if (!exists() || !isFile || length() == 0L) return null
+    // 仅解码边界信息（宽高、MIME），不加载像素到内存
+    val options = BitmapFactory.Options().apply {
+        inJustDecodeBounds = true
+    }
+    BitmapFactory.decodeFile(absolutePath, options)
+    // outMimeType 格式为 "image/jpeg"、"image/webp" 等；解码失败时返回 "image/*"，需过滤掉
+    return options.outMimeType?.substringAfterLast('/')?.takeIf { it != "*" && it.isNotBlank() }
 }
 
 /**
@@ -419,48 +391,44 @@ fun File?.renameFile(newFileName: String): Boolean {
     this ?: return false
     // 仅对文件生效，避免目录误操作
     if (!exists() || !isFile) return false
-    val parentDir = parentFile ?: return false
     // 确保父目录存在（极端情况父目录被删除，避免重命名失败）
-    if (!parentDir.exists() && !parentDir.mkdirs()) {
-        return false
-    }
+    val parentDir = parentFile ?: return false
+    if (!parentDir.exists() && !parentDir.mkdirs()) return false
     // 创建目标文件（新路径 + 新文件名）
     val targetFile = File(parentDir, newFileName)
     // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
+    if (targetFile.exists()) return false
     // 执行重命名操作
     return renameTo(targetFile)
 }
 
 /**
- * 重命名文件（可改路径 + 文件名，更灵活）
+ * 移动文件到新路径（可改路径 + 文件名）
  * @param this 原始文件
  * @param targetFile 目标文件（包含新路径和新文件名）
- * @return 是否重命名成功
- * 若「原文件和目标文件在同一个分区」（如都在 /data/user/0/ 下）：仅修改文件的路径和名称，文件数据本身不移动（速度极快）；
- * 若「原文件和目标文件在不同分区」（如原文件在内部存储，目标在 SD 卡）：会先复制文件数据到新路径，再删除原文件（速度取决于文件大小）；
- * 无论哪种情况，最终只有一个文件存在（原文件会消失）
+ * @return 是否移动成功
+ * 同分区：仅修改路径和名称，速度极快；
+ * 跨分区：先复制再删除原文件，速度取决于文件大小；
+ * 无论哪种情况，成功后原文件消失，仅目标文件存在。
  */
-fun File?.renameFileTo(targetFile: File): Boolean {
+fun File?.moveFileTo(targetFile: File): Boolean {
     this ?: return false
-    if (!exists()) {
-        return false
+    if (!exists() || !isFile) return false
+    val targetParentDir = targetFile.parentFile ?: return false
+    if (!targetParentDir.exists() && !targetParentDir.mkdirs()) return false
+    // 目标已存在则不覆盖
+    if (targetFile.exists()) return false
+    // 优先尝试 rename（同分区零拷贝）
+    if (renameTo(targetFile)) return true
+    // 跨分区兜底：复制 + 删除
+    return try {
+        copyTo(targetFile, overwrite = false)
+        safeDelete()
+    } catch (e: Exception) {
+        e.printStackTrace()
+        targetFile.safeDelete()
+        false
     }
-    // 确保目标文件的父目录存在
-    val targetParent = targetFile.parentFile
-    if (targetParent != null && !targetParent.exists()) {
-        // 创建父目录（包括所有必要的父目录）
-        if (!targetParent.mkdirs()) {
-            return false
-        }
-    }
-    // 避免覆盖已存在的文件
-    if (targetFile.exists()) {
-        return false
-    }
-    return renameTo(targetFile)
 }
 
 /**
@@ -518,50 +486,46 @@ private fun isSymbolicLinkCompat(file: File): Boolean {
  */
 fun File?.getFirstFileInDirectory(): String? {
     // 检查目录是否合法
-    if (this == null || !this.exists() || !this.isDirectory) {
-        "目录不存在或不是文件夹".logWTF
-        return null
-    }
-    // 获取目录下所有文件/文件夹（过滤隐藏文件）
+    if (this == null || !this.exists() || !this.isDirectory) return null
+    /**
+     * 获取目录下所有文件/文件夹（过滤隐藏文件）
+     * 例子:
+     * 按修改时间排序
+     * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
+     */
     val files = this.listFiles { file ->
         // 仅保留「非隐藏」且「是文件」的项（排除文件夹）
         !file.isHidden && file.isFile
     }
     // 判断是否有文件，返回第一个文件的路径
-    if (files != null && files.size > 0) {
-        /**
-         * 按修改时间排序
-         * Arrays.sort(files, (f1, f2) -> Long.compare(f1.lastModified(), f2.lastModified()))
-         * 返回第一个文件的绝对路径
-         */
-        return files[0]?.absolutePath
+    return if (files != null && files.size > 0) {
+        files[0]?.absolutePath
     } else {
-        "目录下无文件".logWTF
-        return null
+        null
     }
 }
 
 /**
- * 获取文件的纯名称（去掉后缀，无后缀则返回完整文件名）
- * @return 纯文件名（小写可选，建议和后缀保持一致）
+ * 获取目录下【一级】所有可见项（文件+文件夹）的路径与类型
+ * @return Pair列表：First=绝对路径，Second=是否是文件夹（true=文件夹，false=文件）
+ * @note 仅遍历当前目录一级，不递归子目录；过滤隐藏文件
  */
-fun File?.getRealFileName(): String {
-    // 文件为空返回空
-    this ?: return ""
-    // 文件名本身为空返回空
-    val fileName = name ?: return ""
-    // 截取最后一个小数点前的内容（无小数点则返回完整文件名）
-    return fileName.substringBeforeLast(".", fileName).trim()
+fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
+    // 目录不存在或不是文件夹
+    if (this == null || !this.exists() || !this.isDirectory) return emptyList()
+    val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
+    return allItems.map { it.absolutePath to it.isDirectory }
 }
 
 /**
- * 解析文件的真实后缀（不含小数点，如 "jpg/png/tmp"）
- * @return 后缀字符串，无后缀返回空字符串
+ * 递归获取目录下【所有层级】的所有文件绝对路径（仅文件，不含文件夹）
+ * @return 所有子目录文件的绝对路径列表，无数据返回空列表
+ * @note 遍历当前目录+所有子目录；包含非隐藏文件（listFiles未过滤隐藏，保持原逻辑）
  */
-fun File?.getRealFileSuffix(): String {
-    this ?: return ""
-    val fileName = name ?: return ""
-    return fileName.substringAfterLast(".", "").lowercase().trim()
+fun File.getAllFilePathsRecursively(): List<String> {
+    if (exists().not() || isDirectory.not()) return emptyList()
+    val files = listFiles() ?: return emptyList()
+    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePathsRecursively() }
 }
 
 /**
@@ -611,9 +575,9 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
     if (!isImageMime) return standardSuffix
     // 二进制头部校验（仅图片文件执行）
     return try {
-        mContext.contentResolver.openInputStream(this)?.use { inputStream ->
+        mContext.contentResolver.openInputStream(this)?.use { input ->
             val headerBytes = ByteArray(4)
-            val readLength = inputStream.read(headerBytes)
+            val readLength = input.read(headerBytes)
             if (readLength >= 4) {
                 when {
                     headerBytes[0] == 0x89.toByte() && headerBytes[1] == 0x50.toByte() && headerBytes[2] == 0x4E.toByte() && headerBytes[3] == 0x47.toByte() -> ".png"
@@ -632,32 +596,7 @@ fun Uri?.getRealSourceSuffix(context: Context?): String {
 }
 
 /**
- * 获取目录下【一级】所有可见项（文件+文件夹）的路径与类型
- * @return Pair列表：First=绝对路径，Second=是否是文件夹（true=文件夹，false=文件）
- * @note 仅遍历当前目录一级，不递归子目录；过滤隐藏文件
- */
-fun File?.getFirstLevelPathItems(): List<Pair<String, Boolean>> {
-    if (this == null || !this.exists() || !this.isDirectory) {
-        "目录不存在或不是文件夹".logWTF
-        return emptyList()
-    }
-    val allItems = this.listFiles { file -> !file.isHidden } ?: return emptyList()
-    return allItems.map { it.absolutePath to it.isDirectory }
-}
-
-/**
- * 递归获取目录下【所有层级】的所有文件绝对路径（仅文件，不含文件夹）
- * @return 所有子目录文件的绝对路径列表，无数据返回空列表
- * @note 遍历当前目录+所有子目录；包含非隐藏文件（listFiles未过滤隐藏，保持原逻辑）
- */
-fun File.getAllFilePathsRecursively(): List<String> {
-    if (exists().not() || isDirectory.not()) return emptyList()
-    val files = listFiles() ?: return emptyList()
-    return files.flatMap { if (it.isFile) listOf(it.absolutePath) else it.getAllFilePathsRecursively() }
-}
-
-/**
- * 通过uri获取到一个文件
+ * 通过 Uri 获取到一个文件
  */
 fun Uri?.getFileFromUri(context: Context?): File? {
     this ?: return null
@@ -755,15 +694,15 @@ private fun getFileFromCloudAlbum(context: Context, uri: Uri, prefix: String): F
          *     val realSuffix = tempUri.getRealSourceSuffix(this)
          * }
          */
-        context.contentResolver.openInputStream(uri)?.use { inputStream ->
+        context.contentResolver.openInputStream(uri)?.use { input ->
             // 获取真实后缀
             val realSuffix = uri.getRealSourceSuffix(context)
             // 先生成临时文件（避免直接创建带真实后缀的文件冲突）
             val tempTmpFile = File.createTempFile(prefix, ".tmp", context.cacheDir)
             tempTmpFile.deleteOnExit()
             // 拷贝文件流到临时.tmp文件
-            FileOutputStream(tempTmpFile).use { outputStream ->
-                inputStream.copyTo(outputStream)
+            FileOutputStream(tempTmpFile).use { output ->
+                input.copyTo(output)
             }
             // 重命名文件：将.tmp替换为真实后缀（避免文件名冲突）
             val realFileName = prefix + System.currentTimeMillis() + realSuffix
@@ -846,179 +785,4 @@ private fun getFileFromContentUriLegacy(context: Context, uri: Uri): File? {
         }
     }
     return null
-}
-
-/**
- * 文件分割
- * cutSize->分割文件的大小
- */
-internal fun File?.split(chunkSize: Long): MutableList<String> {
-    this ?: return arrayListOf()
-    // 分割文件总大小
-    val targetLength = length()
-    // 总分片数
-    val numChunks = if (targetLength.mod(chunkSize) == 0L) {
-        targetLength.div(chunkSize)
-    } else {
-        targetLength.div(chunkSize).plus(1)
-    }.toSafeInt()
-    // 获取目标文件,预分配文件所占的空间,在磁盘中创建一个指定大小的文件(r:只读)
-    val splitList = ArrayList<String>()
-    RandomAccessFile(this, "r").use { accessFile ->
-        // 文件的总大小
-        val length = accessFile.length()
-        // 文件切片后每片的最大大小
-        val maxSize = length / numChunks
-        // 初始化偏移量
-        var offSet = 0L
-        // 开始切片
-        for (i in 0 until numChunks - 1) {
-            val begin = offSet
-            val end = (i + 1) * maxSize
-            val (mFilePath, mOffSet) = write(absolutePath, i, begin, end)
-            offSet = mOffSet.orZero
-            splitList.add(mFilePath.orEmpty())
-        }
-        // 剩余部分（若存在）
-        if (length - offSet > 0) {
-            splitList.add(write(absolutePath, numChunks - 1, offSet, length).first.orEmpty())
-        }
-        // 确保返回的集合中不包含空路径
-        for (i in splitList.indices.reversed()) {
-            if (splitList.safeGet(i).isNullOrEmpty()) {
-                splitList.removeAt(i)
-            }
-        }
-    }
-    return splitList
-}
-
-/**
- * 开始创建并写入tmp文件
- * @param filePath  源文件地址
- * @param index 源文件的顺序标识
- * @param begin 开始指针的位置
- * @param end   结束指针的位置
- * @return first->分割文件地址 second->分割文件大小
- */
-private fun write(filePath: String, index: Int, begin: Long, end: Long): Pair<String?, Long?> {
-    // 源文件
-    val file = File(filePath)
-//    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件
-//    val tmpFile = File("${file.parent}/${file.name.split(".")[0]}_${index}.tmp")
-    val fileName = file.name.split(".")[0]
-    // 本地文件存储路径，例如/storage/emulated/0/oss/文件名_record
-    val recordDirectory = "${file.parent}/${fileName}_record"
-    // 定义一个可读，可写的文件并且后缀名为.tmp的二进制文件->多一个文件夹，好管理对应文件的tmp
-    val tmpFile = File("${recordDirectory}/${fileName}_${index}.tmp")
-    // 如果不存在，则创建一个或继续写入
-    return RandomAccessFile(tmpFile, "rw").use { outAccessFile ->
-        RandomAccessFile(file, "r").use { inAccessFile ->
-            // 申明具体每一文件的字节数组
-            val b = ByteArray(1024)
-            var n: Int
-            // 从指定位置读取文件字节流
-            inAccessFile.seek(begin)
-            // 判断文件流读取的边界，从指定每一份文件的范围，写入不同的文件
-            while (inAccessFile.read(b).also { n = it } != -1 && inAccessFile.filePointer <= end) {
-                outAccessFile.write(b, 0, n)
-            }
-            // 关闭输入输出流,赋值
-            tmpFile.absolutePath to inAccessFile.filePointer
-        }
-    }
-}
-
-/**
- * 读取文件到文本（文本，找不到文件或读取错返回null）
- * 1) kt中对File类做了'readText'扩展，但是实现相当于将每行文本塞入list集合，再从集合中读取
- * 2) 此项操作比较吃内存，官方注释也不推荐读取2G以上的文件，所以使用java的方法
- */
-internal fun File?.read(): String {
-    this ?: return ""
-    return if (exists()) {
-        bufferedReader().use { reader ->
-            val stringBuilder = StringBuilder()
-            var str: String?
-            while (reader.readLine().also { str = it } != null) stringBuilder.append(str)
-            stringBuilder.toString()
-        }
-    } else {
-        ""
-    }
-}
-
-/**
- * 将当前文件拷贝一份到目标路径
- */
-internal fun File?.copy(destFile: File?) {
-    if (null == this || !exists()) return
-    if (!destFile?.exists().orFalse) destFile?.createNewFile()
-    inputStream().channel.use { source ->
-        destFile?.outputStream()?.channel.use { destination ->
-            destination?.transferFrom(source, 0, source.size())
-        }
-    }
-}
-
-/**
- * 获取文件采用base64形式
- */
-internal fun File?.getBase64(): String {
-    this ?: return ""
-    return inputStream().use { input ->
-        val bytes = ByteArray(input.available())
-        val length = input.read(bytes)
-        Base64.encodeToString(bytes, 0, length, Base64.DEFAULT)
-    }
-}
-
-/**
- * 获取文件hash值
- * 满足64位哈希，不足则前位补0
- */
-internal fun File?.getHash(): String {
-    return this?.inputStream()?.use { input ->
-        val digest = MessageDigest.getInstance("SHA-256")
-        val buffer = ByteArray(1024)
-        var bytesRead: Int
-        while (input.read(buffer).also { bytesRead = it } != -1) {
-            digest.update(buffer, 0, bytesRead)
-        }
-        digest.digest().toHexString()
-    } ?: ""
-}
-
-private fun ByteArray.toHexString(): String {
-    return BigInteger(1, this).toString(16).padStart(64, '0')
-}
-
-/**
- * 获取media文件的时长（
- * 返回时长(音频，视频)->不支持在线音视频
- * 放在io子线程中读取，超时会导致卡顿或闪退
- */
-internal fun File?.getDuration(): Int {
-    this ?: return 0
-    val player = MediaPlayer()
-    return try {
-        player.setDataSource(absolutePath)
-        player.prepare()
-        // 视频时长（毫秒）/ 1000 = x秒
-        val duration = player.duration.orZero
-        duration.divide(1000, ROUND_HALF_UP).toSafeInt().apply { "文件时长：${this}秒".logE() }
-    } catch (e: Exception) {
-        e.printStackTrace()
-        0
-    } finally {
-        try {
-            player.apply {
-                stop()
-                reset()
-                release()
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
 }

@@ -19,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.function.color
 import com.example.common.utils.setStatusBarLightMode
 import com.example.framework.utils.function.inflate
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.click
@@ -47,6 +48,7 @@ import com.shuyu.gsyvideoplayer.utils.GSYVideoType
 import com.shuyu.gsyvideoplayer.utils.OrientationUtils
 import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer
 import com.shuyu.gsyvideoplayer.video.base.GSYBaseVideoPlayer
+import com.shuyu.gsyvideoplayer.video.base.GSYVideoView
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -63,7 +65,7 @@ import kotlinx.coroutines.withTimeoutOrNull
  *     android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
  *     android:screenOrientation="portrait" />
  */
-class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventObserver {
+class GSYVideoHelper(private val activity: FragmentActivity, private val autoResume: Boolean = true, private val autoPause: Boolean = true) : LifecycleEventObserver {
     // 播放/UI状态
     private var isPause = false
     private var isPrepared = false
@@ -80,8 +82,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     private var onGSYVideoPlayerListener: OnGSYVideoPlayerListener? = null
     private var onPreDrawListener: ViewTreeObserver.OnPreDrawListener? = null
     // 辅助工具类
-    private val immersionBar by lazy { ImmersionBar.with(mActivity) }
-    private val binding by lazy { ViewGsyvideoThumbBinding.bind(mActivity.inflate(R.layout.view_gsyvideo_thumb)) }
+    private val immersionBar by lazy { ImmersionBar.with(activity) }
+    private val binding by lazy { ViewGsyvideoThumbBinding.bind(activity.inflate(R.layout.view_gsyvideo_thumb)) }
     private val gsySampleCallBack by lazy {
         object : GSYSampleCallBack() {
             override fun onStartPrepared(url: String?, vararg objects: Any?) {
@@ -148,8 +150,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 super.onEnterFullscreen(url, *objects)
                 // 进入全屏,拿取此时的播放器
                 val gsy = objects[1] as? GSYBaseVideoPlayer
-//            // 当前播放器的父容器
-//            val parentView = gsy?.parent as? FrameLayout
+//                // 当前播放器的父容器
+//                val parentView = gsy?.parent as? FrameLayout
                 // 通过播放器自带的工具类获取到当前的window对象
                 val window = CommonUtil.getActivityNestWrapper(gsy?.context).window
                 // 拿取到准确的状态栏高度(横竖屏高度是不一致的)
@@ -234,13 +236,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     retryWithPlay = true
                     player.disable()
                     restartJob?.cancel()
-                    restartJob = mActivity.lifecycleScope.launch {
+                    restartJob = activity.lifecycleScope.launch {
                         // 允许硬件解码，装载IJK播放器内核
 //                        GSYVideoType.enableMediaCodec()
                         GSYVideoType.enableMediaCodecTexture()
                         PlayerFactory.setPlayManager(IjkPlayerManager::class.java)
                         CacheFactory.setCacheManager(ProxyCacheManager::class.java)
-                        delay(1000)
+                        delay(1000L)
                         player.enable()
                         player?.startPlayLogic()
                     }
@@ -267,32 +269,28 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                 super.onComplete(url, *objects)
                 onGSYVideoPlayerListener?.onComplete(url, objects)
             }
-        }
-    }
 
-    private fun checkVisibilityChange(window: Window, childView: View?) {
-        childView ?: return
-        val isVisible = childView.isVisible
-        if (isVisible != lastVisible) {
-            lastVisible = isVisible
-            if (!isVisible) {
-                controllerToggle(window, false)
-            } else {
-                controllerToggle(window, true)
+            private fun checkVisibilityChange(window: Window, childView: View?) {
+                childView ?: return
+                val isVisible = childView.isVisible
+                if (isVisible != lastVisible) {
+                    lastVisible = isVisible
+                    controllerToggle(window, isVisible)
+                }
+            }
+
+            private fun controllerToggle(window: Window, isShow: Boolean) {
+                toggleJob?.cancel()
+                toggleJob = activity.lifecycleScope.launch {
+                    delay(300L)
+                    window.controllerToggle(isShow)
+                }
             }
         }
     }
 
-    private fun controllerToggle(window: Window, isShow: Boolean) {
-        toggleJob?.cancel()
-        toggleJob = mActivity.lifecycleScope.launch {
-            delay(300)
-            window.controllerToggle(isShow)
-        }
-    }
-
     init {
-        mActivity.lifecycle.addObserver(this)
+        activity.lifecycle.addObserver(this)
     }
 
     /**
@@ -304,13 +302,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         // 返回处理
         if (showBack) {
             player?.backButton.click {
-                mActivity.finish()
+                activity.finish()
             }
         }
         // 全屏处理
         if (showFullScreen) {
             // 外部辅助的旋转，帮助全屏
-            orientationUtils = OrientationUtils(mActivity, player)
+            orientationUtils = OrientationUtils(activity, player)
             // 初始化不打开外部的旋转
             orientationUtils?.isEnable = false
             // 直接横屏
@@ -325,13 +323,13 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 设置自定义标题
      */
-    fun setCustomTitle(layoutRes: Int) {
+    fun setCustomTitle(layoutRes: Int): View? {
         // 获取播放器标题
         val targetTv = player?.titleTextView
         // 获取标题父容器
         val parent = targetTv?.parent
         if (parent !is ViewGroup) {
-            return
+            return null
         }
         // 移除原来的标题
         parent.removeView(targetTv)
@@ -340,6 +338,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
 //        customView.layoutParams = targetTv.layoutParams
         // 添加 View（自动放在原位置）
         parent.addView(customView)
+        // 返回自定义整体容器
+        return customView
     }
 
     /**
@@ -369,8 +369,8 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             if (!setUpLazy) {
                 player?.startButton.disable()
                 thumbJob?.cancel()
-                thumbJob = mActivity.lifecycleScope.launch {
-                    delay(3000)
+                thumbJob = activity.lifecycleScope.launch {
+                    delay(3000L)
                     player?.startButton.enable()
                 }
             }
@@ -388,10 +388,10 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
                     // 如果Glide加载失败,采用视频工具类的suspendingThumbnail方法再次尝试进行加载
                     binding.ivThumb.background(DEFAULT_RESOURCE)
                     thumbJob?.cancel()
-                    thumbJob = mActivity.lifecycleScope.launch {
-                        val bitmap = withTimeoutOrNull(3000) { suspendingThumbnail(mActivity, url) }
+                    thumbJob = activity.lifecycleScope.launch {
+                        val bitmap = withTimeoutOrNull(3000L) { suspendingThumbnail(activity, url) }
                         if (null != bitmap) {
-                            binding.ivThumb.setBitmap(mActivity, bitmap)
+                            binding.ivThumb.setBitmap(activity, bitmap)
                         } else {
                             binding.ivThumb.background(DEFAULT_MASK_RESOURCE)
                         }
@@ -440,7 +440,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
             // 开启构建,绑定配置
             .build(player)
         // 如果需要自动播放,此时开启
-        if (setUpLazy) start()
+        if (setUpLazy) startPlayLogic()
     }
 
     /**
@@ -455,7 +455,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     fun onBackPressed(): Boolean {
         orientationUtils?.backToProtVideo()
-        return GSYVideoManager.backFromWindowFull(mActivity)
+        return GSYVideoManager.backFromWindowFull(activity)
     }
 
     /**
@@ -469,7 +469,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      * }
      */
     fun onConfigurationChanged(newConfig: Configuration) {
-        if (isPrepared && !isPause) player?.onConfigurationChanged(mActivity, newConfig, orientationUtils, true, true)
+        if (isPrepared && !isPause) player?.onConfigurationChanged(activity, newConfig, orientationUtils, true, true)
     }
 
     fun setOnGSYVideoPlayerListener(onGSYVideoPlayerListener: OnGSYVideoPlayerListener) {
@@ -485,9 +485,9 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
      */
     override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_RESUME -> resume()
-            Lifecycle.Event.ON_PAUSE -> pause()
-            Lifecycle.Event.ON_DESTROY -> destroy()
+            Lifecycle.Event.ON_RESUME -> if (autoResume) onVideoResume()
+            Lifecycle.Event.ON_PAUSE -> if (autoPause) onVideoPause()
+            Lifecycle.Event.ON_DESTROY -> onVideoDestroy()
             else -> {}
         }
     }
@@ -495,7 +495,7 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 播放-默认一次切内核的重试机会
      */
-    fun start() {
+    fun startPlayLogic() {
         isPrepared = false
         retryWithPlay = false
         player?.startPlayLogic()
@@ -504,25 +504,29 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
     /**
      * 暂停
      */
-    fun pause() {
+    fun onVideoPause() {
         isPause = true
         player?.currentPlayer?.onVideoPause()
     }
 
     /**
      * 加载
+     * 检查播放器是否处于 “因生命周期被临时暂停” 的状态（即之前调用过 onVideoPause()）。如果是，则直接调用底层的 start() 继续播放；如果传参 seek = true，还会尝试恢复到暂停前的进度
      */
-    fun resume() {
+    fun onVideoResume(seek: Boolean = true) {
         isPause = false
-        player?.currentPlayer?.onVideoResume(false)
+        player?.currentPlayer?.onVideoResume(seek)
     }
 
     /**
      * 销毁
      */
-    fun destroy() {
+    fun onVideoDestroy() {
         clearOnGSYVideoPlayerListener()
-        onPreDrawListener?.let { topContainer?.viewTreeObserver?.removeOnPreDrawListener(it) }
+        onPreDrawListener?.let {
+            topContainer?.viewTreeObserver?.removeOnPreDrawListener(it)
+        }
+        topContainer = null
         orientationUtils?.releaseListener()
         player?.currentPlayer?.release()
         player?.release()
@@ -530,7 +534,61 @@ class GSYVideoHelper(private val mActivity: FragmentActivity) : LifecycleEventOb
         thumbJob?.cancel()
         toggleJob?.cancel()
         restartJob?.cancel()
-        mActivity.lifecycle.removeObserver(this)
+        activity.lifecycle.removeObserver(this)
+    }
+
+    /**
+     * 拖动进度条
+     * 1) seekTo() 在 GSYVideoPlayer（以及底层 IJKPlayer/ExoPlayer）中是一个纯定位操作。它只负责把播放指针移动到指定时间点，绝不会改变当前的播放/暂停状态
+     *  如果播放器当前是 播放中 → seekTo 后继续播放（从新位置开始）
+     *  如果播放器当前是 暂停中 → seekTo 后仍然保持暂停（画面停留在新位置的帧上）
+     *  如果播放器当前是 未准备/已停止 → seekTo 可能无效或被缓存到 seekOnStart 等下一次 prepare 时生效
+     * 2) seekOnStart：不是立即 seek，而是把目标进度“寄存”起来。无论播放器当前是否已 prepared、是否被 release 重建，它都会在下一次 onPrepared 回调成功后自动执行 seek
+     * 3) startPlayLogic()：触发完整的播放流程（设置 URL → prepare → start），最终一定会走到播放状态
+     * @param currentPosition 当前播放进度 -> player?.currentPositionWhenPlaying
+     */
+    fun seekTo(currentPosition: Long = currentPosition(), setUpLazy: Boolean = true) {
+        if (setUpLazy) {
+            player?.seekOnStart = currentPosition
+            startPlayLogic()
+        } else {
+            player?.seekTo(currentPosition)
+        }
+    }
+
+    /**
+     * 尝试恢复播放
+     */
+    fun resumeOrRestart(seek: Boolean = true) {
+        if (isInPlayingState()) {
+            onVideoResume(seek)
+        } else {
+            startPlayLogic()
+        }
+    }
+
+    /**
+     * 获取当前播放器进度
+     */
+    fun currentPosition(): Long {
+        return player?.currentPositionWhenPlaying.orZero
+    }
+
+    /**
+     * 判断播放器是否正处于实际播放状态
+     * 仅当画面/声音正在输出时为 true
+     * 排除：暂停、缓冲、准备中、已停止
+     * 用途：决定"恢复进度后要不要自动播放"
+     */
+    fun isActuallyPlaying(): Boolean {
+        return player?.isInPlayingState.orFalse && player?.currentState == GSYVideoView.CURRENT_STATE_PLAYING
+    }
+
+    /**
+     * 判断播放器是否处于处于活跃的播放生命周期内
+     */
+    fun isInPlayingState(): Boolean {
+        return player?.isInPlayingState.orFalse
     }
 
 }

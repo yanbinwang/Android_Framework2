@@ -18,7 +18,7 @@ import java.io.IOException
  * @autoResume 是否允许生命周期自动恢复播放（默认关闭，可开启）
  * @autoPause 是否允许生命周期自动暂停播放（默认开启，可关闭）
  */
-class MediaHelper(mActivity: FragmentActivity, private val autoResume: Boolean = false, private val autoPause: Boolean = true) : LifecycleEventObserver {
+class MediaHelper(context: Context, private val autoResume: Boolean = false, private val autoPause: Boolean = true) : LifecycleEventObserver {
     // 当前 MediaPlayer 状态（辅助判断，避免依赖 isPlaying() 单一状态）
     private var currentState = State.IDLE
     // 暴露外部回调
@@ -52,7 +52,7 @@ class MediaHelper(mActivity: FragmentActivity, private val autoResume: Boolean =
     }
     // 音频焦点管理器
     private val isOreoOrHigher get() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
-    private val audioManager by lazy { mActivity.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
+    private val audioManager by lazy { context.getSystemService(Context.AUDIO_SERVICE) as AudioManager }
     private var audioFocusRequest: AudioFocusRequest? = null
     // 低版本焦点监听器
     private val lowVersionFocusListener = AudioManager.OnAudioFocusChangeListener { focusChange ->
@@ -76,8 +76,11 @@ class MediaHelper(mActivity: FragmentActivity, private val autoResume: Boolean =
         }
     }
 
-    init {
-        mActivity.lifecycle.addObserver(this)
+    /**
+     * 建立生命周期绑定
+     */
+    fun addObserver(owner: LifecycleOwner) {
+        owner.lifecycle.addObserver(this)
     }
 
     /**

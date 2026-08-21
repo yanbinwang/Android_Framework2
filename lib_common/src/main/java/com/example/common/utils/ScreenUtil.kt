@@ -2,7 +2,6 @@ package com.example.common.utils
 
 import android.content.Context
 import android.content.res.Configuration
-import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
@@ -10,12 +9,14 @@ import android.graphics.Paint
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.LayerDrawable
 import android.graphics.drawable.VectorDrawable
 import android.os.Build
+import android.view.Gravity
 import android.view.View
 import android.view.Window
 import android.view.WindowInsets
@@ -65,7 +66,6 @@ object ScreenUtil {
      * 获取屏幕宽度（px）
      * 根据屏幕方向返回宽度：竖屏时为 widthPixels，横屏时为 heightPixels（因横屏时宽高会交换）
      */
-    @JvmStatic
     fun screenWidth(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.widthPixels
@@ -78,7 +78,6 @@ object ScreenUtil {
      * 获取屏幕高度（px）
      * 根据屏幕方向返回高度：竖屏时为 heightPixels，横屏时为 widthPixels
      */
-    @JvmStatic
     fun screenHeight(context: Context = BaseApplication.instance.applicationContext): Int {
         return if (context.resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
             context.resources.displayMetrics.heightPixels
@@ -91,7 +90,6 @@ object ScreenUtil {
      * 屏幕密度/比值(dpi值)
      * 返回屏幕密度（dpi），即 displayMetrics.densityDpi
      */
-    @JvmStatic
     fun screenDensity(context: Context = BaseApplication.instance.applicationContext): Int {
         return context.resources.displayMetrics.densityDpi
     }
@@ -101,7 +99,6 @@ object ScreenUtil {
      * 当背景颜色较暗（亮度低于0.5）时返回true，需要白色图标
      * 项目minSdk为23,底部导航栏UI修改需要安卓O(26)才开始兼容,如果使用到,执行通过if判断操作,返回false
      */
-    @JvmStatic
     fun shouldUseWhiteSystemBarsForRes(@ColorRes backgroundColor: Int): Boolean {
         return shouldUseWhiteSystemBarsForColor(color(backgroundColor))
     }
@@ -109,7 +106,6 @@ object ScreenUtil {
     /**
      * 根据颜色值(@ColorInt)的亮度判断是否需要使用白色系统状态栏/导航栏图标
      */
-    @JvmStatic
     fun shouldUseWhiteSystemBarsForColor(@ColorInt backgroundColor: Int): Boolean {
         // 使用系统API获取相对亮度（0.0-1.0之间）
         val luminance = calculateLuminance(backgroundColor)
@@ -121,7 +117,6 @@ object ScreenUtil {
      * 是否具备底部导航栏
      * 如是扩展函数,view必须是window.decorView
      */
-    @JvmStatic
     fun hasNavigationBar(): Boolean {
         val currentActivity = AppManager.currentActivity()
         val decorView = currentActivity?.window?.decorView ?: return false
@@ -129,7 +124,6 @@ object ScreenUtil {
         return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 
-    @JvmStatic
     fun hasNavigationBar(context: Context): Boolean {
         val appUsableSize = getAppUsableScreenSize(context)
         val realScreenSize = getRealScreenSize(context)
@@ -277,6 +271,13 @@ fun Window.applyFullScreen() {
  * 让一个可变属性（var） 可以先声明、后初始化，但编译期强制要求你必须初始化（否则运行时抛异常），且属性的类型是非空类型（无需 ? 声明可为空）
  */
 private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegates.notNull()
+
+/**
+ * LayerDrawable 索引约定
+ */
+private const val LAYER_WINDOW_BG = 0      // 原始 windowBackground
+private const val LAYER_NAV_BAR = 1        // 底部导航栏
+private const val LAYER_STATUS_BAR = 2     // 顶部状态栏
 
 /**
  * 针对edge-to-edge后的底部导航栏做的背景颜色适配
@@ -438,6 +439,160 @@ fun Window.removeNavigationBarDrawable() {
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
     // 重置decorView背景（避免自定义Drawable残留引用）
     // 若页面有自己的背景设置，可注释此行，避免覆盖业务背景
+    if (decorView.background is LayerDrawable) {
+        decorView.background = null
+    }
+}
+
+/**
+ * 统一设置顶部状态栏 + 底部导航栏背景颜色（Edge-to-Edge 适配）
+ * @param statusBarColor   顶部状态栏颜色资源，传 null 则不设置
+ * @param navigationBarColor 底部导航栏颜色资源，传 null 则不设置
+ * @param onWindowInsetsChanged Insets 变化回调
+ */
+fun Window.setSystemBarDrawable(@ColorRes statusBarColor: Int? = null, @ColorRes navigationBarColor: Int? = null, onWindowInsetsChanged: ((WindowInsetsCompat) -> Unit) = {}) {
+    // ====== 获取/保留原始 windowBackground ======
+    val windowBackground = decorView.background?.let { bg ->
+        when (bg) {
+            is ColorDrawable, is BitmapDrawable, is VectorDrawable -> bg
+            is LayerDrawable -> bg.getDrawable(LAYER_WINDOW_BG) ?: color(R.color.appWindowBackground).toDrawable()
+            else -> null
+        }
+    } ?: color(R.color.appWindowBackground).toDrawable()
+    // ====== 构建各层 Drawable ======
+    val layers = mutableListOf(windowBackground)
+    // 底部导航栏
+    val navTargetColor = if (navigationBarColor != null) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            color(navigationBarColor)
+        } else {
+            color(R.color.bgBlack)
+        }
+    } else {
+        null
+    }
+    val navDrawable = if (navTargetColor != null) {
+        val existing = (decorView.background as? LayerDrawable)?.getDrawable(LAYER_NAV_BAR) as? SystemBarDrawable
+        (existing ?: SystemBarDrawable(navTargetColor, gravity = Gravity.BOTTOM)).also {
+            if (it.paint.color != navTargetColor) {
+                it.paint.color = navTargetColor
+                it.invalidateSelf()
+            }
+        }
+    } else null
+    navDrawable?.let { layers.add(it) }
+    // 顶部状态栏
+    val statusTargetColor = statusBarColor?.let { color(it) }
+    val statusDrawable = if (statusTargetColor != null) {
+        val existing = (decorView.background as? LayerDrawable)?.getDrawable(LAYER_STATUS_BAR) as? SystemBarDrawable
+        (existing ?: SystemBarDrawable(statusTargetColor, gravity = Gravity.TOP)).also {
+            if (it.paint.color != statusTargetColor) {
+                it.paint.color = statusTargetColor
+                it.invalidateSelf()
+            }
+        }
+    } else null
+    statusDrawable?.let { layers.add(it) }
+    // ====== 仅在结构/颜色变化时替换 background ======
+    val combinedDrawable = LayerDrawable(layers.toTypedArray())
+    val currentBg = decorView.background
+    val needReplace = currentBg !is LayerDrawable || currentBg.numberOfLayers != layers.size || currentBg.getDrawable(LAYER_WINDOW_BG) != windowBackground || (navDrawable != null && (currentBg.getDrawable(LAYER_NAV_BAR) as? SystemBarDrawable)?.paint?.color != navDrawable.paint.color) || (statusDrawable != null && (currentBg.getDrawable(LAYER_STATUS_BAR) as? SystemBarDrawable)?.paint?.color != statusDrawable.paint.color)
+    if (needReplace) {
+        decorView.background = combinedDrawable
+    }
+    // ====== 注册监听器（统一处理 top/bottom insets）======
+    layoutChangeListener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
+        val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
+        applyInsets(v, insets, navDrawable, statusDrawable)
+        onWindowInsetsChanged(insets)
+    }
+    decorView.removeOnLayoutChangeListener(layoutChangeListener)
+    decorView.addOnLayoutChangeListener(layoutChangeListener)
+    ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
+        applyInsets(v, insets, navDrawable, statusDrawable)
+        onWindowInsetsChanged(insets)
+        WindowInsetsCompat.CONSUMED
+    }
+}
+
+/**
+ * 统一应用 insets 到顶部/底部 Drawable 和 padding
+ */
+private fun applyInsets(v: View, insets: WindowInsetsCompat, navDrawable: SystemBarDrawable?, statusDrawable: SystemBarDrawable?) {
+    val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+    val statusTop = insets.getInsets(WindowInsetsCompat.Type.statusBars()).top
+    navDrawable?.updateBarHeight(navBottom)
+    statusDrawable?.updateBarHeight(statusTop)
+    // padding 需要同时考虑顶部和底部
+    val newPaddingTop = if (statusDrawable != null) statusTop else v.paddingTop
+    val newPaddingBottom = if (navDrawable != null) navBottom else v.paddingBottom
+    if (v.paddingTop != newPaddingTop || v.paddingBottom != newPaddingBottom) {
+        v.setPadding(v.paddingLeft, newPaddingTop, v.paddingRight, newPaddingBottom)
+    }
+}
+
+/**
+ * 系统栏绘制工具，统一处理状态栏/导航栏背景绘制
+ * 支持动态更新高度，适配 Edge-to-Edge、屏幕旋转、折叠屏等场景
+ */
+class SystemBarDrawable(@ColorInt backgroundColor: Int, private var barHeight: Int = 0, private val gravity: Int = Gravity.BOTTOM) : Drawable() {
+    val paint = Paint().apply {
+        color = backgroundColor
+        isAntiAlias = true
+        style = Paint.Style.FILL
+    }
+
+    override fun draw(canvas: Canvas) {
+        if (bounds.isEmpty || barHeight <= 0) return
+        val rect = when (gravity) {
+            Gravity.TOP -> RectF(bounds.left.toFloat(), bounds.top.toFloat(), bounds.right.toFloat(), (bounds.top + barHeight).coerceAtMost(bounds.bottom).toFloat())
+            else -> RectF(bounds.left.toFloat(), (bounds.bottom - barHeight).coerceAtLeast(bounds.top).toFloat(), bounds.right.toFloat(), bounds.bottom.toFloat())
+        }
+        canvas.drawRect(rect, paint)
+    }
+
+    override fun onBoundsChange(bounds: Rect) {
+        super.onBoundsChange(bounds)
+        invalidateSelf()
+    }
+
+    @Deprecated("Deprecated in Java")
+    override fun getOpacity(): Int {
+        return PixelFormat.TRANSLUCENT
+    }
+
+    override fun setAlpha(alpha: Int) {
+        val adjusted = alpha.coerceIn(0, 255)
+        if (paint.alpha != adjusted) {
+            paint.alpha = adjusted
+            invalidateSelf()
+        }
+    }
+
+    override fun setColorFilter(colorFilter: ColorFilter?) {
+        paint.colorFilter = colorFilter
+        invalidateSelf()
+    }
+
+    fun updateBarHeight(height: Int) {
+        val valid = max(0, height)
+        if (barHeight != valid) {
+            barHeight = valid
+            callback?.invalidateDrawable(this)
+        }
+    }
+}
+
+/**
+ * 释放所有系统栏相关资源
+ */
+fun Window.removeSystemBarDrawable() {
+    try {
+        decorView.removeOnLayoutChangeListener(layoutChangeListener)
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+    ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
     if (decorView.background is LayerDrawable) {
         decorView.background = null
     }

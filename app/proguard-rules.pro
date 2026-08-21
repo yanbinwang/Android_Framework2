@@ -514,8 +514,9 @@
 
 -keep class com.example.topsheet.** {*;}
 -keep class com.example.objectbox.dao.** {*;}
--keep class com.example.thirdparty.media.oss.bean.** {*;}
+-keep class com.example.thirdparty.media.provider.oss.bean.** {*;}
 -keep class com.example.thirdparty.pay.bean.** {*;}
+-keep class com.example.thirdparty.pay.provider.alipay.bean.** {*;}
 
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.** {*;}

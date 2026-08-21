@@ -35,14 +35,20 @@ fun Context.cleanInternalCache() {
  * 清除本应用所有数据库(/data/data/com.xxx.xxx/databases)
  */
 fun Context.cleanDatabases() {
-    deleteFilesByDirectory(File("/data/data/${packageName}/databases"))
+//    deleteFilesByDirectory(File("/data/data/${packageName}/databases"))
+    // getDatabasePath 返回的是具体 db 文件路径，取其 parent 即为 databases 目录
+    val dbDir = getDatabasePath("dummy").parentFile
+    dbDir?.let { deleteFilesByDirectory(it) }
 }
 
 /**
  * 清除本应用SharedPreference(/data/data/com.xxx.xxx/shared_prefs)
  */
 fun Context.cleanSharedPreference() {
-    deleteFilesByDirectory(File("/data/data/${packageName}/shared_prefs"))
+//    deleteFilesByDirectory(File("/data/data/${packageName}/shared_prefs"))
+    // shared_prefs 没有直接 API，但它是 filesDir 的同级目录
+    val spDir = File(filesDir.parentFile, "shared_prefs")
+    deleteFilesByDirectory(spDir)
 }
 
 /**
@@ -65,16 +71,28 @@ fun Context.cleanExternalCache() {
  * 删除方法 这里只会删除某个文件夹下的文件，如果传入的directory是个文件，将不做处理
  */
 private fun deleteFilesByDirectory(directory: File) {
-    if (directory.exists() && directory.isDirectory) {
-        for (item in directory.listFiles().orEmpty()) {
-            if (null == item) continue
-            if (item.isDirectory) {
-                //不删除mmkv文件
-                if (item.name == "MMKV" || item.name == "mmkv") continue
-                deleteFilesByDirectory(item)
-            }
-            item.delete()
+//    if (directory.exists() && directory.isDirectory) {
+//        for (item in directory.listFiles().orEmpty()) {
+//            if (null == item) continue
+//            if (item.isDirectory) {
+//                // 不删除mmkv文件
+//                if (item.name == "MMKV" || item.name == "mmkv") continue
+//                deleteFilesByDirectory(item)
+//            }
+//            item.delete()
+//        }
+//    }
+    if (!directory.exists() || !directory.isDirectory) return
+    for (item in directory.listFiles().orEmpty()) {
+        if (item == null) continue
+        if (item.isDirectory) {
+            // 保护 MMKV 目录及其所有内容
+            if (item.name.equals("MMKV", ignoreCase = true)) continue
+            // 递归清理子目录内容
+            deleteFilesByDirectory(item)
         }
+        // 文件直接删除
+        item.delete()
     }
 }
 

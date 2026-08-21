@@ -106,15 +106,15 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
     }
 
     private class ProxyOnclickListener(private var onclick: View.OnClickListener?) : View.OnClickListener {
-        private var lastClickTime: Long = 0
+        private var lastClickTime = 0L
 
         override fun onClick(v: View?) {
             // 点击时间控制
             val currentTime = System.currentTimeMillis()
-            val minClickDelayTime = 500
+            val minClickDelayTime = 500L
             if (currentTime - lastClickTime > minClickDelayTime) {
                 lastClickTime = currentTime
-                if (onclick != null) onclick?.onClick(v)
+                onclick?.onClick(v)
             }
         }
     }

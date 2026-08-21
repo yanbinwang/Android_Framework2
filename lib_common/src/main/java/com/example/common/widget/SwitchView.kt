@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.Gravity
 import android.view.View
 import android.widget.FrameLayout
-import com.example.common.R
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.createRectangleDrawable
 import com.example.framework.utils.function.value.toSafeInt
@@ -13,12 +12,12 @@ import com.example.framework.utils.function.view.alpha
 import com.example.framework.utils.function.view.byHardwareAccelerate
 import com.example.framework.utils.function.view.cancelAnim
 import com.example.framework.utils.function.view.click
-import com.example.framework.utils.function.view.dimen
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.move
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.function.view.stopHardwareAccelerate
 import com.example.framework.utils.function.view.visible
 
 /**
@@ -75,6 +74,17 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         byHardwareAccelerate()
         viewCircle.byHardwareAccelerate()
         viewBgSelected.byHardwareAccelerate()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+        // 先取消正在执行的动画，再释放硬件层
+        viewCircle.cancelAnim()
+        viewBgSelected.cancelAnim()
+        viewBg.cancelAnim()
+        stopHardwareAccelerate()
+        viewCircle.stopHardwareAccelerate()
+        viewBgSelected.stopHardwareAccelerate()
     }
 
     /**

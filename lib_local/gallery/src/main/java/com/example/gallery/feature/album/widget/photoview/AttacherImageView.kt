@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
+import androidx.annotation.DrawableRes
 import androidx.appcompat.widget.AppCompatImageView
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.drawable
@@ -17,6 +18,7 @@ class AttacherImageView @JvmOverloads constructor(context: Context, attrs: Attri
     private var mAttacher: PhotoViewAttacher? = null
     // 播放按钮
     private var mPlayIcon: Drawable? = null
+    private var mCurrentPlayRes = -1
 
     /**
      * 重写绘制方法,添加播放图标
@@ -24,9 +26,10 @@ class AttacherImageView @JvmOverloads constructor(context: Context, attrs: Attri
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         mPlayIcon?.let { icon ->
-            val left = (width - icon.intrinsicWidth) / 2
-            val top = (height - icon.intrinsicHeight) / 2
-            icon.setBounds(left, top, left + icon.intrinsicWidth, top + icon.intrinsicHeight)
+            val size = 40.pt
+            val left = (width - size) / 2
+            val top = (height - size) / 2
+            icon.setBounds(left, top, left + size, top + size)
             icon.draw(canvas)
         }
     }
@@ -52,11 +55,11 @@ class AttacherImageView @JvmOverloads constructor(context: Context, attrs: Attri
     /**
      * 显示播放图标（只有图标不一样才刷新）
      */
-    fun showPlayIcon(resId: Int) {
-        val newIcon = context.drawable(resId)?.also { it.setBounds(0, 0, 40.pt, 40.pt) }
+    fun showPlayIcon(@DrawableRes resId: Int) {
         // 状态没变 → 不执行任何操作
-        if (mPlayIcon === newIcon) return
-        mPlayIcon = newIcon
+        if (mCurrentPlayRes == resId) return
+        mCurrentPlayRes = resId
+        mPlayIcon = context.drawable(resId)
         invalidate()
     }
 
@@ -65,8 +68,9 @@ class AttacherImageView @JvmOverloads constructor(context: Context, attrs: Attri
      */
     fun hidePlayIcon() {
         // 本来就是空 → 直接 return，不刷新、不赋值
-        if (mPlayIcon == null) return
+        if (mCurrentPlayRes == -1) return
         mPlayIcon = null
+        mCurrentPlayRes = -1
         invalidate()
     }
 

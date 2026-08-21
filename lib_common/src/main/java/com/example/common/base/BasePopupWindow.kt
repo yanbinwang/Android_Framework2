@@ -37,12 +37,12 @@ import com.example.common.base.bridge.BaseImpl
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.doOnDestroy
-import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.doOnceAfterLayout
 import com.example.framework.utils.function.view.layoutGravity
 import com.example.framework.utils.function.view.size
+import com.example.framework.utils.logE
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,6 +77,7 @@ import java.lang.reflect.ParameterizedType
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
     private var showJob: Job? = null
+    private var lifecycleListener: OnPopupLifecycleListener? = null
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private val isTranslate get() = popupAnimStyle == TRANSLATE
@@ -171,13 +172,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         setAnimation()
         setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
         setOnDismissListener {
-            if (hasLight) {
-                layoutParams?.alpha = 1f
-                window.attributes = layoutParams
-            }
-            if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
-                setNavigationBarColor(R.color.bgTransparent)
-            }
+            restoreHostState()
+            lifecycleListener?.onPopupDismiss()
         }
     }
 
@@ -213,6 +209,16 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 //        }
     }
 
+    private fun restoreHostState() {
+        if (hasLight) {
+            layoutParams?.alpha = 1f
+            window.attributes = layoutParams
+        }
+        if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
+            setNavigationBarColor(R.color.bgTransparent)
+        }
+    }
+
     override fun initData() {
     }
     // </editor-fold>
@@ -239,17 +245,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
         showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkShowAtLocationConditions)
     }
-
-//    private fun checkShowAsDropDownConditions() = Looper.myLooper() != null &&
-//            Looper.myLooper() == Looper.getMainLooper() &&
-//            rootView?.context != null &&
-//            (rootView?.context as? Activity)?.isFinishing == false &&
-//            (rootView?.context as? Activity)?.isDestroyed == false
-//
-//    private fun checkShowAtLocationConditions() = Looper.myLooper() != null &&
-//            Looper.myLooper() == Looper.getMainLooper() &&
-//            (context as? Activity)?.isFinishing == false &&
-//            (context as? Activity)?.isDestroyed == false
 
     private fun checkShowAsDropDownConditions(): Boolean {
         return checkPopupShowConditions(rootView?.context)
@@ -284,6 +279,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             try {
                 setAttributes()
                 showFunction.invoke()
+                lifecycleListener?.onPopupShow()
                 if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
                     showJob?.cancel()
                     showJob = lifecycleOwner?.lifecycleScope?.launch {
@@ -306,12 +302,16 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     override fun dismiss() {
         if (!isShowing) return
-        if ((context as? Activity)?.isFinishing.orFalse) return
-        if ((context as? Activity)?.isDestroyed.orFalse) return
-        if ((context as? Activity)?.window?.windowManager == null) return
-        if (window.windowManager == null) return
-        if (window.decorView.parent == null) return
-        super.dismiss()
+        if (activity.isFinishing || activity.isDestroyed) return
+        if (window?.windowManager == null) return
+        if (window?.decorView == null) return
+        if (window?.decorView?.parent == null) return
+        try {
+            super.dismiss()
+        } catch (e: Exception) {
+            e.logE
+            restoreHostState()
+        }
     }
 
     /**
@@ -398,6 +398,23 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun showDown(anchor: View?) {
         if (!isShowing) showAsDropDown(anchor)
+    }
+
+    /**
+     * 设置生命周期监听器
+     * 替代直接调用 setOnDismissListener
+     */
+    open fun setOnPopupLifecycleListener(listener: OnPopupLifecycleListener?) {
+        this.lifecycleListener = listener
+    }
+
+    /**
+     * PopupWindow 生命周期监听接口
+     * 替代直接使用 setOnDismissListener / 手动处理 show 逻辑，避免外部覆盖导致内部状态恢复丢失
+     */
+    interface OnPopupLifecycleListener {
+        fun onPopupShow() {}
+        fun onPopupDismiss() {}
     }
     // </editor-fold>
 

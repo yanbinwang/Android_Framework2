@@ -82,12 +82,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 }
                 ivLeft.margin(start = 5.pt)
             }
-            // 部分情况下，头部的高度会被AppToolbar绘制，整体如果是在下方容器添加，居中就还会被拉下去一块，故而减去这块
-            val windows = getBoolean(R.styleable.EmptyLayout_elEnableWindow, false)
-            setWindows(windows)
             // 默认是否传递点击
             val clickable = getBoolean(R.styleable.EmptyLayout_elEnableClickable, false)
             isClickable = clickable
+            // 部分情况下，头部的高度会被 AppToolbar 绘制，整体如果是在下方容器添加时，居中就还会被拉下去一块，故而减去这块
+            val immersiveCompensation = getBoolean(R.styleable.EmptyLayout_elImmersiveCompensation, false)
+            setFullScreenOffset(immersiveCompensation)
         }
         // 绘制大小撑到最大/默认背景
         binding.root.size(MATCH_PARENT, MATCH_PARENT)
@@ -127,11 +127,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 数据为空--只会在200并且无数据的时候展示
      */
-    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         appear(300)
         state = EmptyLayoutState.Empty
         fullScreenState()
-        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
+        if (null != iconWidth && null != iconHeight) binding.ivEmpty.size(iconWidth.pt, iconHeight.pt)
         binding.ivEmpty.setResource(resId ?: R.mipmap.bg_data_empty)
         binding.tvEmpty.text = if (text.isNullOrEmpty()) string(R.string.dataEmpty) else text
         if (!refreshText.isNullOrEmpty()) {
@@ -146,11 +146,11 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
      * 数据加载失败-无网络，服务器请求
      * 无网络优先级最高
      */
-    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         appear(300)
         state = EmptyLayoutState.Error
         fullScreenState()
-        if (null != width && null != height) binding.ivEmpty.size(width.pt, height.pt)
+        if (null != iconWidth && null != iconHeight) binding.ivEmpty.size(iconWidth.pt, iconHeight.pt)
         if (!isNetworkAvailable()) {
             binding.ivEmpty.setResource(R.mipmap.bg_data_net_error)
             binding.tvEmpty.text = string(R.string.dataNetError)
@@ -165,12 +165,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     /**
      * 针对首页的遮罩，如果需要展示则显示，不然直接删除自身
      */
-    fun completion(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
+    fun finish(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
         if (isSuccessful) {
             removeSelf()
         } else {
             if (!exist()) return
-            error(resId, text, refreshText, width, height)
+            error(resId, text, refreshText, iconWidth, iconHeight)
         }
     }
 
@@ -198,15 +198,16 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
 
     /**
      * 特殊用法，部分页面需要全屏的empty，带一个返回按钮
-     * 1.只需关闭页面直接调setBack（this）
-     * 2.返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
+     * 1) 只需关闭页面直接调setBack（this）
+     * 2) 返回按钮点击后做别的操作setBack（onClick = {}）->不需要传activity
      */
-    fun setFullScreen(mActivity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { mActivity?.finish() }) {
+    fun setFullScreen(activity: FragmentActivity? = null, resId: Int = R.mipmap.ic_btn_back, tintColor: Int = 0, onClick: () -> Unit = { activity?.finish() }) {
         ivLeft.also {
             it.setResource(resId)
             if (0 != tintColor) it.tint(tintColor)
             it.size(44.pt, 44.pt)
             it.padding(10.pt, 10.pt, 10.pt, 10.pt)
+            it.margin(top = getStatusBarHeight())
             click {
                 onClick.invoke()
             }
@@ -214,10 +215,12 @@ class EmptyLayout @JvmOverloads constructor(context: Context, attrs: AttributeSe
     }
 
     /**
-     * 设置是否是窗口
+     * 窗口模式下，EmptyLayout 需覆盖整个页面（含沉浸式标题栏）。
+     * 内容区需上移以抵消「状态栏 + 设计稿标准Toolbar高度(44pt)」的偏移，
+     * 使空状态图标在可视区域内垂直居中。
      */
-    fun setWindows(windows: Boolean) {
-        if (windows) {
+    fun setFullScreenOffset(enable: Boolean) {
+        if (enable && !fullScreen) {
             binding.llContent.margin(top = -(getStatusBarHeight() + 44.pt))
         }
     }

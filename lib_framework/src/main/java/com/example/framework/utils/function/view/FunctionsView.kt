@@ -69,7 +69,6 @@ import com.example.framework.utils.function.font
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logE
 import com.example.framework.utils.logWTF
 import com.google.android.material.appbar.AppBarLayout
 import java.util.WeakHashMap
@@ -542,7 +541,7 @@ fun View?.vibrate(milliseconds: Long) {
 /**
  * 透明度
  * @param fromAlpha 0f-1f
- * @param to 0f-1f
+ * @param toAlpha 0f-1f
  */
 fun View?.alpha(fromAlpha: Float, toAlpha: Float, timeMS: Long, block: () -> Unit = {}) {
     if (this == null) return
@@ -641,6 +640,8 @@ fun View?.rotate(timeMS: Long = 500L, cancelAnim: Boolean = true, block: () -> U
     anim.playTogether(ObjectAnimator.ofFloat(this, "rotation", 0f, 360f))
     anim.duration = timeMS
     anim.doOnEnd {
+        // 重置为真实初始值，保持与 alpha 系列一致的状态干净原则
+        this@rotate.rotation = 0f
         block.invoke()
     }
     anim.start()
@@ -700,13 +701,75 @@ fun View?.move(xFrom: Float, xTo: Float, yFrom: Float, yTo: Float, timeMS: Long,
 }
 
 /**
- * 平移动画
- * 参数：0f, ScreenUtils.getScreenW(context).toFloat()
- * .doOnEnd->动画结束后
+ * View 动画属性常量，避免魔法字符串
  */
-fun View?.translationX(vararg values: Float): ObjectAnimator? {
+object ViewAnimProps {
+    //  平移 - 沿 X 轴水平移动（不影响布局位置，仅改变视觉渲染位置）
+    const val TRANSLATION_X = "translationX"
+    // 平移 - 沿 Y 轴垂直移动（不影响布局位置，仅改变视觉渲染位置）
+    const val TRANSLATION_Y = "translationY"
+    // 透明度 - 0f(完全透明) ~ 1f(完全不透明)
+    const val ALPHA = "alpha"
+    // 缩放 - 沿 X 轴水平缩放，1f 为原始大小
+    const val SCALE_X = "scaleX"
+    // 缩放 - 沿 Y 轴垂直缩放，1f 为原始大小
+    const val SCALE_Y = "scaleY"
+    // 旋转 - 绕 Z 轴在屏幕平面内旋转（2D 旋转），单位为度
+    const val ROTATION = "rotation"
+    // 旋转 - 绕 X 轴旋转（3D 翻转效果，类似卡片上下翻面），单位为度
+    const val ROTATION_X = "rotationX"
+    // 旋转 - 绕 Y 轴旋转（3D 翻转效果，类似卡片左右翻面），单位为度
+    const val ROTATION_Y = "rotationY"
+    // 绝对定位 - View 左边缘相对于父容器的 X 坐标（= left + translationX）
+    const val X = "x"
+    // 绝对定位 - View 上边缘相对于父容器的 Y 坐标（= top + translationY）
+    const val Y = "y"
+}
+
+/**
+ * 统一的 ObjectAnimator 创建入口
+ * 1) 自动处理 null safety
+ * 2) 属性名通过 ViewAnimProps 约束，IDE 可补全
+ */
+fun View?.animOfFloat(property: String, vararg values: Float): ObjectAnimator? {
     this ?: return null
-    return ObjectAnimator.ofFloat(this, "translationX", *values)
+    return ObjectAnimator.ofFloat(this, property, *values)
+}
+
+/**
+ * 动画循环
+ */
+fun View?.loopAnim(@AnimRes animRes: Int) {
+    this ?: return
+    val anim = AnimationUtils.loadAnimation(context, animRes)
+    loopAnim(anim)
+}
+
+fun View?.loopAnim(anim: Animation) {
+    this ?: return
+    cancelAnim()
+    anim.apply {
+        repeatMode = Animation.RESTART
+        repeatCount = Animation.INFINITE
+    }
+    startAnimation(anim)
+}
+
+/**
+ * 启动 XML 定义的动画
+ * 1) 自动清理旧动画并触发其业务收尾
+ * 2) 避免直接 startAnimation 导致的引用叠加
+ */
+fun View?.startAnim(@AnimRes animRes: Int) {
+    this ?: return
+    val anim = AnimationUtils.loadAnimation(context, animRes)
+    startAnim(anim)
+}
+
+fun View?.startAnim(anim: Animation) {
+    this ?: return
+    cancelAnim()
+    startAnimation(anim)
 }
 
 /**
@@ -714,69 +777,48 @@ fun View?.translationX(vararg values: Float): ObjectAnimator? {
  */
 fun View?.cancelAnim() {
     this ?: return
-    animation?.setAnimationListener(null)
+    // 先停止播放，阻止后续帧计算
     animation?.cancel()
-    animate()?.setUpdateListener(null)
-    animate()?.setListener(null)
-    animate()?.cancel()
-}
-
-/**
- * 动画循环
- */
-fun View?.loopAnimation(anim: Animation) {
-    this ?: return
-    try {
-        clearAnimation()
-        anim.apply {
-            repeatMode = Animation.RESTART
-            repeatCount = Animation.INFINITE
-        }
-        startAnimation(anim)
-        animation.doOnEnd {
-            startAnimation(anim)
-        }
-    } catch (e: Exception) {
-        e.logE
-    }
-}
-
-fun View?.loopAnimation(@AnimRes animRes: Int) {
-    this ?: return
-    val anim = AnimationUtils.loadAnimation(context, animRes)
-    loopAnimation(anim)
-}
-
-/**
- * 动画循环
- */
-fun View?.startAnimation(@AnimRes animRes: Int) {
-    this ?: return
-    val anim = AnimationUtils.loadAnimation(context, animRes)
-    // 停止动画并重置 View 位置(会完全移除 View 上的动画引用，避免动画在 View 被销毁后仍持有引用,onDestroy也推荐使用)
+    // 再解绑，清理引用
+    animation?.setAnimationListener(null)
+    // 移除 View 对 Animation 的强引用
     clearAnimation()
-    startAnimation(anim)
-}
-
-/**
- * 动画停止
- */
-fun View?.cancelAnimation() {
-    this ?: return
-    try {
-        // 仅移除监听器，动画继续
-        animation?.setAnimationListener(null)
-        // 停止动画，View 保持当前状态(虽然停止了动画，但 View 仍保留着对动画对象的引用)
-        animation?.cancel()
-    } catch (e: Exception) {
-        e.logE
+    // ViewPropertyAnimator 清理
+    animate()?.apply {
+        cancel()
+        setUpdateListener(null)
+        setListener(null)
     }
 }
 
 /**
- * 开启硬件加速
+ * 开启硬件加速 (用显存换帧率，只有当“不换显存就会掉帧”时才值得开)
+ * 1) 空 Paint 在渲染结果上与 null 一致，但在性能开销上不等价
+ * 2) 硬件层的 Paint 仅支持以下三类属性，传其他任何属性都会被静默忽略或导致回退软件渲染：
+ * ColorFilter	   整体调色、暗黑模式适配、灰度化	 Shader（BitmapShader/GradientShader等）
+ * MaskFilter	   边缘模糊、浮雕效果	         PathEffect（DashPathEffect等）
+ * Xfermode	       混合模式裁剪、圆角遮罩         StrokeCap / StrokeJoin / Style
+ * Alpha (0-255)   整层透明度	                 TextSize / Typeface / FontFeatureSettings
+ *
+ * // 场景1：View 整体灰度化（如未选中状态）
+ * val grayPaint = Paint().apply {
+ *     colorFilter = ColorMatrixColorFilter(ColorMatrix().apply { setSaturation(0f) })
+ * }
+ * view.byHardwareAccelerate(grayPaint)
+ *
+ * // 场景2：View 整体暗化（如弹窗背景蒙层）
+ * val dimPaint = Paint().apply {
+ *     colorFilter = LightingColorFilter(0x888888, 0x000000)
+ * }
+ * view.byHardwareAccelerate(dimPaint)
+ *
+ * // 场景3：混合模式裁剪（如异形遮罩）
+ * val maskPaint = Paint().apply {
+ *     xfermode = PorterDuffXfermode(PorterDuff.Mode.DST_IN)
+ * }
+ * view.byHardwareAccelerate(maskPaint)
  */
-fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
+fun View?.byHardwareAccelerate(paint: Paint? = null) {
     if (this == null) return
     setLayerType(View.LAYER_TYPE_HARDWARE, paint)
 }
@@ -786,7 +828,7 @@ fun View?.byHardwareAccelerate(paint: Paint? = Paint()) {
  */
 fun View?.stopHardwareAccelerate() {
     if (this == null) return
-    setLayerType(View.LAYER_TYPE_SOFTWARE, Paint())
+    setLayerType(View.LAYER_TYPE_SOFTWARE, null)
 }
 
 /**
@@ -999,31 +1041,33 @@ fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) 
 }
 
 /**
- * 图片src资源
- * setImageResource()里面是int类型 无法使用setImageResource来清空图片,不过Bitmap可以设置为nul从而达到设置为空的效果
- * 设置setImageDrawable(null)
+ * 图片 src 资源
+ * setImageResource() 里面是 int 类型 无法使用 setImageResource 来清空图片,不过 Bitmap 可以设置为 null 从而达到设置为空的效果 -> 设置 setImageDrawable(null)
  */
 fun ImageView?.setDrawable(drawable: Drawable?) {
     this ?: return
     setImageDrawable(drawable)
 }
 
+/**
+ * 1) 调用 setImageResource(0) 会导致 ImageView 显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
+ * 2) 调用 setImageResource(-1) 会闪退报错
+ * 3) 清空 ImageView 资源统一调用 setDrawable(null)
+ */
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
-    /**
-     * 调用setImageResource(0)会导致ImageView显示一个默认的占位符图片，而不是显示任何有效的图像资源‌
-     * -1则会闪退报错
-     */
     setImageResource(resId)
 }
 
 /**
- * 设置按钮显影图片
+ * 根据密码是否可见，切换对应的图标资源
+ * @param isVisible 密码当前是否可见
+ * @param visibleRes 密码可见时的图标（如：睁眼）
+ * @param hiddenRes 密码不可见时的图标（如：闭眼）
  */
-fun ImageView?.setResource(triple: Triple<Boolean, Int, Int>) {
+fun ImageView?.updatePasswordIcon(isVisible: Boolean, @DrawableRes visibleRes: Int, @DrawableRes hiddenRes: Int) {
     this ?: return
-    val (isDisplay, showRes, hideRes) = triple
-    setImageResource(if (!isDisplay) hideRes else showRes)
+    setImageResource(if (isVisible) visibleRes else hiddenRes)
 }
 
 /**

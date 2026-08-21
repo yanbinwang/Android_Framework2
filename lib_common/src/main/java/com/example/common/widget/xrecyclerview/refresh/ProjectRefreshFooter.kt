@@ -8,8 +8,11 @@ import android.view.View
 import androidx.annotation.ColorRes
 import com.example.common.R
 import com.example.common.databinding.ViewRefreshFooterBinding
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.value.orFalse
+import com.example.framework.utils.function.view.doOnceAfterLayout
+import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.setResource
 import com.example.framework.utils.function.view.tint
@@ -20,6 +23,7 @@ import com.scwang.smart.refresh.layout.api.RefreshKernel
 import com.scwang.smart.refresh.layout.api.RefreshLayout
 import com.scwang.smart.refresh.layout.constant.RefreshState
 import com.scwang.smart.refresh.layout.constant.SpinnerStyle
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * author:wyb
@@ -27,18 +31,24 @@ import com.scwang.smart.refresh.layout.constant.SpinnerStyle
  */
 @SuppressLint("RestrictedApi")
 class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr), RefreshFooter {
-    private var noMoreData = false
+//    private var noMoreData = false
+    private var isNoMore = AtomicBoolean(false)
     private var animation: AnimationDrawable? = null
     private val binding by lazy { ViewRefreshFooterBinding.bind(context.inflate(R.layout.view_refresh_footer)) }
     internal var onDragListener: ((isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) -> Unit)? = null
 
     init {
+        binding.root.doOnceAfterLayout {
+            it.getLifecycleOwner().doOnDestroy {
+                release()
+            }
+        }
         binding.ivProgress.let {
             it.setResource(R.drawable.animation_list_loadmore)
             it.tint(R.color.appTheme)
             animation = it.drawable as? AnimationDrawable
         }
-        setNoMoreData(noMoreData)
+        setNoMoreData(false)
     }
 
     override fun onDetachedFromWindow() {
@@ -48,6 +58,30 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onInflate() {
         if (shouldInflate) addView(binding.root)
+    }
+
+    /**
+     * 设置数据全部加载完成，将不能再次触发加载功能
+     * @param noMoreData – 是否有更多数据
+     * @Returns: true 支持全部加载完成的状态显示 false 不支持
+     */
+    override fun setNoMoreData(noMoreData: Boolean): Boolean {
+//        this.noMoreData = noMoreData
+//        if (noMoreData) {
+//            animation?.stop()
+//            animation?.selectDrawable(0)
+//            binding.tvMsg.visible()
+//            binding.ivProgress.gone()
+//        } else {
+//            binding.tvMsg.gone()
+//            binding.ivProgress.visible()
+//        }
+        isNoMore.set(noMoreData)
+        if (noMoreData) {
+            animation?.selectDrawable(0)
+        }
+        updateNoMoreDataUi()
+        return true
     }
 
     override fun onStateChanged(refreshLayout: RefreshLayout, oldState: RefreshState, newState: RefreshState) {
@@ -70,12 +104,16 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
     override fun onMoving(isDragging: Boolean, percent: Float, offset: Int, height: Int, maxDragHeight: Int) {
         onDragListener?.invoke(isDragging, percent, offset, height, maxDragHeight)
         if (!isDragging) return
-        if (noMoreData) {
-            animation?.stop()
-            binding.tvMsg.visible()
-            binding.ivProgress.gone()
-            return
-        }
+//        if (noMoreData) {
+//            animation?.stop()
+//            binding.tvMsg.visible()
+//            binding.ivProgress.gone()
+//            return
+//        }
+//        if (animation?.isRunning.orFalse) return
+//        animation?.start()
+        updateNoMoreDataUi()
+        if (isNoMore.get()) return
         if (animation?.isRunning.orFalse) return
         animation?.start()
     }
@@ -88,6 +126,7 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
 
     override fun onFinish(refreshLayout: RefreshLayout, success: Boolean): Int {
         animation?.stop()
+        animation?.selectDrawable(0)
         return 0
     }
 
@@ -102,9 +141,11 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
         return false
     }
 
-    override fun setNoMoreData(noMoreData: Boolean): Boolean {
-        this.noMoreData = noMoreData
-        if (noMoreData) {
+    /**
+     * 内部统一切换 noMoreData 的 UI 状态
+     */
+    private fun updateNoMoreDataUi() {
+        if (isNoMore.get()) {
             animation?.stop()
             binding.tvMsg.visible()
             binding.ivProgress.gone()
@@ -112,7 +153,6 @@ class ProjectRefreshFooter @JvmOverloads constructor(context: Context, attrs: At
             binding.tvMsg.gone()
             binding.ivProgress.visible()
         }
-        return true
     }
 
     /**

@@ -15,7 +15,10 @@ import com.example.common.utils.function.deleteFile
 import com.example.framework.utils.function.TrackableLifecycleService
 import com.example.framework.utils.function.string
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.NotificationUtil.notificationId
+import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_AUDIO_RECORD
+import com.example.thirdparty.utils.NotificationUtil.builder
+import java.lang.ref.WeakReference
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  *  <service
@@ -34,12 +37,12 @@ class RecordingService : TrackableLifecycleService() {
         /**
          * 是否是关闭页面，由外层传入，以此判断在服务OnDestroy的时候是否需要执行停止
          */
-        var isDestroy = false
+        var isDestroy = AtomicBoolean(false)
 
-        private var listener: OnRecorderListener? = null
+        private var listener: WeakReference<OnRecorderListener>? = null
 
         fun setOnRecorderListener(listener: OnRecorderListener) {
-            this.listener = listener
+            this.listener = WeakReference(listener)
         }
     }
 
@@ -48,35 +51,46 @@ class RecordingService : TrackableLifecycleService() {
         // 创建符合Android 15要求的通知渠道
         val channelId = string(R.string.notificationChannelId)
         val channelName = string(R.string.notificationChannelName)
+        val channelDesc = "用于显示音频录制状态"
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             // 录屏服务建议使用低重要性，避免打扰用户
             val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_LOW).apply {
-                description = "用于显示音频录制状态"
+                description = channelDesc
                 setSound(null, null) // 关闭通知声音
             }
             val notificationManager = getSystemService(NotificationManager::class.java)
             notificationManager.createNotificationChannel(channel)
         }
         // 构建完整的通知
-        val notification = NotificationCompat.Builder(this, channelId)
-            .setContentTitle("正在录音") // 强制要求：标题
-            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
-            .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setOngoing(true) // 标记为持续通知，用户无法手动清除
-            .setSilent(true) // 静音通知
-            .build()
+//        val notification = NotificationCompat.Builder(this, channelId)
+//            .setContentTitle("正在录音") // 强制要求：标题
+//            .setSmallIcon(R.mipmap.ic_launcher) // 强制要求：图标
+//            .setPriority(NotificationCompat.PRIORITY_LOW)
+//            .setOngoing(true) // 标记为持续通知，用户无法手动清除
+//            .setSilent(true) // 静音通知
+//            .build()
+        val notification = builder(
+            largeIcon = null,
+            title = "正在录音",
+            autoCancel = false,
+            silent = true,
+            ongoing = true,
+            priority = NotificationCompat.PRIORITY_LOW
+        ).build()
         // 启动前台服务（Android 15要求必须在启动服务后5秒内调用）
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            startForeground(notificationId, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
+            startForeground(NOTIFY_ID_AUDIO_RECORD, notification, FOREGROUND_SERVICE_TYPE_MICROPHONE or FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         } else {
-            startForeground(notificationId, notification)
+            startForeground(NOTIFY_ID_AUDIO_RECORD, notification)
         }
         // 获取 PowerManager 实例
         val powerManager = getSystemService(POWER_SERVICE) as? PowerManager
         // 创建一个 PARTIAL_WAKE_LOCK 类型的 WakeLock，它可以让 CPU 保持唤醒状态，但允许屏幕和键盘背光关闭
         wakeLock = powerManager?.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "RecordingService:WakeLock")
-        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放
-        wakeLock?.acquire()
+        // 单点控制，关闭引用计数
+        wakeLock?.setReferenceCounted(false)
+        // 获取 WakeLock  获取一个带有超时限制的唤醒锁，当超过指定的超时时间后，唤醒锁会自动释放 2小时兜底，正常流程会在 onDestroy 主动释放
+        wakeLock?.acquire(2 * 60 * 60 * 1000L)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -106,13 +120,13 @@ class RecordingService : TrackableLifecycleService() {
                 prepare()
                 start()
                 // 仅在 start 成功后触发
-                listener?.onStart(folderPath)
+                listener?.get()?.onStart(folderPath)
             }
         } catch (e: Exception) {
-            isDestroy = true
+            isDestroy.set(true)
             // 确保资源被释放（调用 stopSelf() 之后，onDestroy() 方法会在稍后的某个时刻被系统调用，而在这期间若有其他代码尝试访问未释放的资源，可能会引发异常）
             releaseRecorder()
-            listener?.onError(e)
+            listener?.get()?.onError(e)
             stopSelf()
         }
     }
@@ -121,15 +135,15 @@ class RecordingService : TrackableLifecycleService() {
      * 停止录制
      */
     private fun stopRecording() {
-        listener?.onShutter()
+        listener?.get()?.onShutter()
         recorder?.runCatching {
             // 阻塞直到文件写入完成
             stop()
             releaseRecorder()
         }?.onSuccess {
-            listener?.onStop()
+            listener?.get()?.onStop()
         }?.onFailure {
-            listener?.onError(it as? Exception)
+            listener?.get()?.onError(it as? Exception)
         }
     }
 
@@ -156,8 +170,8 @@ class RecordingService : TrackableLifecycleService() {
             }
         }
         wakeLock = null
-        if (isDestroy) {
-            isDestroy = false
+        if (isDestroy.get()) {
+            isDestroy.set(false)
             releaseRecorder()
             folderPath.deleteFile()
         } else {

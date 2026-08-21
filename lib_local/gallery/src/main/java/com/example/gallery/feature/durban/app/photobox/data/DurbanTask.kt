@@ -74,7 +74,7 @@ class DurbanTask(private val activity: FragmentActivity) {
         val duration = System.currentTimeMillis() - dialogShowTime
         if (duration < 1000) {
             // 不足1000ms，延迟到1000ms再消失
-            schedule(activity, {
+            activity.schedule({
                 listener.invoke()
             }, 1000 - duration)
         } else {

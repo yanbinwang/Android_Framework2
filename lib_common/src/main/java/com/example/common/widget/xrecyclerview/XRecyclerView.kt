@@ -8,9 +8,11 @@ import android.widget.FrameLayout
 import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.core.content.withStyledAttributes
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
 import com.example.common.base.binding.adapter.BaseQuickAdapter
+import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.SpacingDecoration.ItemDecorationProps
@@ -24,6 +26,7 @@ import com.example.common.widget.xrecyclerview.refresh.setupPullRefresh
 import com.example.common.widget.xrecyclerview.refresh.setupRefreshLoadMore
 import com.example.common.widget.xrecyclerview.refresh.setupStickyRefresh
 import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.view.getScreenLocation
 import com.example.framework.utils.function.view.init
 import com.example.framework.utils.function.view.initConcat
 import com.example.framework.utils.function.view.initGridHorizontal
@@ -56,7 +59,13 @@ import com.scwang.smart.refresh.layout.listener.OnRefreshLoadMoreListener
  * 在Android中，如果子View的宽度或高度设置为match_parent，而父View的宽度或高度设置为wrap_content，则会出现以下情况：
  * 子View将会占据尽可能多的空间，即整个父View的宽度或高度。
  * 父View的大小将取决于子View的实际尺寸，即父View的大小将足够包含子View的尺寸。
- * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小。
+ * 简单来说，match_parent对子View而言等同于fill_parent，意味着子View将尽可能地填充父View的宽度或高度。而wrap_content则表示子View的大小只会是足够包含其内容的大小
+ *
+ * <com.example.common.widget.xrecyclerview.XRecyclerView
+ *    android:id="@+id/xrv_list"
+ *    android:layout_width="match_parent"
+ *    android:layout_height="wrap_content"
+ *    android:minHeight="350pt" />
  */
 class XRecyclerView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : BaseViewGroup(context, attrs, defStyleAttr) {
     // 默认开启嵌套滚动
@@ -67,8 +76,10 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     private var emptyEnable = false
     // 空布局是否传递事件
     private var emptyClickableEnable = false
-    // 固定高度，-1表示为全屏
+    // 固定高度，-1表示为全屏 (XML 原始值（设计图 pt）)
     private var rootFixedHeight = -1
+    // 实际生效的固定高度 (通过取得 rootFixedHeight.pt（真实像素）)
+    private var configuredFixedHeight = -1
     //----------------以下懒加载会在调取时候创建----------------
     // 整体容器->高度随着子child来拉伸
     val root by lazy { FrameLayout(context).apply {
@@ -96,6 +107,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             emptyClickableEnable = getBoolean(R.styleable.XRecyclerView_xrvEnableEmptyClickable, false)
             rootFixedHeight = getInt(R.styleable.XRecyclerView_xrvFixedHeight, -1)
         }
+        configuredFixedHeight = rootFixedHeight.pt
     }
 
     override fun onInflate() {
@@ -114,7 +126,7 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
             addView(root)
             // 插入布局后，存在配置的特殊情况，即我可能只想给定一个固定的高度
             if (-1 != rootFixedHeight) {
-                setRootSize(height = rootFixedHeight)
+                root.size(height = configuredFixedHeight)
             }
             // 嵌套滚动设置
             setNestedScrollingEnabled(nestedScrollEnabled)
@@ -153,7 +165,77 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 设置整体布局大小
      */
     fun setRootSize(width: Int? = null, height: Int? = null) {
-        root.size(width.pt, height.pt)
+        val lp = root.layoutParams
+        val targetWidth = width ?: MATCH_PARENT
+        val targetHeight = height ?: MATCH_PARENT
+        val widthChanged = lp.width != targetWidth
+        val heightChanged = lp.height != targetHeight
+        if (!widthChanged && !heightChanged) return
+        root.size(resolveSize(width), resolveSize(height))
+    }
+
+    /**
+     * 宽高修正
+     */
+    private fun resolveSize(size: Int?): Int {
+        return when {
+            size == null -> MATCH_PARENT
+            size < 0 -> size // MATCH_PARENT / WRAP_CONTENT 等负值常量直接透传
+            else -> size.pt // 正数视为 pt 单位，转为像素
+        }
+    }
+
+    /**
+     * 应用空状态固定高度
+     * 1) 在 loading()/empty()/error() 展示空状态前调用
+     * 2) 有数据后由 setRootSize() 恢复全屏
+     */
+    fun applyFixedHeight(width: Int? = null) {
+        if (!canApplyFixedHeight()) return
+        // 仅在宽高真正变化时才重新设置，避免 WindowInsets 重复分发时触发无意义的 requestLayout
+        val lp = root.layoutParams
+        val widthChanged = width != null && lp.width != width
+        val heightChanged = lp.height != configuredFixedHeight
+        if (!widthChanged && !heightChanged) return
+        root.size(width, configuredFixedHeight)
+    }
+
+    /**
+     * 接收系统 WindowInsets，提取导航栏高度后触发固定高度计算
+     * 如果 XRecyclerView 并非全屏,而是处在某块布局下方的列表 (嵌套在 ScrollView + LinearLayout 上下结构内),数据为空时默认的大小需要做出一定的修正
+     */
+    fun applyWindowInsets(insets: WindowInsetsCompat) {
+        // 未开启、未设置固定高度、或未挂载窗口时均跳过
+        if (!canApplyFixedHeight()) return
+        // 获取导航栏高度
+        val navigationBarHeight = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
+        // 页面调用 setOnWindowInsetsChanged
+        updateFixedHeight(navigationBarHeight)
+    }
+
+    /**
+     * 根据导航栏高度重新计算并应用列表固定高度
+     * initView() 中修正 initData() 前调用
+     */
+    fun updateFixedHeight(navigationBarHeight: Int) {
+        if (!canApplyFixedHeight()) return
+        // 获取控件距顶部高度
+        val locationY = getScreenLocation()[1]
+        // 剩余可用高度 = 屏幕总高 - 控件距顶部的绝对距离 - 底部导航栏高度
+        val fixedHeight = screenHeight - locationY - navigationBarHeight
+        // 取配置值与动态计算值的较大者：配置值作为最小保底高度，计算值用于大屏/折叠屏等剩余空间更大的场景
+        if (configuredFixedHeight != fixedHeight && configuredFixedHeight < fixedHeight) {
+            configuredFixedHeight = fixedHeight
+            applyFixedHeight()
+        }
+    }
+
+    /**
+     * 空状态固定高度相关操作的前置条件检查
+     * @return true 表示允许继续执行固定高度逻辑
+     */
+    private fun canApplyFixedHeight(): Boolean {
+        return emptyEnable && rootFixedHeight != -1 && isAttachedToWindow
     }
 
     /**
@@ -220,15 +302,22 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 当数据为空时(显示需要显示的图片，以及内容字)
      */
-    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty.empty(resId, text, refreshText, width, height)
+    fun empty(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.empty(resId, text, refreshText, iconWidth, iconHeight)
     }
 
     /**
      * 当数据异常时
      */
-    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, width: Int? = null, height: Int? = null) {
-        empty.error(resId, text, refreshText, width, height)
+    fun error(resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.error(resId, text, refreshText, iconWidth, iconHeight)
+    }
+
+    /**
+     * 整体遮罩，如果需要展示则显示，不然直接删除自身
+     */
+    fun finish(isSuccessful: Boolean, resId: Int? = null, text: String? = null, refreshText: String? = null, iconWidth: Int? = null, iconHeight: Int? = null) {
+        empty.finish(isSuccessful, resId, text, refreshText, iconWidth, iconHeight)
     }
 
     /**
@@ -319,6 +408,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 获取适配器
+     * // 特殊页面：根据数据量决定是否需要固定高度
+     * val hasData = (xrv.getAdapter()?.itemCount ?: 0) > 0
+     * if (!hasData) {
+     *     xrv.applyEmptyFixedHeight()
+     *     xrv.loading() // 或 empty() / error()
+     * } else {
+     *     xrv.restoreFullHeight()
+     *     xrv.finish(true)
+     * }
      */
     fun getAdapter(): RecyclerView.Adapter<*>? {
         return recycler.adapter

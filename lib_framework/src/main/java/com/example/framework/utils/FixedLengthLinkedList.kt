@@ -16,7 +16,6 @@ class FixedLengthLinkedList<T>(maxSize: Int = 10) {
     // ArrayDeque 初始化极轻，无需预分配容量，内部自动扩容
     private val deque: Deque<T> = ArrayDeque()
 
-
     /**
      * 头部添加元素
      * 容量超出maxSize时，自动移除尾部最旧元素

@@ -5,10 +5,9 @@ import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.utils.builder.shortToast
+import com.example.common.utils.builder.toast
 import com.example.thirdparty.R
-import com.example.thirdparty.utils.wechat.WXManager
-import com.tencent.mm.opensdk.constants.ConstantsAPI
+import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
 import com.tencent.mm.opensdk.modelbase.BaseResp
 import com.tencent.mm.opensdk.openapi.IWXAPIEventHandler
@@ -71,11 +70,11 @@ class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
             // 处理业务逻辑：比如分享成功/失败、登录授权结果等
             when (it.errCode) {
                 // 操作成功（如分享成功、登录授权成功）
-                BaseResp.ErrCode.ERR_OK -> R.string.shareSuccess.shortToast()
+                BaseResp.ErrCode.ERR_OK -> R.string.shareSuccess.toast()
                 // 用户取消操作
-                BaseResp.ErrCode.ERR_USER_CANCEL -> R.string.shareCancel.shortToast()
+                BaseResp.ErrCode.ERR_USER_CANCEL -> R.string.shareCancel.toast()
                 // 操作失败，it.errStr 是失败原因
-                else -> R.string.shareFailure.shortToast()
+                else -> R.string.shareFailure.toast()
             }
         }
         // 处理完回调结果后，再关闭Activity

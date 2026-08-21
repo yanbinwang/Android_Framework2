@@ -7,7 +7,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Matrix
 import android.graphics.Paint
-import android.graphics.PixelFormat
 import android.graphics.PorterDuff
 import android.graphics.PorterDuffColorFilter
 import android.graphics.Typeface
@@ -24,9 +23,9 @@ import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.FontRes
 import androidx.core.graphics.createBitmap
+import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.get
-import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.font
@@ -35,7 +34,7 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 
 /**
- * 读取mipmap下的图片
+ * 读取 mipmap 下的图片
  */
 fun Context?.decodeResource(id: Int): Bitmap? {
     this ?: return null
@@ -43,7 +42,7 @@ fun Context?.decodeResource(id: Int): Bitmap? {
 }
 
 /**
- * 获取asset下的图片
+ * 获取 asset 下的图片
  * "share/img_order_share_logo.webp".decodeAsset()
  * 配置高清解码参数
  * val options = BitmapFactory.Options().apply {
@@ -62,16 +61,11 @@ fun Context?.decodeAsset(filePath: String, opts: BitmapFactory.Options? = null):
     }
 }
 
-fun String?.decodeAsset(opts: BitmapFactory.Options? = null): Bitmap? {
-    this ?: return null
-    return BaseApplication.instance.applicationContext.decodeAsset(this, opts)
-}
-
 /**
- * 获取路径图片的宽高
- * 当我们选择了一个图片，要等边裁剪时可使用当前方法获取对应宽高
+ * 获取路径图片的原始宽高（单位：原始像素，与设备密度无关）
+ * 选择图片等边裁剪时，可使用当前方法获取对应宽高
  */
-fun String?.decodeDimensions(): IntArray {
+fun String?.decodeOriginalDimensions(): IntArray {
     this ?: return intArrayOf(0, 0)
     val options = BitmapFactory.Options()
     // 不加载图片到内存，只获取图片的尺寸信息
@@ -83,20 +77,25 @@ fun String?.decodeDimensions(): IntArray {
     return intArrayOf(width, height)
 }
 
-fun BitmapDrawable?.decodeDimensions(): IntArray {
+/**
+ * 获取 BitmapDrawable 经过密度缩放后的显示尺寸（单位：px，受设备密度影响）
+ */
+fun BitmapDrawable?.decodeDisplayDimensions(): IntArray {
     this ?: return intArrayOf(0, 0)
-    return try {
-        intArrayOf(intrinsicWidth, intrinsicHeight)
-    } catch (e: Exception) {
-        e.printStackTrace()
+    val displayWidth = intrinsicWidth
+    val displayHeight = intrinsicHeight
+    // 负值表示 drawable 无固有尺寸（如纯色 ColorDrawable 误转）
+    return if (displayWidth >= 0 && displayHeight >= 0) {
+        intArrayOf(displayWidth, displayHeight)
+    } else {
         intArrayOf(0, 0)
     }
 }
 
 /**
- * 获取xml绘制的layer的其中一个图片的边距
+ * 获取 xml 绘制的 layer 的其中一个图片的边距
  */
-fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
+fun LayerDrawable?.getLayerInsets(targetItemIndex: Int): IntArray {
     this ?: return intArrayOf(0, 0, 0, 0)
     return try {
         intArrayOf(
@@ -115,13 +114,13 @@ fun LayerDrawable?.decodeDimensions(targetItemIndex: Int): IntArray {
  * 判断一个路径地址是否为一张图片
  * inJustDecodeBounds=true不会把图片放入内存，只会获取宽高，判断当前路径是否为图片，是的话捕获文件路径
  */
-fun String?.isValidImage(): Boolean {
+fun String?.isDecodableImage(): Boolean {
     return this?.let { path ->
         try {
             // 检查文件是否存在
             if (!path.isPathExists()) return@let false
             // 仅获取图片宽高信息
-            val dimensions = path.decodeDimensions()
+            val dimensions = path.decodeOriginalDimensions()
             // 有效图片的宽高必须大于0
             dimensions[0] > 0 && dimensions[1] > 0
         } catch (e: Exception) {
@@ -130,6 +129,23 @@ fun String?.isValidImage(): Boolean {
             false
         }
     } ?: false
+}
+
+/**
+ * 根据压缩格式获取对应的文件后缀（不含点号）。
+ * 与 [Bitmap.CompressFormat.from] 互为逆向映射，
+ * 注意 from() 的入参为 MIME type 而非文件后缀。
+ */
+@Suppress("NewApi", "DEPRECATION")
+fun Bitmap.CompressFormat.suffix(): String {
+    return when (this) {
+        Bitmap.CompressFormat.JPEG -> "jpg"
+        Bitmap.CompressFormat.PNG -> "png"
+        Bitmap.CompressFormat.WEBP,
+        Bitmap.CompressFormat.WEBP_LOSSY,
+        Bitmap.CompressFormat.WEBP_LOSSLESS -> "webp"
+        else -> "jpg"
+    }
 }
 
 /**
@@ -210,8 +226,9 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
         }
         resultBitmap
     } catch (e: Exception) {
-        e.printStackTrace()
         // 捕获可能的异常（如内存不足）
+        e.printStackTrace()
+        safeRecycle()
         null
     }
 }
@@ -227,7 +244,7 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     if (this == null || scale <= 0) {
         return null
     }
-    // 不创建、不回收，直接返回，不创建新图
+    // 不创建、不回收，直接返回
     if (scale == 1f) {
         return this
     }
@@ -243,26 +260,10 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
         resultBitmap
     } catch (e: Exception) {
         e.printStackTrace()
+        safeRecycle()
         null
     }
 }
-
-///**
-// * 按尺寸阈值进行图片压缩（宽≤720，高≤1280）
-// * 当宽超过720时按宽度比例缩放，当高超过1280时按高度比例缩放，两者都超时按宽比例缩放
-// * @return 压缩后的Bitmap，原Bitmap为空时返回null
-// */
-//fun Bitmap?.scaleBitmap(): Bitmap? {
-//    this ?: return null
-//    val maxWidth = 720f
-//    val maxHeight = 1280f
-//    val scale = when {
-//        width > maxWidth -> maxWidth / width
-//        height > maxHeight -> maxHeight / height
-//        else -> 1f
-//    }
-//    return scaleBitmap(scale, true)
-//}
 
 /**
  * Bitmap 安全着色（不修改原图，返回新的着色 Bitmap）
@@ -314,13 +315,6 @@ fun Bitmap?.safeRecycle() {
 }
 
 /**
- * 安全获取Bitmap的扩展函数
- */
-fun Drawable?.getBitmap(): Bitmap? {
-    return (this as? BitmapDrawable)?.bitmap
-}
-
-/**
  * 安全获取Drawable
  */
 fun Drawable?.orEmpty(): Drawable {
@@ -347,11 +341,15 @@ fun Drawable?.tintWithMutate(@ColorInt tintColor: Int) {
  */
 fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int = targetWidth): Drawable {
     // 校验参数有效性
-    if (targetWidth <= 0 || targetHeight <= 0 || intrinsicWidth <= 0 || intrinsicHeight <= 0) {
+    if (targetWidth <= 0 || targetHeight <= 0 || intrinsicWidth <= 0 || intrinsicHeight <= 0 || (targetWidth == intrinsicWidth && targetHeight == intrinsicHeight)) {
         return this
     }
-    // 按指定宽高缩放 Drawable
-    val sourceBitmap = toBitmap()
+    /**
+     * 按指定宽高缩放 Drawable 安全获取Bitmap的扩展函数:
+     * toBitmap() -> 会报错
+     * toBitmapOrNull() -> 不报错
+     */
+    val sourceBitmap = toBitmapOrNull() ?: return this
     val matrix = Matrix()
     val scaleWidth = targetWidth.toSafeFloat() / intrinsicWidth.toSafeFloat()
     val scaleHeight = targetHeight.toSafeFloat() / intrinsicHeight.toSafeFloat()
@@ -362,6 +360,7 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
         if (newBitmap !== sourceBitmap) {
             sourceBitmap.safeRecycle()
         }
+        // toDrawable() 每次都执行，表示"我要用这张图了"。而 if 判断负责的是"用完之后，有没有废弃的图需要清理"
         newBitmap.toDrawable(context.resources)
     } catch (e: Exception) {
         e.printStackTrace()
@@ -369,35 +368,6 @@ fun Drawable.scaleToSize(context: Context, targetWidth: Int, targetHeight: Int =
         sourceBitmap.safeRecycle()
         // 失败时返回原 Drawable
         this
-    }
-}
-
-fun Drawable.toBitmap(): Bitmap {
-    // 让 Drawable 拥有独立的状态，不会影响到其他使用同一个资源的 Drawable
-    mutate()
-    // 若本身是 BitmapDrawable，直接返回其 Bitmap（避免重复绘制）
-    if (this is BitmapDrawable) {
-        val config = bitmap.config ?: Bitmap.Config.ARGB_8888
-        // 复制一份避免外部修改原 Bitmap
-        return bitmap.copy(config, true)
-    }
-    // 处理 intrinsic 尺寸为 0 的情况
-    val width = if (intrinsicWidth > 0) intrinsicWidth else 1
-    val height = if (intrinsicHeight > 0) intrinsicHeight else 1
-    // 根据透明度选择配置
-//    val config = if (opacity != PixelFormat.OPAQUE) Bitmap.Config.ARGB_8888 else Bitmap.Config.RGB_565
-    val config = Bitmap.Config.ARGB_8888
-    return try {
-        val bitmap = createBitmap(width, height, config)
-        val canvas = Canvas(bitmap)
-        setBounds(0, 0, width, height)
-        draw(canvas)
-        bitmap
-    } catch (e: Exception) {
-        // 捕获内存不足等异常
-        e.printStackTrace()
-        // 极端情况返回最小 Bitmap
-        createBitmap(1, 1, config)
     }
 }
 

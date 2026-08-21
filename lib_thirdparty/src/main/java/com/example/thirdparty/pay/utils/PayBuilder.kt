@@ -5,21 +5,21 @@ import androidx.lifecycle.lifecycleScope
 import com.example.common.base.bridge.BaseView
 import com.example.framework.utils.function.doOnDestroy
 import com.example.thirdparty.pay.bean.PayBean
-import com.example.thirdparty.pay.utils.alipay.AlipayPay
-import com.example.thirdparty.pay.utils.wechat.WXPay
+import com.example.thirdparty.pay.provider.alipay.AlipayPay
+import com.example.thirdparty.pay.provider.wechat.WXPay
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 /**
  * 支付类
  */
-class PayBuilder(private val mActivity: FragmentActivity, private val mView: BaseView? = null)  {
-    private val alipay by lazy { AlipayPay(mActivity) }
-    private val wechat by lazy { WXPay(mActivity) }
+class PayBuilder(private val activity: FragmentActivity, private val view: BaseView? = null)  {
+    private val alipay by lazy { AlipayPay(activity) }
+    private val wechat by lazy { WXPay(activity) }
     private var payJob: Job? = null
 
     init {
-        mActivity.doOnDestroy {
+        activity.doOnDestroy {
             payJob?.cancel()
         }
     }
@@ -30,7 +30,7 @@ class PayBuilder(private val mActivity: FragmentActivity, private val mView: Bas
      */
     fun createPay(orderNo: String, type: String = "1") {
         payJob?.cancel()
-        payJob = mActivity.lifecycleScope.launch {
+        payJob = activity.lifecycleScope.launch {
 //            pay()
         }
     }
