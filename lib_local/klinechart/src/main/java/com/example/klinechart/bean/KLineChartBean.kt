@@ -23,7 +23,7 @@ class KLineChartBean : IKLine {
     var mK = 0f
     var mD = 0f
     var mJ = 0f
-    var mR = 0f
+    var mWr = 0f
     var mRsi = 0f
     var mUp = 0f
     var mMb = 0f
@@ -121,8 +121,8 @@ class KLineChartBean : IKLine {
         return mMA10Volume
     }
 
-    override fun getR(): Float {
-        return mR
+    override fun getWR(): Float {
+        return mWr
     }
 
 }

@@ -151,16 +151,16 @@ object DataHelper {
             // ========== 第二步：按数据充足程度赋值 ==========
             if (i < 13) {
                 // 前13根：数据不足，置为无效值 -10f（不显示或特殊处理）
-                point.mR = -10f
+                point.mWr = -10f
             } else {
                 // WR = -100 × (最高价 - 收盘价) / (最高价 - 最低价)
                 // 分子用"最高价-收盘价"而非"收盘价-最低价"，所以结果是负数
                 r = -100f * (max14 - data[i].getClosePrice()) / (max14 - min14)
                 // 当最高价==最低价时除数为0，结果为NaN，兜底为0
                 if (r.isNaN()) {
-                    point.mR = 0f
+                    point.mWr = 0f
                 } else {
-                    point.mR = r
+                    point.mWr = r
                 }
             }
         }

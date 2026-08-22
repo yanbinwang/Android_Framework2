@@ -11,6 +11,11 @@ interface ICandle {
     fun getOpenPrice(): Float
 
     /**
+     * 收盘价
+     */
+    fun getClosePrice(): Float
+
+    /**
      * 最高价
      */
     fun getHighPrice(): Float
@@ -19,11 +24,6 @@ interface ICandle {
      * 最低价
      */
     fun getLowPrice(): Float
-
-    /**
-     * 收盘价
-     */
-    fun getClosePrice(): Float
 
     // 以下为MA数据
     /**
