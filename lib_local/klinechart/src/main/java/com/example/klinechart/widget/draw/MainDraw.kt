@@ -9,8 +9,8 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.ICandle
-import com.example.klinechart.utils.formatter.IValueFormatter
-import com.example.klinechart.utils.formatter.ValueFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
+import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.BaseKLineChartView
 import com.example.klinechart.widget.KLineChartView

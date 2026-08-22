@@ -8,8 +8,8 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.IVolume
-import com.example.klinechart.utils.formatter.BigValueFormatter
-import com.example.klinechart.utils.formatter.IValueFormatter
+import com.example.klinechart.utils.formatter.value.BigValueFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.BaseKLineChartView
 

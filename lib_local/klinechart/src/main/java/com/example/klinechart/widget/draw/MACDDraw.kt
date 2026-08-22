@@ -7,8 +7,8 @@ import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.value.orZero
 import com.example.klinechart.R
 import com.example.klinechart.bean.IMACD
-import com.example.klinechart.utils.formatter.IValueFormatter
-import com.example.klinechart.utils.formatter.ValueFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
+import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**

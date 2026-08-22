@@ -1,4 +1,4 @@
-package com.example.klinechart.utils.formatter
+package com.example.klinechart.utils.formatter.date
 
 import java.util.Date
 

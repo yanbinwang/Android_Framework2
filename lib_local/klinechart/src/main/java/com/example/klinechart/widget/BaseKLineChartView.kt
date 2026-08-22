@@ -24,10 +24,10 @@ import com.example.klinechart.R
 import com.example.klinechart.adapter.IAdapter
 import com.example.klinechart.bean.IKLine
 import com.example.klinechart.utils.ViewUtil
-import com.example.klinechart.utils.formatter.IDateTimeFormatter
-import com.example.klinechart.utils.formatter.IValueFormatter
-import com.example.klinechart.utils.formatter.TimeFormatter
-import com.example.klinechart.utils.formatter.ValueFormatter
+import com.example.klinechart.utils.formatter.date.IDateTimeFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
+import com.example.klinechart.utils.formatter.date.ShortTimeFormatter
+import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.MainDraw
 import com.example.klinechart.widget.draw.Status
@@ -597,7 +597,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      */
     fun formatDateTime(date: Date?): String {
         if (getDateTimeFormatter() == null) {
-            setDateTimeFormatter(TimeFormatter())
+            setDateTimeFormatter(ShortTimeFormatter())
         }
         return getDateTimeFormatter()?.format(date).orEmpty()
     }

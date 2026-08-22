@@ -5,8 +5,8 @@ import android.graphics.Paint
 import androidx.annotation.ColorInt
 import com.example.framework.utils.function.value.orZero
 import com.example.klinechart.bean.IRSI
-import com.example.klinechart.utils.formatter.IValueFormatter
-import com.example.klinechart.utils.formatter.ValueFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
+import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**

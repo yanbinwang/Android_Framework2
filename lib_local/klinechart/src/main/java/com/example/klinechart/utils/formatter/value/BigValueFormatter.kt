@@ -1,4 +1,4 @@
-package com.example.klinechart.utils.formatter
+package com.example.klinechart.utils.formatter.value
 
 import java.util.Locale
 

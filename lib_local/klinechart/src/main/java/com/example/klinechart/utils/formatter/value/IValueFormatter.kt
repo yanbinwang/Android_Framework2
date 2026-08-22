@@ -1,4 +1,4 @@
-package com.example.klinechart.utils.formatter
+package com.example.klinechart.utils.formatter.value
 
 /**
  * Value格式化接口

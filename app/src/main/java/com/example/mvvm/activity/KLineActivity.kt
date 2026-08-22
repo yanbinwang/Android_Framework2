@@ -10,8 +10,7 @@ import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
 import com.example.klinechart.adapter.KLineChartAdapter
-import com.example.klinechart.bean.KLineChartBean
-import com.example.klinechart.utils.formatter.DateFormatter
+import com.example.klinechart.utils.formatter.date.DateFormatter
 import com.example.klinechart.widget.draw.Status
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
