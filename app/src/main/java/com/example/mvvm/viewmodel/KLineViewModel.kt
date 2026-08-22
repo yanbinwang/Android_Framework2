@@ -16,8 +16,6 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
-import kotlin.math.max
-import kotlin.math.min
 
 class KLineViewModel : BaseViewModel() {
     val uiManage by lazy { MutableLiveData<Boolean>() }
@@ -29,12 +27,12 @@ class KLineViewModel : BaseViewModel() {
                 val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
                     val entity = KLineChartBean()
                     entity.let {
-                        it.mClose = bean.Close.toSafeFloat()
-                        it.mDate = bean.Date.orEmpty()
-                        it.mHigh = bean.High.toSafeFloat()
-                        it.mLow = bean.Low.toSafeFloat()
-                        it.mOpen = bean.Open.toSafeFloat()
-                        it.mVolume = bean.Volume.toSafeFloat()
+                        it.mClose = bean.close.toSafeFloat()
+                        it.mDate = bean.date.orEmpty()
+                        it.mHigh = bean.high.toSafeFloat()
+                        it.mLow = bean.low.toSafeFloat()
+                        it.mOpen = bean.open.toSafeFloat()
+                        it.mVolume = bean.volume.toSafeFloat()
                     }
                     entity
                 }
@@ -52,38 +50,38 @@ class KLineViewModel : BaseViewModel() {
         }
     }
 
-    fun getData(offset: Int, size: Int) {
-        launch {
-            flow {
-                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
-                    val entity = KLineChartBean()
-                    entity.let {
-                        it.mClose = bean.Close.toSafeFloat()
-                        it.mDate = bean.Date.orEmpty()
-                        it.mHigh = bean.High.toSafeFloat()
-                        it.mLow = bean.Low.toSafeFloat()
-                        it.mOpen = bean.Open.toSafeFloat()
-                        it.mVolume = bean.Volume.toSafeFloat()
-                    }
-                    entity
-                }
-                DataHelper.calculate(list)
-                emit(list)
-            }.withHandling(end = {
-                uiManage.postValue(false)
-            }).onStart {
-                uiManage.postValue(true)
-            }.collect {
-                val data = ArrayList<KLineChartBean>()
-                val start = max(0, it.size - 1 - offset - size)
-                val stop = min(it.size, it.size - offset)
-                for (i in start..<stop) {
-                    data.add(it[i])
-                }
-                list.postValue(data)
-            }
-        }
-    }
+//    fun getData(offset: Int, size: Int) {
+//        launch {
+//            flow {
+//                val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
+//                    val entity = KLineChartBean()
+//                    entity.let {
+//                        it.mClose = bean.close.toSafeFloat()
+//                        it.mDate = bean.date.orEmpty()
+//                        it.mHigh = bean.high.toSafeFloat()
+//                        it.mLow = bean.low.toSafeFloat()
+//                        it.mOpen = bean.open.toSafeFloat()
+//                        it.mVolume = bean.volume.toSafeFloat()
+//                    }
+//                    entity
+//                }
+//                DataHelper.calculate(list)
+//                val data = ArrayList<KLineChartBean>()
+//                val start = max(0, list.size - 1 - offset - size)
+//                val stop = min(list.size, list.size - offset)
+//                for (i in start..<stop) {
+//                    data.add(list[i])
+//                }
+//                emit(data)
+//            }.withHandling(end = {
+//                uiManage.postValue(false)
+//            }).onStart {
+//                uiManage.postValue(true)
+//            }.collect {
+//                list.postValue(it)
+//            }
+//        }
+//    }
 
     private suspend fun suspendingKLineData(): String {
         return withContext(IO) {
