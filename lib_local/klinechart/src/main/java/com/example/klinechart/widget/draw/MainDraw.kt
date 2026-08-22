@@ -37,6 +37,13 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     private val mContext get() = view.context
     private val mKChartView get() = view as? KLineChartView
 
+    /**
+     * 主图状态
+     */
+    enum class Status {
+        MA, BOLL, NONE
+    }
+
     init {
         mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
         mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)

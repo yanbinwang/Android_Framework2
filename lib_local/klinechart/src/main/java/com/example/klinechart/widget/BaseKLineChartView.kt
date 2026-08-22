@@ -30,7 +30,7 @@ import com.example.klinechart.utils.formatter.date.ShortTimeFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.MainDraw
-import com.example.klinechart.widget.draw.Status
+import com.example.klinechart.widget.draw.MainDraw.Status
 import java.util.Date
 import kotlin.math.abs
 import kotlin.math.roundToInt
