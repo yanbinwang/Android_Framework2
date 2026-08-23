@@ -5,141 +5,60 @@ package com.example.klinechart.bean
  */
 class KLineChartBean : IKLine {
     // ========== 属于 IKLine ==========
-    var mDate = ""
-
-    override fun getDate(): String {
-        return mDate
-    }
+    override var date: String = ""
 
     // ========== 属于 ICandle (价格) ==========
-    var mOpen = 0f
-    var mHigh = 0f
-    var mLow = 0f
-    var mClose = 0f
+    override var openPrice: Float = 0f
 
-    override fun getOpenPrice(): Float {
-        return mOpen
-    }
+    override var highPrice: Float = 0f
 
-    override fun getHighPrice(): Float {
-        return mHigh
-    }
+    override var lowPrice: Float = 0f
 
-    override fun getLowPrice(): Float {
-        return mLow
-    }
-
-    override fun getClosePrice(): Float {
-        return mClose
-    }
+    override var closePrice: Float = 0f
 
     // ========== 属于 ICandle (成交量) ==========
-    var mVolume = 0f
-    var mMA5Volume = 0f
-    var mMA10Volume = 0f
+    override var volume: Float = 0f
 
-    override fun getVolume(): Float {
-        return mVolume
-    }
+    override var ma5Volume: Float = 0f
 
-    override fun getMA5Volume(): Float {
-        return mMA5Volume
-    }
-
-    override fun getMA10Volume(): Float {
-        return mMA10Volume
-    }
+    override var ma10Volume: Float = 0f
 
     // ========== 属于 ICandle (MA均线) ==========
-    var mMA5Price = 0f
-    var mMA10Price = 0f
-    var mMA20Price = 0f
-    var mMA30Price = 0f
-    var mMA60Price = 0f
+    override var ma5Price: Float = 0f
 
-    override fun getMA5Price(): Float {
-        return mMA5Price
-    }
+    override var ma10Price: Float = 0f
 
-    override fun getMA10Price(): Float {
-        return mMA10Price
-    }
+    override var ma20Price: Float = 0f
 
-    override fun getMA20Price(): Float {
-        return mMA20Price
-    }
+    override var ma30Price: Float = 0f
 
-    override fun getMA30Price(): Float {
-        return mMA30Price
-    }
-
-    override fun getMA60Price(): Float {
-        return mMA60Price
-    }
+    override var ma60Price: Float = 0f
 
     // ========== 属于 ICandle (BOLL) ==========
-    var mUp = 0f
-    var mMb = 0f
-    var mDn = 0f
+    override var up: Float = 0f
 
-    override fun getUp(): Float {
-        return mUp
-    }
+    override var mb: Float = 0f
 
-    override fun getMb(): Float {
-        return mMb
-    }
-
-    override fun getDn(): Float {
-        return mDn
-    }
+    override var dn: Float = 0f
 
     // ========== 属于 IMACD ==========
-    var mDif = 0f
-    var mDea = 0f
-    var mMacd = 0f
+    override var dif: Float = 0f
 
-    override fun getDif(): Float {
-        return mDif
-    }
+    override var dea: Float = 0f
 
-    override fun getDea(): Float {
-        return mDea
-    }
-
-    override fun getMacd(): Float {
-        return mMacd
-    }
+    override var macd: Float = 0f
 
     // ========== 属于 IKDJ ==========
-    var mK = 0f
-    var mD = 0f
-    var mJ = 0f
+    override var k: Float = 0f
 
-    override fun getK(): Float {
-        return mK
-    }
+    override var d: Float = 0f
 
-    override fun getD(): Float {
-        return mD
-    }
-
-    override fun getJ(): Float {
-        return mJ
-    }
+    override var j: Float = 0f
 
     // ========== 属于 IWR ==========
-    var mWr = 0f
-
-    override fun getWR(): Float {
-        return mWr
-    }
+    override var wr: Float = 0f
 
     // ========== 属于 IRSI ==========
-    var mRsi = 0f
-
-    override fun getRsi(): Float {
-        return mRsi
-    }
+    override var rsi: Float = 0f
 
 }

@@ -5,6 +5,7 @@ package com.example.klinechart.bean
  */
 interface IKLine : ICandle, IMACD, IKDJ, IRSI, IVolume, IWR {
 
-    fun getDate(): String
+//    fun getDate(): String
+    var date: String
 
 }

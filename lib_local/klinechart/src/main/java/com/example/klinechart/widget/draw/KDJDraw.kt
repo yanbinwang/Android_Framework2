@@ -27,45 +27,45 @@ class KDJDraw : IChartDraw<IKDJ> {
     private val mJPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(lastPoint: IKDJ?, curPoint: IKDJ?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getK() != 0f) {
-            view.drawChildLine(canvas, mKPaint, lastX, lastPoint?.getK().orZero, curX, curPoint?.getK().orZero)
+        if (lastPoint?.k != 0f) {
+            view.drawChildLine(canvas, mKPaint, lastX, lastPoint?.k.orZero, curX, curPoint?.k.orZero)
         }
-        if (lastPoint?.getD() != 0f) {
-            view.drawChildLine(canvas, mDPaint, lastX, lastPoint?.getD().orZero, curX, curPoint?.getD().orZero)
+        if (lastPoint?.d != 0f) {
+            view.drawChildLine(canvas, mDPaint, lastX, lastPoint?.d.orZero, curX, curPoint?.d.orZero)
         }
-        if (lastPoint?.getJ() != 0f) {
-            view.drawChildLine(canvas, mJPaint, lastX, lastPoint?.getJ().orZero, curX, curPoint?.getJ().orZero)
+        if (lastPoint?.j != 0f) {
+            view.drawChildLine(canvas, mJPaint, lastX, lastPoint?.j.orZero, curX, curPoint?.j.orZero)
         }
     }
 
     override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IKDJ
-        if (point?.getK() != 0f) {
+        if (point?.k != 0f) {
             var text = "KDJ(14,1,3)\u0020\u0020"
             canvas?.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
-            text = "K:${view.formatValue(point?.getK().orZero)}\u0020"
+            text = "K:${view.formatValue(point?.k.orZero)}\u0020"
             canvas?.drawText(text, mX, y, mKPaint)
             mX += mKPaint.measureText(text)
-            if (point?.getD() != 0f) {
-                text = "D:${view.formatValue(point?.getD().orZero)}\u0020"
+            if (point?.d != 0f) {
+                text = "D:${view.formatValue(point?.d.orZero)}\u0020"
                 canvas?.drawText(text, mX, y, mDPaint)
                 mX += mDPaint.measureText(text)
-                text = "J:${view.formatValue(point?.getJ().orZero)}\u0020"
+                text = "J:${view.formatValue(point?.j.orZero)}\u0020"
                 canvas?.drawText(text, mX, y, mJPaint)
             }
         }
     }
 
     override fun getMaxValue(point: IKDJ?): Float {
-        val value = point?.getD().orZero.coerceAtLeast(point?.getJ().orZero)
-        return point?.getK().orZero.coerceAtLeast(value)
+        val value = point?.d.orZero.coerceAtLeast(point?.j.orZero)
+        return point?.k.orZero.coerceAtLeast(value)
     }
 
     override fun getMinValue(point: IKDJ?): Float {
-        val value = point?.getD().orZero.coerceAtMost(point?.getJ().orZero)
-        return point?.getK().orZero.coerceAtMost(value)
+        val value = point?.d.orZero.coerceAtMost(point?.j.orZero)
+        return point?.k.orZero.coerceAtMost(value)
     }
 
     override fun getValueFormatter(): IValueFormatter {

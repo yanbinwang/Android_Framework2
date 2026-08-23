@@ -18,29 +18,29 @@ class WRDraw : IChartDraw<IWR> {
     private val mRPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(lastPoint: IWR?, curPoint: IWR?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getWR() != -10f) {
-            view.drawChildLine(canvas, mRPaint, lastX, lastPoint?.getWR().orZero, curX, curPoint?.getWR().orZero)
+        if (lastPoint?.wr != -10f) {
+            view.drawChildLine(canvas, mRPaint, lastX, lastPoint?.wr.orZero, curX, curPoint?.wr.orZero)
         }
     }
 
     override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IWR
-        if (point?.getWR() != -10f) {
+        if (point?.wr != -10f) {
             var text = "WR(14):"
             canvas?.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
-            text = "${view.formatValue(point?.getWR().orZero)}\u0020"
+            text = "${view.formatValue(point?.wr.orZero)}\u0020"
             canvas?.drawText(text, mX, y, mRPaint)
         }
     }
 
     override fun getMaxValue(point: IWR?): Float {
-        return point?.getWR().orZero
+        return point?.wr.orZero
     }
 
     override fun getMinValue(point: IWR?): Float {
-        return point?.getWR().orZero
+        return point?.wr.orZero
     }
 
     override fun getValueFormatter(): IValueFormatter {

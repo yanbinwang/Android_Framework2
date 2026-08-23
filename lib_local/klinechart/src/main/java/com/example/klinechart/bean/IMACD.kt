@@ -9,16 +9,16 @@ interface IMACD {
     /**
      * DEA值
      */
-    fun getDea(): Float
+    var dea: Float
 
     /**
      * DIF值
      */
-    fun getDif(): Float
+    var dif: Float
 
     /**
      * MACD值
      */
-    fun getMacd(): Float
+    var macd: Float
 
 }

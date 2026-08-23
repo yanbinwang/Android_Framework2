@@ -36,20 +36,20 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
 
     override fun drawTranslated(lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
         drawHistogram(canvas, curPoint, curX, view)
-        if (lastPoint?.getMA5Volume() != 0f) {
-            view.drawVolLine(canvas, ma5Paint, lastX, lastPoint?.getMA5Volume().orZero, curX, curPoint?.getMA5Volume().orZero)
+        if (lastPoint?.ma5Volume != 0f) {
+            view.drawVolLine(canvas, ma5Paint, lastX, lastPoint?.ma5Volume.orZero, curX, curPoint?.ma5Volume.orZero)
         }
-        if (lastPoint?.getMA10Volume() != 0f) {
-            view.drawVolLine(canvas, ma10Paint, lastX, lastPoint?.getMA10Volume().orZero, curX, curPoint?.getMA10Volume().orZero)
+        if (lastPoint?.ma10Volume != 0f) {
+            view.drawVolLine(canvas, ma10Paint, lastX, lastPoint?.ma10Volume.orZero, curX, curPoint?.ma10Volume.orZero)
         }
     }
 
     private fun drawHistogram(canvas: Canvas, curPoint: IVolume?, curX: Float, view: BaseKLineChartView) {
         val r = (mPillarWidth / 2).toFloat()
-        val top = view.getVolY(curPoint?.getVolume().orZero)
+        val top = view.getVolY(curPoint?.volume.orZero)
         val bottom = view.getVolRect()?.bottom
         // 涨
-        if (curPoint?.getClosePrice().orZero >= curPoint?.getOpenPrice().orZero) {
+        if (curPoint?.closePrice.orZero >= curPoint?.openPrice.orZero) {
             canvas.drawRect(curX - r, top, curX + r, bottom.toSafeFloat(), mRedPaint)
         } else {
             canvas.drawRect(curX - r, top, curX + r, bottom.toSafeFloat(), mGreenPaint)
@@ -59,24 +59,24 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IVolume
-        var text = "VOL:${getValueFormatter().format(point?.getVolume().orZero)}\u0020\u0020"
+        var text = "VOL:${getValueFormatter().format(point?.volume.orZero)}\u0020\u0020"
         canvas?.drawText(text, mX, y, view.getTextPaint())
         mX += view.getTextPaint().measureText(text)
-        text = "MA5:${getValueFormatter().format(point?.getMA5Volume().orZero)}\u0020\u0020"
+        text = "MA5:${getValueFormatter().format(point?.ma5Volume.orZero)}\u0020\u0020"
         canvas?.drawText(text, mX, y, ma5Paint)
         mX += ma5Paint.measureText(text)
-        text = "MA10:${getValueFormatter().format(point?.getMA10Volume().orZero)}"
+        text = "MA10:${getValueFormatter().format(point?.ma10Volume.orZero)}"
         canvas?.drawText(text, mX, y, ma10Paint)
     }
 
     override fun getMaxValue(point: IVolume?): Float {
-        val value = point?.getMA5Volume().orZero.coerceAtLeast(point?.getMA10Volume().orZero)
-        return point?.getVolume().orZero.coerceAtLeast(value)
+        val value = point?.ma5Volume.orZero.coerceAtLeast(point?.ma10Volume.orZero)
+        return point?.volume.orZero.coerceAtLeast(value)
     }
 
     override fun getMinValue(point: IVolume?): Float {
-        val value = point?.getMA5Volume().orZero.coerceAtMost(point?.getMA10Volume().orZero)
-        return point?.getVolume().orZero.coerceAtMost(value)
+        val value = point?.ma5Volume.orZero.coerceAtMost(point?.ma10Volume.orZero)
+        return point?.volume.orZero.coerceAtMost(value)
     }
 
     override fun getValueFormatter(): IValueFormatter {

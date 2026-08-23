@@ -8,6 +8,6 @@ interface IWR {
     /**
      * %R值
      */
-    fun getWR(): Float
+    var wr: Float
 
 }

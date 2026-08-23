@@ -25,7 +25,7 @@ object DataHelper {
             // 拿到当前这根K线的数据
             val point = data[i]
             // 拿到当前收盘价
-            val closePrice = point.getClosePrice()
+            val closePrice = point.closePrice
             // 如果是第一根K线（没有"前一天"可以对比）
             if (i == 0) {
                 // RSI直接设为0，两个EMA也归零
@@ -34,9 +34,9 @@ object DataHelper {
                 rsiMaxEma = 0f
             } else {
                 // 算"今天比昨天涨了多少"，如果跌了就算0（只取正数）
-                val rMax = 0f.coerceAtLeast(closePrice - data[i - 1].getClosePrice())
+                val rMax = 0f.coerceAtLeast(closePrice - data[i - 1].closePrice)
                 // 算"今天比昨天总共动了多少"（取绝对值，涨跌都算）
-                val rAbs = abs(closePrice - data[i - 1].getClosePrice())
+                val rAbs = abs(closePrice - data[i - 1].closePrice)
                 // 用 EMA 公式更新"上涨幅度"的平滑值，等价于：新值 = (今天的涨幅 + 13 × 昨天的旧值) / 14
                 rsiMaxEma = (rMax + (14f - 1) * rsiMaxEma) / 14f
                 // 用 EMA 公式更新"总波动幅度"的平滑值
@@ -51,7 +51,7 @@ object DataHelper {
             // 如果除零了（总波动为0），结果会是NaN，改成0防崩 -> 当连续几天价格完全不动时，rsiABSEma 可能是0，除以0会得到 NaN
             if (rsi.isNaN()) rsi = 0f
             // 把算好的RSI存回这根K线的对象里
-            point.mRsi = rsi
+            point.rsi = rsi
         }
     }
 
@@ -69,7 +69,7 @@ object DataHelper {
         var d = 0f
         for (i in data.indices) {
             val point = data[i]
-            val closePrice = point.getClosePrice()
+            val closePrice = point.closePrice
             // ========== 第一步：找最近14根K线的最高价和最低价 ==========
             // 窗口起点：往前数13根（含当前这根共14根），不够就从0开始
             var startIndex = i - 13
@@ -81,8 +81,8 @@ object DataHelper {
             var min14 = Float.MAX_VALUE
             // 遍历窗口内所有K线，取极值
             for (index in startIndex..i) {
-                max14 = max14.coerceAtLeast(data[index].getHighPrice())
-                min14 = min14.coerceAtMost(data[index].getLowPrice())
+                max14 = max14.coerceAtLeast(data[index].highPrice)
+                min14 = min14.coerceAtMost(data[index].lowPrice)
             }
             // ========== 第二步：计算 RSV（未成熟随机值）==========
             // RSV 表示当前收盘价在14日波动范围中的位置（0~100）
@@ -105,19 +105,19 @@ object DataHelper {
             // ========== 第四步：按数据充足程度分段赋值 ==========
             if (i < 13) {
                 // 前13根：数据不足14天，KD全部置0不显示
-                point.mK = 0f
-                point.mD = 0f
-                point.mJ = 0f
+                point.k = 0f
+                point.d = 0f
+                point.j = 0f
             } else if (i == 13 || i == 14) {
                 // 第14、15根：K刚凑够有效数据，但D还需要再平滑一轮才可靠，所以只输出K，D和J暂时置0
-                point.mK = k
-                point.mD = 0f
-                point.mJ = 0f
+                point.k = k
+                point.d = 0f
+                point.j = 0f
             } else {
                 // 第16根起：K、D都已充分平滑，正常输出三条线
-                point.mK = k
-                point.mD = d
-                point.mJ = 3f * k - 2f * d
+                point.k = k
+                point.d = d
+                point.j = 3f * k - 2f * d
             }
         }
     }
@@ -145,22 +145,22 @@ object DataHelper {
             var max14 = Float.MIN_VALUE
             var min14 = Float.MAX_VALUE
             for (index in startIndex..i) {
-                max14 = max14.coerceAtLeast(data[index].getHighPrice())
-                min14 = min14.coerceAtMost(data[index].getLowPrice())
+                max14 = max14.coerceAtLeast(data[index].highPrice)
+                min14 = min14.coerceAtMost(data[index].lowPrice)
             }
             // ========== 第二步：按数据充足程度赋值 ==========
             if (i < 13) {
                 // 前13根：数据不足，置为无效值 -10f（不显示或特殊处理）
-                point.mWr = -10f
+                point.wr = -10f
             } else {
                 // WR = -100 × (最高价 - 收盘价) / (最高价 - 最低价)
                 // 分子用"最高价-收盘价"而非"收盘价-最低价"，所以结果是负数
-                r = -100f * (max14 - data[i].getClosePrice()) / (max14 - min14)
+                r = -100f * (max14 - data[i].closePrice) / (max14 - min14)
                 // 当最高价==最低价时除数为0，结果为NaN，兜底为0
                 if (r.isNaN()) {
-                    point.mWr = 0f
+                    point.wr = 0f
                 } else {
-                    point.mWr = r
+                    point.wr = r
                 }
             }
         }
@@ -184,7 +184,7 @@ object DataHelper {
         var macd: Float
         for (i in data.indices) {
             val point = data[i]
-            val closePrice = point.getClosePrice()
+            val closePrice = point.closePrice
             // ========== 第一步：计算两条 EMA ==========
             if (i == 0) {
                 // 第一根K线：EMA 初始值 = 当日收盘价
@@ -206,9 +206,9 @@ object DataHelper {
             // MACD柱状图 = (DIF - DEA) × 2，放大差值便于观察
             macd = (dif - dea) * 2f
             // ========== 第三步：赋值 ==========
-            point.mDif = dif
-            point.mDea = dea
-            point.mMacd = macd
+            point.dif = dif
+            point.dea = dea
+            point.macd = macd
         }
     }
 
@@ -229,24 +229,24 @@ object DataHelper {
             val point = data[i]
             if (i < 19) {
                 // 前19根：MA20尚未形成，布林带无效
-                point.mMb = 0f
-                point.mUp = 0f
-                point.mDn = 0f
+                point.mb = 0f
+                point.up = 0f
+                point.dn = 0f
             } else {
                 // MA20 提到外层，避免内层循环重复调用20次
-                val m = point.getMA20Price()
+                val m = point.ma20Price
                 var md = 0f
                 for (j in i - n + 1..i) {
-                    val c = data[j].getClosePrice()
+                    val c = data[j].closePrice
                     val value = c - m
                     md += value * value
                 }
                 // 保持原有 n-1（样本标准差）不变
                 md /= (n - 1)
                 md = sqrt(md.toDouble()).toFloat()
-                point.mMb = m
-                point.mUp = point.mMb + 2f * md
-                point.mDn = point.mMb - 2f * md
+                point.mb = m
+                point.up = point.mb + 2f * md
+                point.dn = point.mb - 2f * md
             }
         }
     }
@@ -265,7 +265,7 @@ object DataHelper {
         var ma60 = 0f
         for (i in data.indices) {
             val point = data[i]
-            val closePrice = point.getClosePrice()
+            val closePrice = point.closePrice
             // 将当前收盘价累加到所有均线的和中
             ma5 += closePrice
             ma10 += closePrice
@@ -275,62 +275,62 @@ object DataHelper {
             // ---------- MA5 ----------
             if (i == 4) {
                 // 第5根K线（索引4）：首次凑齐5个数据，计算初始MA5
-                point.mMA5Price = ma5 / 5f
+                point.ma5Price = ma5 / 5f
             } else if (i >= 5) {
                 // 后续K线：滑出最旧的一个收盘价，保持窗口大小为5
-                ma5 -= data[i - 5].getClosePrice()
-                point.mMA5Price = ma5 / 5f
+                ma5 -= data[i - 5].closePrice
+                point.ma5Price = ma5 / 5f
             } else {
                 // 前4根K线：数据不足，MA5无效
-                point.mMA5Price = 0f
+                point.ma5Price = 0f
             }
             // ---------- MA10 ----------
             if (i == 9) {
                 // 第10根K线（索引9）：首次凑齐10个数据，计算初始MA10
-                point.mMA10Price = ma10 / 10f
+                point.ma10Price = ma10 / 10f
             } else if (i >= 10) {
                 // 后续K线：滑出最旧的一个收盘价，保持窗口大小为10
-                ma10 -= data[i - 10].getClosePrice()
-                point.mMA10Price = ma10 / 10f
+                ma10 -= data[i - 10].closePrice
+                point.ma10Price = ma10 / 10f
             } else {
                 // 前9根K线：数据不足，MA10无效
-                point.mMA10Price = 0f
+                point.ma10Price = 0f
             }
             // ---------- MA20 ----------
             if (i == 19) {
                 // 第20根K线（索引19）：首次凑齐20个数据，计算初始MA20
-                point.mMA20Price = ma20 / 20f
+                point.ma20Price = ma20 / 20f
             } else if (i >= 20) {
                 // 后续K线：滑出最旧的一个收盘价，保持窗口大小为20
-                ma20 -= data[i - 20].getClosePrice()
-                point.mMA20Price = ma20 / 20f
+                ma20 -= data[i - 20].closePrice
+                point.ma20Price = ma20 / 20f
             } else {
                 // 前19根K线：数据不足，MA20无效
-                point.mMA20Price = 0f
+                point.ma20Price = 0f
             }
             // ---------- MA30 ----------
             if (i == 29) {
                 // 第30根K线（索引29）：首次凑齐30个数据，计算初始MA30
-                point.mMA30Price = ma30 / 30f
+                point.ma30Price = ma30 / 30f
             } else if (i >= 30) {
                 // 后续K线：滑出最旧的一个收盘价，保持窗口大小为30
-                ma30 -= data[i - 30].getClosePrice()
-                point.mMA30Price = ma30 / 30f
+                ma30 -= data[i - 30].closePrice
+                point.ma30Price = ma30 / 30f
             } else {
                 // 前29根K线：数据不足，MA30无效
-                point.mMA30Price = 0f
+                point.ma30Price = 0f
             }
             // ---------- MA60 ----------
             if (i == 59) {
                 // 第60根K线（索引59）：首次凑齐60个数据，计算初始MA60
-                point.mMA60Price = ma60 / 60f
+                point.ma60Price = ma60 / 60f
             } else if (i >= 60) {
                 // 后续K线：滑出最旧的一个收盘价，保持窗口大小为60
-                ma60 -= data[i - 60].getClosePrice()
-                point.mMA60Price = ma60 / 60f
+                ma60 -= data[i - 60].closePrice
+                point.ma60Price = ma60 / 60f
             } else {
                 // 前59根K线：数据不足，MA60无效
-                point.mMA60Price = 0f
+                point.ma60Price = 0f
             }
         }
     }
@@ -363,31 +363,31 @@ object DataHelper {
         for (i in data.indices) {
             val entry = data[i]
             // 将当前成交量累加到两条均线的和中
-            volumeMa5 += entry.getVolume()
-            volumeMa10 += entry.getVolume()
+            volumeMa5 += entry.volume
+            volumeMa10 += entry.volume
             // ---------- VOL MA5 ----------
             if (i == 4) {
                 // 第5根K线（索引4）：首次凑齐5个数据，计算初始VOL MA5
-                entry.mMA5Volume = (volumeMa5 / 5f)
+                entry.ma5Volume = (volumeMa5 / 5f)
             } else if (i > 4) {
                 // 后续K线：滑出最旧的一个成交量，保持窗口大小为5
-                volumeMa5 -= data[i - 5].getVolume()
-                entry.mMA5Volume = volumeMa5 / 5f
+                volumeMa5 -= data[i - 5].volume
+                entry.ma5Volume = volumeMa5 / 5f
             } else {
                 // 前4根K线：数据不足，VOL MA5无效
-                entry.mMA5Volume = 0f
+                entry.ma5Volume = 0f
             }
             // ---------- VOL MA10 ----------
             if (i == 9) {
                 // 第10根K线（索引9）：首次凑齐10个数据，计算初始VOL MA10
-                entry.mMA10Volume = volumeMa10 / 10f
+                entry.ma10Volume = volumeMa10 / 10f
             } else if (i > 9) {
                 // 后续K线：滑出最旧的一个成交量，保持窗口大小为10
-                volumeMa10 -= data[i - 10].getVolume()
-                entry.mMA10Volume = volumeMa10 / 10f
+                volumeMa10 -= data[i - 10].volume
+                entry.ma10Volume = volumeMa10 / 10f
             } else {
                 // 前9根K线：数据不足，VOL MA10无效
-                entry.mMA10Volume = 0f
+                entry.ma10Volume = 0f
             }
         }
     }

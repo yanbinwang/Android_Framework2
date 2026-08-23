@@ -27,12 +27,12 @@ class KLineViewModel : BaseViewModel() {
                 val list = requestAffair { suspendingKLineData() }.toList(KLineBean::class.java)?.toArrayList().toNewList { bean ->
                     val entity = KLineChartBean()
                     entity.let {
-                        it.mClose = bean.close.toSafeFloat()
-                        it.mDate = bean.date.orEmpty()
-                        it.mHigh = bean.high.toSafeFloat()
-                        it.mLow = bean.low.toSafeFloat()
-                        it.mOpen = bean.open.toSafeFloat()
-                        it.mVolume = bean.volume.toSafeFloat()
+                        it.closePrice = bean.close.toSafeFloat()
+                        it.date = bean.date.orEmpty()
+                        it.highPrice = bean.high.toSafeFloat()
+                        it.lowPrice = bean.low.toSafeFloat()
+                        it.openPrice = bean.open.toSafeFloat()
+                        it.volume = bean.volume.toSafeFloat()
                     }
                     entity
                 }

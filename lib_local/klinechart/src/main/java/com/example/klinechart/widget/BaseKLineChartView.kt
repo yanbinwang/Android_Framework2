@@ -253,7 +253,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             if (mIsLongPress) {
                 val point = getItem(mSelectedIndex) as? IKLine
                 val x = getX(mSelectedIndex)
-                val y = getMainY(point?.getClosePrice().orZero)
+                val y = getMainY(point?.closePrice.orZero)
                 // k线图竖线
                 drawLine(x, mMainRect?.top.toSafeFloat(), x, mMainRect?.bottom.toSafeFloat(), mSelectedYLinePaint)
                 // k线图横线
@@ -348,9 +348,9 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             val w1 = ViewUtil.dp2px(context, 5f)
             val w2 = ViewUtil.dp2px(context, 3f)
             var r = textHeight / 2 + w2
-            y = getMainY(point?.getClosePrice().orZero)
+            y = getMainY(point?.closePrice.orZero)
             var x: Float
-            val text = formatValue(point?.getClosePrice().orZero)
+            val text = formatValue(point?.closePrice.orZero)
             var textWidth = mTextPaint.measureText(text)
             if (translateXtoX(getX(mSelectedIndex)) < getChartWidth() / 2) {
                 x = 1f
@@ -493,12 +493,12 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             if (mMainDraw != null) {
                 mMainMaxValue = mMainMaxValue.coerceAtLeast(mMainDraw?.getMaxValue(point).orZero)
                 mMainMinValue = mMainMinValue.coerceAtMost(mMainDraw?.getMinValue(point).orZero)
-                if (mMainHighMaxValue != mMainHighMaxValue.coerceAtLeast(point?.getHighPrice().orZero)) {
-                    mMainHighMaxValue = point?.getHighPrice().orZero
+                if (mMainHighMaxValue != mMainHighMaxValue.coerceAtLeast(point?.highPrice.orZero)) {
+                    mMainHighMaxValue = point?.highPrice.orZero
                     mMainMaxIndex = i
                 }
-                if (mMainLowMinValue != mMainLowMinValue.coerceAtMost(point?.getLowPrice().orZero)) {
-                    mMainLowMinValue = point?.getLowPrice().orZero
+                if (mMainLowMinValue != mMainLowMinValue.coerceAtMost(point?.lowPrice.orZero)) {
+                    mMainLowMinValue = point?.lowPrice.orZero
                     mMainMinIndex = i
                 }
             }

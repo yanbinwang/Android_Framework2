@@ -46,8 +46,9 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
             // 2) 屏幕实际可见量有限：手机横屏最多显示60~100根K线，500条足够覆盖"加载更多"之前的可视区域+缓冲
 //            datas = this.subList(0, 500).toArrayList()
 //            DataHelper.calculate(datas)
-            adapter.addFooterData(this.take(500).toArrayList())
-            adapter.notifyDataSetChanged()
+//            adapter.addFooterData(this.take(500).toArrayList())
+//            adapter.notifyDataSetChanged()
+            adapter.setData(this.take(500).toArrayList())
         }
         viewModel.uiManage.observe {
             if (this) {

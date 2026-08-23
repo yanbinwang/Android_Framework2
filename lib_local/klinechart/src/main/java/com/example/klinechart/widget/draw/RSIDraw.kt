@@ -23,29 +23,29 @@ class RSIDraw : IChartDraw<IRSI> {
     private val mRSI3Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
-        if (lastPoint?.getRsi() != 0f) {
-            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint?.getRsi().orZero, curX, curPoint?.getRsi().orZero)
+        if (lastPoint?.rsi != 0f) {
+            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint?.rsi.orZero, curX, curPoint?.rsi.orZero)
         }
     }
 
     override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IRSI
-        if (point?.getRsi() != 0f) {
+        if (point?.rsi != 0f) {
             var text = "RSI(14)\u0020\u0020"
             canvas?.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
-            text = view.formatValue(point?.getRsi().orZero)
+            text = view.formatValue(point?.rsi.orZero)
             canvas?.drawText(text, mX, y, mRSI1Paint)
         }
     }
 
     override fun getMaxValue(point: IRSI?): Float {
-        return point?.getRsi().orZero
+        return point?.rsi.orZero
     }
 
     override fun getMinValue(point: IRSI?): Float {
-        return point?.getRsi().orZero
+        return point?.rsi.orZero
     }
 
     override fun getValueFormatter(): IValueFormatter {

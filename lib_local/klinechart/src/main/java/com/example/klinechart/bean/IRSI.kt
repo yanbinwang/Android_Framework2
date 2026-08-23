@@ -9,6 +9,6 @@ interface IRSI {
     /**
      * RSI值
      */
-    fun getRsi(): Float
+    var rsi: Float
 
 }

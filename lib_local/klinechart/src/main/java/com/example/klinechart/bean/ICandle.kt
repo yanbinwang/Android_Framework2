@@ -8,63 +8,63 @@ interface ICandle {
     /**
      * 开盘价
      */
-    fun getOpenPrice(): Float
+    var openPrice: Float
 
     /**
      * 收盘价
      */
-    fun getClosePrice(): Float
+    var closePrice: Float
 
     /**
      * 最高价
      */
-    fun getHighPrice(): Float
+    var highPrice: Float
 
     /**
      * 最低价
      */
-    fun getLowPrice(): Float
+    var lowPrice: Float
 
-    // 以下为MA数据
+    // 以下为 MA 数据
     /**
      * 五(月，日，时，分，5分等)均价
      */
-    fun getMA5Price(): Float
+    var ma5Price: Float
 
     /**
      * 十(月，日，时，分，5分等)均价
      */
-    fun getMA10Price(): Float
+    var ma10Price: Float
 
     /**
      * 二十(月，日，时，分，5分等)均价
      */
-    fun getMA20Price(): Float
+    var ma20Price: Float
 
     /**
      * 三十(月，日，时，分，5分等)均价
      */
-    fun getMA30Price(): Float
+    var ma30Price: Float
 
     /**
      * 六十(月，日，时，分，5分等)均价
      */
-    fun getMA60Price(): Float
+    var ma60Price: Float
 
-    // 以下为BOLL数据
+    // 以下为 BOLL 数据
     /**
      * 上轨线
      */
-    fun getUp(): Float
+    var up: Float
 
     /**
      * 中轨线
      */
-    fun getMb(): Float
+    var mb: Float
 
     /**
      * 下轨线
      */
-    fun getDn(): Float
+    var dn: Float
 
 }
