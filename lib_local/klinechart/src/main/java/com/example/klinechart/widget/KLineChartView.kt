@@ -81,15 +81,15 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
                 setDColor(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
                 setJColor(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
                 // WR
-                setRColor(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
+                setWRColor(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
                 // RSI
                 setRSI1Color(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
                 setRSI2Color(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
                 setRSI3Color(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
                 // MAIN
-                setMa5Color(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                setMa10Color(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
-                setMa30Color(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
+                setMA5Color(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
+                setMA10Color(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
+                setMA30Color(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
                 setCandleWidth(getDimension(R.styleable.KLineChartView_kc_candle_width, getDimension(R.dimen.chart_candle_width)))
                 setCandleLineWidth(getDimension(R.styleable.KLineChartView_kc_candle_line_width, getDimension(R.dimen.chart_candle_line_width)))
                 setSelectorBackgroundColor(getColor(R.styleable.KLineChartView_kc_selector_background_color, getColor(R.color.chart_selector)))
@@ -297,37 +297,37 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     /**
-     * 设置R颜色
+     * 设置WR颜色
      */
-    fun setRColor(@ColorInt color: Int) {
+    fun setWRColor(@ColorInt color: Int) {
         mWRDraw.setRColor(color)
     }
 
     /**
      * 设置ma5颜色
      */
-    fun setMa5Color(@ColorInt color: Int) {
-        mMainDraw.setMa5Color(color)
+    fun setMA5Color(@ColorInt color: Int) {
+        mMainDraw.setMA5Color(color)
         mVolumeDraw.setMa5Color(color)
     }
 
     /**
      * 设置ma10颜色
      */
-    fun setMa10Color(@ColorInt color: Int) {
-        mMainDraw.setMa10Color(color)
+    fun setMA10Color(@ColorInt color: Int) {
+        mMainDraw.setMA10Color(color)
         mVolumeDraw.setMa10Color(color)
     }
 
     /**
      * 设置ma20颜色
      */
-    fun setMa30Color(@ColorInt color: Int) {
-        mMainDraw.setMa30Color(color)
+    fun setMA30Color(@ColorInt color: Int) {
+        mMainDraw.setMA30Color(color)
     }
 
     /**
-     * 设置选择器文字大小
+     * 设置选择器画笔文字大小
      */
     fun setSelectorTextSize(textSize: Float) {
         mMainDraw.setSelectorTextSize(textSize)

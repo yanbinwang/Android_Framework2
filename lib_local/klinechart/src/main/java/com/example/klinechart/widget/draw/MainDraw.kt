@@ -83,7 +83,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
                     view.drawMainLine(canvas, ma30Paint, lastX, lastPoint?.ma30Price.orZero, curX, curPoint?.ma30Price.orZero)
                 }
             } else if (mStatus == Status.BOLL) {
-                //画boll
+                // 画boll
                 if (lastPoint?.up != 0f) {
                     view.drawMainLine(canvas, ma5Paint, lastX, lastPoint?.up.orZero, curX, curPoint?.up.orZero)
                 }
@@ -297,21 +297,21 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     /**
      * 设置ma5颜色
      */
-    fun setMa5Color(@ColorInt color: Int) {
+    fun setMA5Color(@ColorInt color: Int) {
         ma5Paint.color = color
     }
 
     /**
      * 设置ma10颜色
      */
-    fun setMa10Color(@ColorInt color: Int) {
+    fun setMA10Color(@ColorInt color: Int) {
         ma10Paint.color = color
     }
 
     /**
      * 设置ma30颜色
      */
-    fun setMa30Color(@ColorInt color: Int) {
+    fun setMA30Color(@ColorInt color: Int) {
         ma30Paint.color = color
     }
 
@@ -323,7 +323,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     /**
-     * 设置选择器文字大小
+     * 设置选择器文字大小 (只认 PX（像素）)
      */
     fun setSelectorTextSize(textSize: Float) {
         mSelectorTextPaint.textSize = textSize
