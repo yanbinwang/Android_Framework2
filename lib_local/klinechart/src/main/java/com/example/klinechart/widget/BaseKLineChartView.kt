@@ -241,13 +241,13 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
                 val lastPoint = if (i == 0) currentPoint else getItem(i - 1)
                 val lastX = if (i == 0) currentPointX else getX(i - 1)
                 if (mMainDraw != null) {
-                    mMainDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, this, this@BaseKLineChartView, i)
+                    mMainDraw?.drawTranslated(this, this@BaseKLineChartView, i, lastPoint, currentPoint, lastX, currentPointX)
                 }
                 if (mVolDraw != null) {
-                    mVolDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, this, this@BaseKLineChartView, i)
+                    mVolDraw?.drawTranslated(this, this@BaseKLineChartView, i, lastPoint, currentPoint, lastX, currentPointX)
                 }
                 if (mChildDraw != null) {
-                    mChildDraw?.drawTranslated(lastPoint, currentPoint, lastX, currentPointX, this, this@BaseKLineChartView, i)
+                    mChildDraw?.drawTranslated(this, this@BaseKLineChartView, i, lastPoint, currentPoint, lastX, currentPointX)
                 }
             }
             // 画选择线

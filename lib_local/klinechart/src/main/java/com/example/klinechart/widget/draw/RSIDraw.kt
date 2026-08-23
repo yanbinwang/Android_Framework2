@@ -22,7 +22,7 @@ class RSIDraw : IChartDraw<IRSI> {
     private val mRSI2Paint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mRSI3Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    override fun drawTranslated(lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float) {
         if (lastPoint?.rsi != 0f) {
             view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint?.rsi.orZero, curX, curPoint?.rsi.orZero)
         }

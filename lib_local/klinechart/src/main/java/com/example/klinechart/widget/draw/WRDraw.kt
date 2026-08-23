@@ -17,7 +17,7 @@ import com.example.klinechart.widget.BaseKLineChartView
 class WRDraw : IChartDraw<IWR> {
     private val mRPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    override fun drawTranslated(lastPoint: IWR?, curPoint: IWR?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IWR?, curPoint: IWR?, lastX: Float, curX: Float) {
         if (lastPoint?.wr != -10f) {
             view.drawChildLine(canvas, mRPaint, lastX, lastPoint?.wr.orZero, curX, curPoint?.wr.orZero)
         }

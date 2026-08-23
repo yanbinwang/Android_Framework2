@@ -52,7 +52,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         mPaint.color = ContextCompat.getColor(mContext, R.color.chart_line_background)
     }
 
-    override fun drawTranslated(lastPoint: ICandle?, curPoint: ICandle?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: ICandle?, curPoint: ICandle?, lastX: Float, curX: Float) {
         if (isLine) {
             view.drawMainLine(canvas, mLinePaint, lastX, lastPoint?.closePrice.orZero, curX, curPoint?.closePrice.orZero)
             view.drawMainMinuteLine(canvas, mPaint, lastX, lastPoint?.closePrice.orZero, curX, curPoint?.closePrice.orZero)

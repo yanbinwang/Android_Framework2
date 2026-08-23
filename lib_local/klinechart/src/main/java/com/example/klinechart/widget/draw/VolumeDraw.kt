@@ -34,7 +34,7 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
         mPillarWidth = 4.pt
     }
 
-    override fun drawTranslated(lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float) {
         drawHistogram(canvas, curPoint, curX, view)
         if (lastPoint?.ma5Volume != 0f) {
             view.drawVolLine(canvas, ma5Paint, lastX, lastPoint?.ma5Volume.orZero, curX, curPoint?.ma5Volume.orZero)

@@ -36,7 +36,7 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
         mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
     }
 
-    override fun drawTranslated(lastPoint: IMACD?, curPoint: IMACD?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IMACD?, curPoint: IMACD?, lastX: Float, curX: Float) {
         drawMACD(canvas, view, curX, curPoint?.macd.orZero)
         view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint?.dea.orZero, curX, curPoint?.dea.orZero)
         view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.dif.orZero, curX, curPoint?.dif.orZero)

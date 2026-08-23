@@ -26,7 +26,7 @@ class KDJDraw : IChartDraw<IKDJ> {
     private val mDPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mJPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    override fun drawTranslated(lastPoint: IKDJ?, curPoint: IKDJ?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
+    override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IKDJ?, curPoint: IKDJ?, lastX: Float, curX: Float) {
         if (lastPoint?.k != 0f) {
             view.drawChildLine(canvas, mKPaint, lastX, lastPoint?.k.orZero, curX, curPoint?.k.orZero)
         }
