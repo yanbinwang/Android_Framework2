@@ -15,6 +15,8 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.withScale
 import androidx.core.graphics.withTranslation
 import androidx.core.view.GestureDetectorCompat
+import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
@@ -23,10 +25,9 @@ import com.example.framework.utils.function.view.dimen
 import com.example.klinechart.R
 import com.example.klinechart.adapter.IAdapter
 import com.example.klinechart.bean.IKLine
-import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.utils.formatter.date.IDateTimeFormatter
-import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.date.ShortTimeFormatter
+import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.MainDraw
@@ -118,7 +119,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         mAnimator.addUpdateListener {
             invalidate()
         }
-        mSelectorFramePaint.strokeWidth = ViewUtil.dp2px(getContext(), 0.6f).toSafeFloat()
+        mSelectorFramePaint.strokeWidth = 0.6.ptFloat
         mSelectorFramePaint.style = Paint.Style.STROKE
         mSelectorFramePaint.color = Color.WHITE
     }
@@ -345,8 +346,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         if (mIsLongPress) {
             // 画Y值
             val point = getItem(mSelectedIndex) as? IKLine
-            val w1 = ViewUtil.dp2px(context, 5f)
-            val w2 = ViewUtil.dp2px(context, 3f)
+            val w1 = 5.pt
+            val w2 = 3.pt
             var r = textHeight / 2 + w2
             y = getMainY(point?.closePrice.orZero)
             var x: Float
@@ -439,7 +440,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * @param canvas
      * @param position 显示某个点的值
      */
-    private fun drawValue(canvas: Canvas?, position: Int) {
+    private fun drawValue(canvas: Canvas, position: Int) {
         val fm = mTextPaint.fontMetrics
         val textHeight = fm.descent - fm.ascent
         val baseLine = (textHeight - fm.bottom - fm.top) / 2

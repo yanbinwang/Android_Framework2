@@ -23,24 +23,26 @@ class WRDraw : IChartDraw<IWR> {
         }
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IWR
         if (point?.wr != -10f) {
             var text = "WR(14):"
-            canvas?.drawText(text, mX, y, view.getTextPaint())
+            canvas.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
             text = "${view.formatValue(point?.wr.orZero)}\u0020"
-            canvas?.drawText(text, mX, y, mRPaint)
+            canvas.drawText(text, mX, y, mRPaint)
         }
     }
 
     override fun getMaxValue(point: IWR?): Float {
-        return point?.wr.orZero
+        point ?: return 0f
+        return point.wr
     }
 
     override fun getMinValue(point: IWR?): Float {
-        return point?.wr.orZero
+        point ?: return 0f
+        return point.wr
     }
 
     override fun getValueFormatter(): IValueFormatter {

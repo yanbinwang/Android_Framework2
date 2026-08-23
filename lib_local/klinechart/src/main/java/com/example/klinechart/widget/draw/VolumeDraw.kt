@@ -4,13 +4,13 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.IVolume
 import com.example.klinechart.utils.formatter.value.BigValueFormatter
 import com.example.klinechart.utils.formatter.value.IValueFormatter
-import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**
@@ -31,7 +31,7 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     init {
         mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
         mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
-        mPillarWidth = ViewUtil.dp2px(mContext, 4f)
+        mPillarWidth = 4.pt
     }
 
     override fun drawTranslated(lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float, canvas: Canvas, view: BaseKLineChartView, position: Int) {
@@ -56,27 +56,29 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
         }
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IVolume
         var text = "VOL:${getValueFormatter().format(point?.volume.orZero)}\u0020\u0020"
-        canvas?.drawText(text, mX, y, view.getTextPaint())
+        canvas.drawText(text, mX, y, view.getTextPaint())
         mX += view.getTextPaint().measureText(text)
         text = "MA5:${getValueFormatter().format(point?.ma5Volume.orZero)}\u0020\u0020"
-        canvas?.drawText(text, mX, y, ma5Paint)
+        canvas.drawText(text, mX, y, ma5Paint)
         mX += ma5Paint.measureText(text)
         text = "MA10:${getValueFormatter().format(point?.ma10Volume.orZero)}"
-        canvas?.drawText(text, mX, y, ma10Paint)
+        canvas.drawText(text, mX, y, ma10Paint)
     }
 
     override fun getMaxValue(point: IVolume?): Float {
-        val value = point?.ma5Volume.orZero.coerceAtLeast(point?.ma10Volume.orZero)
-        return point?.volume.orZero.coerceAtLeast(value)
+        point ?: return 0f
+        val value = point.ma5Volume.coerceAtLeast(point.ma10Volume)
+        return point.volume.coerceAtLeast(value)
     }
 
     override fun getMinValue(point: IVolume?): Float {
-        val value = point?.ma5Volume.orZero.coerceAtMost(point?.ma10Volume.orZero)
-        return point?.volume.orZero.coerceAtMost(value)
+        point ?: return 0f
+        val value = point.ma5Volume.coerceAtMost(point.ma10Volume)
+        return point.volume.coerceAtMost(value)
     }
 
     override fun getValueFormatter(): IValueFormatter {

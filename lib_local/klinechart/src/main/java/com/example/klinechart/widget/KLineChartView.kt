@@ -11,9 +11,9 @@ import androidx.annotation.DimenRes
 import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.toColorInt
+import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.klinechart.R
-import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.KDJDraw
 import com.example.klinechart.widget.draw.MACDDraw
@@ -44,7 +44,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var mRefreshListener: KChartRefreshListener? = null
 
     init {
-        val layoutParams = LayoutParams(ViewUtil.dp2px(getContext(), 50f), ViewUtil.dp2px(getContext(), 50f))
+        val layoutParams = LayoutParams(50.pt, 50.pt)
         layoutParams.addRule(CENTER_IN_PARENT)
         addView(mProgressBar, layoutParams)
         mProgressBar.visibility = GONE

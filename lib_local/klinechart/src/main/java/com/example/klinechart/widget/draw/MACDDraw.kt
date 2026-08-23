@@ -42,30 +42,32 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
         view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.dif.orZero, curX, curPoint?.dif.orZero)
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IMACD
         var text = "MACD(12,26,9)\u0020\u0020"
-        canvas?.drawText(text, mX, y, view.getTextPaint())
+        canvas.drawText(text, mX, y, view.getTextPaint())
         mX += view.getTextPaint().measureText(text)
         text = "MACD:${view.formatValue(point?.macd.orZero)}\u0020\u0020"
-        canvas?.drawText(text, mX, y, mMACDPaint)
+        canvas.drawText(text, mX, y, mMACDPaint)
         mX += mMACDPaint.measureText(text)
         text = "DIF:${view.formatValue(point?.dif.orZero)}\u0020\u0020"
-        canvas?.drawText(text, mX, y, mDEAPaint)
+        canvas.drawText(text, mX, y, mDEAPaint)
         mX += mDIFPaint.measureText(text)
         text = "DEA:" + view.formatValue(point?.dea.orZero)
-        canvas?.drawText(text, mX, y, mDIFPaint)
+        canvas.drawText(text, mX, y, mDIFPaint)
     }
 
     override fun getMaxValue(point: IMACD?): Float {
-        val value = point?.dea.orZero.coerceAtLeast(point?.dif.orZero)
-        return point?.macd.orZero.coerceAtLeast(value)
+        point ?: return 0f
+        val value = point.dea.coerceAtLeast(point.dif)
+        return point.macd.coerceAtLeast(value)
     }
 
     override fun getMinValue(point: IMACD?): Float {
-        val value = point?.dea.orZero.coerceAtMost(point?.dif.orZero)
-        return point?.macd.orZero.coerceAtMost(value)
+        point ?: return 0f
+        val value = point.dea.coerceAtMost(point.dif)
+        return point.macd.coerceAtMost(value)
     }
 
     override fun getValueFormatter(): IValueFormatter {

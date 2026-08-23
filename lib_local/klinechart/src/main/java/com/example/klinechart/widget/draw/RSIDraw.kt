@@ -28,24 +28,26 @@ class RSIDraw : IChartDraw<IRSI> {
         }
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IRSI
         if (point?.rsi != 0f) {
             var text = "RSI(14)\u0020\u0020"
-            canvas?.drawText(text, mX, y, view.getTextPaint())
+            canvas.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
             text = view.formatValue(point?.rsi.orZero)
-            canvas?.drawText(text, mX, y, mRSI1Paint)
+            canvas.drawText(text, mX, y, mRSI1Paint)
         }
     }
 
     override fun getMaxValue(point: IRSI?): Float {
-        return point?.rsi.orZero
+        point ?: return 0f
+        return point.rsi
     }
 
     override fun getMinValue(point: IRSI?): Float {
-        return point?.rsi.orZero
+        point ?: return 0f
+        return point.rsi
     }
 
     override fun getValueFormatter(): IValueFormatter {

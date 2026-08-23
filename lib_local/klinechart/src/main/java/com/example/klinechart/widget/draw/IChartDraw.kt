@@ -29,7 +29,7 @@ interface IChartDraw<T> {
      * @param x        x的起始坐标
      * @param y        y的起始坐标
      */
-    fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float)
+    fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float)
 
     /**
      * 获取当前实体中最大的值

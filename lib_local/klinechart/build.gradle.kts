@@ -46,5 +46,5 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.bundles.androidx.testing)
     // 框架库
-    implementation(project(":lib_framework"))
+    implementation(project(":lib_common"))
 }

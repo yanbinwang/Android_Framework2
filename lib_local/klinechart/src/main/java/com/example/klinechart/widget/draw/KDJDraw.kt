@@ -38,34 +38,36 @@ class KDJDraw : IChartDraw<IKDJ> {
         }
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         val point = view.getItem(position) as? IKDJ
         if (point?.k != 0f) {
             var text = "KDJ(14,1,3)\u0020\u0020"
-            canvas?.drawText(text, mX, y, view.getTextPaint())
+            canvas.drawText(text, mX, y, view.getTextPaint())
             mX += view.getTextPaint().measureText(text)
             text = "K:${view.formatValue(point?.k.orZero)}\u0020"
-            canvas?.drawText(text, mX, y, mKPaint)
+            canvas.drawText(text, mX, y, mKPaint)
             mX += mKPaint.measureText(text)
             if (point?.d != 0f) {
                 text = "D:${view.formatValue(point?.d.orZero)}\u0020"
-                canvas?.drawText(text, mX, y, mDPaint)
+                canvas.drawText(text, mX, y, mDPaint)
                 mX += mDPaint.measureText(text)
                 text = "J:${view.formatValue(point?.j.orZero)}\u0020"
-                canvas?.drawText(text, mX, y, mJPaint)
+                canvas.drawText(text, mX, y, mJPaint)
             }
         }
     }
 
     override fun getMaxValue(point: IKDJ?): Float {
-        val value = point?.d.orZero.coerceAtLeast(point?.j.orZero)
-        return point?.k.orZero.coerceAtLeast(value)
+        point ?: return 0f
+        val value = point.d.coerceAtLeast(point.j)
+        return point.k.coerceAtLeast(value)
     }
 
     override fun getMinValue(point: IKDJ?): Float {
-        val value = point?.d.orZero.coerceAtMost(point?.j.orZero)
-        return point?.k.orZero.coerceAtMost(value)
+        point ?: return 0f
+        val value = point.d.coerceAtMost(point.j)
+        return point.k.coerceAtMost(value)
     }
 
     override fun getValueFormatter(): IValueFormatter {

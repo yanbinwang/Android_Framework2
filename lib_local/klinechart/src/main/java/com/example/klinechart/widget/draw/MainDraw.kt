@@ -5,13 +5,14 @@ import android.graphics.Paint
 import android.graphics.RectF
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
+import com.example.common.utils.function.pt
+import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.ICandle
 import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
-import com.example.klinechart.utils.ViewUtil
 import com.example.klinechart.widget.BaseKLineChartView
 import com.example.klinechart.widget.KLineChartView
 import kotlin.math.max
@@ -96,7 +97,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         }
     }
 
-    override fun drawText(canvas: Canvas?, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
+    override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
         var mX = x
         var mY = y
         val point = view.getItem(position) as? ICandle
@@ -105,12 +106,12 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
             if (mStatus == Status.MA) {
                 if (point?.ma60Price != 0f) {
                     val text = "MA60:${view.formatValue(point?.ma60Price.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma10Paint)
+                    canvas.drawText(text, mX, mY, ma10Paint)
                 }
             } else if (mStatus == Status.BOLL) {
                 if (point?.mb != 0f) {
                     val text = "BOLL:${view.formatValue(point?.mb.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma10Paint)
+                    canvas.drawText(text, mX, mY, ma10Paint)
                 }
             }
         } else {
@@ -118,28 +119,28 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
                 var text: String?
                 if (point?.ma5Price != 0f) {
                     text = "MA5:${view.formatValue(point?.ma5Price.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma5Paint)
+                    canvas.drawText(text, mX, mY, ma5Paint)
                     mX += ma5Paint.measureText(text)
                 }
                 if (point?.ma10Price != 0f) {
                     text = "MA10:${view.formatValue(point?.ma10Price.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma10Paint)
+                    canvas.drawText(text, mX, mY, ma10Paint)
                     mX += ma10Paint.measureText(text)
                 }
                 if (point?.ma20Price != 0f) {
                     text = "MA30:${view.formatValue(point?.ma30Price.orZero)}"
-                    canvas?.drawText(text, mX, mY, ma30Paint)
+                    canvas.drawText(text, mX, mY, ma30Paint)
                 }
             } else if (mStatus == Status.BOLL) {
                 if (point?.mb != 0f) {
                     var text = "BOLL:${view.formatValue(point?.mb.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma10Paint)
+                    canvas.drawText(text, mX, mY, ma10Paint)
                     mX += ma5Paint.measureText(text)
                     text = "UB:${view.formatValue(point?.up.orZero)}\u0020\u0020"
-                    canvas?.drawText(text, mX, mY, ma5Paint)
+                    canvas.drawText(text, mX, mY, ma5Paint)
                     mX += ma10Paint.measureText(text)
                     text = "LB:${view.formatValue(point?.dn.orZero)}"
-                    canvas?.drawText(text, mX, mY, ma30Paint)
+                    canvas.drawText(text, mX, mY, ma30Paint)
                 }
             }
         }
@@ -149,35 +150,37 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     override fun getMaxValue(point: ICandle?): Float {
+        point ?: return 0f
         return if (mStatus == Status.BOLL) {
-            if (java.lang.Float.isNaN(point?.up.orZero)) {
-                if (point?.mb == 0f) {
+            if (java.lang.Float.isNaN(point.up)) {
+                if (point.mb == 0f) {
                     point.highPrice.orZero
                 } else {
-                    point?.mb.orZero
+                    point.mb
                 }
-            } else if (point?.up == 0f) {
+            } else if (point.up == 0f) {
                 point.highPrice
             } else {
-                point?.up.orZero
+                point.up
             }
         } else {
-            point?.highPrice.orZero.coerceAtLeast(point?.ma30Price.orZero)
+            point.highPrice.coerceAtLeast(point.ma30Price)
         }
     }
 
     override fun getMinValue(point: ICandle?): Float {
+        point ?: return 0f
         return if (mStatus == Status.BOLL) {
-            if (point?.dn == 0f) {
+            if (point.dn == 0f) {
                 point.lowPrice
             } else {
-                point?.dn.orZero
+                point.dn
             }
         } else {
-            if (point?.ma30Price == 0f) {
+            if (point.ma30Price == 0f) {
                 point.lowPrice
             } else {
-                point?.ma30Price.orZero.coerceAtMost(point?.lowPrice.orZero)
+                point.ma30Price.coerceAtMost(point.lowPrice)
             }
         }
     }
@@ -245,8 +248,8 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         val metrics = mSelectorTextPaint.fontMetrics
         val textHeight = metrics.descent - metrics.ascent
         val index = view.getSelectedIndex()
-        val padding = ViewUtil.dp2px(mContext, 5f)
-        val margin = ViewUtil.dp2px(mContext, 5f)
+        val padding = 5.pt
+        val margin = 5.pt
         var width = 0f
         val left: Float
         val top = margin + view.getTopPadding()
@@ -363,9 +366,9 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         if (isLine != line) {
             isLine = line
             if (isLine) {
-                mKChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 7f).toSafeFloat())
+                mKChartView?.setCandleWidth(7.ptFloat)
             } else {
-                mKChartView?.setCandleWidth(ViewUtil.dp2px(mContext, 6f).toSafeFloat())
+                mKChartView?.setCandleWidth(6.ptFloat)
             }
         }
     }
