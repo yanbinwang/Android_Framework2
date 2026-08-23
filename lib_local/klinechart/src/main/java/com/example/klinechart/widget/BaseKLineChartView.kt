@@ -1105,14 +1105,14 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置最大值/最小值文字颜色
      */
-    open fun setMTextColor(@ColorInt color: Int) {
+    open fun setExtremumTextColor(@ColorInt color: Int) {
         mMaxMinPaint.color = color
     }
 
     /**
      * 设置最大值/最小值文字大小
      */
-    open fun setMTextSize(textSize: Float) {
+    open fun setExtremumTextSize(textSize: Float) {
         mMaxMinPaint.textSize = textSize
     }
 

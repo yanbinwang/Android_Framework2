@@ -56,10 +56,10 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         context.withStyledAttributes(attrs, R.styleable.KLineChartView) {
             // 公共方法赋值
             setPointWidth(getDimension(R.styleable.KLineChartView_kc_point_width, dimen(R.dimen.chart_point_width)))
-            setTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
             setTextColor(getColor(R.styleable.KLineChartView_kc_text_color, color(R.color.chart_text)))
-            setMTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
-            setMTextColor(getColor(R.styleable.KLineChartView_kc_text_color, color(R.color.chart_white)))
+            setTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
+            setExtremumTextColor(getColor(R.styleable.KLineChartView_kc_text_color, color(R.color.chart_white)))
+            setExtremumTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
             setLineWidth(getDimension(R.styleable.KLineChartView_kc_line_width, dimen(R.dimen.chart_line_width)))
             setBackgroundColor(getColor(R.styleable.KLineChartView_kc_background_color, color(R.color.chart_bac)))
             setSelectPointColor(getColor(R.styleable.KLineChartView_kc_background_color, color(R.color.chart_point_bac)))
