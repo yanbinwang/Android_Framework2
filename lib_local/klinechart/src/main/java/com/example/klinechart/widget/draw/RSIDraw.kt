@@ -3,7 +3,6 @@ package com.example.klinechart.widget.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
-import com.example.framework.utils.function.value.orZero
 import com.example.klinechart.bean.IRSI
 import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
@@ -23,20 +22,21 @@ class RSIDraw : IChartDraw<IRSI> {
     private val mRSI3Paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IRSI?, curPoint: IRSI?, lastX: Float, curX: Float) {
-        if (lastPoint?.rsi != 0f) {
-            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint?.rsi.orZero, curX, curPoint?.rsi.orZero)
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.rsi != 0f) {
+            view.drawChildLine(canvas, mRSI1Paint, lastX, lastPoint.rsi, curX, curPoint.rsi)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        val point = view.getItem(position) as? IRSI
-        if (point?.rsi != 0f) {
+        val point = view.getItem(position) as? IRSI ?: return
+        var curX = x
+        if (point.rsi != 0f) {
             var text = "RSI(14)\u0020\u0020"
-            canvas.drawText(text, mX, y, view.getTextPaint())
-            mX += view.getTextPaint().measureText(text)
-            text = view.formatValue(point?.rsi.orZero)
-            canvas.drawText(text, mX, y, mRSI1Paint)
+            canvas.drawText(text, curX, y, view.getTextPaint())
+            curX += view.getTextPaint().measureText(text)
+            text = view.formatValue(point.rsi)
+            canvas.drawText(text, curX, y, mRSI1Paint)
         }
     }
 

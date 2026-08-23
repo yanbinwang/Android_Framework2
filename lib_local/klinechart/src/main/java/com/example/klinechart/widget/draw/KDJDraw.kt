@@ -3,7 +3,6 @@ package com.example.klinechart.widget.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
-import com.example.framework.utils.function.value.orZero
 import com.example.klinechart.bean.IKDJ
 import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
@@ -27,33 +26,34 @@ class KDJDraw : IChartDraw<IKDJ> {
     private val mJPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IKDJ?, curPoint: IKDJ?, lastX: Float, curX: Float) {
-        if (lastPoint?.k != 0f) {
-            view.drawChildLine(canvas, mKPaint, lastX, lastPoint?.k.orZero, curX, curPoint?.k.orZero)
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.k != 0f) {
+            view.drawChildLine(canvas, mKPaint, lastX, lastPoint.k, curX, curPoint.k)
         }
-        if (lastPoint?.d != 0f) {
-            view.drawChildLine(canvas, mDPaint, lastX, lastPoint?.d.orZero, curX, curPoint?.d.orZero)
+        if (lastPoint.d != 0f) {
+            view.drawChildLine(canvas, mDPaint, lastX, lastPoint.d, curX, curPoint.d)
         }
-        if (lastPoint?.j != 0f) {
-            view.drawChildLine(canvas, mJPaint, lastX, lastPoint?.j.orZero, curX, curPoint?.j.orZero)
+        if (lastPoint.j != 0f) {
+            view.drawChildLine(canvas, mJPaint, lastX, lastPoint.j, curX, curPoint.j)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        val point = view.getItem(position) as? IKDJ
-        if (point?.k != 0f) {
+        val point = view.getItem(position) as? IKDJ ?: return
+        var curX = x
+        if (point.k != 0f) {
             var text = "KDJ(14,1,3)\u0020\u0020"
-            canvas.drawText(text, mX, y, view.getTextPaint())
-            mX += view.getTextPaint().measureText(text)
-            text = "K:${view.formatValue(point?.k.orZero)}\u0020"
-            canvas.drawText(text, mX, y, mKPaint)
-            mX += mKPaint.measureText(text)
-            if (point?.d != 0f) {
-                text = "D:${view.formatValue(point?.d.orZero)}\u0020"
-                canvas.drawText(text, mX, y, mDPaint)
-                mX += mDPaint.measureText(text)
-                text = "J:${view.formatValue(point?.j.orZero)}\u0020"
-                canvas.drawText(text, mX, y, mJPaint)
+            canvas.drawText(text, curX, y, view.getTextPaint())
+            curX += view.getTextPaint().measureText(text)
+            text = "K:${view.formatValue(point.k)}\u0020"
+            canvas.drawText(text, curX, y, mKPaint)
+            curX += mKPaint.measureText(text)
+            if (point.d != 0f) {
+                text = "D:${view.formatValue(point.d)}\u0020"
+                canvas.drawText(text, curX, y, mDPaint)
+                curX += mDPaint.measureText(text)
+                text = "J:${view.formatValue(point.j)}\u0020"
+                canvas.drawText(text, curX, y, mJPaint)
             }
         }
     }

@@ -3,9 +3,8 @@ package com.example.klinechart.widget.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.example.common.utils.function.pt
-import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.IVolume
@@ -29,27 +28,28 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     private val mContext get() = view.context
 
     init {
-        mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
-        mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
+        mRedPaint.color = mContext.color(R.color.chart_red)
+        mGreenPaint.color = mContext.color(R.color.chart_green)
         mPillarWidth = 4.pt
     }
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IVolume?, curPoint: IVolume?, lastX: Float, curX: Float) {
+        if (lastPoint == null || curPoint == null) return
         drawHistogram(canvas, curPoint, curX, view)
-        if (lastPoint?.ma5Volume != 0f) {
-            view.drawVolLine(canvas, ma5Paint, lastX, lastPoint?.ma5Volume.orZero, curX, curPoint?.ma5Volume.orZero)
+        if (lastPoint.ma5Volume != 0f) {
+            view.drawVolLine(canvas, ma5Paint, lastX, lastPoint.ma5Volume, curX, curPoint.ma5Volume)
         }
-        if (lastPoint?.ma10Volume != 0f) {
-            view.drawVolLine(canvas, ma10Paint, lastX, lastPoint?.ma10Volume.orZero, curX, curPoint?.ma10Volume.orZero)
+        if (lastPoint.ma10Volume != 0f) {
+            view.drawVolLine(canvas, ma10Paint, lastX, lastPoint.ma10Volume, curX, curPoint.ma10Volume)
         }
     }
 
-    private fun drawHistogram(canvas: Canvas, curPoint: IVolume?, curX: Float, view: BaseKLineChartView) {
+    private fun drawHistogram(canvas: Canvas, curPoint: IVolume, curX: Float, view: BaseKLineChartView) {
         val r = (mPillarWidth / 2).toFloat()
-        val top = view.getVolY(curPoint?.volume.orZero)
+        val top = view.getVolY(curPoint.volume)
         val bottom = view.getVolRect()?.bottom
         // 涨
-        if (curPoint?.closePrice.orZero >= curPoint?.openPrice.orZero) {
+        if (curPoint.closePrice >= curPoint.openPrice) {
             canvas.drawRect(curX - r, top, curX + r, bottom.toSafeFloat(), mRedPaint)
         } else {
             canvas.drawRect(curX - r, top, curX + r, bottom.toSafeFloat(), mGreenPaint)
@@ -57,16 +57,16 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        val point = view.getItem(position) as? IVolume
-        var text = "VOL:${getValueFormatter().format(point?.volume.orZero)}\u0020\u0020"
-        canvas.drawText(text, mX, y, view.getTextPaint())
-        mX += view.getTextPaint().measureText(text)
-        text = "MA5:${getValueFormatter().format(point?.ma5Volume.orZero)}\u0020\u0020"
-        canvas.drawText(text, mX, y, ma5Paint)
-        mX += ma5Paint.measureText(text)
-        text = "MA10:${getValueFormatter().format(point?.ma10Volume.orZero)}"
-        canvas.drawText(text, mX, y, ma10Paint)
+        val point = view.getItem(position) as? IVolume ?: return
+        var curX = x
+        var text = "VOL:${getValueFormatter().format(point.volume)}\u0020\u0020"
+        canvas.drawText(text, curX, y, view.getTextPaint())
+        curX += view.getTextPaint().measureText(text)
+        text = "MA5:${getValueFormatter().format(point.ma5Volume)}\u0020\u0020"
+        canvas.drawText(text, curX, y, ma5Paint)
+        curX += ma5Paint.measureText(text)
+        text = "MA10:${getValueFormatter().format(point.ma10Volume)}"
+        canvas.drawText(text, curX, y, ma10Paint)
     }
 
     override fun getMaxValue(point: IVolume?): Float {

@@ -7,7 +7,7 @@ import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
-import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.ICandle
@@ -46,101 +46,102 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     init {
-        mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
-        mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
-        mLinePaint.color = ContextCompat.getColor(mContext, R.color.chart_line)
-        mPaint.color = ContextCompat.getColor(mContext, R.color.chart_line_background)
+        mRedPaint.color = mContext.color(R.color.chart_red)
+        mGreenPaint.color = mContext.color(R.color.chart_green)
+        mLinePaint.color = mContext.color(R.color.chart_line)
+        mPaint.color = mContext.color(R.color.chart_line_background)
     }
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: ICandle?, curPoint: ICandle?, lastX: Float, curX: Float) {
+        if (lastPoint == null || curPoint == null) return
         if (isLine) {
-            view.drawMainLine(canvas, mLinePaint, lastX, lastPoint?.closePrice.orZero, curX, curPoint?.closePrice.orZero)
-            view.drawMainMinuteLine(canvas, mPaint, lastX, lastPoint?.closePrice.orZero, curX, curPoint?.closePrice.orZero)
+            view.drawMainLine(canvas, mLinePaint, lastX, lastPoint.closePrice, curX, curPoint.closePrice)
+            view.drawMainMinuteLine(canvas, mPaint, lastX, lastPoint.closePrice, curX, curPoint.closePrice)
             if (mStatus == Status.MA) {
                 // 画ma60
-                if (lastPoint?.ma60Price != 0f) {
-                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.ma60Price.orZero, curX, curPoint?.ma60Price.orZero)
+                if (lastPoint.ma60Price != 0f) {
+                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint.ma60Price, curX, curPoint.ma60Price)
                 }
             } else if (mStatus == Status.BOLL) {
                 // 画boll
-                if (lastPoint?.mb != 0f) {
-                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.mb.orZero, curX, curPoint?.mb.orZero)
+                if (lastPoint.mb != 0f) {
+                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint.mb, curX, curPoint.mb)
                 }
             }
         } else {
-            drawCandle(view, canvas, curX, curPoint?.highPrice.orZero, curPoint?.lowPrice.orZero, curPoint?.openPrice.orZero, curPoint?.closePrice.orZero)
+            drawCandle(view, canvas, curX, curPoint.highPrice, curPoint.lowPrice, curPoint.openPrice, curPoint.closePrice)
             if (mStatus == Status.MA) {
                 // 画ma5
-                if (lastPoint?.ma5Price != 0f) {
-                    view.drawMainLine(canvas, ma5Paint, lastX, lastPoint?.ma5Price.orZero, curX, curPoint?.ma5Price.orZero)
+                if (lastPoint.ma5Price != 0f) {
+                    view.drawMainLine(canvas, ma5Paint, lastX, lastPoint.ma5Price, curX, curPoint.ma5Price)
                 }
                 // 画ma10
-                if (lastPoint?.ma10Price != 0f) {
-                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.ma10Price.orZero, curX, curPoint?.ma10Price.orZero)
+                if (lastPoint.ma10Price != 0f) {
+                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint.ma10Price, curX, curPoint.ma10Price)
                 }
                 // 画ma30
-                if (lastPoint?.ma30Price != 0f) {
-                    view.drawMainLine(canvas, ma30Paint, lastX, lastPoint?.ma30Price.orZero, curX, curPoint?.ma30Price.orZero)
+                if (lastPoint.ma30Price != 0f) {
+                    view.drawMainLine(canvas, ma30Paint, lastX, lastPoint.ma30Price, curX, curPoint.ma30Price)
                 }
             } else if (mStatus == Status.BOLL) {
                 // 画boll
-                if (lastPoint?.up != 0f) {
-                    view.drawMainLine(canvas, ma5Paint, lastX, lastPoint?.up.orZero, curX, curPoint?.up.orZero)
+                if (lastPoint.up != 0f) {
+                    view.drawMainLine(canvas, ma5Paint, lastX, lastPoint.up, curX, curPoint.up)
                 }
-                if (lastPoint?.mb != 0f) {
-                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint?.mb.orZero, curX, curPoint?.mb.orZero)
+                if (lastPoint.mb != 0f) {
+                    view.drawMainLine(canvas, ma10Paint, lastX, lastPoint.mb, curX, curPoint.mb)
                 }
-                if (lastPoint?.dn != 0f) {
-                    view.drawMainLine(canvas, ma30Paint, lastX, lastPoint?.dn.orZero, curX, curPoint?.dn.orZero)
+                if (lastPoint.dn != 0f) {
+                    view.drawMainLine(canvas, ma30Paint, lastX, lastPoint.dn, curX, curPoint.dn)
                 }
             }
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        var mY = y
-        val point = view.getItem(position) as? ICandle
-        mY -= 5
+        val point = view.getItem(position) as? ICandle ?: return
+        var curX = x
+        var curY = y
+        curY -= 5
         if (isLine) {
             if (mStatus == Status.MA) {
-                if (point?.ma60Price != 0f) {
-                    val text = "MA60:${view.formatValue(point?.ma60Price.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma10Paint)
+                if (point.ma60Price != 0f) {
+                    val text = "MA60:${view.formatValue(point.ma60Price)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma10Paint)
                 }
             } else if (mStatus == Status.BOLL) {
-                if (point?.mb != 0f) {
-                    val text = "BOLL:${view.formatValue(point?.mb.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma10Paint)
+                if (point.mb != 0f) {
+                    val text = "BOLL:${view.formatValue(point.mb)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma10Paint)
                 }
             }
         } else {
             if (mStatus == Status.MA) {
                 var text: String?
-                if (point?.ma5Price != 0f) {
-                    text = "MA5:${view.formatValue(point?.ma5Price.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma5Paint)
-                    mX += ma5Paint.measureText(text)
+                if (point.ma5Price != 0f) {
+                    text = "MA5:${view.formatValue(point.ma5Price)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma5Paint)
+                    curX += ma5Paint.measureText(text)
                 }
-                if (point?.ma10Price != 0f) {
-                    text = "MA10:${view.formatValue(point?.ma10Price.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma10Paint)
-                    mX += ma10Paint.measureText(text)
+                if (point.ma10Price != 0f) {
+                    text = "MA10:${view.formatValue(point.ma10Price)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma10Paint)
+                    curX += ma10Paint.measureText(text)
                 }
-                if (point?.ma20Price != 0f) {
-                    text = "MA30:${view.formatValue(point?.ma30Price.orZero)}"
-                    canvas.drawText(text, mX, mY, ma30Paint)
+                if (point.ma20Price != 0f) {
+                    text = "MA30:${view.formatValue(point.ma30Price)}"
+                    canvas.drawText(text, curX, curY, ma30Paint)
                 }
             } else if (mStatus == Status.BOLL) {
-                if (point?.mb != 0f) {
-                    var text = "BOLL:${view.formatValue(point?.mb.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma10Paint)
-                    mX += ma5Paint.measureText(text)
-                    text = "UB:${view.formatValue(point?.up.orZero)}\u0020\u0020"
-                    canvas.drawText(text, mX, mY, ma5Paint)
-                    mX += ma10Paint.measureText(text)
-                    text = "LB:${view.formatValue(point?.dn.orZero)}"
-                    canvas.drawText(text, mX, mY, ma30Paint)
+                if (point.mb != 0f) {
+                    var text = "BOLL:${view.formatValue(point.mb)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma10Paint)
+                    curX += ma5Paint.measureText(text)
+                    text = "UB:${view.formatValue(point.up)}\u0020\u0020"
+                    canvas.drawText(text, curX, curY, ma5Paint)
+                    curX += ma10Paint.measureText(text)
+                    text = "LB:${view.formatValue(point.dn)}"
+                    canvas.drawText(text, curX, curY, ma30Paint)
                 }
             }
         }
@@ -154,7 +155,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         return if (mStatus == Status.BOLL) {
             if (java.lang.Float.isNaN(point.up)) {
                 if (point.mb == 0f) {
-                    point.highPrice.orZero
+                    point.highPrice
                 } else {
                     point.mb
                 }
@@ -244,7 +245,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     /**
      * draw选择器
      */
-    private fun drawSelector(view: BaseKLineChartView, canvas: Canvas?) {
+    private fun drawSelector(view: BaseKLineChartView, canvas: Canvas) {
         val metrics = mSelectorTextPaint.fontMetrics
         val textHeight = metrics.descent - metrics.ascent
         val index = view.getSelectedIndex()
@@ -266,16 +267,16 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         }
         width += padding * 2
         val x = view.translateXtoX(view.getX(index))
-        if (x > view.getChartWidth() / 2) {
-            left = margin.toSafeFloat()
+        left = if (x > view.getChartWidth() / 2) {
+            margin.toSafeFloat()
         } else {
-            left = view.getChartWidth() - width - margin
+            view.getChartWidth() - width - margin
         }
         val r = RectF(left, top, left + width, top + height)
-        canvas?.drawRoundRect(r, padding.toSafeFloat(), padding.toSafeFloat(), mSelectorBackgroundPaint)
+        canvas.drawRoundRect(r, padding.toSafeFloat(), padding.toSafeFloat(), mSelectorBackgroundPaint)
         var y = top + padding * 2 + (textHeight - metrics.bottom - metrics.top) / 2
         for (s in strings) {
-            canvas?.drawText(s, left + padding, y, mSelectorTextPaint)
+            canvas.drawText(s, left + padding, y, mSelectorTextPaint)
             y += textHeight + padding
         }
     }

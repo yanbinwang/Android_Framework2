@@ -6,13 +6,12 @@ import android.util.AttributeSet
 import android.view.MotionEvent
 import android.widget.ProgressBar
 import androidx.annotation.ColorInt
-import androidx.annotation.ColorRes
-import androidx.annotation.DimenRes
-import androidx.core.content.ContextCompat
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.toColorInt
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.toSafeInt
+import com.example.framework.utils.function.view.color
+import com.example.framework.utils.function.view.dimen
 import com.example.klinechart.R
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.KDJDraw
@@ -40,7 +39,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var mWRDraw = WRDraw()
     private var mVolumeDraw = VolumeDraw(this)
     private var mMainDraw = MainDraw(this)
-    private var mProgressBar = ProgressBar(getContext())
+    private var mProgressBar = ProgressBar(context)
     private var mRefreshListener: KChartRefreshListener? = null
 
     init {
@@ -55,58 +54,46 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         setVolDraw(mVolumeDraw as? IChartDraw<Any>)
         setMainDraw(mMainDraw as? IChartDraw<Any>)
         context.withStyledAttributes(attrs, R.styleable.KLineChartView) {
-            try {
-                // 公共方法赋值
-                setPointWidth(getDimension(R.styleable.KLineChartView_kc_point_width, getDimension(R.dimen.chart_point_width)))
-                setTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, getDimension(R.dimen.chart_text_size)))
-                setTextColor(getColor(R.styleable.KLineChartView_kc_text_color, getColor(R.color.chart_text)))
-                setMTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, getDimension(R.dimen.chart_text_size)))
-                setMTextColor(getColor(R.styleable.KLineChartView_kc_text_color, getColor(R.color.chart_white)))
-                setLineWidth(getDimension(R.styleable.KLineChartView_kc_line_width, getDimension(R.dimen.chart_line_width)))
-                setBackgroundColor(getColor(R.styleable.KLineChartView_kc_background_color, getColor(R.color.chart_bac)))
-                setSelectPointColor(getColor(R.styleable.KLineChartView_kc_background_color, getColor(R.color.chart_point_bac)))
-                setSelectedXLineColor(Color.WHITE)
-                setSelectedXLineWidth(getDimension(R.dimen.chart_line_width))
-                setSelectedYLineColor("#8040424D".toColorInt())
-                setSelectedYLineWidth(getDimension(R.dimen.chart_point_width))
-                setGridLineWidth(getDimension(R.styleable.KLineChartView_kc_grid_line_width, getDimension(R.dimen.chart_grid_line_width)))
-                setGridLineColor(getColor(R.styleable.KLineChartView_kc_grid_line_color, getColor(R.color.chart_grid_line)))
-                // MACD
-                setMACDWidth(getDimension(R.styleable.KLineChartView_kc_macd_width, getDimension(R.dimen.chart_candle_width)))
-                setDIFColor(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                setDEAColor(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
-                setMACDColor(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
-                // KDJ
-                setKColor(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                setDColor(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
-                setJColor(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
-                // WR
-                setWRColor(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                // RSI
-                setRSI1Color(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                setRSI2Color(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
-                setRSI3Color(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
-                // MAIN
-                setMA5Color(getColor(R.styleable.KLineChartView_kc_dif_color, getColor(R.color.chart_ma5)))
-                setMA10Color(getColor(R.styleable.KLineChartView_kc_dea_color, getColor(R.color.chart_ma10)))
-                setMA30Color(getColor(R.styleable.KLineChartView_kc_macd_color, getColor(R.color.chart_ma30)))
-                setCandleWidth(getDimension(R.styleable.KLineChartView_kc_candle_width, getDimension(R.dimen.chart_candle_width)))
-                setCandleLineWidth(getDimension(R.styleable.KLineChartView_kc_candle_line_width, getDimension(R.dimen.chart_candle_line_width)))
-                setSelectorBackgroundColor(getColor(R.styleable.KLineChartView_kc_selector_background_color, getColor(R.color.chart_selector)))
-                setSelectorTextSize(getDimension(R.styleable.KLineChartView_kc_selector_text_size, getDimension(R.dimen.chart_selector_text_size)))
-                setCandleSolid(getBoolean(R.styleable.KLineChartView_kc_candle_solid, true))
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            // 公共方法赋值
+            setPointWidth(getDimension(R.styleable.KLineChartView_kc_point_width, dimen(R.dimen.chart_point_width)))
+            setTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
+            setTextColor(getColor(R.styleable.KLineChartView_kc_text_color, color(R.color.chart_text)))
+            setMTextSize(getDimension(R.styleable.KLineChartView_kc_text_size, dimen(R.dimen.chart_text_size)))
+            setMTextColor(getColor(R.styleable.KLineChartView_kc_text_color, color(R.color.chart_white)))
+            setLineWidth(getDimension(R.styleable.KLineChartView_kc_line_width, dimen(R.dimen.chart_line_width)))
+            setBackgroundColor(getColor(R.styleable.KLineChartView_kc_background_color, color(R.color.chart_bac)))
+            setSelectPointColor(getColor(R.styleable.KLineChartView_kc_background_color, color(R.color.chart_point_bac)))
+            setSelectedXLineColor(Color.WHITE)
+            setSelectedXLineWidth(dimen(R.dimen.chart_line_width))
+            setSelectedYLineColor("#8040424D".toColorInt())
+            setSelectedYLineWidth(dimen(R.dimen.chart_point_width))
+            setGridLineWidth(getDimension(R.styleable.KLineChartView_kc_grid_line_width, dimen(R.dimen.chart_grid_line_width)))
+            setGridLineColor(getColor(R.styleable.KLineChartView_kc_grid_line_color, color(R.color.chart_grid_line)))
+            // MACD
+            setMACDWidth(getDimension(R.styleable.KLineChartView_kc_macd_width, dimen(R.dimen.chart_candle_width)))
+            setDIFColor(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
+            setDEAColor(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
+            setMACDColor(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
+            // KDJ
+            setKColor(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
+            setDColor(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
+            setJColor(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
+            // WR
+            setWRColor(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
+            // RSI
+            setRSI1Color(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
+            setRSI2Color(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
+            setRSI3Color(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
+            // MAIN
+            setMA5Color(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
+            setMA10Color(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
+            setMA30Color(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
+            setCandleWidth(getDimension(R.styleable.KLineChartView_kc_candle_width, dimen(R.dimen.chart_candle_width)))
+            setCandleLineWidth(getDimension(R.styleable.KLineChartView_kc_candle_line_width, dimen(R.dimen.chart_candle_line_width)))
+            setSelectorBackgroundColor(getColor(R.styleable.KLineChartView_kc_selector_background_color, color(R.color.chart_selector)))
+            setSelectorTextSize(getDimension(R.styleable.KLineChartView_kc_selector_text_size, dimen(R.dimen.chart_selector_text_size)))
+            setCandleSolid(getBoolean(R.styleable.KLineChartView_kc_candle_solid, true))
         }
-    }
-
-    private fun getColor(@ColorRes resId: Int): Int {
-        return ContextCompat.getColor(context, resId)
-    }
-
-    private fun getDimension(@DimenRes resId: Int): Float {
-        return resources.getDimension(resId)
     }
 
     override fun onLeftSide() {

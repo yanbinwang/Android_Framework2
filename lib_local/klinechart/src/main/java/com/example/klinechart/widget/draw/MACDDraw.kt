@@ -4,7 +4,7 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
 import androidx.core.content.ContextCompat
-import com.example.framework.utils.function.value.orZero
+import com.example.framework.utils.function.color
 import com.example.klinechart.R
 import com.example.klinechart.bean.IMACD
 import com.example.klinechart.utils.formatter.value.IValueFormatter
@@ -32,30 +32,31 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
     private val mContext get() = view.context
 
     init {
-        mRedPaint.color = ContextCompat.getColor(mContext, R.color.chart_red)
-        mGreenPaint.color = ContextCompat.getColor(mContext, R.color.chart_green)
+        mRedPaint.color = mContext.color(R.color.chart_red)
+        mGreenPaint.color = mContext.color(R.color.chart_green)
     }
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IMACD?, curPoint: IMACD?, lastX: Float, curX: Float) {
-        drawMACD(canvas, view, curX, curPoint?.macd.orZero)
-        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint?.dea.orZero, curX, curPoint?.dea.orZero)
-        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint?.dif.orZero, curX, curPoint?.dif.orZero)
+        if (lastPoint == null || curPoint == null) return
+        drawMACD(canvas, view, curX, curPoint.macd)
+        view.drawChildLine(canvas, mDIFPaint, lastX, lastPoint.dea, curX, curPoint.dea)
+        view.drawChildLine(canvas, mDEAPaint, lastX, lastPoint.dif, curX, curPoint.dif)
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        val point = view.getItem(position) as? IMACD
+        val point = view.getItem(position) as? IMACD ?: return
+        var curX = x
         var text = "MACD(12,26,9)\u0020\u0020"
-        canvas.drawText(text, mX, y, view.getTextPaint())
-        mX += view.getTextPaint().measureText(text)
-        text = "MACD:${view.formatValue(point?.macd.orZero)}\u0020\u0020"
-        canvas.drawText(text, mX, y, mMACDPaint)
-        mX += mMACDPaint.measureText(text)
-        text = "DIF:${view.formatValue(point?.dif.orZero)}\u0020\u0020"
-        canvas.drawText(text, mX, y, mDEAPaint)
-        mX += mDIFPaint.measureText(text)
-        text = "DEA:" + view.formatValue(point?.dea.orZero)
-        canvas.drawText(text, mX, y, mDIFPaint)
+        canvas.drawText(text, curX, y, view.getTextPaint())
+        curX += view.getTextPaint().measureText(text)
+        text = "MACD:${view.formatValue(point.macd)}\u0020\u0020"
+        canvas.drawText(text, curX, y, mMACDPaint)
+        curX += mMACDPaint.measureText(text)
+        text = "DIF:${view.formatValue(point.dif)}\u0020\u0020"
+        canvas.drawText(text, curX, y, mDEAPaint)
+        curX += mDIFPaint.measureText(text)
+        text = "DEA:" + view.formatValue(point.dea)
+        canvas.drawText(text, curX, y, mDIFPaint)
     }
 
     override fun getMaxValue(point: IMACD?): Float {

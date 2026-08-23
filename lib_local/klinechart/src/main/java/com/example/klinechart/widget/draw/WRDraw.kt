@@ -3,7 +3,6 @@ package com.example.klinechart.widget.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
-import com.example.framework.utils.function.value.orZero
 import com.example.klinechart.bean.IWR
 import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.utils.formatter.value.ValueFormatter
@@ -18,20 +17,21 @@ class WRDraw : IChartDraw<IWR> {
     private val mRPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     override fun drawTranslated(canvas: Canvas, view: BaseKLineChartView, position: Int, lastPoint: IWR?, curPoint: IWR?, lastX: Float, curX: Float) {
-        if (lastPoint?.wr != -10f) {
-            view.drawChildLine(canvas, mRPaint, lastX, lastPoint?.wr.orZero, curX, curPoint?.wr.orZero)
+        if (lastPoint == null || curPoint == null) return
+        if (lastPoint.wr != -10f) {
+            view.drawChildLine(canvas, mRPaint, lastX, lastPoint.wr, curX, curPoint.wr)
         }
     }
 
     override fun drawText(canvas: Canvas, view: BaseKLineChartView, position: Int, x: Float, y: Float) {
-        var mX = x
-        val point = view.getItem(position) as? IWR
-        if (point?.wr != -10f) {
+        val point = view.getItem(position) as? IWR ?: return
+        var curX = x
+        if (point.wr != -10f) {
             var text = "WR(14):"
-            canvas.drawText(text, mX, y, view.getTextPaint())
-            mX += view.getTextPaint().measureText(text)
-            text = "${view.formatValue(point?.wr.orZero)}\u0020"
-            canvas.drawText(text, mX, y, mRPaint)
+            canvas.drawText(text, curX, y, view.getTextPaint())
+            curX += view.getTextPaint().measureText(text)
+            text = "${view.formatValue(point.wr)}\u0020"
+            canvas.drawText(text, curX, y, mRPaint)
         }
     }
 
