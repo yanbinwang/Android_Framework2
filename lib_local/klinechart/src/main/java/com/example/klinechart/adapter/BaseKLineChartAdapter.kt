@@ -7,7 +7,7 @@ import android.database.DataSetObserver
  * k线图的数据适配器
  */
 abstract class BaseKLineChartAdapter : IAdapter {
-    private val mDataSetObservable by lazy { DataSetObservable() }
+    private val mDataSetObservable = DataSetObservable()
 
     override fun notifyDataSetChanged() {
         if (getCount() > 0) {
