@@ -47,22 +47,16 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 监听快速滑动（甩动）事件，触发惯性滚动
-     * 若未触摸且允许滑动，通过OverScroller的fling方法启动惯性滚动，速度会根据当前缩放比例mScaleX调整（缩放后实际速度需要适配）
+     * 监听按下但未滑动 / 抬起的状态（如长按前的短暂停留）
      */
-    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
-        if (!isTouch() && isScrollEnable()) {
-            mScroller.fling(mScrollX, 0, (velocityX / mScaleX).roundToInt(), 0, Int.MIN_VALUE, Int.MAX_VALUE, 0, 0)
-        }
-        return true
+    override fun onShowPress(e: MotionEvent) {
     }
 
     /**
-     * 监听长按事件
-     * 设置mIsLongPress = true标记长按状态
+     * 监听单击抬起事件
      */
-    override fun onLongPress(e: MotionEvent) {
-        mIsLongPress = true
+    override fun onSingleTapUp(e: MotionEvent): Boolean {
+        return false
     }
 
     /**
@@ -78,16 +72,22 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 监听按下但未滑动 / 抬起的状态（如长按前的短暂停留）
+     * 监听长按事件
+     * 设置mIsLongPress = true标记长按状态
      */
-    override fun onShowPress(e: MotionEvent) {
+    override fun onLongPress(e: MotionEvent) {
+        mIsLongPress = true
     }
 
     /**
-     * 监听单击抬起事件
+     * 监听快速滑动（甩动）事件，触发惯性滚动
+     * 若未触摸且允许滑动，通过OverScroller的fling方法启动惯性滚动，速度会根据当前缩放比例mScaleX调整（缩放后实际速度需要适配）
      */
-    override fun onSingleTapUp(e: MotionEvent): Boolean {
-        return false
+    override fun onFling(e1: MotionEvent?, e2: MotionEvent, velocityX: Float, velocityY: Float): Boolean {
+        if (!isTouch() && isScrollEnable()) {
+            mScroller.fling(mScrollX, 0, (velocityX / mScaleX).roundToInt(), 0, Int.MIN_VALUE, Int.MAX_VALUE, 0, 0)
+        }
+        return true
     }
 
     /**
@@ -135,8 +135,7 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
      * ACTION_UP/CANCEL：标记触摸结束，重置状态并刷新界面。
      * 更新多指触摸标记（mMultipleTouch），并将事件分发给mDetector（手势）和mScaleDetector（缩放）。
      */
-    override fun onTouchEvent(event: MotionEvent?): Boolean {
-        event ?: return false
+    override fun onTouchEvent(event: MotionEvent): Boolean {
         // 按压手指超过1个
         if (event.pointerCount.orZero > 1) {
             mIsLongPress = false
@@ -300,15 +299,12 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 设置缩放的最大值
+     * 用于动态设置缩放范围（setScaleXMax/setScaleXMin）和启用 / 禁用滑动 / 缩放（setScrollEnable/setScaleEnable）
      */
     open fun setScaleXMax(scaleXMax: Float) {
         mScaleXMax = scaleXMax
     }
 
-    /**
-     * 用于动态设置缩放范围（setScaleXMax/setScaleXMin）和启用 / 禁用滑动 / 缩放（setScrollEnable/setScaleEnable）
-     */
     open fun setScaleXMin(scaleXMin: Float) {
         mScaleXMin = scaleXMin
     }

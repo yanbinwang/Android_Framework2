@@ -9,8 +9,10 @@ import com.example.common.config.RouterPath
 import com.example.framework.utils.function.value.toArrayList
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
+import com.example.framework.utils.logWTF
 import com.example.klinechart.adapter.KLineChartAdapter
 import com.example.klinechart.utils.formatter.date.DateFormatter
+import com.example.klinechart.widget.KLineChartView
 import com.example.klinechart.widget.draw.MainDraw.Status
 import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
@@ -40,6 +42,11 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
     override fun initEvent() {
         super.initEvent()
         clicks(mBinding?.tvMa, mBinding?.tvBoll, mBinding?.tvMainHide, mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr, mBinding?.tvSubHide, mBinding?.tvFen, mBinding?.tvK)
+        mBinding?.kline?.setRefreshListener(object : KLineChartView.KChartRefreshListener {
+            override fun onLoadMoreBegin(chart: KLineChartView) {
+                "开始加载更多".logWTF("wyb")
+            }
+        })
         viewModel.list.observe {
             this ?: return@observe
             // 1) K线绘制性能瓶颈：Canvas 一次性绘制上千根K线+5条均线+BOLL轨道会明显掉帧，500是一个经验阈值，保证滑动流畅
@@ -52,10 +59,12 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         }
         viewModel.uiManage.observe {
             if (this) {
+                // 此处主动调用会触发一次 onLoadMoreBegin 回调
                 mBinding?.kline?.justShowLoading()
             } else {
-                mBinding?.kline?.startAnimation()
-                mBinding?.kline?.refreshEnd()
+//                mBinding?.kline?.startAnimation()
+//                mBinding?.kline?.refreshEnd()
+                mBinding?.kline?.finishRefresh(false)
             }
         }
     }

@@ -9,6 +9,7 @@ import androidx.annotation.ColorInt
 import androidx.core.content.withStyledAttributes
 import androidx.core.graphics.toColorInt
 import com.example.common.utils.function.pt
+import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.dimen
@@ -312,6 +313,36 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
     // </editor-fold>
 
+    /**
+     * 隐藏 K 线图上的长按十字光标及悬浮数据面板
+     */
+    fun hideSelectData() {
+        mIsLongPress = false
+        invalidate()
+    }
+
+    /**
+     * 无条件/强制展示 Loading
+     * 1) 首次加载、下拉刷新、切换周期等场景必须用它
+     * 2) 防止重复触发。同时重置 mIsLongPress = false 是避免在刷新期间长按选择器还残留在界面上造成视觉错乱
+     */
+    fun justShowLoading() {
+        if (!isRefreshing) {
+            mIsLongPress = false
+            isRefreshing = true
+            mProgressBar.visibility = VISIBLE
+//            mRefreshListener?.onLoadMoreBegin(this) // 不应存在
+            mLastScaleEnable = isScaleEnable()
+            mLastScrollEnable = isScrollEnable()
+            super.setScrollEnable(false)
+            super.setScaleEnable(false)
+        }
+    }
+
+    /**
+     * 滑动触底专用
+     * 受 isLoadMoreEnd 保护，确保历史数据全部加载完后，用户继续左滑不会再发起无效请求
+     */
     fun showLoading() {
         if (!isLoadMoreEnd && !isRefreshing) {
             isRefreshing = true
@@ -324,19 +355,9 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-    fun justShowLoading() {
-        if (!isRefreshing) {
-            mIsLongPress = false
-            isRefreshing = true
-            mProgressBar.visibility = VISIBLE
-            mRefreshListener?.onLoadMoreBegin(this)
-            mLastScaleEnable = isScaleEnable()
-            mLastScrollEnable = isScrollEnable()
-            super.setScrollEnable(false)
-            super.setScaleEnable(false)
-        }
-    }
-
+    /**
+     * 隐藏 Loading
+     */
     fun hideLoading() {
         mProgressBar.visibility = GONE
         super.setScrollEnable(mLastScrollEnable)
@@ -344,40 +365,47 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     /**
-     * 隐藏选择器内容
+     * 加载完成（通用）
+     * @param hasMore      是否还有更多历史数据
+     * @param animateEntry 是否播放新数据入场动画（默认true）
      */
-    fun hideSelectData() {
-        mIsLongPress = false
-        invalidate()
-    }
-
-    /**
-     * 刷新完成
-     */
-    fun refreshComplete() {
+    fun finishRefresh(hasMore: Boolean = true, animateEntry: Boolean = true) {
         isRefreshing = false
+        isLoadMoreEnd = !hasMore
         hideLoading()
+        // 仅在需要时触发动画，避免不必要的 invalidate 开销
+        if (animateEntry && getAdapter()?.getCount().orZero > 0) {
+            startAnimation()
+        }
     }
 
-    /**
-     * 刷新完成，没有数据
-     */
-    fun refreshEnd() {
-        isLoadMoreEnd = true
-        isRefreshing = false
-        hideLoading()
-    }
-
-    /**
-     * 重置加载更多
-     */
-    fun resetLoadMoreEnd() {
-        isLoadMoreEnd = false
-    }
-
-    fun setLoadMoreEnd() {
-        isLoadMoreEnd = true
-    }
+//    /**
+//     * 刷新完成
+//     */
+//    fun refreshComplete() {
+//        isRefreshing = false
+//        hideLoading()
+//    }
+//
+//    /**
+//     * 刷新完成，没有数据
+//     */
+//    fun refreshEnd() {
+//        isLoadMoreEnd = true
+//        isRefreshing = false
+//        hideLoading()
+//    }
+//
+//    /**
+//     * 重置加载更多
+//     */
+//    fun resetLoadMoreEnd() {
+//        isLoadMoreEnd = false
+//    }
+//
+//    fun setLoadMoreEnd() {
+//        isLoadMoreEnd = true
+//    }
 
     /**
      * 设置刷新监听
@@ -386,10 +414,10 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         mRefreshListener = listener
     }
 
+    /**
+     * 加载更多回调
+     */
     interface KChartRefreshListener {
-        /**
-         * 加载更多
-         */
         fun onLoadMoreBegin(chart: KLineChartView)
     }
 

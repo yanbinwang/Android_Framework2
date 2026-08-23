@@ -76,10 +76,9 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     private var mVolRect: Rect? = null
     private var mChildRect: Rect? = null
     private var mVolDraw: IChartDraw<Any>? = null
-    private var mMainDraw: IChartDraw<Any>? = null
-    private val mChartDraw get() = mMainDraw as? MainDraw
-    private var mAdapter: IAdapter? = null
     private var mChildDraw: IChartDraw<Any>? = null
+    private var mMainDraw: IChartDraw<Any>? = null
+    private var mAdapter: IAdapter? = null
     private var mValueFormatter: IValueFormatter? = null
     private var mDateTimeFormatter: IDateTimeFormatter? = null
     private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
@@ -94,6 +93,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     private val mSelectedYLinePaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectPointPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mSelectorFramePaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    private val mChartDraw get() = mMainDraw as? MainDraw
+
     private val mDataSetObserver = object : DataSetObserver() {
         override fun onChanged() {
             super.onChanged()
@@ -308,14 +309,10 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
         //--------------画中间子图的值-------------
         if (mVolDraw != null) {
             canvas.drawText(mVolDraw?.getValueFormatter()?.format(mVolMaxValue).orEmpty(), (mWidth - calculateWidth(formatValue(mVolMaxValue))).toSafeFloat(), mMainRect?.bottom.orZero + baseLine, mTextPaint)
-            /*canvas.drawText(mVolDraw.getValueFormatter().format(mVolMinValue),
-                    mWidth - calculateWidth(formatValue(mVolMinValue)), mVolRect.bottom, mTextPaint);*/
         }
         //--------------画下方子图的值-------------
         if (mChildDraw != null) {
             canvas.drawText(mChildDraw?.getValueFormatter()?.format(mChildMaxValue).orEmpty(), (mWidth - calculateWidth(formatValue(mChildMaxValue))).toSafeFloat(), mVolRect?.bottom.orZero + baseLine, mTextPaint)
-            /*canvas.drawText(mChildDraw.getValueFormatter().format(mChildMinValue),
-                    mWidth - calculateWidth(formatValue(mChildMinValue)), mChildRect.bottom, mTextPaint);*/
         }
         //--------------画时间---------------------
         val columnSpace = (mWidth / mGridColumns).toSafeFloat()
