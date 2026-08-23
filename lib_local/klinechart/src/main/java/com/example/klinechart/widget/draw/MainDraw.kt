@@ -282,20 +282,6 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     /**
-     * 设置蜡烛宽度
-     */
-    fun setCandleWidth(candleWidth: Float) {
-        mCandleWidth = candleWidth
-    }
-
-    /**
-     * 设置蜡烛线宽度
-     */
-    fun setCandleLineWidth(candleLineWidth: Float) {
-        mCandleLineWidth = candleLineWidth
-    }
-
-    /**
      * 设置ma5颜色
      */
     fun setMA5Color(@ColorInt color: Int) {
@@ -317,10 +303,31 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     /**
-     * 设置选择器文字颜色
+     * 设置蜡烛宽度
      */
-    fun setSelectorTextColor(@ColorInt color: Int) {
-        mSelectorTextPaint.color = color
+    fun setCandleWidth(candleWidth: Float) {
+        mCandleWidth = candleWidth
+    }
+
+    /**
+     * 设置蜡烛线宽度
+     */
+    fun setCandleLineWidth(candleLineWidth: Float) {
+        mCandleLineWidth = candleLineWidth
+    }
+
+    /**
+     * 蜡烛是否实心
+     */
+    fun setCandleSolid(candleSolid: Boolean) {
+        mCandleSolid = candleSolid
+    }
+
+    /**
+     * 设置选择器背景
+     */
+    fun setSelectorBackgroundColor(@ColorInt color: Int) {
+        mSelectorBackgroundPaint.color = color
     }
 
     /**
@@ -331,10 +338,25 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     /**
-     * 设置选择器背景
+     * 设置选择器文字颜色
      */
-    fun setSelectorBackgroundColor(@ColorInt color: Int) {
-        mSelectorBackgroundPaint.color = color
+    fun setSelectorTextColor(@ColorInt color: Int) {
+        mSelectorTextPaint.color = color
+    }
+
+    fun setMainDrawLine(line: Boolean) {
+        if (isLine != line) {
+            isLine = line
+            if (isLine) {
+                mKChartView?.setCandleWidth(7.ptFloat)
+            } else {
+                mKChartView?.setCandleWidth(6.ptFloat)
+            }
+        }
+    }
+
+    fun isLine(): Boolean {
+        return isLine
     }
 
     /**
@@ -354,28 +376,6 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
         ma30Paint.textSize = textSize
         ma10Paint.textSize = textSize
         ma5Paint.textSize = textSize
-    }
-
-    /**
-     * 蜡烛是否实心
-     */
-    fun setCandleSolid(candleSolid: Boolean) {
-        mCandleSolid = candleSolid
-    }
-
-    fun setLine(line: Boolean) {
-        if (isLine != line) {
-            isLine = line
-            if (isLine) {
-                mKChartView?.setCandleWidth(7.ptFloat)
-            } else {
-                mKChartView?.setCandleWidth(6.ptFloat)
-            }
-        }
-    }
-
-    fun isLine(): Boolean {
-        return isLine
     }
 
 }

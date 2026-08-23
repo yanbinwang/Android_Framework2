@@ -71,9 +71,9 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
             setGridLineColor(getColor(R.styleable.KLineChartView_kc_grid_line_color, color(R.color.chart_grid_line)))
             // MACD
             setMACDWidth(getDimension(R.styleable.KLineChartView_kc_macd_width, dimen(R.dimen.chart_candle_width)))
+            setMACDColor(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
             setDIFColor(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
             setDEAColor(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
-            setMACDColor(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
             // KDJ
             setKColor(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
             setDColor(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
@@ -84,23 +84,16 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
             setRSI1Color(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
             setRSI2Color(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
             setRSI3Color(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
-            // MAIN
+            // Volume/MAIN
             setMA5Color(getColor(R.styleable.KLineChartView_kc_dif_color, color(R.color.chart_ma5)))
             setMA10Color(getColor(R.styleable.KLineChartView_kc_dea_color, color(R.color.chart_ma10)))
             setMA30Color(getColor(R.styleable.KLineChartView_kc_macd_color, color(R.color.chart_ma30)))
             setCandleWidth(getDimension(R.styleable.KLineChartView_kc_candle_width, dimen(R.dimen.chart_candle_width)))
             setCandleLineWidth(getDimension(R.styleable.KLineChartView_kc_candle_line_width, dimen(R.dimen.chart_candle_line_width)))
+            setCandleSolid(getBoolean(R.styleable.KLineChartView_kc_candle_solid, true))
             setSelectorBackgroundColor(getColor(R.styleable.KLineChartView_kc_selector_background_color, color(R.color.chart_selector)))
             setSelectorTextSize(getDimension(R.styleable.KLineChartView_kc_selector_text_size, dimen(R.dimen.chart_selector_text_size)))
-            setCandleSolid(getBoolean(R.styleable.KLineChartView_kc_candle_solid, true))
         }
-    }
-
-    override fun onLeftSide() {
-        showLoading()
-    }
-
-    override fun onRightSide() {
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
@@ -142,9 +135,26 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         super.setScaleEnable(scaleEnable)
     }
 
+    override fun onLeftSide() {
+        showLoading()
+    }
+
+    override fun onRightSide() {
+    }
+
     override fun setTextColor(@ColorInt color: Int) {
         super.setTextColor(color)
         mMainDraw.setSelectorTextColor(color)
+    }
+
+    override fun setLineWidth(lineWidth: Float) {
+        super.setLineWidth(lineWidth)
+        mMainDraw.setLineWidth(lineWidth)
+        mRSIDraw.setLineWidth(lineWidth)
+        mMACDDraw.setLineWidth(lineWidth)
+        mKDJDraw.setLineWidth(lineWidth)
+        mWRDraw.setLineWidth(lineWidth)
+        mVolumeDraw.setLineWidth(lineWidth)
     }
 
     override fun setTextSize(textSize: Float) {
@@ -157,15 +167,150 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         mVolumeDraw.setTextSize(textSize)
     }
 
-    override fun setLineWidth(lineWidth: Float) {
-        super.setLineWidth(lineWidth)
-        mMainDraw.setLineWidth(lineWidth)
-        mRSIDraw.setLineWidth(lineWidth)
-        mMACDDraw.setLineWidth(lineWidth)
-        mKDJDraw.setLineWidth(lineWidth)
-        mWRDraw.setLineWidth(lineWidth)
-        mVolumeDraw.setLineWidth(lineWidth)
+    // <editor-fold defaultstate="collapsed" desc="MACD">
+    /**
+     * 设置MACD的宽度
+     */
+    fun setMACDWidth(macdWidth: Float) {
+        mMACDDraw.setMACDWidth(macdWidth)
     }
+
+    /**
+     * 设置MACD颜色
+     */
+    fun setMACDColor(@ColorInt color: Int) {
+        mMACDDraw.setMACDColor(color)
+    }
+
+    /**
+     * 设置DIF颜色
+     */
+    fun setDIFColor(@ColorInt color: Int) {
+        mMACDDraw.setDIFColor(color)
+    }
+
+    /**
+     * 设置DEA颜色
+     */
+    fun setDEAColor(@ColorInt color: Int) {
+        mMACDDraw.setDEAColor(color)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="KDJ">
+    /**
+     * 设置K颜色
+     */
+    fun setKColor(@ColorInt color: Int) {
+        mKDJDraw.setKColor(color)
+    }
+
+    /**
+     * 设置D颜色
+     */
+    fun setDColor(@ColorInt color: Int) {
+        mKDJDraw.setDColor(color)
+    }
+
+    /**
+     * 设置J颜色
+     */
+    fun setJColor(@ColorInt color: Int) {
+        mKDJDraw.setJColor(color)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="WR">
+    /**
+     * 设置 WR 颜色
+     */
+    fun setWRColor(@ColorInt color: Int) {
+        mWRDraw.setWRColor(color)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="RSI">
+    fun setRSI1Color(@ColorInt color: Int) {
+        mRSIDraw.setRSI1Color(color)
+    }
+
+    fun setRSI2Color(@ColorInt color: Int) {
+        mRSIDraw.setRSI2Color(color)
+    }
+
+    fun setRSI3Color(@ColorInt color: Int) {
+        mRSIDraw.setRSI3Color(color)
+    }
+    // </editor-fold>
+
+    // <editor-fold defaultstate="collapsed" desc="Volume/MAIN">
+    /**
+     * 设置ma5颜色
+     */
+    fun setMA5Color(@ColorInt color: Int) {
+        mMainDraw.setMA5Color(color)
+        mVolumeDraw.setMA5Color(color)
+    }
+
+    /**
+     * 设置ma10颜色
+     */
+    fun setMA10Color(@ColorInt color: Int) {
+        mMainDraw.setMA10Color(color)
+        mVolumeDraw.setMA10Color(color)
+    }
+
+    /**
+     * 设置ma30颜色
+     */
+    fun setMA30Color(@ColorInt color: Int) {
+        mMainDraw.setMA30Color(color)
+    }
+
+    /**
+     * 设置蜡烛宽度
+     *
+     * @param candleWidth
+     */
+    fun setCandleWidth(candleWidth: Float) {
+        mMainDraw.setCandleWidth(candleWidth)
+    }
+
+    /**
+     * 设置蜡烛线宽度
+     *
+     * @param candleLineWidth
+     */
+    fun setCandleLineWidth(candleLineWidth: Float) {
+        mMainDraw.setCandleLineWidth(candleLineWidth)
+    }
+
+    /**
+     * 蜡烛是否空心
+     */
+    fun setCandleSolid(candleSolid: Boolean) {
+        mMainDraw.setCandleSolid(candleSolid)
+    }
+
+    /**
+     * 设置选择器背景
+     */
+    fun setSelectorBackgroundColor(@ColorInt color: Int) {
+        mMainDraw.setSelectorBackgroundColor(color)
+    }
+
+    /**
+     * 设置选择器画笔文字大小
+     */
+    fun setSelectorTextSize(textSize: Float) {
+        mMainDraw.setSelectorTextSize(textSize)
+    }
+
+    fun setMainDrawLine(isLine: Boolean) {
+        mMainDraw.setMainDrawLine(isLine)
+        invalidate()
+    }
+    // </editor-fold>
 
     fun showLoading() {
         if (!isLoadMoreEnd && !isRefreshing) {
@@ -232,141 +377,6 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     fun setLoadMoreEnd() {
         isLoadMoreEnd = true
-    }
-
-    /**
-     * 设置DIF颜色
-     */
-    fun setDIFColor(@ColorInt color: Int) {
-        mMACDDraw.setDIFColor(color)
-    }
-
-    /**
-     * 设置DEA颜色
-     */
-    fun setDEAColor(@ColorInt color: Int) {
-        mMACDDraw.setDEAColor(color)
-    }
-
-    /**
-     * 设置MACD颜色
-     */
-    fun setMACDColor(@ColorInt color: Int) {
-        mMACDDraw.setMACDColor(color)
-    }
-
-    /**
-     * 设置MACD的宽度
-     */
-    fun setMACDWidth(macdWidth: Float) {
-        mMACDDraw.setMACDWidth(macdWidth)
-    }
-
-    /**
-     * 设置K颜色
-     */
-    fun setKColor(@ColorInt color: Int) {
-        mKDJDraw.setKColor(color)
-    }
-
-    /**
-     * 设置D颜色
-     */
-    fun setDColor(@ColorInt color: Int) {
-        mKDJDraw.setDColor(color)
-    }
-
-    /**
-     * 设置J颜色
-     */
-    fun setJColor(@ColorInt color: Int) {
-        mKDJDraw.setJColor(color)
-    }
-
-    /**
-     * 设置WR颜色
-     */
-    fun setWRColor(@ColorInt color: Int) {
-        mWRDraw.setWRColor(color)
-    }
-
-    /**
-     * 设置ma5颜色
-     */
-    fun setMA5Color(@ColorInt color: Int) {
-        mMainDraw.setMA5Color(color)
-        mVolumeDraw.setMa5Color(color)
-    }
-
-    /**
-     * 设置ma10颜色
-     */
-    fun setMA10Color(@ColorInt color: Int) {
-        mMainDraw.setMA10Color(color)
-        mVolumeDraw.setMa10Color(color)
-    }
-
-    /**
-     * 设置ma20颜色
-     */
-    fun setMA30Color(@ColorInt color: Int) {
-        mMainDraw.setMA30Color(color)
-    }
-
-    /**
-     * 设置选择器画笔文字大小
-     */
-    fun setSelectorTextSize(textSize: Float) {
-        mMainDraw.setSelectorTextSize(textSize)
-    }
-
-    /**
-     * 设置选择器背景
-     */
-    fun setSelectorBackgroundColor(@ColorInt color: Int) {
-        mMainDraw.setSelectorBackgroundColor(color)
-    }
-
-    /**
-     * 设置蜡烛宽度
-     *
-     * @param candleWidth
-     */
-    fun setCandleWidth(candleWidth: Float) {
-        mMainDraw.setCandleWidth(candleWidth)
-    }
-
-    /**
-     * 设置蜡烛线宽度
-     *
-     * @param candleLineWidth
-     */
-    fun setCandleLineWidth(candleLineWidth: Float) {
-        mMainDraw.setCandleLineWidth(candleLineWidth)
-    }
-
-    /**
-     * 蜡烛是否空心
-     */
-    fun setCandleSolid(candleSolid: Boolean) {
-        mMainDraw.setCandleSolid(candleSolid)
-    }
-
-    fun setRSI1Color(@ColorInt color: Int) {
-        mRSIDraw.setRSI1Color(color)
-    }
-
-    fun setRSI2Color(@ColorInt color: Int) {
-        mRSIDraw.setRSI2Color(color)
-    }
-
-    fun setRSI3Color(@ColorInt color: Int) {
-        mRSIDraw.setRSI3Color(color)
-    }
-
-    fun setMainDrawLine(isLine: Boolean) {
-        mMainDraw.setLine(isLine)
-        invalidate()
     }
 
     /**

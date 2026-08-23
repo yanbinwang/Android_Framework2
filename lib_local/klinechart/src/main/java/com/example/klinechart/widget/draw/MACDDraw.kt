@@ -91,6 +91,20 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
     }
 
     /**
+     * 设置 MACD 的宽度
+     */
+    fun setMACDWidth(macdWidth: Float) {
+        mMACDWidth = macdWidth
+    }
+
+    /**
+     * 设置 MACD 颜色
+     */
+    fun setMACDColor(@ColorInt color: Int) {
+        mMACDPaint.color = color
+    }
+
+    /**
      * 设置DIF颜色
      */
     fun setDIFColor(@ColorInt color: Int) {
@@ -102,20 +116,6 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
      */
     fun setDEAColor(@ColorInt color: Int) {
         mDEAPaint.color = color
-    }
-
-    /**
-     * 设置MACD颜色
-     */
-    fun setMACDColor(@ColorInt color: Int) {
-        mMACDPaint.color = color
-    }
-
-    /**
-     * 设置MACD的宽度
-     */
-    fun setMACDWidth(macdWidth: Float) {
-        mMACDWidth = macdWidth
     }
 
     /**

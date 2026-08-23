@@ -88,14 +88,14 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     /**
      * 设置 MA5 线的颜色
      */
-    fun setMa5Color(@ColorInt color: Int) {
+    fun setMA5Color(@ColorInt color: Int) {
         ma5Paint.color = color
     }
 
     /**
      * 设置 MA10 线的颜色
      */
-    fun setMa10Color(@ColorInt color: Int) {
+    fun setMA10Color(@ColorInt color: Int) {
         ma10Paint.color = color
     }
 
