@@ -300,7 +300,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      * 设置WR颜色
      */
     fun setWRColor(@ColorInt color: Int) {
-        mWRDraw.setRColor(color)
+        mWRDraw.setWRColor(color)
     }
 
     /**

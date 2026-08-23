@@ -52,7 +52,7 @@ class WRDraw : IChartDraw<IWR> {
     /**
      * 设置%R颜色
      */
-    fun setRColor(@ColorInt color: Int) {
+    fun setWRColor(@ColorInt color: Int) {
         mRPaint.color = color
     }
 
