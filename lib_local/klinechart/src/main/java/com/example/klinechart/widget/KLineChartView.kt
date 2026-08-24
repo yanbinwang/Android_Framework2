@@ -13,6 +13,8 @@ import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.color
 import com.example.framework.utils.function.view.dimen
+import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.visible
 import com.example.klinechart.R
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.KDJDraw
@@ -44,16 +46,19 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     private var mRefreshListener: KChartRefreshListener? = null
 
     init {
+        // 加载动画
         val layoutParams = LayoutParams(50.pt, 50.pt)
         layoutParams.addRule(CENTER_IN_PARENT)
         addView(mProgressBar, layoutParams)
-        mProgressBar.visibility = GONE
+//        mProgressBar.gone()
+        // 添加各个线段
         addChildDraw(mMACDDraw as? IChartDraw<Any>)
         addChildDraw(mKDJDraw as? IChartDraw<Any>)
         addChildDraw(mRSIDraw as? IChartDraw<Any>)
         addChildDraw(mWRDraw as? IChartDraw<Any>)
         setVolDraw(mVolumeDraw as? IChartDraw<Any>)
         setMainDraw(mMainDraw as? IChartDraw<Any>)
+        // 获取各个属性
         context.withStyledAttributes(attrs, R.styleable.KLineChartView) {
             // 公共方法赋值
             setPointWidth(getDimension(R.styleable.KLineChartView_kc_point_width, dimen(R.dimen.chart_point_width)))
@@ -95,6 +100,8 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
             setSelectorBackgroundColor(getColor(R.styleable.KLineChartView_kc_selector_background_color, color(R.color.chart_selector)))
             setSelectorTextSize(getDimension(R.styleable.KLineChartView_kc_selector_text_size, dimen(R.dimen.chart_selector_text_size)))
         }
+        // 默认加载
+        justShowLoading()
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent?): Boolean {
@@ -137,10 +144,15 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
     }
 
     override fun onLeftSide() {
-        showLoading()
+        mRefreshListener?.let {
+            onLoadMore()
+        }
     }
 
     override fun onRightSide() {
+        mRefreshListener?.let {
+            onRefresh()
+        }
     }
 
     override fun setTextColor(@ColorInt color: Int) {
@@ -328,13 +340,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      */
     fun justShowLoading() {
         if (!isRefreshing) {
-            isRefreshing = true
-            mIsLongPress = false
-            mProgressBar.visibility = VISIBLE
-            mLastScaleEnable = isScaleEnable()
-            mLastScrollEnable = isScrollEnable()
-            super.setScrollEnable(false)
-            super.setScaleEnable(false)
+            enterLoadingState()
         }
     }
 
@@ -344,26 +350,55 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      */
     fun showLoading() {
         if (!isLoadMoreEnd && !isRefreshing) {
-            isRefreshing = true
-            mProgressBar.visibility = VISIBLE
-            // 记住用户进入 Loading 之前，缩放/滚动是开还是关
-            mLastScaleEnable = isScaleEnable()
-            mLastScrollEnable = isScrollEnable()
-            // 	Loading 期间禁止手势，防止数据刷新时用户滑动导致坐标错乱、数据错位
-            super.setScrollEnable(false)
-            super.setScaleEnable(false)
-            mRefreshListener?.onLoadMoreBegin(this)
+            enterLoadingState()
         }
+    }
+
+    /**
+     * 核心状态切换：进入 Loading 状态
+     * 负责UI展示、清除长按状态、记录并禁用手势
+     */
+    private fun enterLoadingState() {
+        isRefreshing = true
+        mIsLongPress = false
+        mProgressBar.visible()
+        // 记住用户进入 Loading 之前，缩放/滚动是开还是关
+        mLastScaleEnable = isScaleEnable()
+        mLastScrollEnable = isScrollEnable()
+        // 	Loading 期间禁止手势，防止数据刷新时用户滑动导致坐标错乱、数据错位
+        super.setScrollEnable(false)
+        super.setScaleEnable(false)
     }
 
     /**
      * 隐藏 Loading
      */
     fun hideLoading() {
-        mProgressBar.visibility = GONE
+        mProgressBar.gone()
         // 刷新完毕后，把权限还给用户，且精确恢复到刷新前的状态
         super.setScrollEnable(mLastScrollEnable)
         super.setScaleEnable(mLastScaleEnable)
+    }
+
+    /**
+     * 刷新
+     */
+    fun onRefresh() {
+        if (isRefreshing) return
+        isLoadMoreEnd = false
+        mIsLongPress = false
+        mRefreshListener?.onRefresh(this)
+        showLoading()
+    }
+
+    /**
+     * 加载更多
+     */
+    fun onLoadMore() {
+        if (isRefreshing || isLoadMoreEnd) return
+        mIsLongPress = false
+        mRefreshListener?.onLoadMore(this)
+        showLoading()
     }
 
     /**
@@ -381,34 +416,6 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         }
     }
 
-//    /**
-//     * 刷新完成
-//     */
-//    fun refreshComplete() {
-//        isRefreshing = false
-//        hideLoading()
-//    }
-//
-//    /**
-//     * 刷新完成，没有数据
-//     */
-//    fun refreshEnd() {
-//        isLoadMoreEnd = true
-//        isRefreshing = false
-//        hideLoading()
-//    }
-//
-//    /**
-//     * 重置加载更多
-//     */
-//    fun resetLoadMoreEnd() {
-//        isLoadMoreEnd = false
-//    }
-//
-//    fun setLoadMoreEnd() {
-//        isLoadMoreEnd = true
-//    }
-
     /**
      * 设置刷新监听
      */
@@ -420,7 +427,9 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      * 加载更多回调
      */
     interface KChartRefreshListener {
-        fun onLoadMoreBegin(chart: KLineChartView)
+        fun onRefresh(chart: KLineChartView)
+
+        fun onLoadMore(chart: KLineChartView)
     }
 
 }

@@ -42,8 +42,14 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         super.initEvent()
         clicks(mBinding?.tvMa, mBinding?.tvBoll, mBinding?.tvMainHide, mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr, mBinding?.tvSubHide, mBinding?.tvFen, mBinding?.tvK)
         mBinding?.kline?.setRefreshListener(object : KLineChartView.KChartRefreshListener {
-            override fun onLoadMoreBegin(chart: KLineChartView) {
-                "开始加载更多".logWTF("wyb")
+            override fun onRefresh(chart: KLineChartView) {
+                "刷新".logWTF("wyb")
+                viewModel.getAll()
+            }
+
+            override fun onLoadMore(chart: KLineChartView) {
+                "加载更多".logWTF("wyb")
+                viewModel.getAll()
             }
         })
         viewModel.list.observe {
@@ -51,11 +57,7 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
             adapter.setData(this)
         }
         viewModel.uiManage.observe {
-            if (this) {
-                mBinding?.kline?.justShowLoading()
-            } else {
-                mBinding?.kline?.finishRefreshing(false)
-            }
+            mBinding?.kline?.finishRefreshing(false)
         }
     }
 
