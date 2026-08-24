@@ -15,6 +15,7 @@ import kotlin.math.roundToInt
 
 /**
  * 支持滑动和缩放功能的抽象自定义控件ScrollAndScaleView
+ * 左侧-加载更多 右侧-刷新
  */
 abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0) : RelativeLayout(context, attrs, defStyleAttr), GestureDetector.OnGestureListener, OnScaleGestureListener {
     private var mX = 0f
@@ -318,12 +319,12 @@ abstract class ScrollAndScaleView @JvmOverloads constructor(context: Context, at
     }
 
     /**
-     * 滑到了最左边
+     * 滑到了最左边 (加载更多)
      */
     abstract fun onLeftSide()
 
     /**
-     * 滑到了最右边
+     * 滑到了最右边 (刷新)
      */
     abstract fun onRightSide()
 

@@ -52,7 +52,6 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         }
         viewModel.uiManage.observe {
             if (this) {
-                // 此处主动调用会触发一次 onLoadMoreBegin 回调
                 mBinding?.kline?.justShowLoading()
             } else {
                 mBinding?.kline?.finishRefreshing(false)
