@@ -328,10 +328,9 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      */
     fun justShowLoading() {
         if (!isRefreshing) {
-            mIsLongPress = false
             isRefreshing = true
+            mIsLongPress = false
             mProgressBar.visibility = VISIBLE
-//            mRefreshListener?.onLoadMoreBegin(this) // 不应存在
             mLastScaleEnable = isScaleEnable()
             mLastScrollEnable = isScrollEnable()
             super.setScrollEnable(false)
@@ -347,11 +346,13 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
         if (!isLoadMoreEnd && !isRefreshing) {
             isRefreshing = true
             mProgressBar.visibility = VISIBLE
-            mRefreshListener?.onLoadMoreBegin(this)
+            // 记住用户进入 Loading 之前，缩放/滚动是开还是关
             mLastScaleEnable = isScaleEnable()
             mLastScrollEnable = isScrollEnable()
+            // 	Loading 期间禁止手势，防止数据刷新时用户滑动导致坐标错乱、数据错位
             super.setScrollEnable(false)
             super.setScaleEnable(false)
+            mRefreshListener?.onLoadMoreBegin(this)
         }
     }
 
@@ -360,18 +361,19 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
      */
     fun hideLoading() {
         mProgressBar.visibility = GONE
+        // 刷新完毕后，把权限还给用户，且精确恢复到刷新前的状态
         super.setScrollEnable(mLastScrollEnable)
         super.setScaleEnable(mLastScaleEnable)
     }
 
     /**
      * 加载完成（通用）
-     * @param hasMore      是否还有更多历史数据
+     * @param hasNextPage      是否还有更多历史数据
      * @param animateEntry 是否播放新数据入场动画（默认true）
      */
-    fun finishRefresh(hasMore: Boolean = true, animateEntry: Boolean = true) {
+    fun finishRefreshing(hasNextPage: Boolean = true, animateEntry: Boolean = true) {
         isRefreshing = false
-        isLoadMoreEnd = !hasMore
+        isLoadMoreEnd = !hasNextPage
         hideLoading()
         // 仅在需要时触发动画，避免不必要的 invalidate 开销
         if (animateEntry && getAdapter()?.getCount().orZero > 0) {

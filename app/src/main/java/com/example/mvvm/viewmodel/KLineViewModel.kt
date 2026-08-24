@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.withContext
+import kotlin.collections.take
 
 class KLineViewModel : BaseViewModel() {
     val uiManage by lazy { MutableLiveData<Boolean>() }
@@ -45,7 +46,9 @@ class KLineViewModel : BaseViewModel() {
             }).onStart {
                 uiManage.postValue(true)
             }.collect {
-                list.postValue(it)
+                // 1) K线绘制性能瓶颈：Canvas 一次性绘制上千根K线+5条均线+BOLL轨道会明显掉帧，500是一个经验阈值，保证滑动流畅
+                // 2) 屏幕实际可见量有限：手机横屏最多显示60~100根K线，500条足够覆盖"加载更多"之前的可视区域+缓冲
+                list.postValue(it.take(500).toArrayList())
             }
         }
     }
