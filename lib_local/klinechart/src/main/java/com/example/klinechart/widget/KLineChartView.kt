@@ -368,7 +368,7 @@ class KLineChartView @JvmOverloads constructor(context: Context, attrs: Attribut
 
     /**
      * 加载完成（通用）
-     * @param hasNextPage      是否还有更多历史数据
+     * @param hasNextPage 是否还有更多历史数据
      * @param animateEntry 是否播放新数据入场动画（默认true）
      */
     fun finishRefreshing(hasNextPage: Boolean = true, animateEntry: Boolean = true) {
