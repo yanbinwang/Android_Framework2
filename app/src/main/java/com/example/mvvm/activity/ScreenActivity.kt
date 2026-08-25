@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
-import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.util.Rational
@@ -20,6 +19,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.function.getBroadcastPendingIntent
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.framework.utils.function.doOnReceiver
+import com.example.framework.utils.function.remoteAction
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.margin
@@ -51,8 +51,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     // 导航栏原始高度
     private val statusBarHeight = getStatusBarHeight()
     // 小窗按钮
-    private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
-    private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
+    private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PIP_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
+    private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PIP_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
     // 播放器帮助类
     private val gsyHelper by lazy { GSYVideoHelper(this, false, false) }
     // 接收按钮点击事件
@@ -60,13 +60,13 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 // 播放
-                ACTION_PLAY -> {
+                ACTION_PIP_PLAY -> {
                     gsyHelper.resumeOrRestart()
                     mBinding?.gsyPlayer?.changeUiToPip()
                     updatePipActions(true)
                 }
                 // 暂停
-                ACTION_PAUSE -> {
+                ACTION_PIP_PAUSE -> {
                     gsyHelper.onVideoPause()
                     mBinding?.gsyPlayer?.changeUiToPip()
                     updatePipActions(false)
@@ -77,8 +77,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private val viewModel: ScreenViewModel by viewModels()
 
     companion object {
-        const val ACTION_PLAY = "ACTION_PLAY"
-        const val ACTION_PAUSE = "ACTION_PAUSE"
+        const val ACTION_PIP_PLAY = "ACTION_PIP_PLAY"
+        const val ACTION_PIP_PAUSE = "ACTION_PIP_PAUSE"
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -94,8 +94,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         super.initEvent()
         // 注册画中画按钮点击事件广播
         doOnReceiver(this, pipReceiver, IntentFilter().apply {
-            addAction(ACTION_PLAY)
-            addAction(ACTION_PAUSE)
+            addAction(ACTION_PIP_PLAY)
+            addAction(ACTION_PIP_PAUSE)
         })
         mBinding?.empty?.setFullScreen(this)
         mBinding?.tvStart.click {
@@ -104,7 +104,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         gsyHelper.setOnGSYVideoPlayerListener(object : OnGSYVideoPlayerListener {
             override fun onQuitFullscreen(url: String?, vararg objects: Any?) {
                 super.onQuitFullscreen(url, *objects)
-                initImmersionBar()
+                initImmersionBar(false)
             }
 
             override fun onPlayError(url: String?, vararg objects: Any?) {
@@ -130,6 +130,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             mBinding?.gsyPlayer.size(height = this)
         }
         viewModel.pageInfo.observe {
+            initImmersionBar(false)
             gsyHelper.setUrl(this)
         }
     }
@@ -252,10 +253,10 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     private fun getPipAction(isPause: Boolean): RemoteAction {
         return if (isPause) {
             // 暂停按钮
-            RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_pause), "暂停", "暂停播放", pausePending)
+            remoteAction(android.R.drawable.ic_media_pause, "暂停", "暂停播放", pausePending)
         } else {
             // 播放按钮
-            RemoteAction(Icon.createWithResource(this, android.R.drawable.ic_media_play), "播放", "继续播放", playPending)
+            remoteAction(android.R.drawable.ic_media_play, "播放", "继续播放", playPending)
         }
     }
 
