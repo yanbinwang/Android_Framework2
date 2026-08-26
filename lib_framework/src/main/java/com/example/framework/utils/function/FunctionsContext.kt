@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.ActivityManager
 import android.app.Application
+import android.app.PendingIntent
+import android.app.RemoteAction
 import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.ClipData
@@ -16,6 +18,7 @@ import android.content.ServiceConnection
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
@@ -30,6 +33,7 @@ import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
 import androidx.annotation.FontRes
 import androidx.annotation.LayoutRes
+import androidx.annotation.RequiresApi
 import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -107,26 +111,6 @@ fun Context.string(@StringRes res: Int): String {
 }
 
 /**
- * 生成View
- * @attachToRoot: 加载出来的布局，要不要立刻添加到 root（父容器）中
- * 1) attachToRoot = true
- *  把布局添加到 root 里面
- *  返回值：root 本身
- *  使用场景：立刻把布局加到父布局里
- * 2) attachToRoot = false
- *  不添加到 root 里 , 但会用 root 来计算正确的布局参数（LayoutParams）
- *  返回值：加载的布局自己
- *  使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
- */
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
-    return LayoutInflater.from(this).inflate(res, root)
-}
-
-fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View {
-    return LayoutInflater.from(this).inflate(res, root, attachToRoot)
-}
-
-/**
  * 获取资源文件id
  */
 @SuppressLint("ResourceType")
@@ -160,6 +144,38 @@ inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: In
     this ?: return null
     val drawable = ResourcesCompat.getDrawable(resources, res, theme)
     return drawable as? T
+}
+
+/**
+ * 生成View
+ * @attachToRoot: 加载出来的布局，要不要立刻添加到 root（父容器）中
+ * 1) attachToRoot = true
+ *  把布局添加到 root 里面
+ *  返回值：root 本身
+ *  使用场景：立刻把布局加到父布局里
+ * 2) attachToRoot = false
+ *  不添加到 root 里 , 但会用 root 来计算正确的布局参数（LayoutParams）
+ *  返回值：加载的布局自己
+ *  使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
+ */
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null): View {
+    return LayoutInflater.from(this).inflate(res, root)
+}
+
+fun Context.inflate(@LayoutRes res: Int, root: ViewGroup?, attachToRoot: Boolean): View {
+    return LayoutInflater.from(this).inflate(res, root, attachToRoot)
+}
+
+/**
+ * 快速创建 RemoteAction
+ * @param iconRes 图标资源 ID
+ * @param title 按钮标题（用于无障碍服务和长按提示）
+ * @param contentDescription 内容描述（用于屏幕阅读器）
+ * @param pendingIntent 点击触发的 PendingIntent
+ */
+@RequiresApi(Build.VERSION_CODES.O)
+fun Context.remoteAction(@DrawableRes iconRes: Int, title: CharSequence, contentDescription: CharSequence = title, pendingIntent: PendingIntent): RemoteAction {
+    return RemoteAction(Icon.createWithResource(this, iconRes), title, contentDescription, pendingIntent)
 }
 
 /**
