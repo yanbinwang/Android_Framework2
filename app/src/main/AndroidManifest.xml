@@ -341,7 +341,7 @@
             android:foregroundServiceType="mediaPlayback" />
         <!-- 音频播放广播 -->
         <receiver
-            android:name=".service.receiver.MediaPlaybackReceiver"
+            android:name=".service.receiver.MusicPlaybackReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="${PACKAGE_NAME}.ACTION_PREVIOUS" />
