@@ -162,7 +162,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.llRoot.gone()
             mBinding?.titleRoot.gone()
-//            player.margin(top = 0)
             mBinding?.flShow.padding(top = 0)
             player.size(MATCH_PARENT, MATCH_PARENT)
             player.changeUiToPip()
@@ -178,7 +177,6 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 mBinding?.llRoot.visible()
                 mBinding?.titleRoot.visible()
                 mBinding?.flShow.padding(top = statusBarHeight)
-//                player.margin(top = statusBarHeight)
                 player.size(MATCH_PARENT, videoHeight)
                 player.changeUiToPip()
                 // 如果已产生有效播放进度
