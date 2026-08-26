@@ -23,11 +23,13 @@ import com.example.framework.utils.function.remoteAction
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
 import com.example.framework.utils.function.view.margin
+import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.visible
 import com.example.home.R
 import com.example.mvvm.databinding.ActivityScreenBinding
 import com.example.mvvm.viewmodel.ScreenViewModel
+import com.example.mvvm.widget.SmartVideoPlayer
 import com.example.thirdparty.media.utils.gsyvideoplayer.GSYVideoHelper
 import com.example.thirdparty.media.utils.gsyvideoplayer.OnGSYVideoPlayerListener
 import com.example.thirdparty.utils.NotificationUtil.NOTIFY_ID_PIP_PLAY
@@ -53,7 +55,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     // 小窗按钮
     private val playPending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_PLAY, Intent(ACTION_PIP_PLAY), PendingIntent.FLAG_UPDATE_CURRENT) }
     private val pausePending by lazy { getBroadcastPendingIntent(NOTIFY_ID_PIP_STOP, Intent(ACTION_PIP_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT) }
-    // 播放器帮助类
+    // 播放器/帮助类
+    private val player by lazy { SmartVideoPlayer(this) }
     private val gsyHelper by lazy { GSYVideoHelper(this, false, false) }
     // 接收按钮点击事件
     private val pipReceiver = object : BroadcastReceiver() {
@@ -62,13 +65,13 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
                 // 播放
                 ACTION_PIP_PLAY -> {
                     gsyHelper.resumeOrRestart()
-                    mBinding?.gsyPlayer?.changeUiToPip()
+                    player.changeUiToPip()
                     updatePipActions(true)
                 }
                 // 暂停
                 ACTION_PIP_PAUSE -> {
                     gsyHelper.onVideoPause()
-                    mBinding?.gsyPlayer?.changeUiToPip()
+                    player.changeUiToPip()
                     updatePipActions(false)
                 }
             }
@@ -86,7 +89,8 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         mBinding?.titleRoot
             ?.setLeftButton(tintColor = R.color.bgWhite)
             ?.bind(this)
-        gsyHelper.bind(mBinding?.gsyPlayer, showFullScreen = true)
+        mBinding?.flShow?.addView(player)
+        gsyHelper.bind(player, showFullScreen = true)
         viewModel.setExtraView(mBinding?.empty)
     }
 
@@ -127,7 +131,7 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
         }
         viewModel.videoHeight.observe {
             videoHeight = this
-            mBinding?.gsyPlayer.size(height = this)
+            player.size(height = this)
         }
         viewModel.pageInfo.observe {
             initImmersionBar(false)
@@ -153,14 +157,15 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
     override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
         isPipMode = isInPictureInPictureMode
-        mBinding?.gsyPlayer?.isInPipMode = isInPictureInPictureMode
+        player.isInPipMode = isInPictureInPictureMode
         if (isInPictureInPictureMode) {
             // 进入小窗：隐藏播放控制器、标题栏、冗余UI，只留画面
             mBinding?.llRoot.gone()
             mBinding?.titleRoot.gone()
-            mBinding?.gsyPlayer?.margin(top = 0)
-            mBinding?.gsyPlayer?.size(height = MATCH_PARENT)
-            mBinding?.gsyPlayer?.changeUiToPip()
+//            player.margin(top = 0)
+            mBinding?.flShow.padding(top = 0)
+            player.size(MATCH_PARENT, MATCH_PARENT)
+            player.changeUiToPip()
             // 当前播放器回到全屏时,如果处于实际播放状态
             if (gsyHelper.isActuallyPlaying()) {
                 gsyHelper.onVideoResume()
@@ -172,9 +177,10 @@ class ScreenActivity : BaseActivity<ActivityScreenBinding>() {
             } else {
                 mBinding?.llRoot.visible()
                 mBinding?.titleRoot.visible()
-                mBinding?.gsyPlayer?.margin(top = statusBarHeight)
-                mBinding?.gsyPlayer?.size(height = videoHeight)
-                mBinding?.gsyPlayer?.changeUiToPip()
+                mBinding?.flShow.padding(top = statusBarHeight)
+//                player.margin(top = statusBarHeight)
+                player.size(MATCH_PARENT, videoHeight)
+                player.changeUiToPip()
                 // 如果已产生有效播放进度
                 isPipScale = true
                 gsyHelper.seekTo(setUpLazy = false)

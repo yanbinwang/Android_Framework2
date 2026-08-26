@@ -5,20 +5,26 @@
 
     <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/bgBlack">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <com.example.mvvm.widget.SmartVideoPlayer
-                android:id="@+id/gsy_player"
-                statusBar_margin="@{true}"
+            <FrameLayout
+                android:id="@+id/fl_show"
+                statusBar_padding="@{true}"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                tools:layout_height="280pt" />
+                android:background="@color/bgBlack" />
+
+            <!--            <com.example.mvvm.widget.SmartVideoPlayer-->
+            <!--                android:id="@+id/gsy_player"-->
+            <!--                statusBar_margin="@{true}"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                tools:layout_height="280pt" />-->
 
             <LinearLayout
                 android:id="@+id/ll_root"
