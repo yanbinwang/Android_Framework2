@@ -23,24 +23,24 @@ class CustomItemAdapter : RecyclerView.Adapter<CustomItemAdapter.ViewHolder>() {
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        //当前页数（0开始）
+        // 当前页数（0开始）
         val page = holder.absoluteAdapterPosition
-        //每一页的容器
+        // 每一页的容器
         val recycler = (holder.itemView as? RecyclerView)
-        //每一页容器的适配器
+        // 每一页容器的适配器
         val adapter = CustomTabAdapter()
-        //每一页容器的按钮点击回调
+        // 每一页容器的按钮点击回调
         adapter.setOnItemClickListener { _, _, index ->
-            //下标值计算：每页总按钮数*当前页数+下标（默认0）
+            // 下标值计算：每页总按钮数*当前页数+下标（默认0）
             val mPosition = tabCount * page + index
             listener?.invoke(mPosition)
         }
-        //设置一行加载按钮的数量，加载当前页
+        // 设置一行加载按钮的数量，加载当前页
         recycler.initGridHorizontal(adapter, columns)
-        //每一页容器的整体数据
-        val item = list.safeGet(page)
-        //刷新一下按钮数据
-        adapter.refresh(item)
+        // 每一页容器的整体数据
+        val pageList = list.safeGet(page)
+        // 刷新一下按钮数据
+        adapter.refresh(pageList)
     }
 
     override fun getItemCount(): Int {
