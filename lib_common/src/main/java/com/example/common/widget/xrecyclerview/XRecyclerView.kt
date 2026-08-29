@@ -11,6 +11,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
+import com.example.common.base.binding.adapter.BaseAdapter
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
@@ -452,6 +453,22 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun scrollToPosition(position: Int) {
         if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
         recycler.scrollToPosition(position)
+    }
+
+    /**
+     * 置空数据
+     */
+    fun safeClear() {
+        val adapter = getAdapter() ?: return
+        when (adapter) {
+            is BaseAdapter<*> -> adapter.clear()
+            else -> {
+                val size = adapter.itemCount
+                if (size > 0) {
+                    adapter.notifyItemRangeRemoved(0, size)
+                }
+            }
+        }
     }
 
     /**
