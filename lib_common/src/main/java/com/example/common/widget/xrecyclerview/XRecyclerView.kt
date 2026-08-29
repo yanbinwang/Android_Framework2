@@ -1,5 +1,6 @@
 package com.example.common.widget.xrecyclerview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
@@ -458,16 +459,13 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     /**
      * 置空数据
      */
+    @SuppressLint("NotifyDataSetChanged")
     fun safeClear() {
         val adapter = getAdapter() ?: return
         when (adapter) {
             is BaseAdapter<*> -> adapter.clear()
-            else -> {
-                val size = adapter.itemCount
-                if (size > 0) {
-                    adapter.notifyItemRangeRemoved(0, size)
-                }
-            }
+            // 仅通知 RecyclerView 重新读取数据, 数据源的清空必须由调用方在调用 safeClear() 之前自行完成
+            else -> adapter.notifyDataSetChanged()
         }
     }
 
