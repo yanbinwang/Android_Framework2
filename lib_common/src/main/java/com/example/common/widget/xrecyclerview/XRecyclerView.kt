@@ -1,5 +1,6 @@
 package com.example.common.widget.xrecyclerview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
@@ -11,6 +12,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
+import com.example.common.base.binding.adapter.BaseAdapter
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
@@ -452,6 +454,19 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun scrollToPosition(position: Int) {
         if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
         recycler.scrollToPosition(position)
+    }
+
+    /**
+     * 置空数据
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun safeClear() {
+        val adapter = getAdapter() ?: return
+        when (adapter) {
+            is BaseAdapter<*> -> adapter.clear()
+            // 仅通知 RecyclerView 重新读取数据, 数据源的清空必须由调用方在调用 safeClear() 之前自行完成
+            else -> adapter.notifyDataSetChanged()
+        }
     }
 
     /**
