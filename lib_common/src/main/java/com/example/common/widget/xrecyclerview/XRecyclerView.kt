@@ -195,14 +195,15 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      *       "pageIndex" to 1,
      *       "pageSize" to Constants.PAGE_LIMIT
      *   ))}, {
+     *       // 未使用 adapter?.notify(this, viewModel) 手动设置外层遮罩状态
      *       if (it.safeSize > 0) {
      *           mRecycler?.setRootSize()
+     *           reset(false)
+     *           pageInfo.postValue(false to it)
      *       } else {
      *           mRecycler?.applyFixedHeight()
      *           empty()
      *       }
-     *       reset(false)
-     *       pageInfo.postValue(it)
      *   }, {
      *       mRecycler?.applyFixedHeight()
      *       error()
