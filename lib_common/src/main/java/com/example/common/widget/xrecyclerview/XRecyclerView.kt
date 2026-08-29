@@ -189,6 +189,25 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 应用空状态固定高度
      * 1) 在 loading()/empty()/error() 展示空状态前调用
      * 2) 有数据后由 setRootSize() 恢复全屏
+     * 3) 示例代码:
+     * flow<Unit> {
+     *   request({ FundsApi.instance.getFundsListApi(reqBodyOf(
+     *       "pageIndex" to 1,
+     *       "pageSize" to Constants.PAGE_LIMIT
+     *   ))}, {
+     *       if (it.safeSize > 0) {
+     *           mRecycler?.setRootSize()
+     *       } else {
+     *           mRecycler?.applyFixedHeight()
+     *           empty()
+     *       }
+     *       reset(false)
+     *       pageInfo.postValue(it)
+     *   }, {
+     *       mRecycler?.applyFixedHeight()
+     *       error()
+     *   })
+     * }.withHandling(isShowToast = true).launchIn(viewModelScope).manageJob()
      */
     fun applyFixedHeight(width: Int? = null) {
         if (!canApplyFixedHeight()) return
