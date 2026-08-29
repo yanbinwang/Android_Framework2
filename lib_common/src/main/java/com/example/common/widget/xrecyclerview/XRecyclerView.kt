@@ -152,9 +152,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 重写View自带的是否支持惯性滑动
-     * 1) 默认情况下是true
-     * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
-     * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
+     * 1) 默认情况下是 true
+     * 2) 如果外层嵌套 ScrollView/NestedScrollView 则需要设为 false 不然会卡顿,记得添加属性 android:fillViewport="true" 保证子布局撑满
+     * 3) 如果外层嵌套 CoordinatorLayout+AppBarLayout+Recyclerview,则 Recyclerview 需要为 true ,否则会响应惯性滑动
      */
     override fun setNestedScrollingEnabled(enabled: Boolean) {
         super.setNestedScrollingEnabled(enabled)
