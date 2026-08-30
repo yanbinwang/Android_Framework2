@@ -1,6 +1,7 @@
 package com.example.common.utils.builder
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
@@ -174,6 +175,36 @@ object ToastBuilder {
      */
     fun cancelToast() {
         currentToast?.get()?.cancel()
+    }
+
+    /**
+     * 安全显示 Toast，不受 AutoSize 全局 density 修改的影响 (必须在主线程调用)
+     */
+    fun safeToast(message: String, duration: Int = Toast.LENGTH_SHORT) {
+        if (Looper.getMainLooper() != Looper.myLooper()) return
+        val ctx = appContext ?: return
+        cancelToast()
+        // 获取未被修改的系统原始 density（唯一可信基准）
+        val sysMetrics = Resources.getSystem().displayMetrics
+        val sysDensity = sysMetrics.density
+        val sysDensityDpi = sysMetrics.densityDpi
+        // 只需还原 ApplicationContext 的 Metrics , Toast 内部使用 ApplicationContext 渲染，且 AppManager 在此时机无法获取当前 Activity
+        val appMetrics = ctx.resources.displayMetrics
+        val savedDensity = appMetrics.density
+        val savedDensityDpi = appMetrics.densityDpi
+        try {
+            // 临时还原为系统原始物理 density
+            appMetrics.density = sysDensity
+            appMetrics.densityDpi = sysDensityDpi
+            // 弹出 Toast（此时使用原始 density，尺寸正常）
+            val toast = Toast.makeText(ctx, message, duration)
+            currentToast = WeakReference(toast)
+            toast.show()
+        } finally {
+            // 立即恢复 AutoSize 的 density，避免影响后续布局
+            appMetrics.density = savedDensity
+            appMetrics.densityDpi = savedDensityDpi
+        }
     }
 
 }
