@@ -51,8 +51,6 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
-import com.example.common.utils.ScreenUtil.screenHeight
-import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
@@ -77,7 +75,6 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
-import me.jessyan.autosize.AutoSizeConfig
 import me.jessyan.autosize.internal.CancelAdapt
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
@@ -124,6 +121,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
+    private val isEmbedded get() = ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this) // 是否是折叠屏副屏
+    private val isSplitSupported get() = SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE // 是否支持折叠屏
     private val job = SupervisorJob() // https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main.immediate + job // 加上SupervisorJob，提升协程作用域
 
@@ -219,10 +218,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             enableEdgeToEdge()
         }
         super.onCreate(savedInstanceState)
-        // 先检测大屏设备，避免布局加载
-        val status = SplitController.getInstance(this).splitSupportStatus
-        val isSplitSupported = status == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
-        val isEmbedded = ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitSupported && isEmbedded))) {
             launch {
@@ -440,6 +435,43 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         resources
     }
 
+    /**
+     * https://cloud.tencent.com/developer/article/2406992
+     * class RotateActivity : BaseActivity<ActivityRotateBinding>(), CustomAdapt {
+     *     private var isLandscape = false
+     *     override fun onCreate(savedInstanceState: Bundle?) {
+     *         super.onCreate(savedInstanceState)
+     *         isLandscape = savedInstanceState?.getBoolean("land") ?: false
+     *     }
+     *
+     *     fun toggleOrientation() {
+     *         isLandscape = !isLandscape
+     *         requestedOrientation = if (isLandscape) {
+     *             ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+     *         } else {
+     *             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+     *         }
+     *         // 赋值 requestedOrientation，系统自动 recreate，触发 getResources()，触发 CustomAdapt 回调
+     *     }
+     *
+     *     override fun onSaveInstanceState(outState: Bundle) {
+     *         super.onSaveInstanceState(outState)
+     *         outState.putBoolean("land", isLandscape)
+     *     }
+     *
+     *     override fun isBaseOnWidth(): Boolean {
+     *         return !isLandscape
+     *     }
+     *
+     *     override fun getSizeInDp(): Float {
+     *         return if (isLandscape) {
+     *             640f // 横屏设计稿 dp
+     *         } else {
+     *             360f // 竖屏设计稿 dp
+     *         }
+     *     }
+     * }
+     */
     override fun getResources(): Resources {
 //        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
 //        if (isMainThread) {
