@@ -107,7 +107,6 @@ abstract class BaseApplication : Application() {
         // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
-            .setUseDeviceSize(false) // 兼容折叠屏
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
