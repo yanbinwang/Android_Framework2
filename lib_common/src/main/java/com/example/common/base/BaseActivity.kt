@@ -36,8 +36,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
-import androidx.window.embedding.ActivityEmbeddingController
-import androidx.window.embedding.SplitController
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -46,7 +44,6 @@ import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.interf.TransparentOwner
-import com.example.common.base.page.isActivityEmbedded
 import com.example.common.base.page.isSplitEmbeddingAvailable
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
@@ -219,7 +216,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitEmbeddingAvailable() && isActivityEmbedded()))) {
+//        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitEmbeddingAvailable() && isActivityEmbedded()))) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || isSplitEmbeddingAvailable())) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
