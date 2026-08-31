@@ -50,6 +50,8 @@ class LinkActivity : BaseActivity<Nothing>() {
         }
     }
 
+    override fun isIgnoreMultiWindowKillEnabled() = true
+
     override fun isBindingEnabled() = false
 
     override fun initView(savedInstanceState: Bundle?) {
