@@ -22,8 +22,8 @@ import kotlin.system.exitProcess
 
 /**
  * Created by WangYanBin on 2020/8/14.
- * 1.如果三方库不依赖于common库，则需要在application中初始化的方法统一放在BaseApplication中
- * 2.如果依赖了common库，且在thirdparty中做了二次工具类的封装，此时若还需在application中初始化，放在MyApplication中
+ * 1) 如果三方库不依赖于 common 库，则需要在 Application 中初始化的方法统一放在 BaseApplication 中
+ * 2) 如果依赖了 common 库，且在 thirdparty 中做了二次工具类的封装，此时若还需在 Application 中初始化，放在 MyApplication 中
  */
 class MyApplication : BaseApplication() {
     // 数据库
@@ -74,11 +74,11 @@ class MyApplication : BaseApplication() {
     }
 
     /**
-     * 1. getMethod(String name, Class<?>... parameterTypes)
+     * 1) getMethod(String name, Class<?>... parameterTypes)
      * 作用：获取当前类或其父类中所有 public 方法，包括继承的方法。
      * 若方法存在但非 public，会抛出 NoSuchMethodException。
      * 只能获取 public 方法，无法获取 private/protected 方法。
-     * 2. getDeclaredMethod(String name, Class<?>... parameterTypes)
+     * 2) getDeclaredMethod(String name, Class<?>... parameterTypes)
      * 作用：获取当前类中所有声明的方法（无论访问修饰符），但不包括父类的方法。
      * 虽然能获取私有方法，但调用前需通过 method.setAccessible(true) 突破访问限制。
      * 无法获取父类的方法（即使父类方法是 public）。

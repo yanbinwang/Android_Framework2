@@ -17,8 +17,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.common.base.bridge.BaseImpl
-import com.example.common.utils.ScreenUtil.screenHeight
-import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
@@ -29,7 +27,7 @@ import com.example.gallery.R
 import com.example.gallery.base.bridge.PageCloseable
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
-import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.internal.CancelAdapt
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -210,23 +208,15 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
     }
 
     override fun getResources(): Resources {
+        val res = super.getResources()
         if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+            if (this !is CancelAdapt) {
+                AutoSizeCompat.autoConvertDensityOfGlobal(res)
+            } else {
+                AutoSizeCompat.cancelAdapt(res)
+            }
         }
-        return super.getResources()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        AutoSizeConfig.getInstance().stop(this)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        AutoSizeConfig.getInstance().restart()
+        return res
     }
 
     override fun onDestroy() {

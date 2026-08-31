@@ -107,6 +107,7 @@ abstract class BaseApplication : Application() {
         // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
+            .setCustomFragment(true)
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
