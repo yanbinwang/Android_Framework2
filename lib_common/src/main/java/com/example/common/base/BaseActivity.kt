@@ -50,8 +50,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.common.utils.builder.ToastBuilder.safeToast
-import com.example.common.utils.builder.toast
+import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -282,7 +281,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         // 只要是物理平板 → 直接拦截，不管是不是分屏
         if (isPhysicalTablet) {
 //            "当前设备为平板/大屏设备，暂不支持使用".toast()
-            safeToast("当前设备为平板/大屏设备，暂不支持使用")
+            showSystemToast("当前设备为平板/大屏设备，暂不支持使用")
         }
         return isPhysicalTablet
     }
