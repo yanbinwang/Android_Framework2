@@ -46,6 +46,8 @@ import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.interf.TransparentOwner
+import com.example.common.base.page.isActivityEmbedded
+import com.example.common.base.page.isSplitEmbeddingAvailable
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -121,8 +123,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     private val immersionBar by lazy { ImmersionBar.with(this) }
     private val loadingDialog by lazy { LoadingDialog(this) } // 刷新球控件，相当于加载动画
     private val dataManager by lazy { ConcurrentHashMap<MutableLiveData<*>, Observer<Any?>>() }
-    private val isEmbedded get() = ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this) // 是否是折叠屏副屏
-    private val isSplitSupported get() = SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE // 是否支持折叠屏
     private val job = SupervisorJob() // https://blog.csdn.net/chuyouyinghe/article/details/123057776
     override val coroutineContext: CoroutineContext get() = Main.immediate + job // 加上SupervisorJob，提升协程作用域
 
@@ -219,7 +219,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitSupported && isEmbedded))) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitEmbeddingAvailable() && isActivityEmbedded()))) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
