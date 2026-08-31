@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
@@ -35,6 +36,8 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.databinding.ViewDataBinding
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
+import androidx.window.embedding.ActivityEmbeddingController
+import androidx.window.embedding.SplitController
 import com.app.hubert.guide.NewbieGuide
 import com.app.hubert.guide.listener.OnGuideChangedListener
 import com.app.hubert.guide.listener.OnPageChangedListener
@@ -75,6 +78,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.internal.CancelAdapt
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -216,7 +220,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 先检测大屏设备，避免布局加载
-        if (checkLargeScreen()) {
+        val status = SplitController.getInstance(this).splitSupportStatus
+        val isSplitSupported = status == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+        val isEmbedded = ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
+        // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitSupported && isEmbedded))) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
@@ -297,6 +305,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val currentClassName = this::class.java.name
         // 遍历前缀集合，只要匹配任意一个就返回true（需要排除）
         return excludeFullScreenPrefixes.any { currentClassName.startsWith(it) }
+    }
+
+    /**
+     * 是否忽略多窗口/大屏拦截杀进程规则
+     * @return true: 当前页面无视平板、Embedding分栏检测，不执行关闭进程逻辑
+     */
+    protected open fun isIgnoreMultiWindowKillEnabled(): Boolean {
+        return false
     }
 
     /**
@@ -419,26 +435,42 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        resources
+    }
+
     override fun getResources(): Resources {
-        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+//        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+//        if (isMainThread) {
+//            AutoSizeConfig.getInstance()
+//                .setScreenWidth(screenWidth)
+//                .setScreenHeight(screenHeight)
+//            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+//        }
+//        return super.getResources()
+        val res = super.getResources()
         if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+            if (this !is CancelAdapt) {
+                AutoSizeCompat.autoConvertDensityOfGlobal(res)
+            } else {
+                AutoSizeCompat.cancelAdapt(res)
+            }
         }
-        return super.getResources()
+        return res
     }
 
-    override fun onStop() {
-        super.onStop()
-        AutoSizeConfig.getInstance().stop(this)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        AutoSizeConfig.getInstance().restart()
-    }
+//    override fun onStop() {
+//        super.onStop()
+//        // 停止框架生命周期回调对后续新 Activity 自动做适配，已经启动的 Activity 不受任何影响
+//        AutoSizeConfig.getInstance().stop(this)
+//    }
+//
+//    override fun onRestart() {
+//        super.onRestart()
+//        // 重新打开自动适配开关，只对之后新创建 Activity 生效，不会刷新当前已经运行的页面
+//        AutoSizeConfig.getInstance().restart()
+//    }
 
     override fun finish() {
         onFinishListener?.onFinish(this)
