@@ -440,6 +440,43 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         resources
     }
 
+    /**
+     * https://cloud.tencent.com/developer/article/2406992
+     * class RotateActivity : BaseActivity<ActivityRotateBinding>(), CustomAdapt {
+     *     private var isLandscape = false
+     *     override fun onCreate(savedInstanceState: Bundle?) {
+     *         super.onCreate(savedInstanceState)
+     *         isLandscape = savedInstanceState?.getBoolean("land") ?: false
+     *     }
+     *
+     *     fun toggleOrientation() {
+     *         isLandscape = !isLandscape
+     *         requestedOrientation = if (isLandscape) {
+     *             ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+     *         } else {
+     *             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+     *         }
+     *         // 赋值 requestedOrientation，系统自动 recreate，触发 getResources()，触发 CustomAdapt 回调
+     *     }
+     *
+     *     override fun onSaveInstanceState(outState: Bundle) {
+     *         super.onSaveInstanceState(outState)
+     *         outState.putBoolean("land", isLandscape)
+     *     }
+     *
+     *     override fun isBaseOnWidth(): Boolean {
+     *         return !isLandscape
+     *     }
+     *
+     *     override fun getSizeInDp(): Float {
+     *         return if (isLandscape) {
+     *             640f // 横屏设计稿 dp
+     *         } else {
+     *             360f // 竖屏设计稿 dp
+     *         }
+     *     }
+     * }
+     */
     override fun getResources(): Resources {
 //        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
 //        if (isMainThread) {
