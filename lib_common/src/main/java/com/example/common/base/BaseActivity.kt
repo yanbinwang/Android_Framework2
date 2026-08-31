@@ -44,6 +44,7 @@ import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
 import com.example.common.base.page.interf.TransparentOwner
+import com.example.common.base.page.isActivityEmbedded
 import com.example.common.base.page.isSplitEmbeddingAvailable
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
@@ -216,8 +217,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-//        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitEmbeddingAvailable() && isActivityEmbedded()))) {
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || isSplitEmbeddingAvailable())) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isSplitEmbeddingAvailable() && isActivityEmbedded()))) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
