@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.window.embedding.ActivityEmbeddingController
+import androidx.window.embedding.SplitController
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
@@ -219,4 +221,22 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
             finish()
         }, 500)
     }
+}
+
+/**
+ * 判断当前 FragmentActivity 是否处于 ActivityEmbedding 分栏嵌入模式（折叠屏副屏/分屏）
+ * 必须绑定具体 Activity 实例，不可使用 Application Context
+ */
+fun FragmentActivity?.isActivityEmbedded(): Boolean {
+    this ?: return false
+    return ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
+}
+
+/**
+ * 判断设备是否支持 ActivityEmbedding Split 分栏能力（SplitPairRule / SplitPlaceholderRule）
+ * 接收 Context，Activity / Fragment(requireContext()) / 甚至 applicationContext都可以调用
+ */
+fun Context?.isSplitEmbeddingAvailable(): Boolean {
+    this ?: return false
+    return SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
 }
