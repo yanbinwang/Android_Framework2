@@ -237,6 +237,18 @@ fun FragmentActivity?.getCurrentActivityWindowWidth(): Int {
 }
 
 /**
+ * 获取设备应用可达到的最大窗口宽度(px)
+ * 折叠屏：展开大屏完整尺寸；普通设备就是全屏尺寸；不受分栏/分屏影响
+ * 用于对比：判断当前窗口是否被约束（分栏、多窗口模式）
+ */
+fun FragmentActivity?.getDeviceMaxWindowWidthPx(): Int {
+    this ?: return 0
+    val calculator = WindowMetricsCalculator.getOrCreate()
+    val maxMetrics = calculator.computeMaximumWindowMetrics(this)
+    return maxMetrics.bounds.width()
+}
+
+/**
  * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
  * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
  * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）

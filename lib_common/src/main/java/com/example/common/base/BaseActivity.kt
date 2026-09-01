@@ -76,6 +76,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.internal.CancelAdapt
+import me.jessyan.autosize.internal.CustomAdapt
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -481,10 +482,16 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 //        return super.getResources()
         val res = super.getResources()
         if (isMainThread) {
-            if (this !is CancelAdapt) {
-                AutoSizeCompat.autoConvertDensityOfGlobal(res)
-            } else {
-                AutoSizeCompat.cancelAdapt(res)
+            when (this) {
+                is CancelAdapt -> {
+                    AutoSizeCompat.cancelAdapt(res)
+                }
+                is CustomAdapt -> {
+                    // CustomAdapt页面：交给AutoSize框架attachBaseContext处理，基类不要做全局覆盖
+                }
+                else -> {
+                    AutoSizeCompat.autoConvertDensityOfGlobal(res)
+                }
             }
         }
         return res
