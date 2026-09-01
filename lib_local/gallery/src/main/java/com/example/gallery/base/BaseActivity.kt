@@ -28,6 +28,7 @@ import com.example.gallery.base.bridge.PageCloseable
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
 import me.jessyan.autosize.internal.CancelAdapt
+import me.jessyan.autosize.internal.CustomAdapt
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -210,10 +211,16 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
     override fun getResources(): Resources {
         val res = super.getResources()
         if (isMainThread) {
-            if (this !is CancelAdapt) {
-                AutoSizeCompat.autoConvertDensityOfGlobal(res)
-            } else {
-                AutoSizeCompat.cancelAdapt(res)
+            when (this) {
+                is CancelAdapt -> {
+                    AutoSizeCompat.cancelAdapt(res)
+                }
+                is CustomAdapt -> {
+                    // CustomAdapt页面：交给AutoSize框架attachBaseContext处理，基类不要做全局覆盖
+                }
+                else -> {
+                    AutoSizeCompat.autoConvertDensityOfGlobal(res)
+                }
             }
         }
         return res
