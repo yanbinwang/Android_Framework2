@@ -9,6 +9,7 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
+import androidx.window.layout.WindowMetricsCalculator
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
@@ -224,8 +225,23 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
 }
 
 /**
- * 判断当前 FragmentActivity 是否处于 ActivityEmbedding 分栏嵌入模式（折叠屏副屏/分屏）
- * 必须绑定具体 Activity 实例，不可使用 Application Context
+ * 获取当前 Activity 窗口的实际宽度(px)
+ * 注意：返回的是 Activity 分配到的窗口区域宽度，不是设备整块物理屏幕宽度
+ * 场景：全屏、Activity‑Embedding 分栏、系统分屏、自由窗口，均返回该 Activity 真实可用窗口宽
+ */
+fun FragmentActivity?.getCurrentActivityWindowWidth(): Int {
+    this ?: return 0
+    val calculator = WindowMetricsCalculator.getOrCreate()
+    val metrics = calculator.computeCurrentWindowMetrics(this)
+    return metrics.bounds.width()
+}
+
+/**
+ * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
+ * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
+ * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）
+ * 2) 折叠大屏展开，命中分栏规则，两个 Activity 左右并排分栏运行 → true
+ * 3) 极异常场景：折叠闭合小屏，却被分栏容器托管 → true
  */
 fun FragmentActivity?.isActivityEmbedded(): Boolean {
     this ?: return false
@@ -233,10 +249,11 @@ fun FragmentActivity?.isActivityEmbedded(): Boolean {
 }
 
 /**
- * 判断设备是否支持 ActivityEmbedding Split 分栏能力（SplitPairRule / SplitPlaceholderRule）
- * 接收 Context，Activity / Fragment(requireContext()) / 甚至 applicationContext都可以调用
+ * 查询设备&系统是否具备 Activity‑Embedding 分栏硬件与系统能力
+ * 返回true仅代表设备支持该特性，不代表此刻App正在分栏显示
+ * 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
  */
-fun Context?.isSplitEmbeddingAvailable(): Boolean {
+fun Context?.isActivityEmbeddingAvailable(): Boolean {
     this ?: return false
     return SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
 }
