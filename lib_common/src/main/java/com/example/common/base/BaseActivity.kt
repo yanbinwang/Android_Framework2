@@ -19,6 +19,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.window.OnBackInvokedCallback
@@ -534,6 +535,23 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    /**
+     * 注册一次性 OnPreDraw 监听；view完成第一次绘制前执行block，执行后自动移除监听，防止重复回调与内存泄漏
+     * @param targetView 监听依附的View，为空则block不会执行
+     * @param block 预绘制回调业务逻辑，仅执行一次
+     */
+    protected fun doOnViewPreDraw(targetView: View?, block: () -> Unit) {
+        targetView ?: return
+        val listener = object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                targetView.viewTreeObserver.removeOnPreDrawListener(this)
+                block.invoke()
+                return true
+            }
+        }
+        targetView.viewTreeObserver.addOnPreDrawListener(listener)
+    }
+
     /**
      * ViewModel 中定义无值事件（用 Unit 替代 Any）
      *  val reason by lazy { MutableLiveData<Unit>() } // 无值事件
