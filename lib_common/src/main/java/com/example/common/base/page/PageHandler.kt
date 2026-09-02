@@ -225,23 +225,6 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
 }
 
 /**
- * 判断当前是否处于Activity‑Embedding分栏嵌入会话
- * @param tip 提示文本，默认：请切换至小屏模式后重试
- * @param showTip 是否弹出toast提示，默认true；false只返回状态，不弹提示
- * @return true 当前处于分栏；false 非分栏状态
- */
-fun FragmentActivity?.checkEmbedShowTip(tip: String = "请切换至小屏模式后重试", showTip: Boolean = true): Boolean {
-    this ?: return false
-    if (isFinishing || isDestroyed) return false
-    // 设备支持embedding && 当前activity已经嵌入分栏
-    val isEmbed = isActivityEmbeddingAvailable() && isActivityEmbedded()
-    if (showTip) {
-        showSystemToast(tip)
-    }
-    return isEmbed
-}
-
-/**
  * 检测大屏设备
  * @return true-检测到大屏设备并弹出提示，false-正常设备
  */
@@ -258,6 +241,23 @@ fun FragmentActivity?.checkLargeScreenShowTip(tip: String = "当前设备为平�
         showSystemToast(tip)
     }
     return isPhysicalTablet
+}
+
+/**
+ * 判断当前是否处于Activity‑Embedding分栏嵌入会话
+ * @param tip 提示文本，默认：请切换至小屏模式后重试
+ * @param showTip 是否弹出toast提示，默认true；false只返回状态，不弹提示
+ * @return true 当前处于分栏；false 非分栏状态
+ */
+fun FragmentActivity?.checkEmbedShowTip(tip: String = "请切换至小屏模式后重试", showTip: Boolean = true): Boolean {
+    this ?: return false
+    if (isFinishing || isDestroyed) return false
+    // 设备支持embedding && 当前activity已经嵌入分栏
+    val isEmbed = isActivityEmbeddingAvailable() && isActivityEmbedded()
+    if (isEmbed && showTip) {
+        showSystemToast(tip)
+    }
+    return isEmbed
 }
 
 /**
