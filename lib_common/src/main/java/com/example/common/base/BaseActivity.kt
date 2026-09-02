@@ -526,14 +526,18 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      */
     protected fun doOnViewPreDraw(targetView: View?, block: () -> Unit) {
         targetView ?: return
+        val observer = targetView.viewTreeObserver
+        if(!observer.isAlive) return
         val listener = object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                targetView.viewTreeObserver.removeOnPreDrawListener(this)
-                block.invoke()
+                observer.removeOnPreDrawListener(this)
+                if (observer.isAlive) {
+                    block.invoke()
+                }
                 return true
             }
         }
-        targetView.viewTreeObserver.addOnPreDrawListener(listener)
+        observer.addOnPreDrawListener(listener)
     }
 
     /**
