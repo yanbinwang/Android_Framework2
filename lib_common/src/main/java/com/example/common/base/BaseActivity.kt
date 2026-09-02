@@ -220,7 +220,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreenShowTip() || (checkEmbedShowTip(showTip = false)))) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreenShowTip() || checkEmbedShowTip(showTip = false))) {
             pendingKillJob?.cancel()
             pendingKillJob = launch {
                 delay(800L)
