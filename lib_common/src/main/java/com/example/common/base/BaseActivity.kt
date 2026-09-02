@@ -44,9 +44,8 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.checkEmbedShowTip
 import com.example.common.base.page.interf.TransparentOwner
-import com.example.common.base.page.isActivityEmbedded
-import com.example.common.base.page.isActivityEmbeddingAvailable
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
@@ -219,7 +218,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isActivityEmbeddingAvailable() && isActivityEmbedded()))) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (checkEmbedShowTip(showTip = false)))) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
@@ -283,7 +282,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         val isPhysicalTablet = config.smallestScreenWidthDp >= 600
         // 只要是物理平板 → 直接拦截，不管是不是分屏
         if (isPhysicalTablet) {
-//            "当前设备为平板/大屏设备，暂不支持使用".toast()
             showSystemToast("当前设备为平板/大屏设备，暂不支持使用")
         }
         return isPhysicalTablet
