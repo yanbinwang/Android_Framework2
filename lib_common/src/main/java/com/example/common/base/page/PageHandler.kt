@@ -235,7 +235,7 @@ fun FragmentActivity?.checkEmbedShowTip(tip: String = "请切换至小屏模式�
     if (isFinishing || isDestroyed) return false
     // 设备支持embedding && 当前activity已经嵌入分栏
     val isEmbed = isActivityEmbeddingAvailable() && isActivityEmbedded()
-    if (showTip) {
+    if (isEmbed && showTip) {
         showSystemToast(tip)
     }
     return isEmbed
