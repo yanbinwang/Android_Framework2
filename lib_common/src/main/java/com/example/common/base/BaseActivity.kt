@@ -44,15 +44,14 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.checkEmbedShowTip
+import com.example.common.base.page.checkLargeScreenShowTip
 import com.example.common.base.page.interf.TransparentOwner
-import com.example.common.base.page.isActivityEmbedded
-import com.example.common.base.page.isActivityEmbeddingAvailable
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
-import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -219,7 +218,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreen() || (isActivityEmbeddingAvailable() && isActivityEmbedded()))) {
+        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreenShowTip() || (checkEmbedShowTip(showTip = false)))) {
             launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
@@ -268,25 +267,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initView(savedInstanceState)
         initEvent()
         initData()
-    }
-
-    /**
-     * 检测大屏设备
-     * @return true-检测到大屏设备并弹出提示，false-正常设备
-     */
-    private fun checkLargeScreen(): Boolean {
-        // 页面销毁直接返回
-        if (isFinishing || isDestroyed) return false
-        // 判断是否为大屏设备（宽度≥600dp）
-        val config = resources.configuration
-        // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
-        val isPhysicalTablet = config.smallestScreenWidthDp >= 600
-        // 只要是物理平板 → 直接拦截，不管是不是分屏
-        if (isPhysicalTablet) {
-//            "当前设备为平板/大屏设备，暂不支持使用".toast()
-            showSystemToast("当前设备为平板/大屏设备，暂不支持使用")
-        }
-        return isPhysicalTablet
     }
 
     /**
