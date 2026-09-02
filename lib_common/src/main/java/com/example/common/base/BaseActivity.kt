@@ -71,6 +71,7 @@ import com.gyf.immersionbar.ImmersionBar
 import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -117,6 +118,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected val mActivityResult = mResultWrapper.registerResult {
         onActivityResultListener?.invoke(it)
     }
+    private var pendingKillJob: Job? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -219,7 +221,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreenShowTip() || (checkEmbedShowTip(showTip = false)))) {
-            launch {
+            pendingKillJob?.cancel()
+            pendingKillJob = launch {
                 delay(800L)
                 if (!isFinishing && !isDestroyed) {
                     // 关闭所有Activity
@@ -509,6 +512,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         dataManager.clear()
         mActivityResult.unregister()
         mBinding?.unbind()
+        pendingKillJob?.cancel()
         job.cancel() // 之后再起的job无法工作
 //        coroutineContext.cancelChildren() // 之后再起的可以工作
     }
