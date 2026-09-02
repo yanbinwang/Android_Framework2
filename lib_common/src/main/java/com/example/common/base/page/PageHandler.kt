@@ -9,7 +9,6 @@ import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
-import androidx.window.layout.WindowMetricsCalculator
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
@@ -222,34 +221,6 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
             finish()
         }, 500)
     }
-}
-
-/**
- * 获取当前 Activity 窗口实际可用宽高(px)
- * 返回 Pair(widthPx, heightPx)
- * 注意：返回 Activity 分配到的窗口区域，不是整块物理屏幕；
- * 适配：全屏、Activity‑Embedding分栏、系统分屏、自由窗口
- */
-fun FragmentActivity?.getCurrentActivityWindowSizePx(): Pair<Int, Int> {
-    this ?: return 0 to 0
-    val calculator = WindowMetricsCalculator.getOrCreate()
-    val metrics = calculator.computeCurrentWindowMetrics(this)
-    val bounds = metrics.bounds
-    return bounds.width() to bounds.height()
-}
-
-/**
- * 获取设备应用可达到的最大窗口宽高(px)
- * 返回 Pair(widthPx, heightPx)
- * 折叠屏：展开完整大屏尺寸；普通设备等于全屏；不受分栏/分屏约束
- * 用于对比判断当前窗口是否被分栏、多窗口压缩
- */
-fun FragmentActivity?.getDeviceMaxWindowSizePx(): Pair<Int, Int> {
-    this ?: return 0 to 0
-    val calculator = WindowMetricsCalculator.getOrCreate()
-    val maxMetrics = calculator.computeMaximumWindowMetrics(this)
-    val bounds = maxMetrics.bounds
-    return bounds.width() to bounds.height()
 }
 
 /**
