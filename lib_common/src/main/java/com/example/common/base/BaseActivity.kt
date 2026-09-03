@@ -52,7 +52,9 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
+import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
+import com.example.common.utils.function.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -220,24 +222,29 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
-        if (!isIgnoreMultiWindowKillEnabled() && (checkLargeScreenShowTip() || checkEmbedShowTip(showTip = false))) {
-            pendingKillJob?.cancel()
-            pendingKillJob = launch {
-                delay(800L)
-                if (!isFinishing && !isDestroyed) {
-                    // 关闭所有Activity
-                    finishAffinity()
-                    // 终止进程（兼容所有安卓版本，捕获异常）
-                    try {
-                        killProcess(myPid())
-                        exitProcess(0)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+        if (!isIgnoreMultiWindowKillEnabled()) {
+            val isLargeScreen = checkLargeScreenShowTip(showTip = false)
+            val isEmbed = checkEmbedShowTip(showTip = false)
+            if (isLargeScreen || isEmbed) {
+                pendingKillJob?.cancel()
+                pendingKillJob = launch {
+                    showSystemToast(string(if(isEmbed) R.string.embedError else R.string.largeScreenError))
+                    delay(800L)
+                    if (!isFinishing && !isDestroyed) {
+                        // 关闭所有Activity
+                        finishAffinity()
+                        // 终止进程（兼容所有安卓版本，捕获异常）
+                        try {
+                            killProcess(myPid())
+                            exitProcess(0)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
+                // 如果检测到大屏设备，直接return，不执行后续逻辑
+                return
             }
-            // 如果检测到大屏设备，直接return，不执行后续逻辑
-            return
         }
         initBefore()
         if (needTransparentOwner) {
@@ -420,6 +427,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     /**
      * https://cloud.tencent.com/developer/article/2406992
+     * https://blog.csdn.net/gitblog_00910/article/details/151599565
      * class RotateActivity : BaseActivity<ActivityRotateBinding>(), CustomAdapt {
      *     private var isLandscape = false
      *     override fun onCreate(savedInstanceState: Bundle?) {
@@ -456,14 +464,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
      * }
      */
     override fun getResources(): Resources {
-//        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
-//        if (isMainThread) {
-//            AutoSizeConfig.getInstance()
-//                .setScreenWidth(screenWidth)
-//                .setScreenHeight(screenHeight)
-//            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
-//        }
-//        return super.getResources()
+        // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
         val res = super.getResources()
         if (isMainThread) {
             when (this) {
@@ -480,18 +481,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         return res
     }
-
-//    override fun onStop() {
-//        super.onStop()
-//        // 停止框架生命周期回调对后续新 Activity 自动做适配，已经启动的 Activity 不受任何影响
-//        AutoSizeConfig.getInstance().stop(this)
-//    }
-//
-//    override fun onRestart() {
-//        super.onRestart()
-//        // 重新打开自动适配开关，只对之后新创建 Activity 生效，不会刷新当前已经运行的页面
-//        AutoSizeConfig.getInstance().restart()
-//    }
 
     override fun finish() {
         onFinishListener?.onFinish(this)
