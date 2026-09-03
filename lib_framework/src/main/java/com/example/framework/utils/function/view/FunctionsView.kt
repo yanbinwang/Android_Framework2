@@ -445,18 +445,25 @@ fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
  */
 inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
-    if (isLaidOut) {
-        // 如果视图已经完成布局，直接调用回调函数
-        listener(this)
-    } else {
-        // 如果视图还未完成布局，添加监听器
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-                listener(this@doOnceAfterLayout)
-            }
-        })
+    val targetView = this
+    // 如果视图已经完成布局，直接调用回调函数
+    if (targetView.isLaidOut) {
+        listener(targetView)
+        return
     }
+    // 如果视图还未完成布局，添加监听器
+    val observer = targetView.viewTreeObserver
+    if (!observer.isAlive) return
+    observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            try {
+                observer.removeOnGlobalLayoutListener(this)
+            } catch (_: IllegalStateException) {
+                // observer已经死亡，忽略异常
+            }
+            listener(targetView)
+        }
+    })
 }
 
 /**

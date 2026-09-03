@@ -13,6 +13,7 @@ import com.example.common.BaseApplication.Companion.isFirstLaunch
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.framework.utils.LogUtil.e
 import java.util.Locale
+import androidx.core.view.isVisible
 
 /**
  * Created by WangYanBin on 2020/8/10.
@@ -47,24 +48,25 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 lastClickTime.set(SystemClock.elapsedRealtime())
             }
         }
-//        activity.window?.decorView?.viewTreeObserver?.addOnGlobalLayoutListener {
-//            proxyOnClick(activity.window.decorView, 5)
-//        }
-        val decorView = activity.window?.decorView
-        decorView?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        val decorView = activity.window?.decorView ?: return
+        val observer = decorView.viewTreeObserver
+        if(!observer.isAlive) return
+        observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                proxyOnClick(decorView, 5)
                 // 判断 ViewTreeObserver 是否仍有效 在极少数情况下（如 Activity 销毁时布局尚未完成），viewTreeObserver 可能已失效，此时调用 removeOnGlobalLayoutListener 会抛出异常
-                if (decorView.viewTreeObserver.isAlive) {
-                    decorView.viewTreeObserver?.removeOnGlobalLayoutListener(this)
+                try {
+                    observer.removeOnGlobalLayoutListener(this)
+                } catch (_: IllegalStateException) {
+                    // observer已经死亡，无法移除，忽略
                 }
+                proxyOnClick(decorView, 5)
             }
         })
     }
 
-    private fun proxyOnClick(view: View?, recycledDeep: Int) {
+    private fun proxyOnClick(view: View, recycledDeep: Int) {
         var recycledContainerDeep = recycledDeep
-        if (view?.visibility == View.VISIBLE) {
+        if (view.isVisible) {
             if (view is ViewGroup) {
                 val existAncestorRecycle = recycledContainerDeep > 0
                 if (view !is AbsListView || existAncestorRecycle) {
@@ -83,7 +85,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         }
     }
 
-    private fun getClickListenerForView(view: View?) {
+    private fun getClickListenerForView(view: View) {
         try {
             val viewClazz = Class.forName("android.view.View")
             // 事件监听器都是这个实例保存的
@@ -94,9 +96,9 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             val onClickListenerField = listenerInfoClazz.getDeclaredField("mOnClickListener")
             if (!onClickListenerField.isAccessible) onClickListenerField.isAccessible = true
             val mOnClickListener = onClickListenerField[listenerInfoObj] as? View.OnClickListener
-            if (mOnClickListener !is ProxyOnclickListener) {
+            if (mOnClickListener !is ProxyOnClickListener) {
                 // 自定义代理事件监听器
-                onClickListenerField[listenerInfoObj] = ProxyOnclickListener(mOnClickListener)
+                onClickListenerField[listenerInfoObj] = ProxyOnClickListener(mOnClickListener)
             } else {
                 e("OnClickListenerProxy", "setted proxy listener ")
             }
@@ -105,7 +107,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         }
     }
 
-    private class ProxyOnclickListener(private var onclick: View.OnClickListener?) : View.OnClickListener {
+    private class ProxyOnClickListener(private var onClick: View.OnClickListener?) : View.OnClickListener {
         private var lastClickTime = 0L
 
         override fun onClick(v: View?) {
@@ -114,7 +116,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             val minClickDelayTime = 500L
             if (currentTime - lastClickTime > minClickDelayTime) {
                 lastClickTime = currentTime
-                onclick?.onClick(v)
+                onClick?.onClick(v)
             }
         }
     }
