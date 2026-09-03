@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
+import android.view.View
+import android.view.ViewTreeObserver
 import android.view.Window
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
@@ -109,6 +111,29 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
                 init()
             }
         }
+    }
+
+    /**
+     * 注册一次性 OnPreDraw 监听；view完成第一次绘制前执行block，执行后自动移除监听，防止重复回调与内存泄漏
+     * @param targetView 监听依附的View，为空则block不会执行
+     * @param block 预绘制回调业务逻辑，仅执行一次
+     */
+    protected fun doOnViewPreDraw(targetView: View?, block: () -> Unit) {
+        targetView ?: return
+        val observer = targetView.viewTreeObserver
+        if(!observer.isAlive) return
+        val listener = object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                try {
+                    observer.removeOnPreDrawListener(this)
+                } catch (_: IllegalStateException) {
+                    // observer已经死亡，移除失败
+                }
+                block.invoke()
+                return true
+            }
+        }
+        observer.addOnPreDrawListener(listener)
     }
 
     /**

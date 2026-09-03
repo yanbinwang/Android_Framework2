@@ -519,10 +519,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if(!observer.isAlive) return
         val listener = object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
-                observer.removeOnPreDrawListener(this)
-                if (observer.isAlive) {
-                    block.invoke()
+                try {
+                    observer.removeOnPreDrawListener(this)
+                } catch (_: IllegalStateException) {
+                    // observer已经死亡，移除失败
                 }
+                block.invoke()
                 return true
             }
         }

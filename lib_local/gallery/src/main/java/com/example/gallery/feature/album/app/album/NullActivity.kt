@@ -8,6 +8,7 @@ import android.transition.Fade
 import android.transition.Visibility
 import android.view.View
 import android.view.ViewTreeObserver
+import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.intentString
@@ -29,6 +30,8 @@ import com.example.gallery.feature.album.bean.Widget
  * 功能：当手机里没有图片/视频时显示 提供拍照、录像入口
  */
 internal class NullActivity : BaseActivity(), Contract.NullPresenter {
+    // 返回监听
+    private var mBackCallback: OnBackInvokedCallback? = null
     // 功能：图片/视频/全部
     private val mFunction by lazy { intentInt(Album.KEY_INPUT_FUNCTION) }
     // 视频质量
@@ -78,28 +81,49 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
         setActivityAnimations()
         overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
         // 禁止侧滑拖动动画
+//        val decorView = window.decorView
+//        decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+//            override fun onPreDraw(): Boolean {
+//                decorView.viewTreeObserver.removeOnPreDrawListener(this)
+//                window.decorView.isScrollContainer = false
+//                window.decorView.overScrollMode = View.OVER_SCROLL_NEVER
+//                // Android 13+ 预测性侧滑返回 → 直接关闭，不拖动页面
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//                    mBackCallback = OnBackInvokedCallback { finish() }
+//                    mBackCallback?.let {
+//                        window.onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, it)
+//                    }
+//                }
+//                // Android 10+ 手势排除
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+//                    try {
+//                        window.systemGestureExclusionRects = mutableListOf<Rect>()
+//                    } catch (_: Exception) {
+//                    }
+//                }
+//                // 允许继续绘制
+//                return true
+//            }
+//        })
         val decorView = window.decorView
-        decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
-            override fun onPreDraw(): Boolean {
-                decorView.viewTreeObserver.removeOnPreDrawListener(this)
-                window.decorView.isScrollContainer = false
-                window.decorView.overScrollMode = View.OVER_SCROLL_NEVER
-                // Android 13+ 预测性侧滑返回 → 直接关闭，不拖动页面
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    val dispatcher = window.onBackInvokedDispatcher
-                    dispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY) { finish() }
+        doOnViewPreDraw(decorView) {
+            decorView.isScrollContainer = false
+            decorView.overScrollMode = View.OVER_SCROLL_NEVER
+            // Android 13+ 预测性侧滑返回 → 直接关闭，不拖动页面
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                mBackCallback = OnBackInvokedCallback { finish() }
+                mBackCallback?.let {
+                    window.onBackInvokedDispatcher.registerOnBackInvokedCallback(OnBackInvokedDispatcher.PRIORITY_OVERLAY, it)
                 }
-                // Android 10+ 手势排除
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    try {
-                        window.systemGestureExclusionRects = mutableListOf<Rect>()
-                    } catch (_: Exception) {
-                    }
-                }
-                // 允许继续绘制
-                return true
             }
-        })
+            // Android 10+ 手势排除
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                try {
+                    window.systemGestureExclusionRects = mutableListOf<Rect>()
+                } catch (_: Exception) {
+                }
+            }
+        }
     }
 
     override fun initView(savedInstanceState: Bundle?) {
@@ -171,6 +195,16 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
             .limitBytes(mLimitBytes)
             .onResult(mCameraAction)
             .start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            mBackCallback?.let {
+                window.onBackInvokedDispatcher.unregisterOnBackInvokedCallback(it)
+            }
+            mBackCallback = null
+        }
     }
 
     override fun finish() {

@@ -181,10 +181,13 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val autoRes
                             true
                         }
                     }
-                    onPreDrawListener?.let { block ->
-                        it.viewTreeObserver.removeOnPreDrawListener(block)
+                    try {
+                        onPreDrawListener?.let { old ->
+                            it.viewTreeObserver.removeOnPreDrawListener(old)
+                        }
+                        it.viewTreeObserver.addOnPreDrawListener(onPreDrawListener)
+                    } catch (_: IllegalStateException) {
                     }
-                    it.viewTreeObserver.addOnPreDrawListener(onPreDrawListener)
                     // 监听子View的可见性变化（通过OnAttachStateChangeListener）
                     it.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
                         override fun onViewAttachedToWindow(v: View) {
@@ -523,8 +526,11 @@ class GSYVideoHelper(private val activity: FragmentActivity, private val autoRes
      */
     fun onVideoDestroy() {
         clearOnGSYVideoPlayerListener()
-        onPreDrawListener?.let {
-            topContainer?.viewTreeObserver?.removeOnPreDrawListener(it)
+        try {
+            onPreDrawListener?.let {
+                topContainer?.viewTreeObserver?.removeOnPreDrawListener(it)
+            }
+        } catch (_: IllegalStateException) {
         }
         topContainer = null
         orientationUtils?.releaseListener()
