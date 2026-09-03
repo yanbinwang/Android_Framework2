@@ -27,4 +27,6 @@
     <string name="dataNetError">網絡未連接，請檢查網絡設置</string>
     <string name="linkError">鏈接地址不合法</string>
     <string name="sourcePathError">文件路徑錯誤</string>
+    <string name="largeScreenError">当前设备为平板/大屏设备，暂不支持使用</string>
+    <string name="embedError">请切换至小屏模式后重试</string>
 </resources>
