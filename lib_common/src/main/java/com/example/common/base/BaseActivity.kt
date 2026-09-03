@@ -150,24 +150,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             startActivityForResult(getIntent(cls, *pairs), requestCode)
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
-
-        /**
-         * 1) 跳转三方页面专用：临时关闭当前页面的 EdgeToEdge / 全屏沉浸属性
-         *  作用：让下一个页面不会继承你的全屏、状态栏透明、导航栏透明
-         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性 ! 使用该标记即可
-         *  作用：addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-         */
-//        @Suppress("DEPRECATION")
-//        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
-//            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
-//            WindowCompat.setDecorFitsSystemWindows(window, true)
-//            // 清除所有 LAYOUT_xxx 全屏标记
-//            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
-//            // 把系统栏恢复为不透明（防止三方页继承透明）
-//            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
-//            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
-//        }
     }
 
     /**
@@ -217,9 +199,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
          * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
          * 3. 支持文字亮 / 暗色，对比度由系统管理
          */
-        if (!shouldExcludeFullScreen()) {
-            enableEdgeToEdge()
-        }
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled()) {
@@ -277,19 +257,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initView(savedInstanceState)
         initEvent()
         initData()
-    }
-
-    /**
-     * 定义需要排除全屏的第三方包名前缀集合
-     */
-    private val excludeFullScreenPrefixes = listOf(
-        "io.rong.imkit",    // 融云IM相关页面
-        "com.xxx.thirdlib"  // 其他需要排除的第三方库包名前缀，按需添加
-    )
-    private fun shouldExcludeFullScreen(): Boolean {
-        val currentClassName = this::class.java.name
-        // 遍历前缀集合，只要匹配任意一个就返回true（需要排除）
-        return excludeFullScreenPrefixes.any { currentClassName.startsWith(it) }
     }
 
     /**
