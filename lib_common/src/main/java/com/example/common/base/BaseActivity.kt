@@ -54,7 +54,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -228,7 +228,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             if (isLargeScreen || isEmbed) {
                 pendingKillJob?.cancel()
                 pendingKillJob = launch {
-                    showSystemToast(string(if(isEmbed) R.string.embedError else R.string.largeScreenError))
+                    showSystemToast(i18String(if(isEmbed) R.string.embedError else R.string.largeScreenError))
                     delay(800L)
                     if (!isFinishing && !isDestroyed) {
                         // 关闭所有Activity

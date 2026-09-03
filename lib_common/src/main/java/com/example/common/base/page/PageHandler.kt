@@ -17,7 +17,7 @@ import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
 import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.getCustomOption
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -229,7 +229,7 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
  * 检测大屏设备
  * @return true-检测到大屏设备并弹出提示，false-正常设备
  */
-fun FragmentActivity?.checkLargeScreenShowTip(tip: String = string(R.string.largeScreenError), showTip: Boolean = true): Boolean {
+fun FragmentActivity?.checkLargeScreenShowTip(tip: String = i18String(R.string.largeScreenError), showTip: Boolean = true): Boolean {
     this ?: return false
     // 页面销毁直接返回
     if (isFinishing || isDestroyed) return false
@@ -250,7 +250,7 @@ fun FragmentActivity?.checkLargeScreenShowTip(tip: String = string(R.string.larg
  * @param showTip 是否弹出toast提示，默认true；false只返回状态，不弹提示
  * @return true 当前处于分栏；false 非分栏状态
  */
-fun FragmentActivity?.checkEmbedShowTip(tip: String = string(R.string.embedError), showTip: Boolean = true): Boolean {
+fun FragmentActivity?.checkEmbedShowTip(tip: String = i18String(R.string.embedError), showTip: Boolean = true): Boolean {
     this ?: return false
     if (isFinishing || isDestroyed) return false
     // 设备支持embedding && 当前activity已经嵌入分栏
