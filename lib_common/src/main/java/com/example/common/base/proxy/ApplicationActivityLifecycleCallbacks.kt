@@ -9,11 +9,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.widget.AbsListView
+import androidx.core.view.isVisible
 import com.example.common.BaseApplication.Companion.isFirstLaunch
 import com.example.common.BaseApplication.Companion.lastClickTime
-import com.example.framework.utils.LogUtil.e
+import com.example.framework.utils.logE
 import java.util.Locale
-import androidx.core.view.isVisible
 
 /**
  * Created by WangYanBin on 2020/8/10.
@@ -43,6 +43,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         if (isFirstLaunch.get()) {
             isFirstLaunch.set(false)
         } else {
+            // 注意混淆配置添加: -keep class com.example.SplashActivity {*;}
             val clazzName = activity.javaClass.simpleName.lowercase(Locale.getDefault())
             if (clazzName == "splashactivity") {
                 lastClickTime.set(SystemClock.elapsedRealtime())
@@ -88,26 +89,24 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
     private fun getClickListenerForView(view: View) {
         try {
             val viewClazz = Class.forName("android.view.View")
-            // 事件监听器都是这个实例保存的
             val listenerInfoMethod = viewClazz.getDeclaredMethod("getListenerInfo")
             if (!listenerInfoMethod.isAccessible) listenerInfoMethod.isAccessible = true
-            val listenerInfoObj = listenerInfoMethod.invoke(view)
+            val listenerInfoInstance = listenerInfoMethod.invoke(view)
             val listenerInfoClazz = Class.forName("android.view.View\$ListenerInfo")
             val onClickListenerField = listenerInfoClazz.getDeclaredField("mOnClickListener")
             if (!onClickListenerField.isAccessible) onClickListenerField.isAccessible = true
-            val mOnClickListener = onClickListenerField[listenerInfoObj] as? View.OnClickListener
-            if (mOnClickListener !is ProxyOnClickListener) {
-                // 自定义代理事件监听器
-                onClickListenerField[listenerInfoObj] = ProxyOnClickListener(mOnClickListener)
+            val originClickListener = onClickListenerField[listenerInfoInstance] as? View.OnClickListener
+            if (originClickListener !is ProxyOnClickListener) {
+                onClickListenerField[listenerInfoInstance] = ProxyOnClickListener(originClickListener)
             } else {
-                e("OnClickListenerProxy", "setted proxy listener ")
+                "setted proxy listener".logE("OnClickListenerProxy")
             }
         } catch (e: Exception) {
             e.printStackTrace()
         }
     }
 
-    private class ProxyOnClickListener(private var onClick: View.OnClickListener?) : View.OnClickListener {
+    internal class ProxyOnClickListener(private val onClick: View.OnClickListener?) : View.OnClickListener {
         private var lastClickTime = 0L
 
         override fun onClick(v: View?) {
