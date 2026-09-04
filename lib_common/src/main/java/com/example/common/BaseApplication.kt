@@ -60,6 +60,7 @@ import com.therouter.TheRouter
 import com.therouter.router.setRouterInterceptor
 import com.therouter.theRouterInited
 import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.external.ExternalAdaptInfo
 import me.jessyan.autosize.unit.Subunits
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
@@ -348,6 +349,21 @@ abstract class BaseApplication : Application() {
 //            onPrivacyAgreedListener.invoke(false)
 //        }
 //    }
+
+    /**
+     * 注册三方库 Activity 的外部适配信息 (页面大改直接复制 xml 使用 pt 重构，无需调用该方法)
+     * @param activityClass 三方库 Activity 的 Class 对象
+     * @param isBaseOnWidth 是否以宽度为基准进行适配，默认 true
+     * @param designWidthInDp 该 Activity 对应的设计图基准宽度(dp)，例如 375f
+     */
+    fun addExternalAdaptActivity(activityClass: Class<*>, isBaseOnWidth: Boolean = true, designWidthInDp: Float = AutoSizeConfig.getInstance().designWidthInDp.toFloat()): BaseApplication {
+        // 时序安全兜底：未初始化时回退到全局配置，而非硬编码 375f
+        val safeDesignWidth = if (designWidthInDp > 0f) designWidthInDp else 375f
+        AutoSizeConfig.getInstance()
+            .externalAdaptManager
+            .addExternalAdaptInfoOfActivity(activityClass, ExternalAdaptInfo(isBaseOnWidth, safeDesignWidth))
+        return this
+    }
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
