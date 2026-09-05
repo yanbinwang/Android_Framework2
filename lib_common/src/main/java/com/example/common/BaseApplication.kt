@@ -351,18 +351,17 @@ abstract class BaseApplication : Application() {
 //    }
 
     /**
-     * 注册三方库 Activity 的外部适配信息 (页面大改直接复制 xml 使用 pt 重构，无需调用该方法)
-     * @param activityClass 三方库 Activity 的 Class 对象
+     * 批量注册三方库 Activity 的外部适配信息
+     * @param activityClasses 多个三方Activity Class可变参数
      * @param isBaseOnWidth 是否以宽度为基准进行适配，默认 true
-     * @param designWidthInDp 该 Activity 对应的设计图基准宽度(dp)，例如 375f
+     * @param designWidthInDp 设计图基准宽度(dp)，不传使用全局AutoSize配置
      */
-    fun addExternalAdaptActivity(activityClass: Class<*>, isBaseOnWidth: Boolean = true, designWidthInDp: Float = AutoSizeConfig.getInstance().designWidthInDp.toFloat()): BaseApplication {
-        // 时序安全兜底：未初始化时回退到全局配置，而非硬编码 375f
+    fun addExternalAdaptActivity(vararg activityClasses: Class<*>, isBaseOnWidth: Boolean = true, designWidthInDp: Float = AutoSizeConfig.getInstance().designWidthInDp.toFloat()) {
         val safeDesignWidth = if (designWidthInDp > 0f) designWidthInDp else 375f
-        AutoSizeConfig.getInstance()
-            .externalAdaptManager
-            .addExternalAdaptInfoOfActivity(activityClass, ExternalAdaptInfo(isBaseOnWidth, safeDesignWidth))
-        return this
+        val manager = AutoSizeConfig.getInstance().externalAdaptManager
+        activityClasses.forEach { clazz ->
+            manager.addExternalAdaptInfoOfActivity(clazz, ExternalAdaptInfo(isBaseOnWidth, safeDesignWidth))
+        }
     }
 
     override fun onTrimMemory(level: Int) {
