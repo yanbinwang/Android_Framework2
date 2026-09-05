@@ -69,7 +69,7 @@ class MyApplication : BaseApplication() {
                 initAMap()
             }
         }
-        // 初始化需要授权的库->重写是为了触发setOnPrivacyAgreedListener，传false的话BaseApplication内的就不会再初始化一次了
+        // 初始化需要授权的库 -> 重写是为了触发 setOnPrivacyAgreedListener，传 false 的话 BaseApplication 内的就不会再初始化一次了
         initPrivacyAgreed(false)
     }
 
