@@ -5,7 +5,7 @@ import android.graphics.Bitmap.CompressFormat
 import android.graphics.BitmapFactory
 import androidx.core.graphics.scale
 import com.example.common.utils.function.safeRecycle
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.RandomAccessFile
@@ -90,7 +90,7 @@ object WXShareUtil {
         filePath ?: return null
         val file = File(filePath)
         if (!file.exists()) {
-            "readBytesFromFile: 文件不存在 - $filePath".logWTF(TAG)
+            "readBytesFromFile: 文件不存在 - $filePath".logA(TAG)
             return null
         }
         val fileLength = file.length()
@@ -100,18 +100,18 @@ object WXShareUtil {
         }
         val offsetLong = offset.toLong()
         val readLengthLong = readLength.toLong()
-        "readBytesFromFile: offset=$offset, length=$readLength, offset+length=${offsetLong + readLengthLong}".logWTF(TAG)
+        "readBytesFromFile: offset=$offset, length=$readLength, offset+length=${offsetLong + readLengthLong}".logA(TAG)
         when {
             offset < 0 -> {
-                "readBytesFromFile: 非法偏移量 - $offset".logWTF(TAG)
+                "readBytesFromFile: 非法偏移量 - $offset".logA(TAG)
                 return null
             }
             readLength <= 0 -> {
-                "readBytesFromFile: 非法读取长度 - $readLength".logWTF(TAG)
+                "readBytesFromFile: 非法读取长度 - $readLength".logA(TAG)
                 return null
             }
             offsetLong + readLengthLong > fileLength -> {
-                "readBytesFromFile: 读取范围超出文件大小 - 文件大小=$fileLength, 读取范围=${offsetLong + readLengthLong}".logWTF(TAG)
+                "readBytesFromFile: 读取范围超出文件大小 - 文件大小=$fileLength, 读取范围=${offsetLong + readLengthLong}".logA(TAG)
                 return null
             }
         }
@@ -124,7 +124,7 @@ object WXShareUtil {
             resultBytes
         } catch (e: Exception) {
             e.printStackTrace()
-            "readBytesFromFile: 读取失败 - ${e.message}, filePath=$filePath".logWTF(TAG)
+            "readBytesFromFile: 读取失败 - ${e.message}, filePath=$filePath".logA(TAG)
             null
         }
     }
@@ -149,7 +149,7 @@ object WXShareUtil {
             // 计算采样率（避免 OOM）
             val scaleRatioY = options.outHeight * 1.0 / targetHeight
             val scaleRatioX = options.outWidth * 1.0 / targetWidth
-            "extractThumbNail: 目标尺寸=${targetWidth}x${targetHeight}, 原图尺寸=${options.outWidth}x${options.outHeight}, 裁剪=${needCrop}\n缩放比例X=${scaleRatioX}, Y=${scaleRatioY}".logWTF(TAG)
+            "extractThumbNail: 目标尺寸=${targetWidth}x${targetHeight}, 原图尺寸=${options.outWidth}x${options.outHeight}, 裁剪=${needCrop}\n缩放比例X=${scaleRatioX}, Y=${scaleRatioY}".logA(TAG)
             // 基础采样率
             options.inSampleSize = when {
                 needCrop -> if (scaleRatioY > scaleRatioX) scaleRatioX else scaleRatioY // 裁剪取较小比例
@@ -177,12 +177,12 @@ object WXShareUtil {
             }
             // 真正解码图片
             options.inJustDecodeBounds = false
-            "extractThumbNail: 实际缩放尺寸=${actualWidth}x$actualHeight, 采样率=${options.inSampleSize}".logWTF(TAG)
+            "extractThumbNail: 实际缩放尺寸=${actualWidth}x$actualHeight, 采样率=${options.inSampleSize}".logA(TAG)
             var bitmap = BitmapFactory.decodeFile(imagePath, options) ?: run {
-                "extractThumbNail: 图片解码失败 - $imagePath".logWTF(TAG)
+                "extractThumbNail: 图片解码失败 - $imagePath".logA(TAG)
                 return null
             }
-            "extractThumbNail: 解码后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
+            "extractThumbNail: 解码后尺寸=${bitmap.width}x${bitmap.height}".logA(TAG)
             // 缩放图片
             val scaledBitmap = bitmap.scale(actualWidth, actualHeight)
             bitmap.safeRecycle()
@@ -194,11 +194,11 @@ object WXShareUtil {
                 val croppedBitmap = Bitmap.createBitmap(bitmap, cropX, cropY, targetWidth, targetHeight)
                 bitmap.safeRecycle()
                 bitmap = croppedBitmap
-                "extractThumbNail: 裁剪后尺寸=${bitmap.width}x${bitmap.height}".logWTF(TAG)
+                "extractThumbNail: 裁剪后尺寸=${bitmap.width}x${bitmap.height}".logA(TAG)
             }
             bitmap
         } catch (e: OutOfMemoryError) {
-            "extractThumbNail: 解码图片OOM - ${e.message}, path=$imagePath".logWTF(TAG)
+            "extractThumbNail: 解码图片OOM - ${e.message}, path=$imagePath".logA(TAG)
             null
         } catch (e: Exception) {
             e.printStackTrace()

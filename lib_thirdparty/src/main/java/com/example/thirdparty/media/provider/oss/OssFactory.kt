@@ -33,7 +33,7 @@ import com.example.framework.utils.function.value.multiply
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.objectbox.dao.OssDB
 import com.example.thirdparty.media.provider.oss.bean.OssSts.Companion.bucketName
 import com.example.thirdparty.media.provider.oss.bean.OssSts.Companion.objectName
@@ -535,6 +535,6 @@ class OssFactory private constructor() : CoroutineScope {
     /**
      * log日志查看
      */
-    private fun log(localPath: String, state: String) = " \n————————————————————————文件上传————————————————————————\n文件路径：${localPath}\n上传状态：${state}\n————————————————————————文件上传————————————————————————".logWTF
+    private fun log(localPath: String, state: String) = " \n————————————————————————文件上传————————————————————————\n文件路径：${localPath}\n上传状态：${state}\n————————————————————————文件上传————————————————————————".logA()
 
 }

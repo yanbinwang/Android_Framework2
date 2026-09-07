@@ -2,7 +2,7 @@ package com.example.mvvm.utils
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 
 /**
  * AccessibilityService (无障碍服务)
@@ -35,7 +35,7 @@ class MyAccessibilityService : AccessibilityService() {
     override fun onServiceConnected() {
         super.onServiceConnected()
         // 可以在这里初始化一些配置
-        "服务已连接".logWTF(TAG)
+        "服务已连接".logA(TAG)
     }
 
     /**
@@ -48,8 +48,8 @@ class MyAccessibilityService : AccessibilityService() {
         val packageName = event?.packageName
         // 根据事件类型处理
         when (eventType) {
-            AccessibilityEvent.TYPE_VIEW_CLICKED -> "点击事件：$packageName".logWTF(TAG)
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> "窗口变化：$packageName".logWTF(TAG)
+            AccessibilityEvent.TYPE_VIEW_CLICKED -> "点击事件：$packageName".logA(TAG)
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED -> "窗口变化：$packageName".logA(TAG)
         }
 //        // 获取事件源的视图节点信息
 //        val nodeInfo = event?.source
@@ -75,7 +75,7 @@ class MyAccessibilityService : AccessibilityService() {
      * 服务被中断时调用
      */
     override fun onInterrupt() {
-        "服务被中断".logWTF(TAG)
+        "服务被中断".logA(TAG)
     }
 
 }

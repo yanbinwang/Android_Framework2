@@ -12,7 +12,7 @@ import com.example.common.utils.toJson
 import com.example.common.widget.advertising.Advertising.Companion.getImageCenterPixelColor
 import com.example.framework.utils.function.value.currentTimeNano
 import com.example.framework.utils.function.value.toArrayList
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.mvvm.R
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.flow.flow
@@ -48,11 +48,11 @@ class AdViewModel : BaseViewModel() {
                 val coverList = mContext?.let { requestAffair { suspendingGetImageCenterPixelColor(it, data) } } ?: arrayListOf(true to color(R.color.appStatusBar))
                 emit(list to coverList)
             }.withHandling(err = {
-                "${it.toJson()}".logWTF("wyb")
+                "${it.toJson()}".logA("wyb")
             }, end = {
                 reset(false)
             }).collect {
-                "${it.toJson()}".logWTF("wyb")
+                "${it.toJson()}".logA("wyb")
                 data.postValue(it)
             }
         }

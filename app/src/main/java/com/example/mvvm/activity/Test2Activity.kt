@@ -35,7 +35,7 @@ import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.utils.function.view.visible
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.mvvm.databinding.ActivityTest2Binding
 import com.google.android.material.appbar.AppBarLayout
 import com.therouter.router.Route
@@ -152,7 +152,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                 if (currentlyCollapsed != isCollapsed) {
                     isCollapsed = currentlyCollapsed
                     if (isCollapsed) {
-                        "执行展开".logWTF("wyb")
+                        "执行展开".logA("wyb")
                         initImmersionBar(false)
                         // 展开 → 大头像淡入
                         mBinding?.llInfo.appear(100)
@@ -161,7 +161,7 @@ class Test2Activity : BaseActivity<ActivityTest2Binding>() {
                         mBinding?.toolbar.background(R.color.bgTransparent)
                         mBinding?.toolbar.fade()
                     } else {
-                        "执行折叠".logWTF("wyb")
+                        "执行折叠".logA("wyb")
                         initImmersionBar(true)
                         mBinding?.llInfo.fade(100)
                         ivAvatar.visible()

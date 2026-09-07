@@ -15,7 +15,7 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.isDecodableImage
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -195,7 +195,7 @@ class ShotObserver(private val activity: FragmentActivity, private val debounceT
                     if (currentPath.isDecodableImage()) {
                         val file = File(currentPath)
                         lastFilePath = currentPath
-                        " \n生成图片的路径:$currentPath\n手机截屏的路径：${file.parent}".logWTF(TAG)
+                        " \n生成图片的路径:$currentPath\n手机截屏的路径：${file.parent}".logA(TAG)
                         listener.invoke(currentPath)
                     }
                 }

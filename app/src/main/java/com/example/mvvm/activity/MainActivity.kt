@@ -47,7 +47,7 @@ import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.logE
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.gallery.feature.durban.Durban
 import com.example.gallery.utils.MediaPicker
 import com.example.mvvm.R
@@ -569,7 +569,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             if (it.resultCode == RESULT_FINISH) {
 //                val list = it.data?.getExtra(Extra.BUNDLE_LIST,ArrayList::class.java) as? ArrayList<TestBean>
                 val list = it.data?.intentParcelableArrayList<TestBean>(Extra.BUNDLE_LIST)
-                "回退的集合:${list.toJson()}".logWTF("wyb")
+                "回退的集合:${list.toJson()}".logA("wyb")
             }
         }
         mBinding?.codeInput?.focusNow(this)
@@ -590,19 +590,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
             }, SyncMode.ONLY_INTERSECT)
-            "共存数据:${allHaveList.toJson()}".logWTF("wyb")
+            "共存数据:${allHaveList.toJson()}".logA("wyb")
             val localDbList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
                 localItem.id == serverItem.id
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
             }, SyncMode.ONLY_LOCAL_UNIQUE)
-            "本地独有:${localDbList.toJson()}".logWTF("wyb")
+            "本地独有:${localDbList.toJson()}".logA("wyb")
             val serverDbList = localUsers.syncDiffWith(serverUsers,{localItem, serverItem ->
                 localItem.id == serverItem.id
             },{localItem, serverItem ->
                 localItem.name != serverItem.name || localItem.amount != serverItem.amount
             }, SyncMode.ONLY_SERVER_UNIQUE)
-            "服务器独有:${serverDbList.toJson()}".logWTF("wyb")
+            "服务器独有:${serverDbList.toJson()}".logA("wyb")
 //            // 2s一跳,测试刷新
 //            timerBuilder.startTask("10086",{
 //                var logText = "------ 测试数据 ------\n"
@@ -717,19 +717,19 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
             println("$genre: ${books.map { it.title }}")
         }
         //集合转json
-        "------------------------集合转json------------------------\n${books.toJson()}".logE
+        "------------------------集合转json------------------------\n${books.toJson()}".logE()
         //json转集合
         val testList =
             "[{\"author\":\"n11111\",\"genre\":\"11111\",\"title\":\"The Fng11111\"},{\"author\":\"J.D. Sa222\",\"genre\":\"Fn22222\",\"title\":\"Thye22222\"}]".toList(
                 Book::class.java
             )
-        "------------------------json转集合------------------------\n${testList?.safeGet(0)?.author}".logE
+        "------------------------json转集合------------------------\n${testList?.safeGet(0)?.author}".logE()
         //json转对象
         val testBean =
             "{\"author\":\"啊啊啊啊\",\"genre\":\"2 2 2 2 2 2\",\"title\":\"十大大大大1111\"}".toObj(
                 Book::class.java
             )
-        "------------------------json转对象------------------------\n${testBean?.title}".logE
+        "------------------------json转对象------------------------\n${testBean?.title}".logE()
 
 //        val numbers = listOf(1, 2, 3, 4, 5)
 //        val squares = numbers.map { it * it }

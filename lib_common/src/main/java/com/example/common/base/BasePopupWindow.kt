@@ -309,7 +309,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         try {
             super.dismiss()
         } catch (e: Exception) {
-            e.logE
+            e.logE()
             restoreHostState()
         }
     }

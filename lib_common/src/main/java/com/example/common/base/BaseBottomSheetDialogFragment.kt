@@ -243,7 +243,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         try {
             super.show(manager, tag)
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 
@@ -251,7 +251,7 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
         try {
             super.dismissAllowingStateLoss()
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 

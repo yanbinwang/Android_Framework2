@@ -1,6 +1,6 @@
 package com.example.common.network.repository
 
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 
 /**
  * 控制网络请求频率，确保请求间隔不小于指定时间
@@ -112,7 +112,7 @@ class RequestThrottler(private val minIntervalMs: Long = 5000L, private val tole
         val msSec = if (msDiff >= 0) msDiff / 1000.0 else -1.0
         "请求被拦截（需间隔≥${intervalSec}秒）：" +
                 "相对间隔=${nanoSec}秒，" +
-                "实际间隔=${if (msSec >= 0) msSec else "时间回溯"}秒".logWTF("RequestThrottle")
+                "实际间隔=${if (msSec >= 0) msSec else "时间回溯"}秒".logA("RequestThrottle")
     }
 
     /**

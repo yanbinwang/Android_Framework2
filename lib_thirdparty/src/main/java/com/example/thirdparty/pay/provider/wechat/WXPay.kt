@@ -4,7 +4,7 @@ import androidx.fragment.app.FragmentActivity
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.thirdparty.R
 import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelpay.PayReq
@@ -38,7 +38,7 @@ class WXPay(activity: FragmentActivity) {
         // 发起支付
         handlePayResult(R.string.payInitiate, false)
         val payResult = wxApi?.sendReq(req)
-        "支付状态:${payResult}".logWTF
+        "支付状态:${payResult}".logA()
         if (!payResult.orFalse) {
             handlePayResult(R.string.payFailure)
         }

@@ -9,7 +9,7 @@ import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.isAvailable
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.thirdparty.R
 import com.example.thirdparty.pay.provider.alipay.bean.AlipayPayResult
 import kotlinx.coroutines.Dispatchers.IO
@@ -57,10 +57,10 @@ class AlipayPay(private val activity: FragmentActivity) {
             } catch (e: Exception) {
                 // 捕获所有可能的异常（Activity销毁/SDK内部异常等）
                 e.printStackTrace()
-                "支付宝支付调用异常: ${e.message}".logWTF
+                "支付宝支付调用异常: ${e.message}".logA()
                 null
             }
-            "支付结果:\n$payResult".logWTF
+            "支付结果:\n$payResult".logA()
             if (payResult.isNullOrEmpty()) {
                 handlePayResult(R.string.payFailure, 2)
                 return@launch

@@ -5,11 +5,10 @@ import android.media.AudioFocusRequest
 import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import java.io.IOException
 
 /**
@@ -31,13 +30,13 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             // 监听准备完成（异步准备后触发）
             it.setOnPreparedListener { mp ->
                 currentState = State.PREPARED
-                "准备完成，当前状态：${currentState}".logWTF(TAG)
+                "准备完成，当前状态：${currentState}".logA(TAG)
                 onPreparedListener?.invoke(mp)
             }
             // 监听播放错误（包括状态违规、数据源错误等）
             it.setOnErrorListener { mp, what, extra ->
                 currentState = State.ERROR
-                "播放错误：what=$what, extra=$extra，当前状态：${currentState}".logWTF(TAG)
+                "播放错误：what=$what, extra=$extra，当前状态：${currentState}".logA(TAG)
                 onErrorListener?.invoke(mp, what, extra)
                 // 返回 true 表示已处理错误，避免系统默认弹窗
                 true
@@ -45,7 +44,7 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             // 监听播放完成（非循环播放时触发）
             it.setOnCompletionListener { mp ->
                 currentState = State.COMPLETED
-                "播放完成，当前状态：${currentState}".logWTF(TAG)
+                "播放完成，当前状态：${currentState}".logA(TAG)
                 onCompletionListener?.invoke(mp)
             }
         }
@@ -93,7 +92,7 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             // 申请音频焦点
             val focusGranted = requestAudioFocus()
             if (!focusGranted) {
-                "音频焦点申请失败，可能无法播放".logWTF(TAG)
+                "音频焦点申请失败，可能无法播放".logA(TAG)
                 currentState = State.ERROR
                 onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
                 return
@@ -108,13 +107,13 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 // 异步准备（适合网络流/大文件，避免阻塞主线程）
                 prepareAsync()
             }
-            "开始异步准备，数据源：${sourcePath}，当前状态：${currentState}".logWTF(TAG)
+            "开始异步准备，数据源：${sourcePath}，当前状态：${currentState}".logA(TAG)
         } catch (e: IOException) {
-            "设置数据源失败（IO异常）：${e.message}".logWTF(TAG)
+            "设置数据源失败（IO异常）：${e.message}".logA(TAG)
             currentState = State.ERROR
             onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_IO, 0)
         } catch (e: Exception) {
-            "设置数据源异常（未知错误）：${e.message}".logWTF(TAG)
+            "设置数据源异常（未知错误）：${e.message}".logA(TAG)
             currentState = State.ERROR
             onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
@@ -134,7 +133,7 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             }
             val focusRequest = audioFocusRequest
             if (null == focusRequest) {
-                "AudioFocusRequest 初始化失败，无法申请音频焦点".logWTF(TAG)
+                "AudioFocusRequest 初始化失败，无法申请音频焦点".logA(TAG)
                 false
             } else {
                 val result = audioManager.requestAudioFocus(focusRequest)
@@ -155,19 +154,19 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             AudioManager.AUDIOFOCUS_LOSS -> {
                 // 永久失去焦点，停止播放
                 stop()
-                "永久失去音频焦点，停止播放".logWTF(TAG)
+                "永久失去音频焦点，停止播放".logA(TAG)
             }
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT,
             AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                 // 临时失去焦点，暂停播放
                 pause()
-                "临时失去音频焦点，暂停播放".logWTF(TAG)
+                "临时失去音频焦点，暂停播放".logA(TAG)
             }
             AudioManager.AUDIOFOCUS_GAIN -> {
                 // 恢复焦点，自动播放（根据autoResume）
                 if (autoResume) {
                     start()
-                    "恢复音频焦点，自动播放".logWTF(TAG)
+                    "恢复音频焦点，自动播放".logA(TAG)
                 }
             }
         }
@@ -186,13 +185,13 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 State.PREPARED, State.PAUSED, State.COMPLETED -> {
                     player.start()
                     currentState = State.STARTED
-                    "开始播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logWTF(TAG)
+                    "开始播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logA(TAG)
                 }
-                State.STARTED -> "已在播放中，无需重复调用（状态：${currentState}）".logWTF(TAG)
-                else -> "当前状态不允许播放：${currentState}".logWTF(TAG)
+                State.STARTED -> "已在播放中，无需重复调用（状态：${currentState}）".logA(TAG)
+                else -> "当前状态不允许播放：${currentState}".logA(TAG)
             }
         } catch (e: Exception) {
-            "播放失败：${e.message}".logWTF(TAG)
+            "播放失败：${e.message}".logA(TAG)
             currentState = State.ERROR
             onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
@@ -206,12 +205,12 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             if (currentState == State.STARTED) {
                 player.pause()
                 currentState = State.PAUSED
-                "暂停播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logWTF(TAG)
+                "暂停播放，当前进度：${player.currentPosition}ms，状态：${currentState}".logA(TAG)
             } else {
-                "当前状态不允许暂停：${currentState}".logWTF(TAG)
+                "当前状态不允许暂停：${currentState}".logA(TAG)
             }
         } catch (e: Exception) {
-            "暂停失败：${e.message}".logWTF(TAG)
+            "暂停失败：${e.message}".logA(TAG)
         }
     }
 
@@ -225,13 +224,13 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 State.STARTED, State.PAUSED, State.COMPLETED -> {
                     player.stop()
                     currentState = State.STOPPED
-                    "停止播放，进度重置为 0ms，状态：${currentState}".logWTF(TAG)
+                    "停止播放，进度重置为 0ms，状态：${currentState}".logA(TAG)
                 }
-                State.STOPPED -> "已停止播放，无需重复调用（状态：${currentState}）".logWTF(TAG)
-                else -> "当前状态不允许停止：${currentState}".logWTF(TAG)
+                State.STOPPED -> "已停止播放，无需重复调用（状态：${currentState}）".logA(TAG)
+                else -> "当前状态不允许停止：${currentState}".logA(TAG)
             }
         } catch (e: Exception) {
-            "停止失败：${e.message}".logWTF(TAG)
+            "停止失败：${e.message}".logA(TAG)
         }
     }
 
@@ -254,9 +253,9 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             player.reset()
             player.release()
             currentState = State.IDLE
-            "资源已释放，当前状态：${currentState}".logWTF(TAG)
+            "资源已释放，当前状态：${currentState}".logA(TAG)
         } catch (e: Exception) {
-            "释放资源失败：${e.message}".logWTF(TAG)
+            "释放资源失败：${e.message}".logA(TAG)
         }
     }
 
@@ -270,12 +269,12 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 // 限制在合法范围
                 val validPosition = position.coerceIn(0, player.duration)
                 player.seekTo(validPosition)
-                "跳转到 $validPosition ms（总时长：${player.duration}ms），状态：${currentState}".logWTF(TAG)
+                "跳转到 $validPosition ms（总时长：${player.duration}ms），状态：${currentState}".logA(TAG)
             } else {
-                "当前状态不允许跳转：$currentState".logWTF(TAG)
+                "当前状态不允许跳转：$currentState".logA(TAG)
             }
         } catch (e: Exception) {
-            "跳转失败：${e.message}".logWTF(TAG)
+            "跳转失败：${e.message}".logA(TAG)
         }
     }
 
@@ -288,9 +287,9 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
             stop()
             player.reset()
             currentState = State.IDLE
-            "播放器已重置，当前状态：${currentState}".logWTF(TAG)
+            "播放器已重置，当前状态：${currentState}".logA(TAG)
         } catch (e: Exception) {
-            "重置播放器失败：${e.message}".logWTF(TAG)
+            "重置播放器失败：${e.message}".logA(TAG)
             currentState = State.ERROR
             onErrorListener?.invoke(player, MediaPlayer.MEDIA_ERROR_UNKNOWN, 0)
         }
@@ -328,7 +327,7 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 0
             }
         } catch (e: Exception) {
-            "获取当前进度失败：${e.message}".logWTF(TAG)
+            "获取当前进度失败：${e.message}".logA(TAG)
             0
         }
     }
@@ -344,7 +343,7 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 0
             }
         } catch (e: Exception) {
-            "获取总时长失败：${e.message}".logWTF(TAG)
+            "获取总时长失败：${e.message}".logA(TAG)
             0
         }
     }
@@ -374,20 +373,20 @@ class MediaHelper(context: Context, private val autoResume: Boolean = false, pri
                 if (autoResume) {
                     start()
                 }
-                "生命周期 ON_RESUME，自动恢复播放（autoResume：$autoResume）".logWTF(TAG)
+                "生命周期 ON_RESUME，自动恢复播放（autoResume：$autoResume）".logA(TAG)
             }
             // 页面退到后台（如按Home键），暂停播放
             Lifecycle.Event.ON_PAUSE -> {
                 if (autoPause) {
                     pause()
                 }
-                "生命周期 ON_PAUSE，自动暂停播放（autoPause：${autoPause}）".logWTF(TAG)
+                "生命周期 ON_PAUSE，自动暂停播放（autoPause：${autoPause}）".logA(TAG)
             }
             // 页面销毁，释放所有资源
             Lifecycle.Event.ON_DESTROY -> {
                 release()
                 source.lifecycle.removeObserver(this)
-                "生命周期 ON_DESTROY，释放资源".logWTF(TAG)
+                "生命周期 ON_DESTROY，释放资源".logA(TAG)
             }
             else -> {}
         }

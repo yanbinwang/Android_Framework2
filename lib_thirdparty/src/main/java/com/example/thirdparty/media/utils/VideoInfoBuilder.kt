@@ -11,7 +11,7 @@ import com.example.framework.utils.function.value.matchesRegex
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.withContext
@@ -67,17 +67,17 @@ suspend fun suspendingOrientationAndRotation(context: Context, videoSource: Any)
                     // 横屏角度，结合宽高比二次确认（避免元数据异常）
                     result[0] = getOrientationBySize(retriever)
                 }
-                "通过旋转元数据判断：方向=${getOrientationDesc(result[0])}，需旋转=${rotation}度".logWTF(TAG)
+                "通过旋转元数据判断：方向=${getOrientationDesc(result[0])}，需旋转=${rotation}度".logA(TAG)
                 result
             } else {
                 // 旋转元数据无效，用宽高比兜底判断
                 result[0] = getOrientationBySize(retriever)
                 result[1] = 0 // 宽高比判断时，默认无需旋转（需根据播放器实际渲染调整）
-                "通过宽高比兜底判断：方向=${getOrientationDesc(result[0])}".logWTF(TAG)
+                "通过宽高比兜底判断：方向=${getOrientationDesc(result[0])}".logA(TAG)
                 result
             }
         } catch (e: Exception) {
-            "读取视频元数据失败：${e.message}".logWTF(TAG)
+            "读取视频元数据失败：${e.message}".logA(TAG)
             result
         } finally {
             // 释放资源，避免内存泄漏
@@ -98,7 +98,7 @@ private fun getOrientationBySize(retriever: MediaMetadataRetriever): Int {
         val rawHeight = rawInfo[1]
         return if (rawWidth > rawHeight) ORIENTATION_LANDSCAPE else ORIENTATION_PORTRAIT
     } catch (e: Exception) {
-        "读取视频宽高失败：${e.message}".logWTF(TAG)
+        "读取视频宽高失败：${e.message}".logA(TAG)
     }
     return ORIENTATION_UNKNOWN
 }
@@ -125,7 +125,7 @@ private fun getOrientationDesc(orientation: Int): String {
  */
 suspend fun suspendingCalculateHeight(context: Context, videoSource: Any, targetWidth: Int = ScreenUtil.screenWidth): Int {
     if (targetWidth <= 0) {
-        "目标宽度无效：$targetWidth".logWTF(TAG)
+        "目标宽度无效：$targetWidth".logA(TAG)
         return 1
     }
     return withContext(Main.immediate) {
@@ -187,7 +187,7 @@ private suspend fun getDisplayAspectRatio(context: Context, videoSource: Any): F
 suspend fun suspendingThumbnail(context: Context, videoSource: Any, timeUs: Long = 1000000L): Bitmap? {
     // 提前校验参数（避免无效操作）
     if (timeUs < 0) {
-        "时间戳不能为负数：$timeUs".logWTF(TAG)
+        "时间戳不能为负数：$timeUs".logA(TAG)
         return null
     }
     val retriever = MediaMetadataRetriever()
@@ -214,13 +214,13 @@ suspend fun suspendingThumbnail(context: Context, videoSource: Any, timeUs: Long
                     frame
                 }
             } ?: run {
-                "无法提取时间点 $timeUs us 的视频帧".logWTF(TAG)
+                "无法提取时间点 $timeUs us 的视频帧".logA(TAG)
                 return@withContext null
             }
             // 无需压缩，直接返回
             frame
         } catch (e: Exception) {
-            "读取视频元数据失败：${e.message ?: e.toString()}".logWTF(TAG)
+            "读取视频元数据失败：${e.message ?: e.toString()}".logA(TAG)
             null
         } finally {
             // 释放资源，避免内存泄漏
@@ -244,7 +244,7 @@ private fun setDataSource(context: Context, retriever: MediaMetadataRetriever, v
                 } else {
                     val file = File(videoSource)
                     if (!file.exists() || !file.canRead()) {
-                        "本地视频文件不存在或无读取权限：$videoSource".logWTF(TAG)
+                        "本地视频文件不存在或无读取权限：$videoSource".logA(TAG)
                         return false
                     }
                     retriever.setDataSource(videoSource)
@@ -258,20 +258,20 @@ private fun setDataSource(context: Context, retriever: MediaMetadataRetriever, v
             }
             is File -> {
                 if (!videoSource.exists() || !videoSource.canRead()) {
-                    "文件不存在或无读取权限：${videoSource.absolutePath}".logWTF(TAG)
+                    "文件不存在或无读取权限：${videoSource.absolutePath}".logA(TAG)
                     return false
                 }
                 retriever.setDataSource(videoSource.absolutePath)
                 true
             }
             else -> {
-                "不支持的视频源类型：${videoSource.javaClass.simpleName}".logWTF(TAG)
+                "不支持的视频源类型：${videoSource.javaClass.simpleName}".logA(TAG)
                 false
             }
         }
     } catch (e: Exception) {
         // 捕获分支内的异常（如无效 URL、Uri 权限不足、格式不支持等）
-        "设置视频源失败：${videoSource.javaClass.simpleName} - ${e.message ?: e.toString()}".logWTF(TAG)
+        "设置视频源失败：${videoSource.javaClass.simpleName} - ${e.message ?: e.toString()}".logA(TAG)
         false
     }
 }
