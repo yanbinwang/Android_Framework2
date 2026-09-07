@@ -454,6 +454,8 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     // 如果视图还未完成布局，添加监听器
     val observer = targetView.viewTreeObserver
     if (!observer.isAlive) return
+    // 增加执行标记，防御队列积压多次回调
+    var executed = false
     observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
             // 回调内重新拿真实observer实例，禁止使用外部缓存的observer
@@ -465,6 +467,8 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
             } catch (_: IllegalStateException) {
                 // 竞争：observer瞬间死亡，忽略
             }
+            if (executed) return
+            executed = true
             listener(targetView)
         }
     })

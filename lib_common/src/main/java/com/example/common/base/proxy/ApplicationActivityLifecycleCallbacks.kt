@@ -117,6 +117,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             observer.addOnPreDrawListener(listener)
         }
         // 点击事件防高频点击
+        var executedProxyClick = false
         observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 // 判断 ViewTreeObserver 是否仍有效 在极少数情况下（如 Activity 销毁时布局尚未完成），viewTreeObserver 可能已失效，此时调用 removeOnGlobalLayoutListener 会抛出异常
@@ -128,6 +129,8 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 } catch (_: IllegalStateException) {
                     // 竞争：observer瞬间死亡，忽略
                 }
+                if (executedProxyClick) return
+                executedProxyClick = true
                 proxyOnClick(decorView, 5)
             }
         })
