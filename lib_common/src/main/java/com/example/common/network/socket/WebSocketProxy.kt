@@ -7,7 +7,7 @@ import cn.zhxu.okhttps.WebSocket
 import cn.zhxu.stomp.Header
 import cn.zhxu.stomp.Message
 import cn.zhxu.stomp.Stomp
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -31,7 +31,7 @@ class WebSocketProxy(private val socketUrl: String) {
             it.setOnMessage { _, msg ->
                 // 拿到服务器发来的原始消息
                 val rawMsg = msg.toString()
-                "底层WS收到原始消息：$rawMsg".logWTF
+                "底层WS收到原始消息：$rawMsg".logA()
                 // 触发全局监听，透传给上层
                 messageListener?.invoke(rawMsg)
             }
@@ -62,7 +62,7 @@ class WebSocketProxy(private val socketUrl: String) {
              * 服务器连接成功回调
              */
             .setOnConnected {
-                "Stomp connection opened $it".logWTF
+                "Stomp connection opened $it".logA()
 //                topic(*topicUrl)
                 proxyListener?.onConnected(it)
             }
@@ -70,7 +70,7 @@ class WebSocketProxy(private val socketUrl: String) {
              * 连接已断开回调
              */
             .setOnDisconnected {
-                "Stomp connection closed $it".logWTF
+                "Stomp connection closed $it".logA()
                 proxyListener?.onDisconnected(it)
             }
             /**
@@ -78,7 +78,7 @@ class WebSocketProxy(private val socketUrl: String) {
              * 处理服务器发出的 ERROR 帧
              */
             .setOnError {
-                "Stomp Server connection error $it".logWTF
+                "Stomp Server connection error $it".logA()
                 proxyListener?.onError(it)
             }
             /**
@@ -86,7 +86,7 @@ class WebSocketProxy(private val socketUrl: String) {
              * 处理服务器发出的 ERROR 帧
              */
             .setOnException {
-                "Stomp connection error $it".logWTF
+                "Stomp connection error $it".logA()
                 proxyListener?.onException(it)
             }
             .connect(list)
@@ -115,7 +115,7 @@ class WebSocketProxy(private val socketUrl: String) {
         stomp.subscribe(destination, null) {
             //得到消息负载
             val payload = it.payload
-            "Received $payload".logWTF
+            "Received $payload".logA()
             listener.invoke(destination, it)
         }
     }

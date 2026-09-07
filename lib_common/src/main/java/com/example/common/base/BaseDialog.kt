@@ -114,7 +114,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         try {
             super.show()
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 
@@ -133,7 +133,7 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         try {
             super.dismiss()
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 

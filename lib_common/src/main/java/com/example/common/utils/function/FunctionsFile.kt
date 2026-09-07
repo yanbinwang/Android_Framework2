@@ -17,7 +17,7 @@ import com.example.common.BaseApplication
 import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toFixed
 import com.example.framework.utils.function.value.toSafeLong
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import java.io.File
 import java.io.FileOutputStream
 import java.math.RoundingMode
@@ -616,7 +616,7 @@ fun String?.getFileFromUri(context: Context?): File? {
         }
         // http/https 协议：网络文件（直接返回null，提示需下载）
         uri.scheme == "http" || uri.scheme == "https" -> {
-            "网络文件需先下载到本地再上传".logWTF
+            "网络文件需先下载到本地再上传".logA()
             null
         }
         // content:// 协议：基础媒体/共享文件 + 各类子类型
@@ -719,7 +719,7 @@ private fun getFileFromCloudAlbum(context: Context, uri: Uri, prefix: String): F
             }
         }
     } catch (e: Exception) {
-        e.logWTF
+        e.logA()
         null
     }
 }

@@ -8,7 +8,7 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.ScreenUtil
 import com.example.common.utils.function.pt
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.thirdparty.media.utils.getPipAspectRatio
 import com.example.thirdparty.media.utils.suspendingCalculateHeight
 import kotlinx.coroutines.flow.flow
@@ -31,7 +31,7 @@ class ScreenViewModel : BaseViewModel() {
                 val displayHeight = it.orZero
                 videoHeight.postValue(displayHeight)
                 val ratio = getPipAspectRatio(ScreenUtil.screenWidth, displayHeight)
-                "高度:${it}\n宽度:${ScreenUtil.screenWidth}\n比率:${ratio.first}:${ratio.second}".logWTF("wyb")
+                "高度:${it}\n宽度:${ScreenUtil.screenWidth}\n比率:${ratio.first}:${ratio.second}".logA("wyb")
             }
         }.manageJob()
     }

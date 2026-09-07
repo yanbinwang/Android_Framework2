@@ -69,7 +69,7 @@ import com.example.framework.utils.function.font
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.google.android.material.appbar.AppBarLayout
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -1432,7 +1432,7 @@ fun ConstraintSet.centerVertically(viewId: Int, targetId: Int = ConstraintSet.PA
 // 封装检查 viewId 和 targetId 是否有效的函数
 private fun isValidIds(viewId: Int, targetId: Int, methodName: String): Boolean {
     if (viewId == ConstraintSet.UNSET || targetId == ConstraintSet.UNSET) {
-        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logWTF
+        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logA()
         return false
     }
     return true

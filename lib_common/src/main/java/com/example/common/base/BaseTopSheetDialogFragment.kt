@@ -143,7 +143,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         try {
             super.show(manager, tag)
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 
@@ -151,7 +151,7 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
         try {
             super.dismissAllowingStateLoss()
         } catch (e: Exception) {
-            e.logE
+            e.logE()
         }
     }
 

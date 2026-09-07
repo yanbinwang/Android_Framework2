@@ -5,7 +5,7 @@ import android.content.Intent
 import android.os.Binder
 import android.os.IBinder
 import com.example.framework.utils.function.TrackableLifecycleService
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 
 class MusicBindService : TrackableLifecycleService() {
     private val binder = MusicBinder()
@@ -51,11 +51,11 @@ class MusicBindService : TrackableLifecycleService() {
         }
 
         fun play(url: String) {
-            "播放:${url}".logWTF("wyb")
+            "播放:${url}".logA("wyb")
         }
 
         fun pause() {
-            "暂停".logWTF("wyb")
+            "暂停".logA("wyb")
         }
     }
 }
