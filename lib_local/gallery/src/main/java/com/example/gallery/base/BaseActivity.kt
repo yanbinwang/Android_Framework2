@@ -124,10 +124,13 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
         if(!observer.isAlive) return
         val listener = object : ViewTreeObserver.OnPreDrawListener {
             override fun onPreDraw(): Boolean {
+                val realObserver = targetView.viewTreeObserver
                 try {
-                    observer.removeOnPreDrawListener(this)
+                    if (realObserver.isAlive) {
+                        realObserver.removeOnPreDrawListener(this)
+                    }
                 } catch (_: IllegalStateException) {
-                    // observer已经死亡，移除失败
+                    // 竞争场景 observer 突然死亡，移除失败
                 }
                 block.invoke()
                 return true

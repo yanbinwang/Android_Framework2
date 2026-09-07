@@ -81,10 +81,13 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             val listener = object : ViewTreeObserver.OnPreDrawListener {
                 override fun onPreDraw(): Boolean {
                     // 立即移除
+                    val realObserver = decorView.viewTreeObserver
                     try {
-                        observer.removeOnPreDrawListener(this)
+                        if (realObserver.isAlive) {
+                            realObserver.removeOnPreDrawListener(this)
+                        }
                     } catch (_: IllegalStateException) {
-                        // observer已经死亡，移除失败
+                        // 竞争场景 observer 突然死亡，移除失败
                     }
                     // 此时 decorView 已完成 measure/layout，安全操作
                     val window = activity.window
@@ -117,10 +120,13 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 // 判断 ViewTreeObserver 是否仍有效 在极少数情况下（如 Activity 销毁时布局尚未完成），viewTreeObserver 可能已失效，此时调用 removeOnGlobalLayoutListener 会抛出异常
+                val realObserver = decorView.viewTreeObserver
                 try {
-                    observer.removeOnGlobalLayoutListener(this)
+                    if (realObserver.isAlive) {
+                        realObserver.removeOnGlobalLayoutListener(this)
+                    }
                 } catch (_: IllegalStateException) {
-                    // observer已经死亡，无法移除，忽略
+                    // 竞争：observer瞬间死亡，忽略
                 }
                 proxyOnClick(decorView, 5)
             }

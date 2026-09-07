@@ -456,10 +456,14 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (!observer.isAlive) return
     observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
         override fun onGlobalLayout() {
+            // 回调内重新拿真实observer实例，禁止使用外部缓存的observer
+            val realObserver = targetView.viewTreeObserver
             try {
-                observer.removeOnGlobalLayoutListener(this)
+                if (realObserver.isAlive) {
+                    realObserver.removeOnGlobalLayoutListener(this)
+                }
             } catch (_: IllegalStateException) {
-                // observer已经死亡，忽略异常
+                // 竞争：observer瞬间死亡，忽略
             }
             listener(targetView)
         }
