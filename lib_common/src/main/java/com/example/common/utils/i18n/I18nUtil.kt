@@ -125,7 +125,7 @@ object I18nUtil {
         val key = I18nMap.map[res]
         if (key.isNullOrEmpty()) {
             if (isDebug) {
-                "I18N key is null or empty. res:$res txt:${string(res.orZero)}".logV
+                "I18N key is null or empty. res:$res txt:${string(res.orZero)}".logV()
             }
             return null
         }
@@ -147,7 +147,7 @@ object I18nUtil {
     private fun onResultNull(@StringRes res: Int?): String {
         val key = I18nMap.map[res]
         if (isDebug) {
-            "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV
+            "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV()
         }
         return ""
     }

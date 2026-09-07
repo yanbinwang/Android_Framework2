@@ -105,11 +105,11 @@ object FireBaseUtil {
                 val token = try {
                     it.result
                 } catch (e: Exception) {
-                    e.logE
+                    e.logE()
                     null
                 }
                 if (!it.isSuccessful || token.isNullOrEmpty()) {
-                    "Fetching FCM registration token failed".logE
+                    "Fetching FCM registration token failed".logE()
                     return@addOnCompleteListener
                 }
                 tokenRefreshListener?.invoke(token)

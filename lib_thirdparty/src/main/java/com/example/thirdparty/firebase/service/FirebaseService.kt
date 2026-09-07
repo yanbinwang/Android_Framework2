@@ -2,7 +2,7 @@ package com.example.thirdparty.firebase.service
 
 import com.example.common.utils.function.orNoData
 import com.example.common.utils.toJson
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.thirdparty.firebase.utils.FireBaseUtil
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationHandler
 import com.example.thirdparty.firebase.utils.FireBaseUtil.notificationIntentGenerator
@@ -61,7 +61,7 @@ class FirebaseService : FirebaseMessagingService() {
     override fun onMessageReceived(msg: RemoteMessage) {
         if (notificationHandler?.invoke(msg.data) != true) {
             val map = msg.data
-            "msg:${msg.toJson()}\nmap:${map.toJson()}".logWTF
+            "msg:${msg.toJson()}\nmap:${map.toJson()}".logA()
 //            debuggingListener?.invoke("", "PUSH", mapOf("messageId" to msg.messageId, "from" to msg.from, "sentTime" to msg.sentTime).toJson(), msg.notification.toJson(), 200, map.toJson())
             if (!hasNotificationPermission()) return
             val notification = msg.notification ?: return

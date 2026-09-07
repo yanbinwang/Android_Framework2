@@ -12,7 +12,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
-import com.example.framework.utils.function.value.second
+import com.example.framework.utils.function.value.secondsMs
 import com.example.home.R
 import com.therouter.router.Route
 import kotlinx.coroutines.Job
@@ -123,7 +123,7 @@ class LinkActivity : BaseActivity<Nothing>() {
     private fun setTimeOut() {
         timeOutJob?.cancel()
         timeOutJob = launch {
-            delay(3.second)
+            delay(3.secondsMs)
             finish()
         }
     }
