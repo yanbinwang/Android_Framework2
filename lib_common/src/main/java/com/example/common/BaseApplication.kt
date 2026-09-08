@@ -79,7 +79,7 @@ abstract class BaseApplication : Application() {
             RouterPath.SplashActivity,
 //            RouterPath.LinkActivity,
 //            RouterPath.LinkHandlerActivity
-        ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
+        ).map { it.removePrefix("/app/").lowercase(Locale.getDefault()) }.toSet()
     }
 
     companion object {
