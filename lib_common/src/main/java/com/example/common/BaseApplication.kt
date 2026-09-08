@@ -162,7 +162,7 @@ abstract class BaseApplication : Application() {
                 if (excludedRouterPaths.contains(clazzName)) return
                 // 判断当前选中位于最前端的用户页面是否是关闭的页面,以及当前任务栈内是否只存在一个页面
                 if (AppManager.currentActivity() != act) return
-                if (AppManager.dequeCount <= 1) {
+                if (AppManager.customStackActivityCount <= 1) {
                     // 拉起首页(配置了singleTask,栈内不会重复)
                     needOpenHome.set(false)
                     TheRouter.build(RouterPath.MainActivity).navigation()
