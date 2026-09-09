@@ -263,12 +263,15 @@ interface EditTextImpl {
     }
 
     fun OnMultiTextWatcher.textWatchers(vararg views: View?) {
-        for (view in views) {
-            when (view) {
-                is EditText -> view.addTextChangedListener(this)
-                is ClearEditText -> view.editText.addTextChangedListener(this)
-                is PasswordEditText -> view.editText.addTextChangedListener(this)
-            }
+//        for (view in views) {
+//            when (view) {
+//                is EditText -> view.addTextChangedListener(this)
+//                is ClearEditText -> view.editText.addTextChangedListener(this)
+//                is PasswordEditText -> view.editText.addTextChangedListener(this)
+//            }
+//        }
+        views.forEach { view ->
+            view.textWatcher(this)
         }
     }
     // </editor-fold>
