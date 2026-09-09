@@ -44,8 +44,8 @@ dependencies {
     androidTestImplementation(libs.bundles.androidx.testing)
     // 框架库
     api(project(":lib_common"))
-    // 文件压缩
-    implementation("id.zelory:compressor:3.0.1")
+    // 多媒体库 (推送多媒体需要)
+    implementation("androidx.media:media:1.7.0")
 //    // 谷歌三方登錄 -> 淘汰
 //    implementation("com.google.android.gms:play-services-auth:21.3.0")
     // 谷歌三方登錄 (Credential Manager)
@@ -64,4 +64,6 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics")
     // 实现灵活的消息推送，支持主题广播和单播。
     implementation("com.google.firebase:firebase-messaging")
+    // 文件压缩
+    implementation("id.zelory:compressor:3.0.1")
 }

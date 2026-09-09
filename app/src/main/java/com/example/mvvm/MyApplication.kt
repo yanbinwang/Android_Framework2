@@ -6,8 +6,8 @@ import com.example.common.utils.helper.ConfigHelper.pushToken
 import com.example.common.utils.toJson
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toArray
+import com.example.framework.utils.logA
 import com.example.framework.utils.logE
-import com.example.framework.utils.logWTF
 import com.example.home.activity.LinkActivity
 import com.example.mvvm.activity.MainActivity
 import com.example.thirdparty.firebase.utils.FireBaseUtil
@@ -111,11 +111,11 @@ class MyApplication : BaseApplication() {
     private fun initFireBase() {
         if (FireBaseUtil.initialize(applicationContext)) {
             FireBaseUtil.notificationIntentGenerator = { _, map ->
-                " \n收到firebase\nmap:${map.toJson()}".logWTF
+                " \n收到firebase\nmap:${map.toJson()}".logA()
                 LinkActivity.byPush(instance, *map.toArray { it.key to it.value })
             }
             FireBaseUtil.tokenRefreshListener = {
-                "firebase token $it".logE
+                "firebase token $it".logE()
                 pushToken = it
             }
         }
