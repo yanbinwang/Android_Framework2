@@ -475,33 +475,19 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
 }
 
 /**
- * 列表频繁刷新时除外层重写equals和hashcode方法外，内部赋值再嵌套一层做比较
- * 一次性绑定 + 立即执行初始化逻辑：比如页面初始化时，给多个静态 View（不复用、不刷新）绑定固定数据，并立即设置样式 / 点击事件。
- * // 给3个按钮绑定不同的功能数据，并立即设置文本和点击事件
- * listOf(btn_a, btn_b, btn_c).forEachIndexed { index, btn ->
- *     btn.setItem<FunctionData>(FunctionData(index, "功能$index")) { view, data ->
- *         view.text = data?.name
- *         view.setOnClickListener { executeFunction(data?.type) }
- *     }
- * }
- * 避免重复写 “tag 判空 + 强转”：如果需要频繁通过 tag 给 View 传数据，且每次都要执行类似逻辑，用它能少写 tag as? T 的重复代码。
- */
-inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit) {
-    if (this == null) return
-    if (null == tag) tag = any
-    listener.invoke(this, tag as? T)
-}
-
-/**
- * 获取view的LifecycleOwner
- * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
- * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
- * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
- * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
- * 1) View 已经「附加到窗口」（即 view.isAttachedToWindow == true）
- * —— 如果 View 还没加载完成（比如在 onCreate 早期、ViewStub 未 inflation），findViewTreeLifecycleOwner() 会返回 null
- * 2) View 所在的 View 树中，确实存在 LifecycleOwner（比如 Activity、Fragment 托管的 View）
- * —— 纯 Dialog、Toast 中的 View 可能找不到（因为它们不是 LifecycleOwner 托管）。
+ * 获取当前 View 树绑定的 [LifecycleOwner] 沿着View树向上查找tag标记的最近LifecycleOwner
+ * 1) Activity 内 View：返回 Activity 本身
+ * 2) Fragment 内 View：返回 fragment.viewLifecycleOwner（视图生命周期，onDestroyView销毁）
+ * 3) 不要使用 view.context 强转 LifecycleOwner：
+ *  (1) Fragment 中 view.context 是 Activity 上下文，会错误绑定 Activity 生命周期，造成内存泄漏
+ *  (2) Application 上下文、ContextThemeWrapper 强转会抛异常
+ *
+ * 返回 null 常见场景：
+ * 1) View 还未 attach到窗口
+ * 2) View 已 attach，但 View 树还未完成 LifecycleOwner 绑定（如 onCreateView 早期）
+ * 3) View 属于 Dialog/Toast，默认没有 setViewTreeLifecycleOwner
+ * 4) ViewStub 未 inflate，视图不存在
+ * 注意：find 返回非 null 一定代表 View 已 attach；但 attach 不等于一定能找到 LifecycleOwner
  */
 fun View?.getLifecycleOwner(): LifecycleOwner? {
     return this?.findViewTreeLifecycleOwner()
