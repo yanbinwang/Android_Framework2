@@ -77,8 +77,7 @@ import kotlin.math.abs
 
 //------------------------------------view扩展函数类------------------------------------
 /**
- * 防止重复点击
- * 默认500ms
+ * 防重复点击，默认间隔 500ms
  */
 fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
     if (this == null) return
@@ -86,7 +85,7 @@ fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
 }
 
 /**
- * 防止重复点击
+ * 传入 null 清空点击监听；非 null 使用默认 500ms 防抖
  */
 fun View?.click(click: ((v: View) -> Unit)?) {
     if (click == null) {
@@ -96,30 +95,45 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View?, timeMS: Long = 500L) {
+/**
+ * 将同一个点击回调，批量绑定给多个 View
+ * ({ v: View ->
+ *     // 统一点击逻辑
+ *     when(v.id) {
+ *         R.id.btnA -> {}
+ *         R.id.btnB -> {}
+ *     }
+ * }).clicks(btnA, btnB
+ */
+fun ((View) -> Unit).clicks(vararg views: View?, timeMS: Long = 500L) {
     val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
     }
-    v.forEach {
-        it?.setOnClickListener(listener)
+    views.forEach { view ->
+        view?.setOnClickListener(listener)
     }
 }
 
-fun View.OnClickListener.clicks(vararg v: View?, timeMS: Long = 500L) {
+/**
+ * 将同一个 OnClickListener 批量绑定给多个 View
+ * 共用同一个 listener 实例，所有 View 共享同一个防抖时间戳
+ */
+fun View.OnClickListener.clicks(vararg views: View?, timeMS: Long = 500L) {
     val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks.onClick(v)
         }
     }
-    v.forEach {
-        it?.setOnClickListener(listener)
+    views.forEach { view ->
+        view?.setOnClickListener(listener)
     }
 }
 
 /**
- * 清空点击
+ * 清空点击监听，置空 listener，并将 isClickable 置为 false
+ * 会覆盖 View 原有的 isClickable 属性
  */
 fun View?.clearClick() {
     if (this == null) return
@@ -996,7 +1010,7 @@ fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
 /**
  * 防止多次点击, 至少要500毫秒的间隔
  */
-abstract class OnMultiClickListener(private val timeMS: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+abstract class OnMultiClickListener(private val timeMS: Long = 500L, val click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0L
 
     open fun onMultiClick(v: View) {
