@@ -75,14 +75,36 @@ object BaseBindingAdapter {
     @BindingAdapter(value = ["statusBar_margin"])
     fun bindingStatusBarMargin(view: View, statusBarMargin: Boolean?) {
         if (!statusBarMargin.orFalse) return
-        view.margin(top = getStatusBarHeight())
+//        view.margin(top = getStatusBarHeight())
+        tryApplyStatusInset(view, isMargin = true)
     }
 
     @JvmStatic
     @BindingAdapter(value = ["statusBar_padding"])
     fun bindingStatusBarPadding(view: View, statusBarPadding: Boolean?) {
         if (!statusBarPadding.orFalse) return
-        view.padding(top = getStatusBarHeight())
+//        view.padding(top = getStatusBarHeight())
+        tryApplyStatusInset(view, isMargin = false)
+    }
+
+    /**
+     * 轮询读取状态栏高度，margin/padding复用，最多6轮，间隔80ms，上限480ms
+     */
+    private fun tryApplyStatusInset(view: View, isMargin: Boolean) {
+        fun tryRead(remainTimes: Int) {
+            val top = getStatusBarHeight()
+            if (top > 0 || remainTimes <= 0) {
+                if (isMargin) view.margin(top = top) else view.padding(top = top)
+                return
+            }
+            view.postDelayed({ tryRead(remainTimes - 1) }, 80)
+        }
+        val topInit = getStatusBarHeight()
+        if (topInit > 0) {
+            if (isMargin) view.margin(top = topInit) else view.padding(top = topInit)
+        } else {
+            tryRead(6)
+        }
     }
 
     /**
