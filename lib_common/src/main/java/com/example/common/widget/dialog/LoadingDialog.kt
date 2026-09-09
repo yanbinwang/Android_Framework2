@@ -1,5 +1,6 @@
 package com.example.common.widget.dialog
 
+import androidx.annotation.ColorInt
 import androidx.fragment.app.FragmentActivity
 import com.example.common.R
 import com.example.common.base.BaseDialog
@@ -19,6 +20,10 @@ class LoadingDialog(activity: FragmentActivity) : BaseDialog<ViewDialogLoadingBi
     override fun dismiss() {
         super.dismiss()
         mBinding?.pbProcess?.isIndeterminate = false
+    }
+
+    fun setColorFilter(@ColorInt color: Int) {
+        mBinding?.pbProcess?.indeterminateDrawable?.mutate()?.setTint(color)
     }
 
 }
