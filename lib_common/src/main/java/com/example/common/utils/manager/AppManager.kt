@@ -358,6 +358,24 @@ object AppManager {
     }
 
     /**
+     * 判断目标页面 Class 是否存活
+     * 1) 目标页面已存在：直接关闭当前 Activity
+     * 2) 目标页面不存在：执行 block 跳转目标页面
+     * @param targetCls 需要判断的目标页面Class（Login/Register）
+     * @param currentActivity 当前页面实例，用于finish自己
+     * @param block 跳转逻辑（TheRouter导航）
+     */
+    fun ensureTargetActivityAliveWithFallback(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit) {
+        ensureMainActivityAliveWithFallback {
+            if (isActivityAlive(targetCls)) {
+                finishActivity(currentActivity)
+            } else {
+                block.invoke()
+            }
+        }
+    }
+
+    /**
      * app如果未登录也可以进首页,需要一个兜底逻辑
      * 1) 确保任务栈内存在首页
      * 2) 确保任务栈内至少存在一个页面
