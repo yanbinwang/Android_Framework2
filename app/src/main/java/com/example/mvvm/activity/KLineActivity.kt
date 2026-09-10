@@ -8,7 +8,7 @@ import com.example.common.base.bridge.viewModels
 import com.example.common.config.RouterPath
 import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.example.klinechart.adapter.KLineChartAdapter
 import com.example.klinechart.utils.formatter.date.DateFormatter
 import com.example.klinechart.widget.KLineChartView
@@ -43,12 +43,12 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
         clicks(mBinding?.tvMa, mBinding?.tvBoll, mBinding?.tvMainHide, mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr, mBinding?.tvSubHide, mBinding?.tvFen, mBinding?.tvK)
         mBinding?.kline?.setRefreshListener(object : KLineChartView.KChartRefreshListener {
             override fun onRefresh(chart: KLineChartView) {
-                "刷新".logWTF("wyb")
+                "刷新".logA()
                 viewModel.getAll()
             }
 
             override fun onLoadMore(chart: KLineChartView) {
-                "加载更多".logWTF("wyb")
+                "加载更多".logA()
                 viewModel.getAll()
             }
         })
