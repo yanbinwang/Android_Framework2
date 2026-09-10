@@ -51,7 +51,6 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.animation.doOnEnd
-import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.GravityCompat
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
@@ -66,6 +65,7 @@ import com.example.framework.utils.function.dimen
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.drawable
 import com.example.framework.utils.function.font
+import com.example.framework.utils.function.getTypedDrawable
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
@@ -1033,12 +1033,12 @@ fun ImageView?.tint(@ColorRes res: Int) {
  */
 fun ImageView?.adjustLayerDrawable(@DrawableRes res: Int, targetItemIndex: Int) {
     this ?: return
-    val layerDrawable = ResourcesCompat.getDrawable(context.resources, res, context.theme) as? LayerDrawable ?: return
+    val layerDrawable = context.getTypedDrawable<LayerDrawable>(res) ?: return
     val bitmapDrawable = layerDrawable.getDrawable(targetItemIndex) as? BitmapDrawable
     // 提取目标图层的原始尺寸
-    val width = bitmapDrawable?.intrinsicWidth.orZero
-    val height = bitmapDrawable?.intrinsicHeight.orZero
-    size(width, height)
+    val xmlWidthPx = bitmapDrawable?.intrinsicWidth.orZero
+    val xmlHeightPx = bitmapDrawable?.intrinsicHeight.orZero
+    size(xmlWidthPx, xmlHeightPx)
     // 提取目标图层的 inset 作为外边距
     val marginStart = layerDrawable.getLayerInsetStart(targetItemIndex)
     val marginTop = layerDrawable.getLayerInsetTop(targetItemIndex)
