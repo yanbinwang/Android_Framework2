@@ -3,7 +3,7 @@ package com.example.mvvm.activity
 import android.os.Bundle
 import android.view.View
 import android.widget.TextView
-import com.example.common.base.BaseTitleActivity
+import com.example.common.base.BaseActivity
 import com.example.common.base.bridge.viewModels
 import com.example.common.config.RouterPath
 import com.example.framework.utils.function.view.clicks
@@ -17,9 +17,10 @@ import com.example.mvvm.R
 import com.example.mvvm.databinding.ActivityKlineBinding
 import com.example.mvvm.viewmodel.KLineViewModel
 import com.therouter.router.Route
+import me.jessyan.autosize.internal.CustomAdapt
 
 @Route(path = RouterPath.KLineActivity)
-class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickListener {
+class KLineActivity : BaseActivity<ActivityKlineBinding>(), View.OnClickListener, CustomAdapt {
     // 适配器
     private val adapter by lazy { KLineChartAdapter() }
     // 主图指标下标
@@ -29,9 +30,16 @@ class KLineActivity : BaseTitleActivity<ActivityKlineBinding>(), View.OnClickLis
     private val subTexts by lazy { arrayListOf(mBinding?.tvMacd, mBinding?.tvKdj, mBinding?.tvRsi, mBinding?.tvWr) }
     private val viewModel: KLineViewModel by viewModels()
 
+    override fun isBaseOnWidth(): Boolean {
+        return true
+    }
+
+    override fun getSizeInDp(): Float {
+        return 667f
+    }
+
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
-        titleRoot.setTitle("KLine")
         mBinding?.kline?.setAdapter(adapter)
         mBinding?.kline?.setDateTimeFormatter(DateFormatter())
         mBinding?.kline?.setGridRows(4)

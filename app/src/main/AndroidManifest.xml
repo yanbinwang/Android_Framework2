@@ -164,7 +164,7 @@
         <activity
             android:name=".activity.KLineActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden|adjustPan" />
         <!-- ******************************************************首页模块****************************************************** -->
         <!-- 推送 -->
