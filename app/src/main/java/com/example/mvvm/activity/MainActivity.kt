@@ -436,6 +436,55 @@ println(myClass.myProperty)
  * 容器级	ConcurrentHashMap	高频 KV 存取、单步原子语义
  * 复合操作级	ArrayList + synchronized	多步业务逻辑（去重+插入+截断）
  * 特例	CopyOnWriteArrayList	读远多于写的全局监听器列表
+ *
+ * <!-- 主布局 -->
+ * <ViewStub
+ *     android:id="@+id/view_stub"
+ *     android:layout="@layout/layout_empty"  <!-- 要延迟加载的布局 -->
+ *     android:inflatedId="@+id/empty_root"    <!-- 加载完成后，根View的id -->
+ *     android:layout_width="match_parent"
+ *     android:layout_height="wrap_content"/>
+ *
+ * <!-- 子布局 layout_empty -->
+ * <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+ *     android:id="@+id/original_root"  <!-- 这个id会被inflatedId覆盖 -->
+ *     android:layout_width="match_parent"
+ *     android:layout_height="wrap_content"
+ *     android:orientation="vertical">
+ *
+ *     <TextView
+ *         android:id="@+id/tv_empty_tip"  <!-- 内部子id保留不变 -->
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:text="暂无数据"/>
+ *
+ *     <Button
+ *         android:id="@+id/btn_retry"     <!-- 内部子id保留不变 -->
+ *         android:layout_width="wrap_content"
+ *         android:layout_height="wrap_content"
+ *         android:text="重试"/>
+ *
+ * </LinearLayout>
+ *
+ * fun ViewStub.safeInflate(): View? {
+ *     return try {
+ *         inflate()
+ *     } catch (e: IllegalStateException) {
+ *         // 已经inflate过，直接拿inflatedId对应的view
+ *         parent?.findViewById(inflatedId)
+ *     }
+ * }
+ *
+ * val stub = findViewById<ViewStub>(R.id.view_stub)
+ * val emptyRoot = stub.inflate() // emptyRoot 就是 @id/empty_root，也就是layout_empty的根LinearLayout
+ *
+ * // 方式1：从根View去find（推荐，防止和页面其他id冲突）
+ * val tvTip = emptyRoot.findViewById<TextView>(R.id.tv_empty_tip)
+ * val btnRetry = emptyRoot.findViewById<Button>(R.id.btn_retry)
+ *
+ * // 方式2：直接从Activity/页面根findViewById，也能找到
+ * // 前提：inflate完成之后，才可以find；inflate之前，这些id不存在！
+ * val tvTip2 = findViewById<TextView>(R.id.tv_empty_tip)
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
