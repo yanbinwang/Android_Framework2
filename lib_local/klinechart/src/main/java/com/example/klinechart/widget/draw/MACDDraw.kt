@@ -3,12 +3,11 @@ package com.example.klinechart.widget.draw
 import android.graphics.Canvas
 import android.graphics.Paint
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.example.framework.utils.function.color
 import com.example.klinechart.R
 import com.example.klinechart.bean.IMACD
 import com.example.klinechart.utils.formatter.value.IValueFormatter
-import com.example.klinechart.utils.formatter.value.ValueFormatter
+import com.example.klinechart.utils.formatter.value.PlainValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**
@@ -72,7 +71,7 @@ class MACDDraw(private val view: BaseKLineChartView) : IChartDraw<IMACD> {
     }
 
     override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+        return PlainValueFormatter()
     }
 
     /**

@@ -3,10 +3,9 @@ package com.example.klinechart.utils.formatter.value
 import java.util.Locale
 
 /**
- * 对较大数据进行格式化
+ * 大数单位换算：万 / 百万 / 亿
  */
-class BigValueFormatter : IValueFormatter {
-    // 必须是排好序的
+class UnitValueFormatter : IValueFormatter {
     private val values = intArrayOf(10000, 1000000, 100000000)
     private val units = arrayOf("万", "百万", "亿")
 

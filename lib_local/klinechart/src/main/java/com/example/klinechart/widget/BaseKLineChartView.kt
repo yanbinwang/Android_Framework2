@@ -23,12 +23,12 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.dimen
 import com.example.klinechart.R
-import com.example.klinechart.adapter.IAdapter
+import com.example.klinechart.adapter.IKLineChartData
 import com.example.klinechart.bean.IKLine
-import com.example.klinechart.utils.formatter.date.IDateTimeFormatter
-import com.example.klinechart.utils.formatter.date.ShortTimeFormatter
+import com.example.klinechart.utils.formatter.date.ITimeFormatter
+import com.example.klinechart.utils.formatter.date.HourMinuteFormatter
 import com.example.klinechart.utils.formatter.value.IValueFormatter
-import com.example.klinechart.utils.formatter.value.ValueFormatter
+import com.example.klinechart.utils.formatter.value.PlainValueFormatter
 import com.example.klinechart.widget.draw.IChartDraw
 import com.example.klinechart.widget.draw.MainDraw
 import com.example.klinechart.widget.draw.MainDraw.Status
@@ -78,9 +78,9 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     private var mVolDraw: IChartDraw<Any>? = null
     private var mChildDraw: IChartDraw<Any>? = null
     private var mMainDraw: IChartDraw<Any>? = null
-    private var mAdapter: IAdapter? = null
+    private var mChartData: IKLineChartData? = null
     private var mValueFormatter: IValueFormatter? = null
-    private var mDateTimeFormatter: IDateTimeFormatter? = null
+    private var mTimeFormatter: ITimeFormatter? = null
     private var mOnSelectedChangedListener: OnSelectedChangedListener? = null
     private val mAnimationDuration = 500L
     private val mAnimator = ValueAnimator.ofFloat(0f, 1f)
@@ -276,7 +276,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
             val translateX = xToTranslateX(columnSpace * i)
             if (translateX in startX..stopX) {
                 val index = indexOfTranslateX(translateX)
-                val text = mAdapter?.getDate(index)
+                val text = mChartData?.getDate(index)
                 canvas.drawText(text.orEmpty(), columnSpace * i - mTextPaint.measureText(text) / 2, y, mTextPaint)
             }
         }
@@ -325,7 +325,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
                 canvas.drawText(text, x + w1 + w2, fixTextY1(y), mTextPaint)
             }
             // 画X值
-            val date = mAdapter?.getDate(mSelectedIndex).orEmpty()
+            val date = mChartData?.getDate(mSelectedIndex).orEmpty()
             textWidth = mTextPaint.measureText(date)
             r = textHeight / 2
             x = translateXtoX(getX(mSelectedIndex))
@@ -718,8 +718,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * @return
      */
     fun getItem(position: Int): Any? {
-        return if (mAdapter != null) {
-            mAdapter?.getItem(position)
+        return if (mChartData != null) {
+            mChartData?.getItem(position)
         } else {
             null
         }
@@ -728,8 +728,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 获取适配器
      */
-    fun getAdapter(): IAdapter? {
-        return mAdapter
+    fun getAdapter(): IKLineChartData? {
+        return mChartData
     }
 
     /**
@@ -764,7 +764,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      */
     fun formatValue(value: Float): String {
         if (getValueFormatter() == null) {
-            setValueFormatter(ValueFormatter())
+            setValueFormatter(PlainValueFormatter())
         }
         return getValueFormatter()?.format(value).orEmpty()
     }
@@ -774,7 +774,7 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      */
     fun formatDateTime(date: Date?): String {
         if (getDateTimeFormatter() == null) {
-            setDateTimeFormatter(ShortTimeFormatter())
+            setDateTimeFormatter(HourMinuteFormatter())
         }
         return getDateTimeFormatter()?.format(date).orEmpty()
     }
@@ -843,8 +843,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 获取DatetimeFormatter
      * @return 时间格式化器
      */
-    fun getDateTimeFormatter(): IDateTimeFormatter? {
-        return mDateTimeFormatter
+    fun getDateTimeFormatter(): ITimeFormatter? {
+        return mTimeFormatter
     }
 
     /**
@@ -965,8 +965,8 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
      * 设置dateTimeFormatter
      * @param dateTimeFormatter 时间格式化器
      */
-    open fun setDateTimeFormatter(dateTimeFormatter: IDateTimeFormatter) {
-        mDateTimeFormatter = dateTimeFormatter
+    open fun setDateTimeFormatter(dateTimeFormatter: ITimeFormatter) {
+        mTimeFormatter = dateTimeFormatter
     }
 
     /**
@@ -987,14 +987,14 @@ abstract class BaseKLineChartView @JvmOverloads constructor(context: Context, at
     /**
      * 设置数据适配器
      */
-    open fun setAdapter(adapter: IAdapter?) {
-        if (mAdapter != null) {
-            mAdapter?.unregisterDataSetObserver(mDataSetObserver)
+    open fun setAdapter(adapter: IKLineChartData?) {
+        if (mChartData != null) {
+            mChartData?.unregisterDataSetObserver(mDataSetObserver)
         }
-        mAdapter = adapter
-        if (mAdapter != null) {
-            mAdapter?.registerDataSetObserver(mDataSetObserver)
-            mItemCount = mAdapter?.getCount().orZero
+        mChartData = adapter
+        if (mChartData != null) {
+            mChartData?.registerDataSetObserver(mDataSetObserver)
+            mItemCount = mChartData?.getCount().orZero
         } else {
             mItemCount = 0
         }

@@ -5,7 +5,7 @@ import android.graphics.Paint
 import androidx.annotation.ColorInt
 import com.example.klinechart.bean.IWR
 import com.example.klinechart.utils.formatter.value.IValueFormatter
-import com.example.klinechart.utils.formatter.value.ValueFormatter
+import com.example.klinechart.utils.formatter.value.PlainValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
 /**
@@ -46,7 +46,7 @@ class WRDraw : IChartDraw<IWR> {
     }
 
     override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+        return PlainValueFormatter()
     }
 
     /**

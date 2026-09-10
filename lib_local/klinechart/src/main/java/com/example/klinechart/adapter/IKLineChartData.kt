@@ -5,7 +5,7 @@ import android.database.DataSetObserver
 /**
  * 数据适配器
  */
-interface IAdapter {
+interface IKLineChartData {
 
     /**
      * 获取点的数目

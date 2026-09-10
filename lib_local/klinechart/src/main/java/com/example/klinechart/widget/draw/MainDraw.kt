@@ -4,7 +4,6 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.graphics.RectF
 import androidx.annotation.ColorInt
-import androidx.core.content.ContextCompat
 import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.color
@@ -12,7 +11,7 @@ import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.ICandle
 import com.example.klinechart.utils.formatter.value.IValueFormatter
-import com.example.klinechart.utils.formatter.value.ValueFormatter
+import com.example.klinechart.utils.formatter.value.PlainValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 import com.example.klinechart.widget.KLineChartView
 import kotlin.math.max
@@ -187,7 +186,7 @@ class MainDraw(private val view: BaseKLineChartView) : IChartDraw<ICandle> {
     }
 
     override fun getValueFormatter(): IValueFormatter {
-        return ValueFormatter()
+        return PlainValueFormatter()
     }
 
     fun setStatus(status: Status) {

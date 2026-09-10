@@ -40,7 +40,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     }
 
     /**
-     * 头部添加数据
+     * 头部添加数据 (左侧)
      */
     fun addHeaderData(list: List<KLineChartBean>?) {
         list ?: return
@@ -49,7 +49,7 @@ class KLineChartAdapter : BaseKLineChartAdapter() {
     }
 
     /**
-     * 尾部添加数据
+     * 尾部添加数据 (右侧)
      */
     fun addFooterData(list: List<KLineChartBean>?) {
         list ?: return

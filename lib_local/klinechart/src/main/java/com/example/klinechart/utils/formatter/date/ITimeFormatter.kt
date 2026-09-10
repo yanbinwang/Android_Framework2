@@ -5,7 +5,7 @@ import java.util.Date
 /**
  * 时间格式化接口
  */
-interface IDateTimeFormatter {
+interface ITimeFormatter {
 
     fun format(date: Date?): String
 

@@ -8,7 +8,7 @@ import com.example.framework.utils.function.color
 import com.example.framework.utils.function.value.toSafeFloat
 import com.example.klinechart.R
 import com.example.klinechart.bean.IVolume
-import com.example.klinechart.utils.formatter.value.BigValueFormatter
+import com.example.klinechart.utils.formatter.value.UnitValueFormatter
 import com.example.klinechart.utils.formatter.value.IValueFormatter
 import com.example.klinechart.widget.BaseKLineChartView
 
@@ -82,7 +82,7 @@ class VolumeDraw(private val view: BaseKLineChartView) : IChartDraw<IVolume> {
     }
 
     override fun getValueFormatter(): IValueFormatter {
-        return BigValueFormatter()
+        return UnitValueFormatter()
     }
 
     /**

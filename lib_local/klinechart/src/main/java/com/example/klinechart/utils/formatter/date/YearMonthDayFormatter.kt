@@ -6,13 +6,13 @@ import java.util.Date
 /**
  * 时间格式化器
  */
-class ShortTimeFormatter : IDateTimeFormatter {
-//    private val shortTimeFormat by lazy { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+class YearMonthDayFormatter : ITimeFormatter {
+//    private val dateFormat by lazy { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
 
     override fun format(date: Date?): String {
         return if (date != null) {
-//            shortTimeFormat.format(date)
-            "HH:mm".convert(date)
+//            dateFormat.format(date)
+            "yyyy/MM/dd".convert(date)
         } else {
             ""
         }

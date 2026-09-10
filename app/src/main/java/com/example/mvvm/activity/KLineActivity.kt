@@ -10,7 +10,7 @@ import com.example.framework.utils.function.view.clicks
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.logA
 import com.example.klinechart.adapter.KLineChartAdapter
-import com.example.klinechart.utils.formatter.date.DateFormatter
+import com.example.klinechart.utils.formatter.date.YearMonthDayFormatter
 import com.example.klinechart.widget.KLineChartView
 import com.example.klinechart.widget.draw.MainDraw.Status
 import com.example.mvvm.R
@@ -41,7 +41,7 @@ class KLineActivity : BaseActivity<ActivityKlineBinding>(), View.OnClickListener
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         mBinding?.kline?.setAdapter(adapter)
-        mBinding?.kline?.setDateTimeFormatter(DateFormatter())
+        mBinding?.kline?.setDateTimeFormatter(YearMonthDayFormatter())
         mBinding?.kline?.setGridRows(4)
         mBinding?.kline?.setGridColumns(4)
     }
