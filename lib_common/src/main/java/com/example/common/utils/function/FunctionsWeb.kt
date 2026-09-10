@@ -110,7 +110,7 @@ fun WebView?.clearWebData() {
         }
         cookieManager.flush()
     } catch (e: Exception) {
-        e.logE
+        e.logE()
     }
 }
 
@@ -302,7 +302,7 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
         return try {
             shouldOverrideUrlLoading(view, request.url, request.url.toString())
         } catch (e: Exception) {
-            e.logE
+            e.logE()
             false
         }
     }
@@ -320,7 +320,7 @@ private class WebViewClientImpl(private val onPageStarted: () -> Unit, private v
      */
     private fun shouldOverrideUrlLoading(view: WebView, uri: Uri, url: String): Boolean {
         // 打印当前跳转的完整链接到日志
-        url.logE
+        url.logE()
         // 取出链接的协议头：http / https / tel / weixin 等
         val scheme = uri.scheme
         // 取出链接的域名/主机地址：如 www.baidu.com

@@ -124,8 +124,10 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 curIndex = position % list.size
                 if (null != ovalLayout) {
                     if (list.size > 1) {
-                        ovalLayout?.getChildAt(oldIndex)?.background = triple.second
-                        ovalLayout?.getChildAt(curIndex)?.background = triple.first
+                        // 圆点资源/间距
+                        val (ovalSelected, ovalUnSelected, _) = triple
+                        ovalLayout?.getChildAt(oldIndex)?.background = ovalUnSelected
+                        ovalLayout?.getChildAt(curIndex)?.background = ovalSelected
                         oldIndex = curIndex
                     }
                 }
@@ -284,25 +286,25 @@ class Advertising @JvmOverloads constructor(context: Context, attrs: AttributeSe
                 ovalLayout?.removeAllViews()
                 ovalLayout?.doOnceAfterLayout {
                     // 如果true代表垂直，否则水平
-                    val direction = it.layoutParams?.height.orZero > it.layoutParams?.width.orZero
-                    // 左右边距
-                    val ovalMargin = triple.third.pt
+                    val ovalDirection = it.layoutParams?.height.orZero > it.layoutParams?.width.orZero
+                    // 圆点资源/间距
+                    val (ovalSelected, ovalUnSelected, ovalMargin) = triple
                     // 添加圆点
                     for (i in list.indices) {
                         ImageView(context).apply {
-                            if (direction) {
-                                margin(start = ovalMargin, end = ovalMargin)
+                            if (ovalDirection) {
+                                margin(start = ovalMargin.pt, end = ovalMargin.pt)
                                 size(width = it.measuredHeight, height = it.measuredHeight)
                             } else {
-                                margin(top = ovalMargin, bottom = ovalMargin)
+                                margin(top = ovalMargin.pt, bottom = ovalMargin.pt)
                                 size(width = it.measuredWidth, height = it.measuredWidth)
                             }
-                            background = triple.second
+                            background = ovalUnSelected
                             it.addView(this)
                         }
                     }
                     // 选中第一个
-                    it.getChildAt(0)?.background = triple.first
+                    it.getChildAt(0)?.background = ovalSelected
                 }
             }
         }

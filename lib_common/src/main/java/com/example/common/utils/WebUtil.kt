@@ -145,7 +145,7 @@ class WebUtil(host: Any, private val mContainer: ViewGroup?) : DefaultLifecycleO
             try {
                 decor?.removeView(customView)
             } catch (e: Exception) {
-                e.logE
+                e.logE()
             }
             // 通知 WebView「全屏已关闭」
             customViewCallback?.onCustomViewHidden()
@@ -186,7 +186,7 @@ class WebUtil(host: Any, private val mContainer: ViewGroup?) : DefaultLifecycleO
             try {
                 decor?.removeView(it)
             } catch (e: Exception) {
-                e.logE
+                e.logE()
             }
         }
         customView = null

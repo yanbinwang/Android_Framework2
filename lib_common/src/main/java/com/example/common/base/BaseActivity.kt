@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
@@ -18,6 +19,7 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_UP
 import android.view.View
+import android.view.ViewTreeObserver
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.window.OnBackInvokedCallback
@@ -42,16 +44,17 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
+import com.example.common.base.page.checkEmbedShowTip
+import com.example.common.base.page.checkLargeScreenShowTip
 import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
-import com.example.common.utils.ScreenUtil.screenHeight
-import com.example.common.utils.ScreenUtil.screenWidth
-import com.example.common.utils.builder.toast
+import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
+import com.example.common.utils.function.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -70,11 +73,13 @@ import com.gyf.immersionbar.ImmersionBar
 import com.therouter.TheRouter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import me.jessyan.autosize.AutoSizeCompat
-import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.internal.CancelAdapt
+import me.jessyan.autosize.internal.CustomAdapt
 import java.lang.reflect.ParameterizedType
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
@@ -115,6 +120,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected val mActivityResult = mResultWrapper.registerResult {
         onActivityResultListener?.invoke(it)
     }
+    private var pendingKillJob: Job? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
     private val immersionBar by lazy { ImmersionBar.with(this) }
@@ -144,24 +150,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             startActivityForResult(getIntent(cls, *pairs), requestCode)
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
-
-        /**
-         * 1) 跳转三方页面专用：临时关闭当前页面的 EdgeToEdge / 全屏沉浸属性
-         *  作用：让下一个页面不会继承你的全屏、状态栏透明、导航栏透明
-         * 2) 给Intent追加隔离标志：不继承当前窗口全屏/EdgeToEdge属性 -> 新任务栈，彻底隔离窗口属性 ! 使用该标记即可
-         *  作用：addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-         */
-//        @Suppress("DEPRECATION")
-//        fun Activity.disableEdgeToEdgeTemporarily(@ColorRes statusBarColor: Int = android.R.color.black, @ColorRes navigationBarColor: Int = android.R.color.black) {
-//            // 恢复系统默认：内容不延伸到系统栏下面（最关键）
-//            WindowCompat.setDecorFitsSystemWindows(window, true)
-//            // 清除所有 LAYOUT_xxx 全屏标记
-//            val layoutFlags = View.SYSTEM_UI_FLAG_LAYOUT_STABLE or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-//            window.decorView.systemUiVisibility = window.decorView.systemUiVisibility and layoutFlags.inv()
-//            // 把系统栏恢复为不透明（防止三方页继承透明）
-//            window.statusBarColor = ContextCompat.getColor(this, statusBarColor)
-//            window.navigationBarColor = ContextCompat.getColor(this, navigationBarColor)
-//        }
     }
 
     /**
@@ -211,28 +199,32 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
          * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
          * 3. 支持文字亮 / 暗色，对比度由系统管理
          */
-        if (!shouldExcludeFullScreen()) {
-            enableEdgeToEdge()
-        }
+        enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-        // 先检测大屏设备，避免布局加载
-        if (checkLargeScreen()) {
-            launch {
-                delay(800L)
-                if (!isFinishing && !isDestroyed) {
-                    // 关闭所有Activity
-                    finishAffinity()
-                    // 终止进程（兼容所有安卓版本，捕获异常）
-                    try {
-                        killProcess(myPid())
-                        exitProcess(0)
-                    } catch (e: Exception) {
-                        e.printStackTrace()
+        // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
+        if (!isIgnoreMultiWindowKillEnabled()) {
+            val isLargeScreen = checkLargeScreenShowTip(showTip = false)
+            val isEmbed = checkEmbedShowTip(showTip = false)
+            if (isLargeScreen || isEmbed) {
+                pendingKillJob?.cancel()
+                pendingKillJob = launch {
+                    showSystemToast(string(if(isEmbed) R.string.embedError else R.string.largeScreenError))
+                    delay(800L)
+                    if (!isFinishing && !isDestroyed) {
+                        // 关闭所有Activity
+                        finishAffinity()
+                        // 终止进程（兼容所有安卓版本，捕获异常）
+                        try {
+                            killProcess(myPid())
+                            exitProcess(0)
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        }
                     }
                 }
+                // 如果检测到大屏设备，直接return，不执行后续逻辑
+                return
             }
-            // 如果检测到大屏设备，直接return，不执行后续逻辑
-            return
         }
         initBefore()
         if (needTransparentOwner) {
@@ -268,34 +260,11 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     }
 
     /**
-     * 检测大屏设备
-     * @return true-检测到大屏设备并弹出提示，false-正常设备
+     * 是否忽略多窗口/大屏拦截杀进程规则
+     * @return true: 当前页面无视平板、Embedding分栏检测，不执行关闭进程逻辑
      */
-    private fun checkLargeScreen(): Boolean {
-        // 页面销毁直接返回
-        if (isFinishing || isDestroyed) return false
-        // 判断是否为大屏设备（宽度≥600dp）
-        val config = resources.configuration
-        // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
-        val isPhysicalTablet = config.smallestScreenWidthDp >= 600
-        // 只要是物理平板 → 直接拦截，不管是不是分屏
-        if (isPhysicalTablet) {
-            "当前设备为平板/大屏设备，暂不支持使用".toast()
-        }
-        return isPhysicalTablet
-    }
-
-    /**
-     * 定义需要排除全屏的第三方包名前缀集合
-     */
-    private val excludeFullScreenPrefixes = listOf(
-        "io.rong.imkit",    // 融云IM相关页面
-        "com.xxx.thirdlib"  // 其他需要排除的第三方库包名前缀，按需添加
-    )
-    private fun shouldExcludeFullScreen(): Boolean {
-        val currentClassName = this::class.java.name
-        // 遍历前缀集合，只要匹配任意一个就返回true（需要排除）
-        return excludeFullScreenPrefixes.any { currentClassName.startsWith(it) }
+    protected open fun isIgnoreMultiWindowKillEnabled(): Boolean {
+        return false
     }
 
     /**
@@ -418,25 +387,66 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        resources
+    }
+
+    /**
+     * https://cloud.tencent.com/developer/article/2406992
+     * https://blog.csdn.net/gitblog_00910/article/details/151599565
+     * class RotateActivity : BaseActivity<ActivityRotateBinding>(), CustomAdapt {
+     *     private var isLandscape = false
+     *     override fun onCreate(savedInstanceState: Bundle?) {
+     *         super.onCreate(savedInstanceState)
+     *         isLandscape = savedInstanceState?.getBoolean("land") ?: false
+     *     }
+     *
+     *     fun toggleOrientation() {
+     *         isLandscape = !isLandscape
+     *         requestedOrientation = if (isLandscape) {
+     *             ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
+     *         } else {
+     *             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+     *         }
+     *         // 赋值 requestedOrientation，系统自动 recreate，触发 getResources()，触发 CustomAdapt 回调
+     *     }
+     *
+     *     override fun onSaveInstanceState(outState: Bundle) {
+     *         super.onSaveInstanceState(outState)
+     *         outState.putBoolean("land", isLandscape)
+     *     }
+     *
+     *     override fun isBaseOnWidth(): Boolean {
+     *         return !isLandscape
+     *     }
+     *
+     *     override fun getSizeInDp(): Float {
+     *         return if (isLandscape) {
+     *             640f // 横屏设计稿 dp
+     *         } else {
+     *             360f // 竖屏设计稿 dp
+     *         }
+     *     }
+     * }
+     */
     override fun getResources(): Resources {
         // AutoSize的防止界面错乱的措施,同时确认其在主线程运行
+        val res = super.getResources()
         if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+            when (this) {
+                is CancelAdapt -> {
+                    AutoSizeCompat.cancelAdapt(res)
+                }
+                is CustomAdapt -> {
+                    // CustomAdapt页面：交给AutoSize框架attachBaseContext处理，基类不要做全局覆盖
+                }
+                else -> {
+                    AutoSizeCompat.autoConvertDensityOfGlobal(res)
+                }
+            }
         }
-        return super.getResources()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        AutoSizeConfig.getInstance().stop(this)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        AutoSizeConfig.getInstance().restart()
+        return res
     }
 
     override fun finish() {
@@ -458,12 +468,39 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         dataManager.clear()
         mActivityResult.unregister()
         mBinding?.unbind()
+        pendingKillJob?.cancel()
         job.cancel() // 之后再起的job无法工作
 //        coroutineContext.cancelChildren() // 之后再起的可以工作
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面管理方法">
+    /**
+     * 注册一次性 OnPreDraw 监听；view完成第一次绘制前执行block，执行后自动移除监听，防止重复回调与内存泄漏
+     * @param targetView 监听依附的View，为空则block不会执行
+     * @param block 预绘制回调业务逻辑，仅执行一次
+     */
+    protected fun doOnViewPreDraw(targetView: View?, block: () -> Unit) {
+        targetView ?: return
+        val observer = targetView.viewTreeObserver
+        if(!observer.isAlive) return
+        val listener = object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val realObserver = targetView.viewTreeObserver
+                try {
+                    if (realObserver.isAlive) {
+                        realObserver.removeOnPreDrawListener(this)
+                    }
+                } catch (_: IllegalStateException) {
+                    // 竞争场景 observer 突然死亡，移除失败
+                }
+                block.invoke()
+                return true
+            }
+        }
+        observer.addOnPreDrawListener(listener)
+    }
+
     /**
      * ViewModel 中定义无值事件（用 Unit 替代 Any）
      *  val reason by lazy { MutableLiveData<Unit>() } // 无值事件

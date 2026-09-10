@@ -69,7 +69,7 @@ import com.example.framework.utils.function.font
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orZero
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.google.android.material.appbar.AppBarLayout
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
@@ -77,8 +77,7 @@ import kotlin.math.abs
 
 //------------------------------------view扩展函数类------------------------------------
 /**
- * 防止重复点击
- * 默认500ms
+ * 防重复点击，默认间隔 500ms
  */
 fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
     if (this == null) return
@@ -86,7 +85,7 @@ fun View?.click(timeMS: Long = 500L, click: (v: View) -> Unit) {
 }
 
 /**
- * 防止重复点击
+ * 传入 null 清空点击监听；非 null 使用默认 500ms 防抖
  */
 fun View?.click(click: ((v: View) -> Unit)?) {
     if (click == null) {
@@ -96,30 +95,45 @@ fun View?.click(click: ((v: View) -> Unit)?) {
     }
 }
 
-fun ((View) -> Unit).clicks(vararg v: View?, timeMS: Long = 500L) {
+/**
+ * 将同一个点击回调，批量绑定给多个 View
+ * ({ v: View ->
+ *     // 统一点击逻辑
+ *     when(v.id) {
+ *         R.id.btnA -> {}
+ *         R.id.btnB -> {}
+ *     }
+ * }).clicks(btnA, btnB
+ */
+fun ((View) -> Unit).clicks(vararg views: View?, timeMS: Long = 500L) {
     val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks(v)
         }
     }
-    v.forEach {
-        it?.setOnClickListener(listener)
+    views.forEach { view ->
+        view?.setOnClickListener(listener)
     }
 }
 
-fun View.OnClickListener.clicks(vararg v: View?, timeMS: Long = 500L) {
+/**
+ * 将同一个 OnClickListener 批量绑定给多个 View
+ * 共用同一个 listener 实例，所有 View 共享同一个防抖时间戳
+ */
+fun View.OnClickListener.clicks(vararg views: View?, timeMS: Long = 500L) {
     val listener = object : OnMultiClickListener(timeMS) {
         override fun onMultiClick(v: View) {
             this@clicks.onClick(v)
         }
     }
-    v.forEach {
-        it?.setOnClickListener(listener)
+    views.forEach { view ->
+        view?.setOnClickListener(listener)
     }
 }
 
 /**
- * 清空点击
+ * 清空点击监听，置空 listener，并将 isClickable 置为 false
+ * 会覆盖 View 原有的 isClickable 属性
  */
 fun View?.clearClick() {
     if (this == null) return
@@ -445,48 +459,49 @@ fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
  */
 inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
-    if (isLaidOut) {
-        // 如果视图已经完成布局，直接调用回调函数
-        listener(this)
-    } else {
-        // 如果视图还未完成布局，添加监听器
-        viewTreeObserver.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-                listener(this@doOnceAfterLayout)
-            }
-        })
+    val targetView = this
+    // 如果视图已经完成布局，直接调用回调函数
+    if (targetView.isLaidOut) {
+        listener(targetView)
+        return
     }
+    // 如果视图还未完成布局，添加监听器
+    val observer = targetView.viewTreeObserver
+    if (!observer.isAlive) return
+    // 增加执行标记，防御队列积压多次回调
+    var executed = false
+    observer.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+        override fun onGlobalLayout() {
+            // 回调内重新拿真实observer实例，禁止使用外部缓存的observer
+            val realObserver = targetView.viewTreeObserver
+            try {
+                if (realObserver.isAlive) {
+                    realObserver.removeOnGlobalLayoutListener(this)
+                }
+            } catch (_: IllegalStateException) {
+                // 竞争：observer瞬间死亡，忽略
+            }
+            if (executed) return
+            executed = true
+            listener(targetView)
+        }
+    })
 }
 
 /**
- * 列表频繁刷新时除外层重写equals和hashcode方法外，内部赋值再嵌套一层做比较
- * 一次性绑定 + 立即执行初始化逻辑：比如页面初始化时，给多个静态 View（不复用、不刷新）绑定固定数据，并立即设置样式 / 点击事件。
- * // 给3个按钮绑定不同的功能数据，并立即设置文本和点击事件
- * listOf(btn_a, btn_b, btn_c).forEachIndexed { index, btn ->
- *     btn.setItem<FunctionData>(FunctionData(index, "功能$index")) { view, data ->
- *         view.text = data?.name
- *         view.setOnClickListener { executeFunction(data?.type) }
- *     }
- * }
- * 避免重复写 “tag 判空 + 强转”：如果需要频繁通过 tag 给 View 传数据，且每次都要执行类似逻辑，用它能少写 tag as? T 的重复代码。
- */
-inline fun <T> View?.setItem(any: Any?, crossinline listener: (View, T?) -> Unit) {
-    if (this == null) return
-    if (null == tag) tag = any
-    listener.invoke(this, tag as? T)
-}
-
-/**
- * 获取view的LifecycleOwner
- * 如果你的 View 是在一个 Fragment 或者 Activity 中使用，而这个 Fragment 或 Activity 本身实现了 LifecycleOwner 接口
- * （在 AndroidX 中，Fragment 和 Activity 都默认实现了 LifecycleOwner 接口），那么你可以将 view.context 强制转换为 LifecycleOwner。
- * 但如果 View 的 context 是一个普通的 Context，比如是一个 Application 上下文，那么这种转换就会失败，因为 Application 通常没有实现 LifecycleOwner 接口。
- * ViewTreeLifecycleOwner 是 AndroidX 提供的更可靠的方式，它会从 View 树中查找最近的 LifecycleOwner
- * 1) View 已经「附加到窗口」（即 view.isAttachedToWindow == true）
- * —— 如果 View 还没加载完成（比如在 onCreate 早期、ViewStub 未 inflation），findViewTreeLifecycleOwner() 会返回 null
- * 2) View 所在的 View 树中，确实存在 LifecycleOwner（比如 Activity、Fragment 托管的 View）
- * —— 纯 Dialog、Toast 中的 View 可能找不到（因为它们不是 LifecycleOwner 托管）。
+ * 获取当前 View 树绑定的 [LifecycleOwner] 沿着View树向上查找tag标记的最近LifecycleOwner
+ * 1) Activity 内 View：返回 Activity 本身
+ * 2) Fragment 内 View：返回 fragment.viewLifecycleOwner（视图生命周期，onDestroyView销毁）
+ * 3) 不要使用 view.context 强转 LifecycleOwner：
+ *  (1) Fragment 中 view.context 是 Activity 上下文，会错误绑定 Activity 生命周期，造成内存泄漏
+ *  (2) Application 上下文、ContextThemeWrapper 强转会抛异常
+ *
+ * 返回 null 常见场景：
+ * 1) View 还未 attach到窗口
+ * 2) View 已 attach，但 View 树还未完成 LifecycleOwner 绑定（如 onCreateView 早期）
+ * 3) View 属于 Dialog/Toast，默认没有 setViewTreeLifecycleOwner
+ * 4) ViewStub 未 inflate，视图不存在
+ * 注意：find 返回非 null 一定代表 View 已 attach；但 attach 不等于一定能找到 LifecycleOwner
  */
 fun View?.getLifecycleOwner(): LifecycleOwner? {
     return this?.findViewTreeLifecycleOwner()
@@ -995,7 +1010,7 @@ fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
 /**
  * 防止多次点击, 至少要500毫秒的间隔
  */
-abstract class OnMultiClickListener(private val timeMS: Long = 500L, var click: (v: View) -> Unit = {}) : View.OnClickListener {
+abstract class OnMultiClickListener(private val timeMS: Long = 500L, val click: (v: View) -> Unit = {}) : View.OnClickListener {
     private var lastClickTime: Long = 0L
 
     open fun onMultiClick(v: View) {
@@ -1425,7 +1440,7 @@ fun ConstraintSet.centerVertically(viewId: Int, targetId: Int = ConstraintSet.PA
 // 封装检查 viewId 和 targetId 是否有效的函数
 private fun isValidIds(viewId: Int, targetId: Int, methodName: String): Boolean {
     if (viewId == ConstraintSet.UNSET || targetId == ConstraintSet.UNSET) {
-        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logWTF
+        "Invalid view ID provided for $methodName. viewId: $viewId, targetId: $targetId".logA()
         return false
     }
     return true

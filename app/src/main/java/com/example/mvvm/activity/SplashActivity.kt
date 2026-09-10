@@ -107,23 +107,31 @@ class SplashActivity : BaseActivity<ActivitySplashBinding>() {
                 // 高版本开启协程处理系统 Splash 动画
                 initSplash()
             } else {
-                // 定义一次性监听器（触发后立即移除）
-                val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
-                    override fun onPreDraw(): Boolean {
-                        // 先移除监听器，避免重复触发
-                        mBinding?.root?.viewTreeObserver?.removeOnPreDrawListener(this)
-                        // 执行完整全屏配置
-                        window.applyFullScreen()
-                        // 跳转页面
-                        schedule({
-                            jump(true)
-                        }, 500)
-                        // 允许绘制
-                        return true
-                    }
+//                // 定义一次性监听器（触发后立即移除）
+//                val preDrawListener = object : ViewTreeObserver.OnPreDrawListener {
+//                    override fun onPreDraw(): Boolean {
+//                        // 先移除监听器，避免重复触发
+//                        mBinding?.root?.viewTreeObserver?.removeOnPreDrawListener(this)
+//                        // 执行完整全屏配置
+//                        window.applyFullScreen()
+//                        // 跳转页面
+//                        schedule({
+//                            jump(true)
+//                        }, 500)
+//                        // 允许绘制
+//                        return true
+//                    }
+//                }
+//                // 注册监听器
+//                mBinding?.root?.viewTreeObserver?.addOnPreDrawListener(preDrawListener)
+                doOnViewPreDraw(mBinding?.root) {
+                    // 执行完整全屏配置
+                    window.applyFullScreen()
+                    // 跳转页面
+                    schedule({
+                        jump(true)
+                    }, 500)
                 }
-                // 注册监听器
-                mBinding?.root?.viewTreeObserver?.addOnPreDrawListener(preDrawListener)
             }
         }
     }

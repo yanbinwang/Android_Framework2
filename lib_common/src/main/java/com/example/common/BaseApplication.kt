@@ -57,6 +57,7 @@ import com.therouter.TheRouter
 import com.therouter.router.setRouterInterceptor
 import com.therouter.theRouterInited
 import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.external.ExternalAdaptInfo
 import me.jessyan.autosize.unit.Subunits
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
@@ -75,7 +76,7 @@ abstract class BaseApplication : Application() {
             RouterPath.SplashActivity,
 //            RouterPath.LinkActivity,
 //            RouterPath.LinkHandlerActivity
-        ).map { it.replace("/app/", "").lowercase(Locale.getDefault()) }.toSet()
+        ).map { it.removePrefix("/app/").lowercase(Locale.getDefault()) }.toSet()
     }
 
     companion object {
@@ -107,6 +108,7 @@ abstract class BaseApplication : Application() {
         // 布局初始化
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
+            .setCustomFragment(true)
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
@@ -160,7 +162,7 @@ abstract class BaseApplication : Application() {
                 if (excludedRouterPaths.contains(clazzName)) return
                 // 判断当前选中位于最前端的用户页面是否是关闭的页面,以及当前任务栈内是否只存在一个页面
                 if (AppManager.currentActivity() != act) return
-                if (AppManager.dequeCount <= 1) {
+                if (AppManager.customStackActivityCount <= 1) {
                     // 拉起首页(配置了singleTask,栈内不会重复)
                     needOpenHome.set(false)
                     TheRouter.build(RouterPath.MainActivity).navigation()
@@ -323,6 +325,20 @@ abstract class BaseApplication : Application() {
             onPrivacyAgreedListener.invoke(true)
         } else {
             onPrivacyAgreedListener.invoke(false)
+        }
+    }
+
+    /**
+     * 批量注册三方库 Activity 的外部适配信息
+     * @param activityClasses 多个三方Activity Class可变参数
+     * @param isBaseOnWidth 是否以宽度为基准进行适配，默认 true
+     * @param designWidthInDp 设计图基准宽度(dp)，不传使用全局AutoSize配置
+     */
+    fun addExternalAdaptActivity(vararg activityClasses: Class<*>, isBaseOnWidth: Boolean = true, designWidthInDp: Float = AutoSizeConfig.getInstance().designWidthInDp.toFloat()) {
+        val safeDesignWidth = if (designWidthInDp > 0f) designWidthInDp else 375f
+        val manager = AutoSizeConfig.getInstance().externalAdaptManager
+        activityClasses.forEach { clazz ->
+            manager.addExternalAdaptInfoOfActivity(clazz, ExternalAdaptInfo(isBaseOnWidth, safeDesignWidth))
         }
     }
 

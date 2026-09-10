@@ -33,7 +33,7 @@ import com.example.common.widget.xrecyclerview.refresh.getPullAnimDuration
 import com.example.framework.utils.function.value.orTrue
 import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.view.fade
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import com.scwang.smart.refresh.layout.SmartRefreshLayout
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -303,7 +303,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected fun Job.manageJob(key: String? = null) {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
         val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
-        mJobKey.logWTF("manageJob")
+        mJobKey.logA("manageJob")
         mJobManager.manageJob(this, mJobKey)
     }
 

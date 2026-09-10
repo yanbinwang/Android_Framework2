@@ -530,9 +530,23 @@ abstract class BaseAdapter<T> : RecyclerView.Adapter<BaseViewDataBindingHolder> 
     }
 
     /**
+     * 安全清空数据并通知刷新
+     * 子类如果有自定义的数据源管理，可重写此方法
+     */
+    fun clear() {
+        if (itemType != LIST) return
+        val size = itemCount
+        if (size > 0) {
+            data.clear()
+            notifyItemRangeRemoved(0, size)
+        }
+    }
+
+    /**
      * 列表如果支持拖拽,使用该方法 (参照gesture的touch的OnItemTouchListener)
      */
     fun move(fromPosition: Int, toPosition: Int) {
+        if (itemType != LIST) return
         // 交换位置
         Collections.swap(data, fromPosition, toPosition)
         // 局部刷新(移动)

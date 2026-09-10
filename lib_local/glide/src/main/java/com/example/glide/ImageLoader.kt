@@ -533,7 +533,7 @@ class ImageLoader private constructor() {
      * @param owner 生命周期所有者，用于管理协程等操作
      */
     fun clearMemoryCache(context: Context, owner: LifecycleOwner) {
-        val clearDiskCacheAction = {
+        val clearMemoryCacheAction = {
             try {
                 Glide.get(context).clearMemory()
             } catch (e: Exception) {
@@ -542,10 +542,10 @@ class ImageLoader private constructor() {
         }
         if (!isMainThread) {
             owner.lifecycleScope.launch(Main) {
-                clearDiskCacheAction()
+                clearMemoryCacheAction()
             }
         } else {
-            clearDiskCacheAction()
+            clearMemoryCacheAction()
         }
     }
 

@@ -1,6 +1,7 @@
 package com.example.common.utils.builder
 
 import android.content.Context
+import android.content.res.Resources
 import android.os.Looper
 import android.view.Gravity
 import android.widget.Toast
@@ -166,6 +167,39 @@ object ToastBuilder {
         showCustom(length) { _, toast ->
             val spanned = html.htmlToSpanned() ?: return@showCustom
             toast.setText(spanned)
+        }
+    }
+
+    /**
+     * 显示系统级 Toast，使用设备原始物理密度渲染，不受 AutoSize 全局 density 修改的影响，适用于折叠屏检测提示、全局异常兜底等不依赖业务布局的纯信息提示场景
+     * 1) AutoSize 修改的是全局单例的 DisplayMetrics，而原生 Toast 在渲染时读取的正是这个被污染的对象
+     * 2) 调用 Toast.makeText(ctx, ...) 时，系统内部最终会通过 ctx.getResources().getDisplayMetrics() 来获取密度值，用于计算 Toast 文字大小、padding、圆角等布局参数
+     * 3) ctx 就是传入的 appContext，它的 displayMetrics 就是被 AutoSize 改过的那个
+     */
+    fun showSystemToast(message: String, length: Int = Toast.LENGTH_SHORT) {
+        if (Looper.getMainLooper() != Looper.myLooper()) return
+        val ctx = appContext ?: return
+        cancelToast()
+        // 获取未被修改的系统原始 density（唯一可信基准）
+        val sysMetrics = Resources.getSystem().displayMetrics
+        val sysDensity = sysMetrics.density
+        val sysDensityDpi = sysMetrics.densityDpi
+        // 只需还原 ApplicationContext 的 Metrics , Toast 内部使用 ApplicationContext 渲染，且 AppManager 在此时机无法获取当前 Activity
+        val appMetrics = ctx.resources.displayMetrics
+        val savedDensity = appMetrics.density
+        val savedDensityDpi = appMetrics.densityDpi
+        try {
+            // 临时还原为系统原始物理 density
+            appMetrics.density = sysDensity
+            appMetrics.densityDpi = sysDensityDpi
+            // 弹出 Toast（此时使用原始 density，尺寸正常）
+            val toast = Toast.makeText(ctx, message, length)
+            currentToast = WeakReference(toast)
+            toast.show()
+        } finally {
+            // 立即恢复 AutoSize 的 density，避免影响后续布局
+            appMetrics.density = savedDensity
+            appMetrics.densityDpi = savedDensityDpi
         }
     }
 

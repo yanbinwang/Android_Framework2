@@ -7,6 +7,8 @@ import android.os.Bundle
 import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
+import android.view.View
+import android.view.ViewTreeObserver
 import android.view.Window
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
@@ -17,8 +19,6 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.common.base.bridge.BaseImpl
-import com.example.common.utils.ScreenUtil.screenHeight
-import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
@@ -29,7 +29,8 @@ import com.example.gallery.R
 import com.example.gallery.base.bridge.PageCloseable
 import com.gyf.immersionbar.ImmersionBar
 import me.jessyan.autosize.AutoSizeCompat
-import me.jessyan.autosize.AutoSizeConfig
+import me.jessyan.autosize.internal.CancelAdapt
+import me.jessyan.autosize.internal.CustomAdapt
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -110,6 +111,32 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
                 init()
             }
         }
+    }
+
+    /**
+     * 注册一次性 OnPreDraw 监听；view完成第一次绘制前执行block，执行后自动移除监听，防止重复回调与内存泄漏
+     * @param targetView 监听依附的View，为空则block不会执行
+     * @param block 预绘制回调业务逻辑，仅执行一次
+     */
+    protected fun doOnViewPreDraw(targetView: View?, block: () -> Unit) {
+        targetView ?: return
+        val observer = targetView.viewTreeObserver
+        if(!observer.isAlive) return
+        val listener = object : ViewTreeObserver.OnPreDrawListener {
+            override fun onPreDraw(): Boolean {
+                val realObserver = targetView.viewTreeObserver
+                try {
+                    if (realObserver.isAlive) {
+                        realObserver.removeOnPreDrawListener(this)
+                    }
+                } catch (_: IllegalStateException) {
+                    // 竞争场景 observer 突然死亡，移除失败
+                }
+                block.invoke()
+                return true
+            }
+        }
+        observer.addOnPreDrawListener(listener)
     }
 
     /**
@@ -210,23 +237,21 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
     }
 
     override fun getResources(): Resources {
+        val res = super.getResources()
         if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(super.getResources())
+            when (this) {
+                is CancelAdapt -> {
+                    AutoSizeCompat.cancelAdapt(res)
+                }
+                is CustomAdapt -> {
+                    // CustomAdapt页面：交给AutoSize框架attachBaseContext处理，基类不要做全局覆盖
+                }
+                else -> {
+                    AutoSizeCompat.autoConvertDensityOfGlobal(res)
+                }
+            }
         }
-        return super.getResources()
-    }
-
-    override fun onStop() {
-        super.onStop()
-        AutoSizeConfig.getInstance().stop(this)
-    }
-
-    override fun onRestart() {
-        super.onRestart()
-        AutoSizeConfig.getInstance().restart()
+        return res
     }
 
     override fun onDestroy() {

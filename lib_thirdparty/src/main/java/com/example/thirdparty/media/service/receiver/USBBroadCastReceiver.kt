@@ -7,8 +7,7 @@ import android.content.IntentFilter
 import android.hardware.usb.UsbDevice
 import android.os.Build
 import android.os.Parcelable
-import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.logWTF
+import com.example.framework.utils.logA
 import java.lang.ref.WeakReference
 
 /**
@@ -118,7 +117,7 @@ class USBBroadCastReceiver : BroadcastReceiver() {
                 intent.getParcelableExtra<Parcelable>(EXTRA_USB_DEVICE) as? UsbDevice
             }
         } catch (e: Exception) {
-            "获取 UsbDevice 失败：${e.message}".logWTF(TAG)
+            "获取 UsbDevice 失败：${e.message}".logA(TAG)
             null
         }
     }
@@ -139,7 +138,7 @@ class USBBroadCastReceiver : BroadcastReceiver() {
         val deviceInfo = usbDevice?.run {
             "名称：$deviceName，厂商ID：$vendorId，产品ID：$productId"
         } ?: "无设备信息"
-        "USB 状态：${if (isConnected) "✅ 已连接" else "❌ 已断开"}，设备：$deviceInfo".logWTF(TAG)
+        "USB 状态：${if (isConnected) "✅ 已连接" else "❌ 已断开"}，设备：$deviceInfo".logA(TAG)
     }
 
     /**

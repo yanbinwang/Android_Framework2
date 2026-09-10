@@ -1,5 +1,6 @@
 package com.example.common.widget.xrecyclerview
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.AttributeSet
 import android.util.SparseArray
@@ -11,6 +12,7 @@ import androidx.core.content.withStyledAttributes
 import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.common.R
+import com.example.common.base.binding.adapter.BaseAdapter
 import com.example.common.base.binding.adapter.BaseQuickAdapter
 import com.example.common.utils.ScreenUtil.screenHeight
 import com.example.common.utils.function.pt
@@ -152,9 +154,9 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
 
     /**
      * 重写View自带的是否支持惯性滑动
-     * 1) 默认情况下是true
-     * 2) 如果外层嵌套ScrollView/NestedScrollView则需要设为false,不然会卡顿
-     * 3) 如果外层嵌套CoordinatorLayout+AppBarLayout+Recyclerview,则Recyclerview需要为true,否则会不响应惯性滑动
+     * 1) 默认情况下是 true
+     * 2) 如果外层嵌套 ScrollView/NestedScrollView 则需要设为 false 不然会卡顿,记得添加属性 android:fillViewport="true" 保证子布局撑满
+     * 3) 如果外层嵌套 CoordinatorLayout+AppBarLayout+Recyclerview,则 Recyclerview 需要为 true ,否则会响应惯性滑动
      */
     override fun setNestedScrollingEnabled(enabled: Boolean) {
         super.setNestedScrollingEnabled(enabled)
@@ -189,6 +191,26 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
      * 应用空状态固定高度
      * 1) 在 loading()/empty()/error() 展示空状态前调用
      * 2) 有数据后由 setRootSize() 恢复全屏
+     * 3) 示例代码:
+     * flow<Unit> {
+     *   request({ FundsApi.instance.getFundsListApi(reqBodyOf(
+     *       "pageIndex" to 1,
+     *       "pageSize" to Constants.PAGE_LIMIT
+     *   ))}, {
+     *       // 未使用 adapter?.notify(this, viewModel) 手动设置外层遮罩状态
+     *       if (it.safeSize > 0) {
+     *           mRecycler?.setRootSize()
+     *           reset(false)
+     *           pageInfo.postValue(false to it)
+     *       } else {
+     *           mRecycler?.applyFixedHeight()
+     *           empty()
+     *       }
+     *   }, {
+     *       mRecycler?.applyFixedHeight()
+     *       error()
+     *   })
+     * }.withHandling(isShowToast = true).launchIn(viewModelScope).manageJob()
      */
     fun applyFixedHeight(width: Int? = null) {
         if (!canApplyFixedHeight()) return
@@ -432,6 +454,19 @@ class XRecyclerView @JvmOverloads constructor(context: Context, attrs: Attribute
     fun scrollToPosition(position: Int) {
         if (position < 0 || position > recycler.adapter?.itemCount.orZero -1) return
         recycler.scrollToPosition(position)
+    }
+
+    /**
+     * 置空数据
+     */
+    @SuppressLint("NotifyDataSetChanged")
+    fun safeClear() {
+        val adapter = getAdapter() ?: return
+        when (adapter) {
+            is BaseAdapter<*> -> adapter.clear()
+            // 仅通知 RecyclerView 重新读取数据, 数据源的清空必须由调用方在调用 safeClear() 之前自行完成
+            else -> adapter.notifyDataSetChanged()
+        }
     }
 
     /**

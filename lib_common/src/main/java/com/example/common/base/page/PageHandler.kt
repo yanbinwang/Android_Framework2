@@ -7,13 +7,17 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.window.embedding.ActivityEmbeddingController
+import androidx.window.embedding.SplitController
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
+import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.getCustomOption
+import com.example.common.utils.function.string
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -219,4 +223,62 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
             finish()
         }, 500)
     }
+}
+
+/**
+ * 检测大屏设备
+ * @return true-检测到大屏设备并弹出提示，false-正常设备
+ */
+fun FragmentActivity?.checkLargeScreenShowTip(tip: String = string(R.string.largeScreenError), showTip: Boolean = true): Boolean {
+    this ?: return false
+    // 页面销毁直接返回
+    if (isFinishing || isDestroyed) return false
+    // 判断是否为大屏设备（宽度≥600dp）
+    val config = resources.configuration
+    // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
+    val isPhysicalTablet = config.smallestScreenWidthDp >= 600
+    // 只要是物理平板 → 直接拦截，不管是不是分屏
+    if (isPhysicalTablet && showTip) {
+        showSystemToast(tip)
+    }
+    return isPhysicalTablet
+}
+
+/**
+ * 判断当前是否处于Activity‑Embedding分栏嵌入会话
+ * @param tip 提示文本，默认：请切换至小屏模式后重试
+ * @param showTip 是否弹出toast提示，默认true；false只返回状态，不弹提示
+ * @return true 当前处于分栏；false 非分栏状态
+ */
+fun FragmentActivity?.checkEmbedShowTip(tip: String = string(R.string.embedError), showTip: Boolean = true): Boolean {
+    this ?: return false
+    if (isFinishing || isDestroyed) return false
+    // 设备支持embedding && 当前activity已经嵌入分栏
+    val isEmbed = isActivityEmbeddingAvailable() && isActivityEmbedded()
+    if (isEmbed && showTip) {
+        showSystemToast(tip)
+    }
+    return isEmbed
+}
+
+/**
+ * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
+ * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
+ * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）
+ * 2) 折叠大屏展开，命中分栏规则，两个 Activity 左右并排分栏运行 → true
+ * 3) 极异常场景：折叠闭合小屏，却被分栏容器托管 → true
+ */
+fun FragmentActivity?.isActivityEmbedded(): Boolean {
+    this ?: return false
+    return ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
+}
+
+/**
+ * 查询设备&系统是否具备 Activity‑Embedding 分栏硬件与系统能力
+ * 返回true仅代表设备支持该特性，不代表此刻App正在分栏显示
+ * 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
+ */
+fun Context?.isActivityEmbeddingAvailable(): Boolean {
+    this ?: return false
+    return SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
 }
