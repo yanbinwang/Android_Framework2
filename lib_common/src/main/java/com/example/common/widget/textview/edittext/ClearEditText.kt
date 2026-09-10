@@ -19,7 +19,6 @@ import androidx.core.widget.addTextChangedListener
 import androidx.core.widget.doAfterTextChanged
 import com.example.common.R
 import com.example.common.databinding.ViewClearEditBinding
-import com.example.common.utils.function.pt
 import com.example.common.utils.function.ptFloat
 import com.example.framework.utils.function.inflate
 import com.example.framework.utils.function.view.click
@@ -34,7 +33,6 @@ import com.example.framework.utils.function.view.paddingAll
 import com.example.framework.utils.function.view.paddingLtrb
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
-import com.example.framework.utils.function.view.visible
 import com.example.framework.widget.BaseViewGroup
 
 /**

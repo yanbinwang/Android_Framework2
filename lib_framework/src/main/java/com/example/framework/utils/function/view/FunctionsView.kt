@@ -205,14 +205,6 @@ fun View?.removeSelf() {
 }
 
 /**
- * 获取resources中的drawable
- */
-fun View?.dimen(@DimenRes res: Int): Float {
-    this ?: return 0f
-    return context.resources.getDimension(res)
-}
-
-/**
  * 背景
  */
 fun View?.background(@DrawableRes bg: Int) {
@@ -919,9 +911,9 @@ fun View?.longClickListener(): View.OnLongClickListener? {
 }
 
 /**
- * 当一个容器内的view在被滑动时，如果执行取消刷新的操作，并不会执行，故而先传递一个取消的事件（模拟手指离开屏幕）
- * header的onDragListener中关闭refresh的刷新前，先调用取消的action，告知系统手势离开屏幕，然后再关闭
- * ->(refresh.parent as? ViewGroup)?.dispatchTouchEvent....
+ * 模拟手指离开，下发 ACTION_CANCEL 手势事件 (用于中断正在进行的触摸、拖拽、滚动手势，清除手势状态残留)
+ * 适用场景：header下拉拖拽、列表滑动时，直接给当前正在接收触摸的目标 View 调用
+ * 注意：事件不会自动向下分发，必须发给真正消费 touch 的 View，不要传给父容器
  */
 fun ViewGroup?.actionCancel() {
     if (this == null) return
@@ -945,8 +937,8 @@ fun ViewGroup?.actionCancel() {
  */
 fun ViewGroup?.foreachChild(loop: (View) -> Unit) {
     if (this == null) return
-    for (i in 0 until this.childCount) {
-        loop(this.getChildAt(i))
+    for (i in 0 until childCount) {
+        loop(getChildAt(i))
     }
 }
 
@@ -1003,7 +995,7 @@ fun ViewGroup.string(@StringRes res: Int): String {
  *  view.size(MATCH_PARENT, WRAP_CONTENT)
  *  }
  */
-fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean): View {
+fun ViewGroup.inflate(@LayoutRes res: Int, attachToRoot: Boolean = false): View {
     return context.inflate(res, this, attachToRoot)
 }
 
