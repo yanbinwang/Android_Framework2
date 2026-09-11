@@ -366,12 +366,10 @@ object AppManager {
      * @param block 跳转逻辑（TheRouter导航）
      */
     fun ensureTargetActivityAliveWithFallback(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit) {
-        ensureMainActivityAliveWithFallback {
-            if (isActivityAlive(targetCls)) {
-                finishActivity(currentActivity)
-            } else {
-                block.invoke()
-            }
+        if (isActivityAlive(targetCls)) {
+            finishActivity(currentActivity)
+        } else {
+            block.invoke()
         }
     }
 
