@@ -26,6 +26,7 @@ import com.example.framework.utils.function.value.toPairs
 import com.therouter.TheRouter
 import com.therouter.router.Navigator
 import com.therouter.router.matchRouteMap
+import java.util.Locale
 
 /**
  * 列表页快速处理空数据状态
@@ -137,6 +138,14 @@ fun Navigator.getDestinationClass(): Class<*>? {
 
 fun String.getDestinationClass(): Class<*>? {
     return TheRouter.build(this).getDestinationClass()
+}
+
+/**
+ * 路由路径扩展：去掉路由前缀，得到Activity短名，转小写
+ * 例："/home/SplitActivity" -> "splitactivity"
+ */
+fun String.toActivitySimpleName(): String {
+    return this.substringAfterLast("/").lowercase(Locale.getDefault())
 }
 
 /**
