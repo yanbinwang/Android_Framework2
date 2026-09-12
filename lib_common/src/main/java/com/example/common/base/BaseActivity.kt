@@ -44,7 +44,6 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.page.checkEmbedShowTip
 import com.example.common.base.page.checkLargeScreenShowTip
 import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
@@ -52,9 +51,7 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
-import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
-import com.example.common.utils.function.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -203,12 +200,9 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled()) {
-            val isLargeScreen = checkLargeScreenShowTip(showTip = false)
-            val isEmbed = checkEmbedShowTip(showTip = false)
-            if (isLargeScreen || isEmbed) {
+            if (checkLargeScreenShowTip()) {
                 pendingKillJob?.cancel()
                 pendingKillJob = launch {
-                    showSystemToast(string(if(isEmbed) R.string.embedError else R.string.largeScreenError))
                     delay(800L)
                     if (!isFinishing && !isDestroyed) {
                         // 关闭所有Activity
