@@ -343,7 +343,7 @@ object AppManager {
      * @param path 目标路由路径
      * @param block 真正跳转逻辑，支持自定义 intent 参数
      */
-    fun rebootTaskStackAndLaunchTarget(path: String, block: () -> Unit) {
+    fun rebootTaskStackAndLaunchTarget(path: String, block: () -> Unit = {}) {
         // 获取跳转的class
         val clazz = path.getDestinationClass()
         // 不管存在不存在,先关闭
@@ -365,7 +365,7 @@ object AppManager {
      * @param currentActivity 当前页面实例，用于finish自己
      * @param block 跳转逻辑（TheRouter导航）
      */
-    fun ensureTargetActivityAliveWithFallback(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit) {
+    fun ensureTargetActivityAliveWithFallback(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit = {}) {
         if (isActivityAlive(targetCls)) {
             finishActivity(currentActivity)
         } else {
@@ -378,7 +378,7 @@ object AppManager {
      * 1) 确保任务栈内存在首页
      * 2) 确保任务栈内至少存在一个页面
      */
-    fun ensureMainActivityAliveWithFallback(block: () -> Unit) {
+    fun ensureMainActivityAliveWithFallback(block: () -> Unit = {}) {
         val mainClazz = RouterPath.MainActivity.getDestinationClass()
         if (!isActivityAlive(mainClazz)) {
             val context = currentActivity() ?: BaseApplication.instance.applicationContext
@@ -392,7 +392,7 @@ object AppManager {
     /**
      * 保证首页 MainActivity 始终存活的前提下，关闭「非指定排除列表」的页面
      */
-    fun ensureMainActivityAliveWithFallback(path: String, block: () -> Unit) {
+    fun ensureMainActivityAliveWithFallback(path: String, block: () -> Unit = {}) {
         // 获取跳转的class
         val clazz = path.getDestinationClass()
         // 排除的页面

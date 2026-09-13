@@ -6,13 +6,9 @@ import com.example.common.config.CacheData.userBean
 import com.example.common.config.CacheData.userInfoBean
 import com.example.common.config.RouterPath
 import com.example.common.event.EventCode.EVENT_USER_INFO_REFRESH
-import com.example.common.event.EventCode.EVENT_USER_LOGIN
-import com.example.common.event.EventCode.EVENT_USER_LOGIN_OUT
-import com.example.common.network.socket.topic.WebSocketConnect
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.value.add
 import com.example.framework.utils.function.value.orFalse
-import com.therouter.TheRouter
 
 /**
  * Created by WangYanBin on 2020/8/11.
@@ -114,9 +110,18 @@ object AccountHelper {
 
     // <editor-fold defaultstate="collapsed" desc="通用用户工具类方法">
     /**
+     * 是否登陆
+     */
+    fun isLogin(): Boolean {
+        return getUser().let {
+            !it.token.isNullOrEmpty()
+        }
+    }
+
+    /**
      * 刷新个人信息 (重写 equals 和 hashcode)
      */
-    fun refresh(bean: UserInfoBean?, isPost: Boolean = true) {
+    fun refreshInfo(bean: UserInfoBean?, isPost: Boolean = true) {
         bean ?: return
         if (getUserInfo() == bean) return
         setUserInfo(bean)
@@ -124,12 +129,12 @@ object AccountHelper {
     }
 
     /**
-     * 是否登陆
+     * 1) 登录时，有 2 个值是需要保证的，用户登录信息(token/id...)/用户基本信息(姓名/性别...)
+     * 2) 只要有一个接口报错全部清空，反之依次存储
      */
-    fun isLogin(): Boolean {
-        return getUser().let {
-            !it.token.isNullOrEmpty()
-        }
+    fun clearUserCache() {
+        userBean.del()
+        userInfoBean.del()
     }
 
     /**
@@ -144,35 +149,26 @@ object AccountHelper {
 
     /**
      * 用户注销操作（清除信息,清除用户凭证，第三方库注销）
-     * MainActivity中注册EVENT_USER_LOGIN_OUT广播，关闭除其外的所有activity
-     * 如果需要跳转别的页面再调取ARouter，默认会拉起登录
+     * 1) MainActivity 中各个 Fragment 注册 EVENT_USER_LOGIN_OUT 广播，关闭除其外的所有 Activity
+     * 2) 如果需要跳转别的页面再调取 TheRouter，默认会拉起登录
      */
     fun signOut() {
-        // 清除mmkv和默认配置的数据库等缓存数据
-        userBean.del()
-        userInfoBean.del()
+        // 清除 mmkv 和默认配置的数据库等缓存数据
+        clearUserCache()
+        // 拉起 LinkActivity (透明页面) 内部调用 AppManager.rebootTaskStackAndLaunchTarget(path) 关闭所有页面后通过全局进程拉起对应页面
         AppManager.rebootTaskStackAndLaunchTarget(RouterPath.StartActivity)
     }
 
 //    fun signOut(isNavigation: Boolean = true) {
-//        userBean.del()
-//        userInfoBean.del()
+//        clearUserCache()
 //        SupportUtil.logoutUser(true)
 //        WebSocketConnect.disconnect()
 //        EVENT_USER_LOGIN_OUT.post()
+//        // MainActivity 调用 finishNotTargetActivity
 //        if (isNavigation) {
 //            TheRouter.build(RouterPath.LoginActivity).navigation(AppManager.currentActivity())
 //        }
 //    }
-
-    /**
-     * 登录时，有2个值是需要保证的，用户登录信息，基本信息
-     * 只要有一个接口报错，全部清空，反之依次存储
-     */
-    fun signError() {
-        userBean.del()
-        userInfoBean.del()
-    }
     // </editor-fold>
 
 }
