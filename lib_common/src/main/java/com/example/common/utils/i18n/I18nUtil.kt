@@ -208,8 +208,9 @@ object I18nUtil {
                         // 最多读3行，找到版本号立即退出
                         while (reader.ready() && count < 3 && version == null) {
                             count++
-                            val line = reader.readLine() ?: continue // 空行直接跳过
-                            // 匹配版本号并转换，toSafeInt() 是你的安全转换函数
+                            // 空行直接跳过
+                            val line = reader.readLine() ?: continue
+                            // 匹配版本号并转换
                             val versionStr = Regex("""(?<="version"\s?:\s?")\d*(?=")""").find(line)?.value
                             if (!versionStr.isNullOrEmpty()) {
                                 version = versionStr.toSafeInt()
