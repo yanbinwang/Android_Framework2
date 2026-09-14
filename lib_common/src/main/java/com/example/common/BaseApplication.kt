@@ -37,7 +37,7 @@ import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.LanguageUtil.checkLocalLanguageVersion
+import com.example.common.utils.i18n.LanguageUtil.checkLocalLanguage
 import com.example.common.utils.i18n.LanguageUtil.resetLocalLanguage
 import com.example.common.utils.i18n.LanguageUtil.applyLocalLanguage
 import com.example.common.utils.i18n.i18String
@@ -168,7 +168,7 @@ abstract class BaseApplication : Application() {
             applyLocalLanguage()
         } else {
             // 语言包已配置
-            checkLocalLanguageVersion()
+            checkLocalLanguage()
         }
     }
 

@@ -67,7 +67,7 @@ object LanguageUtil {
     /**
      * 检测语言包是否需要更新为本地版本的
      */
-    fun checkLocalLanguageVersion(language: String? = getLanguage()) {
+    fun checkLocalLanguage(language: String? = getLanguage()) {
         if (language.isNullOrEmpty()) {
             I18nUtil.apply(en_US, LanguageBean())
             return
@@ -77,6 +77,30 @@ object LanguageUtil {
         if (version > I18nUtil.getLanguageBeanVersion()) {
             val bean = I18nUtil.getLanguageBeanFromAsset(language) ?: return
             I18nUtil.apply(language, bean)
+        }
+    }
+
+    /**
+     * 获取目前选定语言的本地json
+     */
+    fun getLocalLanguage(language: String? = getLanguage()): String {
+        return when (language) {
+            zh_TW -> zh_TW_PACK
+            en_US -> en_US_PACK
+            in_ID -> in_ID_PACK
+            else -> en_US_PACK
+        }
+    }
+
+    /**
+     * 获取web端需要的语言字段
+     */
+    fun getLocalLanguageWebHeader(): String {
+        return when (getLanguage()) {
+            zh_TW -> "zh"
+            en_US -> "en"
+            in_ID -> "in"
+            else -> "en"
         }
     }
 
@@ -112,30 +136,6 @@ object LanguageUtil {
             }
         } catch (_: Exception) {
             0
-        }
-    }
-
-    /**
-     * 获取目前选定语言的本地json
-     */
-    fun getLocalLanguage(language: String? = getLanguage()): String {
-        return when (language) {
-            zh_TW -> zh_TW_PACK
-            en_US -> en_US_PACK
-            in_ID -> in_ID_PACK
-            else -> en_US_PACK
-        }
-    }
-
-    /**
-     * 获取web端需要的语言字段
-     */
-    fun getLocalLanguageWebHeader(): String {
-        return when (getLanguage()) {
-            zh_TW -> "zh"
-            en_US -> "en"
-            in_ID -> "in"
-            else -> "en"
         }
     }
 
