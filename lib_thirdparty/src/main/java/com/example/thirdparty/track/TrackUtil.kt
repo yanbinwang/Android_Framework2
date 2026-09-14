@@ -1,6 +1,6 @@
 package com.example.thirdparty.track
 
-import com.example.common.utils.DeviceIdUtil
+import com.example.common.config.Constants
 import com.example.common.utils.helper.AccountHelper.isLogin
 import com.example.framework.utils.function.value.isDebug
 import com.example.framework.utils.function.value.toBundle
@@ -45,7 +45,7 @@ object TrackUtil {
         if (isDebug || !isLogin()) return
         val bundle = pairs.toBundle { this }
         mUserId?.let { bundle.putString("user_id", it) }
-        DeviceIdUtil.deviceId?.let { bundle.putString("device_num", it) }
+        bundle.putString("device_num", Constants.DEVICE_ID)
         firebaseAnalytics?.logEvent(key, bundle)
     }
 
