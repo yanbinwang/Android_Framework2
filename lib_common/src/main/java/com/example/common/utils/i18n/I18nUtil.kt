@@ -34,16 +34,25 @@ object I18nUtil {
     // 語言包
     private val languageMap: ConcurrentHashMap<String, String>
         get() {
-            if (languageBean.get() == null) {
-                languageBean.set(LanguageBean())
-            } else if (languageBean.get()?.data == null) {
-                languageBean.get()?.data = ConcurrentHashMap()
+            // 仅一次 MMKV 读取 + 一次反序列化
+            var bean = languageBean.get()
+            var needSave = false
+            if (bean == null) {
+                bean = LanguageBean()
+                needSave = true
             }
-            return languageBean.get()?.data ?: ConcurrentHashMap()
+            if (bean.data == null) {
+                bean.data = ConcurrentHashMap()
+                needSave = true
+            }
+            if (needSave) {
+                languageBean.set(bean)
+            }
+            return bean.data ?: ConcurrentHashMap()
         }
 
     /**
-     * 注册
+     * 控件注册
      */
     fun register(textView: I18nImpl) {
         if (viewList.any { it.get() === textView }) return
@@ -52,7 +61,7 @@ object I18nUtil {
     }
 
     /**
-     * 解除注册
+     * 控件注销
      */
     fun unregister(textView: I18nImpl) {
         // lazy 保证是同一实例，remove 能正确匹配
@@ -61,7 +70,7 @@ object I18nUtil {
     }
 
     /**
-     * 检查是否有已被回收的item
+     * 检查是否有已被回收的控件
      */
     fun clearLanguage() {
         viewList.removeAll { it.get() == null }
@@ -94,15 +103,15 @@ object I18nUtil {
     /**
      * 获取当前语言对应key的内容，优先级是 国际化text > Resources > ""
      */
-    fun getText(ctx: Context, @StringRes res: Int, vararg param: Int): String {
-        if (param.isEmpty()) return getText(ctx, res)
-        val paramString = param.toNewList { getText(ctx, it) }.toTypedArray()
-        return getText(ctx, res, *paramString)
+    fun getText(context: Context, @StringRes res: Int, vararg param: Int): String {
+        if (param.isEmpty()) return getText(context, res)
+        val paramString = param.toNewList { getText(context, it) }.toTypedArray()
+        return getText(context, res, *paramString)
     }
 
-    fun getText(ctx: Context, @StringRes res: Int, vararg param: String): String {
-        if (param.isEmpty()) return getText(ctx, res)
-        val result = getText(ctx, res)
+    fun getText(context: Context, @StringRes res: Int, vararg param: String): String {
+        if (param.isEmpty()) return getText(context, res)
+        val result = getText(context, res)
         return try {
             String.format(result, *param)
         } catch (_: Exception) {
@@ -114,14 +123,14 @@ object I18nUtil {
         }
     }
 
-    fun getText(ctx: Context, @StringRes res: Int): String {
-        return getTextFromI18n(res) ?: getTextFromRes(ctx, res) ?: onResultNull(res)
+    fun getText(context: Context, @StringRes res: Int): String {
+        return getTextFromI18n(res) ?: getTextFromRes(context, res) ?: onResultNull(res)
     }
 
     /**
      * 获取 MMKV 中的国际化 String
      */
-    private fun getTextFromI18n(@StringRes res: Int?): String? {
+    private fun getTextFromI18n(@StringRes res: Int): String? {
         val key = I18nMap.map[res]
         if (key.isNullOrEmpty()) {
             if (isDebug) {
@@ -135,16 +144,15 @@ object I18nUtil {
     /**
      * 获取 Resources 中的国际化 String
      */
-    private fun getTextFromRes(ctx: Context, @StringRes res: Int?): String? {
-        if (res == null) return null
+    private fun getTextFromRes(context: Context, @StringRes res: Int): String? {
         if (res == -1) return null
-        return ctx.string(res)
+        return context.string(res)
     }
 
     /**
      * 空处理
      */
-    private fun onResultNull(@StringRes res: Int?): String {
+    private fun onResultNull(@StringRes res: Int): String {
         val key = I18nMap.map[res]
         if (isDebug) {
             "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV()
@@ -167,7 +175,7 @@ object I18nUtil {
     /**
      * 讀取assets下的font字體文件
      */
-    fun getLocalLanguageBean(language: String?): LanguageBean? {
+    fun getLocalLanguageBean(language: String): LanguageBean? {
         val pack = LanguageUtil.getLocalLanguageAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
@@ -186,7 +194,7 @@ object I18nUtil {
     /**
      * 獲取本機語言包版本
      */
-    fun getLocalLanguageVersion(language: String?): Int? {
+    fun getLocalLanguageVersion(language: String): Int? {
         val pack = LanguageUtil.getLocalLanguageAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {

@@ -56,7 +56,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             return
         }
         launch {
-            val localPack = getLocalLanguageBean(bean.language)
+            val localPack = getLocalLanguageBean(language)
             localPack?.let { result ->
                 result.version = bean.version
                 I18nUtil.setLanguagePack(language, result)
