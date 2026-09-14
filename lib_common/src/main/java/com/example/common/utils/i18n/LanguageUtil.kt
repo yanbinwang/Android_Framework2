@@ -83,7 +83,7 @@ object LanguageUtil {
     /**
      * 获取目前选定语言的本地json
      */
-    fun getLanguagePackFromAsset(language: String? = getLanguage()): String {
+    fun getLanguagePack(language: String? = getLanguage()): String {
         return when (language) {
             zh_TW -> zh_TW_PACK
             en_US -> en_US_PACK
@@ -96,7 +96,7 @@ object LanguageUtil {
      * 獲取本機語言包版本
      */
     fun getLanguageVersionFromAsset(language: String): Int? {
-        val pack = getLanguagePackFromAsset(language)
+        val pack = getLanguagePack(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             // 打开指定语言包，失败直接返回0
