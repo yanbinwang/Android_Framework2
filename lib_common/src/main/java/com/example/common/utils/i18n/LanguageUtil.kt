@@ -37,7 +37,7 @@ object LanguageUtil {
     /**
      * 設置本機的語言
      */
-    fun applyLocalLanguage(language: String? = getLanguage()) {
+    fun applyLanguage(language: String? = getLanguage()) {
         if (language.isNullOrEmpty()) {
             I18nUtil.apply(en_US, LanguageBean())
             return
@@ -53,7 +53,7 @@ object LanguageUtil {
     /**
      * 根據取到的手機語言切換對應語言
      */
-    fun resetLocalLanguage() {
+    fun resetLanguage() {
         setLanguage(
             when (Locale.getDefault().language.lowercase()) {
                 "zh" -> zh_TW
@@ -67,7 +67,7 @@ object LanguageUtil {
     /**
      * 检测语言包是否需要更新为本地版本的
      */
-    fun checkLocalLanguage(language: String? = getLanguage()) {
+    fun checkLanguage(language: String? = getLanguage()) {
         if (language.isNullOrEmpty()) {
             I18nUtil.apply(en_US, LanguageBean())
             return
@@ -83,7 +83,7 @@ object LanguageUtil {
     /**
      * 获取目前选定语言的本地json
      */
-    fun getLocalLanguage(language: String? = getLanguage()): String {
+    fun getLanguageFromAsset(language: String? = getLanguage()): String {
         return when (language) {
             zh_TW -> zh_TW_PACK
             en_US -> en_US_PACK
@@ -93,22 +93,10 @@ object LanguageUtil {
     }
 
     /**
-     * 获取web端需要的语言字段
-     */
-    fun getLocalLanguageWebHeader(): String {
-        return when (getLanguage()) {
-            zh_TW -> "zh"
-            en_US -> "en"
-            in_ID -> "in"
-            else -> "en"
-        }
-    }
-
-    /**
      * 獲取本機語言包版本
      */
     fun getLanguageVersionFromAsset(language: String): Int? {
-        val pack = LanguageUtil.getLocalLanguage(language)
+        val pack = getLanguageFromAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             // 打开指定语言包，失败直接返回0
@@ -139,6 +127,18 @@ object LanguageUtil {
         }
     }
 
+    /**
+     * 获取web端需要的语言字段
+     */
+    fun getLanguageWebHeader(): String {
+        return when (getLanguage()) {
+            zh_TW -> "zh"
+            en_US -> "en"
+            in_ID -> "in"
+            else -> "en"
+        }
+    }
+
 }
 
 /**
@@ -148,10 +148,8 @@ annotation class Language {
     companion object {
         // 繁中
         const val zh_TW = "zh_TW"
-
         // 英语
         const val en_US = "en_US"
-
         // 印尼语
         const val in_ID = "id_ID"
     }
@@ -161,10 +159,8 @@ annotation class LanguagePackAsset {
     companion object {
         // 繁中
         const val zh_TW_PACK = "zh_tw.json"
-
         // 英语
         const val en_US_PACK = "en_us.json"
-
         // 印尼语
         const val in_ID_PACK = "in_id.json"
     }

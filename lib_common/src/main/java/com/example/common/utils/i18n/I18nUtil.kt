@@ -176,7 +176,7 @@ object I18nUtil {
      * 讀取 assets下的 font字體文件
      */
     fun getLanguageBeanFromAsset(language: String): LanguageBean? {
-        val pack = LanguageUtil.getLocalLanguage(language)
+        val pack = LanguageUtil.getLanguageFromAsset(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             assetManager.open(pack).use { stream ->

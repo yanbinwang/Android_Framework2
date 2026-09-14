@@ -37,9 +37,9 @@ import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.LanguageUtil.checkLocalLanguage
-import com.example.common.utils.i18n.LanguageUtil.resetLocalLanguage
-import com.example.common.utils.i18n.LanguageUtil.applyLocalLanguage
+import com.example.common.utils.i18n.LanguageUtil.checkLanguage
+import com.example.common.utils.i18n.LanguageUtil.resetLanguage
+import com.example.common.utils.i18n.LanguageUtil.applyLanguage
 import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
@@ -164,11 +164,11 @@ abstract class BaseApplication : Application() {
     private fun initLanguage() {
         if (I18nUtil.getLanguageBeanVersion() <= 0) {
             // 语言包未配置
-            resetLocalLanguage()
-            applyLocalLanguage()
+            resetLanguage()
+            applyLanguage()
         } else {
             // 语言包已配置
-            checkLocalLanguage()
+            checkLanguage()
         }
     }
 
