@@ -12,7 +12,7 @@ import com.example.common.utils.builder.toast
 import com.example.common.utils.function.getStatusBarHeight
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
-import com.example.common.utils.i18n.I18nUtil.getLocalLanguageBean
+import com.example.common.utils.i18n.I18nUtil.getLanguageBeanFromAsset
 import com.example.common.utils.i18n.LanguageUtil
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.view.clicks
@@ -56,10 +56,10 @@ class MainActivity : BaseActivity<ActivityMainBinding>(), OnClickListener {
             return
         }
         launch {
-            val localPack = getLocalLanguageBean(language)
+            val localPack = getLanguageBeanFromAsset(language)
             localPack?.let { result ->
                 result.version = bean.version
-                I18nUtil.setLanguagePack(language, result)
+                I18nUtil.apply(language, result)
                 "语言切换成功".toast()
             }
         }

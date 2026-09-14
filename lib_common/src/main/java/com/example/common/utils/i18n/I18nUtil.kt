@@ -19,7 +19,6 @@ import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.logV
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonReader
-import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -57,31 +56,29 @@ object I18nUtil {
     fun register(textView: I18nImpl) {
         if (viewList.any { it.get() === textView }) return
         viewList.add(textView.getI18nRef())
-//        checkList()
+        clear()
     }
 
     /**
-     * 控件注销
+     * 控件注销 (lazy 保证是同一实例，remove 能正确匹配)
      */
     fun unregister(textView: I18nImpl) {
-        // lazy 保证是同一实例，remove 能正确匹配
         viewList.remove(textView.getI18nRef())
-//        checkList()
+        clear()
     }
 
     /**
      * 检查是否有已被回收的控件
      */
-    fun clearLanguage() {
+    fun clear() {
         viewList.removeAll { it.get() == null }
     }
 
     /**
-     * 刷新全局语言
-     * 對應view內實現語言的資源切換
+     * 刷新全局语言 (對應view內實現語言的資源切換)
      */
-    fun refreshLanguage() {
-//        checkList()
+    fun refresh() {
+//        clear()
 //        viewList.get()
 //            .forEach {
 //                it.get()?.refreshText()
@@ -97,6 +94,18 @@ object I18nUtil {
             } else {
                 view.applyI18n()
             }
+        }
+    }
+
+    /**
+     * 設置語言後，同步刷新 View
+     */
+    fun apply(packName: String, bean: LanguageBean, needRefresh: Boolean = true) {
+        LanguageUtil.setLanguage(packName)
+        languageBean.set(bean)
+        if (needRefresh) {
+            refresh()
+            EVENT_LANGUAGE_CHANGE.post()
         }
     }
 
@@ -124,7 +133,7 @@ object I18nUtil {
     }
 
     fun getText(context: Context, @StringRes res: Int): String {
-        return getTextFromI18n(res) ?: getTextFromRes(context, res) ?: onResultNull(res)
+        return getTextFromI18n(res) ?: getTextFromRes(context, res) ?: getFallbackText(res)
     }
 
     /**
@@ -133,9 +142,7 @@ object I18nUtil {
     private fun getTextFromI18n(@StringRes res: Int): String? {
         val key = I18nMap.map[res]
         if (key.isNullOrEmpty()) {
-            if (isDebug) {
-                "I18N key is null or empty. res:$res txt:${string(res.orZero)}".logV()
-            }
+            if (isDebug) "I18N key is null or empty. res:$res txt:${string(res.orZero)}".logV()
             return null
         }
         return languageMap[key]
@@ -150,33 +157,26 @@ object I18nUtil {
     }
 
     /**
-     * 空处理
+     * 找不到国际化文本时，输出日志并返回兜底字符串
      */
-    private fun onResultNull(@StringRes res: Int): String {
+    private fun getFallbackText(@StringRes res: Int): String {
         val key = I18nMap.map[res]
-        if (isDebug) {
-            "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV()
-        }
+        if (isDebug) "No value is set for i18n. res:$res txt:${string(res.orZero)} key:$key".logV()
         return ""
     }
 
     /**
-     * 設置語言後，同步刷新 View
+     * 獲取本地存儲的語言包类对应的版本号
      */
-    fun setLanguagePack(packName: String, bean: LanguageBean, needRefresh: Boolean = true) {
-        LanguageUtil.setLanguage(packName)
-        languageBean.set(bean)
-        if (needRefresh) {
-            refreshLanguage()
-            EVENT_LANGUAGE_CHANGE.post()
-        }
+    fun getLanguageBeanVersion(): Int {
+        return languageBean.get()?.version.toSafeInt()
     }
 
     /**
-     * 讀取assets下的font字體文件
+     * 讀取 assets下的 font字體文件
      */
-    fun getLocalLanguageBean(language: String): LanguageBean? {
-        val pack = LanguageUtil.getLocalLanguageAsset(language)
+    fun getLanguageBeanFromAsset(language: String): LanguageBean? {
+        val pack = LanguageUtil.getLocalLanguage(language)
         val assetManager = BaseApplication.instance.applicationContext.assets
         return try {
             assetManager.open(pack).use { stream ->
@@ -189,48 +189,6 @@ object I18nUtil {
         } catch (_: Exception) {
             null
         }
-    }
-
-    /**
-     * 獲取本機語言包版本
-     */
-    fun getLocalLanguageVersion(language: String): Int? {
-        val pack = LanguageUtil.getLocalLanguageAsset(language)
-        val assetManager = BaseApplication.instance.applicationContext.assets
-        return try {
-            // 打开指定语言包，失败直接返回0
-            assetManager.open(pack).use { input ->
-                // 指定UTF-8编码，避免系统默认编码问题；use自动关闭流
-                InputStreamReader(input, Charsets.UTF_8).use { inputReader ->
-                    BufferedReader(inputReader).use { reader ->
-                        var count = 0
-                        var version: Int? = null
-                        // 最多读3行，找到版本号立即退出
-                        while (reader.ready() && count < 3 && version == null) {
-                            count++
-                            // 空行直接跳过
-                            val line = reader.readLine() ?: continue
-                            // 匹配版本号并转换
-                            val versionStr = Regex("""(?<="version"\s?:\s?")\d*(?=")""").find(line)?.value
-                            if (!versionStr.isNullOrEmpty()) {
-                                version = versionStr.toSafeInt()
-                            }
-                        }
-                        // 返回匹配到的版本号（null则表示未找到）
-                        version
-                    }
-                }
-            }
-        } catch (_: Exception) {
-            0
-        }
-    }
-
-    /**
-     * 獲取本地存儲的語言包版本
-     */
-    fun getPackVersion(): Int {
-        return languageBean.get()?.version.toSafeInt()
     }
 
 }
