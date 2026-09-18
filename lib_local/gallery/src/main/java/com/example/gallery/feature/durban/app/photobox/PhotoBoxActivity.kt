@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
+import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
@@ -151,8 +152,8 @@ internal class PhotoBoxActivity : BaseActivity(), Contract.PhotoBoxPresenter {
 
     override fun finish() {
         super.finish()
-//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+//        overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

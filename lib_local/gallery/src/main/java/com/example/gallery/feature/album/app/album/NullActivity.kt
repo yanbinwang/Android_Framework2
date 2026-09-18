@@ -7,11 +7,11 @@ import android.os.Bundle
 import android.transition.Fade
 import android.transition.Visibility
 import android.view.View
-import android.view.ViewTreeObserver
 import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.intentString
+import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentBoolean
 import com.example.framework.utils.function.intentInt
@@ -79,7 +79,7 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
         if (!hasExtras()) return finish()
         // 覆盖基类动画
         setActivityAnimations()
-        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
         // 禁止侧滑拖动动画
 //        val decorView = window.decorView
 //        decorView.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
@@ -209,7 +209,7 @@ internal class NullActivity : BaseActivity(), Contract.NullPresenter {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

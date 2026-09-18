@@ -9,6 +9,7 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
 import com.example.common.config.RouterPath
+import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
@@ -34,7 +35,7 @@ class LinkActivity : BaseActivity<Nothing>() {
         // push信息用的intent
         @JvmStatic
         fun byPush(context: Context, vararg pairs: Pair<String, Any?>): Intent {
-            (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+//            (context as? BaseActivity<*>)?.overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
             isAnyActivityStarting = true
             return context.getIntent(LinkActivity::class.java, Extra.SOURCE to "push", *pairs)
         }
@@ -42,8 +43,9 @@ class LinkActivity : BaseActivity<Nothing>() {
         // 正常启动
         @JvmStatic
         fun start(context: Context, vararg pairs: Pair<String, Any?>) {
-            (context as? BaseActivity<*>)?.overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+            isAnyActivityStarting = true
             context.startActivity(LinkActivity::class.java, Extra.SOURCE to "normal", *pairs)
+            (context as? BaseActivity<*>)?.overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         }
     }
 
@@ -54,7 +56,7 @@ class LinkActivity : BaseActivity<Nothing>() {
     override fun initView(savedInstanceState: Bundle?) {
         super.initView(savedInstanceState)
         // 需写在setContentView之前,故而关闭isBindingEnabled,避免造成闪屏
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
@@ -67,7 +69,7 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     override fun finish() {
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         super.finish()
     }
 

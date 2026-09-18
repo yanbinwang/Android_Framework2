@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.CompoundButton
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.builder.toast
+import com.example.common.utils.function.overrideTransition
 import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
@@ -175,7 +176,7 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
                     val intent = Intent(this@AlbumActivity, NullActivity::class.java)
                     intent.putExtras(getIntent())
                     startActivityForResult(intent, CODE_ACTIVITY_NULL)
-                    overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+                    overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
                     scanAction(true)
                 })
             } else {
@@ -510,8 +511,8 @@ internal class AlbumActivity : BaseActivity(), Contract.AlbumPresenter {
         sResult = null
         sCancel = null
         super.finish()
-//        overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+//        overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_out)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

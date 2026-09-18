@@ -7,6 +7,7 @@ import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.Rect
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -19,6 +20,8 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.AnimRes
+import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
@@ -176,6 +179,22 @@ private fun Activity?.startActivityForResult(file: File?, intent: Intent, reques
         e.printStackTrace()
     }
     return file.absolutePath
+}
+
+/**
+ * 旧版单次转场动画，底层包装 overridePendingTransition
+ * 场景区分：
+ * 1) 外部 App 唤起当前 Activity：可在 onCreate 内调用，动画生效
+ * 2) 同 App 内部 startActivity 跳转：推荐在 startActivity() 紧跟后面调用；写在 onCreate 存在 ROM 兼容性风险，部分机型失效
+ * 3) 关闭页面：必须紧跟 finish() 之后调用
+ */
+fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int, @ColorInt bgColor: Int = Color.TRANSPARENT) {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        overridePendingTransition(enterAnim, exitAnim, bgColor)
+    } else {
+        overridePendingTransition(enterAnim, exitAnim)
+    }
 }
 
 /**

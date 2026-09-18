@@ -51,6 +51,7 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
+import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -222,7 +223,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         }
         initBefore()
         if (needTransparentOwner) {
-            overridePendingTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
+            overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
             /**
              * 在 Android 8.0 (API 26) 中，Google 引入了一个非常严格的限制：如果 Activity 是透明的（translucent）或浮动的（floating），则不允许通过代码或 Manifest 指定屏幕方向
              * 一旦违反，系统会在 onCreate → setRequestedOrientation 时直接抛出：java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation
@@ -446,7 +447,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun finish() {
         onFinishListener?.onFinish(this)
         super.finish()
-        if (needTransparentOwner) overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_out)
+        if (needTransparentOwner) overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_out)
     }
 
     override fun onDestroy() {

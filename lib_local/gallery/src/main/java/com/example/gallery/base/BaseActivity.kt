@@ -19,6 +19,7 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.common.base.bridge.BaseImpl
+import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
@@ -48,15 +49,17 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
         // 设置相册整体动画 (Activity 内部的 View 层级（内容区域）栈内 Activity 之间的共享元素过渡或内容过渡)
         setActivityAnimations()
         /**
-         * 强制补动画（外部跳转生效）
-         * 主要处理 Activity 作为整体被创建/销毁时 的窗口级过渡：
-         * 1) 外部（如通知栏、桌面、其他App）启动该 Activity
-         * 2) 栈内正常 startActivity() 且目标 Activity 不在栈中（新建实例）
-         * 3) finish() 退出时
+         * 强制补窗口级转场动画（仅 Activity 新建/销毁场景/外部跳转生效）
+         * 适用场景：
+         * 1) 外部唤起（通知栏、桌面、其他App）启动本 Activity ，新建实例
+         * 2) 栈内 startActivity ，目标 Activity 不在任务栈，创建新实例
+         * 3) finish() 销毁当前 Activity ，触发退场窗口动画
          * 不生效场景：
-         * 1) FLAG_ACTIVITY_REORDER_TO_FRONT / singleTask 复用已有实例时，因为 Activity 没有被重新创建，Window 级别的 pending transition 不会被触发 (onNewIntent 里无法用它补动画)
+         * 1) singleTask / FLAG_ACTIVITY_REORDER_TO_FRONT 复用栈中已有 Activity，仅触发 onNewIntent，Window 不重建窗口 pending transition 不会触发，此处动画代码不会执行
+         * 2) 调用位置不在 startActivity() / finish()紧跟之后，会失效
+         * 注意：overridePendingTransition 控制的是 Window 级别动画；复用 Activity 实例无 Window 重建，无法使用该 API 补动画
          */
-        overridePendingTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
+        overrideTransition(R.anim.set_translate_right_in, R.anim.set_translate_left_out)
         // 禁用ActionBar
         supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         // 布局开始之前回调
@@ -266,9 +269,17 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
         dataManager.clear()
     }
 
+    /**
+     * finish退场窗口动画
+     * 规则：super.finish() 必须在前，overridePendingTransition 紧跟其后，否则动画无法绑定本次窗口转场
+     * 参数：
+     * arg1：底层 Activity（A）进场动画 set_translate_left_in
+     * arg2：当前 Activity（B）退场动画 set_translate_right_out
+     * 限制：系统预测性返回手势不触发 finish，该动画不生效；仅主动 finish 生效
+     */
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
+        overrideTransition(R.anim.set_translate_left_in, R.anim.set_translate_right_out)
     }
 
 }

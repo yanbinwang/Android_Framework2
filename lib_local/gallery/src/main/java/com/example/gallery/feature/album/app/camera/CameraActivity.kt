@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
+import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
@@ -48,7 +49,7 @@ internal class CameraActivity : AppCompatActivity() {
         // 校验参数
         if (!hasExtras()) return finish()
         // 禁用过渡动画
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -126,7 +127,7 @@ internal class CameraActivity : AppCompatActivity() {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }

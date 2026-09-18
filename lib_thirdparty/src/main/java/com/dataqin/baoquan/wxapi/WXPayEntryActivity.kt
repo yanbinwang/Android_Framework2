@@ -9,6 +9,7 @@ import com.example.common.event.EventCode.EVENT_PAY_CANCEL
 import com.example.common.event.EventCode.EVENT_PAY_FAILURE
 import com.example.common.event.EventCode.EVENT_PAY_SUCCESS
 import com.example.common.utils.builder.toast
+import com.example.common.utils.function.overrideTransition
 import com.example.thirdparty.R
 import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
@@ -35,7 +36,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
@@ -46,7 +47,7 @@ class WXPayEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
 
     override fun finish() {
         super.finish()
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
     override fun onNewIntent(intent: Intent?) {

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.common.base.page.ResultCode
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.isPathExists
+import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
@@ -99,7 +100,7 @@ internal class CameraActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // 禁用过渡动画
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
         requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -158,7 +159,7 @@ internal class CameraActivity : AppCompatActivity() {
     override fun finish() {
         super.finish()
         // 关闭时也禁用动画，避免闪屏
-        overridePendingTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
 }
