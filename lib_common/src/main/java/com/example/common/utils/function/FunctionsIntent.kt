@@ -6,6 +6,7 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Rect
@@ -134,7 +135,7 @@ fun Activity?.pullUpImage(requestCode: Int = RESULT_IMAGE): String? {
     this ?: return null
     val file = getOutputFile(StorageType.IMAGE)
     val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
-    return startActivityForResult(file, intent, requestCode)
+    return launchCameraCapture(file, intent, requestCode)
 }
 
 /**
@@ -161,11 +162,15 @@ fun Activity?.pullUpVideo(maxDurationMs: Long = 1.hoursMs, maxSizeMb: Long = 10L
     val safeQuality = if (quality == 0) 0 else 1
     intent.putExtra(MediaStore.EXTRA_VIDEO_QUALITY, safeQuality)
     // 正式开启录制视频
-    return startActivityForResult(file, intent, requestCode)
+    return launchCameraCapture(file, intent, requestCode)
 }
 
-private fun Activity?.startActivityForResult(file: File?, intent: Intent, requestCode: Int): String? {
-    if (null == file || null == this) return null
+/**
+ * 内部统一处理：构建 FileProvider URI → 注入 EXTRA_OUTPUT → 启动相机 → 返回文件路径
+ * 专供 pullUpImage / pullUpVideo 使用，勿作通用 startActivityForResult 替代
+ */
+private fun Activity.launchCameraCapture(file: File?, intent: Intent, requestCode: Int): String? {
+    if (null == file) return null
     try {
         val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             FileProvider.getUriForFile(this, "${Constants.APPLICATION_ID}.fileProvider", file)
@@ -203,7 +208,8 @@ fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int
  * @param closePair 关闭时的 (进入动画, 退出动画)
  * @param backgroundPair (打开时背景色, 关闭时背景色)
  */
-fun Activity.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int> = kotlin.Pair(Color.TRANSPARENT, Color.TRANSPARENT)) {
+fun Activity?.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int> = kotlin.Pair(Color.TRANSPARENT, Color.TRANSPARENT)) {
+    this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         val (openEnter, openExit) = openPair
         val (closeEnter, closeExit) = closePair
@@ -211,6 +217,20 @@ fun Activity.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotl
         overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, openEnter, openExit, openBackground)
         overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, closeEnter, closeExit, closeBackground)
     }
+}
+
+/**
+ * 安全设置屏幕方向，自动规避 API 26 透明/浮动 Activity 的 IllegalStateException
+ * @param orientation 屏幕方向常量，取值参考 [ActivityInfo.SCREEN_ORIENTATION_PORTRAIT]、[ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE]、[ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED] 等
+ */
+fun Activity?.safeSetRequestedOrientation(orientation: Int) {
+    this ?: return
+    val safeOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+        ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    } else {
+        orientation
+    }
+    requestedOrientation = safeOrientation
 }
 
 /**
