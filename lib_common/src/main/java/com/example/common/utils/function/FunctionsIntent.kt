@@ -203,7 +203,7 @@ fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int
  * @param closePair 关闭时的 (进入动画, 退出动画)
  * @param backgroundPair (打开时背景色, 关闭时背景色)
  */
-fun Activity.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int>) {
+fun Activity.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int> = kotlin.Pair(Color.TRANSPARENT, Color.TRANSPARENT)) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
         val (openEnter, openExit) = openPair
         val (closeEnter, closeExit) = closePair
