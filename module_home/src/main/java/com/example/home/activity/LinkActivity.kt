@@ -60,7 +60,7 @@ class LinkActivity : BaseActivity<Nothing>() {
         super.initView(savedInstanceState)
         // 需写在setContentView之前,故而关闭isBindingEnabled,避免造成闪屏
         overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
-        requestedOrientation = if (Build.VERSION.SDK_INT == 26) {
+        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
             ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         } else {
             ActivityInfo.SCREEN_ORIENTATION_PORTRAIT

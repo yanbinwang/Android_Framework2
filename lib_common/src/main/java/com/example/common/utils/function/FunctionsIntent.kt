@@ -188,12 +188,28 @@ private fun Activity?.startActivityForResult(file: File?, intent: Intent, reques
  * 2) 同 App 内部 startActivity 跳转：推荐在 startActivity() 紧跟后面调用；写在 onCreate 存在 ROM 兼容性风险，部分机型失效
  * 3) 关闭页面：必须紧跟 finish() 之后调用
  */
-fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int, @ColorInt bgColor: Int = Color.TRANSPARENT) {
+fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int, @ColorInt backgroundColor: Int = Color.TRANSPARENT) {
     this ?: return
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        overridePendingTransition(enterAnim, exitAnim, bgColor)
+        overridePendingTransition(enterAnim, exitAnim, backgroundColor)
     } else {
         overridePendingTransition(enterAnim, exitAnim)
+    }
+}
+
+/**
+ * 一行配置 Activity 转场动画 (API 34+ 针对页面的配置可以使用该扩展)
+ * @param openPair 打开时的 (进入动画, 退出动画)
+ * @param closePair 关闭时的 (进入动画, 退出动画)
+ * @param backgroundPair (打开时背景色, 关闭时背景色)
+ */
+fun Activity.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int>) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        val (openEnter, openExit) = openPair
+        val (closeEnter, closeExit) = closePair
+        val (openBackground, closeBackground) = backgroundPair
+        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, openEnter, openExit, openBackground)
+        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, closeEnter, closeExit, closeBackground)
     }
 }
 
