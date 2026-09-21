@@ -9,10 +9,10 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
 import com.example.common.config.RouterPath
-import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.overrideTransition
 import com.example.framework.utils.function.value.secondsMs
 import com.example.home.R
 import com.therouter.router.Route
