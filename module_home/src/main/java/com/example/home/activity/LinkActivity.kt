@@ -66,8 +66,8 @@ class LinkActivity : BaseActivity<Nothing>() {
     }
 
     override fun finish() {
-        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         super.finish()
+        overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
     }
 
     private fun onLink() {
