@@ -11,12 +11,12 @@ import android.window.OnBackInvokedCallback
 import android.window.OnBackInvokedDispatcher
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.function.intentString
-import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentBoolean
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentParcelable
+import com.example.framework.utils.function.overrideTransition
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.album.Album

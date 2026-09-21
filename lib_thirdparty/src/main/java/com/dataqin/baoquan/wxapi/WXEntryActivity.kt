@@ -6,7 +6,8 @@ import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.example.common.utils.builder.toast
-import com.example.common.utils.function.overrideTransition
+import com.example.framework.utils.function.overrideTransition
+import com.example.framework.utils.function.safeSetRequestedOrientation
 import com.example.thirdparty.R
 import com.example.thirdparty.wechat.WXManager
 import com.tencent.mm.opensdk.modelbase.BaseReq
@@ -36,11 +37,7 @@ class WXEntryActivity : AppCompatActivity(), IWXAPIEventHandler {
         // 禁用过渡动画
         overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         // 处理微信回调Intent
         wxApi?.handleIntent(intent, this)
 //        finish()

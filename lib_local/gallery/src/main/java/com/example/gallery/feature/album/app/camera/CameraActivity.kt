@@ -6,11 +6,12 @@ import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
-import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.overrideTransition
+import com.example.framework.utils.function.safeSetRequestedOrientation
 import com.example.gallery.R
 import com.example.gallery.feature.album.Album
 import com.example.gallery.feature.album.api.callback.Action
@@ -51,11 +52,7 @@ internal class CameraActivity : AppCompatActivity() {
         // 禁用过渡动画
         overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         // 拿取默认传递的路径
         mCameraFilePath = intentString(Album.KEY_INPUT_FILE_PATH)
         // 根据功能类型：打开系统相机

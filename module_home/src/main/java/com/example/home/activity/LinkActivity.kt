@@ -9,10 +9,11 @@ import com.example.common.base.BaseActivity
 import com.example.common.base.page.Extra
 import com.example.common.base.page.getFadeOptions
 import com.example.common.config.RouterPath
-import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.manager.AppManager
 import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.intentString
+import com.example.framework.utils.function.overrideTransition
+import com.example.framework.utils.function.safeSetRequestedOrientation
 import com.example.home.R
 import com.therouter.router.Route
 import kotlinx.coroutines.Job
@@ -57,11 +58,7 @@ class LinkActivity : BaseActivity<Nothing>() {
         super.initView(savedInstanceState)
         // 需写在setContentView之前,故而关闭isBindingEnabled,避免造成闪屏
         overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
 //        // 預留3s的關閉時間
 //        setTimeOut()
         // 處理推送透傳信息

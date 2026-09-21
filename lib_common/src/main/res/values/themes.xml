@@ -79,7 +79,7 @@
         <item name="android:windowAnimationStyle">@null</item>
     </style>
 
-    <!-- 透明主题 (拉起一个透底的Activity) -->
+    <!-- 透明主题 (拉起一个透底的 Activity 在 AndroidManifest 里不可指定 screenOrientation) -->
     <style name="TranslucentTheme" parent="NoAnimTheme">
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -107,6 +107,7 @@
                    ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
                }
             }
+       3)  在 AndroidManifest 里不可指定 screenOrientation
     -->
     <style name="TransparentTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="android:windowActionBar">false</item>

@@ -19,12 +19,12 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import com.example.common.base.bridge.BaseImpl
-import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.removeNavigationBarDrawable
 import com.example.common.utils.setNavigationBarDrawable
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
+import com.example.framework.utils.function.overrideTransition
 import com.example.framework.utils.function.value.isMainThread
 import com.example.gallery.R
 import com.example.gallery.base.bridge.PageCloseable

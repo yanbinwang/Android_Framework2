@@ -6,7 +6,6 @@ import android.view.View
 import android.widget.CompoundButton
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
 import com.example.common.utils.builder.toast
-import com.example.common.utils.function.overrideTransition
 import com.example.common.widget.popup.select.SelectLabelPopup
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
@@ -16,6 +15,7 @@ import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.intentParcelableArrayList
+import com.example.framework.utils.function.overrideTransition
 import com.example.framework.utils.function.string
 import com.example.framework.utils.function.value.orFalse
 import com.example.gallery.R

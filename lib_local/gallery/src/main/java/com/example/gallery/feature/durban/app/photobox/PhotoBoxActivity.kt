@@ -5,12 +5,12 @@ import android.graphics.Bitmap
 import android.os.Bundle
 import com.example.common.config.Constants
 import com.example.common.utils.ScreenUtil.shouldUseWhiteSystemBarsForRes
-import com.example.common.utils.function.overrideTransition
 import com.example.framework.utils.function.hasExtras
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentParcelable
 import com.example.framework.utils.function.intentString
 import com.example.framework.utils.function.intentStringArrayList
+import com.example.framework.utils.function.overrideTransition
 import com.example.gallery.R
 import com.example.gallery.base.BaseActivity
 import com.example.gallery.feature.durban.Durban

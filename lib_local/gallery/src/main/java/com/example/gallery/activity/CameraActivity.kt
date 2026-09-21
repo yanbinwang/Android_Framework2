@@ -10,13 +10,14 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.common.base.page.ResultCode
 import com.example.common.utils.function.getFileFromUri
 import com.example.common.utils.function.isPathExists
-import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.function.pullUpAlbum
 import com.example.common.utils.function.pullUpImage
 import com.example.common.utils.function.pullUpVideo
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
+import com.example.framework.utils.function.overrideTransition
+import com.example.framework.utils.function.safeSetRequestedOrientation
 import com.example.framework.utils.function.value.hoursMs
 import com.example.gallery.R
 
@@ -102,11 +103,7 @@ internal class CameraActivity : AppCompatActivity() {
         // 禁用过渡动画
         overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         // 强制竖屏（统一适配，避免横屏回调异常）
-        requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-        } else {
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-        }
+        safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         initData()
     }
 

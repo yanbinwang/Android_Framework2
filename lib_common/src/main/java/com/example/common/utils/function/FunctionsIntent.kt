@@ -187,53 +187,6 @@ private fun Activity.launchCameraCapture(file: File?, intent: Intent, requestCod
 }
 
 /**
- * 旧版单次转场动画，底层包装 overridePendingTransition
- * 场景区分：
- * 1) 外部 App 唤起当前 Activity：可在 onCreate 内调用，动画生效
- * 2) 同 App 内部 startActivity 跳转：推荐在 startActivity() 紧跟后面调用；写在 onCreate 存在 ROM 兼容性风险，部分机型失效
- * 3) 关闭页面：必须紧跟 finish() 之后调用
- */
-fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int, @ColorInt backgroundColor: Int = Color.TRANSPARENT) {
-    this ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        overridePendingTransition(enterAnim, exitAnim, backgroundColor)
-    } else {
-        overridePendingTransition(enterAnim, exitAnim)
-    }
-}
-
-/**
- * 一行配置 Activity 转场动画 (API 34+ 针对页面的配置可以使用该扩展)
- * @param openPair 打开时的 (进入动画, 退出动画)
- * @param closePair 关闭时的 (进入动画, 退出动画)
- * @param backgroundPair (打开时背景色, 关闭时背景色)
- */
-fun Activity?.overrideTransition(openPair: kotlin.Pair<Int, Int>, closePair: kotlin.Pair<Int, Int>, backgroundPair: kotlin.Pair<Int, Int> = kotlin.Pair(Color.TRANSPARENT, Color.TRANSPARENT)) {
-    this ?: return
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-        val (openEnter, openExit) = openPair
-        val (closeEnter, closeExit) = closePair
-        val (openBackground, closeBackground) = backgroundPair
-        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, openEnter, openExit, openBackground)
-        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, closeEnter, closeExit, closeBackground)
-    }
-}
-
-/**
- * 安全设置屏幕方向，自动规避 API 26 透明/浮动 Activity 的 IllegalStateException
- * @param orientation 屏幕方向常量，取值参考 [ActivityInfo.SCREEN_ORIENTATION_PORTRAIT]、[ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE]、[ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED] 等
- */
-fun Activity?.safeSetRequestedOrientation(orientation: Int) {
-    this ?: return
-    val safeOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-        ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-    } else {
-        orientation
-    }
-    requestedOrientation = safeOrientation
-}
-
-/**
  * 跳转当前应用的 MANAGE_EXTERNAL_STORAGE 专属设置页（最优路径）
  */
 fun Context?.pullUpManageStorageSetting() {
