@@ -51,7 +51,6 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
-import com.example.common.utils.function.overrideTransition
 import com.example.common.utils.function.registerResultWrapper
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
@@ -65,6 +64,8 @@ import com.example.common.widget.textview.edittext.SpecialEditText
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.getIntent
+import com.example.framework.utils.function.overrideTransition
+import com.example.framework.utils.function.safeSetRequestedOrientation
 import com.example.framework.utils.function.value.hasAnnotation
 import com.example.framework.utils.function.value.isMainThread
 import com.gyf.immersionbar.ImmersionBar
@@ -229,11 +230,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
              * 一旦违反，系统会在 onCreate → setRequestedOrientation 时直接抛出：java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation
              * API 27+已修复，透明 Activity 又可以安全地设置 SCREEN_ORIENTATION_PORTRAIT 了
              */
-            requestedOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-            }
+            safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         }
         AppManager.addActivity(this)
         WebSocketObserver.addObserver(this)

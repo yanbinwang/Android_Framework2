@@ -15,7 +15,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.ServiceConnection
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.graphics.drawable.Icon
@@ -28,6 +30,8 @@ import android.text.TextUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.AnimRes
+import androidx.annotation.ColorInt
 import androidx.annotation.ColorRes
 import androidx.annotation.DimenRes
 import androidx.annotation.DrawableRes
@@ -406,20 +410,34 @@ fun Context?.isAccessibilityServiceEnabled(service: Class<*>): Boolean {
 }
 
 /**
- *  获取对应Class类页面中Intent的消息
+ * 跳转到指定 Class 类页面，支持以键值对形式透传参数
+ * 1) 若调用者是 Application（如从推送、后台服务拉起），自动补 FLAG_ACTIVITY_NEW_TASK，否则系统会抛异常
+ * 3) 参数统一写入 Bundle，由 [Bundle.writeBundle] 统一处理类型分发
  */
 fun Context.startActivity(cls: Class<out Activity>, vararg pairs: Pair<String, Any?>) {
     startActivity(getIntent(cls, *pairs).apply {
+        // Application 上下文没有任务栈，必须指定 NEW_TASK
         if (this@startActivity is Application) {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
     })
 }
 
+/**
+ * 以 startActivityForResult 方式跳转，支持透传参数
+ * @param cls 目标 Activity
+ * @param requestCode 请求码，用于 onActivityResult 回调区分来源
+ * @param pairs 键值对参数
+ */
 fun Activity.startActivityForResult(cls: Class<out Activity>, requestCode: Int, vararg pairs: Pair<String, Any?>) {
     startActivityForResult(getIntent(cls, *pairs), requestCode)
 }
 
+/**
+ * 构建指向目标 Class 的 Intent，并附带键值对参数，内部会先把所有参数写入一个 [Bundle]，再通过 [Intent.putExtras] 整体塞入，避免逐个 put 时类型判断散落各处。
+ * @param cls 目标 Context（通常是 Activity 类）
+ * @param pairs 键值对参数，value 必须是 [Bundle.writeBundle] 支持的类型
+ */
 fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>): Intent {
     val intent = Intent(this, cls)
     val bundle = Bundle()
@@ -428,6 +446,12 @@ fun Context.getIntent(cls: Class<out Context>, vararg pairs: Pair<String, Any?>)
     return intent
 }
 
+/**
+ * 设置当前 Activity 的返回结果，并附带键值对参数
+ * @param resultCode 结果码（RESULT_OK / RESULT_CANCELED / 自定义码）
+ * @param pairs 回传给上一个页面的键值对参数
+ * @return 返回 this，支持链式调用后直接 finish()
+ */
 fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Activity {
     val intent = Intent()
     val bundle = Bundle()
@@ -437,11 +461,62 @@ fun Activity.withResult(resultCode: Int, vararg pairs: Pair<String, Any?>): Acti
     return this
 }
 
+/**
+ * 为 Fragment 设置 arguments 参数 (替代无参构造 + setArguments，避免 Fragment 重建时参数丢失)
+ */
 fun Fragment.withArguments(vararg pairs: Pair<String, Any?>): Fragment {
     val bundle = Bundle()
     bundle.writeBundle(*pairs)
     arguments = bundle
     return this
+}
+
+/**
+ * 旧版单次转场动画，底层包装 overridePendingTransition
+ * 场景区分：
+ * 1) 外部 App 唤起当前 Activity：可在 onCreate 内调用，动画生效
+ * 2) 同 App 内部 startActivity 跳转：推荐在 startActivity() 紧跟后面调用；写在 onCreate 存在 ROM 兼容性风险，部分机型失效
+ * 3) 关闭页面：必须紧跟 finish() 之后调用
+ */
+fun Activity?.overrideTransition(@AnimRes enterAnim: Int, @AnimRes exitAnim: Int, @ColorInt backgroundColor: Int = Color.TRANSPARENT) {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        overridePendingTransition(enterAnim, exitAnim, backgroundColor)
+    } else {
+        overridePendingTransition(enterAnim, exitAnim)
+    }
+}
+
+/**
+ * 一行配置 Activity 转场动画 (API 34+ 针对页面的配置可以使用该扩展)
+ * @param openPair 打开时的 (进入动画, 退出动画)
+ * @param closePair 关闭时的 (进入动画, 退出动画)
+ * @param backgroundPair (打开时背景色, 关闭时背景色)
+ */
+fun Activity?.overrideTransition(openPair: Pair<Int, Int>, closePair: Pair<Int, Int>, backgroundPair: Pair<Int, Int> = Pair(Color.TRANSPARENT, Color.TRANSPARENT)) {
+    this ?: return
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        val (openEnter, openExit) = openPair
+        val (closeEnter, closeExit) = closePair
+        val (openBackground, closeBackground) = backgroundPair
+        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_OPEN, openEnter, openExit, openBackground)
+        overrideActivityTransition(Activity.OVERRIDE_TRANSITION_CLOSE, closeEnter, closeExit, closeBackground)
+    }
+}
+
+/**
+ * 安全设置屏幕方向，自动规避 API 26 透明/浮动 Activity 的 IllegalStateException
+ * 关键: 透明主题页面一律不得在 AndroidManifest 里指定 screenOrientation)
+ * @param orientation 屏幕方向常量，取值参考 [ActivityInfo.SCREEN_ORIENTATION_PORTRAIT]、[ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE]、[ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED] 等
+ */
+fun Activity?.safeSetRequestedOrientation(orientation: Int) {
+    this ?: return
+    val safeOrientation = if (Build.VERSION.SDK_INT == Build.VERSION_CODES.O) {
+        ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+    } else {
+        orientation
+    }
+    requestedOrientation = safeOrientation
 }
 
 /**

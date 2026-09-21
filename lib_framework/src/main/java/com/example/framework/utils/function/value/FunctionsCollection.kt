@@ -378,7 +378,20 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 }
 
 /**
- * 通用填充Bundle，统一处理所有支持类型
+ * 通用 Bundle 参数填充方法，统一处理所有支持的类型
+ * 支持类型一览：
+ *  1) 基本数值类型：Int / Long / Byte / Short / Float / Double / Boolean / Char
+ *  2) 文本类型：String / CharSequence
+ *  3) 基础类型数组：IntArray / LongArray / ByteArray / ...
+ *  4) 标准容器与序列化：Bundle / Parcelable / Serializable
+ *  5) SparseArray<Parcelable>
+ *  6) 数组类型（按首元素类型推断）：Array<CharSequence> / Array<String> / Array<Parcelable>
+ *  7) List 类型（按首元素类型推断）：ArrayList<Int> / ArrayList<String> / ...
+ * 注意事项：
+ *  1) 空集合（size == 0）会被跳过，因为 Bundle 无法从空集合推断元素类型
+ *  2) SparseArray / Array / List 均取首元素 [0] 判断类型，所以要求集合内元素类型一致，否则不写入且不报错（静默跳过）
+ *  3) 未在 when 分支里的类型（如自定义 Java 对象未实现 Serializable/Parcelable）会被静默忽略
+ *  4) @Suppress("UNCHECKED_CAST") 是因为泛型擦除，运行时无法精确判断，依赖首元素类型做强制转换，使用方需保证类型一致
  */
 fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
     pairs.forEach { (key, value) ->
