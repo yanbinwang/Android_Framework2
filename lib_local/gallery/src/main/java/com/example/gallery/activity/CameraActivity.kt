@@ -1,9 +1,9 @@
 package com.example.gallery.activity
 
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.os.Build
 import android.os.Bundle
 import android.view.MotionEvent
 import androidx.appcompat.app.AppCompatActivity
@@ -18,6 +18,7 @@ import com.example.framework.utils.function.intentInt
 import com.example.framework.utils.function.intentLong
 import com.example.framework.utils.function.overrideTransition
 import com.example.framework.utils.function.safeSetRequestedOrientation
+import com.example.framework.utils.function.startActivity
 import com.example.framework.utils.function.value.hoursMs
 import com.example.gallery.R
 
@@ -60,10 +61,12 @@ internal class CameraActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
-            startActivity(intent)
+//            val intent = Intent(this, CameraActivity::class.java)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_IMAGE)
+//            startActivity(intent)
+            startActivity(CameraActivity::class.java, CAMERA_FUNCTION to CAMERA_FUNCTION_IMAGE)
+            (this as? Activity)?.overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         }
 
         /**
@@ -74,13 +77,15 @@ internal class CameraActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
-            intent.putExtra(CAMERA_QUALITY, quality)
-            intent.putExtra(CAMERA_DURATION, maxDurationMs)
-            intent.putExtra(CAMERA_BYTES, maxSizeMb)
-            startActivity(intent)
+//            val intent = Intent(this, CameraActivity::class.java)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_VIDEO)
+//            intent.putExtra(CAMERA_QUALITY, quality)
+//            intent.putExtra(CAMERA_DURATION, maxDurationMs)
+//            intent.putExtra(CAMERA_BYTES, maxSizeMb)
+//            startActivity(intent)
+            startActivity(CameraActivity::class.java, CAMERA_FUNCTION to CAMERA_FUNCTION_VIDEO, CAMERA_QUALITY to quality, CAMERA_DURATION to maxDurationMs, CAMERA_BYTES to maxSizeMb)
+            (this as? Activity)?.overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         }
 
         /**
@@ -91,10 +96,12 @@ internal class CameraActivity : AppCompatActivity() {
             onResult = {
                 listener.invoke(it)
             }
-            val intent = Intent(this, CameraActivity::class.java)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
-            startActivity(intent)
+//            val intent = Intent(this, CameraActivity::class.java)
+//            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//            intent.putExtra(CAMERA_FUNCTION, CAMERA_FUNCTION_ALBUM)
+//            startActivity(intent)
+            startActivity(CameraActivity::class.java, CAMERA_FUNCTION to CAMERA_FUNCTION_ALBUM)
+            (this as? Activity)?.overrideTransition(R.anim.set_alpha_none, R.anim.set_alpha_none)
         }
     }
 
