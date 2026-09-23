@@ -153,7 +153,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     /**
      * 复用页面时强制统一动画（右侧划入）
-     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     * 1) 虽然定义了全局动画,但使用 FLAG_ACTIVITY_REORDER_TO_FRONT 拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     * 2) 不指定 mode 则既能做入场，也能做出场动画
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
@@ -174,29 +175,29 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
          * 在 Android 中，enableEdgeToEdge() 方法是在 API 29（Android 10） 及以上版本引入的，用于实现「边缘到边缘」（edge-to-edge）的显示效果（让内容延伸到状态栏和导航栏下方）。它的兼容性逻辑是：
          * 状态栏:
          * API 23-25
-         * 1. 内容延伸到状态栏下方
-         * 2. 颜色 = 传入的 statusBarStyle 对应模式的 scrim（默认透明）
-         * 3. 支持控制状态栏文字亮 / 暗色（通过 isAppearanceLightStatusBars）
+         *  (1) 内容延伸到状态栏下方
+         *  (2) 颜色 = 传入的 statusBarStyle 对应模式的 scrim（默认透明）
+         *  (3) 支持控制状态栏文字亮 / 暗色（通过 isAppearanceLightStatusBars）
          * API 26-28
-         * 同 API 23-25（颜色随 statusBarStyle 切换，支持文字亮 / 暗色）
+         *  (1) 同 API 23-25（颜色随 statusBarStyle 切换，支持文字亮 / 暗色）
          * API 29+
-         * 1. 内容延伸到状态栏下方
-         * 2. 颜色 = 透明（getScrimWithEnforcedContrast 逻辑）
-         * 3. 支持文字亮 / 暗色，新增 “对比度强制” 控制
+         *  (1) 内容延伸到状态栏下方
+         *  (2) 颜色 = 透明（getScrimWithEnforcedContrast 逻辑）
+         *  (3) 支持文字亮 / 暗色，新增 “对比度强制” 控制
          *
          * 导航栏:
          * API 23-25
-         * 1. 内容延伸到导航栏下方
-         * 2. 颜色固定为 navigationBarStyle.darkScrim（默认半透明黑：0x801b1b1b）
-         * 3. 不支持控制导航栏文字亮 / 暗色
+         *  (1) 内容延伸到导航栏下方
+         *  (2) 颜色固定为 navigationBarStyle.darkScrim（默认半透明黑：0x801b1b1b）
+         *  (3) 不支持控制导航栏文字亮 / 暗色
          * API 26-28
-         * 1. 内容延伸到导航栏下方
-         * 2. 颜色 = 传入的 navigationBarStyle 对应模式的 scrim（亮模式用 DefaultLightScrim，暗模式用 DefaultDarkScrim）
-         * 3. 支持控制导航栏文字亮 / 暗色
+         *  (1) 内容延伸到导航栏下方
+         *  (2) 颜色 = 传入的 navigationBarStyle 对应模式的 scrim（亮模式用 DefaultLightScrim，暗模式用 DefaultDarkScrim）
+         *  (3) 支持控制导航栏文字亮 / 暗色
          * API 29+
-         * 1. 内容延伸到导航栏下方
-         * 2. 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
-         * 3. 支持文字亮 / 暗色，对比度由系统管理
+         *  (1) 内容延伸到导航栏下方
+         *  (2) 颜色 = 透明（系统自动处理手势导航 / 三键导航的 scrim）
+         *  (3) 支持文字亮 / 暗色，对比度由系统管理
          */
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
