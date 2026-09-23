@@ -7,7 +7,6 @@
             android:name="com.example.gallery.activity.CameraActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             android:theme="@style/Gallery.Theme.Activity.Transparent"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan" />
         <!-- 图片裁剪页 -->
