@@ -464,17 +464,6 @@
 # ---------------------------- 今日头条兼容 ----------------------------
 -keep class me.jessyan.autosize.** { *; }
 -keep interface me.jessyan.autosize.** { *; }
-## ---------------------------- GreenDao混淆 ----------------------------
-#-keep class org.greenrobot.greendao.**{*;}
-#-keep public interface org.greenrobot.greendao.**
-#-keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
-#public static java.lang.String TABLENAME;
-#}
-#-keep class **$Properties
-#-keep class net.sqlcipher.database.**{*;}
-#-keep public interface net.sqlcipher.database.**
-#-dontwarn net.sqlcipher.database.**
-#-dontwarn org.greenrobot.greendao.**
 # ---------------------------- 播放器混淆 ----------------------------
 -keep class com.shuyu.gsyvideoplayer.video.** { *; }
 -dontwarn com.shuyu.gsyvideoplayer.video.**
@@ -507,6 +496,13 @@
 # 2. 如果主项目有用反射/条件调用测试库代码，保留相关类名/方法名
 -keepnames class com.example.debugging.utils.DebuggingUtil {
     public static void init(android.content.Context, java.lang.Class);
+}
+# ---------------------------- ViewModel 混淆 ----------------------------
+-keepattributes EnclosingMethod
+-keepattributes InnerClasses
+# 所有 BaseViewModel 的子类，保留方法名
+-keepclassmembernames class * extends com.example.common.base.bridge.BaseViewModel {
+    <methods>;
 }
 # ---------------------------- 项目库混淆 ----------------------------
 # 直接保留SplashActivity所有内容，不混淆、不删除任何方法/变量
