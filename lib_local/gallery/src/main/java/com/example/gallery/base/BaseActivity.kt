@@ -83,6 +83,11 @@ abstract class BaseActivity : AppCompatActivity(), BaseImpl, PageCloseable {
     }
 
     private fun setActivityAnimations() {
+        /**
+         * @param mode 职责隔离，动画实例单向专用，不会串场，更严谨
+         * MODE_IN：强制这个 Slide 只处理 View “出现”，只做滑入；就算赋值给 exitTransition（退场场景），也不会触发退场动画
+         * MODE_OUT：强制这个 Slide 只处理 View “消失”，只做滑出；就算给 enterTransition 也不会触发入场
+         */
         val (slideEnter, slideExit) = Pair(
             Slide(Gravity.END).apply { duration = 300; mode = Visibility.MODE_IN },
             Slide(Gravity.START).apply { duration = 300; mode = Visibility.MODE_OUT }

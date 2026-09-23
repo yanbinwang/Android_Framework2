@@ -153,7 +153,8 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
 
     /**
      * 复用页面时强制统一动画（右侧划入）
-     * 虽然定义了全局动画,但使用FLAG_ACTIVITY_REORDER_TO_FRONT拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     * 1) 虽然定义了全局动画,但使用 FLAG_ACTIVITY_REORDER_TO_FRONT 拉起栈内已有 Activity 时，触发的是关闭动画对应的配置而非启动动画,故而直接重写
+     * 2) 不指定 mode 则既能做入场，也能做出场动画
      */
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
