@@ -1,6 +1,7 @@
 package com.example.common.utils.function
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.Rect
@@ -584,14 +585,23 @@ object ExtraNumber {
     /**
      * dp → 转成 手机真实像素 px
      */
-    fun Number?.dp(context: Context = BaseApplication.instance.applicationContext): Int {
-        if (this == null) return 0
-        return dpFloat(context).toInt()
+//    fun Number?.dp(context: Context = BaseApplication.instance.applicationContext): Int {
+//        if (this == null) return 0
+//        return dpFloat(context).toInt()
+//    }
+//
+//    fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
+//    }
+    fun Number?.dp(activity: Activity? = AppManager.currentActivity()): Int {
+        if (this == null || activity == null) return 0
+        return dpFloat(activity).toInt()
     }
 
-    fun Number?.dpFloat(context: Context = BaseApplication.instance.applicationContext): Float {
-        if (this == null) return 0f
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
+    fun Number?.dpFloat(activity: Activity? = AppManager.currentActivity()): Float {
+        if (this == null || activity == null) return 0f
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), activity.resources.displayMetrics)
     }
 
     /**
@@ -601,6 +611,10 @@ object ExtraNumber {
         if (this == null) return 0
         return getRealSize(context, this.toDouble())
     }
+//    fun Number?.pt(activity: Activity? = AppManager.currentActivity()): Int {
+//        if (this == null || activity == null) return 0
+//        return getRealSize(activity, this.toDouble())
+//    }
 
     /**
      * 设计图尺寸转换为实际尺寸
@@ -609,6 +623,10 @@ object ExtraNumber {
         if (this == null) return 0f
         return getRealSizeFloat(context, this.toFloat())
     }
+//    fun Number?.ptFloat(activity: Activity? = AppManager.currentActivity()): Float {
+//        if (this == null || activity == null) return 0f
+//        return getRealSizeFloat(activity, this.toFloat())
+//    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
@@ -618,6 +636,12 @@ object ExtraNumber {
         if (length <= 0) return 0
         return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
     }
+//    private fun getRealSize(activity: Activity, length: Double): Int {
+//        if (length <= 0) return 0
+//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
+//        val px = length * windowW.toDouble() / designWidth
+//        return px.toInt().min(1)
+//    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
@@ -627,5 +651,11 @@ object ExtraNumber {
         if (length <= 0) return 0f
         return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
     }
+//    private fun getRealSizeFloat(activity: Activity, length: Float): Float {
+//        if (length <= 0) return 0f
+//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
+//        val px = length * windowW.toFloat() / designWidth.toFloat()
+//        return px.coerceAtLeast(1f)
+//    }
 
 }

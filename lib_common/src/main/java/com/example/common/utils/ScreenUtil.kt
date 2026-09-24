@@ -29,6 +29,8 @@ import androidx.core.graphics.ColorUtils.calculateLuminance
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.FragmentActivity
+import androidx.window.layout.WindowMetricsCalculator
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
@@ -43,7 +45,6 @@ import kotlin.properties.Delegates
  * @author yan
  */
 object ScreenUtil {
-
     /**
      * 获取屏幕高度（像素值px）
      * 一旦初始化后不会随屏幕旋转等情况更新
@@ -61,6 +62,31 @@ object ScreenUtil {
      * 一旦初始化后不会随屏幕旋转等情况更新
      */
     val screenDensity by lazy(NONE) { screenDensity() }
+//    /**
+//     * 获取屏幕高度（像素值px）
+//     * 1) 整机物理屏幕尺寸，不是Activity窗口
+//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     */
+//    val screenHeight: Int
+//        get() = screenHeight()
+//
+//    /**
+//     * 获取屏幕宽度（像素值px）
+//     * 1) 整机物理屏幕尺寸，不是Activity窗口
+//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     */
+//    val screenWidth: Int
+//        get() = screenWidth()
+//
+//    /**
+//     * 获取屏幕密度/比值（dpi值）
+//     * 1) 整机屏幕属性
+//     * 2) 每次访问实时计算
+//     */
+//    val screenDensity: Int
+//        get() = screenDensity()
 
     /**
      * 获取屏幕宽度（px）
@@ -180,6 +206,32 @@ object ScreenUtil {
             display?.getRealSize(size) ?: size.set(0, 0)
             size
         }
+    }
+
+    /**
+     * 获取当前 Activity 窗口实际可用宽高(px)
+     * 返回 Pair(widthPx, heightPx)
+     * 注意：返回 Activity 分配到的窗口区域，不是整块物理屏幕；
+     * 适配：全屏、Activity‑Embedding分栏、系统分屏、自由窗口
+     */
+    fun getCurrentActivityWindowSizePx(activity: FragmentActivity): Pair<Int, Int> {
+        val calculator = WindowMetricsCalculator.getOrCreate()
+        val metrics = calculator.computeCurrentWindowMetrics(activity)
+        val bounds = metrics.bounds
+        return bounds.width() to bounds.height()
+    }
+
+    /**
+     * 获取设备应用可达到的最大窗口宽高(px)
+     * 返回 Pair(widthPx, heightPx)
+     * 折叠屏：展开完整大屏尺寸；普通设备等于全屏；不受分栏/分屏约束
+     * 用于对比判断当前窗口是否被分栏、多窗口压缩
+     */
+    fun getDeviceMaxWindowSizePx(activity: FragmentActivity): Pair<Int, Int> {
+        val calculator = WindowMetricsCalculator.getOrCreate()
+        val maxMetrics = calculator.computeMaximumWindowMetrics(activity)
+        val bounds = maxMetrics.bounds
+        return bounds.width() to bounds.height()
     }
 
 }
