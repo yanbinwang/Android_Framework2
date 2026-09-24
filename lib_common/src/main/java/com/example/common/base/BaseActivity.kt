@@ -51,7 +51,9 @@ import com.example.common.event.Event
 import com.example.common.event.EventBus
 import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
+import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
+import com.example.common.utils.function.string
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -203,22 +205,13 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode) {
+                showSystemToast(string(R.string.splitScreenError))
+                shutdownApp()
+                return
+            }
             if (checkLargeScreenShowTip()) {
-                pendingKillJob?.cancel()
-                pendingKillJob = launch {
-                    delay(800L)
-                    if (!isFinishing && !isDestroyed) {
-                        // 关闭所有Activity
-                        finishAffinity()
-                        // 终止进程（兼容所有安卓版本，捕获异常）
-                        try {
-                            killProcess(myPid())
-                            exitProcess(0)
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        }
-                    }
-                }
+                shutdownApp()
                 // 如果检测到大屏设备，直接return，不执行后续逻辑
                 return
             }
@@ -250,6 +243,24 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initView(savedInstanceState)
         initEvent()
         initData()
+    }
+
+    private fun shutdownApp() {
+        pendingKillJob?.cancel()
+        pendingKillJob = launch {
+            delay(800L)
+            if (!isFinishing && !isDestroyed) {
+                // 关闭所有Activity
+                finishAffinity()
+                // 终止进程（兼容所有安卓版本，捕获异常）
+                try {
+                    killProcess(myPid())
+                    exitProcess(0)
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
+        }
     }
 
     /**
@@ -380,11 +391,6 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     override fun initData() {
     }
 
-    override fun onConfigurationChanged(newConfig: Configuration) {
-        super.onConfigurationChanged(newConfig)
-        resources
-    }
-
     /**
      * https://cloud.tencent.com/developer/article/2406992
      * https://blog.csdn.net/gitblog_00910/article/details/151599565
@@ -440,6 +446,19 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             }
         }
         return res
+    }
+
+    /**
+     * 用户进入/退出多窗口瞬间回调
+     *  1) 进入分屏：isInMultiWindow = true
+     *  2) 退出分屏：isInMultiWindow = false
+     */
+    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
+        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+        if (!isIgnoreMultiWindowKillEnabled() && isInMultiWindowMode) {
+            showSystemToast(string(R.string.splitScreenError))
+            shutdownApp()
+        }
     }
 
     override fun finish() {

@@ -30,5 +30,6 @@
     <string name="linkError">链接地址不合法</string>
     <string name="sourcePathError">文件路径错误</string>
     <string name="largeScreenError">当前设备为平板/大屏设备，暂不支持使用</string>
+    <string name="splitScreenError">当前应用暂不支持分屏，请切换为全屏模式</string>
     <string name="embedError">请切换至小屏模式后重试</string>
 </resources>
