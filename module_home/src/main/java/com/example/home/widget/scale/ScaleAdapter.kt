@@ -34,7 +34,8 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
     override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
 //        container.removeView(data.safeGet(position)?.first)
         // 直接移除传入的对象
-        container.removeView(any as? ScaleImageView)
+        val view = any as? View ?: return
+        container.removeView(view)
     }
 
     /**
