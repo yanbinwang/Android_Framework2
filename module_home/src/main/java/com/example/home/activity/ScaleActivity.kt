@@ -19,7 +19,7 @@ import com.therouter.router.Route
  * <activity
  *     android:name="com.example.home.activity.ScaleActivity"
  *     android:configChanges="orientation|screenSize|keyboardHidden|screenLayout|uiMode"
- *     android:theme="@style/TransparentTheme"
+ *     android:theme="@style/TranslucentTheme"
  *     android:windowSoftInputMode="stateHidden|adjustPan" />
  *     navigation(ARouterPath.ScaleActivity, Extra.BUNDLE_LIST to arrayListOf(value))
  */
