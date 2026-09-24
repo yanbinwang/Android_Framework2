@@ -110,12 +110,12 @@ abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomShee
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
-        }
+//        if (isMainThread) {
+//            AutoSizeConfig.getInstance()
+//                .setScreenWidth(screenWidth)
+//                .setScreenHeight(screenHeight)
+//            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
+//        }
         return if (isBindingEnabled()) {
             try {
                 val superclass = javaClass.genericSuperclass

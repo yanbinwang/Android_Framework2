@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.content.res.Configuration
 import android.content.res.Resources
 import android.os.Build
 import android.os.Bundle
@@ -448,18 +447,14 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         return res
     }
 
-    /**
-     * 用户进入/退出多窗口瞬间回调
-     *  1) 进入分屏：isInMultiWindow = true
-     *  2) 退出分屏：isInMultiWindow = false
-     */
-    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
-        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
-        if (!isIgnoreMultiWindowKillEnabled() && isInMultiWindowMode) {
-            showSystemToast(string(R.string.splitScreenError))
-            shutdownApp()
-        }
-    }
+//    /**
+//     * 用户进入/退出多窗口瞬间回调
+//     *  1) 进入分屏：isInMultiWindow = true
+//     *  2) 退出分屏：isInMultiWindow = false
+//     */
+//    override fun onMultiWindowModeChanged(isInMultiWindowMode: Boolean, newConfig: Configuration) {
+//        super.onMultiWindowModeChanged(isInMultiWindowMode, newConfig)
+//    }
 
     override fun finish() {
         onFinishListener?.onFinish(this)

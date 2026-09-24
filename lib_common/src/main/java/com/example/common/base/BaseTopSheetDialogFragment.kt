@@ -100,12 +100,12 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // 设置软键盘不自动弹出
         dialog?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        if (isMainThread) {
-            AutoSizeConfig.getInstance()
-                .setScreenWidth(screenWidth)
-                .setScreenHeight(screenHeight)
-            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
-        }
+//        if (isMainThread) {
+//            AutoSizeConfig.getInstance()
+//                .setScreenWidth(screenWidth)
+//                .setScreenHeight(screenHeight)
+//            AutoSizeCompat.autoConvertDensityOfGlobal(resources)
+//        }
         return if (isBindingEnabled()) {
             try {
                 val superclass = javaClass.genericSuperclass
