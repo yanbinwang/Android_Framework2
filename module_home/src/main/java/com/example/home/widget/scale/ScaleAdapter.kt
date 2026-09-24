@@ -32,7 +32,6 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
     }
 
     override fun destroyItem(container: ViewGroup, position: Int, any: Any) {
-//        container.removeView(data.safeGet(position)?.first)
         // 直接移除传入的对象
         val view = any as? View ?: return
         container.removeView(view)
@@ -42,7 +41,6 @@ class ScaleAdapter(private val data: List<Pair<ScaleImageView, String>>) : Pager
      * instantiateItem 不是顺序一次性全部创建，在滑动、预加载、页面销毁重建、快速连续滑动时，position 参数会出现和当前 data 集合不匹配的场景
      */
     override fun instantiateItem(container: ViewGroup, position: Int): Any {
-//        val img = data.safeGet(position)?.first ?: return Any()
         // 边界校验，非法 position 直接返回一个临时 View 不往下走，destroyItem 拿到这个临时 View 然后 removeView 会正常处理
         if (position < 0 || position >= data.size) {
             return View(container.context)
