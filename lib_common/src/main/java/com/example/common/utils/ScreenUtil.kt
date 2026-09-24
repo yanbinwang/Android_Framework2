@@ -45,48 +45,48 @@ import kotlin.properties.Delegates
  * @author yan
  */
 object ScreenUtil {
-//    /**
-//     * 获取屏幕高度（像素值px）
-//     * 一旦初始化后不会随屏幕旋转等情况更新
-//     */
-//    val screenHeight by lazy(NONE) { screenHeight() }
-//
-//    /**
-//     * 获取屏幕宽度（像素值px）
-//     * 一旦初始化后不会随屏幕旋转等情况更新
-//     */
-//    val screenWidth by lazy(NONE) { screenWidth() }
-//
-//    /**
-//     * 获取屏幕密度/比值（dpi值）
-//     * 一旦初始化后不会随屏幕旋转等情况更新
-//     */
-//    val screenDensity by lazy(NONE) { screenDensity() }
     /**
      * 获取屏幕高度（像素值px）
-     * 1) 整机物理屏幕尺寸，不是Activity窗口
-     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
-     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
-    val screenHeight: Int
-        get() = screenHeight()
+    val screenHeight by lazy(NONE) { screenHeight() }
 
     /**
      * 获取屏幕宽度（像素值px）
-     * 1) 整机物理屏幕尺寸，不是Activity窗口
-     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
-     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
-    val screenWidth: Int
-        get() = screenWidth()
+    val screenWidth by lazy(NONE) { screenWidth() }
 
     /**
      * 获取屏幕密度/比值（dpi值）
-     * 1) 整机屏幕属性
-     * 2) 每次访问实时计算
+     * 一旦初始化后不会随屏幕旋转等情况更新
      */
-    val screenDensity: Int
-        get() = screenDensity()
+    val screenDensity by lazy(NONE) { screenDensity() }
+//    /**
+//     * 获取屏幕高度（像素值px）
+//     * 1) 整机物理屏幕尺寸，不是Activity窗口
+//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     */
+//    val screenHeight: Int
+//        get() = screenHeight()
+//
+//    /**
+//     * 获取屏幕宽度（像素值px）
+//     * 1) 整机物理屏幕尺寸，不是Activity窗口
+//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     */
+//    val screenWidth: Int
+//        get() = screenWidth()
+//
+//    /**
+//     * 获取屏幕密度/比值（dpi值）
+//     * 1) 整机屏幕属性
+//     * 2) 每次访问实时计算
+//     */
+//    val screenDensity: Int
+//        get() = screenDensity()
 
     /**
      * 获取屏幕宽度（px）

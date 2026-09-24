@@ -28,12 +28,10 @@ import androidx.core.graphics.drawable.toDrawable
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
-import androidx.fragment.app.FragmentActivity
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.NavigationBarDrawable
-import com.example.common.utils.ScreenUtil.getCurrentActivityWindowSizePx
 import com.example.common.utils.ScreenUtil.hasNavigationBar
 import com.example.common.utils.ScreenUtil.screenWidth
 import com.example.common.utils.function.ExtraNumber.dp
@@ -624,55 +622,55 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-//    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
-//        if (this == null) return 0
-//        return getRealSize(context, this.toDouble())
-//    }
-    fun Number?.pt(activity: Activity? = AppManager.currentActivity()): Int {
-        if (this == null || activity == null) return 0
-        return getRealSize(activity, this.toDouble())
+    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
+        if (this == null) return 0
+        return getRealSize(context, this.toDouble())
     }
+//    fun Number?.pt(activity: Activity? = AppManager.currentActivity()): Int {
+//        if (this == null || activity == null) return 0
+//        return getRealSize(activity, this.toDouble())
+//    }
 
     /**
      * 设计图尺寸转换为实际尺寸
      */
-//    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
-//        if (this == null) return 0f
-//        return getRealSizeFloat(context, this.toFloat())
-//    }
-    fun Number?.ptFloat(activity: Activity? = AppManager.currentActivity()): Float {
-        if (this == null || activity == null) return 0f
-        return getRealSizeFloat(activity, this.toFloat())
+    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+        if (this == null) return 0f
+        return getRealSizeFloat(context, this.toFloat())
     }
+//    fun Number?.ptFloat(activity: Activity? = AppManager.currentActivity()): Float {
+//        if (this == null || activity == null) return 0f
+//        return getRealSizeFloat(activity, this.toFloat())
+//    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
      * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。
      */
-//    private fun getRealSize(context: Context, length: Double): Int {
-//        if (length <= 0) return 0
-//        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
-//    }
-    private fun getRealSize(activity: Activity, length: Double): Int {
+    private fun getRealSize(context: Context, length: Double): Int {
         if (length <= 0) return 0
-        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
-        val px = length * windowW.toDouble() / designWidth
-        return px.toInt().min(1)
+        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
     }
+//    private fun getRealSize(activity: Activity, length: Double): Int {
+//        if (length <= 0) return 0
+//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
+//        val px = length * windowW.toDouble() / designWidth
+//        return px.toInt().min(1)
+//    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-//    private fun getRealSizeFloat(context: Context, length: Float): Float {
-//        if (length <= 0) return 0f
-//        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
-//    }
-    private fun getRealSizeFloat(activity: Activity, length: Float): Float {
+    private fun getRealSizeFloat(context: Context, length: Float): Float {
         if (length <= 0) return 0f
-        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
-        val px = length * windowW.toFloat() / designWidth.toFloat()
-        return px.coerceAtLeast(1f)
+        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
     }
+//    private fun getRealSizeFloat(activity: Activity, length: Float): Float {
+//        if (length <= 0) return 0f
+//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
+//        val px = length * windowW.toFloat() / designWidth.toFloat()
+//        return px.coerceAtLeast(1f)
+//    }
 
 }
