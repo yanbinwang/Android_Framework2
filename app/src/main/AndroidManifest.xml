@@ -70,11 +70,12 @@
         android:label="@string/appName"
         android:largeHeap="true"
         android:requestLegacyExternalStorage="true"
+        android:resizeableActivity="false"
         android:roundIcon="@mipmap/ic_launcher"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
-        tools:ignore="LockedOrientationActivity"
+        tools:ignore="LockedOrientationActivity,ObsoleteSdkInt,RtlEnabled,UnusedAttribute"
         tools:replace="android:allowBackup,android:icon,android:theme,android:label"
         tools:targetApi="m">
 
