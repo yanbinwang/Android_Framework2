@@ -11,6 +11,7 @@ import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.value.toNewList
 import com.therouter.TheRouter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.delay
@@ -365,7 +366,7 @@ object AppManager {
      * @param currentActivity 当前页面实例，用于finish自己
      * @param block 跳转逻辑（TheRouter导航）
      */
-    fun ensureTargetActivityAliveWithFallback(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit = {}) {
+    fun ensureTargetActivityAlive(targetCls: Class<*>, currentActivity: Activity, block: () -> Unit = {}) {
         if (isActivityAlive(targetCls)) {
             finishActivity(currentActivity)
         } else {
@@ -378,7 +379,7 @@ object AppManager {
      * 1) 确保任务栈内存在首页
      * 2) 确保任务栈内至少存在一个页面
      */
-    fun ensureMainActivityAliveWithFallback(block: () -> Unit = {}) {
+    fun ensureMainActivityAlive(block: () -> Unit = {}) {
         val mainClazz = RouterPath.MainActivity.getDestinationClass()
         if (!isActivityAlive(mainClazz)) {
             val context = currentActivity() ?: BaseApplication.instance.applicationContext
@@ -392,24 +393,24 @@ object AppManager {
     /**
      * 保证首页 MainActivity 始终存活的前提下，关闭「非指定排除列表」的页面
      */
-    fun ensureMainActivityAliveWithFallback(path: String, block: () -> Unit = {}) {
-        // 获取跳转的class
-        val clazz = path.getDestinationClass()
-        // 排除的页面
-        val excludedList = arrayListOf(clazz)
+    fun ensureMainAliveAndFinishOthers(vararg paths: String, block: () -> Unit = {}) {
+        // 排除的页面集合
+        val excludedList = paths.toMutableList()
+        // 排除页面路径是否包含首页
+        val hasHomePath = excludedList.contains(RouterPath.MainActivity)
         // 当前app不登录也可以进入首页,故而首页作为一整个app的底座,是必须存在的
-        if (path != RouterPath.MainActivity) {
-            excludedList.add(RouterPath.MainActivity.getDestinationClass())
+        if (!hasHomePath) {
+            excludedList.add(RouterPath.MainActivity)
         }
         // 保证首页存活
-        ensureMainActivityAliveWithFallback {
+        ensureMainActivityAlive {
             // 执行跳转对应页面
-            if (path != RouterPath.MainActivity) {
+            if (!hasHomePath) {
                 block.invoke()
             }
             // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
             ProcessLifecycleOwner.get().schedule({
-                finishNotTargetActivity(*excludedList.toTypedArray())
+                finishNotTargetActivity(*(excludedList.toNewList { it.getDestinationClass() }).toTypedArray())
             }, 500)
         }
     }
