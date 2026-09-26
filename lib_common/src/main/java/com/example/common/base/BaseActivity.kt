@@ -43,7 +43,7 @@ import com.app.hubert.guide.model.GuidePage
 import com.example.common.R
 import com.example.common.base.bridge.BaseImpl
 import com.example.common.base.bridge.BaseView
-import com.example.common.base.page.checkLargeScreenShowTip
+import com.example.common.base.page.checkLargeScreen
 import com.example.common.base.page.interf.TransparentOwner
 import com.example.common.base.page.navigation
 import com.example.common.event.Event
@@ -204,25 +204,20 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         super.onCreate(savedInstanceState)
         // 未开启忽略拦截 并且 (平板设备 或者 处于Embedding分栏) → 执行杀进程
         if (!isIgnoreMultiWindowKillEnabled()) {
+            // 如果检测到分屏，直接return，不执行后续逻辑
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode) {
-                showSystemToast(string(R.string.splitScreenError))
-                shutdownApp()
+                shutdownApp(string(R.string.splitScreenError))
                 return
             }
-            if (checkLargeScreenShowTip()) {
-                shutdownApp()
-                // 如果检测到大屏设备，直接return，不执行后续逻辑
+            // 如果检测到大屏设备，直接return，不执行后续逻辑
+            if (checkLargeScreen()) {
+                shutdownApp(string(R.string.largeScreenError))
                 return
             }
         }
         initBefore()
         if (needTransparentOwner) {
             overrideTransition(R.anim.set_alpha_in, R.anim.set_alpha_none)
-            /**
-             * 在 Android 8.0 (API 26) 中，Google 引入了一个非常严格的限制：如果 Activity 是透明的（translucent）或浮动的（floating），则不允许通过代码或 Manifest 指定屏幕方向
-             * 一旦违反，系统会在 onCreate → setRequestedOrientation 时直接抛出：java.lang.IllegalStateException: Only fullscreen opaque activities can request orientation
-             * API 27+已修复，透明 Activity 又可以安全地设置 SCREEN_ORIENTATION_PORTRAIT 了
-             */
             safeSetRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         }
         AppManager.addActivity(this)
@@ -244,9 +239,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         initData()
     }
 
-    private fun shutdownApp() {
+    private fun shutdownApp(tip: String) {
         pendingKillJob?.cancel()
         pendingKillJob = launch {
+            showSystemToast(tip)
             delay(800L)
             if (!isFinishing && !isDestroyed) {
                 // 关闭所有Activity
