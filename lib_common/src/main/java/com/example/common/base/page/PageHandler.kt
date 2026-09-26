@@ -15,9 +15,7 @@ import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
-import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.getCustomOption
-import com.example.common.utils.i18n.i18String
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
@@ -238,36 +236,25 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
  * 检测大屏设备
  * @return true-检测到大屏设备并弹出提示，false-正常设备
  */
-fun FragmentActivity?.checkLargeScreenShowTip(tip: String = i18String(R.string.largeScreenError), showTip: Boolean = true): Boolean {
+fun FragmentActivity?.checkLargeScreen(): Boolean {
     this ?: return false
     // 页面销毁直接返回
     if (isFinishing || isDestroyed) return false
     // 判断是否为大屏设备（宽度≥600dp）
     val config = resources.configuration
     // smallestScreenWidthDp 是设备物理尺寸，分屏不会变
-    val isPhysicalTablet = config.smallestScreenWidthDp >= 600
-    // 只要是物理平板 → 直接拦截，不管是不是分屏
-    if (isPhysicalTablet && showTip) {
-        showSystemToast(tip)
-    }
-    return isPhysicalTablet
+    return config.smallestScreenWidthDp >= 600
 }
 
 /**
  * 判断当前是否处于Activity‑Embedding分栏嵌入会话
- * @param tip 提示文本，默认：请切换至小屏模式后重试
- * @param showTip 是否弹出toast提示，默认true；false只返回状态，不弹提示
  * @return true 当前处于分栏；false 非分栏状态
  */
-fun FragmentActivity?.checkEmbedShowTip(tip: String = i18String(R.string.embedError), showTip: Boolean = true): Boolean {
+fun FragmentActivity?.checkEmbed(): Boolean {
     this ?: return false
     if (isFinishing || isDestroyed) return false
     // 设备支持embedding && 当前activity已经嵌入分栏
-    val isEmbed = isActivityEmbeddingAvailable() && isActivityEmbedded()
-    if (isEmbed && showTip) {
-        showSystemToast(tip)
-    }
-    return isEmbed
+    return isActivityEmbeddingAvailable() && isActivityEmbedded()
 }
 
 /**

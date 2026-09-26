@@ -52,7 +52,7 @@ import com.example.common.network.socket.topic.WebSocketObserver
 import com.example.common.utils.DataBooleanCache
 import com.example.common.utils.builder.ToastBuilder.showSystemToast
 import com.example.common.utils.function.registerResultWrapper
-import com.example.common.utils.function.string
+import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.utils.permission.PermissionHelper
 import com.example.common.utils.removeNavigationBarDrawable
@@ -206,12 +206,12 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
         if (!isIgnoreMultiWindowKillEnabled()) {
             // 如果检测到分屏，直接return，不执行后续逻辑
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && isInMultiWindowMode) {
-                shutdownApp(string(R.string.splitScreenError))
+                shutdownApp(i18String(R.string.splitScreenError))
                 return
             }
             // 如果检测到大屏设备，直接return，不执行后续逻辑
             if (checkLargeScreen()) {
-                shutdownApp(string(R.string.largeScreenError))
+                shutdownApp(i18String(R.string.largeScreenError))
                 return
             }
         }
