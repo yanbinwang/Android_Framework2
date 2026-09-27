@@ -58,9 +58,9 @@ import java.util.concurrent.ConcurrentHashMap
  *    refreshNow()
  *  }
  *
- *  1) 当前Fragment第一次加载时不会被调取
- *  2) 使用FragmentManager切换时，栈内有几个Fragment就回调几个
- *  3) !hidden表示当前可见
+ *  1) 当前 Fragment 第一次加载时不会被调取
+ *  2) 使用 FragmentManager 切换时，栈内有几个 Fragment 就回调几个
+ *  3) !hidden 表示当前可见
  *  override fun onHiddenChanged(hidden: Boolean) {
  *    super.onHiddenChanged(hidden)
  *    if (!hidden) refreshNow()
