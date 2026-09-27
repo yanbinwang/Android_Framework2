@@ -2,6 +2,7 @@ package com.example.common.utils.manager
 
 import android.app.Activity
 import android.content.Intent
+import android.os.Looper
 import android.os.Process
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
@@ -10,6 +11,7 @@ import com.example.common.base.page.Extra
 import com.example.common.base.page.getDestinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
+import com.example.framework.utils.WeakHandler
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
 import com.example.framework.utils.function.value.toNewList
 import com.therouter.TheRouter
@@ -28,6 +30,24 @@ object AppManager {
     private val LOCK = Any()
     // 存储 Activity 的弱引用（避免内存泄漏）
     private val activityDeque = ArrayDeque<WeakReference<Activity>>()
+    /**
+     * 全局弱引用Handler，绑定【进程唯一主线Looper】
+     * 知识点备忘：
+     * 1) Handler 两个构造区别：
+     *    (1) 无参构造 Handler(callback)：内部使用 Looper.myLooper()
+     *     myLooper() = 获取【执行new Handler这行代码时，当前线程】的 Looper
+     *     在 Activity 主线程 new，拿到主线 Looper；在子线程 new 直接抛异常。
+     *    (2) 带 Looper 参数构造 Handler(looper, callback)：手动指定 Looper，和执行 new 的线程无关
+     *    (3) Looper.getMainLooper()：全局静态方法，永远返回 APP 进程唯一主线 Looper，不受代码位置影响
+     * 2) 重要误区：Android 不存在「Activity 专属 Looper」，所有 Activity 共用同一个主线 Looper。
+     * 3) 本 WeakHandler 放在 AppManager 单例，生命周期跟随 App 进程；
+     *    WeakHandler作用：对 Runnable 做弱引用包装，降低消息队列滞留 Runnable 造成的内存泄漏风险
+     *    ️注意：WeakHandler 只能弱包装 Runnable 本身，不能自动弱包装 Runnable 内部捕获的外部对象
+     *    所以投递任务时，Activity 实例必须手动包 WeakReference，避免 Runnable 强持有页面
+     */
+    private val weakHandler = WeakHandler(Looper.getMainLooper())
+    // 是否正在批量执行所有 Activity.recreate() 拦截 onConfigurationChanged 重复触发，防止递归死循环
+    var isRecreatingAll = false
     // 当前栈内所有的 Activity 总数 (自定义镜像栈数量不等于系统任务栈真实数量，多 taskAffinity 场景会失真)
     val customStackActivityCount: Int
         get() {
@@ -257,6 +277,53 @@ object AppManager {
         } catch (e: Exception) {
             e.printStackTrace()
         }
+    }
+
+    /**
+     * 重启栈内所有存活 Activity，调用 Activity.recreate()
+     * 核心特性：只重建 Activity 窗口与 View 树，【保留原有任务栈顺序，不执行 finish】
+     * 适用场景：分屏/折叠屏切换，AutoSize 屏幕基准尺寸变更，统一刷新全部页面 UI 适配
+     * 时序逻辑：
+     * 1) 如果正在批量重建，直接 return，防递归
+     * 2) 清空 weakHandler 队列残留旧消息，防止历史任务叠加
+     * 3) 一次性快照当前存活 Activity 集合（快照是调用瞬间的状态，后续新增/销毁页面不会被处理）
+     * 4) 用 WeakReference 包裹每个 Activity，放入 Runnable，避免 Runnable 强引用页面造成临时内存滞留
+     * 5) 分批延时 postDelayed，错开 recreate 系统调度，降低并发重建的时序混乱/黑屏风险
+     * 6) 最后延时任务重置 isRecreatingAll 标记；预留足够时间给所有页面完成重建
+     * 风险备忘：
+     * 1) recreate() 是系统异步调度方法，调用不会立刻重建；必须主线程调用，只能顶层 Activity 调用
+     * 2) recreate() 不会销毁 Activity 对应的 ViewModel，ViewModel 内缓存尺寸数据需要手动更新
+     * 3) 页面排队重建期间，如果提前被 finish 销毁，弱引用 get() 返回 null，直接跳过 recreate
+     * 4) 多 taskAffinity 多任务栈场景：本 AppManager 只管理当前 Application 自定义栈，跨 task 页面不会被重建
+     */
+    fun recreateAllActivities() {
+        if (isRecreatingAll) return
+        weakHandler.removeCallbacksAndMessages(null)
+        val snapshot = synchronized(LOCK) {
+            activityDeque
+                .mapNotNull { it.get() }
+                .filter { activity ->
+                    !activity.isDestroyed && !activity.isFinishing
+                }
+                .toList()
+        }
+        if (snapshot.isEmpty()) return
+        isRecreatingAll = true
+        // 逐个延迟 post，错开 recreate 调度，降低并发冲击
+        snapshot.forEachIndexed { index, activity ->
+            weakHandler.postDelayed({
+                try {
+                    activity.recreate()
+                } catch (e: IllegalStateException) {
+                    // 捕获：非顶层Activity / 状态异常，直接丢弃
+                    e.printStackTrace()
+                }
+            }, index * 50L)
+        }
+        // 延时重置标记，预留足够时间让所有 recreate 调度+页面重建
+        weakHandler.postDelayed({
+            isRecreatingAll = false
+        }, snapshot.size * 50L + 500L)
     }
 
     /**
