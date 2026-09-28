@@ -1,6 +1,8 @@
 package com.example.framework.utils.builder
 
 import android.os.Bundle
+import android.transition.ChangeBounds
+import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -74,6 +76,12 @@ import java.util.concurrent.ConcurrentHashMap
  *  add 和 replace 区别
  *  1) 如果要在容器内加载一连串 fragment，它们使用同一个 xml 文件，只是 id 有区分，此时就可能出现 ui 错位
  *  2) 这时需使用 replace 删除容器之前的 fragment 直接替换（保证当前容器内只有一个 fragment）
+ *
+ * 【多实例使用约定】 commitFragmentWithSharedTransition/commitFragmentWithSharedEnterTransition
+ * 1) 多个 FragmentBuilder 实例可以传入同一个 fragmentManager，但 containerViewId 必须区分
+ * 2) useAddHideMode=true 的 Builder 用于 Tab 常驻切换（add/hide），该容器禁止调用任何replace事务
+ * 3) useAddHideMode=false 的 Builder 仅用于二级详情 replace 跳转，不使用 fragmentCache、getFragment、tab下标相关能力
+ * 4) replace 会销毁容器内全部已有 Fragment，不可和 add-hide Tab共用同一个容器 ID
  */
 class FragmentBuilder(private val observer: LifecycleOwner, private val fragmentManager: FragmentManager, private val containerViewId: Int, private val useAddHideMode: Boolean = true) {
     private var isBundleMode = false // 是否是添加参数的模式
@@ -104,7 +112,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
      */
     fun bind(list: List<Pair<Class<*>, String>>, default: Int = 0) {
         fragList = list.toMutableList()
-        initView(false, default)
+        init(false, default)
     }
 
     fun bind(vararg data: Pair<Class<*>, String>, default: Int = 0) {
@@ -119,7 +127,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
      */
     fun bindBundle(list: List<Triple<Class<*>, String, Bundle>>, default: Int = 0) {
         fragBundleList = list.toMutableList()
-        initView(true, default)
+        init(true, default)
     }
 
     fun bindBundle(vararg data: Triple<Class<*>, String, Bundle>, default: Int = 0) {
@@ -129,7 +137,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
     /**
      * 初始化配置
      */
-    private fun initView(hasBundle: Boolean, default: Int) {
+    private fun init(hasBundle: Boolean, default: Int) {
         isBundleMode = hasBundle
         managerLength = if (hasBundle) fragBundleList.safeSize else fragList.safeSize
         fragmentCache.clear()
@@ -137,7 +145,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
     }
 
     /**
-     * 切换Tab
+     * 切换 Tab
      * @param tab 目标下标
      * @param force true: 绕过校验强制切换；false: 默认，重复选择/下标越界直接return
      */
@@ -194,7 +202,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
             if (null == fragment) {
                 fragment = fragClass.getDeclaredConstructor().newInstance() as? Fragment
                 fragment ?: return null
-                commit(transaction, fragment, tag)
+                addOrReplaceFragment(transaction, fragment, tag)
             }
             fragment
         }
@@ -210,15 +218,12 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
                 fragment = fragClass.getDeclaredConstructor().newInstance() as? Fragment
                 fragment ?: return null
                 fragment.arguments = bundle
-                commit(transaction, fragment, tag)
+                addOrReplaceFragment(transaction, fragment, tag)
             }
             fragment
         }
     }
 
-    /**
-     * 设置切换动画
-     */
     private fun setupTransactionAnim(transaction: FragmentTransaction) {
         // 只有 add 模式才设置动画（replace 模式禁用，避免闪退）
         if (!useAddHideMode) return
@@ -240,10 +245,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         }
     }
 
-    /**
-     * 初始化提交
-     */
-    private fun commit(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
+    private fun addOrReplaceFragment(transaction: FragmentTransaction, fragment: Fragment, tag: String?) {
         // add会将视图保存在栈内，适用于首页切换，replace会直接替换，如果子fragment列表要切换使用此方法，需要注意，replace使用后，动画就失效了
         if (useAddHideMode) {
             transaction.add(containerViewId, fragment, tag)
@@ -256,6 +258,55 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
             fragmentCache.clear()
         }
         fragmentCache[currentItem] = fragment
+    }
+
+    /**
+     * 开启带共享元素的 Fragment 事务（普通replace切换，不加入回退栈）适合容器内直接替换 Fragment，没有返回栈需求
+     * @param targetFragment 目标 Fragment 实例
+     * @param reenterTransition 回退栈恢复时，Fragment 重新进入视图的内容过渡动画
+     * @param exitTransition fragment被替换销毁，自身内容退出消失的过渡动画
+     * @param sharedElementEnterTransition 共享元素进入过渡，默认 ChangeBounds
+     * val slideTransition = Slide(Gravity.START)
+     * slideTransition.setDuration(500)
+     */
+    fun commitFragmentWithSharedTransition(targetFragment: Fragment, reenterTransition: Any?, exitTransition: Any?, sharedElementEnterTransition: Any? = ChangeBounds()) {
+        if (useAddHideMode) return
+        // 页面回退时，当前 Fragment 重新进入视图的过渡动画
+        targetFragment.reenterTransition = reenterTransition
+        // 本 Fragment 被移除/被替换，退出消失的过渡动画
+        targetFragment.exitTransition = exitTransition
+        // 共享元素：从上个页面跳进来，共享元素入场形变过渡
+        targetFragment.sharedElementEnterTransition = sharedElementEnterTransition
+        // 替换页面 FrameLayout
+        fragmentManager.beginTransaction()
+            .replace(containerViewId, targetFragment)
+            .commitAllowingStateLoss()
+    }
+
+    /**
+     * 打开下一级 Fragment，支持共享元素 + enterTransition、过渡重叠控制，加入回退栈，适合页面内 Fragment 打开详情二级页，支持返回回退
+     * @param targetFragment 目标Fragment实例
+     * @param enterTransition Fragment首次入场的内容过渡动画（Any?兼容平台/AndroidX Transition）
+     * @param sharedElementEnterTransition 共享元素入场形变过渡
+     * @param sharedSourceView 源页面的共享View
+     * @param sharedTransitionName 共享元素transitionName
+     * @param overlap 是否允许入场/退场动画重叠（allowEnterTransitionOverlap & allowReturnTransitionOverlap）
+     */
+    fun commitFragmentWithSharedEnterTransition(targetFragment: Fragment, enterTransition: Any?, sharedElementEnterTransition: Any?, sharedSourceView: View, sharedTransitionName: String, overlap: Boolean) {
+        if (useAddHideMode) return
+        // Fragment首次进入时，自身内容的入场过渡动画（仅第一次打开fragment触发）
+        targetFragment.enterTransition = enterTransition
+        // 是否允许【入场动画】和上一页退场动画重叠执行
+        targetFragment.allowEnterTransitionOverlap = overlap
+        // 回退时，是否允许【返回入场动画】和当前页面退场动画重叠执行
+        targetFragment.allowReturnTransitionOverlap = overlap
+        // 共享元素：从上个页面跳进来，共享View的形变过渡
+        targetFragment.sharedElementEnterTransition = sharedElementEnterTransition
+        fragmentManager.beginTransaction()
+            .replace(containerViewId, targetFragment)
+            .addToBackStack(null)
+            .addSharedElement(sharedSourceView, sharedTransitionName)
+            .commitAllowingStateLoss()
     }
 
     /**

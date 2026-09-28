@@ -3,6 +3,7 @@ package com.example.common.base.page
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
@@ -230,6 +231,65 @@ fun FragmentActivity?.getSlidePreview(): ActivityOptionsCompat? {
             finish()
         }, 500)
     }
+}
+
+/**
+ * 创建安全的共享元素过渡参与者数组
+ * 1) 规避系统 UI 过渡 bug，参考：https://plus.google.com/+AlexLockwood/posts/RPtwZ5nNebb
+ * 2) 共享元素默认会把 DecorView 里的状态栏、导航栏背景一起纳入过渡，不加处理会闪屏
+ * 3) enableEdgeToEdge() 页面：系统 statusBarBackground 不存在，includeStatusBar=true 也只会空跑
+ * 4) EdgeToEdge 场景状态栏区域背景需要业务自行作为共享元素传入 otherParticipants
+ * @param includeStatusBar 是否尝试将【系统状态栏背景View】加入共享元素动画，默认false（适配edgeToEdge主流场景）
+ * @param otherParticipants 其他自定义共享元素，可变参数：View 和 transitionName 的配对
+ * @return 共享元素 Pair 数组，传给 ActivityOptions.makeSceneTransitionAnimation
+ * Pair(holder.sample_icon as View, "square_blue"), Pair(holder.sample_name as View, "sample_blue_title")
+ * <ImageView
+ *     android:id="@+id/square_blue"
+ *     android:layout_width="150dp"
+ *     android:layout_height="150dp"
+ *     android:src="@drawable/bg_circle"
+ *     android:transitionName="square_blue" />
+ * <TextView
+ *     android:id="@+id/title"
+ *     style="@style/AppTitleThemeInverse"
+ *     android:layout_width="wrap_content"
+ *     android:layout_height="wrap_content"
+ *     android:layout_gravity="center_vertical|start"
+ *     android:transitionName="sample_blue_title" />
+ */
+fun FragmentActivity?.createSafeTransitionParticipants(includeStatusBar: Boolean = false, vararg otherParticipants: Pair<View, String>): Array<Pair<View, String>> {
+    this ?: return emptyArray()
+    // 获取 Activity 根 DecorView（包含状态栏、导航栏+页面内容）
+    val decor = window.decorView
+    var statusBar: View? = null
+    if (includeStatusBar) {
+        // 找到系统状态栏背景 View，android.R.id.statusBarBackground 是系统内置id
+        statusBar = decor.findViewById(android.R.id.statusBarBackground)
+    }
+    // 找到系统导航栏（底部虚拟按键栏）背景 View
+    val navBar = decor.findViewById<View>(android.R.id.navigationBarBackground)
+    // 创建共享元素参与者列表，预分配容量3：状态栏、导航栏 + 自定义元素
+    val participants = ArrayList<Pair<View,String>>(3)
+    // 把状态栏 View 添加进列表（内部会判断view不为null才add）
+    addNonNullViewToTransitionParticipants(statusBar, participants)
+    // 把导航栏 View 添加进列表（同样非空判断）
+    addNonNullViewToTransitionParticipants(navBar, participants)
+    // 将外部传入的共享元素全部追加到参与者列表
+    participants.addAll(listOf(*otherParticipants))
+    // ArrayList转数组，作为最终共享元素数组返回
+    return participants.toTypedArray<Pair<View, String>>()
+}
+
+/**
+ * 如果view不为空，就把View和它的transitionName组成Pair，添加进共享参与者列表
+ * @param view 待加入的View（状态栏/导航栏/自定义共享View）
+ * @param participants 共享元素列表
+ */
+private fun addNonNullViewToTransitionParticipants(view: View?, participants: ArrayList<Pair<View, String>>) {
+    // View为空直接return，不添加
+    if (view == null) return
+    // 组装Kotlin Pair：View + view自身的transitionName，添加到列表
+    participants.add(Pair(view, view.transitionName))
 }
 
 /**

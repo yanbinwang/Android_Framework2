@@ -574,6 +574,17 @@ inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: Stri
 }
 
 /**
+ * 将 Kotlin Pair 数组 转换为 AndroidX 的 Pair 数组
+ * 因为老版本 ActivityOptions.makeSceneTransitionAnimation 需要 androidx.core.util.Pair
+ */
+fun <A, B> Array<kotlin.Pair<A, B>>.toAndroidXPairs(): Array<Pair<A, B>> {
+    // 遍历每一个Kotlin Pair，转成androidx.core.util.Pair，再转成数组返回
+    return map { (first, second) ->
+        Pair(first, second)
+    }.toTypedArray()
+}
+
+/**
  * makeCustomAnimation
  * 效果：借助自定义的动画资源，达成 Activity 切换时的过渡效果。
  * 用法：
