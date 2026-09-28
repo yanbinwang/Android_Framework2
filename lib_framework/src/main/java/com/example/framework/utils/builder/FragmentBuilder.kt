@@ -92,11 +92,13 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
     private var animResList: MutableList<Int>? = null // 动画集合
     private var fragList: MutableList<Pair<Class<*>, String>>? = null // 普通模式 class 集合
     private var fragBundleList: MutableList<Triple<Class<*>, String, Bundle>>? = null // 参数模式 class 集合
+    private var callback: FragmentManager.FragmentLifecycleCallbacks? = null // 切换生命周期监听
     private var listener: ((tab: Int) -> Unit)? = null // 切换监听
     private val fragmentCache by lazy { ConcurrentHashMap<Int, Fragment>() } // 存储声明的 fragment
 
     init {
         observer.doOnDestroy {
+            callback?.let { fragmentManager.unregisterFragmentLifecycleCallbacks(it) }
             commitJob?.cancel()
             animResList?.clear()
             fragList?.clear()
@@ -361,10 +363,8 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
      * }}
      */
     fun registerLifecycleCallbacks(callback: FragmentManager.FragmentLifecycleCallbacks, recursive: Boolean = false) {
+        this.callback = callback
         fragmentManager.registerFragmentLifecycleCallbacks(callback, recursive)
-        observer.doOnDestroy {
-            fragmentManager.unregisterFragmentLifecycleCallbacks(callback)
-        }
     }
 
 }
