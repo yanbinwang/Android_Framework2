@@ -6,9 +6,7 @@ import android.app.SearchManager
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ActivityInfo
 import android.graphics.Bitmap
-import android.graphics.Color
 import android.graphics.Rect
 import android.media.projection.MediaProjectionManager
 import android.net.Uri
@@ -21,8 +19,6 @@ import androidx.activity.result.ActivityResult
 import androidx.activity.result.ActivityResultCaller
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.AnimRes
-import androidx.annotation.ColorInt
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
@@ -571,17 +567,6 @@ inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: Stri
     } else {
         getParcelableArrayListExtra(name)
     }
-}
-
-/**
- * 将 Kotlin Pair 数组 转换为 AndroidX 的 Pair 数组
- * 因为老版本 ActivityOptions.makeSceneTransitionAnimation 需要 androidx.core.util.Pair
- */
-fun <A, B> Array<kotlin.Pair<A, B>>.toAndroidXPairs(): Array<Pair<A, B>> {
-    // 遍历每一个Kotlin Pair，转成androidx.core.util.Pair，再转成数组返回
-    return map { (first, second) ->
-        Pair(first, second)
-    }.toTypedArray()
 }
 
 /**
