@@ -468,6 +468,17 @@ fun Bundle.toPairs(): List<Pair<String, Any?>> {
 }
 
 /**
+ * 将 Kotlin Pair 数组 转换为 AndroidX 的 Pair 数组
+ * 因为老版本 ActivityOptions.makeSceneTransitionAnimation 需要 androidx.core.util.Pair
+ */
+fun <A, B> Array<Pair<A, B>>.toAndroidXPairs(): Array<androidx.core.util.Pair<A, B>> {
+    // 遍历每一个Kotlin Pair，转成androidx.core.util.Pair，再转成数组返回
+    return map { (first, second) ->
+        androidx.core.util.Pair(first, second)
+    }.toTypedArray()
+}
+
+/**
  * 集合转JSONArray
  */
 fun <T> Collection<T>?.toJsonArray(): JSONArray? {
