@@ -24,7 +24,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import androidx.core.util.Pair
 import androidx.fragment.app.Fragment
 import com.example.common.R
 import com.example.common.base.page.ResultCode.RESULT_ALBUM
@@ -35,6 +34,7 @@ import com.example.common.utils.StorageUtil.StorageType
 import com.example.common.utils.StorageUtil.getOutputFile
 import com.example.common.utils.builder.toast
 import com.example.framework.utils.function.value.hoursMs
+import com.example.framework.utils.function.value.toAndroidXPair
 import java.io.File
 import java.io.Serializable
 
@@ -637,7 +637,7 @@ fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY
  * 实现效果：共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换。
  */
 fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements)
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements.map { it.toAndroidXPair() }.toTypedArray())
 }
 
 /**
