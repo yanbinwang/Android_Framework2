@@ -77,9 +77,9 @@ import java.util.concurrent.ConcurrentHashMap
  *  1) 如果要在容器内加载一连串 fragment，它们使用同一个 xml 文件，只是 id 有区分，此时就可能出现 ui 错位
  *  2) 这时需使用 replace 删除容器之前的 fragment 直接替换（保证当前容器内只有一个 fragment）
  *
- * 【多实例使用约定】 commitFragmentWithSharedTransition/commitFragmentWithSharedEnterTransition
+ * 【多实例使用约定】 commitFragmentWithSharedTransition/commitFragmentWithSharedEnterTransition -> 每次必须 new 新的 Fragment
  * 1) 多个 FragmentBuilder 实例可以传入同一个 fragmentManager，但 containerViewId 必须区分
- * 2) useAddHideMode=true 的 Builder 用于 Tab 常驻切换（add/hide），该容器禁止调用任何replace事务
+ * 2) useAddHideMode=true 的 Builder 用于 Tab 常驻切换（add/hide），该容器禁止调用任何 replace 事务
  * 3) useAddHideMode=false 的 Builder 仅用于二级详情 replace 跳转，不使用 fragmentCache、getFragment、tab下标相关能力
  * 4) replace 会销毁容器内全部已有 Fragment，不可和 add-hide Tab共用同一个容器 ID
  */
@@ -304,6 +304,7 @@ class FragmentBuilder(private val observer: LifecycleOwner, private val fragment
         targetFragment.allowReturnTransitionOverlap = overlap
         // 共享元素：从上个页面跳进来，共享View的形变过渡
         targetFragment.sharedElementEnterTransition = sharedElementEnterTransition
+        // 替换页面 FrameLayout
         fragmentManager.beginTransaction()
             .replace(containerViewId, targetFragment)
             .addToBackStack(null)
