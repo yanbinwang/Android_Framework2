@@ -468,14 +468,25 @@ fun Bundle.toPairs(): List<Pair<String, Any?>> {
 }
 
 /**
- * 将 Kotlin Pair 数组 转换为 AndroidX 的 Pair 数组
- * 因为老版本 ActivityOptions.makeSceneTransitionAnimation 需要 androidx.core.util.Pair
+ * 将 Kotlin [Pair] 转换为 [androidx.core.util.Pair]
+ * 1) [androidx.core.util.Pair] 是 AndroidX core 提供的 Java 二元容器类，多用于对接 Android Framework / AndroidX 旧版API
+ * 2) 例如 [android.app.ActivityOptions.makeSceneTransitionAnimation] 共享元素动画，该方法签名硬性要求此类型，与 Kotlin 原生 [Pair] 是完全独立的两个类型，仅字段名相同，不能直接互相赋值
+ * @receiver Kotlin 原生 Pair
+ * @return androidx.core.util.Pair 实例，first、second 值与原 Pair 保持一致
+ */
+fun <A, B> Pair<A, B>.toAndroidXPair(): androidx.core.util.Pair<A, B> {
+    return androidx.core.util.Pair(first, second)
+}
+
+/**
+ * 将 Kotlin [Pair] 数组转换为 [androidx.core.util.Pair] 数组
+ * 1) 常用于共享元素动画场景：[android.app.ActivityOptions.makeSceneTransitionAnimation] 需要传入
+ * 2) Array<androidx.core.util.Pair<View, String>> 作为共享元素列表，Kotlin 原生 Pair 数组无法直接传入，需要批量转换。底层依赖 [toAndroidXPair] 完成单个元素映射。
+ * @receiver Kotlin Pair 数组
+ * @return 转换完成的 androidx.core.util.Pair 数组
  */
 fun <A, B> Array<Pair<A, B>>.toAndroidXPairs(): Array<androidx.core.util.Pair<A, B>> {
-    // 遍历每一个Kotlin Pair，转成androidx.core.util.Pair，再转成数组返回
-    return map { (first, second) ->
-        androidx.core.util.Pair(first, second)
-    }.toTypedArray()
+    return map { it.toAndroidXPair() }.toTypedArray()
 }
 
 /**
