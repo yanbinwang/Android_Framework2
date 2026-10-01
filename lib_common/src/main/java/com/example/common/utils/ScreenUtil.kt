@@ -2,12 +2,12 @@ package com.example.common.utils
 
 import android.content.Context
 import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.ColorFilter
 import android.graphics.Paint
 import android.graphics.PixelFormat
-import android.graphics.Point
 import android.graphics.Rect
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
@@ -34,9 +34,6 @@ import androidx.window.layout.WindowMetricsCalculator
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.utils.function.color
-import com.example.common.utils.manager.AppManager
-import com.example.framework.utils.function.value.orZero
-import kotlin.LazyThreadSafetyMode.NONE
 import kotlin.math.max
 import kotlin.properties.Delegates
 
@@ -45,48 +42,48 @@ import kotlin.properties.Delegates
  * @author yan
  */
 object ScreenUtil {
-    /**
-     * 获取屏幕高度（像素值px）
-     * 一旦初始化后不会随屏幕旋转等情况更新
-     */
-    val screenHeight by lazy(NONE) { screenHeight() }
-
-    /**
-     * 获取屏幕宽度（像素值px）
-     * 一旦初始化后不会随屏幕旋转等情况更新
-     */
-    val screenWidth by lazy(NONE) { screenWidth() }
-
-    /**
-     * 获取屏幕密度/比值（dpi值）
-     * 一旦初始化后不会随屏幕旋转等情况更新
-     */
-    val screenDensity by lazy(NONE) { screenDensity() }
 //    /**
 //     * 获取屏幕高度（像素值px）
-//     * 1) 整机物理屏幕尺寸，不是Activity窗口
-//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
-//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     * 一旦初始化后不会随屏幕旋转等情况更新
 //     */
-//    val screenHeight: Int
-//        get() = screenHeight()
+//    val screenHeight by lazy(NONE) { screenHeight() }
 //
 //    /**
 //     * 获取屏幕宽度（像素值px）
-//     * 1) 整机物理屏幕尺寸，不是Activity窗口
-//     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
-//     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+//     * 一旦初始化后不会随屏幕旋转等情况更新
 //     */
-//    val screenWidth: Int
-//        get() = screenWidth()
+//    val screenWidth by lazy(NONE) { screenWidth() }
 //
 //    /**
 //     * 获取屏幕密度/比值（dpi值）
-//     * 1) 整机屏幕属性
-//     * 2) 每次访问实时计算
+//     * 一旦初始化后不会随屏幕旋转等情况更新
 //     */
-//    val screenDensity: Int
-//        get() = screenDensity()
+//    val screenDensity by lazy(NONE) { screenDensity() }
+    /**
+     * 获取屏幕高度（像素值px）
+     * 1) 整机物理屏幕尺寸，不是Activity窗口
+     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+     */
+    val screenHeight: Int
+        get() = screenHeight()
+
+    /**
+     * 获取屏幕宽度（像素值px）
+     * 1) 整机物理屏幕尺寸，不是Activity窗口
+     * 2) 每次访问实时计算，可跟随屏幕旋转/折叠硬件状态更新；
+     * 3) 禁止用于布局、pt尺寸换算！仅用于设备硬件埋点。
+     */
+    val screenWidth: Int
+        get() = screenWidth()
+
+    /**
+     * 获取屏幕密度/比值（dpi值）
+     * 1) 整机屏幕属性
+     * 2) 每次访问实时计算
+     */
+    val screenDensity: Int
+        get() = screenDensity()
 
     /**
      * 获取屏幕宽度（px）
@@ -140,81 +137,13 @@ object ScreenUtil {
     }
 
     /**
-     * 是否具备底部导航栏
-     * 如是扩展函数,view必须是window.decorView
-     */
-    fun hasNavigationBar(): Boolean {
-        val currentActivity = AppManager.currentActivity()
-        val decorView = currentActivity?.window?.decorView ?: return false
-        val insets = ViewCompat.getRootWindowInsets(decorView) ?: return false
-        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
-    }
-
-    fun hasNavigationBar(context: Context): Boolean {
-        val appUsableSize = getAppUsableScreenSize(context)
-        val realScreenSize = getRealScreenSize(context)
-        // navigation bar on the right
-        if (appUsableSize.x < realScreenSize.x) return true
-        // navigation bar at the bottom
-        if (appUsableSize.y < realScreenSize.y) return true
-        return false
-    }
-
-    /**
-     * 获取应用实际可用的屏幕尺寸（即扣除状态栏、导航栏等系统栏后的区域）
-     */
-    private fun getAppUsableScreenSize(context: Context): Point {
-        // API 30+：用 WindowMetrics + WindowInsets 计算可用区域（替代 display.getSize()）
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            val currentMetrics = windowManager?.currentWindowMetrics
-            // 获取当前窗口的整体边界（包含系统栏）
-            val bounds = currentMetrics?.bounds
-            // 获取系统栏（状态栏、导航栏、显示切口）的 insets（遮挡区域）
-            val insets = currentMetrics?.windowInsets?.getInsetsIgnoringVisibility(WindowInsets.Type.systemBars())
-            // 从整体边界中减去系统栏尺寸 → 得到应用可用区域（与旧版 getSize() 一致）
-            val usableWidth = bounds?.width().orZero - (insets?.left.orZero + insets?.right.orZero)
-            val usableHeight = bounds?.height().orZero - (insets?.top.orZero + insets?.bottom.orZero)
-            Point(usableWidth, usableHeight)
-        } else {
-            // API 23-29：沿用旧版 getSize()
-            val display = windowManager?.defaultDisplay
-            val size = Point()
-            // 避免 null 导致尺寸为 (0,0) 以外的异常值
-            display?.getSize(size) ?: size.set(0, 0)
-            size
-        }
-    }
-
-    /**
-     * 获取真实屏幕尺寸
-     */
-    private fun getRealScreenSize(context: Context): Point {
-        // API 30：获取真实屏幕最大尺寸（替代 display.getRealSize()）
-        val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as? WindowManager
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // 获取最大窗口尺寸的 metrics
-            val maxWindowMetrics = windowManager?.maximumWindowMetrics
-            // 获取当前窗口真实物理尺寸
-            val rect = maxWindowMetrics?.bounds
-            Point(rect?.width().orZero, rect?.height().orZero)
-        } else {
-            // API 23-29：沿用旧版 getRealSize() 获取屏幕真实物理尺寸
-            val display = windowManager?.defaultDisplay
-            val size = Point()
-            // 避免 null 导致尺寸为 (0,0) 以外的异常值
-            display?.getRealSize(size) ?: size.set(0, 0)
-            size
-        }
-    }
-
-    /**
      * 获取当前 Activity 窗口实际可用宽高(px)
      * 返回 Pair(widthPx, heightPx)
      * 注意：返回 Activity 分配到的窗口区域，不是整块物理屏幕；
      * 适配：全屏、Activity‑Embedding分栏、系统分屏、自由窗口
      */
-    fun getCurrentActivityWindowSizePx(activity: FragmentActivity): Pair<Int, Int> {
+    fun getCurrentActivityWindowSizePx(activity: FragmentActivity?): Pair<Int, Int> {
+        if (null == activity) return 0 to 0
         val calculator = WindowMetricsCalculator.getOrCreate()
         val metrics = calculator.computeCurrentWindowMetrics(activity)
         val bounds = metrics.bounds
@@ -227,11 +156,84 @@ object ScreenUtil {
      * 折叠屏：展开完整大屏尺寸；普通设备等于全屏；不受分栏/分屏约束
      * 用于对比判断当前窗口是否被分栏、多窗口压缩
      */
-    fun getDeviceMaxWindowSizePx(activity: FragmentActivity): Pair<Int, Int> {
+    fun getDeviceMaxWindowSizePx(activity: FragmentActivity?): Pair<Int, Int> {
+        if (null == activity) return 0 to 0
         val calculator = WindowMetricsCalculator.getOrCreate()
         val maxMetrics = calculator.computeMaximumWindowMetrics(activity)
         val bounds = maxMetrics.bounds
         return bounds.width() to bounds.height()
+    }
+
+    /**
+     * 获取当前窗口状态栏顶部遮挡高度
+     * 1) 优先读取 WindowInsets 实时值，会跟随全屏、边缘到边缘、状态栏显隐动态变化
+     * 2) 仅当无 Activity / window 未 attach 拿不到 insets 时，降级使用系统静态默认值兜底
+     * 3) 静态兜底值是设备出厂固定值，不考虑刘海/挖孔；实时inset同样不含 display cutout
+     * 4) onCreate 早期 window 未 attach 时，会降级走静态兜底
+     */
+    fun getStatusBarHeight(activity: FragmentActivity?): Int {
+        val baseStatusBarHeight = getInternalDimensionSize("status_bar_height")
+        return if (null == activity) {
+            baseStatusBarHeight
+        } else {
+            val insets = ViewCompat.getRootWindowInsets(activity.window.decorView)
+            insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: baseStatusBarHeight
+        }
+    }
+
+    /**
+     * 获取当前窗口底部导航栏遮挡高度
+     * 1) 优先读取 WindowInsets 实时值，沉浸式隐藏导航栏时返回 0
+     * 2) 仅当无 Activity / window 未 attach 拿不到 insets 时，降级使用系统静态默认值兜底
+     * 3) 静态兜底值为竖屏导航栏系统默认尺寸
+     */
+    fun getNavigationBarHeight(activity: FragmentActivity?): Int {
+        val baseNavigationBarHeight = getInternalDimensionSize("navigation_bar_height")
+        return if (null == activity) {
+            baseNavigationBarHeight
+        } else {
+            val insets = ViewCompat.getRootWindowInsets(activity.window.decorView)
+            insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
+        }
+    }
+
+    /**
+     * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
+     * "status_bar_height" → 状态栏高度
+     * "navigation_bar_height" → 竖屏导航栏高度
+     * "navigation_bar_height_landscape" → 横屏导航栏高度
+     */
+    private fun getInternalDimensionSize(key: String): Int {
+        val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
+        if (resourceId <= 0) return 0
+        return try {
+            val context = BaseApplication.instance.applicationContext
+            val systemSize = Resources.getSystem().getDimensionPixelSize(resourceId)
+            val appSize = context.resources.getDimensionPixelSize(resourceId)
+            // 优先取较大值；若系统值更小，则按密度比补偿后四舍五入
+            if (systemSize >= appSize) {
+                systemSize
+            } else {
+                val densityCompensatedSize = appSize * Resources.getSystem().displayMetrics.density / context.resources.displayMetrics.density
+                // 刻意保留 ±0.5f 手写取整，不使用 roundToInt() 因为 roundToInt() 在 -0.5f 时结果为 0，而原版逻辑结果为 -1，必须保持逐 bit 一致以避免兼容性问题
+                (if (densityCompensatedSize >= 0) {
+                    densityCompensatedSize + 0.5f
+                } else {
+                    densityCompensatedSize - 0.5f
+                }).toInt()
+            }
+        } catch (_: Resources.NotFoundException) {
+            0
+        }
+    }
+
+    /**
+     * 当前页面底部导航栏是否正在显示 (沉浸式隐藏导航栏时返回 false,仅适配手机底部导航栏场景)
+     */
+    fun isNavigationBarVisible(activity: FragmentActivity?): Boolean {
+        if (null == activity) return false
+        val insets = ViewCompat.getRootWindowInsets(activity.window.decorView) ?: return false
+        return insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom > 0
     }
 
 }
