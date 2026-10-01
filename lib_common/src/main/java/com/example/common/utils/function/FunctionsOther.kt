@@ -2,8 +2,6 @@ package com.example.common.utils.function
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
-import android.content.res.Resources
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -25,15 +23,16 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.core.graphics.drawable.toDrawable
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
+import androidx.fragment.app.FragmentActivity
 import com.example.common.BaseApplication
 import com.example.common.R
 import com.example.common.config.Constants.NO_DATA
 import com.example.common.utils.NavigationBarDrawable
-import com.example.common.utils.ScreenUtil.hasNavigationBar
-import com.example.common.utils.ScreenUtil.screenWidth
+import com.example.common.utils.ScreenUtil.getCurrentActivityWindowSizePx
+import com.example.common.utils.ScreenUtil.getNavigationBarHeight
+import com.example.common.utils.ScreenUtil.getStatusBarHeight
 import com.example.common.utils.function.ExtraNumber.dp
 import com.example.common.utils.function.ExtraNumber.dpFloat
 import com.example.common.utils.function.ExtraNumber.pt
@@ -108,68 +107,17 @@ fun getManifestString(name: String, default: String = ""): String {
 }
 
 /**
- * 获取顶栏高度(静态默认值)
- * 设备出厂时定义的固定值（如大多数手机为 24dp~32dp），写死在系统资源文件中；
- * 不考虑当前窗口的状态（如是否全屏、是否隐藏状态栏、是否启用边缘到边缘模式）；
- * 不包含刘海屏（display cutout）等额外区域的高度（部分高版本手机可能优化，但本质仍是静态值）
+ * 获取当前窗口状态栏顶部遮挡高度
  */
 fun getStatusBarHeight(): Int {
-    val baseStatusBarHeight = getInternalDimensionSize("status_bar_height")
-    val currentActivity = AppManager.currentActivity()
-    return if (null == currentActivity) {
-        baseStatusBarHeight
-    } else {
-        val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
-        insets?.getInsets(WindowInsetsCompat.Type.statusBars())?.top ?: baseStatusBarHeight
-    }
+    return getStatusBarHeight(AppManager.currentActivity() as? FragmentActivity)
 }
 
 /**
- * 获取底栏高度(静态默认值)
+ * 获取当前窗口底部导航栏遮挡高度
  */
 fun getNavigationBarHeight(): Int {
-    val baseNavigationBarHeight = getInternalDimensionSize("navigation_bar_height")
-    val currentActivity = AppManager.currentActivity()
-    return if (null == currentActivity) {
-        if (hasNavigationBar(BaseApplication.instance.applicationContext)) {
-            baseNavigationBarHeight
-        } else {
-            0
-        }
-    } else {
-        val insets = ViewCompat.getRootWindowInsets(currentActivity.window.decorView)
-        insets?.getInsets(WindowInsetsCompat.Type.navigationBars())?.bottom ?: baseNavigationBarHeight
-    }
-}
-
-/**
- * 拿系统内置 dimen 尺寸 (直接取系统层配置的像素值作为保底措施)
- * "status_bar_height" → 状态栏高度
- * "navigation_bar_height" → 竖屏导航栏高度
- * "navigation_bar_height_landscape" → 横屏导航栏高度
- */
-private fun getInternalDimensionSize(key: String): Int {
-    val resourceId = Resources.getSystem().getIdentifier(key, "dimen", "android")
-    if (resourceId <= 0) return 0
-    return try {
-        val context = BaseApplication.instance.applicationContext
-        val systemSize = Resources.getSystem().getDimensionPixelSize(resourceId)
-        val appSize = context.resources.getDimensionPixelSize(resourceId)
-        // 优先取较大值；若系统值更小，则按密度比补偿后四舍五入
-        if (systemSize >= appSize) {
-            systemSize
-        } else {
-            val densityCompensatedSize = appSize * Resources.getSystem().displayMetrics.density / context.resources.displayMetrics.density
-            // 刻意保留 ±0.5f 手写取整，不使用 roundToInt() 因为 roundToInt() 在 -0.5f 时结果为 0，而原版逻辑结果为 -1，必须保持逐 bit 一致以避免兼容性问题
-            (if (densityCompensatedSize >= 0) {
-                densityCompensatedSize + 0.5f
-            } else {
-                densityCompensatedSize - 0.5f
-            }).toInt()
-        }
-    } catch (_: Resources.NotFoundException) {
-        0
-    }
+    return getNavigationBarHeight(AppManager.currentActivity() as? FragmentActivity)
 }
 
 /**
@@ -480,81 +428,6 @@ fun NestedScrollView?.setScrollTo(insets: WindowInsetsCompat, root: View?, list:
         }
         // 标记“已绑定监听”，存入tag
         setTag(R.id.theme_input_focus_tag, true)
-//        // 立即转换为弱引用列表
-//        val weakList = list.map { WeakReference(it) }
-//        // 开始循环传入的输入框集合,判断对应输入框是否处于有焦点状态,并获取y轴高度(滚动距离)
-//        for (weakRef in weakList) {
-//            // 输入框获取焦点可能会滞后,此处使用 NestedScrollView 焦点监听, 循环覆盖赋值到最后一个 view 为止,之后不会再触发
-//            setOnFocusChangeListener { _, hasFocus ->
-//                // 只有获取焦点时才触发
-//                if (hasFocus) {
-//                    // 延迟一小段时间（确保焦点稳定），再执行滚动
-//                    postDelayed({
-//                        // View 已销毁则跳过
-//                        if (!isAttachedToWindow) return@postDelayed
-//                        // Lamba 内部会强持有对象,此处重新赋值
-//                        val safeView = weakRef.get() ?: return@postDelayed
-//                        val currentInputView = getActualInputView(safeView) ?: return@postDelayed
-//                        // 校验输入框是否至少部分在屏幕内
-//                        val screenRect = Rect()
-//                        // 屏幕可视区域（排除状态栏/软键盘）
-//                        safeView.getWindowVisibleDisplayFrame(screenRect)
-//                        val viewRect = Rect()
-//                        // 输入框在屏幕上的可见区域
-//                        safeView.getGlobalVisibleRect(viewRect)
-//                        // 输入框完全在屏幕外，跳过（避免无效计算）
-//                        if (!Rect.intersects(screenRect, viewRect)) return@postDelayed
-//                        // 滑动控件的直接子View（内容容器）
-//                        val contentView = getChildAt(0)
-//                        // 最大可滚动距离
-//                        val maxScrollY = (contentView?.height ?: height) - height
-//                        // 计算输入框在滑动控件内的相对坐标（初始状态）
-//                        val inputLocation = safeView.getScreenLocation()
-//                        val scrollLocation = getScreenLocation()
-//                        val inputYInScroll = inputLocation[1] - scrollLocation[1]
-//                        // 设置新监听前，无条件清除上一个残留的滚动监听
-//                        setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
-//                        // 定义滚动到顶后的处理逻辑
-//                        val onScrollFinished = {
-//                            // 二次校验：输入框仍聚焦且滚动已到顶
-//                            if (currentInputView.isFocused && scrollY <= 2) {
-//                                // 计算输入框在顶部状态下的位置（此时scrollY=0）
-//                                val top = inputYInScroll
-//                                val bottom = top + safeView.height
-//                                // 计算目标滚动位置（处理边界）
-//                                val targetScrollY = when {
-//                                    top < statusBarHeight -> {
-//                                        // 顶部边界：不小于0
-//                                        maxOf(inputYInScroll - statusBarHeight, 0)
-//                                    }
-//                                    bottom > height -> {
-//                                        // 底部边界：不大于最大可滚动距离
-//                                        val temp = inputYInScroll + safeView.height - height
-//                                        minOf(temp, maxScrollY)
-//                                    }
-//                                    else -> 0 // 无需滚动
-//                                }
-//                                // 执行最终滚动
-//                                smoothScrollTo(0, targetScrollY)
-//                            }
-//                            // 移除监听，避免内存泄漏
-//                            setOnScrollChangeListener(null as NestedScrollView.OnScrollChangeListener?)
-//                        }
-//                        // 设置滚动监听，等待滚动到顶
-//                        setOnScrollChangeListener { _, _, scrollY, _, oldScrollY ->
-//                            // 当滚动到顶（scrollY == 0）且滚动状态停止（oldScrollY == scrollY）/ 允许 scrollY <= 2，视为已到顶
-//                            if (scrollY <= 2 && oldScrollY == scrollY) {
-//                                onScrollFinished()
-//                            }
-//                        }
-//                        // 启动滚动到顶
-//                        smoothScrollTo(0, 0)
-//                    }, 50)
-//                }
-//            }
-//        }
-//        // 标记“已绑定监听”，存入tag
-//        setTag(R.id.theme_input_focus_tag, true)
     }
 }
 
@@ -607,55 +480,57 @@ object ExtraNumber {
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
-        if (this == null) return 0
-        return getRealSize(context, this.toDouble())
-    }
-//    fun Number?.pt(activity: Activity? = AppManager.currentActivity()): Int {
-//        if (this == null || activity == null) return 0
-//        return getRealSize(activity, this.toDouble())
+//    fun Number?.pt(context: Context = BaseApplication.instance.applicationContext): Int {
+//        if (this == null) return 0
+//        return getRealSize(context, this.toDouble())
 //    }
+    fun Number?.pt(activity: Activity? = AppManager.currentActivity()): Int {
+        if (this == null || activity == null) return 0
+        return getRealSize(activity, this.toDouble())
+    }
 
     /**
      * 设计图尺寸转换为实际尺寸
      */
-    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
-        if (this == null) return 0f
-        return getRealSizeFloat(context, this.toFloat())
-    }
-//    fun Number?.ptFloat(activity: Activity? = AppManager.currentActivity()): Float {
-//        if (this == null || activity == null) return 0f
-//        return getRealSizeFloat(activity, this.toFloat())
+//    fun Number?.ptFloat(context: Context = BaseApplication.instance.applicationContext): Float {
+//        if (this == null) return 0f
+//        return getRealSizeFloat(context, this.toFloat())
 //    }
+    fun Number?.ptFloat(activity: Activity? = AppManager.currentActivity()): Float {
+        if (this == null || activity == null) return 0f
+        return getRealSizeFloat(activity, this.toFloat())
+    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px） -> 若输入值≤0 则返回 0，结果最小为 1 像素
-     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度。
+     * @return 像素值（px）计算公式：实际像素 = 设计稿长度 × 屏幕实际宽度 ÷ 设计稿宽度
+     * 1) 旧版本基于【整机物理屏幕宽度】做 AutoSize 缩放
+     * 2) 新版本基于【当前 Activity 窗口宽度（WindowMetrics）】做 AutoSize 缩放
      */
-    private fun getRealSize(context: Context, length: Double): Int {
-        if (length <= 0) return 0
-        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
-    }
-//    private fun getRealSize(activity: Activity, length: Double): Int {
+//    private fun getRealSize(context: Context, length: Double): Int {
 //        if (length <= 0) return 0
-//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
-//        val px = length * windowW.toDouble() / designWidth
-//        return px.toInt().min(1)
+//        return (length * screenWidth(context).toDouble() / designWidth).toInt().min(1)
 //    }
+    private fun getRealSize(activity: Activity, length: Double): Int {
+        if (length <= 0) return 0
+        val (windowW, _) = getCurrentActivityWindowSizePx(activity as? FragmentActivity)
+        val px = length * windowW.toDouble() / designWidth
+        return px.toInt().min(1)
+    }
 
     /**
      * 将设计稿中的长度（dp）转换为实际屏幕上的像素值（px）
      * @return 像素值（px）Float 类型的实际尺寸，适用于需要更精确值的场景（如动画）
      */
-    private fun getRealSizeFloat(context: Context, length: Float): Float {
-        if (length <= 0) return 0f
-        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
-    }
-//    private fun getRealSizeFloat(activity: Activity, length: Float): Float {
+//    private fun getRealSizeFloat(context: Context, length: Float): Float {
 //        if (length <= 0) return 0f
-//        val (windowW, _) = getCurrentActivityWindowSizePx(activity as FragmentActivity)
-//        val px = length * windowW.toFloat() / designWidth.toFloat()
-//        return px.coerceAtLeast(1f)
+//        return (length * screenWidth(context).toFloat() / designWidth.toFloat()).coerceAtLeast(1f)
 //    }
+    private fun getRealSizeFloat(activity: Activity, length: Float): Float {
+        if (length <= 0) return 0f
+        val (windowW, _) = getCurrentActivityWindowSizePx(activity as? FragmentActivity)
+        val px = length * windowW.toFloat() / designWidth.toFloat()
+        return px.coerceAtLeast(1f)
+    }
 
 }
