@@ -8,23 +8,33 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
+import androidx.window.embedding.SplitInfo
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
 import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
+import com.example.common.utils.ScreenUtil.getCurrentActivityWindowSizePx
 import com.example.common.utils.function.getCustomOption
+import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
 import com.example.framework.utils.builder.TimerBuilder.Companion.schedule
+import com.example.framework.utils.function.getIntent
 import com.example.framework.utils.function.value.toBundle
 import com.example.framework.utils.function.value.toPairs
 import com.therouter.TheRouter
 import com.therouter.router.Navigator
 import com.therouter.router.matchRouteMap
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.buffer
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 /**
@@ -318,6 +328,78 @@ fun FragmentActivity?.checkEmbed(): Boolean {
 }
 
 /**
+ * 持续监听：是否存在 HALF_OPENED 桌面模式(书本半开)
+ * 注意：异步持续回调，lifecycleScope自动随页面销毁取消订阅
+ * 1) 订阅建立瞬间，立刻回调 1 次当前真实状态，不需要等待窗口发生变化
+ * 2) 每当窗口布局变化：折叠 / 展开、分屏、旋转、调整窗口大小，系统推送新的WindowLayoutInfo，再次执行 block
+ * 3) Activity onDestroy → lifecycleScope 自动 cancel，collect 终止，不再接收事件，无内存泄漏
+ */
+// 窗口占设备最大窗口比例阈值，视为接近完整大屏展开
+const val FULL_DISPLAY_RATIO_THRESHOLD = 0.85f
+// 绝对窗口宽度px阈值，过滤普通双折叠大比例分栏误命中
+const val ABSOLUTE_HUGE_WIDTH_THRESHOLD = 1850
+
+/**
+ * 监听Activity‑Embedding有效容器数量变化
+ * @return Job 跟随Activity lifecycleScope自动取消
+ */
+fun FragmentActivity?.observeEmbeddedContainerCount(block: (containerCount: Int, targetSplit: SplitInfo?) -> Unit): Job? {
+    val activity = this ?: return null
+    return activity.lifecycleScope.launch(Main.immediate) {
+        SplitController.getInstance(activity)
+            .splitInfoList(activity)
+            // 添加缓冲区，防止快速状态切换丢事件
+            .buffer()
+            .collectLatest { splitInfoList ->
+                // 从末尾向前遍历，找到第一个匹配的分屏信息 (折叠不会匹配到)
+                val targetSplit = splitInfoList.lastOrNull { splitInfo ->
+                    splitInfo.primaryActivityStack.contains(activity) || splitInfo.secondaryActivityStack.contains(activity)
+                }
+                if (targetSplit == null) {
+                    block(0, null)
+                    return@collectLatest
+                }
+                // 统计非空 ActivityStack 数量（基于 Activity 存活）
+                var containerCount = 0
+                if (!targetSplit.primaryActivityStack.isEmpty) containerCount++
+                if (!targetSplit.secondaryActivityStack.isEmpty) containerCount++
+                block(containerCount, targetSplit)
+            }
+    }
+}
+
+/**
+ * Activity‑Embedding 条件化启动副页 Activity
+ * 内部完成全套防护：旋转重建拦截、能力检测、已分栏拦截、窗口阈值校验
+ * @param targetCls 需要启动的副页 Activity Class
+ * @param pairs 需要传输的页面参数
+ * @param minWidthDp 规则匹配最小宽度 dp，默认 600
+ * @param minSmallestDp 规则匹配最小边 dp，默认 600
+ */
+fun FragmentActivity?.startEmbedSecondaryIfNeeded(targetCls: Class<out Activity>, vararg pairs: Pair<String, Any?>, minWidthDp: Float = 600f, minSmallestDp: Float = 600f) {
+    this ?: return
+    // 设备系统层面不支持 embedding，直接返回
+    if (!isActivityEmbeddingAvailable()) return
+    // 已经处于分栏，不要再启动副页，避免重复实例
+    if (isActivityEmbedded()) return
+    // 页面存活则不开启
+    if (AppManager.isActivityAlive(targetCls)) return
+    // 获取当前窗口宽高 px
+    val (wPx, hPx) = getCurrentActivityWindowSizePx(this)
+    val density = resources.displayMetrics.density
+    val widthDp = wPx / density
+    val smallestDp = minOf(wPx, hPx) / density
+    // 必须同时满足宽度、最小边阈值
+    if (widthDp < minWidthDp || smallestDp < minSmallestDp) return
+    // 执行时刻 Activity 可能已 finish
+    if (isFinishing) return
+    // 全部条件满足，启动副页，触发 SplitPairRule
+    startActivity(getIntent(targetCls, *pairs).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    })
+}
+
+/**
  * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
  * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
  * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）
@@ -331,8 +413,9 @@ fun FragmentActivity?.isActivityEmbedded(): Boolean {
 
 /**
  * 查询设备&系统是否具备 Activity‑Embedding 分栏硬件与系统能力
- * 返回true仅代表设备支持该特性，不代表此刻App正在分栏显示
- * 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
+ * 1) 返回 true 仅代表设备支持该特性，不代表此刻 App 正在分栏显示
+ * 2) 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
+ * 3) 原生 Android12L + 平板也会为 true
  */
 fun Context?.isActivityEmbeddingAvailable(): Boolean {
     this ?: return false
