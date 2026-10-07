@@ -97,6 +97,91 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
+ * 获取【当前类直接声明】的实例字段值（private/protected/public）
+ * 1) 仅检索当前类源码直接定义的字段，不会向上查找父类，无法获取父类任何字段
+ * 2) 仅支持类实例对象调用；Class 对象调用会直接抛出找不到字段异常
+ * Toolbar:
+ *  (1) val navBtn = toolbar.getDeclaredFieldValue<ImageButton>("mNavButtonView")
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Any.getDeclaredFieldValue(fieldName: String): T? {
+    return try {
+        val field = this::class.java.getDeclaredField(fieldName)
+        field.isAccessible = true
+        // 实例字段取值，必须传入类实例对象
+        field.get(this) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 获取【当前类直接声明】的静态字段值（static，private/protected/public）
+ * 1) 仅检索当前类源码直接定义的静态字段，不会向上查找父类，无法获取父类任何静态字段
+ * 2) 支持两种调用入口：类实例对象 / Class 对象
+ * ConstraintLayout:
+ *  (1) constraintLayout.getDeclaredStaticField<Boolean>("USE_CONSTRAINTS_HELPER")
+ *  (2) ConstraintLayout::class.java.getDeclaredStaticField<Boolean>("USE_CONSTRAINTS_HELPER")
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Any.getDeclaredStaticField(fieldName: String): T? {
+    return try {
+        val targetClass = if (this is Class<*>) this else this::class.java
+        val field = targetClass.getDeclaredField(fieldName)
+        field.isAccessible = true
+        // 静态字段取值固定传null
+        field.get(null) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 调用【当前类直接声明】的实例方法（private/protected/public【可使用 getMethod()】）
+ * 1) 仅检索当前实例所属类源码直接定义的实例方法，不会自动向上遍历父类；若要访问父类内部定义的实例方法，需要直接拿到父类 Class 对象另行反射
+ * 2) 仅支持类实例对象调用；Class 对象调用会直接抛出找不到方法异常
+ * DebuggingUtil:
+ *  (1) debuggingUtil.invokeDeclaredInstanceMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, paramTypes: Array<Class<*>> = emptyArray(), vararg args: Any?): T? {
+    return try {
+        val method = this::class.java.getDeclaredMethod(methodName, *paramTypes)
+        method.isAccessible = true
+        // 实例方法执行，传入类实例对象
+        method.invoke(this, *args) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 调用【当前类直接声明】的静态方法（static，private/protected/public）
+ * 1) 仅检索 targetClass 源码直接定义的静态方法，不会自动向上遍历父类；若要访问父类内部定义的静态方法，请直接传入【父类的Class对象】调用本API
+ * 2) 支持两种调用入口：类实例对象 / Class 对象
+ * DebuggingUtil:
+ *  (1) DebuggingUtil::class.java.invokeDeclaredStaticMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ *  (2) val clazz = Class.forName("com.example.debugging.utils.DebuggingUtil")
+ *      clazz.invokeDeclaredStaticMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Any.invokeDeclaredStaticMethod(methodName: String, paramTypes: Array<Class<*>> = emptyArray(), vararg args: Any?): T? {
+    return try {
+        val targetClass = if (this is Class<*>) this else this::class.java
+        val method = targetClass.getDeclaredMethod(methodName, *paramTypes)
+        method.isAccessible = true
+        // 静态方法执行，第一个参数固定传null
+        method.invoke(null, *args) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  * 安全解析颜色字符串为 [ColorInt]，支持 null 处理和格式验证
  * @param defaultColor 非法格式或 null 时使用的默认颜色（默认值：白色 #FFFFFF）
  * @return 解析后的颜色值（符合 [ColorInt] 规范的 32 位 ARGB 整数）
