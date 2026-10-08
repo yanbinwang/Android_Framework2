@@ -100,11 +100,17 @@ fun Bundle?.clearFragmentSavedState() {
  * 获取【当前类直接声明】的实例字段值（private/protected/public）
  * 1) 仅检索当前类源码直接定义的字段，不会向上查找父类，无法获取父类任何字段
  * 2) 仅支持类实例对象调用；Class 对象调用会直接抛出找不到字段异常
+ * # ========== 【三方/AndroidX类反射模板】精准keep成员 ==========
+ * # -keepclassmembers class 完整类名 {
+ * #     private <fields>;    # 保留全部私有字段
+ * #     private <methods>;   # 保留全部私有方法
+ * # }
  * Toolbar:
  *  (1) val navBtn = toolbar.getDeclaredFieldValue<ImageButton>("mNavButtonView")
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.getDeclaredFieldValue(fieldName: String): T? {
+fun <T> Any?.getDeclaredFieldValue(fieldName: String): T? {
+    this ?: return null
     return try {
         val field = this::class.java.getDeclaredField(fieldName)
         field.isAccessible = true
@@ -125,7 +131,8 @@ fun <T> Any.getDeclaredFieldValue(fieldName: String): T? {
  *  (2) ConstraintLayout::class.java.getDeclaredStaticField<Boolean>("USE_CONSTRAINTS_HELPER")
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.getDeclaredStaticField(fieldName: String): T? {
+fun <T> Any?.getDeclaredStaticField(fieldName: String): T? {
+    this ?: return null
     return try {
         val targetClass = if (this is Class<*>) this else this::class.java
         val field = targetClass.getDeclaredField(fieldName)
@@ -146,7 +153,8 @@ fun <T> Any.getDeclaredStaticField(fieldName: String): T? {
  *  (1) debuggingUtil.invokeDeclaredInstanceMethod<Unit>("init", Context::class.java to applicationContext, Class::class.java to MainActivity::class.java)
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
+fun <T> Any?.invokeDeclaredInstanceMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
+    this ?: return null
     return try {
         // 拆分出类型数组、实参数组
         val paramTypes = params.map { it.first }.toTypedArray()
@@ -171,7 +179,8 @@ fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, vararg params: Pair
  *      clazz.invokeDeclaredStaticMethod<Unit>("init", Context::class.java to applicationContext, Class::class.java to MainActivity::class.java)
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.invokeDeclaredStaticMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
+fun <T> Any?.invokeDeclaredStaticMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
+    this ?: return null
     return try {
         val paramTypes = params.map { it.first }.toTypedArray()
         val args = params.map { it.second }.toTypedArray()
@@ -179,6 +188,35 @@ fun <T> Any.invokeDeclaredStaticMethod(methodName: String, vararg params: Pair<C
         val method = targetClass.getDeclaredMethod(methodName, *paramTypes)
         method.isAccessible = true
         // 静态方法执行，第一个参数固定传null
+        method.invoke(null, *args) as? T
+    } catch (e: Exception) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
+ * 调用【静态public方法】
+ * 1) 使用 getMethod()，只会查找 public 静态方法，包含父类继承来的public静态方法
+ * 2) 支持3种调用入口：类实例对象 / Class对象 / 全类名字符串
+ * 3) 参数采用 Pair<参数类型, 参数值> 成对绑定，避免类型数组与实参数组长度错位
+ * 4) 自动判空：this == null 直接返回 null
+ * @param methodName public静态方法名
+ * @param params 参数对：Pair<参数Class类型, 参数值>
+ * @return 方法返回值，反射失败/找不到方法/类加载失败/参数不匹配返回null
+ * DebuggingUtil:
+ *  (1) com.xxx.Test".invokeStaticPublicMethod<Int>("getVersion")
+ */
+@Suppress("UNCHECKED_CAST")
+fun <T> Any?.invokeStaticPublicMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
+    this ?: return null
+    return try {
+        val paramTypes = params.map { it.first }.toTypedArray()
+        val args = params.map { it.second }.toTypedArray()
+        val targetClass = if (this is Class<*>) this else this::class.java
+        val method = targetClass.getMethod(methodName, *paramTypes)
+        method.isAccessible = true
+        // 静态public方法，invoke传null
         method.invoke(null, *args) as? T
     } catch (e: Exception) {
         e.printStackTrace()
