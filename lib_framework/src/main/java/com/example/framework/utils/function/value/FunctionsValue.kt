@@ -143,11 +143,14 @@ fun <T> Any.getDeclaredStaticField(fieldName: String): T? {
  * 1) 仅检索当前实例所属类源码直接定义的实例方法，不会自动向上遍历父类；若要访问父类内部定义的实例方法，需要直接拿到父类 Class 对象另行反射
  * 2) 仅支持类实例对象调用；Class 对象调用会直接抛出找不到方法异常
  * DebuggingUtil:
- *  (1) debuggingUtil.invokeDeclaredInstanceMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ *  (1) debuggingUtil.invokeDeclaredInstanceMethod<Unit>("init", Context::class.java to applicationContext, Class::class.java to MainActivity::class.java)
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, paramTypes: Array<Class<*>> = emptyArray(), vararg args: Any?): T? {
+fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
     return try {
+        // 拆分出类型数组、实参数组
+        val paramTypes = params.map { it.first }.toTypedArray()
+        val args = params.map { it.second }.toTypedArray()
         val method = this::class.java.getDeclaredMethod(methodName, *paramTypes)
         method.isAccessible = true
         // 实例方法执行，传入类实例对象
@@ -163,13 +166,15 @@ fun <T> Any.invokeDeclaredInstanceMethod(methodName: String, paramTypes: Array<C
  * 1) 仅检索 targetClass 源码直接定义的静态方法，不会自动向上遍历父类；若要访问父类内部定义的静态方法，请直接传入【父类的Class对象】调用本API
  * 2) 支持两种调用入口：类实例对象 / Class 对象
  * DebuggingUtil:
- *  (1) DebuggingUtil::class.java.invokeDeclaredStaticMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ *  (1) DebuggingUtil::class.java.invokeDeclaredStaticMethod<Unit>("init", Context::class.java to applicationContext, Class::class.java to MainActivity::class.java)
  *  (2) val clazz = Class.forName("com.example.debugging.utils.DebuggingUtil")
- *      clazz.invokeDeclaredStaticMethod<Unit>("init", arrayOf(Context::class.java, Class::class.java), applicationContext, MainActivity::class.java)
+ *      clazz.invokeDeclaredStaticMethod<Unit>("init", Context::class.java to applicationContext, Class::class.java to MainActivity::class.java)
  */
 @Suppress("UNCHECKED_CAST")
-fun <T> Any.invokeDeclaredStaticMethod(methodName: String, paramTypes: Array<Class<*>> = emptyArray(), vararg args: Any?): T? {
+fun <T> Any.invokeDeclaredStaticMethod(methodName: String, vararg params: Pair<Class<*>, Any?>): T? {
     return try {
+        val paramTypes = params.map { it.first }.toTypedArray()
+        val args = params.map { it.second }.toTypedArray()
         val targetClass = if (this is Class<*>) this else this::class.java
         val method = targetClass.getDeclaredMethod(methodName, *paramTypes)
         method.isAccessible = true
