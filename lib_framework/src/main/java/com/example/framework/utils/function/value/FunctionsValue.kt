@@ -1,5 +1,6 @@
 package com.example.framework.utils.function.value
 
+import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -11,6 +12,7 @@ import androidx.annotation.ColorInt
 import androidx.core.graphics.toColorInt
 import com.example.framework.BuildConfig
 import java.io.BufferedReader
+import java.io.File
 import java.io.FileReader
 import java.util.Locale
 import java.util.regex.Pattern
@@ -325,6 +327,37 @@ fun getCpuModelName(): String {
     } catch (e: Exception) {
         e.printStackTrace()
         ""
+    }
+}
+
+/**
+ * 检测设备是否已 Root
+ * 综合判断：特征文件 + su 命令可用性 + 已知 Root 管理器包名
+ * 注意：此方法仅为启发式检测，无法做到 100% 准确，且可能被 SELinux/沙箱拦截
+ */
+fun mobileIsRoot(): Boolean {
+    return try {
+        val legacyPaths = arrayOf("/system/bin/su", "/system/xbin/su", "/sbin/su", "/vendor/bin/su", "/data/local/bin/su")
+        legacyPaths.any { File(it).exists() }
+    } catch (_: Exception) {
+        false
+    }
+}
+
+/**
+ * 增强版 Root 检测
+ * 此方法为启发式检测，无法覆盖已隐藏包名的 Magisk/KSU/APatch 等现代方案
+ * @param packageManager 通过 context(Application Context皆可) 获取
+ * @param extraRootPackages 额外的 Root 管理器包名集合（由业务方按需传入）
+ * @return true 表示检测到 Root 迹象
+ */
+fun mobileIsRootEnhanced(packageManager: PackageManager, extraRootPackages: Set<String> = emptySet()): Boolean {
+    if (mobileIsRoot()) return true
+    val knownPackages = setOf("com.topjohnwu.magisk", "me.weishu.kernelsu", "me.bmax.apatch") + extraRootPackages
+    return try {
+        packageManager.getInstalledPackages(0).any { it.packageName in knownPackages }
+    } catch (_: Exception) {
+        false
     }
 }
 
