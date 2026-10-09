@@ -26,11 +26,11 @@ import com.example.common.network.repository.withHandling
 import com.example.common.utils.builder.suspendingDownloadPic
 import com.example.common.utils.function.color
 import com.example.common.utils.function.decodeResource
-import com.example.common.utils.function.dp
 import com.example.common.utils.function.getActivityPendingIntent
 import com.example.common.utils.function.pullUpNotification
 import com.example.common.utils.function.safeRecycle
 import com.example.common.utils.function.string
+import com.example.common.utils.function.sysDp
 import com.example.common.utils.permission.RequestPermissionRegistrar
 import com.example.common.widget.dialog.AppDialog
 import com.example.framework.utils.function.doOnDestroy
@@ -213,7 +213,7 @@ object NotificationUtil {
             // 64dp × 64dp (约 144px)
             .apply {
                 largeIcon?.let {
-                    setLargeIcon(it.scale(64.dp, 64.dp, false))
+                    setLargeIcon(it.scale(64.sysDp, 64.sysDp, false))
                 }
             }
             .setContentTitle(title)
@@ -388,12 +388,12 @@ object NotificationUtil {
         val pendingIntent = intent?.let {
             getActivityPendingIntent(requestCode, it, PendingIntent.FLAG_UPDATE_CURRENT)
         }
-        val scaledPicture = bigPicture.scale(256.dp, 256.dp, false)
+        val scaledPicture = bigPicture.scale(256.sysDp, 256.sysDp, false)
         // 不设置 null 则展开通知后左侧图标会为变大图缩略图，根据配置决定 bigLargeIcon
         val bigLargeIcon = if (clearBigLargeIcon) {
             null
         } else {
-            largeIcon?.scale(128.dp, 128.dp, false)
+            largeIcon?.scale(128.sysDp, 128.sysDp, false)
         }
         val notification = builder(largeIcon = largeIcon, title = title, text = text, ongoing = ongoing, pendingIntent = pendingIntent)
             .asBigPicture(bigPicture = scaledPicture, bigLargeIcon = bigLargeIcon, summaryText = summaryText)
