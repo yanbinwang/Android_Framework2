@@ -2,6 +2,7 @@ package com.example.common.utils.function
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Context
 import android.graphics.Rect
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
@@ -37,6 +38,8 @@ import com.example.common.utils.function.ExtraNumber.dp
 import com.example.common.utils.function.ExtraNumber.dpFloat
 import com.example.common.utils.function.ExtraNumber.pt
 import com.example.common.utils.function.ExtraNumber.ptFloat
+import com.example.common.utils.function.ExtraNumber.sysDp
+import com.example.common.utils.function.ExtraNumber.sysDpFloat
 import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.i18n.I18nTextView
@@ -75,7 +78,16 @@ val Number?.ptFloat: Float
     get() = ptFloat()
 
 /**
- * dp尺寸转换为实际尺寸
+ * 原生 dp 转 px (专门用于通知、widget、前台服务等系统渲染UI尺寸)
+ */
+val Number?.sysDp: Int
+    get() = sysDp()
+
+val Number?.sysDpFloat: Float
+    get() = sysDpFloat()
+
+/**
+ * dp 尺寸转换为实际尺寸
  */
 val Number?.dp: Int
     get() = dp()
@@ -475,6 +487,20 @@ object ExtraNumber {
     fun Number?.dpFloat(activity: Activity? = AppManager.currentActivity()): Float {
         if (this == null || activity == null) return 0f
         return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), activity.resources.displayMetrics)
+    }
+
+    /**
+     * 原生dp转px，使用传入context的resources，不走AutoSize，不拿全局currentActivity
+     * 专门用于通知、widget、前台服务等系统渲染UI尺寸
+     */
+    fun Number?.sysDp(context: Context? = BaseApplication.instance.applicationContext): Int {
+        if (this == null || context == null) return 0
+        return sysDpFloat(context).toInt()
+    }
+
+    fun Number?.sysDpFloat(context: Context? = BaseApplication.instance.applicationContext): Float {
+        if (this == null || context == null) return 0f
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), context.resources.displayMetrics)
     }
 
     /**
