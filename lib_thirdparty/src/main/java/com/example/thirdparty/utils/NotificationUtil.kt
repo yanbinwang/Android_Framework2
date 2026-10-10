@@ -51,13 +51,13 @@ import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * 通知构建类
- * application中使用
+ * Application 中使用
  * private fun initNotification() {
  *    NotificationUtil.init()
  * }
  *
  * NotificationCompat.Style 接口提供了多种样式来丰富通知的显示效果
- * 1. BigTextStyle
+ * 1) BigTextStyle
  * 作用：显示长文本内容，折叠时显示摘要，展开时显示完整文本。
  * 核心方法：
  * bigText(String)：设置展开时的完整文本
@@ -65,7 +65,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setSummaryText(String)：设置摘要文本
  * 适用场景：新闻应用、长消息通知。
  *
- * 2. BigPictureStyle
+ * 2) BigPictureStyle
  * 作用：显示大图片，适合展示照片、新闻配图等。
  * 核心方法：
  * bigPicture(Bitmap)：设置展开时的大图 128dp*128dp
@@ -73,7 +73,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setSummaryText(String)：设置图片下方的摘要
  * 适用场景：社交媒体、图片分享应用。
  *
- * 3. MediaStyle
+ * 3) MediaStyle
  * 作用：专为媒体播放设计，显示播放控制按钮。
  * 核心方法：
  * setMediaSession(MediaSession.Token)：关联媒体会话
@@ -81,7 +81,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * setShowCancelButton(boolean)：是否显示取消按钮
  * 适用场景：音乐播放器、视频应用。
  *
- * 4. DecoratedCustomViewStyle
+ * 4) DecoratedCustomViewStyle
  * 作用：增强自定义通知视图的显示效果，自动添加标准装饰（如小图标、时间）。
  * 核心方法：
  * 无特殊方法，需配合 setCustomContentView() 使用。

@@ -97,6 +97,18 @@ fun Bundle?.clearFragmentSavedState() {
 }
 
 /**
+ * 根据全类名加载Class，失败返回null
+ */
+fun String.loadClass(): Class<*>? {
+    return try {
+        Class.forName(this)
+    } catch (e: ClassNotFoundException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+/**
  * 获取【当前类直接声明】的实例字段值（private/protected/public）
  * 1) 仅检索当前类源码直接定义的字段，不会向上查找父类，无法获取父类任何字段
  * 2) 仅支持类实例对象调用；Class 对象调用会直接抛出找不到字段异常
