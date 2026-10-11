@@ -26,6 +26,7 @@ import androidx.core.graphics.createBitmap
 import androidx.core.graphics.drawable.toBitmapOrNull
 import androidx.core.graphics.drawable.toDrawable
 import androidx.core.graphics.get
+import androidx.core.graphics.scale
 import com.example.common.R
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.font
@@ -189,30 +190,22 @@ fun Bitmap?.getIcon(targetWidth: Int, targetHeight: Int): Icon? {
  * 重设Bitmap大小，保持图片比例并进行边界检查
  * @param targetWidth 目标宽度，必须大于0
  * @param targetHeight 目标高度，必须大于0
+ * @param filter 是否启用抗锯齿，true 表示边缘更平滑
  * @return 缩放后的Bitmap，若原Bitmap为空或参数无效则返回null
  */
-fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
+fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int, filter: Boolean = true): Bitmap? {
     this ?: return null
     // 校验目标尺寸有效性
     if (targetWidth <= 0 || targetHeight <= 0) {
         return null
     }
-    // 原始宽高
-    val originalWidth = width
-    val originalHeight = height
     // 如果目标尺寸与原始尺寸相同，直接返回原Bitmap
-    if (targetWidth == originalWidth && targetHeight == originalHeight) {
+    if (targetWidth == width && targetHeight == height) {
         return this
-    }
-    // 按传入的目标宽高独立计算 X/Y 轴缩放比，强制拉伸/缩放至指定尺寸
-    val scaleWidth = targetWidth.toSafeFloat() / originalWidth.toSafeFloat()
-    val scaleHeight = targetHeight.toSafeFloat() / originalHeight.toSafeFloat()
-    val matrix = Matrix().apply {
-        postScale(scaleWidth, scaleHeight)
     }
     return try {
         // 生成缩放图片,并开启抗锯齿(filter=true)
-        val resultBitmap = Bitmap.createBitmap(this, 0, 0, originalWidth, originalHeight, matrix, true)
+        val result = scale(targetWidth, targetHeight, filter)
         /**
          * 只有当新 bitmap 与原 bitmap 不是同一个对象时才回收原 bitmap
          * 当缩放比例为 1:1（目标尺寸与原图尺寸完全一致,如果传入的 targetWidth 等于 Bitmap 原始宽度、targetHeight 等于原始高度（比如原始 Bitmap 是 500x500，目标尺寸也是 500x500），就属于 “1:1 缩放）
@@ -221,10 +214,10 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
          * 新返回的 resultBitmap 也被回收，变成无效对象
          * 后续使用该 Bitmap 会抛出异常（Canvas: trying to use a recycled bitmap）
          */
-        if (resultBitmap !== this) {
+        if (result !== this) {
             safeRecycle()
         }
-        resultBitmap
+        result
     } catch (e: Exception) {
         // 捕获可能的异常（如内存不足）
         e.printStackTrace()
@@ -232,6 +225,47 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
         null
     }
 }
+//fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
+//    this ?: return null
+//    // 校验目标尺寸有效性
+//    if (targetWidth <= 0 || targetHeight <= 0) {
+//        return null
+//    }
+//    // 原始宽高
+//    val originalWidth = width
+//    val originalHeight = height
+//    // 如果目标尺寸与原始尺寸相同，直接返回原Bitmap
+//    if (targetWidth == originalWidth && targetHeight == originalHeight) {
+//        return this
+//    }
+//    // 按传入的目标宽高独立计算 X/Y 轴缩放比，强制拉伸/缩放至指定尺寸
+//    val scaleWidth = targetWidth.toSafeFloat() / originalWidth.toSafeFloat()
+//    val scaleHeight = targetHeight.toSafeFloat() / originalHeight.toSafeFloat()
+//    val matrix = Matrix().apply {
+//        postScale(scaleWidth, scaleHeight)
+//    }
+//    return try {
+//        // 生成缩放图片,并开启抗锯齿(filter=true)
+//        val resultBitmap = Bitmap.createBitmap(this, 0, 0, originalWidth, originalHeight, matrix, true)
+//        /**
+//         * 只有当新 bitmap 与原 bitmap 不是同一个对象时才回收原 bitmap
+//         * 当缩放比例为 1:1（目标尺寸与原图尺寸完全一致,如果传入的 targetWidth 等于 Bitmap 原始宽度、targetHeight 等于原始高度（比如原始 Bitmap 是 500x500，目标尺寸也是 500x500），就属于 “1:1 缩放）
+//         * 系统对 Bitmap 进行了复用优化（虽然少见，但 Android 框架存在类似优化逻辑）
+//         * 这时此时如果 resultBitmap === this 时，直接调用 recycle() 会导致：
+//         * 新返回的 resultBitmap 也被回收，变成无效对象
+//         * 后续使用该 Bitmap 会抛出异常（Canvas: trying to use a recycled bitmap）
+//         */
+//        if (resultBitmap !== this) {
+//            safeRecycle()
+//        }
+//        resultBitmap
+//    } catch (e: Exception) {
+//        // 捕获可能的异常（如内存不足）
+//        e.printStackTrace()
+//        safeRecycle()
+//        null
+//    }
+//}
 
 /**
  * 按比例缩放 Bitmap
@@ -239,7 +273,7 @@ fun Bitmap?.scaleBitmap(targetWidth: Int, targetHeight: Int): Bitmap? {
  * @param filter 是否启用抗锯齿，true 表示边缘更平滑
  * @return 缩放后的 Bitmap，若原 Bitmap 为空或参数无效则返回 null
  */
-fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
+fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = true): Bitmap? {
     // 本身不为空且缩放值大于0
     if (this == null || scale <= 0) {
         return null
@@ -248,22 +282,37 @@ fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
     if (scale == 1f) {
         return this
     }
+    // 计算缩放宽高
+    val targetWidth = (width * scale).toInt()
+    val targetHeight = (height * scale).toInt()
     // 开始缩放
-    val matrix = Matrix().apply {
-        postScale(scale, scale)
-    }
-    return try {
-        val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, filter)
-        if (resultBitmap !== this) {
-            safeRecycle()
-        }
-        resultBitmap
-    } catch (e: Exception) {
-        e.printStackTrace()
-        safeRecycle()
-        null
-    }
+    return scaleBitmap(targetWidth, targetHeight, filter)
 }
+//fun Bitmap?.scaleBitmap(scale: Float, filter: Boolean = false): Bitmap? {
+//    // 本身不为空且缩放值大于0
+//    if (this == null || scale <= 0) {
+//        return null
+//    }
+//    // 不创建、不回收，直接返回
+//    if (scale == 1f) {
+//        return this
+//    }
+//    // 开始缩放
+//    val matrix = Matrix().apply {
+//        postScale(scale, scale)
+//    }
+//    return try {
+//        val resultBitmap = Bitmap.createBitmap(this, 0, 0, width, height, matrix, filter)
+//        if (resultBitmap !== this) {
+//            safeRecycle()
+//        }
+//        resultBitmap
+//    } catch (e: Exception) {
+//        e.printStackTrace()
+//        safeRecycle()
+//        null
+//    }
+//}
 
 /**
  * Bitmap 安全着色（不修改原图，返回新的着色 Bitmap）
