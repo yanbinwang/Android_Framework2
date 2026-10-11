@@ -187,7 +187,9 @@ fun Bitmap?.getIcon(targetWidth: Int, targetHeight: Int): Icon? {
 }
 
 /**
- * 重设Bitmap大小，保持图片比例并进行边界检查
+ * 重设 Bitmap 大小，保持图片比例并进行边界检查
+ *  postScale：追加叠加，多次调用就连续复合变换
+ *  setScale：重置矩阵，直接丢弃全部历史变换，仅保留本次缩放
  * @param targetWidth 目标宽度，必须大于0
  * @param targetHeight 目标高度，必须大于0
  * @param filter 是否启用抗锯齿，true 表示边缘更平滑
