@@ -299,7 +299,7 @@ fun Context?.pullUpPackage(packageName: String) {
         val intent = packageManager.getLaunchIntentForPackage(packageName)?.apply {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        if (null != intent && intent.resolveActivity(packageManager) != null) {
+        if (intent?.resolveActivity(packageManager) != null) {
             startActivity(intent)
         } else {
             "打开外部应用失败".toast()
