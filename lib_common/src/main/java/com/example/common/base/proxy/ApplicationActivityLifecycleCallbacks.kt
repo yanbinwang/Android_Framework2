@@ -169,13 +169,17 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
 
     private fun getClickListenerForView(view: View) {
         try {
-            val viewClazz = Class.forName("android.view.View")
-            val listenerInfoMethod = viewClazz.getDeclaredMethod("getListenerInfo")
-            if (!listenerInfoMethod.isAccessible) listenerInfoMethod.isAccessible = true
+            val viewClass = Class.forName("android.view.View")
+            val listenerInfoMethod = viewClass.getDeclaredMethod("getListenerInfo")
+            if (!listenerInfoMethod.isAccessible) {
+                listenerInfoMethod.isAccessible = true
+            }
             val listenerInfoInstance = listenerInfoMethod.invoke(view)
-            val listenerInfoClazz = Class.forName("android.view.View\$ListenerInfo")
-            val onClickListenerField = listenerInfoClazz.getDeclaredField("mOnClickListener")
-            if (!onClickListenerField.isAccessible) onClickListenerField.isAccessible = true
+            val listenerInfoClass = Class.forName("android.view.View\$ListenerInfo")
+            val onClickListenerField = listenerInfoClass.getDeclaredField("mOnClickListener")
+            if (!onClickListenerField.isAccessible) {
+                onClickListenerField.isAccessible = true
+            }
             val originClickListener = onClickListenerField[listenerInfoInstance] as? View.OnClickListener
             if (originClickListener !is ProxyOnClickListener) {
                 onClickListenerField[listenerInfoInstance] = ProxyOnClickListener(originClickListener)
