@@ -14,7 +14,7 @@ import com.example.common.utils.helper.ConfigHelper.getPackageName
  * 配置文件，用于存放一些用得到的静态变量
  */
 object Constants {
-    //------app内的一些默认值------
+    //------ app内的一些默认值 ------
     // 版本号
     val VERSION_CODE get() = getAppVersionCode()
     // 版本名
@@ -25,18 +25,20 @@ object Constants {
     val APPLICATION_NAME get() = getAppName()
     // 默认文件保存路径，sd卡下的应用名文件夹
     val APPLICATION_PATH get() = "${SDCARD_PATH}/${APPLICATION_NAME}"
-    // sd卡的根路径/android/data/{包名}->访问这个目录不需要动态申请STORAGE权限
+    // sd卡的根路径 /android/data/{包名} -> 访问这个目录不需要动态申请 STORAGE 权限
     val SDCARD_PATH get() = BaseApplication.instance.getExternalFilesDir(null)?.absolutePath
     // 设备id
     val DEVICE_ID get() = DeviceIdUtil.deviceId
     // 无数据占位符
     val NO_DATA get() = string(R.string.unitNoData)
-    //------app内接口的一些默认配置字段------
+
+    //------ app内接口的一些默认配置字段 ------
     // 固定配置页数
     const val PAGE_LIMIT = "10"
     // 微信的appId
     const val WX_APP_ID = "wxcedfca787269f739"
-    //------socket地址------
+
+    //------ Socket地址 ------
     // 訂單
     const val SOCKET_DEAL_URL = "/user/topic/console/subscribe/pendingOrder"
     // 廣告
