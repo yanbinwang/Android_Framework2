@@ -514,6 +514,7 @@
 -keep class com.example.thirdparty.pay.bean.** {*;}
 -keep class com.example.thirdparty.pay.provider.alipay.bean.** {*;}
 
+-keep class com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks { *; }
 -keep class com.example.common.databinding.** {*;}
 -keep class com.example.common.base.** {*;}
 -keep class com.example.common.bean.** {*;}
