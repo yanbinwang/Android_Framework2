@@ -75,12 +75,12 @@ abstract class BaseApplication : Application() {
 //    private var onStateChangedListener: (isForeground: Boolean) -> Unit = {}
 //    private var onPrivacyAgreedListener: (isAgreed: Boolean) -> Unit = {}
     private val excludedRouterPaths by lazy {
-        listOf(
+        setOf(
             RouterPath.MainActivity,
             RouterPath.SplashActivity,
 //            RouterPath.LinkActivity,
 //            RouterPath.LinkHandlerActivity
-        ).map { it.toActivitySimpleName() }.toSet()
+        ).map { it.toActivitySimpleName() }
     }
 
     companion object {
