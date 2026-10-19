@@ -9,7 +9,6 @@ import android.os.SystemClock
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.AbsListView
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isVisible
 import com.example.common.BaseApplication.Companion.isFirstLaunch
@@ -20,6 +19,7 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.utils.setSystemBarDrawable
+import com.example.framework.utils.logA
 import com.example.framework.utils.logE
 import com.gyf.immersionbar.ImmersionBar
 import java.util.Locale
@@ -133,7 +133,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                 }
                 if (executedProxyClick) return
                 executedProxyClick = true
-                proxyOnClick(decorView, 5)
+                proxyOnClick(decorView)
             }
         })
     }
@@ -148,23 +148,25 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         }?.value
     }
 
-    private fun proxyOnClick(view: View, recycledDeep: Int) {
-        var recycledContainerDeep = recycledDeep
-        if (view.isVisible) {
-            if (view is ViewGroup) {
-                val existAncestorRecycle = recycledContainerDeep > 0
-                if (view !is AbsListView || existAncestorRecycle) {
+    private fun proxyOnClick(rootView: View) {
+        val queue = ArrayDeque<View>()
+        queue.add(rootView)
+        while (queue.isNotEmpty()) {
+            val view = queue.removeFirst()
+            // 注意: 如果view不可见/未挂载：整棵子树不再入队
+            if (view.isVisible && view.isAttachedToWindow) {
+                // 仅当可点击，才执行反射代理
+                if (view.isClickable) {
+                    "内部反射执行".logA()
                     getClickListenerForView(view)
-                    if (existAncestorRecycle) recycledContainerDeep++
-                } else {
-                    recycledContainerDeep = 1
                 }
-                val childCount = view.childCount
-                for (i in 0 until childCount) {
-                    proxyOnClick(view.getChildAt(i), recycledContainerDeep)
+                // 只要是 ViewGroup，子 view 全部入队，不被 isClickable 拦截
+                if (view is ViewGroup) {
+                    for (i in 0 until view.childCount) {
+                        val child = view.getChildAt(i)
+                        queue.add(child)
+                    }
                 }
-            } else {
-                getClickListenerForView(view)
             }
         }
     }
