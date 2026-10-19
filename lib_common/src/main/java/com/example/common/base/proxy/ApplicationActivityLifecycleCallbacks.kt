@@ -15,6 +15,8 @@ import androidx.core.view.isVisible
 import com.example.common.BaseApplication.Companion.isFirstLaunch
 import com.example.common.BaseApplication.Companion.lastClickTime
 import com.example.common.R
+import com.example.common.base.page.toActivitySimpleName
+import com.example.common.config.RouterPath
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.utils.setSystemBarDrawable
@@ -67,7 +69,7 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
         } else {
             // 注意混淆配置添加: -keep class com.example.SplashActivity {*;}
             val clazzName = activity.javaClass.simpleName.lowercase(Locale.getDefault())
-            if (clazzName == "splashactivity") {
+            if (clazzName == RouterPath.SplashActivity.toActivitySimpleName()) {
                 lastClickTime.set(SystemClock.elapsedRealtime())
             }
         }
