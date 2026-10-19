@@ -3,6 +3,9 @@ package com.example.debugging.utils
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import android.os.Build
+import com.example.common.utils.builder.writeCrashReport
+import com.example.framework.utils.function.value.currentTimeStamp
 import com.example.framework.utils.logE
 import com.zxy.recovery.callback.RecoveryCallback
 import com.zxy.recovery.core.Recovery
@@ -62,6 +65,20 @@ object DebuggingUtil {
                     ("————————————————————————应用崩溃————————————————————————" +
                             "${report}\n" +
                             " ").logE("LoggingInterceptor")
+//                    // 构建日志内容（包含设备信息和异常信息）
+//                    val (threadName, threadId) = Thread.currentThread().let { it.name to (if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.BAKLAVA) it.threadId() else it.id) }
+//                    // 捕获异常并生成日志
+//                    val crashLog = buildString {
+//                        append("===== 崩溃时间: $currentTimeStamp =====\n")
+//                        append("设备型号: ${Build.MODEL}\n")
+//                        append("系统版本: Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})\n")
+//                        append("崩溃线程: ${threadName} (id: ${threadId})\n")
+//                        append("===== 异常信息 =====\n")
+//                        append(report)
+//                        append("\n===== 日志结束 =====\n\n")
+//                    }
+//                    // 保存日志到本地文件
+//                    writeCrashReport(crashLog)
                 }
             })
             // 是否使用静默恢复，如果设置为true的情况下，那么在发生Crash时将不显示RecoveryActivity界面来进行恢复，而是自动的恢复Activity的堆栈和数据，也就是无界面恢复
