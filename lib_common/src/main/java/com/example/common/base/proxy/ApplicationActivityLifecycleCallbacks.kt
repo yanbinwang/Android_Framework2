@@ -19,7 +19,6 @@ import com.example.common.config.RouterPath
 import com.example.common.utils.setNavigationBarLightMode
 import com.example.common.utils.setStatusBarLightMode
 import com.example.common.utils.setSystemBarDrawable
-import com.example.framework.utils.logA
 import com.example.framework.utils.logE
 import com.gyf.immersionbar.ImmersionBar
 import java.util.Locale
@@ -157,7 +156,6 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
             if (view.isVisible && view.isAttachedToWindow) {
                 // 仅当可点击，才执行反射代理
                 if (view.isClickable) {
-                    "内部反射执行".logA()
                     getClickListenerForView(view)
                 }
                 // 只要是 ViewGroup，子 view 全部入队，不被 isClickable 拦截
