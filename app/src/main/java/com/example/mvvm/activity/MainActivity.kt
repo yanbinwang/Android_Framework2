@@ -485,6 +485,14 @@ println(myClass.myProperty)
  * // 方式2：直接从Activity/页面根findViewById，也能找到
  * // 前提：inflate完成之后，才可以find；inflate之前，这些id不存在！
  * val tvTip2 = findViewById<TextView>(R.id.tv_empty_tip)
+ *
+ * flow 内部使用 async,统一在 flow{} 下加 coroutineScope
+ * launch {
+ *    flow {
+ *        // 其中一个接口失败，其他接口继续跑完，不全部取消的时候换成 `supervisorScope`
+ *        coroutineScope {}
+ *    }
+ * }
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {
