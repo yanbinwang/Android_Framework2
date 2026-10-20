@@ -140,7 +140,7 @@ class RatingBar @JvmOverloads constructor(context: Context, attrs: AttributeSet?
      */
     fun setRating(score: Float) {
         rating = if (integerOnly) {
-            ceil(score.toDouble()).toInt().toFloat()
+            ceil(score.toDouble()).toFloat()
         } else {
             (score * 10).roundToInt() * 0.1f
         }
