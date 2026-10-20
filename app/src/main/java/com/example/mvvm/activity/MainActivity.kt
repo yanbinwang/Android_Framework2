@@ -493,6 +493,12 @@ println(myClass.myProperty)
  *        coroutineScope {}
  *    }
  * }
+ * // 抽出去的 async 这样写
+ * private fun CoroutineScope.getUnreadAsync(): Deferred<Int?> {
+ *         return async {
+ *             request({ AccountApi.instance.getMessageNumApi() })
+ *         }
+ *     }
  */
 @Route(path = RouterPath.MainActivity)
 class MainActivity : BaseActivity<ActivityMainBinding>(), EditTextImpl {

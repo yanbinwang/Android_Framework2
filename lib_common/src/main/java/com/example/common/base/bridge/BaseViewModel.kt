@@ -372,6 +372,11 @@ fun ViewModel.launch(
     block: suspend CoroutineScope.() -> Unit
 ) = viewModelScope.launch(context, start, block)
 
+/**
+ * 1) launch：用来启动根任务，在 ViewModel 成员函数直接调用，开启一条任务流，用 viewModelScope 是合理的
+ * 2) ViewModel.async：非常容易被不小心在任意 ViewModel 成员函数里调用，生成的 Deferred 永远绑定 viewModelScope 一旦把它抽到私有函数（像 `getUnreadAsync`），后续在 `coroutineScope{}` 内部调用这个成员函数，async 依然挂靠 viewModelScope，脱离局部结构化域，造成任务取消不一致的隐形 bug
+ * 3) async 本质是子任务并行工具，async 不应该固定死绑定 viewModelScope。async 应该属于当前所在的局部 scope（`coroutineScope/supervisorScope`），在哪里并行，就属于哪里。而 `launch` 在这里是根协程入口，固定 viewModelScope 是合理的
+ */
 fun <T> ViewModel.async(
     context: CoroutineContext = EmptyCoroutineContext,
     start: CoroutineStart = CoroutineStart.DEFAULT,

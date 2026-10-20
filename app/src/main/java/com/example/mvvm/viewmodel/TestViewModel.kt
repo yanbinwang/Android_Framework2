@@ -48,10 +48,12 @@ import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.topToBottomOf
 import com.example.framework.utils.function.view.topToTopOf
 import com.example.mvvm.R
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.runBlocking
@@ -184,9 +186,11 @@ class TestViewModel : BaseViewModel() {
     fun concurrencyTask() {
         launch {
             flow {
-                val task1 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
-                val task2 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
-                emit(awaitAll(task1, task2))
+                coroutineScope {
+                    val task1 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                    val task2 = async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) })?.apply { } }
+                    emit(awaitAll(task1, task2))
+                }
             }.withHandling(mView).collect {
                 it.safeAs<Any>(0)
                 it.safeAs<Any>(1)
@@ -194,7 +198,7 @@ class TestViewModel : BaseViewModel() {
         }
     }
 
-    private fun getUserDataAsync(): Deferred<Any?> {
+    private fun CoroutineScope.getUserDataAsync(): Deferred<Any?> {
         return async { request({ CommonApi.instance.getVerificationApi(mapOf("key" to "value")) }) }
     }
 
