@@ -50,9 +50,9 @@ import kotlin.reflect.KProperty
 
 /**
  * Created by WangYanBin on 2020/6/3.
- * 所有ViewModel的基类，将本该属于BaseActivity的部分逻辑和操作View的相关方法放入该类实现
- * 注入BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类Activity的基础控件和方法
- * LifecycleObserver-->观察宿主的生命周期
+ * 1) 所有 ViewModel 的基类，将本该属于 BaseActivity 的部分逻辑和操作 View 的相关方法放入该类实现
+ * 2) 注入 BaseView，LifecycleOwner，开发的时候可以随时存取和调用基类 Activity 的基础控件和方法
+ * LifecycleObserver -> 观察宿主的生命周期
  * public class VideoPlayer {
  *     private final LifecycleOwner lifecycleOwner;
  *     private String videoUrl;
@@ -110,7 +110,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     // 基础引用
     private var weakActivity: WeakReference<FragmentActivity?>? = null // 引用的activity
     private var weakView: WeakReference<BaseView?>? = null // 基础UI操作
-    // 部分view的操作交予viewmodel去操作，不必让activity去操作
+    // 部分 view 的操作交予 ViewModel 去操作，不必让 activity 去操作
     private var weakEmpty: WeakReference<EmptyLayout?>? = null // 遮罩UI
     private var weakRecycler: WeakReference<XRecyclerView?>? = null // 列表UI
     private var weakRefresh: WeakReference<SmartRefreshLayout?>? = null // 刷新控件
@@ -129,10 +129,10 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
     protected val mRefresh get() = weakRefresh?.get()
     protected val mLifecycleOwner get() = weakLifecycleOwner?.get()
     protected val mClassName get() = javaClass.simpleName.lowercase(Locale.getDefault())
-    // 弹框/获取权限/协程管理类/viewmodel命名
+    // 弹框/获取权限/协程管理类/ViewModel命名
     protected val mDialog by lazy { mActivity?.let { AppDialog(it) } }
     protected val mPermission by lazy { mActivity?.let { PermissionHelper(it) } }
-    protected val mJobManager by lazy { JobManager(mLifecycleOwner) }
+    protected val mJobManager by lazy { mLifecycleOwner?.let { JobManager(it) } }
 
     // <editor-fold defaultstate="collapsed" desc="构造和内部方法">
     fun initialize(activity: FragmentActivity?, view: BaseView?) {
@@ -304,7 +304,7 @@ abstract class BaseViewModel : ViewModel(), DefaultLifecycleObserver {
         val methodName = object {}.javaClass.enclosingMethod?.name ?: "unknown"
         val mJobKey = "${mClassName}::${if (!key.isNullOrEmpty()) key else methodName}"
         mJobKey.logA("manageJob")
-        mJobManager.manageJob(this, mJobKey)
+        mJobManager?.manageJob(this, mJobKey)
     }
 
     override fun onCleared() {

@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap
  * 管理对应页面所有的job对象
  * val key = object {}.javaClass.enclosingMethod?.name ?: "unknown"
  */
-class JobManager(observer: LifecycleOwner?) {
+class JobManager(observer: LifecycleOwner) {
     // 用于存储协程 Job 的线程安全集合
     private val jobMap by lazy { ConcurrentHashMap<String, Job>() }
 
