@@ -239,11 +239,12 @@ object ScreenUtil {
 }
 
 /**
- * 获取顶部刘海高度（整个状态栏 -> 仅支持 Android 9.0+）
- * @return 刘海高度（无刘海或不支持时返回 0）
+ * 获取顶部 DisplayCutout 挖孔/刘海凸出高度，不含基础状态栏高度
+ * 仅 Android 9.0 (P, API28) 及以上可用
+ * @return 顶部刘海凸出部分高度；无挖孔、不支持时返回0
  */
 @RequiresApi(Build.VERSION_CODES.P)
-fun Window.getTopInsetHeight(): Int {
+fun Window.getTopCutoutExtraHeight(): Int {
     // 获取 WindowInsets（可能为 null，需判空）
     val windowInsets = decorView.rootWindowInsets
     val displayCutout = windowInsets?.displayCutout ?: return 0
