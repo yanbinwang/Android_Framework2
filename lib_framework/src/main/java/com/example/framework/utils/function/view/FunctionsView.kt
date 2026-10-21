@@ -3,6 +3,7 @@ package com.example.framework.utils.function.view
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Paint
@@ -452,6 +453,7 @@ fun <T : View> View.findParentOfType(clazz: Class<T>): T? {
 inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
     if (this == null) return
     val targetView = this
+    val hostAct = targetView.context as? Activity
     // 如果视图已经完成布局，直接调用回调函数
     if (targetView.isLaidOut) {
         listener(targetView)
@@ -475,6 +477,10 @@ inline fun <T : View> T?.doOnceAfterLayout(crossinline listener: (T) -> Unit) {
             }
             if (executed) return
             executed = true
+            // View 归属的 Activity 已经销毁，不再执行业务回调
+            if (hostAct?.isDestroyed == true || hostAct?.isFinishing == true) {
+                return
+            }
             listener(targetView)
         }
     })

@@ -131,6 +131,9 @@ class ApplicationActivityLifecycleCallbacks : ActivityLifecycleCallbacks {
                     // 竞争：observer瞬间死亡，忽略
                 }
                 if (executedProxyClick) return
+                if (activity.isFinishing || activity.isDestroyed) {
+                    return
+                }
                 executedProxyClick = true
                 proxyOnClick(decorView)
             }
