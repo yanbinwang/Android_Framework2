@@ -113,6 +113,8 @@ abstract class BaseApplication : Application() {
         AutoSizeConfig.getInstance()
             .setBaseOnWidth(true)
             .setCustomFragment(true)
+            .setExcludeFontScale(true)
+            .setUseDeviceSize(true)
             .unitsManager
             .setSupportDP(false)
             .setSupportSP(false)
