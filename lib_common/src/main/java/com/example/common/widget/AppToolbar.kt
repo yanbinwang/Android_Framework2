@@ -43,6 +43,7 @@ import com.example.framework.utils.function.view.startToEndOf
 import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.tint
+import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.widget.BaseViewGroup
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -340,7 +341,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }, {
             startToStartOf(it)
             endToEndOf(it)
-            bottomToBottomOf(it)
+            topToTopOf(it)
         }).margin(top = 44.pt)
     }
 
