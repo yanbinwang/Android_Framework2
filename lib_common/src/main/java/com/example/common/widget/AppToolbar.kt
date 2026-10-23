@@ -3,6 +3,7 @@ package com.example.common.widget
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.InputFilter
+import android.text.Spannable
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
@@ -28,7 +29,6 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
-import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.center
 import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.clearBackground
@@ -38,9 +38,11 @@ import com.example.framework.utils.function.view.endToEndOf
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.startToEndOf
 import com.example.framework.utils.function.view.startToStartOf
+import com.example.framework.utils.function.view.string
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.tint
 import com.example.framework.utils.function.view.topToTopOf
@@ -141,16 +143,17 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * @param alignment -> 默认标题位置
      * @param onBack -> 默认左侧返回
      */
-    fun setCustomTitle(title: String? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, showBackButton: Boolean = true, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setCustomTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, showBackButton: Boolean = true, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
         // 设置返回按钮
         if (showBackButton) setLeftButton(resId, tintColor, onBack = onBack)
         // 设置标题
-        if (!title.isNullOrEmpty()) {
+        if (null != title) {
             createOrUpdateView<TextView>(KEY_TITLE_TEXT, {
                 TextView(context).also {
-                    it.applyTextStyle(title, titleColor)
-                    it.textSize(R.dimen.textSize18)
-                    it.bold(true)
+                    if (title !is Spannable) {
+                        it.textSize(R.dimen.textSize18)
+                        it.bold(true)
+                    }
                     it.size(WRAP_CONTENT, 44.pt)
                     it.gravity = when (alignment) {
                         TITLE_ALIGNMENT_START -> Gravity.CENTER_VERTICAL or Gravity.START
@@ -172,7 +175,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 } else {
                     center(it)
                 }
-            })
+            }).apply {
+                when(title) {
+                    is Int -> applyTextStyle(string(title), titleColor)
+                    is String -> applyTextStyle(title, titleColor)
+                    is Spannable -> setSpannable(title)
+                }
+            }
         }
         // 设置背景色
         rootView.setBackgroundColor(context.color(bgColor))
@@ -181,7 +190,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setTitle(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setTitle(title: Any, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
         setCustomTitle(title, titleColor, bgColor = bgColor, hasShade = hasShade, alignment = alignment, onBack = onBack)
         return this
     }
@@ -198,7 +207,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * 1) xml 中绘制 AppToolbar
      * 2) 页面调用 bind() 方法传入 Activity 实现绑定后，调取该方法
      */
-    fun setTransparent(title: String, @ColorRes titleColor: Int = R.color.textPrimary, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setTransparent(title: Any, @ColorRes titleColor: Int = R.color.textPrimary, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
         return setTitle(title, titleColor, R.color.bgTransparent, alignment = alignment, onBack = onBack)
     }
 
@@ -230,7 +239,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      *  3) drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * @param onBack -> 点击事件
      */
-    fun setLeftText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setLeftText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = { finishHost() }): AppToolbar {
         createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, BUTTON_CONTENT_ALIGNMENT_START, onBack) {
             startToStartOf(it)
             centerVertically(it)
@@ -264,7 +273,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setRightText(label: String, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = {}): AppToolbar {
+    fun setRightText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = {}): AppToolbar {
         createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, BUTTON_CONTENT_ALIGNMENT_END, onBack) {
             endToEndOf(it)
             centerVertically(it)
@@ -348,12 +357,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     /**
      * 创建左右侧文本方法
      */
-    private fun createTextView(key: String, label: String, @ColorRes labelColor: Int, drawable: Drawable? = null, @ButtonContentAlignment alignment: Int, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createTextView(key: String, label: Any, @ColorRes labelColor: Int, drawable: Drawable? = null, @ButtonContentAlignment alignment: Int, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<TextView>(key, {
             TextView(context).also {
-                it.applyTextStyle(label, labelColor)
+                if (label !is Spannable) {
+                    it.textSize(R.dimen.textSize14)
+                }
                 it.padding(start = 15.pt, end = 15.pt)
-                it.textSize(R.dimen.textSize14)
                 it.gravity = Gravity.CENTER
                 if (drawable != null) {
                     it.clearBackground()
@@ -367,7 +377,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     onBack.invoke()
                 }
             }
-        }, block)
+        }, block).apply {
+            when(label) {
+                is Int -> applyTextStyle(string(label), labelColor)
+                is String -> applyTextStyle(label, labelColor)
+                is Spannable -> setSpannable(label)
+            }
+        }
     }
 
     /**
