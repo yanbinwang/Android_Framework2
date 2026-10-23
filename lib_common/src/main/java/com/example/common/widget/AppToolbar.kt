@@ -3,6 +3,7 @@ package com.example.common.widget
 import android.content.Context
 import android.graphics.drawable.Drawable
 import android.text.InputFilter
+import android.text.Spannable
 import android.text.TextUtils
 import android.util.AttributeSet
 import android.view.Gravity
@@ -30,7 +31,6 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
-import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.center
 import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.clearBackground
@@ -40,6 +40,7 @@ import com.example.framework.utils.function.view.endToEndOf
 import com.example.framework.utils.function.view.margin
 import com.example.framework.utils.function.view.padding
 import com.example.framework.utils.function.view.setResource
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.size
 import com.example.framework.utils.function.view.startToEndOf
 import com.example.framework.utils.function.view.startToStartOf
@@ -150,8 +151,10 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         if (null != title) {
             createOrUpdateView<I18nTextView>(KEY_TITLE_TEXT, {
                 I18nTextView(context).also {
-                    it.textSize(R.dimen.textSize16)
-                    it.bold(true)
+                    if (title !is Spannable) {
+                        it.textSize(R.dimen.textSize16)
+                        it.bold(true)
+                    }
                     it.size(WRAP_CONTENT, 44.pt)
                     it.gravity = when (alignment) {
                         TITLE_ALIGNMENT_START -> Gravity.CENTER_VERTICAL or Gravity.START
@@ -177,6 +180,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                 when (title) {
                     is Int -> applyI18nTextStyle(title, titleColor)
                     is String -> applyTextStyle(title, titleColor)
+                    is Spannable -> setSpannable(title)
                 }
             }
         }
@@ -354,12 +358,10 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     private fun createTextView(key: String, label: Any, @ColorRes labelColor: Int, drawable: Drawable? = null, @ButtonContentAlignment alignment: Int, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<I18nTextView>(key, {
             I18nTextView(context).also {
-                when (label) {
-                    is Int -> it.applyI18nTextStyle(label, labelColor)
-                    is String -> it.applyTextStyle(label, labelColor)
+                if (label !is Spannable) {
+                    it.textSize(R.dimen.textSize14)
                 }
                 it.padding(start = 15.pt, end = 15.pt)
-                it.textSize(R.dimen.textSize14)
                 it.gravity = Gravity.CENTER
                 if (drawable != null) {
                     it.clearBackground()
@@ -373,7 +375,13 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     onBack.invoke()
                 }
             }
-        }, block)
+        }, block).apply {
+            when (label) {
+                is Int -> applyI18nTextStyle(label, labelColor)
+                is String -> applyTextStyle(label, labelColor)
+                is Spannable -> setSpannable(label)
+            }
+        }
     }
 
     /**
