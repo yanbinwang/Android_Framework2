@@ -57,7 +57,7 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 //            val ratio = dimen(R.dimen.textSize20) / 20
 //            size(layout, ratio)
 //        } else {
-            size(layout)
+        size(layout)
 //        }
         //        context.inflate(R.layout.view_deal_check, this).apply {
         //            viewCircle = findViewById(R.id.viewCircle)
@@ -140,7 +140,6 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     viewBg.gone()
                 }
             }
-
             false -> {
                 viewCircle.layoutGravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
                 if (callListener) {
