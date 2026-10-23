@@ -30,6 +30,7 @@ import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.view.applyConstraints
 import com.example.framework.utils.function.view.background
 import com.example.framework.utils.function.view.bold
+import com.example.framework.utils.function.view.bottomToBottomOf
 import com.example.framework.utils.function.view.center
 import com.example.framework.utils.function.view.centerVertically
 import com.example.framework.utils.function.view.clearBackground
@@ -44,7 +45,6 @@ import com.example.framework.utils.function.view.startToEndOf
 import com.example.framework.utils.function.view.startToStartOf
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.tint
-import com.example.framework.utils.function.view.topToTopOf
 import com.example.framework.widget.BaseViewGroup
 import java.lang.ref.WeakReference
 import java.util.concurrent.ConcurrentHashMap
@@ -69,13 +69,18 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         const val KEY_RIGHT_ICON = "right_icon" // 右侧图标按钮
         const val KEY_RIGHT_TEXT = "right_text" // 右侧文本按钮
         const val KEY_RIGHT_CUSTOM_VIEW = "right_custom_view" // 右侧自定义视图（任意 View 类型）
-        // 标题位置
+        // 标题在 Toolbar 的对齐
         const val TITLE_ALIGNMENT_START = 0 // 靠左
         const val TITLE_ALIGNMENT_CENTER = 1 // 居中（默认）
-        // 编译时注解：限制标题类型
         @IntDef(TITLE_ALIGNMENT_START, TITLE_ALIGNMENT_CENTER)
         @Retention(AnnotationRetention.SOURCE)
         annotation class TitleAlignment
+        // 按钮内部 Drawable 相对文字的对齐
+        const val BUTTON_CONTENT_ALIGNMENT_START = 0 // 靠左
+        const val BUTTON_CONTENT_ALIGNMENT_END = 1 // 靠右
+        @IntDef(BUTTON_CONTENT_ALIGNMENT_START, BUTTON_CONTENT_ALIGNMENT_END)
+        @Retention(AnnotationRetention.SOURCE)
+        annotation class ButtonContentAlignment
     }
 
     /**
@@ -127,17 +132,17 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 默认二级页面标题配置
-     * @title -> 标题
-     * @titleColor -> 标题字体颜色
-     * @resId -> 返回按钮样式
-     * @tintColor -> 返回按钮覆盖色
-     * @bgColor ->背景颜色
-     * @hasShade -> 标题底部是否带阴影
-     * @showBackButton -> 是否显示左侧返回按钮，默认为 true
-     * @titleAlignment -> 默认标题位置
-     * @onBack -> 默认左侧返回
+     * @param title -> 标题
+     * @param titleColor -> 标题字体颜色
+     * @param resId -> 返回按钮样式
+     * @param tintColor -> 返回按钮覆盖色
+     * @param bgColor ->背景颜色
+     * @param hasShade -> 标题底部是否带阴影
+     * @param showBackButton -> 是否显示左侧返回按钮，默认为 true
+     * @param alignment -> 默认标题位置
+     * @param onBack -> 默认左侧返回
      */
-    fun setCustomTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, showBackButton: Boolean = true, @TitleAlignment titleAlignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+    fun setCustomTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, showBackButton: Boolean = true, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
         // 设置返回按钮
         if (showBackButton) setLeftButton(resId, tintColor, onBack = onBack)
         // 设置标题
@@ -147,7 +152,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     it.textSize(R.dimen.textSize16)
                     it.bold(true)
                     it.size(WRAP_CONTENT, 44.pt)
-                    it.gravity = when (titleAlignment) {
+                    it.gravity = when (alignment) {
                         TITLE_ALIGNMENT_START -> Gravity.CENTER_VERTICAL or Gravity.START
                         else -> Gravity.CENTER
                     }
@@ -155,7 +160,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     it.ellipsize = TextUtils.TruncateAt.END
                 }
             }, {
-                if (titleAlignment == TITLE_ALIGNMENT_START) {
+                if (alignment == TITLE_ALIGNMENT_START) {
                     if (showBackButton) {
                         findIdByKey(KEY_LEFT_ICON)?.let { leftViewId ->
                             startToEndOf(it, leftViewId)
@@ -181,8 +186,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         return this
     }
 
-    fun setTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, @TitleAlignment titleAlignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
-        setCustomTitle(title, titleColor, bgColor = bgColor, hasShade = hasShade, titleAlignment = titleAlignment, onBack = onBack)
+    fun setTitle(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @ColorRes bgColor: Int = R.color.bgToolbar, hasShade: Boolean = false, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        setCustomTitle(title, titleColor, bgColor = bgColor, hasShade = hasShade, alignment = alignment, onBack = onBack)
         return this
     }
 
@@ -195,11 +200,11 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 1) 在xml中绘制AppToolbar
-     * 2) 页面调用bind()方法传入Activity实现绑定
+     * 1) xml 中绘制 AppToolbar
+     * 2) 页面调用 bind() 方法传入 Activity 实现绑定后，调取该方法
      */
-    fun setTransparent(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @TitleAlignment titleAlignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
-        return setTitle(title, titleColor, R.color.bgTransparent, titleAlignment = titleAlignment, onBack = onBack)
+    fun setTransparent(title: Any? = null, @ColorRes titleColor: Int = R.color.textPrimary, @TitleAlignment alignment: Int = TITLE_ALIGNMENT_CENTER, onBack: () -> Unit = { finishHost() }): AppToolbar {
+        return setTitle(title, titleColor, R.color.bgTransparent, alignment = alignment, onBack = onBack)
     }
 
     fun setSecondaryTransparent(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = { finishHost() }): AppToolbar {
@@ -208,9 +213,9 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 设置左/右侧按钮图片资源
-     * @resId -> 图片
-     * @tintColor -> 图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
-     * @onBack -> 点击事件
+     * @param resId -> 图片
+     * @param tintColor -> 图片覆盖色（存在相同图片颜色不同的情况，直接传覆盖色即可）
+     * @param onBack -> 点击事件
      */
     fun setLeftButton(@DrawableRes resId: Int = R.mipmap.ic_btn_back, @ColorRes tintColor: Int = -1, onBack: () -> Unit = { finishHost() }): AppToolbar {
         createImageView(KEY_LEFT_ICON, resId, tintColor, onBack) {
@@ -222,16 +227,16 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
     /**
      * 设置左/右侧文字
-     * @label -> 文案
-     * @labelColor -> 文案颜色
-     * @drawable -> 是否包含图片（默认就是左侧的）
+     * @param label -> 文案
+     * @param labelColor -> 文案颜色
+     * @param drawable -> 是否包含图片（默认就是左侧的）
      *  1) drawable(res, width, height)获取图片，设置宽高
      *  2) view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)调取绘制
      *  3) drawablePadding?.let { view.compoundDrawablePadding = it }文字间距
      * @onBack->点击事件
      */
     fun setLeftText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = { finishHost() }): AppToolbar {
-        createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, onBack) {
+        createTextView(KEY_LEFT_TEXT, label, labelColor, drawable, BUTTON_CONTENT_ALIGNMENT_START, onBack) {
             startToStartOf(it)
             centerVertically(it)
         }
@@ -248,7 +253,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
      * }
      */
     inline fun <reified T : View> setLeft(crossinline creator: () -> T, block: (T) -> Unit = {}): AppToolbar {
-        // margin属性是插入后才可以设置的
+        // margin 属性是插入后才可以设置的
         createOrUpdateView(KEY_LEFT_CUSTOM_VIEW, creator) {
             startToStartOf(it)
             centerVertically(it)
@@ -265,7 +270,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     fun setRightText(label: Any, @ColorRes labelColor: Int = R.color.textPrimary, drawable: Drawable? = null, onBack: () -> Unit = {}): AppToolbar {
-        createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, onBack) {
+        createTextView(KEY_RIGHT_TEXT, label, labelColor, drawable, BUTTON_CONTENT_ALIGNMENT_END, onBack) {
             endToEndOf(it)
             centerVertically(it)
         }
@@ -281,7 +286,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 外层创建view
+     * 外层创建 view
      */
     inline fun <reified T : View> createOrUpdateView(key: String, crossinline creator: () -> T, noinline block: ConstraintSet.(Int) -> Unit = {}): T {
         // 移除上一次的视图
@@ -304,7 +309,7 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
     }
 
     /**
-     * 获取某个特定的view
+     * 获取某个特定的 view
      */
     inline fun <reified T : View> findViewByKey(key: String): T? {
         val id = idsMap[key]
@@ -341,11 +346,11 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
         }, {
             startToStartOf(it)
             endToEndOf(it)
-            topToTopOf(it)
+            bottomToBottomOf(it)
         }).margin(top = 44.pt)
     }
 
-    private fun createTextView(key: String, label: Any, @ColorRes labelColor: Int, drawable: Drawable? = null, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
+    private fun createTextView(key: String, label: Any, @ColorRes labelColor: Int, drawable: Drawable? = null, @ButtonContentAlignment alignment: Int, onBack: () -> Unit, block: ConstraintSet.(Int) -> Unit) {
         createOrUpdateView<I18nTextView>(key, {
             I18nTextView(context).also {
                 when (label) {
@@ -359,7 +364,8 @@ class AppToolbar @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     it.clearBackground()
                     it.clearHighlightColor()
                     drawable.tintWithMutate(color(labelColor))
-                    it.setCompoundDrawables(drawable, null, null, null)
+                    val isStartButton = alignment == BUTTON_CONTENT_ALIGNMENT_START
+                    it.setCompoundDrawables(if (isStartButton) drawable else null, null, if (!isStartButton) drawable else null, null)
                     it.compoundDrawablePadding = 2.pt
                 }
                 it.click {
