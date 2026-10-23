@@ -140,7 +140,6 @@ class SwitchView @JvmOverloads constructor(context: Context, attrs: AttributeSet
                     viewBg.gone()
                 }
             }
-
             false -> {
                 viewCircle.layoutGravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
                 if (callListener) {
