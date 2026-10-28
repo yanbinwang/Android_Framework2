@@ -90,6 +90,8 @@ object BaseBindingAdapter {
     /**
      * 轮询读取状态栏高度，margin/padding复用，最多6轮，间隔80ms，上限480ms
      */
+    private const val MAX_RETRY_COUNT = 6
+    private const val RETRY_DELAY_MS = 80L
     private fun tryApplyStatusInset(view: View, isMargin: Boolean) {
         fun tryRead(remainTimes: Int) {
             val top = getStatusBarHeight()
@@ -97,13 +99,13 @@ object BaseBindingAdapter {
                 if (isMargin) view.margin(top = top) else view.padding(top = top)
                 return
             }
-            view.postDelayed({ tryRead(remainTimes - 1) }, 80)
+            view.postDelayed({ tryRead(remainTimes - 1) }, RETRY_DELAY_MS)
         }
         val topInit = getStatusBarHeight()
         if (topInit > 0) {
             if (isMargin) view.margin(top = topInit) else view.padding(top = topInit)
         } else {
-            tryRead(6)
+            tryRead(MAX_RETRY_COUNT)
         }
     }
 
