@@ -47,6 +47,8 @@ import com.example.common.widget.textview.edittext.ClearEditText
 import com.example.common.widget.textview.edittext.PasswordEditText
 import com.example.framework.utils.ColorSpan
 import com.example.framework.utils.LinkClickSpan
+import com.example.framework.utils.SizeSpan
+import com.example.framework.utils.TextSpan
 import com.example.framework.utils.function.color
 import com.example.framework.utils.function.defTypeId
 import com.example.framework.utils.function.dimen
@@ -210,6 +212,54 @@ fun defTypeMipmapRes(name: String): Int {
  */
 fun String?.orNoData(): String {
     return if (isNullOrEmpty()) NO_DATA else this
+}
+
+/**
+ * 金额富文本，币种、整数、小数可分别配置字号；默认共用一套颜色
+ * @param unit 币种符号，例：¥
+ * @param unitSizeSpan 币种符号字号 Span
+ * @param integerSizeSpan 金额整数部分字号 Span
+ * @param decimalSizeSpan 金额小数部分字号 Span
+ * @param baseColorSpan 基础颜色，unit/integer/decimal颜色不传时统一复用该颜色
+ * @param unitColorSpan 币种文字颜色，默认=baseColorSpan
+ * @param integerColorSpan 整数部分文字颜色，默认=baseColorSpan
+ * @param decimalColorSpan 小数部分文字颜色，默认=baseColorSpan
+ *
+ *  val amountStr = "0.45".toFixed(2) // "0.45"
+ *  textView.text = amountStr.moneyUnit() // ¥0.45
+ *
+ *  val amountStr = "123".toFixed(2) // "123.00"
+ *  textView.text = amountStr.moneyUnit() // ¥123.00
+ *
+ *  val amountStr = "123.5".toFixed(2) // "123.50"
+ *  textView.text = amountStr.moneyUnit() // ¥123.50
+ */
+fun String?.moneyUnit(
+    unit: String = "¥",
+    unitSizeSpan: SizeSpan = SizeSpan(dimen(R.dimen.textSize10)),
+    integerSizeSpan: SizeSpan = SizeSpan(dimen(R.dimen.textSize14)),
+    decimalSizeSpan: SizeSpan = SizeSpan(dimen(R.dimen.textSize10)),
+    baseColorSpan: ColorSpan = ColorSpan(color(R.color.textPrimary)),
+    unitColorSpan: ColorSpan = baseColorSpan,
+    integerColorSpan: ColorSpan = baseColorSpan,
+    decimalColorSpan: ColorSpan = baseColorSpan
+): Spannable {
+    // 基础参数构建
+    val sourceAmount = this ?: ""
+    val parts = sourceAmount.split(".")
+    val textSpan = TextSpan()
+    // 单位符号
+    textSpan.add(unit, unitSizeSpan, unitColorSpan)
+    // 整数段
+    val integerPart = parts.getOrNull(0).orEmpty()
+    textSpan.add(integerPart, integerSizeSpan, integerColorSpan)
+    // 小数段，非空才追加小数点+小数
+    val decimalPart = parts.getOrNull(1).orEmpty()
+    if (decimalPart.isNotEmpty()) {
+        textSpan.add(".${decimalPart}", decimalSizeSpan, decimalColorSpan)
+    }
+    // 完成构建
+    return textSpan.build()
 }
 
 /**
