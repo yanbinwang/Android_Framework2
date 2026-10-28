@@ -24,6 +24,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.LayoutRes
 import androidx.annotation.StringRes
 import androidx.core.graphics.drawable.toDrawable
+import androidx.core.text.toSpannable
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.widget.NestedScrollView
 import androidx.fragment.app.FragmentActivity
@@ -242,9 +243,9 @@ fun String?.moneyUnit(
     integerColorSpan: ColorSpan = baseColorSpan,
     decimalColorSpan: ColorSpan = baseColorSpan
 ): Spannable {
+    if(isNullOrBlank()) return NO_DATA.toSpannable()
     // 基础参数构建
-    val sourceAmount = this ?: ""
-    val parts = sourceAmount.split(".")
+    val parts = split(".")
     val textSpan = TextSpan()
     // 单位符号
     textSpan.add(unit, unitSizeSpan, unitColorSpan)
