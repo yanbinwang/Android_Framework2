@@ -45,9 +45,9 @@ class WebSocketProxy(private val socketUrl: String) {
      */
     fun connect(owner: LifecycleOwner, list: List<Header>? = headers) {
         if (isConnected()) {
-            disconnect()
             connectJob?.cancel()
             connectJob = owner.lifecycleScope.launch {
+                disconnect()
                 delay(1000L)
                 connectNow(list)
             }
