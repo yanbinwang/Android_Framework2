@@ -58,12 +58,15 @@ class WXManager private constructor() {
          * 2) 旧页面对象无任何强引用，GC 后 WeakReference.get() = null
          */
         wxApiMap.entries.removeAll { entry ->
-            val refOwner = entry.key.get() // 取出弱引用包裹的 LifecycleOwner
-            val needRemove = refOwner === owner
-            if (needRemove) {
+            val refOwner = entry.key.get()
+            val isTarget = refOwner === owner
+            val isDeadRef = refOwner == null
+            // 当前要注销的页面，正常反注册
+            if (isTarget) {
                 entry.value.unregisterApp()
             }
-            needRemove
+            // 僵尸弱引用：只删除条目，不调用unregisterApp
+            isTarget || isDeadRef
         }
     }
 
