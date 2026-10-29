@@ -63,7 +63,10 @@ class WXManager private constructor() {
             val isDeadRef = refOwner == null
             // 当前要注销的页面，正常反注册
             if (isTarget) {
-                entry.value.unregisterApp()
+                try {
+                    entry.value.unregisterApp()
+                } catch (_: Exception) {
+                }
             }
             // 僵尸弱引用：只删除条目，不调用unregisterApp
             isTarget || isDeadRef
@@ -75,7 +78,10 @@ class WXManager private constructor() {
      */
     fun unRegToWx() {
         wxApiMap.values.forEach { api ->
-            api.unregisterApp()
+            try {
+                api.unregisterApp()
+            } catch (_: Exception) {
+            }
         }
         wxApiMap.clear()
     }
