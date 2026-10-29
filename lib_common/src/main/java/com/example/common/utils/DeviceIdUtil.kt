@@ -31,7 +31,7 @@ object DeviceIdUtil {
      * 获得设备硬件标识
      * @return 设备硬件标识
      */
-    val deviceId: String
+    internal val deviceId: String
         get() {
             if (CacheData.deviceId.get().isNullOrEmpty()) {
                 CacheData.deviceId.set(getId().let {
