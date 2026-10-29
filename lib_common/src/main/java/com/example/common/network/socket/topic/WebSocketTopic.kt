@@ -19,10 +19,9 @@ class WebSocketTopic(private val socketUrl: String) {
         internal var messageListener: (data: String) -> Unit = { _ -> }
 
         /**
-         * 再BaseApplication中实现回调，通过EvenBus分发对应接受的消息
-         * 具备唯一性，只有多个wss地址订阅的时候，需要在Application实现此监听，然后全局发布广播（EvenBus）
+         * 在 BaseApplication 中实现回调，通过EvenBus分发对应接受的消息
+         * 具备唯一性，只有多个 wss 地址订阅的时候，需要在 Application 实现此监听，然后全局发布广播（EvenBus）
          */
-        @JvmStatic
         fun setOnProxyListener(listener: (url: String?, data: Message?) -> Unit) {
             proxyListener = listener
         }
