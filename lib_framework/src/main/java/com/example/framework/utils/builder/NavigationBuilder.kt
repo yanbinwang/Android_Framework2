@@ -22,6 +22,7 @@ import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -158,7 +159,10 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
     private var commitJob: Job? = null // 切换协程
     private var listener: ((index: Int) -> Unit)? = null
     private var clickActions = ConcurrentHashMap<Int, (() -> Unit)>()
-    private val menuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
+    private val mMenuView get() = navigationView?.getChildAt(0) as? BottomNavigationMenuView
+    private val mMenus get() = navigationView?.menu
+
+    constructor(observer: LifecycleOwner, navigationView: BottomNavigationView?, vararg id: Int) : this(observer, navigationView, id.toList())
 
     /**
      * 初始化
@@ -170,9 +174,16 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         // 去除长按的toast提示
         for (position in ids.indices) {
             val itemId = ids.safeGet(position) ?: continue
-            menuView?.getChildAt(position)?.findViewById<View>(itemId)?.setOnLongClickListener { true }
+            getItemView(position)?.findViewById<View>(itemId)?.setOnLongClickListener { true }
+//            mMenuView?.getChildAt(position)?.findViewById<View>(itemId)?.setOnLongClickListener { true }
         }
         // 最多配置5个tab，需要注意，每次点击都会触发回调(true：允许，false：拦截)
+        val onItemSelectedAction = { index: Int ->
+            // 默认允许切换页面
+            commit(index)
+            // 回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
+            listener?.invoke(index)
+        }
         navigationView?.setOnItemSelectedListener { item ->
             // 返回此次点击的下标
             val index = ids.indexOfFirst { it == item.itemId }
@@ -182,11 +193,11 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
                     action.invoke()
                     false
                 } else {
-                    onItemSelected(index)
+                    onItemSelectedAction(index)
                     true
                 }
             } else {
-                onItemSelected(index)
+                onItemSelectedAction(index)
                 true
             }
         }
@@ -195,78 +206,79 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
         navigationView?.itemTextColor = null
     }
 
-    private fun onItemSelected(index: Int) {
-        // 默认允许切换页面
-        selectTab(index)
-        // 回调我们自己的监听，返回下标和前一次历史下标->-1就是没选过
-        listener?.invoke(index)
-    }
-
     /**
      * 绑定方法
      */
-    fun bind(builder: FragmentBuilder, default: Int = 0) {
-        this.bindMode = 0
-        this.builder = builder
-        setSelect(default)
+    fun bind(fragmentBuilder: FragmentBuilder, default: Int = 0) {
+        bindMode = 0
+        builder = fragmentBuilder
+        init(default)
     }
 
-    fun bind(flipper: ViewPager2, default: Int = 0) {
-        this.bindMode = 1
-        this.flipper = flipper
-        setSelect(default)
+    fun bind(pager: ViewPager2, default: Int = 0) {
+        bindMode = 1
+        flipper = pager
+        init(default)
     }
 
     /**
      * 只有禁止自动选择的模式/特许模式，才能调取
      */
-    fun setSelect(index: Int, recreate: Boolean = false) {
-        // 此时系统回收了页面，不管结果如何，立即切换
-        if (recreate) {
-            selectTab(index, true)
-        }
-        // 获取当前选中的Item ID
+    private fun init(index: Int, recreate: Boolean = false) {
+//        // 此时系统回收了页面，不管结果如何，立即切换
+//        if (recreate) {
+//            commit(index, true)
+//        }
+        val menu = mMenus ?: return
+        // 获取当前选中的 Item ID
         val currentItemId = navigationView?.selectedItemId
-        // 要选中的Item ID
-        val toCurrentItemId = navigationView?.menu[index]?.itemId.orZero
+        // 要选中的 Item ID
+//        val toCurrentItemId = navigationView?.menu[index]?.itemId
+        val toCurrentItemId = menu[index].itemId
         // 开始调取item的切换，此时也会触发页面的selectTab（监听内，但监听内就会被return）
         if (currentItemId == toCurrentItemId) return
         // 新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
-        selectItem(index)
-    }
-
-    /**
-     * 选中对应下标的item
-     * 仅当新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
-     */
-    private fun selectItem(index: Int) {
-        val menu = navigationView?.menu ?: return
+//        selectItem(index)
         if (index < menu.size) {
             commitJob?.cancel()
             commitJob = observer.lifecycleScope.launch(Main.immediate) {
-                navigationView.selectedItemId = menu[index].itemId
+                navigationView?.selectedItemId = menu[index].itemId
             }
         }
     }
 
+//    /**
+//     * 选中对应下标的item
+//     * 仅当新选中的 itemId 与当前选中的 itemId 不同时，才会触发监听器
+//     */
+//    private fun selectItem(index: Int) {
+//        val menu = navigationView?.menu ?: return
+//        if (index < menu.size) {
+//            commitJob?.cancel()
+//            commitJob = observer.lifecycleScope.launch(Main.immediate) {
+//                navigationView.selectedItemId = menu[index].itemId
+//            }
+//        }
+//    }
+
     /**
      * 选择对应下标的页面
      */
-    private fun selectTab(tab: Int, recreate: Boolean = false) {
-        if (recreate) {
-            selectTabNow(tab, true)
+    fun commit(tab: Int, force: Boolean = false) {
+        if (force) {
+            commitNow(tab, true)
         } else {
             if (getCurrentIndex() == tab || tab > ids.safeSize - 1 || tab < 0) return
-            selectTabNow(tab, false)
+            commitNow(tab, false)
         }
     }
 
-    private fun selectTabNow(tab: Int, recreate: Boolean) {
+    private fun commitNow(tab: Int, force: Boolean) {
         // 如果频繁点击相同的页面tab，不执行切换代码
         if (bindMode == 1) {
             flipper?.setCurrentItem(tab, false)
         } else {
-            builder?.commit(tab, recreate)
+            builder?.commit(tab, force)
         }
         if (animation) {
             getItemView(tab)?.getChildAt(0)?.apply {
@@ -296,7 +308,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
      * 获取下标item
      */
     fun getItemView(index: Int): BottomNavigationItemView? {
-        return menuView?.getChildAt(index) as? BottomNavigationItemView
+        return mMenuView?.getChildAt(index) as? BottomNavigationItemView
     }
 
     /**
@@ -344,7 +356,7 @@ class NavigationBuilder(private val observer: LifecycleOwner, private val naviga
      */
     fun addView(resource: Int, index: Int = 0): View {
         // 加载我们的角标View，新创建的一个布局
-        val badge = LayoutInflater.from(navigationView?.context).inflate(resource, menuView, false)
+        val badge = LayoutInflater.from(navigationView?.context).inflate(resource, mMenuView, false)
         // 添加到Tab上
         getItemView(index)?.addView(badge)
         // 返回我们添加的view整体
