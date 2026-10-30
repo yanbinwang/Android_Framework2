@@ -31,7 +31,7 @@ val <T : Map<*, *>> T?.safeSize: Int
  */
 fun <T : List<K>, K> T?.safeGet(position: Int): K? {
     return when {
-        isNullOrEmpty() -> null
+        this.isNullOrEmpty() -> null
         position in indices -> get(position)
         else -> null
     }
@@ -91,7 +91,7 @@ fun <T> MutableList<T>?.safeSetLast(t: T) {
  * 安全获取制定长度的集合
  */
 fun <T> List<T>?.safeSubList(from: Int, to: Int): List<T> {
-    if (this == null) return emptyList()
+    if (this.isNullOrEmpty()) return emptyList()
     if (from !in indices) return emptyList()
     if (to < from) return emptyList()
     return try {
@@ -785,7 +785,7 @@ fun jsonOf(vararg pairs: Pair<String, Any?>): JSONObject {
 }
 
 /**
- * 多个JsonObject转array
+ * 多个 JSONObject 转 JSONArray
  */
 fun jsonArrayOf(vararg objects: JSONObject): JSONArray {
     return JSONArray().apply {
