@@ -664,12 +664,12 @@ fun Window.setNavigationBarLightMode(isLight: Boolean, force: Boolean = false) {
     // 相同模式且不强制，直接跳过（避免重复触发重绘）
     if (!force && currentIsLight == isLight) return
     // 低版本固定白色
-    val mIsLight = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) isLight else false
+    val isLightTheme = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) isLight else false
     // 开始执行导航栏图标切换
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         // Android 11+ 推荐接口
         insetsController?.apply {
-            if (mIsLight) {
+            if (isLightTheme) {
                 // 浅色模式（黑色图标）
                 setSystemBarsAppearance(WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS, WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS)
             } else {
@@ -679,7 +679,7 @@ fun Window.setNavigationBarLightMode(isLight: Boolean, force: Boolean = false) {
         }
     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         // Android 10 兼容接口
-        decorView.systemUiVisibility = if (mIsLight) {
+        decorView.systemUiVisibility = if (isLightTheme) {
             decorView.systemUiVisibility or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
         } else {
             decorView.systemUiVisibility and View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv()

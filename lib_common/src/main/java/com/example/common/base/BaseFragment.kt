@@ -160,6 +160,9 @@ abstract class BaseFragment<VDB : ViewDataBinding> : Fragment(), BaseImpl, BaseV
         mActivity?.window?.apply {
             setStatusBarLightMode(statusBarDark)
             setNavigationBarLightMode(navigationBarDark)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isNavigationBarContrastEnforced = false
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             immersionBar?.apply {

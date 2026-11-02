@@ -167,6 +167,9 @@ abstract class BaseTopSheetDialogFragment<VDB : ViewDataBinding> : TopSheetDialo
             setNavigationBarDrawable(navigationBarColor) {
                 onWindowInsetsChanged?.invoke(it)
             }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isNavigationBarContrastEnforced = false
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             immersionBar?.apply {
