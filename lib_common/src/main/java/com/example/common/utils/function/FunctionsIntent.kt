@@ -542,6 +542,13 @@ inline fun <reified T : Serializable> Intent?.intentSerializable(key: String): T
     }
 }
 
+inline fun <reified T : Serializable> Intent?.intentSerializable(key: String, default: T): T {
+    this ?: return default
+    val rawValue = intentSerializable<T>(key)
+    return rawValue ?: default
+}
+
+@Suppress("UNCHECKED_CAST")
 inline fun <reified T : Serializable> Intent?.intentSerializableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -549,6 +556,12 @@ inline fun <reified T : Serializable> Intent?.intentSerializableArrayList(name: 
     } else {
         getSerializableExtra(name)
     } as? ArrayList<T>
+}
+
+inline fun <reified T : Serializable> Intent?.intentSerializableArrayList(name: String, default: ArrayList<T>): ArrayList<T> {
+    this ?: return default
+    val rawValue = intentSerializableArrayList<T>(name)
+    return rawValue ?: default
 }
 
 inline fun <reified T : Parcelable> Intent?.intentParcelable(key: String): T? {
@@ -560,6 +573,12 @@ inline fun <reified T : Parcelable> Intent?.intentParcelable(key: String): T? {
     }
 }
 
+inline fun <reified T : Parcelable> Intent?.intentParcelable(key: String, default: T): T {
+    this ?: return default
+    val rawValue = intentParcelable<T>(key)
+    return rawValue ?: default
+}
+
 inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: String): ArrayList<T>? {
     this ?: return null
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -567,6 +586,12 @@ inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: Stri
     } else {
         getParcelableArrayListExtra(name)
     }
+}
+
+inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: String, default: ArrayList<T>): ArrayList<T> {
+    this ?: return default
+    val rawValue = intentParcelableArrayList<T>(name)
+    return rawValue ?: default
 }
 
 /**
