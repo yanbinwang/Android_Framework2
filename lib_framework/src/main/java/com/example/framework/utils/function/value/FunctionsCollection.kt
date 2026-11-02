@@ -434,8 +434,8 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
             is Array<*> -> {
                 if (value.isNotEmpty()) {
                     when (value[0]) {
-                        is CharSequence -> putCharSequenceArray(key, value as Array<out CharSequence>)
                         is String -> putStringArray(key, value as Array<out String>)
+                        is CharSequence -> putCharSequenceArray(key, value as Array<out CharSequence>)
                         is Parcelable -> putParcelableArray(key, value as Array<out Parcelable>)
                     }
                 }
@@ -523,8 +523,8 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
             val arrayDefault = default as Array<*>
             if (arrayDefault.isNotEmpty()) {
                 when (val firstElement = arrayDefault[0]) {
-                    is CharSequence -> getCharSequenceArray(key)
                     is String -> getStringArray(key)
+                    is CharSequence -> getCharSequenceArray(key)
                     is Parcelable -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                             getParcelableArray(key, firstElement::class.java as Class<Parcelable>)
