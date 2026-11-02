@@ -511,7 +511,7 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
                 val element = sparseDefault[sparseDefault.keyAt(0)]
                 val elementCls = element::class.java
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getSparseParcelableArray(key, elementCls as Class<Parcelable>)
+                    getSparseParcelableArray(key, elementCls as Class<out Parcelable>)
                 } else {
                     getSparseParcelableArray(key)
                 }
@@ -527,7 +527,7 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
                     is CharSequence -> getCharSequenceArray(key)
                     is Parcelable -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            getParcelableArray(key, firstElement::class.java as Class<Parcelable>)
+                            getParcelableArray(key, firstElement::class.java)
                         } else {
                             getParcelableArray(key)
                         }
@@ -547,7 +547,7 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
                     is CharSequence -> getCharSequenceArrayList(key)
                     is Parcelable -> {
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                            getParcelableArrayList(key, firstElement::class.java as Class<Parcelable>)
+                            getParcelableArrayList(key, firstElement::class.java)
                         } else {
                             getParcelableArrayList(key)
                         }
@@ -560,20 +560,43 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
         }
         else -> {
             // 序列化类型 & 其他
-            if (Parcelable::class.java.isAssignableFrom(T::class.java)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getParcelable(key, T::class.java as Class<out Parcelable>)
-                } else {
-                    getParcelable(key)
-                }
-            } else if (Serializable::class.java.isAssignableFrom(T::class.java)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getSerializable(key, T::class.java as Class<out Serializable>)
-                } else {
-                    getSerializable(key) as? T
+            if (default is ArrayList<*>) {
+                val firstElement = default[0]
+                when {
+                    Serializable::class.java.isAssignableFrom(firstElement::class.java) -> {
+                        val obj = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getSerializable(key, ArrayList::class.java)
+                        } else {
+                            getSerializable(key)
+                        }
+                        obj as? ArrayList<*>
+                    }
+                    Parcelable::class.java.isAssignableFrom(firstElement::class.java) -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getParcelableArrayList(key, firstElement::class.java as Class<out Parcelable>)
+                        } else {
+                            getParcelableArrayList(key)
+                        }
+                    }
+                    else -> default
                 }
             } else {
-                default
+                // default不是ArrayList，走单个对象逻辑
+                if (Parcelable::class.java.isAssignableFrom(T::class.java)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        getParcelable(key, T::class.java as Class<out Parcelable>)
+                    } else {
+                        getParcelable(key)
+                    }
+                } else if (Serializable::class.java.isAssignableFrom(T::class.java)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        getSerializable(key, T::class.java as Class<out Serializable>)
+                    } else {
+                        getSerializable(key) as? T
+                    }
+                } else {
+                    default
+                }
             }
         }
     }
