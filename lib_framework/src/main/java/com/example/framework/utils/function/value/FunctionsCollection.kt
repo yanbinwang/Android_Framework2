@@ -1,9 +1,10 @@
 package com.example.framework.utils.function.value
 
+import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.util.SparseArray
-import androidx.core.util.size
+import androidx.core.util.isNotEmpty
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.Serializable
@@ -393,6 +394,7 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
  *  3) 未在 when 分支里的类型（如自定义 Java 对象未实现 Serializable/Parcelable）会被静默忽略
  *  4) @Suppress("UNCHECKED_CAST") 是因为泛型擦除，运行时无法精确判断，依赖首元素类型做强制转换，使用方需保证类型一致
  */
+@Suppress("UNCHECKED_CAST")
 fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
     pairs.forEach { (key, value) ->
         when (value) {
@@ -423,8 +425,7 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
             is Serializable -> putSerializable(key, value)
             // 扩展容器类型
             is SparseArray<*> -> {
-                if (value.size != 0) {
-                    @Suppress("UNCHECKED_CAST")
+                if (value.isNotEmpty()) {
                     when (value[0]) {
                         is Parcelable -> putSparseParcelableArray(key, value as SparseArray<out Parcelable>)
                     }
@@ -432,7 +433,6 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
             }
             is Array<*> -> {
                 if (value.isNotEmpty()) {
-                    @Suppress("UNCHECKED_CAST")
                     when (value[0]) {
                         is CharSequence -> putCharSequenceArray(key, value as Array<out CharSequence>)
                         is String -> putStringArray(key, value as Array<out String>)
@@ -442,7 +442,6 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
             }
             is List<*> -> {
                 if (value.isNotEmpty()) {
-                    @Suppress("UNCHECKED_CAST", "CAST_NEVER_SUCCEEDS")
                     when (value[0]) {
                         is Int -> putIntegerArrayList(key, value as ArrayList<Int>)
                         is String -> putStringArrayList(key, value as ArrayList<String>)
@@ -456,7 +455,134 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
 }
 
 /**
- * Bundle 转为 Pair 列表 (与 toBundle 对称)
+ * 从 Bundle 读取数据的统一泛型读取工具
+ * @param key bundle存储键名
+ * @param default 兜底默认值
+ * @tparam T 目标读取类型，reified编译期获取Class
+ * 支持类型清单：
+ * 1) 基础数值：Int / Long / Byte / Short / Float / Double / Boolean / Char
+ * 2) 文本：String、CharSequence（双参数get为API33+）
+ * 3) 原生基础数组：IntArray、LongArray、ByteArray、ShortArray、FloatArray、DoubleArray、BooleanArray、CharArray
+ * 4) Bundle
+ * 5) 容器：SparseArray<Parcelable>、Array、List/ArrayList（Int/String/CharSequence/Parcelable）
+ * 6) 自定义Parcelable实体、自定义Serializable实体（走else里isAssignableFrom判断）
+ * 约束说明
+ * SparseArray / Array / List容器分支：依赖default容器**首元素推断内部元素类型**，传入的default容器不能是空容器；
+ * 空容器无法推断元素类型，读取返回null，最终降级为default。
+ * 泛型擦除限制：List/Array无法运行时自动识别泛型参数，依靠default首元素类型做类型判定；
+ * 写入Bundle类型必须和读取default元素类型保持一致，否则会抛出ClassCastException。
+ * String / CharSequence双参数get方法需要API33(TIRAMISU)+，minSdk<33需要降级为 get(key) ?: default。
+ * 示例：
+ * val name = bundle.readBundle("name", "")
+ * val page = bundle.readBundle("page", 1)
+ * val list = bundle.readBundle("strList", arrayListOf("test"))
+ * val user = bundle.readBundle("user", User()) // User : Parcelable
+ */
+@Suppress("UNCHECKED_CAST")
+inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
+    val rawValue = when (T::class) {
+        // 基本数值类型
+        Int::class -> getInt(key, default as Int)
+        Long::class -> getLong(key, default as Long)
+        Byte::class -> getByte(key, default as Byte)
+        Short::class -> getShort(key, default as Short)
+        Float::class -> getFloat(key, default as Float)
+        Double::class -> getDouble(key, default as Double)
+        Boolean::class -> getBoolean(key, default as Boolean)
+        Char::class -> getChar(key, default as Char)
+        // 文本类型
+        String::class -> getString(key, default as String)
+        CharSequence::class -> getCharSequence(key, default as CharSequence)
+        // 基础类型数组
+        IntArray::class -> getIntArray(key)
+        LongArray::class -> getLongArray(key)
+        ByteArray::class -> getByteArray(key)
+        ShortArray::class -> getShortArray(key)
+        FloatArray::class -> getFloatArray(key)
+        DoubleArray::class -> getDoubleArray(key)
+        BooleanArray::class -> getBooleanArray(key)
+        CharArray::class -> getCharArray(key)
+        // 标准容器
+        Bundle::class -> getBundle(key)
+        // 扩展容器类型
+        SparseArray::class -> {
+            val sparseDefault = default as SparseArray<*>
+            if (sparseDefault.isNotEmpty()) {
+                val element = sparseDefault[sparseDefault.keyAt(0)]
+                val elementCls = element::class.java
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    getSparseParcelableArray(key, elementCls as Class<Parcelable>)
+                } else {
+                    getSparseParcelableArray(key)
+                }
+            } else {
+                null
+            }
+        }
+        Array::class -> {
+            val arrayDefault = default as Array<*>
+            if (arrayDefault.isNotEmpty()) {
+                when (val firstElement = arrayDefault[0]) {
+                    is CharSequence -> getCharSequenceArray(key)
+                    is String -> getStringArray(key)
+                    is Parcelable -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getParcelableArray(key, firstElement::class.java as Class<Parcelable>)
+                        } else {
+                            getParcelableArray(key)
+                        }
+                    }
+                    else -> null
+                }
+            } else {
+                null
+            }
+        }
+        List::class -> {
+            val listDefault = default as List<*>
+            if (listDefault.isNotEmpty()) {
+                when (val firstElement = listDefault[0]) {
+                    is Int -> getIntegerArrayList(key)
+                    is String -> getStringArrayList(key)
+                    is CharSequence -> getCharSequenceArrayList(key)
+                    is Parcelable -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getParcelableArrayList(key, firstElement::class.java as Class<Parcelable>)
+                        } else {
+                            getParcelableArrayList(key)
+                        }
+                    }
+                    else -> null
+                }
+            } else {
+                null
+            }
+        }
+        else -> {
+            // 序列化类型 & 其他
+            if (Parcelable::class.java.isAssignableFrom(T::class.java)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    getParcelable(key, T::class.java as Class<out Parcelable>)
+                } else {
+                    getParcelable(key)
+                }
+            } else if (Serializable::class.java.isAssignableFrom(T::class.java)) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    getSerializable(key, T::class.java as Class<out Serializable>)
+                } else {
+                    getSerializable(key) as? T
+                }
+            } else {
+                default
+            }
+        }
+    }
+    // 读到null返回default，否则强转返回
+    return (rawValue ?: default) as T
+}
+
+/**
+ * Bundle 转为 Kotlin [Pair] 列表 (与 toBundle 对称)
  */
 fun Bundle.toPairs(): List<Pair<String, Any?>> {
     val pairs = mutableListOf<Pair<String, Any?>>()

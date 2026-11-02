@@ -13,7 +13,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.framework.R
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.orFalse
-import com.example.framework.utils.function.value.orZero
 import com.example.framework.utils.function.value.safeGet
 import com.example.framework.utils.function.value.safeSize
 import com.example.framework.utils.function.view.bounceFadeIn
@@ -22,7 +21,6 @@ import com.example.framework.utils.function.view.vibrate
 import com.google.android.material.bottomnavigation.BottomNavigationItemView
 import com.google.android.material.bottomnavigation.BottomNavigationMenuView
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
@@ -151,6 +149,7 @@ import java.util.concurrent.ConcurrentHashMap
  * }.attach()
  */
 @SuppressLint("RestrictedApi")
+@Deprecated("推荐使用 FragmentBuilder")
 class NavigationBuilder(private val observer: LifecycleOwner, private val navigationView: BottomNavigationView?, private val ids: List<Int>, private val animation: Boolean = true) {
     private var bindMode = 0 // 绑定模式 -> 0：FragmentManager / 1：ViewPager2
     private var hasAction: Boolean = false // 是否重写点击
