@@ -346,6 +346,10 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
             setNavigationBarDrawable(navigationBarColor) {
                 onWindowInsetsChanged?.invoke(it)
             }
+            // 关闭系统自动添加的遮罩层，导航栏区域完全透明 (背景白，图标黑本来对比度足够，但只要开启 edgeToEdge，系统默认强制加一层半透明黑色蒙层盖在导航栏区域) -> 三键导航虚拟按键
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                isNavigationBarContrastEnforced = false
+            }
         }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
             immersionBar?.apply {
