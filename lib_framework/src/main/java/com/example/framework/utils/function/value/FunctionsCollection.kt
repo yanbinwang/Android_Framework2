@@ -397,6 +397,7 @@ fun <T> Array<T>.toBundle(func: (T.() -> Pair<String, Any?>)): Bundle {
 @Suppress("UNCHECKED_CAST")
 fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
     pairs.forEach { (key, value) ->
+        value ?: return@forEach
         when (value) {
             // 基本数值类型
             is Int -> putInt(key, value)
@@ -437,32 +438,25 @@ fun Bundle.writeBundle(vararg pairs: Pair<String, Any?>) {
                         is String -> putStringArray(key, value as Array<out String>)
                         is CharSequence -> putCharSequenceArray(key, value as Array<out CharSequence>)
                         is Parcelable -> putParcelableArray(key, value as Array<out Parcelable>)
+                        is Serializable -> putSerializable(key, value as Array<out Serializable>)
                     }
                 }
             }
             is List<*> -> {
-                if (value.isNotEmpty()) {
-                    when (value[0]) {
-                        is Int -> putIntegerArrayList(key, value as ArrayList<Int>)
-                        is String -> putStringArrayList(key, value as ArrayList<String>)
-                        is CharSequence -> putCharSequenceArrayList(key, value as ArrayList<CharSequence>)
-                        is Parcelable -> putParcelableArrayList(key, value as ArrayList<out Parcelable>)
+                // ArrayList 是 List 的子类 List<*> 只是接口，传入的不一定是 ArrayList 实例
+                val arrayList = ArrayList(value)
+                if (arrayList.isNotEmpty()) {
+                    when (arrayList[0]) {
+                        is Int -> putIntegerArrayList(key, arrayList as ArrayList<Int>)
+                        is String -> putStringArrayList(key, arrayList as ArrayList<String>)
+                        is CharSequence -> putCharSequenceArrayList(key, arrayList as ArrayList<CharSequence>)
+                        is Parcelable -> putParcelableArrayList(key, arrayList as ArrayList<out Parcelable>)
+                        is Serializable -> putSerializable(key, arrayList as ArrayList<out Serializable>)
                     }
                 }
             }
-            is ArrayList<*> -> {
-                if (value.isNotEmpty()) {
-                    val firstElement = value[0]
-                    when {
-                        Serializable::class.java.isAssignableFrom(firstElement::class.java) -> {
-                            putSerializable(key, value as ArrayList<out Serializable>)
-                        }
-                        Parcelable::class.java.isAssignableFrom(firstElement::class.java) -> {
-                            putParcelableArrayList(key, value as ArrayList<out Parcelable>)
-                        }
-                    }
-                }
-            }
+            // 捕获不支持类型，防止静默丢失key
+            else -> throw IllegalArgumentException("Bundle不支持该类型写入，key=$key, type=${value::class.simpleName}")
         }
     }
 }
@@ -517,14 +511,28 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
         CharArray::class -> getCharArray(key)
         // 标准容器
         Bundle::class -> getBundle(key)
+        Parcelable::class -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getParcelable(key, T::class.java as Class<out Parcelable>)
+            } else {
+                getParcelable(key)
+            }
+        }
+        Serializable::class -> {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                getSerializable(key, T::class.java as Class<out Serializable>)
+            } else {
+                getSerializable(key)
+            }
+        }
         // 扩展容器类型
         SparseArray::class -> {
             val sparseDefault = default as SparseArray<*>
             if (sparseDefault.isNotEmpty()) {
                 val element = sparseDefault[sparseDefault.keyAt(0)]
-                val elementCls = element::class.java
+                val elementCls = element::class.java as Class<out Parcelable>
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getSparseParcelableArray(key, elementCls as Class<out Parcelable>)
+                    getSparseParcelableArray(key, elementCls)
                 } else {
                     getSparseParcelableArray(key)
                 }
@@ -543,6 +551,13 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
                             getParcelableArray(key, firstElement::class.java)
                         } else {
                             getParcelableArray(key)
+                        }
+                    }
+                    is Serializable -> {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getSerializable(key, arrayDefault.javaClass)
+                        } else {
+                            getSerializable(key)
                         }
                     }
                     else -> null
@@ -565,51 +580,21 @@ inline fun <reified T> Bundle.readBundle(key: String, default: T): T {
                             getParcelableArrayList(key)
                         }
                     }
+                    is Serializable -> {
+                        val obj = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                            getSerializable(key, ArrayList::class.java)
+                        } else {
+                            getSerializable(key)
+                        }
+                        obj as? ArrayList<*>
+                    }
                     else -> null
                 }
             } else {
                 null
             }
         }
-        ArrayList::class -> {
-            val firstElement = (default as ArrayList<*>)[0]
-            when {
-                Serializable::class.java.isAssignableFrom(firstElement::class.java) -> {
-                    val obj = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        getSerializable(key, ArrayList::class.java)
-                    } else {
-                        getSerializable(key)
-                    }
-                    obj as? ArrayList<*>
-                }
-                Parcelable::class.java.isAssignableFrom(firstElement::class.java) -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        getParcelableArrayList(key, firstElement::class.java as Class<out Parcelable>)
-                    } else {
-                        getParcelableArrayList(key)
-                    }
-                }
-                else -> default
-            }
-        }
-        else -> {
-            // 序列化类型 & 其他
-            if (Parcelable::class.java.isAssignableFrom(T::class.java)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getParcelable(key, T::class.java as Class<out Parcelable>)
-                } else {
-                    getParcelable(key)
-                }
-            } else if (Serializable::class.java.isAssignableFrom(T::class.java)) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    getSerializable(key, T::class.java as Class<out Serializable>)
-                } else {
-                    getSerializable(key) as? T
-                }
-            } else {
-                default
-            }
-        }
+        else -> default
     }
     // 读到null返回default，否则强转返回
     return (rawValue ?: default) as T
