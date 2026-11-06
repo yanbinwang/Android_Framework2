@@ -245,7 +245,7 @@ abstract class BaseApplication : Application() {
 
     private fun initSocket() {
         WebSocketTopic.setOnProxyListener { url, data ->
-            val payload = data?.payload.orEmpty()
+            val payload = data?.payload
             when (url) {
                 SOCKET_DEAL_URL -> EVENT_SOCKET_DEAL.post(payload)
                 SOCKET_ADVERTISE_URL -> EVENT_SOCKET_ADVERTISE.post(payload)
