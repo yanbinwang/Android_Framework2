@@ -37,9 +37,9 @@ import com.example.common.utils.builder.ToastBuilder
 import com.example.common.utils.function.color
 import com.example.common.utils.function.pt
 import com.example.common.utils.i18n.I18nUtil
+import com.example.common.utils.i18n.LanguageUtil.applyLanguage
 import com.example.common.utils.i18n.LanguageUtil.checkLanguage
 import com.example.common.utils.i18n.LanguageUtil.resetLanguage
-import com.example.common.utils.i18n.LanguageUtil.applyLanguage
 import com.example.common.utils.i18n.i18String
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.xrecyclerview.refresh.ProjectRefreshFooter
@@ -267,7 +267,7 @@ abstract class BaseApplication : Application() {
 
     private fun initSocket() {
         WebSocketTopic.setOnProxyListener { url, data ->
-            val payload = data?.payload.orEmpty()
+            val payload = data?.payload
             when (url) {
                 SOCKET_DEAL_URL -> EVENT_SOCKET_DEAL.post(payload)
                 SOCKET_ADVERTISE_URL -> EVENT_SOCKET_ADVERTISE.post(payload)
