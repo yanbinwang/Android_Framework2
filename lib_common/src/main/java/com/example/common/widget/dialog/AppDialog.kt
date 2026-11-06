@@ -12,6 +12,7 @@ import com.example.common.utils.function.orNoData
 import com.example.common.utils.function.string
 import com.example.framework.utils.function.view.click
 import com.example.framework.utils.function.view.gone
+import com.example.framework.utils.function.view.setSpannable
 import com.example.framework.utils.function.view.textColor
 import com.example.framework.utils.function.view.textSize
 import com.example.framework.utils.function.view.visible
@@ -61,6 +62,7 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
                 tvNegative.gone()
             } else {
                 viewLine.visible()
+                tvNegative.visible()
                 tvNegative.apply {
                     text = negativeText
                     visible()
@@ -92,9 +94,8 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
         return this
     }
 
-    fun setMessage(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
-        mBinding?.tvMessage?.text = spannable
-        mBinding?.tvMessage?.textSize(sizeRes)
+    fun setMessage(spannable: Spannable): AppDialog {
+        mBinding?.tvMessage?.setSpannable(spannable)
         return this
     }
 
@@ -107,9 +108,8 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
         return this
     }
 
-    fun setPositiveTheme(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
-        mBinding?.tvPositive?.text = spannable
-        mBinding?.tvPositive?.textSize(sizeRes)
+    fun setPositiveTheme(spannable: Spannable): AppDialog {
+        mBinding?.tvPositive?.setSpannable(spannable)
         return this
     }
 
@@ -122,9 +122,8 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
         return this
     }
 
-    fun setNegativeTheme(spannable: Spannable, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
-        mBinding?.tvNegative?.text = spannable
-        mBinding?.tvNegative?.textSize(sizeRes)
+    fun setNegativeTheme(spannable: Spannable): AppDialog {
+        mBinding?.tvNegative?.setSpannable(spannable)
         return this
     }
 
