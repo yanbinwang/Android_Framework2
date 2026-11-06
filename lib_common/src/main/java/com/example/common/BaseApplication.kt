@@ -222,25 +222,25 @@ abstract class BaseApplication : Application() {
     }
 
     private fun buildStyledSnackBar(view: View, text: String, length: Int, @ColorRes navigationBarColor: Int, action: SnackBarAction?): Snackbar {
-        val snackbar = Snackbar.make(view, text, length)
-        val root = snackbar.view
+        val snackBar = Snackbar.make(view, text, length)
+        val root = snackBar.view
         val textColorRes = if (shouldUseWhiteSystemBarsForRes(navigationBarColor)) R.color.textWhite else R.color.textBlack
         // 提示内容
-        snackbar.setBackgroundTint(color(navigationBarColor))
-        snackbar.setTextColor(color(textColorRes))
-        val snackbarText = root.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
-        snackbarText.textSize(R.dimen.textSize14)
+        snackBar.setBackgroundTint(color(navigationBarColor))
+        snackBar.setTextColor(color(textColorRes))
+        val snackBarText = root.findViewById<TextView>(com.google.android.material.R.id.snackbar_text)
+        snackBarText.textSize(R.dimen.textSize14)
         // 提示按钮
         if (null != action) {
             when (action) {
-                is SnackBarAction.Text -> snackbar.setAction(action.text, action.listener)
-                is SnackBarAction.ResText -> snackbar.setAction(string(action.resId), action.listener)
+                is SnackBarAction.Text -> snackBar.setAction(action.text, action.listener)
+                is SnackBarAction.ResText -> snackBar.setAction(string(action.resId), action.listener)
             }
-            snackbar.setActionTextColor(color(action.actionTextColorRes ?: textColorRes))
-            val snackbarAction = root.findViewById<Button>(com.google.android.material.R.id.snackbar_action)
-            snackbarAction.textSize(R.dimen.textSize12)
+            snackBar.setActionTextColor(color(action.actionTextColorRes ?: textColorRes))
+            val snackBarAction = root.findViewById<Button>(com.google.android.material.R.id.snackbar_action)
+            snackBarAction.textSize(R.dimen.textSize12)
         }
-        return snackbar
+        return snackBar
     }
 
     private fun initSocket() {

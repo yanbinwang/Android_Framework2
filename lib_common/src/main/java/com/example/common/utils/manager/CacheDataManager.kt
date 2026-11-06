@@ -10,6 +10,7 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * 主页的页面部分数据是需要本地缓存的
  */
+@Deprecated("主要用于需要缓存首页数据的应用")
 object CacheDataManager {
     /**
      * 首页-资金
