@@ -6,6 +6,7 @@ import java.io.File
 /**
  * 设备检测
  */
+@Deprecated("主要用于兼容老旧设备，实际开发中需谨慎使用")
 object EmulatorDetector {
 
     /**
