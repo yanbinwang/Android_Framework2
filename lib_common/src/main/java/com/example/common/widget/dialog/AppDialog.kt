@@ -62,7 +62,6 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
                 tvNegative.gone()
             } else {
                 viewLine.visible()
-                tvNegative.visible()
                 tvNegative.apply {
                     text = negativeText
                     visible()
