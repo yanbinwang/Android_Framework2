@@ -369,7 +369,7 @@ fun Bitmap?.safeRecycle() {
  * 安全获取Drawable
  */
 fun Drawable?.orEmpty(): Drawable {
-    return this ?: Color.TRANSPARENT.toDrawable().mutate()
+    return this ?: Color.TRANSPARENT.toDrawable()
 }
 
 /**

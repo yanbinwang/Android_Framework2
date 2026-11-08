@@ -69,8 +69,10 @@ fun Context.color(@ColorRes res: Int): Int {
  * 1) 如果只是设置图片展示 (只读取不修改)，不改 alpha/tint/colorFilter 等状态则不需要 mutate()
  * 2) 只要在代码中动态修改一个 Drawable 的状态（alpha、tint、colorFilter 等），就必须先调用 mutate() 并使用其返回值，否则会污染全局共享缓存，导致难以排查的 UI Bug
  */
-fun Context.drawable(@DrawableRes res: Int): Drawable? {
-    return ContextCompat.getDrawable(this, res)?.mutate()
+fun Context.drawable(@DrawableRes res: Int, isMutate: Boolean = true): Drawable? {
+    return ContextCompat.getDrawable(this, res)?.let { origin ->
+        if (isMutate) origin.mutate() else origin
+    }
 }
 
 /**
@@ -130,15 +132,15 @@ fun Context.defTypeId(name: String, defType: String): Int {
 /**
  * 通过字符串获取drawable下的xml文件
  */
-fun Context.defTypeDrawable(name: String): Drawable? {
-    return drawable(defTypeId(name, "drawable"))
+fun Context.defTypeDrawable(name: String, isMutate: Boolean = true): Drawable? {
+    return drawable(defTypeId(name, "drawable"), isMutate)
 }
 
 /**
  * 通过字符串获取mipmap下的图片文件
  */
-fun Context.defTypeMipmap(name: String): Drawable? {
-    return drawable(defTypeId(name, "mipmap"))
+fun Context.defTypeMipmap(name: String, isMutate: Boolean = true): Drawable? {
+    return drawable(defTypeId(name, "mipmap"), isMutate)
 }
 
 /**

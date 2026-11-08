@@ -27,6 +27,8 @@ object GlideBindingAdapter {
     // <editor-fold defaultstate="collapsed" desc="imageview绑定方法">
     /**
      * 图片样式
+     * @param drawable 切记不可用 mutate() 引用,使用后 constantState 就不能作为比较值
+     *
      * 问题一：相同资源可能生成不同的 Drawable 实例
      * 当你通过 Context.getDrawable() 或 Resources.getDrawable() 获取同一个资源 ID 的 Drawable 时，每次获取的可能是不同的实例
      * val drawable1 = context.getDrawable(R.drawable.my_drawable)
