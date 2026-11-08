@@ -65,8 +65,8 @@ abstract class BaseView<Presenter : BasePresenter>(private val mSource: BaseSour
         return getContext().color(resId)
     }
 
-    protected fun getDrawable(@DrawableRes resId: Int): Drawable {
-        return getContext().drawable(resId).orEmpty()
+    protected fun getDrawable(@DrawableRes resId: Int, isMutate: Boolean = true): Drawable {
+        return getContext().drawable(resId, isMutate).orEmpty()
     }
 
     /**

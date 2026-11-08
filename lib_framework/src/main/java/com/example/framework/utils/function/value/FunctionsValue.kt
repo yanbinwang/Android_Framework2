@@ -14,6 +14,7 @@ import com.example.framework.BuildConfig
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.math.BigDecimal
 import java.util.Locale
 import java.util.regex.Pattern
 
@@ -40,15 +41,16 @@ val Boolean?.orTrue get() = this ?: true
 
 /**
  * 将任意类型安全转换为 Boolean
- * - Boolean 类型：直接返回
- * - Number 类型：非零为 true，零为 false
- * - CharSequence 类型：委托给 [toSafeBoolean] 处理
- * - 其他类型或 null：返回 default
+ * 1) Boolean 类型：直接返回
+ * 2) Number 类型：非零为 true，零为 false
+ * 3) CharSequence 类型：委托给 [toSafeBoolean] 处理
+ * 4) 其他类型或 null：返回 default
  */
 fun Any?.toBoolean(default: Boolean = false): Boolean {
     return when (this) {
         is Boolean -> this
-        is Number -> this.toInt() != 0
+//        is Number -> this.toInt() != 0
+        is Number -> this.toSafeBigDecimal().compareTo(BigDecimal.ZERO) != 0
         is CharSequence -> this.toSafeBoolean(default)
         null -> default
         else -> default
@@ -57,9 +59,9 @@ fun Any?.toBoolean(default: Boolean = false): Boolean {
 
 /**
  * 防空转换 Boolean
- * - 空字符串 / "." → 返回 default
- * - 匹配真值集合（"true"/"yes"/"y"/"1"，忽略大小写）→ true
- * - 其他所有非空值 → false
+ * 1) 空字符串 / "." → 返回 default
+ * 2) 匹配真值集合（"true"/"yes"/"y"/"1"，忽略大小写）→ true
+ * 3) 其他所有非空值 → false
  */
 private val TRUE_VALUES = setOf("true", "yes", "y", "1")
 
@@ -327,7 +329,7 @@ fun createOvalDrawable(colorString: String): Drawable {
 }
 
 /**
- * 比较两个 Drawable 是否来自同一资源或完全相同（仅支持 API 21+）
+ * 比较两个 Drawable 是否来自同一资源或完全相同 (Drawable 切记不可用 mutate() 应用,使用后 constantState 就不能作为比较值)
  */
 fun areDrawablesSame(d1: Drawable?, d2: Drawable?): Boolean {
     // 处理 null 情况（两个都为 null 才相同）

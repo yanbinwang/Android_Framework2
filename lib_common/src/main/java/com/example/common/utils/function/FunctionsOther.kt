@@ -144,8 +144,8 @@ fun color(@ColorRes res: Int): Int {
 /**
  * 获取图片
  */
-fun drawable(@DrawableRes res: Int): Drawable? {
-    return BaseApplication.instance.applicationContext.drawable(res)
+fun drawable(@DrawableRes res: Int, isMutate: Boolean = true): Drawable? {
+    return BaseApplication.instance.applicationContext.drawable(res, isMutate)
 }
 
 fun drawable(@DrawableRes res: Int, width: Int, height: Int): Drawable? {

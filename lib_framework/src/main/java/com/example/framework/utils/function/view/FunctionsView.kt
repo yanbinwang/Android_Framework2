@@ -958,8 +958,8 @@ fun ViewGroup.color(@ColorRes res: Int): Int {
 /**
  * 获取resources中的drawable
  */
-fun ViewGroup.drawable(@DrawableRes res: Int): Drawable? {
-    return context.drawable(res)
+fun ViewGroup.drawable(@DrawableRes res: Int, isMutate: Boolean = true): Drawable? {
+    return context.drawable(res, isMutate)
 }
 
 /**
