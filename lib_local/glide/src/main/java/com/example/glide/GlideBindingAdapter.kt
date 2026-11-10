@@ -7,10 +7,12 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
 import androidx.cardview.widget.CardView
 import androidx.databinding.BindingAdapter
+import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.areDrawablesSame
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
+import com.example.framework.utils.function.view.getLifecycleOwner
 import com.example.glide.ImageLoader.Companion.DEFAULT_CIRCULAR_RESOURCE
 import com.example.glide.ImageLoader.Companion.DEFAULT_CORNER_RADIUS
 import com.example.glide.ImageLoader.Companion.DEFAULT_RESOURCE
@@ -68,6 +70,18 @@ object GlideBindingAdapter {
             if (oldDrawable == null || !areDrawablesSame(oldDrawable, newDrawable)) {
                 view.setImageDrawable(newDrawable)
                 view.setTag(drawableKey, WeakReference(newDrawable))
+            }
+            /**
+             * 1) Int / Boolean / Long / String（短字符串）、只包含基础类型的 data class：不用刻意清理，就算残留在 mKeyedTags，泄漏风险几乎可以忽略
+             * 2) Drawable、Bitmap、View、Activity、Fragment、自定义大对象、集合（List/Map 里面装对象）：必须管控，需要在合适时机置 null，断掉强引用
+             */
+            val registerKey = R.id.glide_lifecycle_observer_registered
+            val registered = view.getTag(registerKey) as? Boolean ?: false
+            if (!registered) {
+                view.getLifecycleOwner().doOnDestroy {
+                    view.setTag(drawableKey, null)
+                }
+                view.setTag(registerKey, true)
             }
         }
         visibility?.let { newVisibility ->
