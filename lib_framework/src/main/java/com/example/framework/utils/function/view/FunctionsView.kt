@@ -208,8 +208,10 @@ fun View?.removeSelf() {
 /**
  * 背景
  */
+@SuppressLint("ResourceType")
 fun View?.background(@DrawableRes bg: Int) {
     if (this == null) return
+    if (bg < 0) return
     this.setBackgroundResource(bg)
 }
 
@@ -1067,9 +1069,20 @@ fun ImageView?.setDrawable(drawable: Drawable?) {
  * 2) 调用 setImageResource(-1) 会闪退报错
  * 3) 清空 ImageView 资源统一调用 setDrawable(null)
  */
+@SuppressLint("ResourceType")
 fun ImageView?.setResource(@DrawableRes resId: Int) {
     this ?: return
+    // 负数直接拦截，避免Resources NotFound崩溃
+    if (resId < 0) return
     setImageResource(resId)
+}
+
+/**
+ * 清除背景
+ */
+fun ImageView?.clearImage() {
+    this ?: return
+    setImageDrawable(null)
 }
 
 /**
