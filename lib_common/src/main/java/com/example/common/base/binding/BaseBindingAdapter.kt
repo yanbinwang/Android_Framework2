@@ -321,7 +321,7 @@ object BaseBindingAdapter {
         // 属性未变化，直接返回，避免无效刷新
         if (oldConfig == newConfig) return
         view.setTag(compoundDrawableKey, newConfig)
-        // 处理ToggleButton文本
+        // 处理 ToggleButton 文本
         if (view is ToggleButton) {
             val newText = newConfig.drawableText.orEmpty()
             // 避免空文本重复赋值，同时兼容null转空字符串
