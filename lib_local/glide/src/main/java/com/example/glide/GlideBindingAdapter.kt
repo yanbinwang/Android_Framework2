@@ -63,7 +63,8 @@ object GlideBindingAdapter {
         }
         drawable?.let { newDrawable ->
             val drawableKey = R.id.glide_drawable_tag
-            val oldDrawable = view.getTag(drawableKey) as? Drawable
+            val oldWeakRef = view.getTag(drawableKey) as? WeakReference<Drawable>
+            val oldDrawable = oldWeakRef?.get()
             if (oldDrawable == null || !areDrawablesSame(oldDrawable, newDrawable)) {
                 view.setImageDrawable(newDrawable)
                 view.setTag(drawableKey, WeakReference(newDrawable))
