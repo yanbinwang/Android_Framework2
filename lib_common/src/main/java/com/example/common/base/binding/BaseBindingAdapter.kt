@@ -231,7 +231,11 @@ object BaseBindingAdapter {
                 val textColorKey = R.id.theme_text_color_tag
                 val oldTextColor = view.getTag(textColorKey) as? Int
                 if (oldTextColor != newTextColor) {
-                    view.setTextColor(color(newTextColor))
+                    if (newTextColor <= 0) {
+                        view.setTextColor(0)
+                    } else {
+                        view.setTextColor(color(newTextColor))
+                    }
                     view.setTag(textColorKey, newTextColor)
                 }
             }
@@ -241,7 +245,11 @@ object BaseBindingAdapter {
             val backgroundKey = R.id.theme_background_tag
             val oldBackground = view.getTag(backgroundKey) as? Int
             if (oldBackground != newBackground) {
-                view.setBackgroundResource(newBackground)
+                if (newBackground <= 0) {
+                    view.background = null
+                } else {
+                    view.setBackgroundResource(newBackground)
+                }
                 view.setTag(backgroundKey, newBackground)
             }
         }
@@ -304,8 +312,7 @@ object BaseBindingAdapter {
         @param:ColorRes val drawableTintColor: Int? = null,
         val drawableWidth: Int? = null,
         val drawableHeight: Int? = null,
-        val drawablePadding: Int? = null
-    )
+        val drawablePadding: Int? = null)
 
     @JvmStatic
     @BindingAdapter(value = ["drawableText", "drawableStart", "drawableTop", "drawableEnd", "drawableBottom", "drawableTintColor", "drawableWidth", "drawableHeight", "drawablePadding"], requireAll = false)
@@ -333,10 +340,18 @@ object BaseBindingAdapter {
         }
         // 仅 Drawable 相关属性变化时，才执行Drawable加载/设置
         if (!isOnlyTextChanged(oldConfig, newConfig)) {
-            val startDrawable = newConfig.drawableStart?.let { drawable(it) }
-            val topDrawable = newConfig.drawableTop?.let { drawable(it) }
-            val endDrawable = newConfig.drawableEnd?.let { drawable(it) }
-            val bottomDrawable = newConfig.drawableBottom?.let { drawable(it) }
+            val startDrawable = newConfig.drawableStart?.let {
+                drawable(it)
+            }
+            val topDrawable = newConfig.drawableTop?.let {
+                drawable(it)
+            }
+            val endDrawable = newConfig.drawableEnd?.let {
+                drawable(it)
+            }
+            val bottomDrawable = newConfig.drawableBottom?.let {
+                drawable(it)
+            }
             // 存储 Drawable 的数组
             val drawables = arrayOf(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 设置 Drawable 大小
@@ -345,7 +360,9 @@ object BaseBindingAdapter {
             view.setCompoundDrawables(startDrawable, topDrawable, endDrawable, bottomDrawable)
 //            view.setCompoundDrawablesRelativeWithIntrinsicBounds(startDrawable, topDrawable, endDrawable, bottomDrawable)
             // 间距
-            drawablePadding?.let { view.compoundDrawablePadding = it.pt }
+            drawablePadding?.let {
+                view.compoundDrawablePadding = it.pt
+            }
         }
     }
 

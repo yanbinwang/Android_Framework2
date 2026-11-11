@@ -59,7 +59,11 @@ object GlideBindingAdapter {
             val resKey = R.id.glide_res_tag
             val oldSrcRes = view.getTag(resKey) as? Int
             if (oldSrcRes != newRes) {
-                view.setImageResource(newRes)
+                if (newRes <= 0) {
+                    view.setImageDrawable(null)
+                } else {
+                    view.setImageResource(newRes)
+                }
                 view.setTag(resKey, newRes)
             }
         }
