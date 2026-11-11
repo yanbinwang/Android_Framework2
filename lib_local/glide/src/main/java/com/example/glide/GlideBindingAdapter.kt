@@ -2,6 +2,7 @@ package com.example.glide
 
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.annotation.RawRes
@@ -9,6 +10,7 @@ import androidx.cardview.widget.CardView
 import androidx.databinding.BindingAdapter
 import com.example.framework.utils.function.doOnDestroy
 import com.example.framework.utils.function.value.areDrawablesSame
+import com.example.framework.utils.function.value.orFalse
 import com.example.framework.utils.function.value.toSafeInt
 import com.example.framework.utils.function.view.disable
 import com.example.framework.utils.function.view.enable
@@ -79,7 +81,7 @@ object GlideBindingAdapter {
              * 1) Int / Boolean / Long / String（短字符串）、只包含基础类型的 data class：不用刻意清理，就算残留在 mKeyedTags，泄漏风险几乎可以忽略
              * 2) Drawable、Bitmap、View、Activity、Fragment、自定义大对象、集合（List/Map 里面装对象）：必须管控，需要在合适时机置 null，断掉强引用
              */
-            val registerKey = R.id.glide_lifecycle_observer_registered
+            val registerKey = R.id.glide_lifecycle_registered_tag
             val registered = view.getTag(registerKey) as? Boolean ?: false
             if (!registered) {
                 view.getLifecycleOwner().doOnDestroy {
@@ -102,94 +104,141 @@ object GlideBindingAdapter {
      * 加载gif图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["gif_gifUrl"])
-    fun bindingGifFromUrl(view: ImageView, gifUrl: String?) {
-        ImageLoader.instance.loadGifFromUrl(view, gifUrl)
+    @BindingAdapter(value = ["gif_gifUrl", "isTag"], requireAll = false)
+    fun bindingGifFromUrl(view: ImageView, gifUrl: String?, isTag: Boolean?) {
+        load(view, gifUrl, isTag) {
+            ImageLoader.instance.loadGifFromUrl(view, gifUrl)
+        }
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["gif_gifResource"])
-    fun bindingGifFromResource(view: ImageView, @RawRes @DrawableRes gifResource: Int?) {
-        ImageLoader.instance.loadGifFromResource(view, gifResource)
+    @BindingAdapter(value = ["gif_gifResource", "isTag"], requireAll = false)
+    fun bindingGifFromResource(view: ImageView, @RawRes @DrawableRes gifResource: Int?, isTag: Boolean?) {
+        load(view, gifResource, isTag) {
+            ImageLoader.instance.loadGifFromResource(view, gifResource)
+        }
     }
 
     /**
      * 加载图片（比例缩放）
      */
     @JvmStatic
-    @BindingAdapter(value = ["scaled_imageUrl"])
-    fun bindingScaledFromUrl(view: ImageView, imageUrl: String?) {
-        ImageLoader.instance.loadScaledFromUrl(view, imageUrl, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["scaled_imageUrl", "isTag"], requireAll = false)
+    fun bindingScaledFromUrl(view: ImageView, imageUrl: String?, isTag: Boolean?) {
+        load(view, imageUrl, isTag) {
+            ImageLoader.instance.loadScaledFromUrl(view, imageUrl, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     /**
      * 加载图片
      */
     @JvmStatic
-    @BindingAdapter(value = ["imageUrl", "errorResource"], requireAll = false)
-    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, @DrawableRes errorResource: Int?) {
-        val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
-        ImageLoader.instance.loadImageFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
+    @BindingAdapter(value = ["imageUrl", "errorResource", "isTag"], requireAll = false)
+    fun bindingImageFromUrl(view: ImageView, imageUrl: String?, @DrawableRes errorResource: Int?, isTag: Boolean?) {
+        load(view, imageUrl, isTag) {
+            val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
+            ImageLoader.instance.loadImageFromUrl(view, imageUrl, effectiveErrorResource, { view.disable() }, { view.enable() })
+        }
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["imageResource"])
-    fun bindingImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?) {
-        ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["imageResource", "isTag"], requireAll = false)
+    fun bindingImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?, isTag: Boolean?) {
+        load(view, imageResource, isTag) {
+            ImageLoader.instance.loadImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     /**
      * app:cardview_scaleType="@{android.widget.ImageView.ScaleType.CENTER_CROP}"
      */
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource", "cardview_scaleType"], requireAll = false)
-    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?, scaleType: ImageView.ScaleType?) {
-        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
-        val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
-        ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, effectiveScaleType, { view.disable() }, { view.enable() })
+    @BindingAdapter(value = ["cardview_imageUrl", "cardview_errorResource", "cardview_scaleType", "isTag"], requireAll = false)
+    fun bindingCardViewFromUrl(view: CardView, imageUrl: String?, @DrawableRes errorResource: Int?, scaleType: ImageView.ScaleType?, isTag: Boolean?) {
+        load(view, imageUrl, isTag) {
+            val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
+            val effectiveErrorResource = errorResource ?: DEFAULT_RESOURCE
+            ImageLoader.instance.loadCardViewFromUrl(view, imageUrl, effectiveErrorResource, effectiveScaleType, { view.disable() }, { view.enable() })
+        }
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["cardview_imageResource", "cardview_scaleType"], requireAll = false)
-    fun bindingCardViewFromResource(view: CardView, @RawRes @DrawableRes imageResource: Int?, scaleType: ImageView.ScaleType?) {
-        val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
-        ImageLoader.instance.loadCardViewFromResource(view, imageResource, scaleType = effectiveScaleType, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["cardview_imageResource", "cardview_scaleType", "isTag"], requireAll = false)
+    fun bindingCardViewFromResource(view: CardView, @RawRes @DrawableRes imageResource: Int?, scaleType: ImageView.ScaleType?, isTag: Boolean?) {
+        load(view, imageResource, isTag) {
+            val effectiveScaleType = scaleType ?: DEFAULT_SCALE_TYPE
+            ImageLoader.instance.loadCardViewFromResource(view, imageResource, scaleType = effectiveScaleType, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     /**
      * 加载图片（带圆角）
      */
     @JvmStatic
-    @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius", "rounded_overrideColor"], requireAll = false)
-    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
-        val effectiveErrorResource = errorResource ?: DEFAULT_ROUNDED_RESOURCE
-        val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
-        val effectiveOverrideColor = overrideColor ?: Color.WHITE
-        ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["rounded_imageUrl", "rounded_errorResource", "rounded_cornerRadius", "rounded_overrideColor", "isTag"], requireAll = false)
+    fun bindingRoundedImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, cornerRadius: Int?, overrideColor: Int?, isTag: Boolean?) {
+        load(view, imageUrl, isTag) {
+            val effectiveErrorResource = errorResource ?: DEFAULT_ROUNDED_RESOURCE
+            val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
+            val effectiveOverrideColor = overrideColor ?: Color.WHITE
+            ImageLoader.instance.loadRoundedImageFromUrl(view, imageUrl, effectiveErrorResource, effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius", "rounded_overrideColor"], requireAll = false)
-    fun bindingRoundedImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?, cornerRadius: Int?, overrideColor: Int?) {
-        val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
-        val effectiveOverrideColor = overrideColor ?: Color.WHITE
-        ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["rounded_imageResource", "rounded_cornerRadius", "rounded_overrideColor", "isTag"], requireAll = false)
+    fun bindingRoundedImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?, cornerRadius: Int?, overrideColor: Int?, isTag: Boolean?) {
+        load(view, imageResource, isTag) {
+            val effectiveCornerRadius = cornerRadius ?: DEFAULT_CORNER_RADIUS
+            val effectiveOverrideColor = overrideColor ?: Color.WHITE
+            ImageLoader.instance.loadRoundedImageFromResource(view, imageResource, cornerRadius = effectiveCornerRadius.toSafeInt(), overrideColor = effectiveOverrideColor, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     /**
      * 加载图片（圆形）
      */
     @JvmStatic
-    @BindingAdapter(value = ["circular_imageUrl", "circular_errorResource"], requireAll = false)
-    fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?) {
-        val effectiveErrorResource = errorResource ?: DEFAULT_CIRCULAR_RESOURCE
-        ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, effectiveErrorResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["circular_imageUrl", "circular_errorResource", "isTag"], requireAll = false)
+    fun bindingCircularImageFromUrl(view: ImageView, imageUrl: String?, errorResource: Int?, isTag: Boolean?) {
+        load(view, imageUrl, isTag) {
+            val effectiveErrorResource = errorResource ?: DEFAULT_CIRCULAR_RESOURCE
+            ImageLoader.instance.loadCircularImageFromUrl(view, imageUrl, effectiveErrorResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
     }
 
     @JvmStatic
-    @BindingAdapter(value = ["circular_imageResource"])
-    fun bindingCircularImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?) {
-        ImageLoader.instance.loadCircularImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+    @BindingAdapter(value = ["circular_imageResource", "isTag"], requireAll = false)
+    fun bindingCircularImageFromResource(view: ImageView, @RawRes @DrawableRes imageResource: Int?, isTag: Boolean?) {
+        load(view, imageResource, isTag) {
+            ImageLoader.instance.loadCircularImageFromResource(view, imageResource, onLoadStart = { view.disable() }, onLoadComplete = { view.enable() })
+        }
+    }
+
+    private inline fun load(view: View, source: Any?, isTag: Boolean? = true, crossinline func: () -> Unit) {
+        // source 为 null 或者 isTag=false：执行加载，不做 tag 对比、不更新 tag 快照
+        if (source == null || !isTag.orFalse) {
+            func()
+            return
+        }
+        val sourceKey = if (source is String) R.id.glide_load_url_tag else R.id.glide_load_res_id_tag
+        when (source) {
+            is String -> {
+                val oldUrl = view.getTag(sourceKey) as? String
+                if (oldUrl != source) {
+                    func()
+                    view.setTag(sourceKey, source)
+                }
+            }
+            is Int -> {
+                val oldResId = view.getTag(sourceKey) as? Int
+                if (oldResId != source) {
+                    func()
+                    view.setTag(sourceKey, source)
+                }
+            }
+        }
     }
     // </editor-fold>
 

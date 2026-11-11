@@ -307,9 +307,10 @@ abstract class TabLayoutBuilder<T, VDB : ViewDataBinding>(private val observer: 
      */
     private fun setBindView(mBinding: VDB?, item: T?, selected: Boolean, index: Int) {
         if (hasAction) {
-            val oldSelected = mBinding?.root?.getTag(R.id.theme_tab_selected) as? Boolean
+            val tabSelectedKey = R.id.theme_tab_selected_tag
+            val oldSelected = mBinding?.root?.getTag(tabSelectedKey) as? Boolean
             if (oldSelected != null && oldSelected == selected) return
-            mBinding?.root?.setTag(R.id.theme_tab_selected, selected)
+            mBinding?.root?.setTag(tabSelectedKey, selected)
         }
         onBindView(mBinding, item, selected, index)
     }
