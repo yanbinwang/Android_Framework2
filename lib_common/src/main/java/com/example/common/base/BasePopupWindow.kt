@@ -140,7 +140,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     parentView.addView(navigationBarView)
                     setContentView(parentView)
                 } else {
-                    mBinding?.root?.let { setContentView(it) }
+                    mBinding?.root?.let {
+                        setContentView(it)
+                    }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -171,7 +173,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     override fun initEvent() {
         setAnimation()
         setBackgroundDrawable(Color.TRANSPARENT.toDrawable())
-        setOnDismissListener {
+        super.setOnDismissListener {
             restoreHostState()
             lifecycleListener?.onPopupDismiss()
         }
@@ -274,7 +276,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         } ?: false
     }
 
-    private fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
+    private inline fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
         if (checkCondition()) {
             try {
                 setAttributes()
@@ -306,6 +308,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         if (window?.windowManager == null) return
         if (window?.decorView == null) return
         if (window?.decorView?.parent == null) return
+        showJob?.cancel()
         try {
             super.dismiss()
         } catch (e: Exception) {
@@ -406,6 +409,10 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     open fun setOnPopupLifecycleListener(listener: OnPopupLifecycleListener?) {
         this.lifecycleListener = listener
+    }
+
+    final override fun setOnDismissListener(onDismissListener: OnDismissListener?) {
+        throw UnsupportedOperationException("禁止直接调用setOnDismissListener，请使用 setOnPopupLifecycleListener")
     }
 
     /**
