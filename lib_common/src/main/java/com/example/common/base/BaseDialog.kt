@@ -68,7 +68,9 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
                 val method = vdbClass?.getMethod("inflate", LayoutInflater::class.java)
                 mBinding = method?.invoke(null, layoutInflater) as? VDB
                 mBinding?.lifecycleOwner = lifecycleOwner
-                mBinding?.root?.let { setContentView(it) }
+                mBinding?.root?.let {
+                    setContentView(it)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -95,14 +97,14 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
 
     override fun initEvent() {
         // 当布局show出来的时候执行开始动画
-        setOnShowListener {
+        super.setOnShowListener {
             if (hasAnimation) {
                 rootView?.startAnim(bounceFadeIn())
             }
             lifecycleListener?.onDialogShow()
         }
         // 当布局销毁时执行结束动画
-        setOnDismissListener {
+        super.setOnDismissListener {
             lifecycleListener?.onDialogDismiss()
         }
         // 默认情况下，拦截所有的点击事件，且不可关闭（只能点击按钮关闭）
@@ -180,6 +182,14 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
      */
     open fun setOnDialogLifecycleListener(listener: OnDialogLifecycleListener?) {
         this.lifecycleListener = listener
+    }
+
+    final override fun setOnShowListener(listener: DialogInterface.OnShowListener?) {
+        throw UnsupportedOperationException("禁止直接调用setOnShowListener，请使用 setOnDialogLifecycleListener")
+    }
+
+    final override fun setOnDismissListener(listener: DialogInterface.OnDismissListener?) {
+        throw UnsupportedOperationException("禁止直接调用setOnDismissListener，请使用 setOnDialogLifecycleListener")
     }
 
     /**
