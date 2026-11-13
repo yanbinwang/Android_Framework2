@@ -78,22 +78,27 @@ class AppDialog(activity: FragmentActivity) : BaseDialog<ViewDialogBinding>(acti
     /**
      * 标题样式
      */
-    fun setTitle(@ColorRes colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setTitleTheme(@ColorRes colorRes: Int = R.color.appTheme, sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvTitle.textColor(colorRes)
         mBinding?.tvTitle?.textSize(sizeRes)
+        return this
+    }
+
+    fun setTitleTheme(spannable: Spannable): AppDialog {
+        mBinding?.tvTitle.setSpannable(spannable)
         return this
     }
 
     /**
      * 内容样式
      */
-    fun setMessage(@ColorRes colorRes: Int = R.color.textPrimary, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
+    fun setMessageTheme(@ColorRes colorRes: Int = R.color.textPrimary, @DimenRes sizeRes: Int = R.dimen.textSize14): AppDialog {
         mBinding?.tvMessage.textColor(colorRes)
         mBinding?.tvMessage?.textSize(sizeRes)
         return this
     }
 
-    fun setMessage(spannable: Spannable): AppDialog {
+    fun setMessageTheme(spannable: Spannable): AppDialog {
         mBinding?.tvMessage?.setSpannable(spannable)
         return this
     }
