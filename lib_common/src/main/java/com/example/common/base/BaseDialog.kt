@@ -32,7 +32,7 @@ import java.lang.reflect.ParameterizedType
  * 那么 Dialog 会正确关联到这个 Activity，在这种情况下，ownerActivity 会被正确设置为传入的 Activity
  * 2.传入 Application 上下文作为 Context
  * 如果传入的是 Application 上下文，那么会对 ownerActivity 产生不良影响:
- * (1) ownerActivity缺失：
+ * (1) ownerActivity 缺失：
  *   Application 上下文并非 Activity 实例，所以 Dialog 无法正确关联到一个 Activity，ownerActivity 不会被正确设置。这可能导致 Dialog 在显示和管理方面出现问题
  * (2) 生命周期管理问题：
  *   Application 上下文的生命周期贯穿整个应用程序的生命周期，而不是某个具体 Activity 的生命周期。如果使用 Application 上下文创建 Dialog，Dialog 不会随着 Activity 的销毁而销毁，可能会导致内存泄漏和显示异常
@@ -53,8 +53,14 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
     }
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
+    /**
+     * 1) new Dialog() → 构造 + init{} + initView() → show() → 弹出
+     *    dismiss() → 窗口消失，View 还在，mBinding 不为 null
+     *    show() → 【不走 initView】，直接复用原来的 DecorView、 rootView 、 mBinding
+     * 2) 只有 Dialog 对象被 GC 回收，才会彻底销毁 View
+     */
     override fun initView(savedInstanceState: Bundle?) {
-        // 设置内部view
+        // 设置内部 view
         val type = javaClass.genericSuperclass
         if (type is ParameterizedType) {
             try {
@@ -80,8 +86,10 @@ abstract class BaseDialog<VDB : ViewDataBinding>(activity: FragmentActivity, the
         }
         // 绑定宿主生命周期
         lifecycleOwner.doOnDestroy {
+            lifecycleListener = null
             mBinding?.unbind()
             mBinding = null
+            dismiss()
         }
     }
 

@@ -70,6 +70,20 @@ import java.util.concurrent.ConcurrentHashMap
  * dialog?.setCancelable(false)
  * 2) 外部赋值
  * 每次都会重新新建,只需 setParams 其余会再走一次 initView (BaseTopSheetDialogFragment同理)
+ * show()
+ *     → onAttach
+ *     → onCreate
+ *     → onCreateView（反射inflate binding）
+ *     → onViewCreated → initView() / initEvent() / initData()
+ *     → onStart → dialog显示
+ * dismiss() // dismissAllowingStateLoss()
+ *     → onDestroyView
+ *         → mBinding.unbind() ✅
+ *         → liveData订阅全部清理
+ *         → 软键盘、insets监听清理
+ *     → onDestroy
+ * Fragment实例被销毁，对象回收
+ * 再次 show()：必须重新 new 子类实例，完整从头再来一遍，再次执行 onCreateView + onViewCreated + initView
  */
 @Suppress("UNCHECKED_CAST")
 abstract class BaseBottomSheetDialogFragment<VDB : ViewDataBinding> : BottomSheetDialogFragment(), BaseImpl, BaseView {
