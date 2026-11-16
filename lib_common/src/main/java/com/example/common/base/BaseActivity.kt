@@ -117,9 +117,7 @@ abstract class BaseActivity<VDB : ViewDataBinding> : AppCompatActivity(), BaseIm
     protected var mBinding: VDB? = null
     protected var mSplashScreen: SplashScreen? = null
     protected val mResultWrapper = registerResultWrapper()
-    protected val mActivityResult = mResultWrapper.registerResult {
-        onActivityResultListener?.invoke(it)
-    }
+    protected val mActivityResult = mResultWrapper.registerResult { onActivityResultListener?.invoke(it) }
     private var pendingKillJob: Job? = null
     private var onWindowInsetsChanged: ((insets: WindowInsetsCompat) -> Unit)? = null
     private var onActivityResultListener: ((result: ActivityResult) -> Unit)? = null
