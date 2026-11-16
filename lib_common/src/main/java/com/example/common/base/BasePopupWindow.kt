@@ -11,8 +11,10 @@ import android.transition.Slide
 import android.transition.Visibility
 import android.view.Gravity
 import android.view.Gravity.BOTTOM
+import android.view.Gravity.END
 import android.view.Gravity.LEFT
 import android.view.Gravity.RIGHT
+import android.view.Gravity.START
 import android.view.Gravity.TOP
 import android.view.LayoutInflater
 import android.view.View
@@ -122,7 +124,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     override fun initView(savedInstanceState: Bundle?) {
         // 强制规定传入的动画如果是方向类型的,参数必须在规定范围内
         if (isTranslate) {
-            val slideList = listOf(TOP, BOTTOM, LEFT, RIGHT)
+            val slideList = listOf(TOP, BOTTOM, LEFT, RIGHT, START, END)
             if (!slideList.contains(popupSlide)) {
                 popupAnimStyle = NONE
             }
