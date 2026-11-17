@@ -78,6 +78,8 @@ import java.lang.reflect.ParameterizedType
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
 abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
+    @ColorRes
+    private var navigationBarColor = R.color.appNavigationBar
     private var showJob: Job? = null
     private var lifecycleListener: OnPopupLifecycleListener? = null
     private val window get() = activity.window
@@ -122,7 +124,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
     override fun initView(savedInstanceState: Bundle?) {
-        // 强制规定传入的动画如果是方向类型的,参数必须在规定范围内
+        // 强制规定传入的动画模式如果是方向类型的,参数必须在规定范围内
         if (isTranslate) {
             val slideList = listOf(TOP, BOTTOM, LEFT, RIGHT, START, END)
             if (!slideList.contains(popupSlide)) {
@@ -160,7 +162,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         softInputMode = WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         // 如果是方向类型此时非左右弹出的情况下,需要即刻加载一下底层导航栏.避免动画遮罩
         if (isTranslate && popupSlide != TOP) {
-            if (popupSlide == BOTTOM) setNavigationBarColor()
+            if (popupSlide == BOTTOM) {
+                setNavigationBarBackground(navigationBarColor)
+            }
             ViewCompat.getRootWindowInsets(window.decorView)?.let {
                 setNavigationBar(it)
             }
@@ -219,7 +223,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
             window.attributes = layoutParams
         }
         if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
-            setNavigationBarColor(R.color.bgTransparent)
+            setNavigationBarBackground(R.color.bgTransparent)
         }
     }
 
@@ -288,7 +292,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                     showJob?.cancel()
                     showJob = lifecycleOwner?.lifecycleScope?.launch {
                         delay(NAV_BAR_DELAY)
-                        setNavigationBarColor()
+                        if (isShowing) {
+                            setNavigationBarBackground(navigationBarColor)
+                        }
                     }
                 }
             } catch (e: Exception) {
@@ -342,18 +348,26 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     /**
-     * 设置导航栏颜色,初始化随页面,调用一次即可 (需要注意电池黑白无法改变)
+     * 设置导航栏背景颜色 (UI黑白样式无法改变)
      */
-    open fun setNavigationBarColor(@ColorRes navigationBarColor: Int = getNavigationBarColor()) {
-        navigationBarView.background(if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) navigationBarColor else R.color.bgBlack)
+    open fun setNavigationBarBackground(@ColorRes colorRes: Int) {
+        val navigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) colorRes else R.color.bgBlack
+        navigationBarView.background(navigationBarColor)
     }
 
     /**
-     * 获取导航栏颜色,可在基类重写
+     * 设置导航栏颜色
+     */
+    open fun setNavigationBarColor(@ColorRes colorRes: Int) {
+        navigationBarColor = colorRes
+    }
+
+    /**
+     * 获取导航栏颜色
      */
     @ColorRes
     open fun getNavigationBarColor(): Int {
-        return R.color.appNavigationBar
+        return navigationBarColor
     }
 
     /**
