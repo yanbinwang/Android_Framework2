@@ -34,7 +34,7 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingTop="0dp" />
  */
 open class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<String>? = null) : TabLayoutBuilder<String, ItemTabBinding>(observer, tab, tabTitle) {
-    private var redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
+    private var itemRenderer: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
 
     constructor(observer: LifecycleOwner, tab: TabLayout?, vararg data: String) : this(observer, tab, data.toList())
 
@@ -43,19 +43,19 @@ open class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: 
     }
 
     override fun onBindView(mBinding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) {
-        if(null == redraw) {
+        if(null == itemRenderer) {
             mBinding?.tvTitle.setTabTheme(item, selected)
         } else {
-            redraw?.invoke(mBinding, item, selected, index)
+            itemRenderer?.invoke(mBinding, item, selected, index)
         }
     }
 
     /**
      * 重写此方法表示部分标题字体字号样式等需要使用非默认配置
-     * 需在调用bind（）方法前调取，一旦绑定就会执行，此时监听没赋值，控件会显示不出
+     * 需在调用bind（）方法前调取，一旦绑定就会执行，此时监听没赋值控件会显示不出
      */
-    fun setRedraw(redraw: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
-        this.redraw = redraw
+    fun setItemRenderer(renderer: ((binding: ItemTabBinding?, item: String?, selected: Boolean, index: Int) -> Unit)) {
+        itemRenderer = renderer
     }
 
 }
