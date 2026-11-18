@@ -52,40 +52,38 @@ import java.lang.reflect.ParameterizedType
 
 /**
  * Created by WangYanBin on 2020/7/13.
- * 所有弹框的基类 (用于实现上下左右弹出的效果，如有特殊动画需求，重写setAnimation方法/默认底部弹出样式配置需要页面重写监听setOnWindowInsetsChanged,每次改变时候调用setNavigationBar,且不支持电池颜色修改)
- * 1) 由于PopupWindow设置了isClippingEnabled=false,故而会撑满整个手机屏幕变成全屏
- * 2) 可使用BaseBottomSheetDialogFragment替代底部弹出样式,不用重写setOnWindowInsetsChanged
- * 3) 左右弹出类似于原生DrawerLayout控件,做了于系统一致的底部导航栏高亮效果
+ * 所有弹框的基类 (用于实现上下左右弹出的效果，如有特殊动画需求重写 setAnimation 方法/默认底部弹出样式配置需要页面重写监听 setOnWindowInsetsChanged,每次改变时候调用 setNavigationBar 且不支持电池颜色修改)
+ * 1) 由于 PopupWindow 设置了 isClippingEnabled=false 故而会撑满整个手机屏幕变成全屏
+ * 2) 可使用 BaseBottomSheetDialogFragment 替代底部弹出样式,不用重写 setOnWindowInsetsChanged
+ * 3) 左右弹出类似于原生 DrawerLayout 控件,做了于系统一致的底部导航栏高亮效果
  * <androidx.drawerlayout.widget.DrawerLayout
- *         android:id="@+id/drawer"
- *         android:layout_width="match_parent"
- *         android:layout_height="match_parent">
+ *     android:id="@+id/drawer"
+ *     android:layout_width="match_parent"
+ *     android:layout_height="match_parent">
  *
- *         <FrameLayout
- *             android:layout_width="match_parent"
- *             android:layout_height="match_parent">
- *              .....
- *         </FrameLayout>
+ *    <FrameLayout
+ *        android:layout_width="match_parent"
+ *        android:layout_height="match_parent">
+ *        .....
+ *    </FrameLayout>
  *
- *         <include
- *             android:id="@+id/view_drawer"
- *             layout="@layout/view_deal_drawer"
- *             android:layout_width="340pt"
- *             android:layout_height="match_parent"
- *             android:layout_gravity="end" />
+ *    <include
+ *       android:id="@+id/view_drawer"
+ *       layout="@layout/view_deal_drawer"
+ *       android:layout_width="340pt"
+ *       android:layout_height="match_parent"
+ *       android:layout_gravity="end" />
  *
- *     </androidx.drawerlayout.widget.DrawerLayout>
+ * </androidx.drawerlayout.widget.DrawerLayout>
  */
 @Suppress("LeakingThis", "UNCHECKED_CAST")
-abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true) : PopupWindow(), BaseImpl {
-    @ColorRes
-    private var navigationBarColor = R.color.appNavigationBar
+abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: FragmentActivity, private val popupWidth: Int = MATCH_PARENT, private val popupHeight: Int = WRAP_CONTENT, private var popupAnimStyle: PopupAnimType = NONE, private val popupSlide: Int = BOTTOM, private val hasLight: Boolean = true, @ColorRes private val navigationBarColor: Int = R.color.appNavigationBar) : PopupWindow(), BaseImpl {
     private var showJob: Job? = null
     private var lifecycleListener: OnPopupLifecycleListener? = null
     private val window get() = activity.window
     private val layoutParams by lazy { window.attributes }
     private val isTranslate get() = popupAnimStyle == TRANSLATE
-    // 项目框架采用enableEdgeToEdge,属于全屏展示,如果是底部弹出的弹框,给页面适配底部导航栏
+    // 项目框架采用 enableEdgeToEdge 属于全屏展示,如果是底部弹出的弹框则给页面适配底部导航栏
     private val navigationBarView by lazy {
         View(context).apply {
             size(MATCH_PARENT, WRAP_CONTENT)
@@ -140,9 +138,11 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
                 mBinding = method?.invoke(null, window.layoutInflater) as? VDB
                 mBinding?.lifecycleOwner = lifecycleOwner
                 if (isTranslate && popupSlide != TOP) {
-                    parentView.addView(mBinding?.root)
-                    parentView.addView(navigationBarView)
-                    setContentView(parentView)
+                    mBinding?.root?.let { contentView ->
+                        parentView.addView(contentView)
+                        parentView.addView(navigationBarView)
+                        setContentView(parentView)
+                    }
                 } else {
                     mBinding?.root?.let {
                         setContentView(it)
@@ -268,14 +268,14 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * @return 是否满足显示条件
      */
     private fun checkPopupShowConditions(targetContext: Context? = null): Boolean {
-        // 校验是否在主线程（PopupWindow必须在主线程操作）
+        // 校验是否在主线程（PopupWindow 必须在主线程操作）
         val mainLooper = Looper.getMainLooper()
         if (Looper.myLooper() != mainLooper) {
             return false
         }
-        // 确定要校验的Context（优先用传入的，兜底用成员变量）
+        // 确定要校验的 Context（优先用传入的，兜底用成员变量）
         val checkContext = targetContext ?: context
-        // 校验Context是Activity且状态正常
+        // 校验 Context 是 Activity 且状态正常
         val activity = checkContext as? Activity
         return activity?.let {
             !it.isFinishing && !it.isDestroyed
@@ -327,7 +327,7 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     /**
      * 设置导航栏高度
-     * 页面重写监听setOnWindowInsetsChanged,每次改变时候调用该方法
+     * 页面重写监听 setOnWindowInsetsChanged 每次改变时候调用该方法
      */
     open fun setNavigationBar(insets: WindowInsetsCompat) {
         val navBarBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
@@ -356,21 +356,6 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     }
 
     /**
-     * 设置导航栏颜色
-     */
-    open fun setNavigationBarColor(@ColorRes colorRes: Int) {
-        navigationBarColor = colorRes
-    }
-
-    /**
-     * 获取导航栏颜色
-     */
-    @ColorRes
-    open fun getNavigationBarColor(): Int {
-        return navigationBarColor
-    }
-
-    /**
      * 默认底部坐标展示
      */
     open fun show() {
@@ -389,7 +374,8 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
     open fun showUp(anchor: View?, center: Boolean = true) {
         if (!isShowing) {
             /**
-             * Gravity.NO_GRAVITY->用于指定 PopupWindow 的对齐方式。Gravity.NO_GRAVITY 表示不使用任何默认的对齐方式，而是完全根据后面传入的 x 和 y 坐标来确定位置
+             * Gravity.NO_GRAVITY->
+             * 用于指定 PopupWindow 的对齐方式。Gravity.NO_GRAVITY 表示不使用任何默认的对齐方式，而是完全根据后面传入的 x 和 y 坐标来确定位置
              *
              * x->
              * 如果 center 为 true，则 x 坐标的计算方式是 (location[0] + anchor?.width.orZero / 2) - measuredWidth / 2。
