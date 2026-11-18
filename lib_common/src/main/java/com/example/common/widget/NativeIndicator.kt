@@ -35,7 +35,7 @@ import com.google.android.material.tabs.TabLayout
  *     app:tabPaddingTop="0dp" />
  */
 open class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: List<Int>?) : TabLayoutBuilder<Int, ItemTabBinding>(observer, tab, tabTitle) {
-    private var redraw: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
+    private var itemRenderer: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)? = null // 如需自定義，重寫此監聽
 
     constructor(observer: LifecycleOwner, tab: TabLayout?, vararg data: Int) : this(observer, tab, data.toList())
 
@@ -44,19 +44,19 @@ open class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: 
     }
 
     override fun onBindView(mBinding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) {
-        if (null == redraw) {
+        if(null == itemRenderer) {
             mBinding?.tvTitle.setI18nTabTheme(item.orZero, selected)
         } else {
-            redraw?.invoke(mBinding, item, selected, index)
+            itemRenderer?.invoke(mBinding, item, selected, index)
         }
     }
 
     /**
      * 重写此方法表示部分标题字体字号样式等需要使用非默认配置
-     * 需在调用bind（）方法前调取，一旦绑定就会执行，此时监听没赋值，控件会显示不出
+     * 需在调用bind（）方法前调取，一旦绑定就会执行，此时监听没赋值控件会显示不出
      */
-    fun setRedraw(redraw: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)) {
-        this.redraw = redraw
+    fun setItemRenderer(renderer: ((binding: ItemTabBinding?, item: Int?, selected: Boolean, index: Int) -> Unit)) {
+        itemRenderer = renderer
     }
 
 }
@@ -65,8 +65,12 @@ open class NativeIndicator(observer: LifecycleOwner, tab: TabLayout?, tabTitle: 
  * 全局默认样式
  */
 fun I18nTextView?.setI18nTabTheme(resText: Int = -1, selected: Boolean, colorRes: Pair<Int, Int> = R.color.tabSelected to R.color.tabUnselected, bgRes: Pair<Int, Int> = -1 to -1, sizeRes: Pair<Int, Int> = R.dimen.textSize16 to R.dimen.textSize15, padding: Pair<Int, Int> = 6 to 6) {
-    applyI18nTextStyle(resText, if (selected) colorRes.first else colorRes.second, if (selected) bgRes.first else bgRes.second)
-    textSize(if (selected) sizeRes.first else sizeRes.second)
-    padding(start = padding.first.pt, end = padding.second.pt)
+    val (colorSelected, colorUnselected) = colorRes
+    val (bgSelected, bgUnselected) = bgRes
+    val (sizeSelected, sizeUnselected) = sizeRes
+    val (padStart, padEnd) = padding
+    applyI18nTextStyle(resText, if (selected) colorSelected else colorUnselected, if (selected) bgSelected else bgUnselected)
+    textSize(if (selected) sizeSelected else sizeUnselected)
+    padding(start = padStart.pt, end = padEnd.pt)
     bold(selected)
 }
