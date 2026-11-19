@@ -351,8 +351,17 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 设置导航栏背景颜色 (UI黑白样式无法改变)
      */
     open fun setNavigationBarBackground(@ColorRes colorRes: Int) {
-        val navigationBarColor = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) colorRes else R.color.bgBlack
-        navigationBarView.background(navigationBarColor)
+        val targetResId = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) colorRes else R.color.bgBlack
+        val tagKey = R.id.theme_background_tag
+        val oldResId = navigationBarView.getTag(tagKey) as? Int
+        if (oldResId != targetResId) {
+            if (targetResId <= 0) {
+                navigationBarView.background = null
+            } else {
+                navigationBarView.background(targetResId)
+            }
+            navigationBarView.setTag(tagKey, targetResId)
+        }
     }
 
     /**
