@@ -323,7 +323,10 @@ fun Window.applyFullScreen() {
 
 /**
  * 委托属性 (为 Window 定义扩展属性，用于保存监听器的持久化引用)
- * 让一个可变属性（var） 可以先声明、后初始化，但编译期强制要求你必须初始化（否则运行时抛异常），且属性的类型是非空类型（无需 ? 声明可为空）
+ * 1) 让一个可变属性（var） 可以先声明、后初始化，但编译期强制要求你必须初始化（否则运行时抛异常）且属性的类型是非空类型（无需 ? 声明可为空）
+ * 2) lateinit var / by Delegates.notNull() 是 Kotlin 提供的避免 ? 写法的语法糖，但是需要引用前必须赋值
+ * 3) Kotlin 扩展属性 带接收者（Window）底层本质是 (static Map<Window, OnLayoutChangeListener>)
+ *    key = 每一个页面各自的 Window 对象；value = 当前 Window 对应的 listener
  */
 private var Window.layoutChangeListener: View.OnLayoutChangeListener by Delegates.notNull()
 
@@ -386,7 +389,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
     layoutChangeListener = View.OnLayoutChangeListener { v, _, _, _, _, _, _, _, _ ->
         val insets = ViewCompat.getRootWindowInsets(v) ?: return@OnLayoutChangeListener
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        updateNavBar(v, bottomBarDrawable, navBottom)
+        applyNavBar(v, bottomBarDrawable, navBottom)
         onWindowInsetsChanged.invoke(insets)
     }
     decorView.addOnLayoutChangeListener(layoutChangeListener)
@@ -401,7 +404,7 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
     ViewCompat.setOnApplyWindowInsetsListener(decorView, null)
     ViewCompat.setOnApplyWindowInsetsListener(decorView) { v, insets ->
         val navBottom = insets.getInsets(WindowInsetsCompat.Type.navigationBars()).bottom
-        updateNavBar(v, bottomBarDrawable, navBottom)
+        applyNavBar(v, bottomBarDrawable, navBottom)
         onWindowInsetsChanged.invoke(insets)
         WindowInsetsCompat.CONSUMED
     }
@@ -410,11 +413,11 @@ fun Window.setNavigationBarDrawable(@ColorRes navigationBarColor: Int, onWindowI
 /**
  * 更新导航栏高度和 padding
  */
-private fun updateNavBar(v: View, bottomBarDrawable: NavigationBarDrawable, navBottom: Int) {
+private fun applyNavBar(v: View, navDrawable: NavigationBarDrawable, navBottom: Int) {
     if (v.paddingBottom != navBottom) {
         v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, navBottom)
     }
-    bottomBarDrawable.updateNavigationBarHeight(navBottom)
+    navDrawable.updateNavigationBarHeight(navBottom)
 }
 
 /**
