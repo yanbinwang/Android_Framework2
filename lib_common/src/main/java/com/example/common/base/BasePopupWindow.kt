@@ -190,24 +190,24 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     private fun setAnimation() {
 //        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val (enter, exit) = when (popupAnimStyle) {
-                ALPHA -> Pair(
-                    Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN },
-                    Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT }
-                )
-                TRANSLATE -> Pair(
-                    Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN; slideEdge = popupSlide },
-                    Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT; slideEdge = popupSlide }
-                )
-                NONE -> null to null
-            }
-            enterTransition = enter
-            exitTransition = exit
-            // 确保在 API >= M 时也设置 animationStyle
-            animationStyle = when (popupAnimStyle) {
-                NONE -> -1
-                else -> 0 // 使用 0 表示使用系统默认或不应用旧版动画
-            }
+        val (enter, exit) = when (popupAnimStyle) {
+            ALPHA -> Pair(
+                Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN },
+                Fade().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT }
+            )
+            TRANSLATE -> Pair(
+                Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_IN; slideEdge = popupSlide },
+                Slide().apply { duration = ANIM_DURATION; mode = Visibility.MODE_OUT; slideEdge = popupSlide }
+            )
+            NONE -> null to null
+        }
+        enterTransition = enter
+        exitTransition = exit
+        // 确保在 API >= M 时也设置 animationStyle
+        animationStyle = when (popupAnimStyle) {
+            NONE -> -1
+            else -> 0 // 使用 0 表示使用系统默认或不应用旧版动画
+        }
 //        } else {
 //            animationStyle = when (popupAnimStyle) {
 //                ALPHA -> R.style.PopupAlphaAnimStyle
@@ -233,55 +233,30 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
 
     // <editor-fold defaultstate="collapsed" desc="重写方法">
     /**
-     * 基于锚点 View 显示 (强依赖 View 的上下文)
+     * 基于锚点 View 显示，强依赖 View 的上下文
      */
     override fun showAsDropDown(anchor: View?) {
-        showPopup({ super.showAsDropDown(anchor) }, ::checkShowAsDropDownConditions)
+        showPopup({ super.showAsDropDown(anchor) }, ::checkPopupShowConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int) {
-        showPopup({ super.showAsDropDown(anchor, xoff, yoff) }, ::checkShowAsDropDownConditions)
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff) }, ::checkPopupShowConditions)
     }
 
     override fun showAsDropDown(anchor: View?, xoff: Int, yoff: Int, gravity: Int) {
-        showPopup({ super.showAsDropDown(anchor, xoff, yoff, gravity) }, ::checkShowAsDropDownConditions)
+        showPopup({ super.showAsDropDown(anchor, xoff, yoff, gravity) }, ::checkPopupShowConditions)
     }
 
     /**
      * 基于父容器 + 坐标显示 (不直接依赖某个锚点 View)
      */
     override fun showAtLocation(parent: View?, gravity: Int, x: Int, y: Int) {
-        showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkShowAtLocationConditions)
-    }
-
-    private fun checkShowAsDropDownConditions(): Boolean {
-        return checkPopupShowConditions(rootView?.context)
-    }
-
-    private fun checkShowAtLocationConditions(): Boolean {
-        return checkPopupShowConditions()
+        showPopup({ super.showAtLocation(parent, gravity, x, y) }, ::checkPopupShowConditions)
     }
 
     /**
-     * 通用的弹窗显示前置校验方法
-     * @param targetContext 可选的上下文（优先用传入的，没有则用成员变量context）
-     * @return 是否满足显示条件
+     * 通用弹窗显示执行校验
      */
-    private fun checkPopupShowConditions(targetContext: Context? = null): Boolean {
-        // 校验是否在主线程（PopupWindow 必须在主线程操作）
-        val mainLooper = Looper.getMainLooper()
-        if (Looper.myLooper() != mainLooper) {
-            return false
-        }
-        // 确定要校验的 Context（优先用传入的，兜底用成员变量）
-        val checkContext = targetContext ?: context
-        // 校验 Context 是 Activity 且状态正常
-        val activity = checkContext as? Activity
-        return activity?.let {
-            !it.isFinishing && !it.isDestroyed
-        } ?: false
-    }
-
     private inline fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
         if (checkCondition()) {
             try {
@@ -310,6 +285,16 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
         }
     }
 
+    /**
+     * 通用弹窗显示前置校验 (校验 Activity 状态正常)
+     */
+    private fun checkPopupShowConditions(): Boolean {
+        return Looper.myLooper() == Looper.getMainLooper() && !ownerActivity.isFinishing && !ownerActivity.isDestroyed
+    }
+
+    /**
+     * 通用销毁检测
+     */
     override fun dismiss() {
         if (!isShowing) return
         if (activity.isFinishing || activity.isDestroyed) return
@@ -368,7 +353,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 默认底部坐标展示
      */
     open fun show() {
-        if (!isShowing) showAtLocation(rootView, BOTTOM, 0, 0)
+        if (!isShowing) {
+            showAtLocation(rootView, BOTTOM, 0, 0)
+        }
     }
 
     /**
@@ -411,7 +398,9 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      * 控件下方显示
      */
     open fun showDown(anchor: View?) {
-        if (!isShowing) showAsDropDown(anchor)
+        if (!isShowing) {
+            showAsDropDown(anchor)
+        }
     }
 
     /**
