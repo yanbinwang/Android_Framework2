@@ -259,29 +259,27 @@ abstract class BasePopupWindow<VDB : ViewDataBinding>(private val activity: Frag
      */
     private inline fun showPopup(showFunction: () -> Unit, checkCondition: () -> Boolean) {
         if (checkCondition()) {
+            if (hasLight) {
+                layoutParams?.alpha = 0.7f
+                window.attributes = layoutParams
+            }
             try {
-                setAttributes()
                 showFunction.invoke()
-                lifecycleListener?.onPopupShow()
-                if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
-                    showJob?.cancel()
-                    showJob = lifecycleOwner?.lifecycleScope?.launch {
-                        delay(NAV_BAR_DELAY)
-                        if (isShowing) {
-                            setNavigationBarBackground(navigationBarColor)
-                        }
+            } catch (_: IllegalStateException) {
+                // show 失败，必须回滚变暗的窗口 alpha，后面逻辑不再执行
+                restoreHostState()
+                return
+            }
+            lifecycleListener?.onPopupShow()
+            if (isTranslate && popupSlide != TOP && popupSlide != BOTTOM) {
+                showJob?.cancel()
+                showJob = lifecycleOwner?.lifecycleScope?.launch {
+                    delay(NAV_BAR_DELAY)
+                    if (isShowing) {
+                        setNavigationBarBackground(navigationBarColor)
                     }
                 }
-            } catch (e: Exception) {
-                e.printStackTrace()
             }
-        }
-    }
-
-    private fun setAttributes() {
-        if (hasLight) {
-            layoutParams?.alpha = 0.7f
-            window.attributes = layoutParams
         }
     }
 
