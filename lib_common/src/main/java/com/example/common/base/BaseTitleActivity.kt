@@ -16,8 +16,8 @@ import com.example.framework.utils.function.view.size
 
 /**
  * Created by WangYanBin on 2020/6/10.
- * 带标题的基类，将整一个xml插入容器
- * 由于项目中带固定标题的页面占80%以上，故而实现一个带头的activity，直接可使用titleBuilder操作
+ * 1) 带标题的基类，将整一个 xml 插入容器
+ * 2) 项目中带固定标题的页面占 80% 以上，实现带头的 Activity 直接使用 titleRoot 操作
  */
 abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val root by lazy {
@@ -33,7 +33,7 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val rootView by lazy { FrameLayout(this).apply {
         size(MATCH_PARENT, MATCH_PARENT)
     }}
-    protected var contentRoot: FrameLayout? = null // 标题页面的父容器，用于添加empty，如果不需要标题头的BaseActivity，则在外层绘制一个FrameLayout
+    protected var contentRoot: FrameLayout? = null // 标题页面的父容器，用于添加 EmptyLayout，如果不需要标题头，使用 BaseActivity 并在外层绘制一个 FrameLayout
     protected val titleRoot get() = titleBar // 标题栏
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
@@ -48,7 +48,7 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
         root.addView(titleBar)
         // mBinding.root 为 null 时直接返回，避免后续操作
         val bindingRoot = mBinding?.root ?: return
-        // 如果xml内包含一个自定义个XRecyclerView,是不需要rootView的
+        // 如果 xml 内包含一个自定义个 XRecyclerView 是不需要 rootView 的
         if (isOnlyWrapXRecyclerView(bindingRoot)) {
             // 使用局部变量，避免重复 mBinding?.root 调用
             root.addView(bindingRoot)
