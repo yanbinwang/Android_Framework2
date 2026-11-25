@@ -33,7 +33,7 @@ abstract class BaseTitleActivity<VDB : ViewDataBinding> : BaseActivity<VDB>() {
     private val rootView by lazy { FrameLayout(this).apply {
         size(MATCH_PARENT, MATCH_PARENT)
     }}
-    protected var contentRoot: FrameLayout? = null // 标题页面的父容器，用于添加 EmptyLayout，如果不需要标题头，使用 BaseActivity 并在外层绘制一个 FrameLayout
+    protected var contentRoot: FrameLayout? = null // 标题页面的父容器，用于添加 EmptyLayout / 如果不需要标题头，使用 BaseActivity 并在外层绘制一个 FrameLayout
     protected val titleRoot get() = titleBar // 标题栏
 
     // <editor-fold defaultstate="collapsed" desc="基类方法">
