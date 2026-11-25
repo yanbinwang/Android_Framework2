@@ -154,8 +154,8 @@ inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: In
 
 /**
  * 生成 View
- * @param res 布局资源id
- * @param root 父容器
+ * @param res 布局资源 id
+ * @param root 父容器，用于解析 xml 根节点的 LayoutParams
  * @param attachToRoot 加载出来的布局，要不要立刻添加到 root（父容器）中，默认等于 root != null
  *
  * 1) attachToRoot = true
@@ -165,7 +165,8 @@ inline fun <reified T : Drawable> Context?.getTypedDrawable(@DrawableRes res: In
  * 2) attachToRoot = false
  *    不添加到 root 里，但会用 root 来计算正确的布局参数（LayoutParams）
  *    返回值：加载的布局本身
- *    使用场景：比如 RecyclerView 的 item、ViewPager 的页面 -> 常用
+ *    使用场景：比如 RecyclerView 的 item、ViewPager 的页面、Fragment#onCreateView
+ *            这类框架内部会自行 addView，如果不传 false，会抛异常：child already has a parent
  */
 fun Context.inflate(@LayoutRes res: Int, root: ViewGroup? = null, attachToRoot: Boolean = root != null): View {
     return LayoutInflater.from(this).inflate(res, root, attachToRoot)
