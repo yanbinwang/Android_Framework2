@@ -11,11 +11,14 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.window.core.layout.WindowSizeClass
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
 import androidx.window.layout.FoldingFeature
 import androidx.window.layout.WindowInfoTracker
+import androidx.window.layout.WindowMetricsCalculator
+import androidx.window.layout.adapter.computeWindowSizeClass
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
@@ -308,6 +311,28 @@ private fun addNonNullViewToTransitionParticipants(view: View?, participants: Ar
 }
 
 /**
+ * 获取当前 Activity 窗口的尺寸快照 (依赖 window-core-android)
+ * 【注意】本方法仅返回调用瞬间的窗口快照，**不会自动监听窗口变化**；
+ * 如需窗口尺寸变更自动刷新UI，需要配合 WindowInfoTracker 监听，每次布局变更后重新调用本方法。
+ *
+ * 使用示例:
+ *  val sizeClass = currentWindowSizeClass()
+ *  val isMedium = sizeClass?.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_MEDIUM_LOWER_BOUND) == true
+ *  val isExpanded = sizeClass?.isWidthAtLeastBreakpoint(WindowSizeClass.WIDTH_DP_EXPANDED_LOWER_BOUND) == true
+ *  isMedium（窗口宽度 ≥600dp）：
+ *    可开启双栏，左侧列表、右侧详情（订单 / 持仓 / 交易记录）
+ *    折叠机展开、平板横屏满足条件时启用；若App窗口被分屏压缩到 ＜600dp，则变为false，切回单栏
+ *  isExpanded（窗口宽度 ≥840dp）：
+ *    更宽的大屏窗口，可进一步放大图表、增加更多辅助面板
+ */
+fun FragmentActivity?.currentWindowSizeClass(): WindowSizeClass? {
+    this ?: return null
+    return WindowSizeClass.BREAKPOINTS_V2.computeWindowSizeClass(
+        WindowMetricsCalculator.getOrCreate().computeCurrentWindowMetrics(this)
+    )
+}
+
+/**
  * 检测大屏设备
  * @return true-检测到大屏设备并弹出提示，false-正常设备
  */
@@ -327,9 +352,64 @@ fun FragmentActivity?.checkLargeScreen(): Boolean {
  */
 fun FragmentActivity?.checkEmbed(): Boolean {
     this ?: return false
+    // 页面销毁直接返回
     if (isFinishing || isDestroyed) return false
     // 设备支持embedding && 当前activity已经嵌入分栏
     return isActivityEmbeddingAvailable() && isActivityEmbedded()
+}
+
+/**
+ * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
+ * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
+ * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）
+ * 2) 折叠大屏展开，命中分栏规则，两个 Activity 左右并排分栏运行 → true
+ * 3) 极异常场景：折叠闭合小屏，却被分栏容器托管 → true
+ */
+fun FragmentActivity?.isActivityEmbedded(): Boolean {
+    this ?: return false
+    return ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
+}
+
+/**
+ * 查询设备&系统是否具备 Activity‑Embedding 分栏硬件与系统能力
+ * 1) 返回 true 仅代表设备支持该特性，不代表此刻 App 正在分栏显示
+ * 2) 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
+ * 3) 原生 Android12L + 平板也会为 true
+ */
+fun FragmentActivity?.isActivityEmbeddingAvailable(): Boolean {
+    this ?: return false
+    return SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
+}
+
+/**
+ * Activity‑Embedding 条件化启动副页 Activity
+ * 内部完成全套防护：旋转重建拦截、能力检测、已分栏拦截、窗口阈值校验
+ * @param targetCls 需要启动的副页 Activity Class
+ * @param pairs 需要传输的页面参数
+ * @param minWidthDp 规则匹配最小宽度 dp，默认 600
+ * @param minSmallestDp 规则匹配最小边 dp，默认 600
+ */
+fun FragmentActivity?.startEmbedSecondaryIfNeeded(targetCls: Class<out Activity>, vararg pairs: Pair<String, Any?>, minWidthDp: Float = 600f, minSmallestDp: Float = 600f) {
+    this ?: return
+    // 设备系统层面不支持 embedding，直接返回
+    if (!isActivityEmbeddingAvailable()) return
+    // 已经处于分栏，不要再启动副页，避免重复实例
+    if (isActivityEmbedded()) return
+    // 页面存活则不开启
+    if (AppManager.isActivityAlive(targetCls)) return
+    // 获取当前窗口宽高 px
+    val (wPx, hPx) = getCurrentActivityWindowSizePx(this)
+    val density = resources.displayMetrics.density
+    val widthDp = wPx / density
+    val smallestDp = minOf(wPx, hPx) / density
+    // 必须同时满足宽度、最小边阈值
+    if (widthDp < minWidthDp || smallestDp < minSmallestDp) return
+    // 执行时刻 Activity 可能已 finish
+    if (isFinishing) return
+    // 全部条件满足，启动副页，触发 SplitPairRule
+    startActivity(getIntent(targetCls, *pairs).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    })
 }
 
 /**
@@ -445,58 +525,4 @@ fun FragmentActivity?.observeEmbeddedContainerCount(block: (containerCount: Int,
                 }
         }
     }
-}
-
-/**
- * Activity‑Embedding 条件化启动副页 Activity
- * 内部完成全套防护：旋转重建拦截、能力检测、已分栏拦截、窗口阈值校验
- * @param targetCls 需要启动的副页 Activity Class
- * @param pairs 需要传输的页面参数
- * @param minWidthDp 规则匹配最小宽度 dp，默认 600
- * @param minSmallestDp 规则匹配最小边 dp，默认 600
- */
-fun FragmentActivity?.startEmbedSecondaryIfNeeded(targetCls: Class<out Activity>, vararg pairs: Pair<String, Any?>, minWidthDp: Float = 600f, minSmallestDp: Float = 600f) {
-    this ?: return
-    // 设备系统层面不支持 embedding，直接返回
-    if (!isActivityEmbeddingAvailable()) return
-    // 已经处于分栏，不要再启动副页，避免重复实例
-    if (isActivityEmbedded()) return
-    // 页面存活则不开启
-    if (AppManager.isActivityAlive(targetCls)) return
-    // 获取当前窗口宽高 px
-    val (wPx, hPx) = getCurrentActivityWindowSizePx(this)
-    val density = resources.displayMetrics.density
-    val widthDp = wPx / density
-    val smallestDp = minOf(wPx, hPx) / density
-    // 必须同时满足宽度、最小边阈值
-    if (widthDp < minWidthDp || smallestDp < minSmallestDp) return
-    // 执行时刻 Activity 可能已 finish
-    if (isFinishing) return
-    // 全部条件满足，启动副页，触发 SplitPairRule
-    startActivity(getIntent(targetCls, *pairs).apply {
-        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-    })
-}
-
-/**
- * 判断当前 Activity 是否正处于 Activity‑Embedding 分栏嵌入容器内
- * 仅识别【同应用内 Embedding 分栏】；用户手动拖拽的跨App系统分屏，此方法返回 false
- * 1) 折叠大屏展开，App 全屏单栈运行，未命中 SplitPairRule/SplitPlaceholderRule → false（硬件支持分栏，但并未切分页面）
- * 2) 折叠大屏展开，命中分栏规则，两个 Activity 左右并排分栏运行 → true
- * 3) 极异常场景：折叠闭合小屏，却被分栏容器托管 → true
- */
-fun FragmentActivity?.isActivityEmbedded(): Boolean {
-    this ?: return false
-    return ActivityEmbeddingController.getInstance(this).isActivityEmbedded(this)
-}
-
-/**
- * 查询设备&系统是否具备 Activity‑Embedding 分栏硬件与系统能力
- * 1) 返回 true 仅代表设备支持该特性，不代表此刻 App 正在分栏显示
- * 2) 仅用于能力预检测、埋点；不可用于判断运行时分栏状态
- * 3) 原生 Android12L + 平板也会为 true
- */
-fun Context?.isActivityEmbeddingAvailable(): Boolean {
-    this ?: return false
-    return SplitController.getInstance(this).splitSupportStatus == SplitController.SplitSupportStatus.SPLIT_AVAILABLE
 }

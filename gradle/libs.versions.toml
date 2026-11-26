@@ -60,6 +60,7 @@ androidx-constraintlayout = { group = "androidx.constraintlayout", name = "const
 androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview", version.ref = "recyclerview" }
 androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "splashscreen" }
 androidx-window = { group = "androidx.window", name = "window", version.ref = "window" }
+androidx-window-core = { group = "androidx.window", name = "window-core-android", version.ref = "window" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 
@@ -104,7 +105,7 @@ therouter-gradle = { id = "cn.therouter", version.ref = "therouter" }
 # Android 仪器化测试库
 androidx-testing = ["androidx-junit", "androidx-espresso-core"]
 # AndroidX 核心库
-androidx-general-core = ["androidx-appcompat", "androidx-constraintlayout", "androidx-recyclerview", "androidx-splashscreen", "androidx-window", "androidx-core-ktx", "androidx-lifecycle-runtime-ktx"]
+androidx-general-core = ["androidx-appcompat", "androidx-constraintlayout", "androidx-recyclerview", "androidx-splashscreen", "androidx-window", "androidx-window-core", "androidx-core-ktx", "androidx-lifecycle-runtime-ktx"]
 # Google 扩展控件库
 google-extensions = ["google-material", "google-flexbox"]
 # 网络请求库
