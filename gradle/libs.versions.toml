@@ -1,8 +1,8 @@
 [versions]
 #--------------------------------------------- settings.gradle版本 ---------------------------------------------
 agp = "9.5.3"
-kotlin = "2.4.20"
-ksp = "2.3.11" # https://github.com/google/ksp/releases
+kotlin = "2.4.21"
+ksp = "2.3.14" # https://github.com/google/ksp/releases
 #--------------------------------------------- 模块测试库版本 ---------------------------------------------
 junit = "4.13.2"
 junitVersion = "1.1.5"
@@ -12,7 +12,7 @@ appcompat = "1.7.1"
 constraintlayout = "2.2.1"
 recyclerview = "1.4.0"
 splashscreen = "1.0.1"
-window = "1.3.0"
+window = "1.5.1"
 coreKtx = "1.16.0"
 lifecycleRuntimeKtx = "2.10.0" # runtime库包含了viewmodel，livedata等一系列jetpack库
 #--------------------------------------------- google扩展控件版本 ---------------------------------------------
@@ -28,7 +28,7 @@ recovery = "1.0.0"
 #leakcanary = "2.11"
 #--------------------------------------------- 其余三方控件版本 ---------------------------------------------
 androidAutoSize = "v1.2.1"
-mmkvStatic = "2.4.2"
+mmkvStatic = "2.4.3"
 newbieGuide = "v2.4.4"
 refreshLayoutKernel = "3.0.0-alpha"
 xxpermissions = "28.3"

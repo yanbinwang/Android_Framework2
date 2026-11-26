@@ -8,10 +8,14 @@ import android.view.ViewGroup
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.app.ActivityOptionsCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.window.embedding.ActivityEmbeddingController
 import androidx.window.embedding.SplitController
 import androidx.window.embedding.SplitInfo
+import androidx.window.layout.FoldingFeature
+import androidx.window.layout.WindowInfoTracker
 import com.example.common.R
 import com.example.common.base.BaseActivity
 import com.example.common.base.BaseActivity.Companion.isAnyActivityStarting
@@ -34,6 +38,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.buffer
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -328,43 +333,117 @@ fun FragmentActivity?.checkEmbed(): Boolean {
 }
 
 /**
- * 持续监听：是否存在 HALF_OPENED 桌面模式(书本半开)
- * 注意：异步持续回调，lifecycleScope自动随页面销毁取消订阅
- * 1) 订阅建立瞬间，立刻回调 1 次当前真实状态，不需要等待窗口发生变化
- * 2) 每当窗口布局变化：折叠 / 展开、分屏、旋转、调整窗口大小，系统推送新的WindowLayoutInfo，再次执行 block
- * 3) Activity onDestroy → lifecycleScope 自动 cancel，collect 终止，不再接收事件，无内存泄漏
+ * 监听当前 Activity 窗口内的折叠铰链/折痕状态变化
+ * 仅在页面生命周期 >= STARTED（onStart ~ onStop之间）接收回调；onStop 自动暂停，切回前台自动恢复
+ *
+ * @param block 回调，返回当前窗口内全部 [FoldingFeature] 集合
+ *  单铰链折叠屏：List最多1个元素；三折叠多铰链设备会返回多条 Feature
+ *  普通无折痕设备/窗口内不存在折痕：返回空List
+ *  FoldingFeature 字段说明：
+ *  - state：折叠状态 [FoldingFeature.State]
+ *     FLAT：完全展开，屏幕为一整块平面
+ *     HALF_OPENED：半折悬停（Tabletop桌面模式，水平铰链常用）
+ *  - orientation：铰链方向 [FoldingFeature.Orientation]
+ *     HORIZONTAL：水平铰链，上下对折，常用于桌面悬停tabletop
+ *     VERTICAL：垂直铰链，左右对折，书本模式
+ *  - bounds：折痕/铰链在当前窗口坐标系下的Rect区域
+ *  - occlusionType：遮挡类型
+ *     NONE：铰链不遮挡显示内容
+ *     FULL：铰链区域完全遮挡画面
+ *  - isSeparating：该折痕是否把窗口分割为两块独立可视区域
+ *
+ * 注意：
+ * 1) 拿到的是【当前 Activity 窗口内部】的折痕，不是全局屏幕状态。Activity Embedding 左右双 Activity，各自只能拿到自己窗口内的 Feature
+ * 2) 分屏拖拽、折叠开合、旋转、窗口 resize 都会触发回调
+ * 3) 回调在主线程 Main.immediate，可以直接操作 View；增加保护：if(isFinishing || window == null) return
+ * 4) 只监听窗口折痕，不能用来判断 Activity Embedding 的容器数量，容器数量仍需要 SplitController/ActivityEmbeddingController
+ *
+ * 调用示例：
+ * val foldJob = observeFoldingState { featureList ->
+ *     val firstFeature = featureList.firstOrNull()
+ *     when (firstFeature?.state) {
+ *         FoldingFeature.State.HALF_OPENED -> {
+ *             if (firstFeature.orientation == FoldingFeature.Orientation.HORIZONTAL) {
+ *                 // Tabletop 桌面悬停
+ *             } else {
+ *                 // 书本对折模式
+ *             }
+ *         }
+ *         FoldingFeature.State.FLAT -> {
+ *             // 完全展开
+ *         }
+ *         null -> {
+ *             // 无铰链 / 当前窗口不存在折痕
+ *         }
+ *     }
+ * }
  */
-// 窗口占设备最大窗口比例阈值，视为接近完整大屏展开
-const val FULL_DISPLAY_RATIO_THRESHOLD = 0.85f
-// 绝对窗口宽度px阈值，过滤普通双折叠大比例分栏误命中
-const val ABSOLUTE_HUGE_WIDTH_THRESHOLD = 1850
+fun FragmentActivity?.observeFoldingState(block: (List<FoldingFeature>) -> Unit): Job? {
+    val activity = this ?: return null
+    return activity.lifecycleScope.launch(Main.immediate) {
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            WindowInfoTracker.getOrCreate(activity)
+                .windowLayoutInfo(activity)
+                // 添加缓冲区，防止快速状态切换丢事件
+                .buffer()
+                // 过滤重复窗口布局信息：仅当窗口布局真正发生变化才下发，连续相同状态直接丢弃
+                .distinctUntilChanged()
+                .collectLatest { layoutInfo ->
+                    // 页面正在 finish 或者 window 已经脱离，直接跳过 UI 更新
+                    if (activity.isFinishing || activity.window == null) return@collectLatest
+                    // 提取折叠/铰链对象
+                    val foldingFeatureList = layoutInfo.displayFeatures.filterIsInstance<FoldingFeature>()
+                    block(foldingFeatureList)
+                }
+        }
+    }
+}
 
 /**
- * 监听Activity‑Embedding有效容器数量变化
- * @return Job 跟随Activity lifecycleScope自动取消
+ * 监听 Activity Embedding 分屏容器数量变化
+ * 仅在页面生命周期 >= STARTED（onStart ~ onStop之间）接收回调；onStop自动暂停，切回前台自动恢复
+ * @param block 回调
+ *  containerCount：当前 Activity Embedding 容器数量，取值 0 / 1 / 2
+ *  targetSplit：当前匹配到的 [SplitInfo]，如果不在任何嵌入分屏内则为null
+ *
+ * 逻辑说明：
+ *  从splitInfoList取最后一条匹配当前Activity的SplitInfo，判断当前Activity属于primary或secondary栈；
+ *  根据primary/secondary ActivityStack是否非空统计容器个数。
+ *
+ * 注意：
+ * 1) 此为 Activity Embedding 专属能力，用于判断当前是否双 Activity 左右分屏；
+ *    仅能感知由 Activity Embedding 产生的多 Activity 容器，不能替代 WindowInfoTracker 获取折痕、窗口尺寸、WindowSizeClass
+ * 2) 分屏创建/销毁、窗口 resize、折叠状态变更、Activity 栈切换都会触发回调
+ * 3) 回调在主线程 Main.immediate，可以直接操作 View；增加保护：if(isFinishing || window == null) return
+ * 4) 和 [observeFoldingState] 配套使用，二者职责分离：
+ *     observeEmbeddedContainerCount → Activity栈/容器数量
+ *     observeFoldingState → 当前窗口折痕、铰链状态
  */
 fun FragmentActivity?.observeEmbeddedContainerCount(block: (containerCount: Int, targetSplit: SplitInfo?) -> Unit): Job? {
     val activity = this ?: return null
     return activity.lifecycleScope.launch(Main.immediate) {
-        SplitController.getInstance(activity)
-            .splitInfoList(activity)
-            // 添加缓冲区，防止快速状态切换丢事件
-            .buffer()
-            .collectLatest { splitInfoList ->
-                // 从末尾向前遍历，找到第一个匹配的分屏信息 (折叠不会匹配到)
-                val targetSplit = splitInfoList.lastOrNull { splitInfo ->
-                    splitInfo.primaryActivityStack.contains(activity) || splitInfo.secondaryActivityStack.contains(activity)
+        repeatOnLifecycle(Lifecycle.State.STARTED) {
+            SplitController.getInstance(activity)
+                .splitInfoList(activity)
+                .buffer()
+                .collectLatest { splitInfoList ->
+                    // 页面正在 finish 或者 window 已经脱离，直接跳过回调
+                    if (activity.isFinishing || activity.window == null) return@collectLatest
+                    // 从末尾向前遍历，找到第一个匹配的分屏信息 (折叠不会匹配到)
+                    val targetSplit = splitInfoList.lastOrNull { splitInfo ->
+                        splitInfo.primaryActivityStack.contains(activity) || splitInfo.secondaryActivityStack.contains(activity)
+                    }
+                    if (targetSplit == null) {
+                        block(0, null)
+                        return@collectLatest
+                    }
+                    // 统计非空 ActivityStack 数量（基于 Activity 存活）
+                    var containerCount = 0
+                    if (!targetSplit.primaryActivityStack.isEmpty) containerCount++
+                    if (!targetSplit.secondaryActivityStack.isEmpty) containerCount++
+                    block(containerCount, targetSplit)
                 }
-                if (targetSplit == null) {
-                    block(0, null)
-                    return@collectLatest
-                }
-                // 统计非空 ActivityStack 数量（基于 Activity 存活）
-                var containerCount = 0
-                if (!targetSplit.primaryActivityStack.isEmpty) containerCount++
-                if (!targetSplit.secondaryActivityStack.isEmpty) containerCount++
-                block(containerCount, targetSplit)
-            }
+        }
     }
 }
 
