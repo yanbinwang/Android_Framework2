@@ -178,15 +178,6 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
     }
 
     /**
-     * 设置动画插值器（支持链式调用）
-     * @param interpolator 动画速率插值器，如 [OvershootInterpolator]
-     */
-    fun withInterpolator(interpolator: Interpolator): ViewAnimator {
-        this.interpolator = interpolator
-        return this
-    }
-
-    /**
      * 文本数字滚动动画
      * @param start 起始数值
      * @param end 结束数值
@@ -214,7 +205,6 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
      * 文本颜色渐变动画（字符串 / ColorInt）
      */
     fun animateTextColor(start: String, end: String): ViewAnimator {
-        if (view !is TextView) return this
         return animateTextColor(start.toColorInt(), end.toColorInt())
     }
 
@@ -234,7 +224,6 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
      * 背景颜色渐变动画（字符串 / ColorInt）
      */
     fun animateBackgroundColor(start: String, end: String): ViewAnimator {
-        if (view == null) return this
         return animateBackgroundColor(start.toColorInt(), end.toColorInt())
     }
 
@@ -328,6 +317,39 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
             }
             animatorList.add(animator)
         }
+        return this
+    }
+
+    /**
+     * 设置动画插值器（支持链式调用）
+     * @param interpolator 动画速率插值器，如 [OvershootInterpolator]
+     */
+    fun withInterpolator(interpolator: Interpolator): ViewAnimator {
+        this.interpolator = interpolator
+        return this
+    }
+
+    /**
+     * 清空待执行动画列表，用于复用 ViewAnimator 实例场景，清除上一轮残留 Animator
+     * ViewAnimator(tv, 500)
+     *     .clear() // 主动清掉历史动画
+     *     .animateScale(1f, 2f)
+     *     .animateTextColor(0xFF000000, 0xFFFF0000)
+     *     .start()
+     */
+    fun clear(): ViewAnimator {
+        // 取消列表内待执行、还未打包进 AnimatorSet 的动画
+        animatorList.forEach { it.cancel() }
+        animatorList.clear()
+        // 优先处理本工具类挂载在 tag 上正在运行的 AnimatorSet
+        (view?.tag as? AnimatorSet)?.apply {
+            cancel()
+            removeAllListeners()
+        }
+        // 清空 tag 引用，释放 AnimatorSet
+        view?.tag = null
+        // 取消 View 上其他体系动画（补间、ViewPropertyAnimator）
+        view?.cancelAnim()
         return this
     }
 
