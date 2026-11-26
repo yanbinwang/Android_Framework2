@@ -91,9 +91,7 @@ private fun createBottomSlideOutAnimation(duration: Long = 300L): Animation {
  * 创建垂直方向平移动画（基于父布局）
  */
 private fun createVerticalTranslateAnimation(fromYDelta: Float, toYDelta: Float, duration: Long = 300): Animation {
-    return TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0f, Animation.RELATIVE_TO_PARENT, 0f, Animation.RELATIVE_TO_PARENT, fromYDelta, Animation.RELATIVE_TO_PARENT, toYDelta).apply {
-        this.duration = duration
-    }
+    return TranslateAnimation(Animation.RELATIVE_TO_PARENT, 0f, Animation.RELATIVE_TO_PARENT, 0f, Animation.RELATIVE_TO_PARENT, fromYDelta, Animation.RELATIVE_TO_PARENT, toYDelta).also { it.duration = duration }
 }
 
 /**
@@ -104,18 +102,18 @@ fun Context.loadAnimation(id: Int, onEnd: (animation: Animation?) -> Unit = {}, 
 }
 
 /**
- * 针对Animation添加扩展
+ * 针对 Animation 添加扩展
  * 1) Animator 系列（有 KTX 扩展 , 支持anim.doOnStart {} anim.doOnEnd {}）
  * ValueAnimator / ObjectAnimator / ViewPropertyAnimator
  *
  * 2) Animation 系列 (旧视图动画，不支持)
  * AlphaAnimation / ScaleAnimation / TranslateAnimation / RotateAnimation / AnimationSet
  *
- * 3) Animation 只有 setListener，没有 addListener , 连续执行anim.doOnStart { } / anim.doOnEnd   { } 后面会覆盖前面
+ * 3) Animation 只有 setListener，没有 addListener , 连续执行 anim.doOnStart {} / anim.doOnEnd {} 后面会覆盖前面
  * val alpha = AlphaAnimation(0f, 1f)
  * alpha.duration = 300
  * // 一次设置 start + end
- * alpha.addAnimationListener(
+ * alpha.addListener(
  *     onStart = {
  *         // 动画开始
  *     },
@@ -257,7 +255,9 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
      */
     fun animateHeight(start: Int, end: Int): ViewAnimator {
         return createAnimator(start.toSafeFloat(), end.toSafeFloat()) { value ->
-            view?.layoutParams?.apply { height = value.toSafeInt() }?.let { view.layoutParams = it }
+            view?.layoutParams?.apply {
+                height = value.toSafeInt()
+            }?.let { view.layoutParams = it }
         }
     }
 
@@ -266,7 +266,9 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
      */
     fun animateWidth(start: Int, end: Int): ViewAnimator {
         return createAnimator(start.toSafeFloat(), end.toSafeFloat()) { value ->
-            view?.layoutParams?.apply { width = value.toSafeInt() }?.let { view.layoutParams = it }
+            view?.layoutParams?.apply {
+                width = value.toSafeInt()
+            }?.let { view.layoutParams = it }
         }
     }
 
@@ -333,11 +335,12 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
      * 开始执行动画
      */
     fun start(onStart: () -> Unit = {}, onEnd: () -> Unit = {}) {
+        if (view == null) return
         if (millisecond == 0L) {
             onEnd()
             return
         }
-        (view?.tag as? AnimatorSet)?.apply {
+        (view.tag as? AnimatorSet)?.apply {
             removeAllListeners()
             cancel()
         }
@@ -348,7 +351,7 @@ class ViewAnimator(private val view: View?, private val millisecond: Long) {
             doOnStart { onStart() }
             doOnEnd { onEnd() }
         }
-        view?.tag = animSet
+        view.tag = animSet
         animSet.start()
     }
 
