@@ -66,7 +66,7 @@ fun XRecyclerView?.setListEmpty(count: Int = 0, resId: Int? = null, resText: Int
  */
 fun ViewGroup?.setEmptyUi(resId: Int? = null, resText: Int? = null, viewIndex: Int = 1) {
     this ?: return
-    val emptyLayout = if (this is EmptyLayout) this else getEmptyView(viewIndex)
+    val emptyLayout = if (this is EmptyLayout) this else getEmptyLayout(viewIndex)
     emptyLayout?.error(resId, resText)
 }
 
@@ -74,7 +74,7 @@ fun ViewGroup?.setEmptyUi(resId: Int? = null, resText: Int? = null, viewIndex: I
  * 获取/自动创建空白占位布局
  * @param viewIndex 空布局下标
  */
-fun ViewGroup?.getEmptyView(viewIndex: Int = 1): EmptyLayout? {
+fun ViewGroup?.getEmptyLayout(viewIndex: Int = 1): EmptyLayout? {
     this ?: return null
     return if (childCount <= 1) {
         EmptyLayout(context).apply {
