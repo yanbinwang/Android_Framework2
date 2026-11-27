@@ -596,126 +596,147 @@ inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: Stri
 
 /**
  * makeCustomAnimation
- * 效果：借助自定义的动画资源，达成 Activity 切换时的过渡效果。
+ *
+ * 效果：
+ *  借助自定义的动画资源，达成 Activity 切换时的过渡效果
  * 用法：
- * // 从activityA跳转到activityB时使用自定义动画
- * Intent intent = new Intent(activityA, activityB);
- * ActivityOptions options = ActivityOptions.makeCustomAnimation(
- *     activityA,
- *     R.anim.slide_in_right,  // 进入动画
- *     R.anim.slide_out_left   // 退出动画
- * ActivityCompat.startActivity(activityA, intent, options.toBundle());
- * 实现效果：新 Activity 从右侧滑入，旧 Activity 向左侧滑出。
+ *  从 ActivityA 跳转到 ActivityB 时使用自定义动画
+ *  Intent intent = new Intent(activityA, activityB);
+ *  ActivityOptions options = ActivityOptions.makeCustomAnimation(
+ *      activityA,
+ *      R.anim.slide_in_right,  // 进入动画
+ *      R.anim.slide_out_left); // 退出动画
+ *  ActivityCompat.startActivity(activityA, intent, options.toBundle());
+ * 实现效果：
+ *  新 Activity 从右侧滑入，旧 Activity 向左侧滑出
  */
-fun getCustomOption(context: Context, enterResId: Int, exitResId: Int): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeCustomAnimation(context, enterResId, exitResId)
+fun Context?.makeCustomAnimation(enterResId: Int, exitResId: Int): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeCustomAnimation(this, enterResId, exitResId)
 }
 
 /**
  * makeScaleUpAnimation
- * 效果：新 Activity 从特定位置开始，进行缩放和淡入操作。
+ *
+ * 效果：
+ *  新 Activity 从特定位置开始，进行缩放和淡入操作
  * 用法：
- * // 从坐标(startX, startY)处以初始尺寸(startWidth, startHeight)开始缩放
- * ActivityOptions options = ActivityOptions.makeScaleUpAnimation(
- *     view,           // 动画起始的视图
- *     startX,         // X轴起始坐标
- *     startY,         // Y轴起始坐标
- *     startWidth,     // 初始宽度
- *     startHeight     // 初始高度
- * );
- * 实现效果：新 Activity 从指定点开始，逐渐放大到全屏
+ *  从坐标(startX, startY)处以初始尺寸(startWidth, startHeight)开始缩放
+ *  ActivityOptions options = ActivityOptions.makeScaleUpAnimation(
+ *      view,           // 动画起始的视图
+ *      startX,         // X轴起始坐标
+ *      startY,         // Y轴起始坐标
+ *      startWidth,     // 初始宽度
+ *      startHeight);   // 初始高度
+ * 实现效果：
+ *  新 Activity 从指定点开始，逐渐放大到全屏
  */
-fun getScaleUpOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeScaleUpAnimation(view, startX, startY, width, height)
+fun View.makeScaleUpAnimation(startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeScaleUpAnimation(this, startX, startY, width, height)
 }
 
 /**
  * makeThumbnailScaleUpAnimation
- * 效果：以缩略图为基础，实现 Activity 的缩放过渡效果。
+ *
+ * 效果：
+ *  以缩略图为基础，实现 Activity 的缩放过渡效果
  * 用法：
- * // 共享缩略图的缩放动画
- * Bitmap thumbnail = getThumbnailBitmap(); // 获取缩略图
- * ActivityOptions options = ActivityOptions.makeThumbnailScaleUpAnimation(
- *     sourceView,     // 源视图
- *     thumbnail,      // 缩略图
- *     startX,         // 起始X坐标
- *     startY          // 起始Y坐标
- * );
- * 实现效果：新 Activity 从缩略图位置开始，逐步放大到全屏。
+ *  共享缩略图的缩放动画
+ *  Bitmap thumbnail = getThumbnailBitmap(); // 获取缩略图
+ *  ActivityOptions options = ActivityOptions.makeThumbnailScaleUpAnimation(
+ *      sourceView,     // 源视图
+ *      thumbnail,      // 缩略图
+ *      startX,         // 起始X坐标
+ *      startY);        // 起始Y坐标
+ * 实现效果：
+ *   新 Activity 从缩略图位置开始，逐步放大到全屏
  */
-fun getThumbnailScaleUpOption(view: View, thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeThumbnailScaleUpAnimation(view, thumbnail, startX, startY)
+fun View?.makeThumbnailScaleUpAnimation(thumbnail: Bitmap, startX: Int, startY: Int): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeThumbnailScaleUpAnimation(this, thumbnail, startX, startY)
 }
 
 /**
  * makeSceneTransitionAnimation
- * 效果：实现共享元素在不同 Activity 之间的平滑过渡。
+ *
+ * 效果：
+ *  实现共享元素在不同 Activity 之间的平滑过渡
  * 用法：
- * // 共享元素的场景过渡动画
- * Intent intent = new Intent(this, DetailActivity.class);
- * ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
- *     this,
- *     Pair.create(view1, "shared_element_name1"), // 共享元素1
- *     Pair.create(view2, "shared_element_name2")  // 共享元素2
- * );
- * ActivityCompat.startActivity(this, intent, options.toBundle());
- * 实现效果：共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换。
+ *  共享元素的场景过渡动画
+ *  Intent intent = new Intent(this, DetailActivity.class);
+ *  ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+ *      this,
+ *      Pair.create(view1, "shared_element_name1"), // 共享元素1
+ *      Pair.create(view2, "shared_element_name2")); // 共享元素2
+ *  ActivityCompat.startActivity(this, intent, options.toBundle());
+ * 实现效果：
+ *  共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换
  */
-fun getSceneTransitionOption(activity: Activity, vararg sharedElements: Pair<View, String>): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeSceneTransitionAnimation(activity, *sharedElements.map { it.toAndroidXPair() }.toTypedArray())
+fun Activity?.makeSceneTransitionAnimation(vararg sharedElements: Pair<View, String>): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(this, *sharedElements.map { it.toAndroidXPair() }.toTypedArray())
 }
 
 /**
  * makeClipRevealAnimation
- * 效果：以圆形或矩形的方式，显示新 Activity。
+ *
+ * 效果：
+ *  以圆形或矩形的方式，显示新 Activity
  * 用法：
- * // 从指定位置开始的圆形显示动画
- * ActivityOptions options = ActivityOptions.makeClipRevealAnimation(
- *     targetView,     // 目标视图
- *     startX,         // 起始X坐标
- *     startY,         // 起始Y坐标
- *     width,          // 宽度
- *     height          // 高度
- * );
- * 实现效果：新 Activity 从指定点开始，像水波一样逐渐显示出来。
+ *  从指定位置开始的圆形显示动画
+ *  ActivityOptions options = ActivityOptions.makeClipRevealAnimation(
+ *      targetView,     // 目标视图
+ *      startX,         // 起始X坐标
+ *      startY,         // 起始Y坐标
+ *      width,          // 宽度
+ *      height);        // 高度
+ * 实现效果：
+ *  新 Activity 从指定点开始，像水波一样逐渐显示出来
  */
-fun getClipRevealOption(view: View, startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat {
-    return ActivityOptionsCompat.makeClipRevealAnimation(view, startX, startY, width, height)
+fun View?.makeClipRevealAnimation(startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeClipRevealAnimation(this, startX, startY, width, height)
 }
 
 /**
  * makeTaskLaunchBehind
- * 效果：在当前 Activity 的后面启动新的 Activity 任务。
+ *
+ * 效果：
+ *  在当前 Activity 的后面启动新的 Activity 任务
  * 用法：
- * // 在当前Activity后面启动新任务
- * ActivityOptions options = ActivityOptions.makeTaskLaunchBehind();
- * startActivity(intent, options.toBundle());
+ *  在当前Activity后面启动新任务
+ *  ActivityOptions options = ActivityOptions.makeTaskLaunchBehind();
+ *  startActivity(intent, options.toBundle());
  */
-fun getTaskLaunchBehind(): ActivityOptionsCompat {
+fun makeTaskLaunchBehind(): ActivityOptionsCompat {
     return ActivityOptionsCompat.makeTaskLaunchBehind()
 }
 
 /**
- * setLaunchBounds
- * 效果：对 Activity 的启动区域进行限制。
+ * makeBasic.setLaunchBounds
+ *
+ * 效果：
+ *  对 Activity 的启动区域进行限制
  * 用法：
- * // 设置Activity的启动边界
- * ActivityOptions options = ActivityOptions.makeBasic();
- * options.setLaunchBounds(new Rect(left, top, right, bottom));
- * startActivity(intent, options.toBundle());
+ *  设置Activity的启动边界
+ *  ActivityOptions options = ActivityOptions.makeBasic();
+ *  options.setLaunchBounds(new Rect(left, top, right, bottom));
+ *  startActivity(intent, options.toBundle());
  */
-fun getMakeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
+fun makeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsCompat {
     return ActivityOptionsCompat.makeBasic().apply { launchBounds = Rect(left, top, right, bottom) }
 }
 
 /**
  * 创建跳转到 Activity 的 PendingIntent
  *
- * 用途：点击通知后打开指定页面。
+ * 用途：
+ *  点击通知后打开指定页面。
  * 适用场景：
- * - 消息通知点击跳转到聊天详情页
- * - 推送通知跳转到文章/商品详情
- * - 画中画（PiP）窗口中的按钮触发页面跳转
+ *  消息通知点击跳转到聊天详情页
+ *  推送通知跳转到文章/商品详情
+ *  画中画（PiP）窗口中的按钮触发页面跳转
  *
  * @param requestCode 请求码，用于区分不同的 PendingIntent。
  *                    相同 Intent + 不同 requestCode = 不同的 PendingIntent；
@@ -730,11 +751,12 @@ fun Context.getActivityPendingIntent(requestCode: Int, intent: Intent, flags: In
 /**
  * 创建发送广播的 PendingIntent
  *
- * 用途：触发一个 BroadcastReceiver，不启动任何 UI 组件。
+ * 用途：
+ *  触发一个 BroadcastReceiver，不启动任何 UI 组件。
  * 适用场景：
- * - 画中画（PiP）自定义按钮回调（如暂停/播放、关闭）
- * - 通知栏自定义按钮（如"标记已读"、"删除"）
- * - 定时任务 / AlarmManager 触发
+ *  画中画（PiP）自定义按钮回调（如暂停/播放、关闭）
+ *  通知栏自定义按钮（如"标记已读"、"删除"）
+ *  定时任务 / AlarmManager 触发
  *
  * @param requestCode 请求码，用于区分不同的 PendingIntent
  * @param intent      目标 BroadcastReceiver 的 Intent
@@ -747,12 +769,13 @@ fun Context.getBroadcastPendingIntent(requestCode: Int, intent: Intent, flags: I
 /**
  * 创建启动 Service 的 PendingIntent
  *
- * 用途：通过通知或外部组件启动后台 Service。
+ * 用途：
+ *  通过通知或外部组件启动后台 Service。
  * 注意：Android 8.0+ 后台启动 Service 受限，若目标是前台服务请优先使用 [getForegroundServicePendingIntent]。
  * 适用场景：
- * - 通知栏按钮触发后台下载/上传任务
- * - 媒体播放控制（兼容 API < 26 的设备）
- * - 定位追踪等需要长期运行的后台任务
+ *  通知栏按钮触发后台下载/上传任务
+ *  媒体播放控制（兼容 API < 26 的设备）
+ *  定位追踪等需要长期运行的后台任务
  *
  * @param requestCode 请求码，用于区分不同的 PendingIntent
  * @param intent      目标 Service 的 Intent
@@ -765,16 +788,16 @@ fun Context.getServicePendingIntent(requestCode: Int, intent: Intent, flags: Int
 /**
  * 创建启动前台服务的 PendingIntent（API 26+）
  *
- * 用途：专门用于启动 ForegroundService，内部自动处理 Android 8.0+ 的前台服务启动限制。
+ * 用途：
+ * 专门用于启动 ForegroundService，内部自动处理 Android 8.0+ 的前台服务启动限制。
  * 与 [getServicePendingIntent] 的区别：
- * - 语义更明确，表明意图是启动前台服务而非普通后台服务
- * - 系统会进行前台服务权限检查，避免隐式启动异常
- * - 在 API < 26 设备上应降级使用 [getServicePendingIntent]
- *
+ *  语义更明确，表明意图是启动前台服务而非普通后台服务
+ *  系统会进行前台服务权限检查，避免隐式启动异常
+ *  在 API < 26 设备上应降级使用 [getServicePendingIntent]
  * 适用场景：
- * - 音乐播放器通知栏的播放/暂停/切歌按钮
- * - 运动类 App 通知栏的开始/停止记录按钮
- * - 文件下载/上传进度通知的操作按钮
+ *  音乐播放器通知栏的播放/暂停/切歌按钮
+ *  运动类 App 通知栏的开始/停止记录按钮
+ *  文件下载/上传进度通知的操作按钮
  *
  * @param requestCode 请求码，用于区分不同的 PendingIntent
  * @param intent      目标 ForegroundService 的 Intent
@@ -787,6 +810,7 @@ fun Context.getForegroundServicePendingIntent(requestCode: Int, intent: Intent, 
 
 /**
  * 配置可变性
+ *
  * FLAG_UPDATE_CURRENT
  * 如果 PendingIntent 已经存在，系统会更新这个 PendingIntent 中的额外数据（Intent 中的 extra），
  * 但不会改变 PendingIntent 的其他属性（如动作、数据、类型等）。也就是说，它会复用已有的 PendingIntent 实例，并更新其携带的数据

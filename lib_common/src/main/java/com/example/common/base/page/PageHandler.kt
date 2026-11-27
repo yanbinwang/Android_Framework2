@@ -26,7 +26,7 @@ import com.example.common.base.page.Extra.BUNDLE_OPTIONS
 import com.example.common.base.page.Extra.RESULT_CODE
 import com.example.common.base.page.PageInterceptor.Companion.shouldIntercept
 import com.example.common.utils.ScreenUtil.getCurrentActivityWindowSizePx
-import com.example.common.utils.function.getCustomOption
+import com.example.common.utils.function.makeCustomAnimation
 import com.example.common.utils.manager.AppManager
 import com.example.common.widget.EmptyLayout
 import com.example.common.widget.xrecyclerview.XRecyclerView
@@ -89,9 +89,9 @@ fun ViewGroup?.getEmptyLayout(viewIndex: Int = 1): EmptyLayout? {
  * 页面跳转的构建
  */
 fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activityResultValue: ActivityResultLauncher<Intent>, options: ActivityOptionsCompat? = null) {
-    // 构建router跳转
+    // 构建 Router 跳转
     val navigator = TheRouter.build(path)
-    // createIntent内部会触发 PageInterceptor 的 process 方法,故而之前先set一个值,process内部做处理
+    // createIntent 内部会触发 PageInterceptor 的 process 方法,故而之前先 set 一个值,process 内部做处理
     navigator.withBoolean(Extra.SKIP_INTERCEPT, true)
     val intent = navigator.createIntent(this)
     /**
@@ -134,7 +134,7 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
 }
 
 /**
- * 获取Router构建的class文件
+ * 获取 Router 构建的 class 文件
  * Navigator 仅在 TheRouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
  */
 fun Navigator.getDestinationClass(): Class<*>? {
@@ -166,7 +166,7 @@ fun String.toActivitySimpleName(): String {
 }
 
 /**
- * 获取Router构建的拦截器
+ * 获取 Router 构建的拦截器
  */
 fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Throwable?) -> Unit) {
     try {
@@ -189,7 +189,7 @@ fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thr
 
 /**
  * 取得当前页面所有获取的传输参数,丢给下个页面
- * *getIntent().getParams()
+ * getIntent().getParams()
  */
 fun Intent?.getParams(): Array<Pair<String, Any?>> {
     if (this == null) return emptyArray()
@@ -202,7 +202,7 @@ fun Intent?.getParams(): Array<Pair<String, Any?>> {
  */
 fun Context?.getNoneOptions(): ActivityOptionsCompat? {
     this ?: return null
-    return getCustomOption(this, R.anim.set_alpha_none, R.anim.set_alpha_none)
+    return makeCustomAnimation(R.anim.set_alpha_none, R.anim.set_alpha_none)
 }
 
 /**
@@ -210,7 +210,7 @@ fun Context?.getNoneOptions(): ActivityOptionsCompat? {
  */
 fun Context?.getFadeOptions(): ActivityOptionsCompat? {
     this ?: return null
-    return getCustomOption(this, R.anim.set_alpha_in, R.anim.set_alpha_out)
+    return makeCustomAnimation(R.anim.set_alpha_in, R.anim.set_alpha_out)
 }
 
 /**
@@ -218,7 +218,7 @@ fun Context?.getFadeOptions(): ActivityOptionsCompat? {
  */
 fun Context?.getSlideOptions(): ActivityOptionsCompat? {
     this ?: return null
-    return getCustomOption(this, R.anim.set_translate_bottom_in, R.anim.set_translate_bottom_out)
+    return makeCustomAnimation(R.anim.set_translate_bottom_in, R.anim.set_translate_bottom_out)
 }
 
 /**
