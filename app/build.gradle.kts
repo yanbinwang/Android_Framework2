@@ -36,12 +36,15 @@ android {
             keyPassword = keystoreProperties.getProperty("keyPassword")
             enableV1Signing = true
             enableV2Signing = true
+            enableV3Signing = true
         }
         create("customDebug") {
             storeFile = file(keystoreProperties.getProperty("storeFile"))
             storePassword = keystoreProperties.getProperty("storePassword")
             keyAlias = keystoreProperties.getProperty("keyAlias")
             keyPassword = keystoreProperties.getProperty("keyPassword")
+            enableV1Signing = true
+            enableV2Signing = true
         }
     }
 
