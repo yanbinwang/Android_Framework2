@@ -18,7 +18,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.common.base.BaseActivity
 import com.example.common.base.OnFinishListener
 import com.example.common.base.page.PageInterceptor
-import com.example.common.base.page.toActivitySimpleName
+import com.example.common.base.page.extractRouteLastSegment
 import com.example.common.base.proxy.ApplicationActivityLifecycleCallbacks
 import com.example.common.config.Constants.SOCKET_ADVERTISE_URL
 import com.example.common.config.Constants.SOCKET_DEAL_URL
@@ -80,7 +80,7 @@ abstract class BaseApplication : Application() {
             RouterPath.SplashActivity,
 //            RouterPath.LinkActivity,
 //            RouterPath.LinkHandlerActivity
-        ).map { it.toActivitySimpleName() }
+        ).map { it.extractRouteLastSegment() }
     }
 
     companion object {
