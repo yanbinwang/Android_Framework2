@@ -8,7 +8,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.common.BaseApplication
 import com.example.common.base.page.Extra
-import com.example.common.base.page.getDestinationClass
+import com.example.common.base.page.destinationClass
 import com.example.common.base.page.getNoneOptions
 import com.example.common.config.RouterPath
 import com.example.framework.utils.WeakHandler
@@ -413,7 +413,7 @@ object AppManager {
      */
     fun rebootTaskStackAndLaunchTarget(path: String, block: () -> Unit = {}) {
         // 获取跳转的class
-        val clazz = path.getDestinationClass()
+        val clazz = path.destinationClass()
         // 不管存在不存在,先关闭
         finishTargetActivity(clazz)
         // 跳转对应页面 (内部构建的跳转可能带有跳转参数,故而接口回调处理)
@@ -447,7 +447,7 @@ object AppManager {
      * 2) 确保任务栈内至少存在一个页面
      */
     fun ensureMainActivityAlive(block: () -> Unit = {}) {
-        val mainClazz = RouterPath.MainActivity.getDestinationClass()
+        val mainClazz = RouterPath.MainActivity.destinationClass()
         if (!isActivityAlive(mainClazz)) {
             val context = currentActivity() ?: BaseApplication.instance.applicationContext
             TheRouter.build(RouterPath.MainActivity)
@@ -477,7 +477,7 @@ object AppManager {
             }
             // 延迟关闭,避免动画叠加(忽略需要跳转的页面)
             ProcessLifecycleOwner.get().schedule({
-                finishNotTargetActivity(*(excludedList.toNewList { it.getDestinationClass() }).toTypedArray())
+                finishNotTargetActivity(*(excludedList.toNewList { it.destinationClass() }).toTypedArray())
             }, 500)
         }
     }

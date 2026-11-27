@@ -125,44 +125,12 @@ fun Activity.navigation(path: String, vararg params: Pair<String, Any?>?, activi
                 activityResultValue.launch(intent, options)
             }
             // 基类添加正在启动
-            val cls = navigator.getDestinationClass() ?: return@navigateWithInterceptors
+            val cls = navigator.destinationClass() ?: return@navigateWithInterceptors
             if (BaseActivity::class.java.isAssignableFrom(cls)) isAnyActivityStarting = true
         }
     }, {
         it?.printStackTrace()
     })
-}
-
-/**
- * 获取 Router 构建的 class 文件
- * Navigator 仅在 TheRouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
- */
-fun Navigator.getDestinationClass(): Class<*>? {
-    return try {
-        // 使用 TheRouter.matchRouteMap() 查找 RouteItem
-        val routeItem = matchRouteMap(url)
-        // 从 RouteItem 中获取目标类的完整名称字符串
-        val className = routeItem?.className ?: return null
-        // 使用 Java 反射，将类名字符串转换为 Class 对象
-        val targetClass = Class.forName(className)
-        // 返回对应的类
-        targetClass
-    } catch (e: ClassNotFoundException) {
-        e.printStackTrace()
-        null
-    }
-}
-
-fun String.getDestinationClass(): Class<*>? {
-    return TheRouter.build(this).getDestinationClass()
-}
-
-/**
- * 路由路径扩展：去掉路由前缀，得到Activity短名，转小写
- * 例："/home/SplitActivity" -> "splitactivity"
- */
-fun String.toActivitySimpleName(): String {
-    return this.substringAfterLast("/").lowercase(Locale.getDefault())
 }
 
 /**
@@ -188,10 +156,44 @@ fun Navigator.navigateWithInterceptors(onContinue: () -> Unit, onInterrupt: (Thr
 }
 
 /**
- * 取得当前页面所有获取的传输参数,丢给下个页面
- * getIntent().getParams()
+ * 获取 Router 构建的 class 文件
+ * Navigator 仅在 TheRouter.build(path) 后短期调用、用完即释放，不存在上下文（Context）被长期引用的场景
  */
-fun Intent?.getParams(): Array<Pair<String, Any?>> {
+fun Navigator.destinationClass(): Class<*>? {
+    return try {
+        // 使用 TheRouter.matchRouteMap() 查找 RouteItem
+        val routeItem = matchRouteMap(url)
+        // 从 RouteItem 中获取目标类的完整名称字符串
+        val className = routeItem?.className ?: return null
+        // 使用 Java 反射，将类名字符串转换为 Class 对象
+        val targetClass = Class.forName(className)
+        // 返回对应的类
+        targetClass
+    } catch (e: ClassNotFoundException) {
+        e.printStackTrace()
+        null
+    }
+}
+
+fun String.destinationClass(): Class<*>? {
+    return TheRouter.build(this).destinationClass()
+}
+
+/**
+ * 提取路由路径最后一段节点，转为小写
+ * 例："/home/SplitActivity" -> "splitactivity"
+ * 注意：路径末尾带 / 时，会返回空字符串，调用方需要判空兜底
+ */
+fun String.extractRouteLastSegment(): String {
+    return this.substringAfterLast("/").lowercase(Locale.getDefault())
+}
+
+/**
+ * 获取 Intent extras 的全部键值快照
+ * 返回 Pair 数组，仅快照，修改返回数组不会变更原Intent；包含所有extras，含系统/框架标记，注意不要无脑全部透传给下一页
+ * getIntent().getExtrasPairs()
+ */
+fun Intent?.getExtrasPairs(): Array<Pair<String, Any?>> {
     if (this == null) return emptyArray()
     val list = extras?.toPairs() ?: emptyList()
     return list.toTypedArray()

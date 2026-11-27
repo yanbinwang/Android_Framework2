@@ -595,8 +595,27 @@ inline fun <reified T : Parcelable> Intent?.intentParcelableArrayList(name: Stri
 }
 
 /**
+ * makeSceneTransitionAnimation
+ * 效果：
+ *  实现共享元素在不同 Activity 之间的平滑过渡
+ * 用法：
+ *  共享元素的场景过渡动画
+ *  Intent intent = new Intent(this, DetailActivity.class);
+ *  ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
+ *      this,
+ *      Pair.create(view1, "shared_element_name1"), // 共享元素1
+ *      Pair.create(view2, "shared_element_name2")); // 共享元素2
+ *  ActivityCompat.startActivity(this, intent, options.toBundle());
+ * 实现效果：
+ *  共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换
+ */
+fun Activity?.makeSceneTransitionAnimation(vararg sharedElements: Pair<View, String>): ActivityOptionsCompat? {
+    this ?: return null
+    return ActivityOptionsCompat.makeSceneTransitionAnimation(this, *sharedElements.map { it.toAndroidXPair() }.toTypedArray())
+}
+
+/**
  * makeCustomAnimation
- *
  * 效果：
  *  借助自定义的动画资源，达成 Activity 切换时的过渡效果
  * 用法：
@@ -617,7 +636,6 @@ fun Context?.makeCustomAnimation(enterResId: Int, exitResId: Int): ActivityOptio
 
 /**
  * makeScaleUpAnimation
- *
  * 效果：
  *  新 Activity 从特定位置开始，进行缩放和淡入操作
  * 用法：
@@ -638,7 +656,6 @@ fun View?.makeScaleUpAnimation(startX: Int, startY: Int, width: Int, height: Int
 
 /**
  * makeThumbnailScaleUpAnimation
- *
  * 效果：
  *  以缩略图为基础，实现 Activity 的缩放过渡效果
  * 用法：
@@ -658,29 +675,7 @@ fun View?.makeThumbnailScaleUpAnimation(thumbnail: Bitmap, startX: Int, startY: 
 }
 
 /**
- * makeSceneTransitionAnimation
- *
- * 效果：
- *  实现共享元素在不同 Activity 之间的平滑过渡
- * 用法：
- *  共享元素的场景过渡动画
- *  Intent intent = new Intent(this, DetailActivity.class);
- *  ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(
- *      this,
- *      Pair.create(view1, "shared_element_name1"), // 共享元素1
- *      Pair.create(view2, "shared_element_name2")); // 共享元素2
- *  ActivityCompat.startActivity(this, intent, options.toBundle());
- * 实现效果：
- *  共享元素在 Activity 切换时保持视觉连贯性，仿佛是同一个元素在移动或变换
- */
-fun Activity?.makeSceneTransitionAnimation(vararg sharedElements: Pair<View, String>): ActivityOptionsCompat? {
-    this ?: return null
-    return ActivityOptionsCompat.makeSceneTransitionAnimation(this, *sharedElements.map { it.toAndroidXPair() }.toTypedArray())
-}
-
-/**
  * makeClipRevealAnimation
- *
  * 效果：
  *  以圆形或矩形的方式，显示新 Activity
  * 用法：
@@ -701,7 +696,6 @@ fun View?.makeClipRevealAnimation(startX: Int, startY: Int, width: Int, height: 
 
 /**
  * makeTaskLaunchBehind
- *
  * 效果：
  *  在当前 Activity 的后面启动新的 Activity 任务
  * 用法：
@@ -715,7 +709,6 @@ fun makeTaskLaunchBehind(): ActivityOptionsCompat {
 
 /**
  * makeBasic.setLaunchBounds
- *
  * 效果：
  *  对 Activity 的启动区域进行限制
  * 用法：
@@ -730,7 +723,6 @@ fun makeBasic(left: Int, top: Int, right: Int, bottom: Int): ActivityOptionsComp
 
 /**
  * 创建跳转到 Activity 的 PendingIntent
- *
  * 用途：
  *  点击通知后打开指定页面。
  * 适用场景：
@@ -750,7 +742,6 @@ fun Context.getActivityPendingIntent(requestCode: Int, intent: Intent, flags: In
 
 /**
  * 创建发送广播的 PendingIntent
- *
  * 用途：
  *  触发一个 BroadcastReceiver，不启动任何 UI 组件。
  * 适用场景：
@@ -768,7 +759,6 @@ fun Context.getBroadcastPendingIntent(requestCode: Int, intent: Intent, flags: I
 
 /**
  * 创建启动 Service 的 PendingIntent
- *
  * 用途：
  *  通过通知或外部组件启动后台 Service。
  * 注意：Android 8.0+ 后台启动 Service 受限，若目标是前台服务请优先使用 [getForegroundServicePendingIntent]。
@@ -787,7 +777,6 @@ fun Context.getServicePendingIntent(requestCode: Int, intent: Intent, flags: Int
 
 /**
  * 创建启动前台服务的 PendingIntent（API 26+）
- *
  * 用途：
  * 专门用于启动 ForegroundService，内部自动处理 Android 8.0+ 的前台服务启动限制。
  * 与 [getServicePendingIntent] 的区别：
@@ -810,10 +799,8 @@ fun Context.getForegroundServicePendingIntent(requestCode: Int, intent: Intent, 
 
 /**
  * 配置可变性
- *
  * FLAG_UPDATE_CURRENT
- * 如果 PendingIntent 已经存在，系统会更新这个 PendingIntent 中的额外数据（Intent 中的 extra），
- * 但不会改变 PendingIntent 的其他属性（如动作、数据、类型等）。也就是说，它会复用已有的 PendingIntent 实例，并更新其携带的数据
+ * 如果 PendingIntent 已经存在，系统会更新这个 PendingIntent 中的额外数据（Intent 中的 extra），但不会改变 PendingIntent 的其他属性（如动作、数据、类型等）。也就是说，它会复用已有的 PendingIntent 实例，并更新其携带的数据
  *
  * FLAG_ONE_SHOT
  * 标志表示这个 PendingIntent 只能被使用一次。一旦 PendingIntent 被触发，它就会被自动取消，后续再次尝试使用该 PendingIntent 时将不会生效
@@ -822,7 +809,7 @@ fun Context.getForegroundServicePendingIntent(requestCode: Int, intent: Intent, 
  * 如果 PendingIntent 已经存在，会先取消该 PendingIntent，然后重新创建一个新的 PendingIntent。常用于需要确保每次使用的 PendingIntent 都是全新的场景
  *
  * FLAG_IMMUTABLE
- * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改。
+ * 从 Android 12（API 级别 31）开始引入，用于指定 PendingIntent 是不可变的。使用该标志可以提高应用的安全性，防止 PendingIntent 被恶意篡改
  * 在 Android 12 及以上版本，对于一些特定的 PendingIntent 创建，要求必须使用 FLAG_IMMUTABLE 或 FLAG_MUTABLE 标志
  */
 private fun getPendingIntentFlags(baseFlags: Int): Int {
