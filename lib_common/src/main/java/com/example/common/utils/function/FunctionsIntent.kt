@@ -631,7 +631,7 @@ fun Context?.makeCustomAnimation(enterResId: Int, exitResId: Int): ActivityOptio
  * 实现效果：
  *  新 Activity 从指定点开始，逐渐放大到全屏
  */
-fun View.makeScaleUpAnimation(startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat? {
+fun View?.makeScaleUpAnimation(startX: Int, startY: Int, width: Int, height: Int): ActivityOptionsCompat? {
     this ?: return null
     return ActivityOptionsCompat.makeScaleUpAnimation(this, startX, startY, width, height)
 }
