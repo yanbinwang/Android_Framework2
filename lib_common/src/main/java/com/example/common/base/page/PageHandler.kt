@@ -405,7 +405,7 @@ fun FragmentActivity?.startEmbedSecondaryIfNeeded(targetCls: Class<out Activity>
     // 必须同时满足宽度、最小边阈值
     if (widthDp < minWidthDp || smallestDp < minSmallestDp) return
     // 执行时刻 Activity 可能已 finish
-    if (isFinishing) return
+    if (isFinishing || isDestroyed) return
     // 全部条件满足，启动副页，触发 SplitPairRule
     startActivity(getIntent(targetCls, *pairs).apply {
         addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
